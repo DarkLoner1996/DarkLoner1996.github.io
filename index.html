@@ -2,21 +2,74 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Виджет Telegram</title>
+  <title>Виджет Telegram с анимацией</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f4;
+    }
+
+    .tg-container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1rem;
+    }
+
+    .tg-scrollbox {
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .tg-post {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+  </style>
 </head>
 <body>
-  <h2>Новости из Telegram</h2>
 
-  <!-- Виджет поста Telegram -->
-  <script async src="https://telegram.org/js/telegram-widget.js?22"
-    data-telegram-post="integral_security/2455"
-    data-width="100%">
+  <div class="tg-container">
+    <h2>Новости из Telegram</h2>
+    <div class="tg-scrollbox" id="tg-feed"></div>
+  </div>
+
+  <script>
+    const feed = document.getElementById('tg-feed');
+    const posts = [1, 2, 3, 4, 5]; // Номера постов
+
+    posts.forEach((postNum, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('tg-post');
+      wrapper.style.animationDelay = ${index * 0.3}s;
+
+      const script = document.createElement('script');
+      script.setAttribute('async', '');
+      script.src = "https://telegram.org/js/telegram-widget.js?22";
+      script.setAttribute('data-telegram-post', ni_integral/${postNum});
+      script.setAttribute('data-width', '100%');
+
+      wrapper.appendChild(script);
+      feed.appendChild(wrapper);
+    });
   </script>
 
-  <!-- Еще один пост -->
-  <script async src="https://telegram.org/js/telegram-widget.js?22"
-    data-telegram-post="integral_security/2456"
-    data-width="100%">
-  </script>
 </body>
 </html>
