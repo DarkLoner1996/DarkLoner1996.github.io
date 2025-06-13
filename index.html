@@ -195,6 +195,32 @@
       opacity: 1;
       z-index: 2;
     }
+    .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 2em;
+  z-index: 10;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.arrow:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.arrow.left {
+  left: 10px;
+}
+
+.arrow.right {
+  right: 10px;
+}
 
     @keyframes fadeIn {
       from { opacity: 0; }
@@ -252,13 +278,18 @@
   </nav>
 
   <main>
-    <div class="slider">
-      <div class="slides">
-        <img src="deti.jpg" alt="Слайд 1" class="slide active">
-        <img src="shkola.jpg" alt="Слайд 2" class="slide">
-        <img src="deti_shkola.jpg" alt="Слайд 3" class="slide">
-        <img src="deti_klass.jpg" alt="Слайд 4" class="slide">
-      </div>
+    
+ <div class="slider">
+  <div class="slides">
+    <img src="deti.jpg" alt="Слайд 1" class="slide active">
+    <img src="shkola.jpg" alt="Слайд 2" class="slide">
+    <img src="deti_shkola.jpg" alt="Слайд 3" class="slide">
+    <img src="deti_klass.jpg" alt="Слайд 4" class="slide">
+  </div>
+  <button class="arrow left">&#10094;</button>
+  <button class="arrow right">&#10095;</button>
+</div>
+    
     </div>
 
     <section class="section" id="about">
@@ -294,20 +325,53 @@
     <p>&copy; 2025 ТехноКрылья России. Все права защищены.</p>
   </footer>
 
-  <script>
-  // Используй 'DOMContentLoaded' чтобы не получить null при раннем выполнении скрипта:
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const slides = document.querySelectorAll('.slide');
+  const prevBtn = document.querySelector('.arrow.left');
+  const nextBtn = document.querySelector('.arrow.right');
   let currentIndex = 0;
+  let interval;
 
-  function showNextSlide() {
-    slides[currentIndex].classList.remove('active');
-    currentIndex = (currentIndex + 1) % slides.length;
-    slides[currentIndex].classList.add('active');
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
   }
 
-  setInterval(showNextSlide, 4000);
-}); 
-  </script>
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % slides.length;
+    showSlide(currentIndex);
+  }
+
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+    showSlide(currentIndex);
+  }
+
+  nextBtn.addEventListener('click', () => {
+    nextSlide();
+    resetInterval();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    prevSlide();
+    resetInterval();
+  });
+
+  function startInterval() {
+    interval = setInterval(nextSlide, 4000);
+  }
+
+  function resetInterval() {
+    clearInterval(interval);
+    startInterval();
+  }
+
+  showSlide(currentIndex);
+  startInterval();
+});
+</script>
+  
 </body>
 </html>
