@@ -141,6 +141,28 @@ nav a {
       flex-shrink: 0;
       object-fit: cover;
     }
+
+    .slides {
+  position: relative;
+  height: 400px;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 2;
+}
      nav a:hover {
   background-color: #d52b1e;
   color: #ffffff;
@@ -201,11 +223,22 @@ nav a {
     margin-top: 15px;
   }
 }
-  
-      
-     
+    
   </style>
 </head>
+  
+  <script>
+  let currentIndex = 0;
+  const slides = document.querySelectorAll('.slide');
+
+  function showNextSlide() {
+    slides[currentIndex].classList.remove('active');
+    currentIndex = (currentIndex + 1) % slides.length;
+    slides[currentIndex].classList.add('active');
+  }
+
+  setInterval(showNextSlide, 4000); // каждые 4 секунды
+</script>
 <body>
   <header>
     <h1>Техно<span class="highlight-wings">Крылья</span><span class="highlight-russia">России</span></h1>
@@ -218,12 +251,13 @@ nav a {
   </nav>
   <main>
     <div class="slider">
-      <div class="slides">
-        <img src="deti.jpg" alt="Слайд 1">
-        <img src="deti_klass.jpg" alt="Слайд 2">
-        <img src="deti_klass.jpg" alt="Слайд 3">
-      </div>
-    </div>
+  <div class="slides fade">
+    <img src="deti.jpg" alt="Слайд 1" class="slide active">
+    <img src="deti_klass.jpg" alt="Слайд 2" class="slide">
+    <img src="deti_klass.jpg" alt="Слайд 3" class="slide">
+  </div>
+</div>
+    
     <section class="section" id="about">
       <h2>О проекте</h2>
       <p><strong>ТехноКрыльяРоссии</strong> — Проект направлен на информатизацию детских домов, чтобы обеспечить воспитанников доступом к современным технологиям, цифровому образованию и навыкам, необходимым для успешной адаптации в обществе и дальнейшему будущему в цифровой индустрии.</p>
