@@ -10,7 +10,7 @@
   <!-- Swiper CSS -->
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0 }
     body {
       font-family: 'PT Sans Caption', sans-serif;
       background: linear-gradient(to bottom right, #f2f2f2, #ffffff);
@@ -18,26 +18,27 @@
       scroll-behavior: smooth;
     }
 
-    /* Шапка с фоновым изображением */
-  header {
-  /* сначала полупрозрачный тёмный оверлей для глубины */
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
-    url('header-bg.jpg') center 30% / cover no-repeat;
-  /* вместо фиксированной высоты — минимум 60% высоты экрана */
-  min-height: 60vh;
-  width: 100%;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  animation: fadeIn 1.5s ease-in;
-}
-    
-  /* Для совсем больших экранов чуть увеличим */
-@media (min-width: 1440px) {
-  header {
-    min-height: 70vh;
-  }
-}
+    /* Шапка с <img> внутри */
+    header {
+      position: relative;
+      width: 100%;
+      min-height: 60vh;          /* 60% высоты экрана на десктопе */
+      overflow: hidden;
+    }
+    header img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;         /* заполняем блок картинкой */
+      object-position: center;   /* центрируем по обоим осям */
+    }
+    @media (min-width: 1440px) {
+      header { min-height: 70vh; }
+    }
+    @media (max-width: 768px) {
+      header { min-height: 40vh; }
+    }
+
     nav {
       background: #0039a6;
       display: flex;
@@ -117,9 +118,9 @@
       animation: fadeIn 2s ease-in;
     }
 
-    @keyframes fadeIn { from { opacity:0;} to{ opacity:1;} }
-    @keyframes fadeInUp { from { opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
-    @keyframes slideDown { from { transform:translateY(-20px); opacity:0;} to{ transform:translateY(0); opacity:1;} }
+    @keyframes fadeIn { from { opacity:0;} to { opacity:1; } }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
+    @keyframes slideDown { from { transform:translateY(-20px); opacity:0;} to { transform:translateY(0); opacity:1;} }
 
     /* Скрыть стандартные стрелки Swiper */
     .swiper-button-prev, .swiper-button-next {
@@ -133,7 +134,7 @@
       max-width: 1000px;
       margin: 10px auto 0;
       padding: 0 10px;
-      }
+    }
     .custom-controls button {
       width: 60px;
       height: 60px;
@@ -160,7 +161,9 @@
   </style>
 </head>
 <body>
-  <header></header>
+  <header>
+    <img src="header-bg.jpg" alt="Баннер ТехноКрылья России">
+  </header>
 
   <nav>
     <a href="#about">О проекте</a>
