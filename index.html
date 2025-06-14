@@ -2,58 +2,54 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="ТехноКрылья России — проект по цифровому обучению детей из детских домов." />
   <title>ТехноКрыльяРоссии</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&family=Russo+One&family=PT+Sans+Caption:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      height: 100%;
-      width: 100%;
-    }
-
-    body {
-      font-family: 'PT Sans Caption', sans-serif;
-      color: #222;
-      scroll-behavior: smooth;
-    }
-
-    /* Шапка во весь экран */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
+    body { font-family: 'PT Sans Caption', sans-serif; color: #222; scroll-behavior: smooth; }
     header {
       position: relative;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      background-color: #000;
+      background-image: url('header-bg.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #000;
-      padding: 0 10px; /* только боковые отступы */
+      /* performance hint */
+      will-change: background-position;
     }
-
-    /* Картинка заполняет всю высоту, ширина авто с учетом боковых отступов */
-    header img {
+    /* Fallback picture for older browsers or additional resolutions */
+    picture, header img {
       position: absolute;
       top: 0;
-      bottom: 0;
-      left: 10px;
-      right: 10px;
-      margin: auto;
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      z-index: -1;
     }
-
-    /* Заголовок над изображением */
+    /* High-DPI support */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      header { background-image: url('header-bg@2x.jpg'); }
+    }
+    /* Ultra-wide screens: shift focus area */
+    @media (min-aspect-ratio: 16/9) {
+      header { background-position: center top; }
+    }
+    @media (max-aspect-ratio: 16/9) {
+      header { background-position: center center; }
+    }
     header h1 {
       position: relative;
       z-index: 1;
@@ -62,15 +58,18 @@
       text-align: center;
       font-family: 'Russo One', sans-serif;
       padding: 1rem;
+      text-shadow: 0 0 8px rgba(0,0,0,0.6);
     }
   </style>
 </head>
 <body>
-
   <header>
-    <img src="header-bg.jpg" alt="ТехноКрылья России" />
+    <!-- fallback: picture element -->
+    <picture>
+      <source srcset="header-bg@2x.jpg 2x, header-bg.jpg 1x" />
+      <img src="header-bg.jpg" alt="ТехноКрылья России" />
+    </picture>
     <h1>ТехноКрылья России</h1>
   </header>
-
 </body>
 </html>
