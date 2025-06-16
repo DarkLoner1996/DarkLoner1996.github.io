@@ -5,32 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ТехноКрыльяРоссии</title>
   <style>
-    /* Подключаем красивый и технологичный шрифт Exo 2 */
- @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+    /* Подключаем красивый шрифт Audiowide для техно-стиля */
+    @import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     html, body {
       width: 100%;
       height: 100%;
-    font-family: 'Orbitron', sans-serif;
+      font-family: 'Audiowide', cursive;
       overflow-x: hidden;
     }
 
     /* Анимация появления навигации */
     @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* Стили навигации */
@@ -62,12 +55,12 @@
     nav ul li a {
       color: #ffffff;
       -webkit-text-stroke: 1px #000000;
-      text-decoration: none;
       font-size: 23px;
       padding: 10px 16px;
       border-radius: 8px;
       transition: all 0.3s ease;
       text-shadow: 1px 1px 2px #000000;
+      text-decoration: none;
     }
 
     nav ul li a:hover {
@@ -75,6 +68,26 @@
       color: #000;
       transform: scale(1.1);
       box-shadow: 0 0 12px #ff3300;
+    }
+
+    /* Кубическая анимация для появления фона */
+    .cube-container {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(40, 1fr);
+      grid-template-rows: repeat(25, 1fr);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .cube {
+      background: #ddeeff;
+      opacity: 1;
+      animation: cubeReveal 1s ease forwards;
+    }
+    @keyframes cubeReveal {
+      0% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
+      100% { transform: translate(0,0) scale(1); opacity: 1; }
     }
 
     /* Основной блок с фоном */
@@ -85,6 +98,7 @@
       background:
         url('header-bg-desktop.webp') no-repeat center center / cover,
         #ddeeff;
+      overflow: hidden;
     }
 
     .header::after {
@@ -92,39 +106,29 @@
       position: absolute;
       inset: 0;
       background: rgba(255, 255, 255, 0.1);
-      z-index: 1;
+      z-index: 3;
     }
 
     .header-content {
       position: relative;
-      z-index: 2;
+      z-index: 4;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-top: 80px;
       color: white;
       text-shadow: 2px 2px 6px black;
       text-align: center;
       padding: 0 20px;
     }
-
     .header-content h1 {
       font-size: 48px;
     }
 
     @media (max-width: 768px) {
-      nav ul {
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-      nav ul li a {
-        font-size: 18px;
-        padding: 8px 12px;
-      }
-      .header-content h1 {
-        font-size: 32px;
-      }
+      nav ul { gap: 20px; flex-wrap: wrap; }
+      nav ul li a { font-size: 18px; padding: 8px 12px; }
+      .header-content h1 { font-size: 32px; }
     }
   </style>
 </head>
@@ -138,9 +142,31 @@
     </ul>
   </nav>
 
-  <div class="header">
+  <div class="header" id="header">
+    <div class="cube-container" id="cubes"></div>
     <div class="header-content">
+      <h1>ТехноКрыльяРоссии</h1>
     </div>
   </div>
+
+  <script>
+    // Генерация кубиков для анимации
+    const container = document.getElementById('cubes');
+    const cols = 40, rows = 25;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cube = document.createElement('div');
+        cube.className = 'cube';
+        const tx = (Math.random() - 0.5) * 200 + 'px';
+        const ty = (Math.random() - 0.5) * 200 + 'px';
+        cube.style.setProperty('--tx', tx);
+        cube.style.setProperty('--ty', ty);
+        cube.style.gridColumn = x + 1;
+        cube.style.gridRow = y + 1;
+        cube.style.animationDelay = (Math.random() * 0.8) + 's';
+        container.appendChild(cube);
+      }
+    }
+  </script>
 </body>
 </html>
