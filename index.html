@@ -5,161 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ТехноКрыльяРоссии</title>
   <style>
-    /* Подключаем игривый шрифт Fredoka One */
     @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; font-family: 'Ruslan Display', cursive; }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      width: 100%;
-      height: 100%;
-      font-family: 'Ruslan Display', cursive, cursive;
-      overflow-x: hidden;
-    }
+    /* === Навигация, кубики, хедер (тот же код) === */
+    /* … сюда вставьте ваш существующий CSS для nav, .cube-container, .header и т.д. … */
 
-    /* Анимация появления навигации */
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Стили навигации */
-    nav {
-      position: fixed;
+    /* === Новый слой облаков === */
+    .clouds {
+      position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: center;
-      padding: 15px 0;
-      z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      animation: fadeInDown 1s ease forwards;
-      opacity: 0;
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 40px;
-      justify-content: center;
-      padding: 0 10px;
-      flex-wrap: wrap;
-    }
-
-    nav ul li a {
-      color: #d85612; /* золотой цвет текста */
-      -webkit-text-stroke: 1px #000000; /* тёмно-красная обводка */
-      font-size: 26px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      text-shadow: 1px 1px 2px #8B0000;
-      text-decoration: none;
-    }
-
-    nav ul li a:hover {
-      background: linear-gradient(90deg, #ffcc00, #ff3300);
-      color: #8B0000; /* тёмно-красный текст при наведении */
-      -webkit-text-stroke: 1px #FFD700; /* золотая обводка */
-      text-shadow: 1px 1px 2px #FFD700;
-      transform: scale(1.1);
-      box-shadow: 0 0 12px #ff3300;
-    }
-
-    nav ul li a:hover {
-      background: linear-gradient(90deg, #ffcc00, #ff3300);
-      color: #000;
-      transform: scale(1.1);
-      box-shadow: 0 0 12px #ff3300;
-    }
-
-    /* Кубическая анимация для появления фона */
-    .cube-container {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-columns: repeat(40, 1fr);
-      grid-template-rows: repeat(25, 1fr);
-      z-index: 2;
+      width: 200%;        /* двойная ширина для плавного зацикливания */
+      height: 200px;      /* высота облаков */
+      background: url('clouds.png') repeat-x; /* замените на свой PNG с облаками */
+      background-size: contain;
+      animation: moveClouds 60s linear infinite;
       pointer-events: none;
-    }
-    .cube {
-      background: #ddeeff;
-      opacity: 0;
-      animation: cubeReveal 1.5s ease forwards;
-    }
-    @keyframes cubeReveal {
-      0%   { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
-      50%  { transform: translate(0,0) scale(1); opacity: 1; }
-      100% { transform: translate(0,0) scale(1); opacity: 0; }
-    }
-
-    /* Основной блок с фоном */
-    .header {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      background:
-        url('header-bg-desktop.webp') no-repeat center center / cover,
-        #ddeeff;
-      overflow: hidden;
-    }
-
-    .header::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(255, 255, 255, 0.1);
       z-index: 3;
     }
+    @keyframes moveClouds {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
 
+    /* === Новый слой травы === */
+    .grass {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;        /* двойная ширина для зацикливающегося движения */
+      height: 150px;      /* высота зоны травы */
+      background: url('grass.png') repeat-x; /* замените на свой PNG с травой */
+      background-size: contain;
+      animation: swayGrass 8s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 3;
+    }
+    @keyframes swayGrass {
+      from { transform: translateX(0) translateY(0) rotate(0deg); }
+      to   { transform: translateX(-25%) translateY(2px) rotate(1deg); }
+    }
+
+    /* Чтобы остальные слои были видны поверх облаков и травы */
+    #header .cube-container,
     .header-content {
-      position: relative;
       z-index: 4;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-shadow: 2px 2px 6px black;
-      text-align: center;
-      padding: 0 20px;
-    }
-    .header-content h1 {
-      font-size: 48px;
-    }
-
-    @media (max-width: 768px) {
-      nav ul { gap: 20px; flex-wrap: wrap; }
-      nav ul li a { font-size: 18px; padding: 8px 12px; }
-      .header-content h1 { font-size: 32px; }
     }
   </style>
 </head>
 <body>
   <nav>
-    <ul>
-      <li><a href="#">Главная</a></li>
-      <li><a href="https://darkloner1996.github.io/Tsite/project.html">О проекте</a></li>
-      <li><a href="#">Мультик</a></li>
-      <li><a href="#">Маршрут помощи</a></li>
-    </ul>
+    <!-- ваш nav -->
   </nav>
 
   <div class="header" id="header">
-    <div class="cube-container" id="cubes"></div>
-    <div class="header-content">
+    <!-- слой облаков -->
+    <div class="clouds"></div>
 
+    <!-- анимация кубиков -->
+    <div class="cube-container" id="cubes"></div>
+
+    <!-- контент хедера -->
+    <div class="header-content">
+      <h1>ТехноКрыльяРоссии</h1>
     </div>
+
+    <!-- слой травы -->
+    <div class="grass"></div>
   </div>
+
   <script>
-    // Генерация кубиков для анимации
+    // Генерация кубиков (ваш существующий скрипт)
     const container = document.getElementById('cubes');
     const cols = 40, rows = 25;
     for (let y = 0; y < rows; y++) {
