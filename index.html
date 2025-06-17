@@ -9,8 +9,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { width:100%; height:100%; overflow-x:hidden; font-family:'Ruslan Display', cursive; }
 
-    /* Навигация */
-    @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+    /* Навигация – Десктоп */
     nav {
       position:fixed; top:0; left:0; width:100%;
       background:rgba(0,0,0,0.1); backdrop-filter:blur(8px);
@@ -19,16 +18,8 @@
       animation:fadeInDown 1s ease forwards; opacity:0;
     }
     nav ul {
-      list-style:none;
-      display:flex;
-      gap:40px;
-      flex-wrap:wrap;
-      justify-content:center;    /* всегда центр */
-      width:100%;                /* чтобы центрировать правильно */
-      max-width:600px;           /* ограничивает слишком широкий список */
-      padding:0 10px;
+      list-style:none; display:flex; gap:40px; flex-wrap:wrap;
     }
-    nav ul li { flex: none; }
     nav ul li a {
       color:#d85612; -webkit-text-stroke:1px #000;
       font-size:26px; padding:10px 16px; border-radius:8px;
@@ -39,6 +30,20 @@
       background:linear-gradient(90deg,#ffcc00,#ff3300);
       color:#000; -webkit-text-stroke:1px #FFD700;
       transform:scale(1.1); box-shadow:0 0 12px #ff3300;
+    }
+
+    /* Медиазапрос для мобильных */
+    @media (max-width:768px) {
+      nav ul {
+        justify-content:center;
+        width:100%;
+        max-width:600px;
+        padding:0 10px;
+        gap:20px;
+      }
+      nav ul li a {
+        font-size:18px; padding:8px 12px;
+      }
     }
 
     /* Header и кубики */
@@ -59,10 +64,9 @@
     }
     .header-content h1 { font-size:48px; }
     @media (max-width:768px) {
-      nav ul { gap:20px; }
-      nav ul li a { font-size:18px; padding:8px 12px; }
       .header-content h1 { font-size:32px; }
     }
+
     .cube-container {
       position:absolute; inset:0; display:grid;
       grid-template-columns:repeat(40,1fr);
@@ -79,42 +83,45 @@
       100% { transform:translate(0,0) scale(1); opacity:0; }
     }
 
-    /* Облако слева→справа */
+    /* Облака слева→справа (без задержки) */
     .cloud-left {
-      position:absolute;
-      top: 30px;
-      left: -250px;
-      width: 250px;
-      height: 120px;
-      background: url('clouds.png') no-repeat center center;
-      background-size: contain;
+      position:absolute; top:30px; left:-250px;
+      width:250px; height:120px;
+      background:url('clouds.png') no-repeat center/contain;
+      background-size:contain;
       animation:flyLeftToRight 40s linear infinite;
       pointer-events:none; z-index:1;
     }
+    /* Второе облако слева→справа (задержка 5s) */
+    .cloud-left.delay {
+      animation-delay:5s;
+    }
     @keyframes flyLeftToRight {
-      0%,10%   { transform: translateX(0); }
-      90%      { transform: translateX(calc(100vw + 250px)); }
-      100%     { transform: translateX(calc(100vw + 250px)); }
+      0%,10%   { transform:translateX(0); }
+      90%      { transform:translateX(calc(100vw + 250px)); }
+      100%     { transform:translateX(calc(100vw + 250px)); }
     }
 
-    /* Облако справа→слева */
+    /* Облака справа→слева (без задержки) */
     .cloud-right {
-      position:absolute;
-      top: 100px;
-      right: -250px;
-      width: 250px;
-      height: 120px;
-      background: url('clouds.png') no-repeat center center;
-      background-size: contain;
-      transform: scaleX(-1);
+      position:absolute; top:100px; right:-250px;
+      width:250px; height:120px;
+      background:url('clouds.png') no-repeat center/contain;
+      background-size:contain;
+      transform:scaleX(-1);
       animation:flyRightToLeft 50s linear infinite;
       pointer-events:none; z-index:1;
     }
-    @keyframes flyRightToLeft {
-      0%,10%   { transform: translateX(0) scaleX(-1); }
-      90%      { transform: translateX(calc(-100vw - 250px)) scaleX(-1); }
-      100%     { transform: translateX(calc(-100vw - 250px)) scaleX(-1); }
+    /* Второе облако справа→слева (задержка 5s) */
+    .cloud-right.delay {
+      animation-delay:5s;
     }
+    @keyframes flyRightToLeft {
+      0%,10%   { transform:translateX(0) scaleX(-1); }
+      90%      { transform:translateX(calc(-100vw - 250px)) scaleX(-1); }
+      100%     { transform:translateX(calc(-100vw - 250px)) scaleX(-1); }
+    }
+
     /* Медленная трава: только горизонталь */
     .grass {
       position:absolute; bottom:0; left:0;
@@ -125,8 +132,8 @@
       pointer-events:none; z-index:1;
     }
     @keyframes slowGrass {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-25%); }
+      from { transform:translateX(0); }
+      to   { transform:translateX(-25%); }
     }
   </style>
 </head>
@@ -141,15 +148,21 @@
   </nav>
 
   <div class="header">
-    <!-- Два облака -->
+    <!-- Первые облака -->
     <div class="cloud-left"></div>
     <div class="cloud-right"></div>
+    <!-- Повторяем с задержкой -->
+    <div class="cloud-left delay"></div>
+    <div class="cloud-right delay"></div>
+
     <!-- Кубики -->
     <div class="cube-container" id="cubes"></div>
+
     <!-- Контент -->
     <div class="header-content">
       <h1>ТехноКрыльяРоссии</h1>
     </div>
+
     <!-- Трава -->
     <div class="grass"></div>
   </div>
