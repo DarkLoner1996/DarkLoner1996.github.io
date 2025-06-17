@@ -9,7 +9,8 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { width:100%; height:100%; overflow-x:hidden; font-family:'Ruslan Display', cursive; }
 
-    /* Навигация – Десктоп */
+    /* Навигация – десктоп */
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
     nav {
       position:fixed; top:0; left:0; width:100%;
       background:rgba(0,0,0,0.1); backdrop-filter:blur(8px);
@@ -18,7 +19,10 @@
       animation:fadeInDown 1s ease forwards; opacity:0;
     }
     nav ul {
-      list-style:none; display:flex; gap:40px; flex-wrap:wrap;
+      list-style:none;
+      display:flex;
+      gap:40px;
+      flex-wrap:wrap;
     }
     nav ul li a {
       color:#d85612; -webkit-text-stroke:1px #000;
@@ -32,17 +36,17 @@
       transform:scale(1.1); box-shadow:0 0 12px #ff3300;
     }
 
-    /* Медиазапрос для мобильных */
+    /* Центрируем на мобилках */
     @media (max-width:768px) {
       nav ul {
         justify-content:center;
         width:100%;
-        max-width:600px;
         padding:0 10px;
         gap:20px;
       }
       nav ul li a {
-        font-size:18px; padding:8px 12px;
+        font-size:18px;
+        padding:8px 12px;
       }
     }
 
@@ -83,38 +87,34 @@
       100% { transform:translate(0,0) scale(1); opacity:0; }
     }
 
-    /* Облака слева→справа (без задержки) */
-    .cloud-left {
+    /* Облака слева→справа */
+    .cloud-left { animation:flyLeftToRight 40s linear infinite; }
+    .cloud-left.delay1 { animation-delay:5s; }
+    .cloud-left.delay2 { animation-delay:10s; }
+    .cloud-left, .cloud-left.delay1, .cloud-left.delay2 {
       position:absolute; top:30px; left:-250px;
       width:250px; height:120px;
       background:url('clouds.png') no-repeat center/contain;
       background-size:contain;
-      animation:flyLeftToRight 40s linear infinite;
       pointer-events:none; z-index:1;
     }
-    /* Второе облако слева→справа (задержка 5s) */
-    .cloud-left.delay {
-      animation-delay:5s;
-    }
+
     @keyframes flyLeftToRight {
       0%,10%   { transform:translateX(0); }
       90%      { transform:translateX(calc(100vw + 250px)); }
       100%     { transform:translateX(calc(100vw + 250px)); }
     }
 
-    /* Облака справа→слева (без задержки) */
-    .cloud-right {
+    /* Облака справа→слева */
+    .cloud-right { animation:flyRightToLeft 50s linear infinite; transform:scaleX(-1); }
+    .cloud-right.delay1 { animation-delay:5s; }
+    .cloud-right.delay2 { animation-delay:10s; }
+    .cloud-right, .cloud-right.delay1, .cloud-right.delay2 {
       position:absolute; top:100px; right:-250px;
       width:250px; height:120px;
       background:url('clouds.png') no-repeat center/contain;
       background-size:contain;
-      transform:scaleX(-1);
-      animation:flyRightToLeft 50s linear infinite;
       pointer-events:none; z-index:1;
-    }
-    /* Второе облако справа→слева (задержка 5s) */
-    .cloud-right.delay {
-      animation-delay:5s;
     }
     @keyframes flyRightToLeft {
       0%,10%   { transform:translateX(0) scaleX(-1); }
@@ -122,13 +122,13 @@
       100%     { transform:translateX(calc(-100vw - 250px)) scaleX(-1); }
     }
 
-    /* Медленная трава: только горизонталь */
+    /* Очень медленная трава */
     .grass {
       position:absolute; bottom:0; left:0;
       width:200%; height:150px;
       background:url('grass.png') repeat-x;
       background-size:contain;
-      animation:slowGrass 30s ease-in-out infinite alternate;
+      animation:slowGrass 60s ease-in-out infinite alternate;
       pointer-events:none; z-index:1;
     }
     @keyframes slowGrass {
@@ -148,12 +148,15 @@
   </nav>
 
   <div class="header">
-    <!-- Первые облака -->
+    <!-- Облака слева→справа -->
     <div class="cloud-left"></div>
+    <div class="cloud-left delay1"></div>
+    <div class="cloud-left delay2"></div>
+
+    <!-- Облака справа→слева -->
     <div class="cloud-right"></div>
-    <!-- Повторяем с задержкой -->
-    <div class="cloud-left delay"></div>
-    <div class="cloud-right delay"></div>
+    <div class="cloud-right delay1"></div>
+    <div class="cloud-right delay2"></div>
 
     <!-- Кубики -->
     <div class="cube-container" id="cubes"></div>
