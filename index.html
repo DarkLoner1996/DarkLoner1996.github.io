@@ -69,22 +69,39 @@
       100% { transform:translate(0,0) scale(1); opacity:0; }
     }
 
-    /* ОДНО облако, летит сверху */
-    .cloud {
+    /* Облака слева→справа */
+    .cloud-left {
       position:absolute;
-      top:20px; /* смещение от верха */
-      left:-200px; /* старт за экраном */
-      width:200px;
-      height:auto;
-      background:url('clouds.png') no-repeat center/contain;
-      animation:flyCloud 40s linear infinite;
+      top: 30px;
+      left: -200px;
+      width: 200px;
+      height: auto;
+      background: url('clouds.png') no-repeat center/contain;
+      animation:flyLeftToRight 40s linear infinite;
       pointer-events:none; z-index:1;
     }
-    @keyframes flyCloud {
-      0%   { transform: translateX(0); }
-      10%  { /* ждём 10% времени */ transform: translateX(0); }
-      90%  { /* к 90% заходим в край справа */ transform: translateX(calc(100vw + 200px)); }
-      100% { transform: translateX(calc(100vw + 200px)); }
+    @keyframes flyLeftToRight {
+      0%, 10%   { transform: translateX(0); }
+      90%       { transform: translateX(calc(100vw + 200px)); }
+      100%      { transform: translateX(calc(100vw + 200px)); }
+    }
+
+    /* Облака справа→слева */
+    .cloud-right {
+      position:absolute;
+      top: 80px;
+      right: -200px;
+      width: 200px;
+      height: auto;
+      background: url('clouds.png') no-repeat center/contain;
+      transform: scaleX(-1); /* зеркально для разнообразия */
+      animation:flyRightToLeft 50s linear infinite;
+      pointer-events:none; z-index:1;
+    }
+    @keyframes flyRightToLeft {
+      0%, 10%   { transform: translateX(0) scaleX(-1); }
+      90%       { transform: translateX(calc(-100vw - 200px)) scaleX(-1); }
+      100%      { transform: translateX(calc(-100vw - 200px)) scaleX(-1); }
     }
 
     /* Медленная трава: только горизонталь */
@@ -93,7 +110,7 @@
       width:200%; height:150px;
       background:url('grass.png') repeat-x;
       background-size:contain;
-      animation:slowGrass 20s ease-in-out infinite alternate;
+      animation:slowGrass 30s ease-in-out infinite alternate;
       pointer-events:none; z-index:1;
     }
     @keyframes slowGrass {
@@ -111,9 +128,11 @@
       <li><a href="#">Маршрут помощи</a></li>
     </ul>
   </nav>
+
   <div class="header">
-    <!-- Одно облако -->
-    <div class="cloud"></div>
+    <!-- Два облака -->
+    <div class="cloud-left"></div>
+    <div class="cloud-right"></div>
     <!-- Кубики -->
     <div class="cube-container" id="cubes"></div>
     <!-- Контент -->
