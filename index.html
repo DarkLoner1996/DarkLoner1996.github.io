@@ -66,36 +66,41 @@
       animation:cubeReveal 1.5s ease forwards;
     }
     @keyframes cubeReveal {
-      0% { transform:translate(var(--tx),var(--ty)) scale(0.1); opacity:0 }
-      50%{ transform:translate(0,0) scale(1); opacity:1 }
-      100%{ transform:translate(0,0) scale(1); opacity:0 }
+      0%   { transform:translate(var(--tx),var(--ty)) scale(0.1); opacity:0; }
+      50%  { transform:translate(0,0) scale(1); opacity:1; }
+      100% { transform:translate(0,0) scale(1); opacity:0; }
     }
 
-    /* Облака: заменить на ваш файл clouds.png или URL */
+    /* Облака: ждём 10s, двигаемся за 10s, стоим 10s */
     .clouds {
       position:absolute; top:0; left:0;
       width:200%; height:200px;
       background:url('clouds.png') repeat-x;
       background-size:contain;
-      animation:moveClouds 60s linear infinite;
+      animation:moveClouds 30s linear infinite;
       pointer-events:none; z-index:1;
     }
     @keyframes moveClouds {
-      from{transform:translateX(0)} to{transform:translateX(-50%)}
+      /* 0–33% (≈0–10s): стоим у 0 */
+      0%, 33.333%   { transform: translateX(0); }
+      /* 33.334–66.666% (≈10–20s): плавно уезжаем на -50% */
+      66.666%      { transform: translateX(-50%); }
+      /* 66.667–100% (≈20–30s): стоим на -50% */
+      100%         { transform: translateX(-50%); }
     }
 
-    /* Трава: заменить на ваш файл grass.png или URL */
+    /* Трава: только горизонтальное движение */
     .grass {
       position:absolute; bottom:0; left:0;
       width:200%; height:150px;
       background:url('grass.png') repeat-x;
       background-size:contain;
-      animation:swayGrass 8s ease-in-out infinite alternate;
+      animation: swayGrass 8s ease-in-out infinite alternate;
       pointer-events:none; z-index:1;
     }
     @keyframes swayGrass {
-      from{transform:translateX(0) translateY(0) rotate(0deg)}
-      to  {transform:translateX(-25%) translateY(2px) rotate(1deg)}
+      from { transform: translateX(0); }
+      to   { transform: translateX(-25%); }
     }
   </style>
 </head>
@@ -108,14 +113,15 @@
       <li><a href="#">Маршрут помощи</a></li>
     </ul>
   </nav>
-
   <div class="header">
     <div class="clouds"></div>
     <div class="cube-container" id="cubes"></div>
     <div class="header-content">
+      <h1>ТехноКрыльяРоссии</h1>
     </div>
     <div class="grass"></div>
   </div>
+
   <script>
     // Генерация кубиков
     const container = document.getElementById('cubes');
