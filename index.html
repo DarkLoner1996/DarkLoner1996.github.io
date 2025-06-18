@@ -9,7 +9,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { width:100%; height:100%; overflow-x:hidden; font-family:'Ruslan Display', cursive; }
 
-    /* Навигация – десктоп */
+    /* Навигация */
     @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
     nav {
       position:fixed; top:0; left:0; width:100%;
@@ -18,12 +18,7 @@
       z-index:1000; box-shadow:0 2px 10px rgba(0,0,0,0.1);
       animation:fadeInDown 1s ease forwards; opacity:0;
     }
-    nav ul {
-      list-style:none;
-      display:flex;
-      gap:40px;
-      flex-wrap:wrap;
-    }
+    nav ul { list-style:none; display:flex; gap:40px; flex-wrap:wrap; }
     nav ul li a {
       color:#d85612; -webkit-text-stroke:1px #000;
       font-size:26px; padding:10px 16px; border-radius:8px;
@@ -36,21 +31,12 @@
       transform:scale(1.1); box-shadow:0 0 12px #ff3300;
     }
 
-    /* Центрируем на мобилках */
     @media (max-width:768px) {
-      nav ul {
-        justify-content:center;
-        width:100%;
-        padding:0 10px;
-        gap:20px;
-      }
-      nav ul li a {
-        font-size:18px;
-        padding:8px 12px;
-      }
+      nav ul { justify-content:center; width:100%; padding:0 10px; gap:20px; }
+      nav ul li a { font-size:18px; padding:8px 12px; }
     }
 
-    /* Header и кубики */
+    /* Header и облака */
     .header {
       position:relative; width:100%; height:100vh;
       background: url('header-bg-desktop.webp') no-repeat center/cover, #ddeeff;
@@ -60,17 +46,33 @@
       content:""; position:absolute; inset:0;
       background:rgba(255,255,255,0.1); z-index:3;
     }
-    .header-content {
-      position:relative; z-index:4; height:100%;
-      display:flex; align-items:center; justify-content:center;
-      color:#fff; text-shadow:2px 2px 6px #000; text-align:center;
-      padding:0 20px;
+
+    /* Одна облака слева-справа */
+    .cloud-left {
+      position:absolute; top:20%; left:-250px;
+      width:250px; height:120px;
+      background:url('clouds.png') no-repeat center/contain;
+      animation:flyLeftToRight 40s linear infinite;
+      pointer-events:none; z-index:1;
     }
-    .header-content h1 { font-size:48px; }
-    @media (max-width:768px) {
-      .header-content h1 { font-size:32px; }
+    .cloud-right {
+      position:absolute; top:60%; right:-250px;
+      width:250px; height:120px;
+      background:url('clouds.png') no-repeat center/contain;
+      transform:scaleX(-1);
+      animation:flyRightToLeft 40s linear infinite;
+      pointer-events:none; z-index:1;
+    }
+    @keyframes flyLeftToRight {
+      0%,10%   { transform:translateX(0); }
+      90%,100% { transform:translateX(calc(100vw + 250px)); }
+    }
+    @keyframes flyRightToLeft {
+      0%,10%   { transform:translateX(0) scaleX(-1); }
+      90%,100% { transform:translateX(calc(-100vw - 250px)) scaleX(-1); }
     }
 
+    /* Кубики заменены на картинки */
     .cube-container {
       position:absolute; inset:0; display:grid;
       grid-template-columns:repeat(40,1fr);
@@ -78,48 +80,15 @@
       z-index:2; pointer-events:none;
     }
     .cube {
-      background:#ddeeff; opacity:0;
+      width:50px; height:50px;
+      background:url('cod.web') no-repeat center/contain;
+      opacity:0;
       animation:cubeReveal 1.5s ease forwards;
     }
     @keyframes cubeReveal {
       0%   { transform:translate(var(--tx),var(--ty)) scale(0.1); opacity:0; }
       50%  { transform:translate(0,0) scale(1); opacity:1; }
       100% { transform:translate(0,0) scale(1); opacity:0; }
-    }
-
-    /* Облака слева→справа */
-    .cloud-left { animation:flyLeftToRight 40s linear infinite; }
-    .cloud-left.delay1 { animation-delay:5s; }
-    .cloud-left.delay2 { animation-delay:10s; }
-    .cloud-left, .cloud-left.delay1, .cloud-left.delay2 {
-      position:absolute; top:30px; left:-250px;
-      width:250px; height:120px;
-      background:url('clouds.png') no-repeat center/contain;
-      background-size:contain;
-      pointer-events:none; z-index:1;
-    }
-
-    @keyframes flyLeftToRight {
-      0%,10%   { transform:translateX(0); }
-      90%      { transform:translateX(calc(100vw + 250px)); }
-      100%     { transform:translateX(calc(100vw + 250px)); }
-    }
-
-    /* Облака справа→слева */
-    .cloud-right { animation:flyRightToLeft 50s linear infinite; transform:scaleX(-1); }
-    .cloud-right.delay1 { animation-delay:5s; }
-    .cloud-right.delay2 { animation-delay:10s; }
-    .cloud-right, .cloud-right.delay1, .cloud-right.delay2 {
-      position:absolute; top:100px; right:-250px;
-      width:250px; height:120px;
-      background:url('clouds.png') no-repeat center/contain;
-      background-size:contain;
-      pointer-events:none; z-index:1;
-    }
-    @keyframes flyRightToLeft {
-      0%,10%   { transform:translateX(0) scaleX(-1); }
-      90%      { transform:translateX(calc(-100vw - 250px)) scaleX(-1); }
-      100%     { transform:translateX(calc(-100vw - 250px)) scaleX(-1); }
     }
 
     /* Очень медленная трава */
@@ -146,23 +115,17 @@
       <li><a href="#">Маршрут помощи</a></li>
     </ul>
   </nav>
-
   <div class="header">
-    <!-- Облака слева→справа -->
+    <!-- Только по одному облаку с каждой стороны -->
     <div class="cloud-left"></div>
-    <div class="cloud-left delay1"></div>
-    <div class="cloud-left delay2"></div>
-
-    <!-- Облака справа→слева -->
     <div class="cloud-right"></div>
-    <div class="cloud-right delay1"></div>
-    <div class="cloud-right delay2"></div>
 
-    <!-- Кубики -->
+    <!-- Кубики как картинки -->
     <div class="cube-container" id="cubes"></div>
 
     <!-- Контент -->
     <div class="header-content">
+      <h1>Ваш заголовок здесь</h1>
     </div>
 
     <!-- Трава -->
@@ -170,7 +133,7 @@
   </div>
 
   <script>
-    // Генерация кубиков
+    // Генерация "кубиков" (картинок)
     const container = document.getElementById('cubes');
     const cols = 40, rows = 25;
     for (let y = 0; y < rows; y++) {
