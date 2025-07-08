@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding-top: 60px; font-family: 'PT Sans Caption', sans-serif; background: linear-gradient(to bottom right, #f2f2f2, #ffffff); color: #222; scroll-behavior: smooth; }
-    header { position: relative; overflow: hidden; padding: 100px 20px 40px; text-align: center; background: linear-gradient(90deg, #0039a6 0%, #ffffff 50%, #d52b1e 100%); background-size: 300% 100%; animation: gradientShift 8s ease infinite, fadeIn 1.5s ease-in forwards; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; }
+    body { margin: 0; padding-top: 0; font-family: 'PT Sans Caption', sans-serif; background: linear-gradient(to bottom right, #f2f2f2, #ffffff); color: #222; scroll-behavior: smooth; }
+    header { position: relative; margin-top: 90px; overflow: hidden; padding: 100px 20px 40px; text-align: center; background: linear-gradient(90deg, #0039a6 0%, #ffffff 50%, #d52b1e 100%); background-size: 300% 100%; animation: gradientShift 8s ease infinite, fadeIn 1.5s ease-in forwards; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; }
     header::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('russian-flag.svg') center/200% no-repeat; opacity: 0.08; animation: flagPulse 6s ease-in-out infinite; z-index: 1; }
     header > * { position: relative; z-index: 2; }
     header h1 { margin-bottom: 10px; font-size: 2.8em; font-family: 'Russo One', sans-serif; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
@@ -357,20 +357,26 @@
   </footer>
   <!-- Скрипт для скрытия меню -->
 <script>
-  let lastScrollTop = 0;
-  const nav = document.querySelector("nav");
+let lastScrollTop = 0;
+let ticking = false;
+const nav = document.querySelector("nav");
 
-  window.addEventListener("scroll", function() {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    if (scrollTop > lastScrollTop) {
-      // Прокрутка вниз — скрыть
-      nav.style.transform = "translateY(-100%)";
-    } else {
-      // Прокрутка вверх — показать
-      nav.style.transform = "translateY(0)";
-    }
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-  }, false);
+window.addEventListener("scroll", function () {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+  if (!ticking) {
+    window.requestAnimationFrame(function () {
+      if (scrollTop > lastScrollTop) {
+        nav.style.transform = "translateY(-100%)";
+      } else {
+        nav.style.transform = "translateY(0)";
+      }
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+      ticking = false;
+    });
+    ticking = true;
+  }
+});
 </script>
   
   <!-- Swiper JS -->
