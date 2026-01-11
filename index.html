@@ -2,11 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-<link rel="icon" href="embl.ico" type="image/x-icon"> 
+  <link rel="icon" href="embl.ico" type="image/x-icon"> 
   <link rel="icon" href="embl.png" type="image/png">  
-<link rel="icon" href="embl.webp" type="image/webp" sizes="72x72">
+  <link rel="icon" href="embl.webp" type="image/webp" sizes="72x72">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ТехноКрыльяРоссии</title>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -39,15 +40,32 @@
       nav ul li a { font-size:18px; padding:8px 12px; }
     }
 
-    /* Header и облака */
-    .header {
-      position:relative; width:100%; height:100vh;
-      background: url('header-bg-desktop.webp') no-repeat center/cover, #ddeeff;
+    /* HEADER — Вариант A (лучший): IMG + object-fit */
+    .header{
+      position:relative;
+      width:100%;
+      height:100vh;
       overflow:hidden;
+      background:#ddeeff; /* запасной фон, если картинка не загрузилась */
     }
+
+    .header__bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;         /* ключевое */
+      object-position:center;   /* можно center top если нужно */
+      transform: translateZ(0); /* иногда уменьшает “мыло” при скейле */
+      z-index:0;
+    }
+
+    /* Лёгкая “вуаль” поверх фона как было */
     .header::after {
       content:""; position:absolute; inset:0;
-      background:rgba(255,255,255,0.1); z-index:3;
+      background:rgba(255,255,255,0.1);
+      z-index:3;
+      pointer-events:none;
     }
 
     /* Одно облака слева-справа */
@@ -94,6 +112,12 @@
       100% { transform:translate(0,0) scale(1); opacity:0; }
     }
 
+    /* Контент (если появится) поверх всего */
+    .header-content{
+      position:relative;
+      z-index:4; /* выше чем ::after (3) */
+    }
+
     /* Очень медленная трава */
     .grass {
       position:absolute; bottom:0; left:0;
@@ -109,6 +133,7 @@
     }
   </style>
 </head>
+
 <body>
   <nav>
     <ul>
@@ -118,7 +143,27 @@
       <li><a href="https://digitalhavenrussia.ru/map.html">Маршрут помощи</a></li>
     </ul>
   </nav>
+
   <div class="header">
+    <!-- ВАРИАНТ A: фоновая картинка как IMG (браузер сам выберет качество под 4K) -->
+    <!-- ВАЖНО: создайте файлы, или оставьте только один src без srcset -->
+    <img
+      class="header__bg"
+      src="header-bg-1920.webp"
+      srcset="
+        header-bg-768.webp 768w,
+        header-bg-1280.webp 1280w,
+        header-bg-1920.webp 1920w,
+        header-bg-2560.webp 2560w,
+        header-bg-3840.webp 3840w
+      "
+      sizes="100vw"
+      alt=""
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+    />
+
     <!-- Только по одному облаку с каждой стороны -->
     <div class="cloud-left"></div>
     <div class="cloud-right"></div>
