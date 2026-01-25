@@ -71,7 +71,9 @@
     }
 
     /* =========================
-       HEADER — ФОН НА ВЕСЬ ЭКРАН
+       HEADER — “Идеально для постера”
+       1) Подложка (blur) cover — всегда заполняет экран
+       2) Основная картинка contain — всегда целиком
        ========================= */
     .header{
       position:relative;
@@ -83,65 +85,74 @@
       background:#ddeeff;
     }
 
-    /* Ключевое исправление: IMG как фон */
-    .header__bg{
+    /* Размытая подложка: заполняет весь экран */
+    .header__bg-blur{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
       display:block;
       object-fit:cover;
-      object-position:center 15%; /* под твою картинку: центр + чуть вверх */
+      object-position:center 50%;
+      filter: blur(18px) saturate(1.15);
+      transform: scale(1.08);
       z-index:0;
+      pointer-events:none;
       user-select:none;
       -webkit-user-drag:none;
     }
 
-    /* Ультраширокие (21:9) */
+    /* Главная картинка: показываем ПОЛНОСТЬЮ */
+    .header__bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:contain;
+      object-position:center 55%; /* чуть вниз — чтобы низ не “лип” */
+      z-index:1;
+      pointer-events:none;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+
+    /* Ультраширокие — чуть выше, чтобы не давило снизу */
     @media (min-aspect-ratio: 21/9){
-      .header__bg{ object-position:center 30%; }
+      .header__bg{ object-position:center 52%; }
     }
 
-    /* Высокие экраны (телефоны) */
+    /* Телефоны — чуть ниже, чтобы низ (медведь) влез */
     @media (max-aspect-ratio: 3/4){
-      .header__bg{ object-position:center 25%; }
+      .header__bg{ object-position:center 60%; }
     }
 
-    /* Лёгкая “вуаль” поверх фона */
+    /* Лёгкая вуаль */
     .header::after {
       content:"";
       position:absolute;
       inset:0;
-      background:rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.08);
       z-index:3;
       pointer-events:none;
     }
 
     /* Облака */
     .cloud-left {
-      position:absolute;
-      top:0%;
-      left:-250px;
-      width:450px;
-      height:320px;
+      position:absolute; top:0%; left:-250px;
+      width:450px; height:320px;
       background:url('clouds.webp') no-repeat center/contain;
       animation:flyLeftToRight 40s linear infinite;
-      pointer-events:none;
-      z-index:1;
+      pointer-events:none; z-index:2;
     }
     .cloud-right {
-      position:absolute;
-      top:3%;
-      right:-250px;
-      width:450px;
-      height:320px;
+      position:absolute; top:3%; right:-250px;
+      width:450px; height:320px;
       background:url('clouds.webp') no-repeat center/contain;
       transform:scaleX(-1);
       animation:flyRightToLeft 40s linear infinite;
-      pointer-events:none;
-      z-index:1;
+      pointer-events:none; z-index:2;
     }
-
     @keyframes flyLeftToRight {
       0%,10%   { transform:translateX(0); }
       90%,100% { transform:translateX(calc(100vw + 250px)); }
@@ -178,22 +189,16 @@
     .header-content{
       position:relative;
       z-index:4;
-      /* Если будешь добавлять текст — удобно:
-      padding-top:110px; */
     }
 
     /* Трава */
     .grass {
-      position:absolute;
-      bottom:0;
-      left:0;
-      width:200%;
-      height:50px;
+      position:absolute; bottom:0; left:0;
+      width:200%; height:50px;
       background:url('grass.gif') repeat-x;
       background-size:contain;
       animation:slowGrass 60s ease-in-out infinite alternate;
-      pointer-events:none;
-      z-index:1;
+      pointer-events:none; z-index:2;
     }
     @keyframes slowGrass {
       from { transform:translateX(0); }
@@ -213,20 +218,19 @@
   </nav>
 
   <div class="header">
-    <!-- Фон на весь экран -->
+    <!-- Размытая подложка -->
+    <img class="header__bg-blur" src="header-bg-3840.webp" alt="" aria-hidden="true" decoding="async">
+
+    <!-- Основной плакат целиком -->
     <img class="header__bg" src="header-bg-3840.webp" alt="" loading="eager" decoding="async">
 
-    <!-- Облака -->
     <div class="cloud-left"></div>
     <div class="cloud-right"></div>
 
-    <!-- Кубики -->
     <div class="cube-container" id="cubes"></div>
 
-    <!-- Контент (если понадобится) -->
     <div class="header-content"></div>
 
-    <!-- Трава -->
     <div class="grass"></div>
   </div>
 
@@ -250,5 +254,3 @@
   </script>
 </body>
 </html>
-
-
