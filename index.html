@@ -41,24 +41,26 @@
     }
 
     /* HEADER — Вариант A (лучший): IMG + object-fit */
-    .header{
-      position:relative;
-      width:100%;
-      height:100vh;
-      overflow:hidden;
-      background:#ddeeff; /* запасной фон, если картинка не загрузилась */
-    }
+.header{
+  position:relative;
+  width:100%;
+  height:100vh;
+  min-height:100svh;   /* мобильные */
+  min-height:100dvh;   /* современные браузеры */
+  overflow:hidden;
+  background:#ddeeff;
+}
 
-    .header__bg{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;         /* ключевое */
-      object-position:center;   /* можно center top если нужно */
-      transform: translateZ(0); /* иногда уменьшает “мыло” при скейле */
-      z-index:0;
-    }
+.header{
+  position:relative;
+  width:100%;
+  height:100vh;
+  min-height:100svh;   /* мобильные */
+  min-height:100dvh;   /* современные браузеры */
+  overflow:hidden;
+  background:#ddeeff;
+}
+
 
     /* Лёгкая “вуаль” поверх фона как было */
     .header::after {
@@ -94,18 +96,22 @@
     }
 
     /* Кубики заменены на картинки */
-    .cube-container {
-      position:absolute; inset:0; display:grid;
-      grid-template-columns:repeat(40,1fr);
-      grid-template-rows:repeat(25,1fr);
-      z-index:2; pointer-events:none;
-    }
-    .cube {
-      width:50px; height:50px;
-      background:url('code.webp') no-repeat center/contain;
-      opacity:0;
-      animation:cubeReveal 1.5s ease forwards;
-    }
+.cube-container{
+  position:absolute;
+  inset:0;
+  display:grid;
+  grid-template-columns:repeat(40, minmax(0, 1fr));
+  grid-template-rows:repeat(25, minmax(0, 1fr));
+  z-index:2;
+  pointer-events:none;
+}
+.cube{
+  width:100%;
+  height:100%;
+  background:url('code.webp') no-repeat center/contain;
+  opacity:0;
+  animation:cubeReveal 1.5s ease forwards;
+}
     @keyframes cubeReveal {
       0%   { transform:translate(var(--tx),var(--ty)) scale(0.1); opacity:0; }
       50%  { transform:translate(0,0) scale(1); opacity:1; }
@@ -198,3 +204,4 @@
   </script>
 </body>
 </html>
+
