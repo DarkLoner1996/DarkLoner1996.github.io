@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -20,7 +20,17 @@
       background:#ddeeff;
     }
 
-    /* ===== NAV ===== */
+    /* ===== NAV (обновлено: синий + белый + золото) ===== */
+    :root{
+      --nav-blue:#1f4fd8;
+      --nav-blue2:#2a66ff;
+      --nav-white:rgba(255,255,255,.86);
+      --nav-border:rgba(255,255,255,.35);
+      --nav-shadow:rgba(0,0,0,.22);
+      --nav-gold:#ffd27d;
+      --nav-text-dark:#102a68;
+    }
+
     @keyframes fadeInDown {
       from { opacity:0; transform:translateY(-20px); }
       to   { opacity:1; transform:translateY(0); }
@@ -30,44 +40,111 @@
       position:fixed;
       top:0; left:0;
       width:100%;
-      background:rgba(0,0,0,0.12);
-      backdrop-filter:blur(8px);
-      display:flex;
-      justify-content:center;
-      padding:15px 0;
+      padding:14px 0;
       z-index:1000;
-      box-shadow:0 2px 10px rgba(0,0,0,0.12);
+
+      /* стеклянная панель */
+      background:linear-gradient(
+        180deg,
+        rgba(16,42,104,.32),
+        rgba(16,42,104,.18)
+      );
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      border-bottom:1px solid rgba(255,255,255,.18);
+      box-shadow:0 8px 26px var(--nav-shadow);
+
       animation:fadeInDown 1s ease forwards;
       opacity:0;
     }
+
     nav ul {
       list-style:none;
       display:flex;
-      gap:40px;
+      gap:18px;
       flex-wrap:wrap;
-    }
-    nav ul li a {
-      color:#d85612;
-      -webkit-text-stroke:1px #000;
-      font-size:30px;
-      padding:12px 20px;
-      border-radius:8px;
-      text-shadow:1px 1px 2px #8B0000;
-      text-decoration:none;
-      transition:.3s;
-      display:inline-block;
-    }
-    nav ul li a:hover {
-      background:linear-gradient(90deg,#ffcc00,#ff3300);
-      color:#000;
-      -webkit-text-stroke:1px #FFD700;
-      transform:scale(1.1);
-      box-shadow:0 0 12px #ff3300;
+      justify-content:center;
+      padding:0 12px;
     }
 
+    /* Кнопки */
+    nav ul li a {
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+
+      font-size:28px;
+      line-height:1;
+      padding:12px 18px;
+      border-radius:14px;
+      text-decoration:none;
+
+      /* читаемость и “премиум” */
+      color:var(--nav-text-dark);
+      background:var(--nav-white);
+      border:1px solid var(--nav-border);
+      box-shadow:
+        0 10px 22px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.55);
+
+      text-shadow: 0 1px 0 rgba(255,255,255,.35);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
+      will-change: transform;
+    }
+
+    /* лёгкая “золотая” линия снизу (фирменный акцент) */
+    nav ul li a::after{
+      content:"";
+      position:absolute;
+      left:12px; right:12px;
+      bottom:8px;
+      height:2px;
+      border-radius:999px;
+      background:linear-gradient(90deg, transparent, var(--nav-gold), transparent);
+      opacity:.0;
+      transition: opacity .18s ease, transform .18s ease;
+      transform: translateY(2px);
+      pointer-events:none;
+    }
+
+    nav ul li a:hover {
+      background:linear-gradient(180deg, var(--nav-blue2), var(--nav-blue));
+      color:#fff;
+      border-color: rgba(255,255,255,.35);
+
+      transform: translateY(-1px) scale(1.05);
+      box-shadow:
+        0 16px 36px rgba(0,0,0,.28),
+        0 0 0 2px rgba(255,210,125,.22);
+    }
+
+    nav ul li a:hover::after{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    nav ul li a:active{
+      transform: translateY(0) scale(1.02);
+      box-shadow:0 10px 20px rgba(0,0,0,.22);
+    }
+
+    /* “Активная” страница: если захочешь — просто добавь class="active" на нужную ссылку */
+    nav ul li a.active{
+      background:linear-gradient(180deg, var(--nav-blue2), var(--nav-blue));
+      color:#fff;
+      border-color: rgba(255,255,255,.35);
+      box-shadow:
+        0 16px 36px rgba(0,0,0,.28),
+        0 0 0 2px rgba(255,210,125,.28);
+    }
+    nav ul li a.active::after{ opacity:1; transform: translateY(0); }
+
     @media (max-width:768px) {
-      nav ul { justify-content:center; width:100%; padding:0 10px; gap:20px; }
-      nav ul li a { font-size:18px; padding:8px 12px; }
+      nav { padding:10px 0; }
+      nav ul { gap:10px; }
+      nav ul li a { font-size:18px; padding:9px 12px; border-radius:12px; }
     }
 
     /* ===== HEADER =====
@@ -103,25 +180,21 @@
     }
 
     /* Основной постер: БЕЗ ЗУМА (всегда целиком) */
-.header__bg{
-  position:absolute;
-  left:50%;
-  top:50%;
+    .header__bg{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:100vw;
+      height:auto;
+      max-height:100vh;
+      transform:translate(-50%, -50%);
+      z-index:1;
+      object-fit:unset;
+      pointer-events:none;
+      user-select:none;
+    }
 
-  width:100vw;        /* ⬅ растягиваем ТОЛЬКО по ширине */
-  height:auto;        /* ⬅ высота по пропорциям */
-  max-height:100vh;   /* ⬅ выше экрана не растёт */
-
-  transform:translate(-50%, -50%);
-  z-index:1;
-
-  object-fit:unset;  /* ⬅ важно */
-  pointer-events:none;
-  user-select:none;
-}
-
-
-    /* Лёгкая вуаль + чуть затемняем края (чтобы поля не бросались в глаза) */
+    /* Лёгкая вуаль + чуть затемняем края */
     .header::after {
       content:"";
       position:absolute;
@@ -200,7 +273,7 @@
 <body>
   <nav>
     <ul>
-      <li><a href="https://digitalhavenrussia.ru">Главная</a></li>
+      <li><a href="https://digitalhavenrussia.ru" class="active">Главная</a></li>
       <li><a href="https://digitalhavenrussia.ru/project.html">О проекте</a></li>
       <li><a href="https://digitalhavenrussia.ru/security.html">Мультик</a></li>
       <li><a href="https://digitalhavenrussia.ru/map.html">Маршрут помощи</a></li>
@@ -240,5 +313,3 @@
   </script>
 </body>
 </html>
-
-
