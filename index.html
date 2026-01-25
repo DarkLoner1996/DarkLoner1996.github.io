@@ -20,132 +20,194 @@
       background:#ddeeff;
     }
 
-    /* ===== NAV (обновлено: синий + белый + золото) ===== */
-    :root{
-      --nav-blue:#1f4fd8;
-      --nav-blue2:#2a66ff;
-      --nav-white:rgba(255,255,255,.86);
-      --nav-border:rgba(255,255,255,.35);
-      --nav-shadow:rgba(0,0,0,.22);
-      --nav-gold:#ffd27d;
-      --nav-text-dark:#102a68;
-    }
+    /* ===== NAV CAPSULE (как на макете) ===== */
+:root{
+  --cap-glass: rgba(255,255,255,.14);
+  --cap-border: rgba(255,255,255,.30);
+  --cap-shadow: rgba(0,0,0,.25);
 
-    @keyframes fadeInDown {
-      from { opacity:0; transform:translateY(-20px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
+  --btn-blue1:#2f77ff;
+  --btn-blue2:#1f4fd8;
+  --btn-border: rgba(255,255,255,.40);
 
-    nav {
-      position:fixed;
-      top:0; left:0;
-      width:100%;
-      padding:14px 0;
-      z-index:1000;
+  --gold1:#ffe2a6;
+  --gold2:#ffd27d;
 
-      /* стеклянная панель */
-      background:linear-gradient(
-        180deg,
-        rgba(16,42,104,.32),
-        rgba(16,42,104,.18)
-      );
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+  --text:#ffffff;
+  --text-dark:#0b1f4d;
+}
 
-      border-bottom:1px solid rgba(255,255,255,.18);
-      box-shadow:0 8px 26px var(--nav-shadow);
+.nav-capsule{
+  position:fixed;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:1000;
+  width:min(980px, calc(100% - 24px));
+}
 
-      animation:fadeInDown 1s ease forwards;
-      opacity:0;
-    }
+/* Стеклянная “длинная капсула” под меню */
+.nav-capsule__inner{
+  position:relative;
+  padding:10px 12px;
+  border-radius:22px;
 
-    nav ul {
-      list-style:none;
-      display:flex;
-      gap:18px;
-      flex-wrap:wrap;
-      justify-content:center;
-      padding:0 12px;
-    }
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+  border:1px solid var(--cap-border);
 
-    /* Кнопки */
-    nav ul li a {
-      position:relative;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
+  box-shadow:
+    0 18px 40px var(--cap-shadow),
+    inset 0 1px 0 rgba(255,255,255,.35);
 
-      font-size:28px;
-      line-height:1;
-      padding:12px 18px;
-      border-radius:14px;
-      text-decoration:none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow:hidden;
+}
 
-      /* читаемость и “премиум” */
-      color:var(--nav-text-dark);
-      background:var(--nav-white);
-      border:1px solid var(--nav-border);
-      box-shadow:
-        0 10px 22px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.55);
+/* Блик сверху на капсуле */
+.nav-capsule__inner::before{
+  content:"";
+  position:absolute;
+  left:16px;
+  right:16px;
+  top:6px;
+  height:18px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  opacity:.65;
+  pointer-events:none;
+}
 
-      text-shadow: 0 1px 0 rgba(255,255,255,.35);
-      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
-      will-change: transform;
-    }
+/* тонкая “золотая искра” снизу */
+.nav-capsule__inner::after{
+  content:"";
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:8px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, rgba(255,210,125,.8), transparent);
+  opacity:.55;
+  pointer-events:none;
+}
 
-    /* лёгкая “золотая” линия снизу (фирменный акцент) */
-    nav ul li a::after{
-      content:"";
-      position:absolute;
-      left:12px; right:12px;
-      bottom:8px;
-      height:2px;
-      border-radius:999px;
-      background:linear-gradient(90deg, transparent, var(--nav-gold), transparent);
-      opacity:.0;
-      transition: opacity .18s ease, transform .18s ease;
-      transform: translateY(2px);
-      pointer-events:none;
-    }
+/* список кнопок */
+.nav-capsule__list{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin:0;
+  padding:0;
+  flex-wrap:wrap;
+}
 
-    nav ul li a:hover {
-      background:linear-gradient(180deg, var(--nav-blue2), var(--nav-blue));
-      color:#fff;
-      border-color: rgba(255,255,255,.35);
+/* Кнопки как на картинке: объём, градиент, внутренняя подсветка */
+.nav-capsule__list a{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 
-      transform: translateY(-1px) scale(1.05);
-      box-shadow:
-        0 16px 36px rgba(0,0,0,.28),
-        0 0 0 2px rgba(255,210,125,.22);
-    }
+  padding:10px 16px;
+  border-radius:16px;
+  text-decoration:none;
 
-    nav ul li a:hover::after{
-      opacity:1;
-      transform: translateY(0);
-    }
+  font-size:18px;
+  letter-spacing:.3px;
 
-    nav ul li a:active{
-      transform: translateY(0) scale(1.02);
-      box-shadow:0 10px 20px rgba(0,0,0,.22);
-    }
+  color:var(--text);
+  background:
+    linear-gradient(180deg, var(--btn-blue1), var(--btn-blue2));
+  border:1px solid rgba(255,255,255,.28);
 
-    /* “Активная” страница: если захочешь — просто добавь class="active" на нужную ссылку */
-    nav ul li a.active{
-      background:linear-gradient(180deg, var(--nav-blue2), var(--nav-blue));
-      color:#fff;
-      border-color: rgba(255,255,255,.35);
-      box-shadow:
-        0 16px 36px rgba(0,0,0,.28),
-        0 0 0 2px rgba(255,210,125,.28);
-    }
-    nav ul li a.active::after{ opacity:1; transform: translateY(0); }
+  box-shadow:
+    0 10px 20px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.45),
+    inset 0 -10px 18px rgba(0,0,0,.15);
 
-    @media (max-width:768px) {
-      nav { padding:10px 0; }
-      nav ul { gap:10px; }
-      nav ul li a { font-size:18px; padding:9px 12px; border-radius:12px; }
-    }
+  text-shadow: 0 2px 10px rgba(0,0,0,.35);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  will-change: transform;
+}
+
+/* верхний блик на каждой кнопке */
+.nav-capsule__list a::before{
+  content:"";
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:6px;
+  height:12px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  opacity:.55;
+  pointer-events:none;
+}
+
+/* золотистая грань снизу кнопки */
+.nav-capsule__list a::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:6px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, var(--gold2), transparent);
+  opacity:.0;
+  transform: translateY(2px);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events:none;
+}
+
+.nav-capsule__list a:hover{
+  transform: translateY(-1px) scale(1.04);
+  box-shadow:
+    0 16px 34px rgba(0,0,0,.30),
+    0 0 0 2px rgba(255,210,125,.18),
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 -10px 18px rgba(0,0,0,.18);
+  filter:saturate(1.08);
+}
+
+.nav-capsule__list a:hover::after{
+  opacity:1;
+  transform: translateY(0);
+}
+
+.nav-capsule__list a:active{
+  transform: translateY(0) scale(1.02);
+}
+
+/* Активная кнопка */
+.nav-capsule__list a.is-active{
+  box-shadow:
+    0 16px 34px rgba(0,0,0,.30),
+    0 0 0 2px rgba(255,210,125,.24),
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 -10px 18px rgba(0,0,0,.18);
+}
+.nav-capsule__list a.is-active::after{
+  opacity:1;
+  transform: translateY(0);
+}
+
+/* Мобилка */
+@media (max-width:768px){
+  .nav-capsule{ top:10px; }
+  .nav-capsule__inner{ padding:8px 10px; border-radius:18px; }
+  .nav-capsule__list{ gap:8px; }
+  .nav-capsule__list a{
+    font-size:15px;
+    padding:9px 12px;
+    border-radius:14px;
+  }
+}
+
 
     /* ===== HEADER =====
        Цель: экран заполнен, НО основной постер без зума.
@@ -271,14 +333,17 @@
 </head>
 
 <body>
-  <nav>
-    <ul>
-      <li><a href="https://digitalhavenrussia.ru" class="active">Главная</a></li>
+<nav class="nav-capsule">
+  <div class="nav-capsule__inner">
+    <ul class="nav-capsule__list">
+      <li><a href="https://digitalhavenrussia.ru" class="is-active">Главная</a></li>
       <li><a href="https://digitalhavenrussia.ru/project.html">О проекте</a></li>
       <li><a href="https://digitalhavenrussia.ru/security.html">Мультик</a></li>
       <li><a href="https://digitalhavenrussia.ru/map.html">Маршрут помощи</a></li>
     </ul>
-  </nav>
+  </div>
+</nav>
+
 
   <div class="header">
     <!-- Подложка (заполняет экран) -->
@@ -313,3 +378,4 @@
   </script>
 </body>
 </html>
+
