@@ -21,17 +21,19 @@
     }
 
     /* ============================================================
-       HUD MENU (как на твоём скрине)
-       - мягкое “стекло” + темно-синяя рамка
-       - карточки серо-синие с иконкой слева и плашкой справа
-       - золотая кнопка “Поддержать проект”
-       - тумблер “Ночной HUD” прямо в TAB
-       - сворачивание ВПРАВО (панель уезжает за край)
+       HUD MENU (СЛЕВА СВЕРХУ)
+       ✅ шире (влезает весь текст)
+       ✅ сворачивание ВЛЕВО (панель уезжает за левый край)
+       ✅ таб остаётся видимым
        ============================================================ */
 
     :root{
-      --nav-right: 18px;
+      /* позиция слева */
+      --nav-left: 18px;
       --nav-top: 14px;
+
+      /* ширина панели (увеличил) */
+      --panel-w: 340px; /* было ~290/270 — теперь текст влезает */
 
       /* TAB */
       --tab-bg1: rgba(255,255,255,.26);
@@ -45,7 +47,6 @@
       --panel-stroke: rgba(255,255,255,.22);
       --panel-shadow: rgba(0,0,0,.32);
 
-      /* inside frame */
       --frame-stroke: rgba(255,255,255,.16);
 
       /* ITEMS */
@@ -61,7 +62,6 @@
       --pill-stroke: rgba(255,255,255,.22);
       --pill-text: rgba(235,245,255,.88);
 
-      /* “ACTIVE” warm */
       --pill-active-bg: rgba(255, 220, 140, .32);
       --pill-active-text: rgba(255, 240, 210, .92);
 
@@ -71,10 +71,10 @@
       --cta-text: rgba(60,55,40,.95);
 
       --radius: 18px;
-      --panel-w: 290px;
+      --ring: rgba(120,195,255,.28);
     }
 
-    /* Ночной HUD (меняем только переменные — стиль остаётся тот же) */
+    /* Ночной HUD */
     .hud--night{
       --panel-bg1: rgba(18, 28, 44, .72);
       --panel-bg2: rgba(10, 16, 28, .50);
@@ -88,22 +88,21 @@
 
     .side-nav{
       position:fixed;
-      right: var(--nav-right);
+      left: var(--nav-left);
       top: var(--nav-top);
       z-index:1000;
       display:flex;
       flex-direction:column;
       gap:10px;
-      align-items:flex-end;
+      align-items:flex-start;
       transform: translateZ(0);
     }
 
-    /* ============ TAB ============ */
+    /* TAB */
     .side-nav__tab{
       display:flex;
       align-items:center;
       gap:10px;
-
       padding:10px 12px;
       border-radius:16px;
       background: linear-gradient(180deg, var(--tab-bg1), var(--tab-bg2));
@@ -111,7 +110,6 @@
       box-shadow: 0 14px 28px var(--tab-shadow), inset 0 1px 0 rgba(255,255,255,.22);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-
       user-select:none;
     }
 
@@ -127,9 +125,10 @@
       cursor:pointer;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
       transition: transform .16s ease, filter .16s ease;
+      white-space:nowrap;
     }
     .tab-btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
-    .tab-btn:focus-visible{ outline:none; box-shadow: 0 0 0 3px rgba(120,195,255,.28), inset 0 1px 0 rgba(255,255,255,.14); }
+    .tab-btn:focus-visible{ outline:none; box-shadow: 0 0 0 3px var(--ring), inset 0 1px 0 rgba(255,255,255,.14); }
 
     .tab-ico{
       width:26px; height:26px;
@@ -150,7 +149,7 @@
       white-space:nowrap;
     }
 
-    /* Тумблер ночного HUD (как “ползунок” справа в табе) */
+    /* тумблер */
     .hud-switch{
       display:inline-flex;
       align-items:center;
@@ -189,15 +188,10 @@
       box-shadow: 0 6px 10px rgba(0,0,0,.22);
       transition: left .18s ease, background .18s ease;
     }
-    .switch.is-on{
-      background: rgba(255, 220, 140, .20);
-    }
-    .switch.is-on::after{
-      left: 22px;
-      background: rgba(255, 235, 185, .95);
-    }
+    .switch.is-on{ background: rgba(255, 220, 140, .20); }
+    .switch.is-on::after{ left:22px; background: rgba(255, 235, 185, .95); }
 
-    /* ============ PANEL ============ */
+    /* PANEL */
     .side-nav__panel{
       width: var(--panel-w);
       border-radius: var(--radius);
@@ -212,11 +206,10 @@
       position:relative;
       overflow:hidden;
 
-      transform-origin: top right;
+      transform-origin: top left;
       transition: transform .22s ease, opacity .22s ease, filter .22s ease;
     }
 
-    /* внутренняя рамка, как на скрине */
     .side-nav__panel::before{
       content:"";
       position:absolute;
@@ -226,7 +219,6 @@
       pointer-events:none;
     }
 
-    /* лёгкие “пупырышки/точки” слева/снизу (очень тихо) */
     .hud-dots{
       position:absolute;
       inset:0;
@@ -269,16 +261,9 @@
       overflow:hidden;
       transition: transform .16s ease, filter .16s ease;
     }
-    .hud-item:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.05);
-    }
-    .hud-item:focus-visible{
-      outline:none;
-      box-shadow: 0 0 0 3px rgba(120,195,255,.28), 0 10px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
-    }
+    .hud-item:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .hud-item:focus-visible{ outline:none; box-shadow: 0 0 0 3px var(--ring), 0 10px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10); }
 
-    /* левая вертикальная полоска подсветки */
     .hud-item::before{
       content:"";
       position:absolute;
@@ -293,17 +278,14 @@
       opacity:.9;
     }
 
-    /* Иконка-слот слева */
     .hud-ico{
       width:44px; height:44px;
       border-radius:14px;
       display:grid;
       place-items:center;
-
       background: rgba(255,255,255,.10);
       border:1px solid rgba(255,255,255,.18);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 8px 14px rgba(0,0,0,.20);
-
       font-size:20px;
       line-height:1;
       flex: 0 0 auto;
@@ -316,13 +298,17 @@
       min-width:0;
       flex:1 1 auto;
     }
+
+    /* ✅ ВАЖНО: больше не обрезаем заголовок */
     .hud-title{
       font-size:16px;
       letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      white-space:normal;    /* было nowrap */
+      overflow:visible;      /* чтобы не резало */
+      text-overflow:clip;
+      line-height:1.05;
     }
+
     .hud-sub{
       font-size:12px;
       letter-spacing:.15px;
@@ -333,7 +319,6 @@
       opacity:.95;
     }
 
-    /* правая плашка ACTIVE/INFO/... */
     .hud-pill{
       flex:0 0 auto;
       padding:6px 10px;
@@ -345,6 +330,7 @@
       letter-spacing:.18em;
       text-transform:uppercase;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      margin-left:6px;
     }
     .hud-pill.active{
       background: var(--pill-active-bg);
@@ -352,7 +338,6 @@
       letter-spacing:.12em;
     }
 
-    /* маленькая стрелка справа как на скрине */
     .hud-chev{
       margin-left:6px;
       color: rgba(255,255,255,.75);
@@ -371,7 +356,6 @@
       z-index:1;
     }
 
-    /* CTA снизу — как твоя золотая кнопка */
     .hud-cta{
       position:relative;
       z-index:1;
@@ -395,12 +379,11 @@
       text-transform:uppercase;
 
       transition: transform .16s ease, filter .16s ease;
+      text-align:center;
+      padding:0 12px;
     }
     .hud-cta:hover{ transform: translateY(-1px); filter:saturate(1.05); }
-    .hud-cta:focus-visible{
-      outline:none;
-      box-shadow: 0 0 0 3px rgba(255,220,140,.28), 0 16px 30px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.55);
-    }
+    .hud-cta:focus-visible{ outline:none; box-shadow: 0 0 0 3px rgba(255,220,140,.28), 0 16px 30px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.55); }
     .hud-cta .heart{
       width:28px; height:28px;
       border-radius:12px;
@@ -410,20 +393,28 @@
       border:1px solid rgba(255,255,255,.40);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
       font-size:14px;
+      flex:0 0 auto;
     }
 
-    /* ============ collapse to RIGHT ============ */
+    /* ===== Сворачивание ВЛЕВО ===== */
     .side-nav.is-collapsed .side-nav__panel{
-      transform: translateX(calc(100% + 18px));
+      transform: translateX(calc(-100% - 18px));
       opacity:0;
       pointer-events:none;
       filter: blur(1px);
     }
 
+    /* когда свернуто — показываем "≡", когда открыто — "⟨" */
+    .side-nav.is-collapsed .tab-ico{ font-size:16px; }
+
     /* мобилка */
     @media (max-width: 820px){
-      :root{ --nav-right: 10px; --nav-top: 10px; --panel-w: 270px; }
-      .tab-title{ display:none; } /* чтобы таб был компактнее */
+      :root{
+        --nav-left: 10px;
+        --nav-top: 10px;
+        --panel-w: 300px;
+      }
+      .tab-title{ display:none; }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -542,11 +533,11 @@
 
 <body>
 
-  <!-- HUD MENU -->
+  <!-- HUD MENU (СЛЕВА) -->
   <nav class="side-nav hud--day" aria-label="Навигация">
     <div class="side-nav__tab">
       <button class="tab-btn" id="menuToggle" type="button" aria-expanded="true" aria-controls="hudPanel" title="Свернуть/развернуть">
-        <span class="tab-ico" aria-hidden="true">⟩</span>
+        <span class="tab-ico" aria-hidden="true">⟨</span>
         <span class="tab-title">Игровое меню</span>
       </button>
 
@@ -648,7 +639,7 @@
       }
     }
 
-    // Активный пункт по URL (находит по pathname)
+    // Активный пункт по URL
     (function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '') || '/';
@@ -669,7 +660,7 @@
       }catch(e){}
     })();
 
-    // Сворачивание ВПРАВО
+    // Сворачивание ВЛЕВО
     (function toggleMenu(){
       const nav = document.querySelector('.side-nav');
       const btn = document.getElementById('menuToggle');
@@ -680,7 +671,8 @@
         const collapsed = nav.classList.toggle('is-collapsed');
         btn.setAttribute('aria-expanded', String(!collapsed));
         btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
-        ico.textContent = collapsed ? '≡' : '⟩';
+        // когда свернуто — “≡”, когда открыто — “⟨”
+        ico.textContent = collapsed ? '≡' : '⟨';
       });
     })();
 
@@ -703,7 +695,6 @@
         if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
 
-      // стартовое состояние (выключено)
       setState(false);
     })();
   </script>
