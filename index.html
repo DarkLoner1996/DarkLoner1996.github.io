@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>   
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -21,13 +21,11 @@
     }
 
     /* ============================================================
-       WING MENU (как на визуализации: крылья + иконки + CTA)
-       Что добавлено:
-       - “крылья” через псевдоэлементы ::before/::after
-       - дружелюбный стеклянный бар + мягкие искры
-       - кнопки-таблетки с круглой иконкой сверху (как на концепте)
-       - CTA "Поддержать проект" справа
-       - нормальная адаптация под мобилку (скролл по горизонтали)
+       MENU (обновлено по замечаниям)
+       ✅ Удалены "крылья" слева/справа (смотрелись плохо)
+       ✅ Добавлены отступы/воздух сверху и по краям
+       ✅ Ничего не торчит: overflow hidden у капсулы
+       ✅ Чуть компактнее CTA, чтобы баланс не ломался
        ============================================================ */
 
     :root{
@@ -39,29 +37,26 @@
       --text: #2a4a7a;
       --muted:#3c5f92;
 
-      --accent:#fbe08c;  /* мягкое золото */
+      --accent:#fbe08c;
       --accent2:#ffd27d;
 
       --active:#f7d37a;
       --chip:#ffffff;
-
-      --wingBlue1: rgba(120, 195, 255, .55);
-      --wingBlue2: rgba(170, 230, 255, .25);
     }
 
     .nav-capsule{
       position:fixed;
-      top:18px;
+      top:26px;                           /* ✅ больше воздуха сверху */
       left:50%;
       transform:translateX(-50%);
       z-index:1000;
-      width:min(1100px, calc(100% - 24px));
+      width:min(1120px, calc(100% - 48px)); /* ✅ больше отступов по бокам */
     }
 
     .nav-capsule__inner{
       position:relative;
-      border-radius:26px;
-      padding:14px 14px;
+      border-radius:28px;
+      padding:16px 18px;                  /* ✅ больше внутренних отступов */
       background: linear-gradient(180deg, var(--glass), var(--glass2));
       border: 1px solid var(--stroke);
       box-shadow:
@@ -69,36 +64,22 @@
         inset 0 1px 0 rgba(255,255,255,.75);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      overflow: visible;
+
+      overflow:hidden;                    /* ✅ ничего не вылезает наружу */
     }
 
-    /* “Крылья” по бокам */
+    /* ✅ Крылья полностью отключены (даже если где-то останутся) */
     .nav-capsule__inner::before,
     .nav-capsule__inner::after{
-      content:"";
-      position:absolute;
-      top:50%;
-      width:min(240px, 22vw);
-      height:78px;
-      transform: translateY(-50%);
-      border-radius: 60px;
-      pointer-events:none;
-      filter: drop-shadow(0 10px 18px rgba(20,60,120,.12));
-      opacity:.95;
-      background:
-        radial-gradient(120px 50px at 20% 50%, rgba(255,255,255,.75), transparent 70%),
-        linear-gradient(180deg, var(--wingBlue1), var(--wingBlue2));
-      border: 1px solid rgba(255,255,255,.55);
+      content:none !important;
     }
-    .nav-capsule__inner::before{ left:-140px; clip-path: polygon(0 50%, 18% 0, 100% 18%, 100% 82%, 18% 100%); }
-    .nav-capsule__inner::after { right:-140px; clip-path: polygon(100% 50%, 82% 0, 0 18%, 0 82%, 82% 100%); }
 
-    /* искры */
+    /* искры (оставил, но сделал тише) */
     .nav-sparkles{
       position:absolute;
       inset:-10px;
       pointer-events:none;
-      opacity:.45;
+      opacity:.22;                        /* ✅ тише, чтобы не "шумело" */
       background:
         radial-gradient(circle at 12% 40%, rgba(255,255,255,.9) 0 2px, transparent 3px),
         radial-gradient(circle at 28% 70%, rgba(255,255,255,.75) 0 1.5px, transparent 3px),
@@ -108,12 +89,13 @@
       filter: blur(.2px);
     }
 
-    /* Лэйаут: слева логотип, центр меню, справа CTA */
+    /* Лэйаут */
     .nav-row{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
+      gap:18px;                           /* ✅ больше воздуха между блоками */
+      padding:2px 6px;                    /* ✅ внутренний микропаддинг */
     }
 
     .brand{
@@ -124,6 +106,7 @@
       border-radius:18px;
       user-select:none;
       white-space:nowrap;
+      flex:0 0 auto;
     }
 
     .brand__logo{
@@ -182,7 +165,7 @@
       flex-direction:column;
       align-items:center;
       gap:6px;
-      min-width: 118px;
+      min-width: 110px;                   /* ✅ чуть компактнее */
     }
 
     /* круглая иконка сверху */
@@ -275,7 +258,7 @@
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding:12px 18px;
+      padding:11px 16px;                  /* ✅ чуть компактнее */
       border-radius:18px;
       background: linear-gradient(180deg, rgba(255,244,210,.95), rgba(255,220,140,.88));
       border:1px solid rgba(255,255,255,.75);
@@ -309,14 +292,15 @@
 
     /* Адаптив */
     @media (max-width: 980px){
-      .brand__text{ display:none; } /* чтобы не теснило */
-      .nav-item{ min-width: 108px; }
+      .brand__text{ display:none; }
+      .nav-item{ min-width: 104px; }
     }
 
     @media (max-width: 820px){
+      .nav-capsule{ top:16px; width: calc(100% - 24px); }   /* ✅ на мобилке меньше отступы */
       .nav-row{ gap:10px; }
       .nav-capsule__inner{ padding:12px; border-radius:22px; }
-      .nav-capsule__inner::before, .nav-capsule__inner::after{ display:none; } /* крылья отключим на узких */
+
       .nav-capsule__list{
         justify-content:flex-start;
         overflow:auto;
@@ -326,10 +310,10 @@
         padding: 0 6px;
       }
       .nav-capsule__list::-webkit-scrollbar{ display:none; }
-      .nav-item{ min-width: 104px; }
+      .nav-item{ min-width: 102px; }
       .nav-ico{ width:40px; height:40px; font-size:17px; }
       .nav-link{ font-size:14px; padding:9px 12px; border-radius:14px; }
-      .cta{ padding:11px 14px; border-radius:16px; font-size:14px; }
+      .cta{ padding:10px 12px; border-radius:16px; font-size:14px; }
       .cta .heart{ width:28px; height:28px; }
     }
 
@@ -456,17 +440,13 @@
 
 <body>
 
-<!-- WING MENU -->
 <nav class="nav-capsule" aria-label="Навигация">
   <div class="nav-capsule__inner">
     <div class="nav-sparkles" aria-hidden="true"></div>
 
     <div class="nav-row">
-      <!-- BRAND -->
       <div class="brand" aria-label="Цифровая Гавань России">
         <div class="brand__logo" title="DigitalHavenRussia">
-          <!-- Поставь сюда свой логотип (например bear-logo.webp / embl.webp).
-               Если файла нет — оставь как есть, будет просто “стеклянная плитка”. -->
           <img src="embl.webp" alt="Логотип" onerror="this.remove()" />
         </div>
         <div class="brand__text">
@@ -475,7 +455,6 @@
         </div>
       </div>
 
-      <!-- CENTER MENU -->
       <ul class="nav-capsule__list">
         <li class="nav-item is-active">
           <div class="nav-ico" aria-hidden="true">🏠</div>
@@ -498,8 +477,6 @@
         </li>
       </ul>
 
-      <!-- CTA -->
-      <!-- Поменяй ссылку на реальную страницу помощи/доната, если есть -->
       <a class="cta" href="https://digitalhavenrussia.ru/project.html#help">
         <span class="heart" aria-hidden="true">❤</span>
         <span>Поддержать проект</span>
@@ -520,7 +497,6 @@
   </div>
 
   <script>
-    // cubes (как у тебя)
     const container = document.getElementById('cubes');
     const cols = 40, rows = 25;
 
@@ -537,8 +513,6 @@
       }
     }
 
-    // (опционально) подсветка активного пункта по URL:
-    // добавь класс is-active на нужный .nav-item автоматически
     (function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '');
