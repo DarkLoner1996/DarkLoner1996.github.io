@@ -21,37 +21,42 @@
     }
 
     /* ============================================================
-       GAME HUD MENU (справа сверху) — НЕ МЕНЯЕМ КОНЦЕПЦИЮ
-       Улучшения:
-       ✅ “HUD рамка” (двойной бордер + углы)
-       ✅ мягкий неон-глоу (сине-золотой, патриотично)
-       ✅ микро-анимации (скан-линия, “пиксельные” искры)
+       MISSION HUD MENU (как на визуализации) — справа сверху
+       ✅ HUD-рамка + углы + микро-свет
+       ✅ карточки “миссий” (title + sub)
        ✅ CTA как “легендарная кнопка”
-       ✅ сворачивание ВПРАВО (уезжает за край), остаётся TAB
+       ✅ сворачивание ВПРАВО (панель уезжает за край), TAB остаётся
        ============================================================ */
 
     :root{
       --nav-right: 18px;
       --nav-top: 14px;
 
-      --hud-bg1: rgba(255,255,255,.78);
-      --hud-bg2: rgba(255,255,255,.54);
-      --hud-shadow: rgba(8, 28, 70, .22);
+      --hud-outer1: rgba(65, 170, 255, .55);
+      --hud-outer2: rgba(255, 210, 125, .45);
 
-      --text: rgba(18,40,75,.92);
-      --muted: rgba(18,40,75,.72);
+      --panel-bg: rgba(14, 28, 58, .55);
+      --panel-bg2: rgba(10, 22, 46, .35);
 
-      --blue: rgba(90,170,255,.55);
-      --blue2: rgba(140,210,255,.32);
-      --gold: rgba(255,210,125,.95);
-      --gold2: rgba(255,236,170,.95);
+      --glass1: rgba(255,255,255,.18);
+      --glass2: rgba(255,255,255,.08);
+
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+
+      --blueGlow: rgba(110, 200, 255, .55);
+      --goldGlow: rgba(255, 210, 125, .75);
+
+      --tile1: rgba(255,255,255,.12);
+      --tile2: rgba(255,255,255,.06);
+
+      --cta1: rgba(255, 225, 140, .98);
+      --cta2: rgba(255, 198, 86, .92);
 
       --ring: rgba(120,195,255,.35);
 
-      --cta1: rgba(255,244,210,.98);
-      --cta2: rgba(255,220,140,.90);
-
       --radius: 18px;
+      --panel-w: 270px;
     }
 
     .side-nav{
@@ -59,93 +64,96 @@
       right: var(--nav-right);
       top: var(--nav-top);
       z-index:1000;
-
       display:flex;
       flex-direction:column;
       gap:10px;
       align-items:flex-end;
     }
 
-    /* TAB (кнопка меню) */
+    /* TAB */
     .side-nav__toggle{
       position:relative;
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding:10px 12px;
+      padding:10px 14px;
       border-radius:16px;
-      border:1px solid rgba(255,255,255,.65);
-
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.62));
-      box-shadow:
-        0 16px 34px rgba(12,38,80,.16),
-        inset 0 1px 0 rgba(255,255,255,.90);
-
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-
-      color: var(--text);
       cursor:pointer;
       user-select:none;
       white-space:nowrap;
+
+      color: rgba(255,255,255,.92);
+
+      background:
+        linear-gradient(180deg, rgba(18,35,72,.70), rgba(10,22,46,.55)) padding-box,
+        linear-gradient(180deg, rgba(65,170,255,.65), rgba(255,210,125,.55)) border-box;
+      border:1px solid transparent;
+
+      box-shadow:
+        0 16px 34px rgba(0,0,0,.22),
+        0 0 22px rgba(110,200,255,.18),
+        inset 0 1px 0 rgba(255,255,255,.18);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
 
       transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
       overflow:hidden;
     }
 
-    /* “скан-линия” в TAB */
+    /* scan-line по TAB */
     .side-nav__toggle::after{
       content:"";
       position:absolute;
-      left:-40%;
-      top:-60%;
-      width:80%;
+      left:-60%;
+      top:-50%;
+      width:60%;
       height:220%;
       transform: rotate(22deg);
-      background: linear-gradient(90deg, transparent, rgba(120,195,255,.35), transparent);
-      opacity:.65;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+      opacity:.55;
       animation: tabSweep 3.8s ease-in-out infinite;
       pointer-events:none;
     }
     @keyframes tabSweep{
-      0%{ transform: translateX(-30%) rotate(22deg); opacity:.0; }
-      20%{ opacity:.55; }
-      55%{ opacity:.25; }
-      100%{ transform: translateX(120%) rotate(22deg); opacity:0; }
+      0%{ transform: translateX(-20%) rotate(22deg); opacity:0; }
+      18%{ opacity:.55; }
+      60%{ opacity:.18; }
+      100%{ transform: translateX(220%) rotate(22deg); opacity:0; }
     }
 
     .side-nav__toggle:hover{
       transform: translateY(-1px);
       box-shadow:
-        0 20px 40px rgba(12,38,80,.18),
-        0 0 0 2px rgba(120,195,255,.14),
-        inset 0 1px 0 rgba(255,255,255,.92);
+        0 20px 40px rgba(0,0,0,.26),
+        0 0 0 2px rgba(110,200,255,.14),
+        0 0 26px rgba(255,210,125,.10),
+        inset 0 1px 0 rgba(255,255,255,.22);
       filter:saturate(1.03);
     }
     .side-nav__toggle:focus-visible{
       outline:none;
       box-shadow:
         0 0 0 3px var(--ring),
-        0 20px 40px rgba(12,38,80,.18),
-        inset 0 1px 0 rgba(255,255,255,.92);
+        0 20px 40px rgba(0,0,0,.26),
+        inset 0 1px 0 rgba(255,255,255,.22);
     }
 
     .toggle-ico{
-      width:26px; height:26px;
+      width:28px; height:28px;
       border-radius:10px;
       display:grid; place-items:center;
-
-      background: rgba(255,255,255,.74);
-      border:1px solid rgba(255,255,255,.65);
-      box-shadow: 0 10px 18px rgba(20,60,120,.10), inset 0 1px 0 rgba(255,255,255,.9);
-
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 12px 20px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.18);
       font-size:16px;
       line-height:1;
       position:relative;
     }
 
-    /* маленькая “лампа” статуса */
+    /* маленькая “лампа” */
     .toggle-ico::after{
       content:"";
       position:absolute;
@@ -154,165 +162,144 @@
       width:10px;
       height:10px;
       border-radius:50%;
-      background: radial-gradient(circle, rgba(255,236,170,1), rgba(255,210,125,.45));
-      box-shadow: 0 0 14px rgba(255,210,125,.55);
-      opacity:.9;
+      background: radial-gradient(circle, rgba(255,236,170,1), rgba(255,210,125,.25));
+      box-shadow: 0 0 14px rgba(255,210,125,.45);
+      opacity:.95;
     }
 
-    .toggle-text{
-      font-size:15px;
-      letter-spacing:.15px;
-      opacity:.9;
-      white-space:nowrap;
-    }
+    .toggle-text{ font-size:15px; letter-spacing:.15px; opacity:.95; }
 
-    /* PANEL (HUD) */
+    /* PANEL */
     .side-nav__panel{
       position:relative;
-      width: 210px;
+      width: var(--panel-w);
       border-radius: var(--radius);
-      padding:10px;
+      padding:12px;
 
-      /* двойная “HUD рамка” */
       background:
-        linear-gradient(180deg, var(--hud-bg1), var(--hud-bg2)) padding-box,
-        linear-gradient(180deg, rgba(90,170,255,.42), rgba(255,210,125,.38)) border-box;
+        linear-gradient(180deg, rgba(16,32,66,.72), rgba(10,22,46,.55)) padding-box,
+        linear-gradient(180deg, rgba(65,170,255,.65), rgba(255,210,125,.55)) border-box;
       border:1px solid transparent;
 
       box-shadow:
-        0 22px 50px var(--hud-shadow),
-        0 0 0 1px rgba(255,255,255,.32) inset,
-        inset 0 1px 0 rgba(255,255,255,.82);
+        0 26px 60px rgba(0,0,0,.32),
+        0 0 26px rgba(110,200,255,.14),
+        0 0 22px rgba(255,210,125,.10),
+        inset 0 1px 0 rgba(255,255,255,.18);
 
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
+
       overflow:hidden;
 
       transform-origin: top right;
-      transition:
-        transform .22s ease,
-        opacity .22s ease,
-        filter .22s ease;
+      transition: transform .22s ease, opacity .22s ease, filter .22s ease;
     }
 
-    /* “HUD углы” */
+    /* внутренняя стеклянная подложка */
     .side-nav__panel::before{
       content:"";
       position:absolute;
-      inset:6px;
-      border-radius: calc(var(--radius) - 6px);
+      inset:10px;
+      border-radius: calc(var(--radius) - 10px);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
       pointer-events:none;
-      background:
-        linear-gradient(90deg, rgba(90,170,255,.32), transparent 30%, transparent 70%, rgba(255,210,125,.28));
-      opacity:.35;
-      mix-blend-mode: screen;
+      opacity:.85;
     }
+
+    /* HUD-углы */
     .corner{
       position:absolute;
       width:14px; height:14px;
-      border:2px solid rgba(255,255,255,.55);
-      opacity:.65;
+      border:2px solid rgba(255,255,255,.42);
+      opacity:.70;
       pointer-events:none;
-      filter: drop-shadow(0 2px 6px rgba(20,60,120,.10));
+      filter: drop-shadow(0 2px 8px rgba(110,200,255,.10));
+      z-index:2;
     }
-    .c-tr{ top:8px; right:8px; border-left:none; border-bottom:none; border-top-right-radius:8px; }
-    .c-tl{ top:8px; left:8px; border-right:none; border-bottom:none; border-top-left-radius:8px; }
-    .c-br{ bottom:8px; right:8px; border-left:none; border-top:none; border-bottom-right-radius:8px; }
-    .c-bl{ bottom:8px; left:8px; border-right:none; border-top:none; border-bottom-left-radius:8px; }
+    .c-tr{ top:10px; right:10px; border-left:none; border-bottom:none; border-top-right-radius:8px; }
+    .c-tl{ top:10px; left:10px; border-right:none; border-bottom:none; border-top-left-radius:8px; }
+    .c-br{ bottom:10px; right:10px; border-left:none; border-top:none; border-bottom-right-radius:8px; }
+    .c-bl{ bottom:10px; left:10px; border-right:none; border-top:none; border-bottom-left-radius:8px; }
 
-    /* пиксельные искры (очень мягко) */
+    /* пиксельные искры */
     .hud-sparks{
       position:absolute;
-      inset:-20px;
+      inset:-30px;
       pointer-events:none;
-      opacity:.35;
+      opacity:.30;
       background:
-        radial-gradient(circle at 18% 20%, rgba(255,255,255,.9) 0 1.5px, transparent 2.8px),
-        radial-gradient(circle at 72% 28%, rgba(120,195,255,.9) 0 1.5px, transparent 3px),
-        radial-gradient(circle at 86% 62%, rgba(255,210,125,.95) 0 1.7px, transparent 3px),
-        radial-gradient(circle at 26% 74%, rgba(255,255,255,.85) 0 1.2px, transparent 2.6px);
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,.9) 0 1.6px, transparent 3px),
+        radial-gradient(circle at 72% 28%, rgba(110,200,255,.9) 0 1.6px, transparent 3px),
+        radial-gradient(circle at 86% 62%, rgba(255,210,125,.95) 0 1.8px, transparent 3px),
+        radial-gradient(circle at 26% 74%, rgba(255,255,255,.85) 0 1.3px, transparent 2.8px);
       animation: sparksFloat 6s ease-in-out infinite;
       filter: blur(.2px);
+      z-index:1;
     }
     @keyframes sparksFloat{
-      0%,100%{ transform: translateY(0); opacity:.28; }
-      50%{ transform: translateY(6px); opacity:.40; }
+      0%,100%{ transform: translateY(0); opacity:.22; }
+      50%{ transform: translateY(7px); opacity:.35; }
     }
 
     .side-nav__list{
       list-style:none;
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:10px;
       margin:0;
       padding:0;
       position:relative;
-      z-index:1;
+      z-index:3;
     }
 
+    /* карточка миссии */
     .side-nav__link{
       position:relative;
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:12px;
 
-      height:44px;
-      padding:0 12px 0 10px;
+      padding:12px 12px;
       border-radius:14px;
-
       text-decoration:none;
-      color: var(--muted);
-      font-size:15px;
-      letter-spacing:.15px;
+      color: var(--text);
 
-      transition: background .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
-      outline:none;
-      user-select:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)) padding-box,
+        linear-gradient(180deg, rgba(110,200,255,.26), rgba(255,210,125,.18)) border-box;
+      border:1px solid transparent;
+
+      box-shadow:
+        0 14px 26px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.12);
+
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, background .18s ease;
       overflow:hidden;
     }
 
-    /* “плитка” иконки как игровые слоты */
-    .ico{
-      width:38px; height:38px;
-      border-radius:12px;
-      display:grid; place-items:center;
-      flex:0 0 auto;
-
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.92), rgba(255,255,255,.45) 55%, rgba(255,255,255,.22)),
-        linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.18));
-      border:1px solid rgba(255,255,255,.60);
-      box-shadow:
-        0 10px 18px rgba(20,60,120,.10),
-        inset 0 1px 0 rgba(255,255,255,.88);
-
-      font-size:18px;
-      color: var(--text);
-      position:relative;
-    }
-
-    /* тонкий “скан” по пункту на hover */
+    /* scan по карточке */
     .side-nav__link::after{
       content:"";
       position:absolute;
-      left:-60%;
-      top:-50%;
-      width:55%;
-      height:220%;
+      left:-65%;
+      top:-55%;
+      width:60%;
+      height:240%;
       transform: rotate(22deg);
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.40), transparent);
       opacity:0;
-      transition: opacity .18s ease;
       pointer-events:none;
     }
 
-    .label{ white-space:nowrap; }
-
     .side-nav__link:hover{
-      background: rgba(255,255,255,.58);
-      color: var(--text);
       transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(20,60,120,.10);
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.26),
+        0 0 0 2px rgba(110,200,255,.12),
+        inset 0 1px 0 rgba(255,255,255,.14);
+      filter:saturate(1.04);
     }
     .side-nav__link:hover::after{
       opacity:.55;
@@ -320,119 +307,165 @@
     }
     @keyframes itemSweep{
       from{ transform: translateX(-10%) rotate(22deg); }
-      to{ transform: translateX(220%) rotate(22deg); }
+      to{ transform: translateX(240%) rotate(22deg); }
     }
 
     .side-nav__link:focus-visible{
-      box-shadow: 0 0 0 3px var(--ring);
+      outline:none;
+      box-shadow:
+        0 0 0 3px var(--ring),
+        0 18px 34px rgba(0,0,0,.26),
+        inset 0 1px 0 rgba(255,255,255,.14);
     }
 
-    /* актив */
-    .side-nav__link.is-active{
-      background: rgba(255,255,255,.72);
-      color: var(--text);
-      box-shadow: 0 12px 22px rgba(20,60,120,.12);
-    }
-    .side-nav__link.is-active::before{
+    /* левый “индикатор миссии” */
+    .side-nav__link::before{
       content:"";
       position:absolute;
-      left:0;
-      top:8px;
-      bottom:8px;
+      left:10px;
+      top:10px;
+      bottom:10px;
       width:3px;
       border-radius:999px;
-      background: linear-gradient(180deg, rgba(90,170,255,.85), rgba(255,210,125,.85));
-      box-shadow: 0 0 12px rgba(120,195,255,.35);
-      opacity:.9;
-    }
-    .side-nav__link.is-active .ico{
-      box-shadow:
-        0 14px 24px rgba(20,60,120,.12),
-        0 0 0 2px rgba(255,210,125,.22),
-        inset 0 1px 0 rgba(255,255,255,.92);
-    }
-
-    .side-nav__divider{
-      height:1px;
-      margin:10px 4px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.78), transparent);
+      background: rgba(110,200,255,.25);
       opacity:.85;
-      position:relative;
-      z-index:1;
     }
 
-    /* CTA как “легендарная кнопка” */
+    /* иконка-слот */
+    .ico{
+      width:44px; height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(255,255,255,.08) 55%, rgba(255,255,255,.04)),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.14);
+
+      box-shadow:
+        0 12px 22px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      font-size:20px;
+      line-height:1;
+    }
+
+    .txt{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .title{
+      font-size:16px;
+      letter-spacing:.3px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .sub{
+      font-size:12px;
+      letter-spacing:.15px;
+      color: rgba(255,255,255,.70);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* ACTIVE: как “миссия активна” */
+    .side-nav__link.is-active{
+      box-shadow:
+        0 22px 40px rgba(0,0,0,.30),
+        0 0 0 2px rgba(255,210,125,.14),
+        0 0 22px rgba(255,210,125,.10),
+        inset 0 1px 0 rgba(255,255,255,.16);
+    }
+    .side-nav__link.is-active::before{
+      background: linear-gradient(180deg, rgba(110,200,255,.85), rgba(255,210,125,.85));
+      box-shadow: 0 0 14px rgba(110,200,255,.18);
+      opacity:.95;
+    }
+    .side-nav__link.is-active .sub{
+      color: rgba(255,236,170,.88);
+    }
+
+    .divider{
+      height:1px;
+      margin:12px 4px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+      opacity:.95;
+      position:relative;
+      z-index:3;
+    }
+
+    /* CTA “легендарная кнопка” */
     .side-nav__cta{
       position:relative;
-      z-index:1;
-
+      z-index:3;
       display:flex;
       align-items:center;
+      justify-content:center;
       gap:10px;
 
-      height:46px;
-      padding:0 12px 0 10px;
+      padding:14px 12px;
       border-radius:14px;
+      text-decoration:none;
+      color: rgba(40,40,40,.98);
 
       background:
         linear-gradient(180deg, var(--cta1), var(--cta2)) padding-box,
-        linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,210,125,.55)) border-box;
+        linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,210,125,.60)) border-box;
       border:1px solid transparent;
 
       box-shadow:
-        0 16px 32px rgba(20,60,120,.14),
-        inset 0 1px 0 rgba(255,255,255,.92);
+        0 20px 44px rgba(0,0,0,.28),
+        0 0 24px rgba(255,210,125,.18),
+        inset 0 1px 0 rgba(255,255,255,.70);
 
-      text-decoration:none;
-      color: rgba(55,55,55,.96);
-      font-size:15px;
-      letter-spacing:.1px;
-
-      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
-      user-select:none;
-      white-space:nowrap;
+      font-size:16px;
+      letter-spacing:.2px;
+      text-transform: uppercase;
       overflow:hidden;
     }
 
     .side-nav__cta::after{
       content:"";
       position:absolute;
-      inset:-2px;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(255,255,255,.75), transparent 55%),
-        linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      left:-60%;
+      top:-55%;
+      width:60%;
+      height:240%;
+      transform: rotate(22deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
       opacity:.35;
+      animation: ctaSweep 3.4s ease-in-out infinite;
       pointer-events:none;
-      transform: translateX(-30%);
-      animation: ctaGlow 3.4s ease-in-out infinite;
     }
-    @keyframes ctaGlow{
-      0%,100%{ transform: translateX(-30%); opacity:.22; }
-      50%{ transform: translateX(35%); opacity:.45; }
+    @keyframes ctaSweep{
+      0%,100%{ transform: translateX(-30%) rotate(22deg); opacity:.18; }
+      50%{ transform: translateX(170%) rotate(22deg); opacity:.45; }
     }
 
     .side-nav__cta:hover{
       transform: translateY(-1px);
       box-shadow:
-        0 20px 40px rgba(20,60,120,.16),
-        0 0 0 2px rgba(255,210,125,.20),
-        inset 0 1px 0 rgba(255,255,255,.94);
-      filter:saturate(1.05);
+        0 26px 56px rgba(0,0,0,.30),
+        0 0 0 2px rgba(255,210,125,.18),
+        0 0 26px rgba(255,210,125,.20),
+        inset 0 1px 0 rgba(255,255,255,.75);
+      filter:saturate(1.03);
     }
     .side-nav__cta:focus-visible{
       outline:none;
       box-shadow:
         0 0 0 3px var(--ring),
-        0 20px 40px rgba(20,60,120,.16),
-        inset 0 1px 0 rgba(255,255,255,.94);
-    }
-    .side-nav__cta .ico{
-      background: rgba(255,255,255,.78);
-      font-size:14px;
+        0 26px 56px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.75);
     }
 
-    /* ===== Сворачивание ВПРАВО =====
-       Панель уезжает за правый край, остаётся таб-кнопка */
+    /* ===== Сворачивание ВПРАВО ===== */
     .side-nav.is-collapsed .side-nav__panel{
       transform: translateX(calc(100% + 18px));
       opacity: 0;
@@ -440,18 +473,16 @@
       filter: blur(1px);
     }
 
-    /* иконка в TAB: когда развернуто — “убрать вправо” (⟩),
-       когда свернуто — “показать” (≡) */
-    .side-nav.is-collapsed .toggle-ico{ font-size:15px; }
-
-    /* мобилка */
+    /* мобилка: компактнее */
     @media (max-width: 820px){
       :root{
         --nav-right: 12px;
         --nav-top: 12px;
+        --panel-w: 240px;
       }
-      .side-nav__panel{ width: 200px; }
-      .side-nav__toggle .toggle-text{ display:none; }
+      .toggle-text{ display:none; }
+      .title{ font-size:15px; }
+      .sub{ font-size:11px; }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -581,7 +612,7 @@
 
 <body>
 
-  <!-- GAME HUD MENU -->
+  <!-- MISSION HUD MENU -->
   <nav class="side-nav" aria-label="Навигация">
     <button class="side-nav__toggle" type="button" aria-expanded="true" aria-controls="sideNavPanel" title="Свернуть меню">
       <span class="toggle-ico" aria-hidden="true">⟩</span>
@@ -599,34 +630,49 @@
         <li>
           <a class="side-nav__link is-active" href="https://digitalhavenrussia.ru">
             <span class="ico" aria-hidden="true">🏠</span>
-            <span class="label">Главная</span>
+            <span class="txt">
+              <span class="title">Главная</span>
+              <span class="sub">Миссия активна</span>
+            </span>
           </a>
         </li>
+
         <li>
           <a class="side-nav__link" href="https://digitalhavenrussia.ru/project.html">
             <span class="ico" aria-hidden="true">📘</span>
-            <span class="label">О проекте</span>
+            <span class="txt">
+              <span class="title">О проекте</span>
+              <span class="sub">Брифинг</span>
+            </span>
           </a>
         </li>
+
         <li>
           <a class="side-nav__link" href="https://digitalhavenrussia.ru/security.html">
             <span class="ico" aria-hidden="true">🎬</span>
-            <span class="label">Мультфильм</span>
+            <span class="txt">
+              <span class="title">Мультфильм</span>
+              <span class="sub">Обучающий контент</span>
+            </span>
           </a>
         </li>
+
         <li>
           <a class="side-nav__link" href="https://digitalhavenrussia.ru/map.html">
             <span class="ico" aria-hidden="true">🧭</span>
-            <span class="label">Маршрут помощи</span>
+            <span class="txt">
+              <span class="title">Маршрут помощи</span>
+              <span class="sub">Карта операции</span>
+            </span>
           </a>
         </li>
       </ul>
 
-      <div class="side-nav__divider" aria-hidden="true"></div>
+      <div class="divider" aria-hidden="true"></div>
 
       <a class="side-nav__cta" href="https://digitalhavenrussia.ru/project.html#help">
-        <span class="ico" aria-hidden="true">❤</span>
-        <span class="label">Поддержать</span>
+        <span aria-hidden="true">❤</span>
+        <span>Поддержать проект</span>
       </a>
     </div>
   </nav>
@@ -660,7 +706,7 @@
       }
     }
 
-    // Активный пункт по URL
+    // Активный пункт по URL (подсветка)
     (function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '');
@@ -682,7 +728,7 @@
       }catch(e){}
     })();
 
-    // Сворачивание ВПРАВО: панель уезжает за край
+    // Сворачивание ВПРАВО (панель уезжает за край)
     (function toggleNav(){
       const nav = document.querySelector('.side-nav');
       const btn = document.querySelector('.side-nav__toggle');
@@ -693,7 +739,6 @@
         const collapsed = nav.classList.toggle('is-collapsed');
         btn.setAttribute('aria-expanded', String(!collapsed));
         btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
-        // когда свернуто — “≡” (как игровой таб), когда открыто — “⟩”
         ico.textContent = collapsed ? '≡' : '⟩';
       });
     })();
