@@ -20,234 +20,325 @@
       background:#ddeeff;
     }
 
-    /* ===== NAV CAPSULE (обновлено по правкам UX/UI) =====
-       Что добавил:
-       1) Меньше "пластика": приглушил блики/тени, сделал капсулу легче.
-       2) Активный пункт: явно выделен + маленький маркер-точка.
-       3) Чуть больше воздуха сверху (top: 22px).
-       4) Фокус по клавиатуре (:focus-visible) для доступности.
-       5) Меньше анимаций для тех, у кого reduced motion.
-    */
+    /* ============================================================
+       WING MENU (как на визуализации: крылья + иконки + CTA)
+       Что добавлено:
+       - “крылья” через псевдоэлементы ::before/::after
+       - дружелюбный стеклянный бар + мягкие искры
+       - кнопки-таблетки с круглой иконкой сверху (как на концепте)
+       - CTA "Поддержать проект" справа
+       - нормальная адаптация под мобилку (скролл по горизонтали)
+       ============================================================ */
 
     :root{
-      /* капсула */
-      --cap-bg1: rgba(255,255,255,.16);
-      --cap-bg2: rgba(255,255,255,.08);
-      --cap-border: rgba(255,255,255,.26);
-      --cap-shadow: rgba(0,0,0,.18);
+      --glass: rgba(255,255,255,.70);
+      --glass2: rgba(255,255,255,.48);
+      --stroke: rgba(255,255,255,.55);
+      --shadow: rgba(12, 38, 80, .18);
 
-      /* кнопки */
-      --btn-blue1:#2f77ff;
-      --btn-blue2:#1f4fd8;
-      --btn-border: rgba(255,255,255,.26);
+      --text: #2a4a7a;
+      --muted:#3c5f92;
 
-      --gold1:#ffe2a6;
-      --gold2:#ffd27d;
+      --accent:#fbe08c;  /* мягкое золото */
+      --accent2:#ffd27d;
 
-      --text:#ffffff;
+      --active:#f7d37a;
+      --chip:#ffffff;
+
+      --wingBlue1: rgba(120, 195, 255, .55);
+      --wingBlue2: rgba(170, 230, 255, .25);
     }
 
     .nav-capsule{
       position:fixed;
-      top:22px; /* было 12px — добавил воздуха */
+      top:18px;
       left:50%;
       transform:translateX(-50%);
       z-index:1000;
-      width:min(980px, calc(100% - 24px));
+      width:min(1100px, calc(100% - 24px));
     }
 
-    /* Стеклянная “длинная капсула” под меню */
     .nav-capsule__inner{
       position:relative;
-      padding:10px 12px;
-      border-radius:22px;
-
-      background: linear-gradient(180deg, var(--cap-bg1), var(--cap-bg2));
-      border:1px solid var(--cap-border);
-
-      /* облегчил тень/внутренний блик */
+      border-radius:26px;
+      padding:14px 14px;
+      background: linear-gradient(180deg, var(--glass), var(--glass2));
+      border: 1px solid var(--stroke);
       box-shadow:
-        0 14px 28px var(--cap-shadow),
-        inset 0 1px 0 rgba(255,255,255,.22);
-
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      overflow:hidden;
+        0 18px 40px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow: visible;
     }
 
-    /* Блик сверху на капсуле (сделал мягче) */
-    .nav-capsule__inner::before{
-      content:"";
-      position:absolute;
-      left:18px;
-      right:18px;
-      top:7px;
-      height:14px;
-      border-radius:999px;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
-      opacity:.45;
-      pointer-events:none;
-    }
-
-    /* тонкая “золотая искра” снизу (чуть тише) */
+    /* “Крылья” по бокам */
+    .nav-capsule__inner::before,
     .nav-capsule__inner::after{
       content:"";
       position:absolute;
-      left:22px;
-      right:22px;
-      bottom:8px;
-      height:2px;
-      border-radius:999px;
-      background:linear-gradient(90deg, transparent, rgba(255,210,125,.7), transparent);
-      opacity:.38;
+      top:50%;
+      width:min(240px, 22vw);
+      height:78px;
+      transform: translateY(-50%);
+      border-radius: 60px;
       pointer-events:none;
+      filter: drop-shadow(0 10px 18px rgba(20,60,120,.12));
+      opacity:.95;
+      background:
+        radial-gradient(120px 50px at 20% 50%, rgba(255,255,255,.75), transparent 70%),
+        linear-gradient(180deg, var(--wingBlue1), var(--wingBlue2));
+      border: 1px solid rgba(255,255,255,.55);
+    }
+    .nav-capsule__inner::before{ left:-140px; clip-path: polygon(0 50%, 18% 0, 100% 18%, 100% 82%, 18% 100%); }
+    .nav-capsule__inner::after { right:-140px; clip-path: polygon(100% 50%, 82% 0, 0 18%, 0 82%, 82% 100%); }
+
+    /* искры */
+    .nav-sparkles{
+      position:absolute;
+      inset:-10px;
+      pointer-events:none;
+      opacity:.45;
+      background:
+        radial-gradient(circle at 12% 40%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+        radial-gradient(circle at 28% 70%, rgba(255,255,255,.75) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 55% 35%, rgba(255,225,140,.9) 0 2px, transparent 3px),
+        radial-gradient(circle at 76% 62%, rgba(255,255,255,.85) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 90% 42%, rgba(255,225,140,.8) 0 2px, transparent 3px);
+      filter: blur(.2px);
     }
 
-    /* список кнопок */
+    /* Лэйаут: слева логотип, центр меню, справа CTA */
+    .nav-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:6px 8px;
+      border-radius:18px;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .brand__logo{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.25) 55%, transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.35));
+      border:1px solid rgba(255,255,255,.65);
+      box-shadow: 0 10px 18px rgba(20,60,120,.12), inset 0 1px 0 rgba(255,255,255,.8);
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+    }
+    .brand__logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+
+    .brand__text{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+    }
+    .brand__title{
+      font-size:18px;
+      letter-spacing:.3px;
+      color: var(--text);
+      text-shadow: 0 1px 0 rgba(255,255,255,.6);
+    }
+    .brand__sub{
+      font-size:12px;
+      letter-spacing:.28em;
+      color: rgba(60,95,146,.9);
+      margin-top:2px;
+    }
+
+    /* Меню по центру */
     .nav-capsule__list{
       list-style:none;
       display:flex;
-      align-items:center;
+      align-items:flex-end;
       justify-content:center;
-      gap:12px;
+      gap:14px;
       margin:0;
       padding:0;
-      flex-wrap:wrap;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
-    /* Кнопки */
-    .nav-capsule__list a{
+    .nav-item{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      min-width: 118px;
+    }
+
+    /* круглая иконка сверху */
+    .nav-ico{
+      width:44px;
+      height:44px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.55) 50%, rgba(255,255,255,.25) 85%),
+        linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.35));
+      border: 1px solid rgba(255,255,255,.7);
+      box-shadow: 0 12px 20px rgba(20,60,120,.12), inset 0 1px 0 rgba(255,255,255,.85);
+      display:grid;
+      place-items:center;
+      color: rgba(42,74,122,.95);
+      font-size:18px;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+
+    /* кнопка-таблетка снизу */
+    .nav-link{
       position:relative;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-
-      padding:10px 16px;
+      padding:10px 14px;
       border-radius:16px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255,255,255,.65);
+      box-shadow: 0 14px 26px rgba(20,60,120,.10), inset 0 1px 0 rgba(255,255,255,.9);
       text-decoration:none;
-
-      font-size:18px;
-      letter-spacing:.3px;
-
-      color:var(--text);
-      background: linear-gradient(180deg, var(--btn-blue1), var(--btn-blue2));
-      border:1px solid var(--btn-border);
-
-      /* уменьшил "пластиковость": слабее тени и внутренние затемнения */
-      box-shadow:
-        0 10px 18px rgba(0,0,0,.20),
-        inset 0 1px 0 rgba(255,255,255,.28);
-
-      text-shadow: 0 2px 10px rgba(0,0,0,.28);
+      color: var(--muted);
+      font-size:16px;
+      letter-spacing:.2px;
+      white-space:nowrap;
       transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
-      will-change: transform;
     }
 
-    /* верхний блик на каждой кнопке (мягче и ниже по силе) */
-    .nav-capsule__list a::before{
+    .nav-link::after{
       content:"";
       position:absolute;
-      left:10px;
-      right:10px;
-      top:7px;
-      height:10px;
-      border-radius:999px;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.40), transparent);
-      opacity:.35;
-      pointer-events:none;
-    }
-
-    /* золотистая грань снизу кнопки (появляется на hover/active/active-item) */
-    .nav-capsule__list a::after{
-      content:"";
-      position:absolute;
-      left:12px;
-      right:12px;
-      bottom:6px;
+      left:14px; right:14px; bottom:6px;
       height:2px;
       border-radius:999px;
-      background:linear-gradient(90deg, transparent, var(--gold2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,210,125,.9), transparent);
       opacity:0;
       transform: translateY(2px);
       transition: opacity .18s ease, transform .18s ease;
       pointer-events:none;
     }
 
-    .nav-capsule__list a:hover{
-      transform: translateY(-1px) scale(1.03);
-      box-shadow:
-        0 16px 30px rgba(0,0,0,.26),
-        0 0 0 2px rgba(255,210,125,.16),
-        inset 0 1px 0 rgba(255,255,255,.34);
-      filter:saturate(1.06);
+    .nav-item:hover .nav-ico{
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 16px 26px rgba(20,60,120,.14), inset 0 1px 0 rgba(255,255,255,.9);
+      filter:saturate(1.05);
     }
-    .nav-capsule__list a:hover::after{
+    .nav-item:hover .nav-link{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 30px rgba(20,60,120,.14), inset 0 1px 0 rgba(255,255,255,.92);
+      filter:saturate(1.05);
+    }
+    .nav-item:hover .nav-link::after{
       opacity:1;
       transform: translateY(0);
     }
 
-    .nav-capsule__list a:active{
-      transform: translateY(0) scale(1.02);
+    /* Активный пункт */
+    .nav-item.is-active .nav-ico{
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,235,185,.75) 55%, rgba(255,255,255,.25) 85%),
+        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.38));
+      box-shadow: 0 18px 30px rgba(20,60,120,.16), 0 0 0 3px rgba(255,210,125,.25), inset 0 1px 0 rgba(255,255,255,.92);
     }
-
-    /* ===== Активная кнопка (явно + маркер) ===== */
-    .nav-capsule__list a.is-active{
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.28),
-        0 0 0 2px rgba(255,210,125,.26),
-        inset 0 1px 0 rgba(255,255,255,.36);
-      filter:saturate(1.08);
+    .nav-item.is-active .nav-link{
+      box-shadow: 0 18px 30px rgba(20,60,120,.16), 0 0 0 2px rgba(255,210,125,.28), inset 0 1px 0 rgba(255,255,255,.92);
     }
-    .nav-capsule__list a.is-active::after{
+    .nav-item.is-active .nav-link::after{
       opacity:1;
       transform: translateY(0);
     }
-    /* маркер-точка слева (понятно "вы тут") */
-    .nav-capsule__list a.is-active span{
-      position:relative;
-      padding-left:12px;
-    }
-    .nav-capsule__list a.is-active span::before{
-      content:"";
-      position:absolute;
-      left:0;
-      top:50%;
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background: radial-gradient(circle, rgba(255,210,125,1), rgba(255,210,125,.55));
-      transform: translateY(-50%);
-      box-shadow: 0 0 10px rgba(255,210,125,.35);
+
+    .nav-link:focus-visible{
+      outline:none;
+      box-shadow: 0 18px 30px rgba(20,60,120,.16), 0 0 0 3px rgba(120,195,255,.30), inset 0 1px 0 rgba(255,255,255,.92);
     }
 
-    /* Фокус с клавиатуры */
-    .nav-capsule__list a:focus-visible{
-      outline: none;
-      box-shadow:
-        0 16px 30px rgba(0,0,0,.26),
-        0 0 0 3px rgba(255,210,125,.34),
-        inset 0 1px 0 rgba(255,255,255,.34);
+    /* CTA справа */
+    .cta{
+      flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 18px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,244,210,.95), rgba(255,220,140,.88));
+      border:1px solid rgba(255,255,255,.75);
+      box-shadow: 0 18px 34px rgba(20,60,120,.14), inset 0 1px 0 rgba(255,255,255,.9);
+      color: #4b4b4b;
+      text-decoration:none;
+      font-size:16px;
+      letter-spacing:.15px;
+      white-space:nowrap;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+    .cta .heart{
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      background: rgba(255,255,255,.8);
+      border: 1px solid rgba(255,255,255,.7);
+      display:grid;
+      place-items:center;
+      box-shadow: 0 12px 20px rgba(20,60,120,.10), inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    .cta:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 22px 40px rgba(20,60,120,.16), inset 0 1px 0 rgba(255,255,255,.92);
+      filter:saturate(1.04);
+    }
+    .cta:focus-visible{
+      outline:none;
+      box-shadow: 0 22px 40px rgba(20,60,120,.16), 0 0 0 3px rgba(255,210,125,.35), inset 0 1px 0 rgba(255,255,255,.92);
     }
 
-    /* Мобилка */
-    @media (max-width:768px){
-      .nav-capsule{ top:14px; }
-      .nav-capsule__inner{ padding:8px 10px; border-radius:18px; }
-      .nav-capsule__list{ gap:8px; }
-      .nav-capsule__list a{
-        font-size:15px;
-        padding:9px 12px;
-        border-radius:14px;
+    /* Адаптив */
+    @media (max-width: 980px){
+      .brand__text{ display:none; } /* чтобы не теснило */
+      .nav-item{ min-width: 108px; }
+    }
+
+    @media (max-width: 820px){
+      .nav-row{ gap:10px; }
+      .nav-capsule__inner{ padding:12px; border-radius:22px; }
+      .nav-capsule__inner::before, .nav-capsule__inner::after{ display:none; } /* крылья отключим на узких */
+      .nav-capsule__list{
+        justify-content:flex-start;
+        overflow:auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap:10px;
+        padding: 0 6px;
       }
+      .nav-capsule__list::-webkit-scrollbar{ display:none; }
+      .nav-item{ min-width: 104px; }
+      .nav-ico{ width:40px; height:40px; font-size:17px; }
+      .nav-link{ font-size:14px; padding:9px 12px; border-radius:14px; }
+      .cta{ padding:11px 14px; border-radius:16px; font-size:14px; }
+      .cta .heart{ width:28px; height:28px; }
     }
 
-    /* Меньше анимаций, если пользователь просит */
     @media (prefers-reduced-motion: reduce){
-      .nav-capsule__list a{ transition:none; }
+      .nav-ico, .nav-link, .cta { transition:none; }
       .cloud-left, .cloud-right, .grass, .cube{ animation:none !important; }
     }
 
-    /* ===== HEADER ===== */
+    /* ===== HEADER (как у тебя) ===== */
     .header{
       position:relative;
       width:100%;
@@ -364,14 +455,56 @@
 </head>
 
 <body>
-<nav class="nav-capsule">
+
+<!-- WING MENU -->
+<nav class="nav-capsule" aria-label="Навигация">
   <div class="nav-capsule__inner">
-    <ul class="nav-capsule__list">
-      <li><a href="https://digitalhavenrussia.ru" class="is-active"><span>Главная</span></a></li>
-      <li><a href="https://digitalhavenrussia.ru/project.html">О проекте</a></li>
-      <li><a href="https://digitalhavenrussia.ru/security.html">Мультик</a></li>
-      <li><a href="https://digitalhavenrussia.ru/map.html">Маршрут помощи</a></li>
-    </ul>
+    <div class="nav-sparkles" aria-hidden="true"></div>
+
+    <div class="nav-row">
+      <!-- BRAND -->
+      <div class="brand" aria-label="Цифровая Гавань России">
+        <div class="brand__logo" title="DigitalHavenRussia">
+          <!-- Поставь сюда свой логотип (например bear-logo.webp / embl.webp).
+               Если файла нет — оставь как есть, будет просто “стеклянная плитка”. -->
+          <img src="embl.webp" alt="Логотип" onerror="this.remove()" />
+        </div>
+        <div class="brand__text">
+          <div class="brand__title">ЦИФРОВАЯ ГАВАНЬ</div>
+          <div class="brand__sub">РОССИИ</div>
+        </div>
+      </div>
+
+      <!-- CENTER MENU -->
+      <ul class="nav-capsule__list">
+        <li class="nav-item is-active">
+          <div class="nav-ico" aria-hidden="true">🏠</div>
+          <a class="nav-link" href="https://digitalhavenrussia.ru"><span>Главная</span></a>
+        </li>
+
+        <li class="nav-item">
+          <div class="nav-ico" aria-hidden="true">📘</div>
+          <a class="nav-link" href="https://digitalhavenrussia.ru/project.html"><span>О проекте</span></a>
+        </li>
+
+        <li class="nav-item">
+          <div class="nav-ico" aria-hidden="true">🎬</div>
+          <a class="nav-link" href="https://digitalhavenrussia.ru/security.html"><span>Мультфильм</span></a>
+        </li>
+
+        <li class="nav-item">
+          <div class="nav-ico" aria-hidden="true">🧭</div>
+          <a class="nav-link" href="https://digitalhavenrussia.ru/map.html"><span>Маршрут</span></a>
+        </li>
+      </ul>
+
+      <!-- CTA -->
+      <!-- Поменяй ссылку на реальную страницу помощи/доната, если есть -->
+      <a class="cta" href="https://digitalhavenrussia.ru/project.html#help">
+        <span class="heart" aria-hidden="true">❤</span>
+        <span>Поддержать проект</span>
+      </a>
+    </div>
   </div>
 </nav>
 
@@ -387,6 +520,7 @@
   </div>
 
   <script>
+    // cubes (как у тебя)
     const container = document.getElementById('cubes');
     const cols = 40, rows = 25;
 
@@ -402,6 +536,29 @@
         container.appendChild(cube);
       }
     }
+
+    // (опционально) подсветка активного пункта по URL:
+    // добавь класс is-active на нужный .nav-item автоматически
+    (function markActive(){
+      try{
+        const path = location.pathname.replace(/\/+$/, '');
+        const map = [
+          { href: '/', match: ['/', '/index.html'] },
+          { href: '/project.html', match: ['/project.html'] },
+          { href: '/security.html', match: ['/security.html'] },
+          { href: '/map.html', match: ['/map.html'] },
+        ];
+
+        const items = document.querySelectorAll('.nav-item');
+        items.forEach(i => i.classList.remove('is-active'));
+
+        const found = map.find(m => m.match.includes(path));
+        if(!found) return;
+
+        const link = document.querySelector(`.nav-link[href*="${found.href}"]`);
+        if(link) link.closest('.nav-item')?.classList.add('is-active');
+      }catch(e){}
+    })();
   </script>
 </body>
 </html>
