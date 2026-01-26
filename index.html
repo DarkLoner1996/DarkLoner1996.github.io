@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -21,76 +21,105 @@
     }
 
     /* ============================================================
-       ВАРИАНТ 2: ВЕРТИКАЛЬНАЯ МИНИ-ПАНЕЛЬ СЛЕВА (премиум/чисто)
-       - компактная “пилюля” слева по центру
-       - по умолчанию: только иконки (не перегружает фон)
-       - при наведении/фокусе: раскрывается и показывает текст
-       - активный пункт: подсветка + тонкая линия
-       - CTA “Поддержать” внизу панели
-       - на мобилке превращается в нижнюю панель (удобно)
+       ВЕРТИКАЛЬНОЕ МЕНЮ СЛЕВА (в стиле премиум + кнопка сворачивания)
+       ✅ Позиция в зоне “берёзы” задаётся 2 переменными:
+          --nav-left и --nav-top
+       ✅ Кнопка “Меню” сворачивает/разворачивает панель
+       ✅ Без эмблемы, без перегруза, подходит под богатый фон
        ============================================================ */
 
     :root{
-      --panel-bg1: rgba(255,255,255,.78);
-      --panel-bg2: rgba(255,255,255,.58);
-      --panel-stroke: rgba(255,255,255,.60);
+      /* 🔧 ТУТ ДВИГАЕШЬ МЕНЮ ПОД СТРЕЛКУ */
+      --nav-left: 30px;   /* отступ слева */
+      --nav-top: 210px;   /* отступ сверху */
+
+      /* стиль панели */
+      --panel-bg1: rgba(255,255,255,.82);
+      --panel-bg2: rgba(255,255,255,.60);
       --panel-shadow: rgba(12, 38, 80, .18);
 
       --text: rgba(18,40,75,.92);
       --muted: rgba(18,40,75,.72);
 
       --active: rgba(255,210,125,.95);
-      --active2: rgba(255,236,170,.95);
+      --ring: rgba(120,195,255,.35);
 
       --cta1: rgba(255,244,210,.98);
       --cta2: rgba(255,220,140,.92);
-
-      --ring: rgba(120,195,255,.35);
     }
 
-    /* контейнер панели */
+    /* контейнер меню */
     .side-nav{
       position:fixed;
-      left:18px;
-      top:50%;
-      transform:translateY(-50%);
+      left: var(--nav-left);
+      top: var(--nav-top);
+      transform:none;
       z-index:1000;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    .side-nav__panel{
-      width:58px;                 /* закрыто: только иконки */
-      max-width: 220px;           /* раскрыто */
-      border-radius:18px;
-
-      background: linear-gradient(180deg, var(--panel-bg1), var(--panel-bg2));
-      border:1px solid var(--panel-stroke);
-      box-shadow:
-        0 20px 46px var(--panel-shadow),
-        inset 0 1px 0 rgba(255,255,255,.82);
-
+    /* кнопка сворачивания */
+    .side-nav__toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.65);
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.64));
+      box-shadow: 0 16px 34px rgba(12,38,80,.14), inset 0 1px 0 rgba(255,255,255,.88);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
+      color: var(--text);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+    .side-nav__toggle:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 38px rgba(12,38,80,.16), inset 0 1px 0 rgba(255,255,255,.92);
+      filter:saturate(1.03);
+    }
+    .side-nav__toggle:focus-visible{
+      outline:none;
+      box-shadow: 0 0 0 3px var(--ring), 0 18px 38px rgba(12,38,80,.16), inset 0 1px 0 rgba(255,255,255,.92);
+    }
 
+    .toggle-ico{
+      width:26px; height:26px;
+      border-radius:10px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.72);
+      border:1px solid rgba(255,255,255,.65);
+      box-shadow: 0 10px 18px rgba(20,60,120,.10), inset 0 1px 0 rgba(255,255,255,.9);
+      font-size:16px;
+      line-height:1;
+    }
+    .toggle-text{
+      font-size:15px;
+      letter-spacing:.15px;
+      opacity:.9;
+      white-space:nowrap;
+    }
+
+    /* панель */
+    .side-nav__panel{
+      width: 210px;
+      border-radius:18px;
+      padding:10px;
+
+      background:
+        linear-gradient(180deg, var(--panel-bg1), var(--panel-bg2)) padding-box,
+        linear-gradient(180deg, rgba(120,195,255,.35), rgba(255,210,125,.35)) border-box;
+      border:1px solid transparent;
+
+      box-shadow: 0 20px 46px var(--panel-shadow), inset 0 1px 0 rgba(255,255,255,.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       overflow:hidden;
-      transition: width .22s ease;
-    }
-
-    /* раскрытие при наведении (ПК) */
-    @media (hover:hover){
-      .side-nav__panel:hover{ width: 210px; }
-    }
-
-    /* если фокус внутри — тоже раскрыть (клавиатура/доступность) */
-    .side-nav__panel:focus-within{ width:210px; }
-
-    /* “полоска света” */
-    .side-nav__panel::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background: linear-gradient(180deg, rgba(255,255,255,.55), transparent 55%);
-      opacity:.35;
+      transition: width .22s ease, padding .22s ease;
     }
 
     .side-nav__list{
@@ -98,8 +127,8 @@
       display:flex;
       flex-direction:column;
       gap:8px;
-      padding:10px;
       margin:0;
+      padding:0;
     }
 
     .side-nav__link{
@@ -117,17 +146,15 @@
       font-size:15px;
       letter-spacing:.15px;
 
-      transition: background .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+      transition: background .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
       outline:none;
+      user-select:none;
     }
 
-    /* иконка всегда видна */
     .ico{
-      width:38px;
-      height:38px;
+      width:38px; height:38px;
       border-radius:12px;
-      display:grid;
-      place-items:center;
+      display:grid; place-items:center;
       flex:0 0 auto;
 
       background: rgba(255,255,255,.60);
@@ -138,35 +165,21 @@
       color: var(--text);
     }
 
-    /* текст скрыт в закрытом состоянии */
     .label{
       white-space:nowrap;
-      opacity:0;
-      transform: translateX(-6px);
-      transition: opacity .18s ease, transform .18s ease;
-      color: var(--muted);
     }
 
-    /* когда панель раскрыта — показать текст */
-    .side-nav__panel:hover .label,
-    .side-nav__panel:focus-within .label{
-      opacity:1;
-      transform: translateX(0);
-    }
-
-    /* hover по пункту */
     .side-nav__link:hover{
       background: rgba(255,255,255,.58);
       color: var(--text);
       transform: translateY(-1px);
       box-shadow: 0 10px 18px rgba(20,60,120,.10);
     }
-
     .side-nav__link:focus-visible{
       box-shadow: 0 0 0 3px var(--ring);
     }
 
-    /* активный пункт */
+    /* актив */
     .side-nav__link.is-active{
       background: rgba(255,255,255,.70);
       color: var(--text);
@@ -175,13 +188,10 @@
     .side-nav__link.is-active::after{
       content:"";
       position:absolute;
-      left:12px;
-      right:12px;
-      bottom:6px;
+      left:12px; right:12px; bottom:6px;
       height:2px;
       border-radius:999px;
       background: linear-gradient(90deg, transparent, var(--active), transparent);
-      opacity:1;
       pointer-events:none;
     }
     .side-nav__link.is-active .ico{
@@ -189,20 +199,18 @@
       box-shadow: 0 14px 24px rgba(20,60,120,.12), 0 0 0 2px rgba(255,210,125,.22), inset 0 1px 0 rgba(255,255,255,.9);
     }
 
-    /* разделитель перед CTA */
     .side-nav__divider{
       height:1px;
-      margin:6px 10px 10px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent);
-      opacity:.75;
+      margin:10px 4px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.78), transparent);
+      opacity:.85;
     }
 
-    /* CTA кнопка внизу */
     .side-nav__cta{
-      margin:0 10px 10px;
       display:flex;
       align-items:center;
       gap:10px;
+
       height:44px;
       padding:0 12px 0 10px;
       border-radius:14px;
@@ -216,68 +224,46 @@
       font-size:15px;
 
       transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      user-select:none;
     }
-
     .side-nav__cta:hover{
       transform: translateY(-1px);
       box-shadow: 0 18px 34px rgba(20,60,120,.14), inset 0 1px 0 rgba(255,255,255,.92);
       filter:saturate(1.04);
     }
-
+    .side-nav__cta:focus-visible{
+      outline:none;
+      box-shadow: 0 0 0 3px var(--ring), 0 18px 34px rgba(20,60,120,.14), inset 0 1px 0 rgba(255,255,255,.92);
+    }
     .side-nav__cta .ico{
       background: rgba(255,255,255,.75);
       font-size:14px;
     }
 
-    /* ============================================================
-       МОБИЛКА: панель превращаем в нижний бар (очень удобно)
-       ============================================================ */
+    /* свёрнутый режим */
+    .side-nav.is-collapsed .side-nav__panel{
+      width: 64px;
+      padding:10px;
+    }
+    .side-nav.is-collapsed .label{ display:none; }
+    .side-nav.is-collapsed .side-nav__link{ justify-content:center; padding:0; }
+    .side-nav.is-collapsed .side-nav__cta{ justify-content:center; padding:0; }
+    .side-nav.is-collapsed .side-nav__divider{ display:none; }
+
+    /* мобилка: аккуратнее (не перекрывать важные элементы) */
     @media (max-width: 820px){
-      .side-nav{
-        left:50%;
-        top:auto;
-        bottom:12px;
-        transform:translateX(-50%);
+      :root{
+        --nav-left: 12px;
+        --nav-top: 140px;
       }
-
-      .side-nav__panel{
-        width: min(520px, calc(100vw - 24px));
-        border-radius:18px;
-        transition:none;
-      }
-
-      .side-nav__list{
-        flex-direction:row;
-        justify-content:space-between;
-        gap:8px;
-        padding:10px;
-      }
-
-      .side-nav__link{
-        width: 25%;
-        justify-content:center;
-        padding:0;
-        border-radius:14px;
-      }
-
-      .ico{
-        width:40px;
-        height:40px;
-        border-radius:14px;
-      }
-
-      .label{ display:none; } /* на мобилке только иконки */
-      .side-nav__divider{ display:none; }
-      .side-nav__cta{
-        display:none; /* на мобилке CTA можно вынести в отдельную кнопку/секции, чтобы не мешало */
-      }
+      .side-nav__panel{ width: 200px; }
     }
 
     @media (prefers-reduced-motion: reduce){
       .side-nav__panel,
       .side-nav__link,
       .side-nav__cta,
-      .label { transition:none; }
+      .side-nav__toggle{ transition:none; }
       .cloud-left, .cloud-right, .grass, .cube{ animation:none !important; }
     }
 
@@ -399,9 +385,14 @@
 
 <body>
 
-<!-- VERTICAL SIDE NAV -->
+<!-- ВЕРТИКАЛЬНОЕ МЕНЮ -->
 <nav class="side-nav" aria-label="Навигация">
-  <div class="side-nav__panel">
+  <button class="side-nav__toggle" type="button" aria-expanded="true" aria-controls="sideNavPanel" title="Свернуть меню">
+    <span class="toggle-ico" aria-hidden="true">⟨</span>
+    <span class="toggle-text">Меню</span>
+  </button>
+
+  <div class="side-nav__panel" id="sideNavPanel">
     <ul class="side-nav__list">
       <li>
         <a class="side-nav__link is-active" href="https://digitalhavenrussia.ru">
@@ -450,6 +441,7 @@
   </div>
 
   <script>
+    // cubes (как у тебя)
     const container = document.getElementById('cubes');
     const cols = 40, rows = 25;
 
@@ -486,6 +478,20 @@
         const active = Array.from(links).find(a => a.getAttribute('href')?.includes(rule.includes));
         if(active) active.classList.add('is-active');
       }catch(e){}
+    })();
+
+    // Свернуть/развернуть меню
+    (function toggleNav(){
+      const nav = document.querySelector('.side-nav');
+      const btn = document.querySelector('.side-nav__toggle');
+      if(!nav || !btn) return;
+
+      btn.addEventListener('click', () => {
+        const collapsed = nav.classList.toggle('is-collapsed');
+        btn.setAttribute('aria-expanded', String(!collapsed));
+        btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
+        btn.querySelector('.toggle-ico').textContent = collapsed ? '⟩' : '⟨';
+      });
     })();
   </script>
 </body>
