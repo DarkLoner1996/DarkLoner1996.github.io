@@ -21,37 +21,52 @@
     }
 
     /* ============================================================
-       MENU — "КАК НА КАРТИНКЕ"
-       - Золотая рамка с объемом
-       - Изумрудное стекло
-       - Кнопки-строки с иконкой слева и pill справа
-       - Искры/блики
+       MENU — "ОДИН В ОДИН" (макс. приближение к скрину)
+       - толстая золотая рама + внутренняя рама
+       - декоративные боковые “стрелки/кронштейны”
+       - левый ромб-маркер на каждой строке
+       - кнопки: изумрудное стекло + золото
+       - pill справа: ACTIVE золотой, остальные синие + стрелка
+       - нижний CTA: золотая большая кнопка + кристаллы по краям
        ============================================================ */
 
     :root{
       --nav-left: 18px;
       --nav-top: 14px;
-      --panel-w: 360px;
-
-      --teal1:#0b5160;
-      --teal2:#0f6b7a;
-      --teal3:#0a3f4a;
-      --glassA: rgba(10, 90, 105, .66);
-      --glassB: rgba(8, 55, 65, .64);
-
-      --gold1:#fff2bf;
-      --gold2:#f5d57a;
-      --gold3:#c8942f;
-      --gold4:#7a4a12;
+      --panel-w: 380px;
 
       --text:#f7f2dc;
-      --muted: rgba(245,235,210,.80);
-
+      --muted: rgba(245,235,210,.82);
       --shadow: rgba(0,0,0,.28);
-      --ring: rgba(255,230,160,.28);
 
-      --rowH: 82px;
-      --radius: 22px;
+      /* teal glass */
+      --gA: rgba(12, 110, 125, .72);
+      --gB: rgba(7, 60, 70, .68);
+
+      /* item glass */
+      --iA: rgba(20, 150, 170, .30);
+      --iB: rgba(8, 85, 100, .26);
+
+      /* gold */
+      --goldA:#fff4c8;
+      --goldB:#f3d27a;
+      --goldC:#c88f2d;
+      --goldD:#7b4b13;
+
+      --goldStroke: rgba(255,235,175,.40);
+
+      /* blue pill */
+      --blueP1: rgba(55, 170, 215, .92);
+      --blueP2: rgba(25, 115, 160, .92);
+
+      /* active pill */
+      --actP1: rgba(255, 240, 195, .98);
+      --actP2: rgba(245, 200, 110, .98);
+
+      --ring: rgba(255,230,160,.26);
+
+      --radius: 26px;
+      --rowH: 86px;
     }
 
     /* контейнер */
@@ -68,28 +83,29 @@
       user-select:none;
     }
 
-    /* ====== ВЕРХНЯЯ ПОЛОСА (как на картинке) ====== */
+    /* ================= TOP BAR ================= */
     .side-nav__tab{
       width: var(--panel-w);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 10px 12px;
       position:relative;
       overflow:hidden;
 
       background:
-        radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.16), transparent 60%),
-        linear-gradient(180deg, rgba(16,120,140,.55), rgba(8,70,85,.55));
+        radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(110% 80% at 84% 18%, rgba(255,215,120,.16), transparent 58%),
+        linear-gradient(180deg, rgba(16,120,140,.58), rgba(7,65,78,.56));
 
-      box-shadow: 0 18px 38px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.16);
+      box-shadow: 0 18px 38px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.18);
     }
 
-    /* золотая рамка сверху */
+    /* толстая золотая окантовка */
     .side-nav__tab::before{
       content:"";
       position:absolute; inset:0;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 2px;
-      background: linear-gradient(180deg, var(--gold1), var(--gold2) 35%, var(--gold3) 70%, var(--gold4));
+      background: linear-gradient(180deg, var(--goldA), var(--goldB) 35%, var(--goldC) 70%, var(--goldD));
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
@@ -99,17 +115,25 @@
       opacity:.98;
     }
 
-    /* искры */
-    .side-nav__tab::after{
-      content:"";
-      position:absolute; inset:-40px;
-      background:
-        radial-gradient(circle at 86% 40%, rgba(255,240,190,.95) 0 2px, transparent 3px),
-        radial-gradient(circle at 92% 54%, rgba(255,255,255,.9) 0 1.5px, transparent 3px),
-        radial-gradient(circle at 78% 30%, rgba(255,215,120,.85) 0 2px, transparent 4px);
-      filter: blur(.1px);
-      opacity:.95;
+    /* “кронштейны” по бокам (как на скрине) */
+    .tab-bracket{
+      position:absolute;
+      top: 6px;
+      bottom: 6px;
+      width: 28px;
       pointer-events:none;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.22));
+      opacity:.96;
+    }
+    .tab-bracket.left{ left: 6px; transform: scaleX(-1); }
+    .tab-bracket.right{ right: 6px; }
+    .tab-bracket svg{ width:100%; height:100%; }
+    .tab-bracket path{
+      fill:none;
+      stroke: rgba(255,220,140,.92);
+      stroke-width:2.4;
+      stroke-linecap:round;
+      stroke-linejoin:round;
     }
 
     .tab-row{
@@ -121,8 +145,8 @@
     }
 
     .back-btn{
-      width:44px; height:44px;
-      border-radius:14px;
+      width:46px; height:46px;
+      border-radius:16px;
       border:1px solid rgba(255,240,190,.35);
       background:
         radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
@@ -135,17 +159,18 @@
     }
     .back-btn:hover{ transform: translateY(-1px); filter:saturate(1.04); }
     .back-btn:active{ transform: translateY(0px) scale(.985); }
-    .back-btn svg{ width:22px; height:22px; stroke: var(--text); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:.95; }
+    .back-btn svg{ width:22px; height:22px; stroke: var(--text); fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; opacity:.96; }
 
     .tab-title{
       flex:1;
-      font-size:20px;
-      letter-spacing:.3px;
+      font-size:22px;
+      letter-spacing:.35px;
       color: var(--text);
-      text-shadow: 0 2px 0 rgba(0,0,0,.20);
+      text-shadow: 0 2px 0 rgba(0,0,0,.22);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      padding-left:2px;
     }
 
     .hud-switch{
@@ -198,32 +223,31 @@
       background: rgba(255,240,200,.96);
     }
 
-    /* ====== ОСНОВНАЯ ПАНЕЛЬ (золотая рамка + стекло) ====== */
+    /* ================= PANEL ================= */
     .side-nav__panel{
       width: var(--panel-w);
       border-radius: var(--radius);
-      padding: 14px;
+      padding: 14px 14px 16px;
       position:relative;
       overflow:hidden;
 
       background:
         radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.16), transparent 62%),
         radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.14), transparent 60%),
-        linear-gradient(180deg, var(--glassA), var(--glassB));
+        linear-gradient(180deg, var(--gA), var(--gB));
 
       box-shadow: 0 26px 60px rgba(0,0,0,.26);
       backdrop-filter: blur(14px) saturate(1.15);
       -webkit-backdrop-filter: blur(14px) saturate(1.15);
     }
 
-    /* золотая толстая рамка */
+    /* толстая золотая рамка */
     .side-nav__panel::before{
       content:"";
       position:absolute; inset:0;
       border-radius: var(--radius);
       padding: 4px;
-      background:
-        linear-gradient(180deg, var(--gold1), var(--gold2) 34%, var(--gold3) 70%, var(--gold4));
+      background: linear-gradient(180deg, var(--goldA), var(--goldB) 34%, var(--goldC) 70%, var(--goldD));
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
@@ -234,7 +258,7 @@
     }
 
     /* внутренняя тонкая рамка */
-    .side-nav__panel .inner-stroke{
+    .inner-stroke{
       position:absolute;
       inset: 10px;
       border-radius: calc(var(--radius) - 10px);
@@ -243,40 +267,40 @@
       z-index:1;
     }
 
-    /* орнаменты по углам */
-    .orn{
+    /* боковые декоративные “стрелки” как на скрине */
+    .panel-bracket{
       position:absolute;
-      width:42px; height:42px;
+      top: 18px;
+      bottom: 18px;
+      width: 34px;
       z-index:2;
-      opacity:.95;
-      filter: drop-shadow(0 10px 14px rgba(0,0,0,.22));
       pointer-events:none;
+      filter: drop-shadow(0 14px 16px rgba(0,0,0,.22));
+      opacity:.96;
     }
-    .orn svg{ width:100%; height:100%; }
-    .orn path{
+    .panel-bracket.left{ left: 4px; transform: scaleX(-1); }
+    .panel-bracket.right{ right: 4px; }
+    .panel-bracket svg{ width:100%; height:100%; }
+    .panel-bracket path{
       fill:none;
       stroke: rgba(255,220,140,.92);
-      stroke-width:2.2;
+      stroke-width:2.6;
       stroke-linecap:round;
       stroke-linejoin:round;
     }
-    .orn.tl{ left:8px; top:8px; transform: rotate(0deg); }
-    .orn.tr{ right:8px; top:8px; transform: rotate(90deg); }
-    .orn.bl{ left:8px; bottom:8px; transform: rotate(-90deg); }
-    .orn.br{ right:8px; bottom:8px; transform: rotate(180deg); }
 
-    /* искры на панели */
+    /* искры/блики */
     .sparkles{
       position:absolute;
       inset:-40px;
       z-index:0;
       pointer-events:none;
       background:
-        radial-gradient(circle at 92% 20%, rgba(255,240,190,.95) 0 2px, transparent 4px),
-        radial-gradient(circle at 88% 28%, rgba(255,255,255,.90) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 92% 16%, rgba(255,240,190,.95) 0 2px, transparent 4px),
+        radial-gradient(circle at 88% 26%, rgba(255,255,255,.90) 0 1.5px, transparent 3px),
         radial-gradient(circle at 78% 18%, rgba(255,215,120,.85) 0 2px, transparent 4px),
-        radial-gradient(circle at 12% 72%, rgba(255,255,255,.20) 0 2px, transparent 5px);
-      opacity:.9;
+        radial-gradient(circle at 16% 72%, rgba(255,255,255,.18) 0 2px, transparent 5px);
+      opacity:.92;
       filter: blur(.15px);
       mix-blend-mode: screen;
     }
@@ -286,16 +310,16 @@
       display:flex;
       flex-direction:column;
       gap:12px;
-      margin: 6px 0 14px;
+      margin: 8px 0 14px;
       padding:0;
       position:relative;
       z-index:3;
     }
 
-    /* ====== ПОЛОСЫ-КНОПКИ (как на картинке) ====== */
+    /* ================= ITEM ROW ================= */
     .hud-item{
       height: var(--rowH);
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 12px 14px;
       display:flex;
       align-items:center;
@@ -307,7 +331,7 @@
 
       background:
         radial-gradient(120% 140% at 25% 20%, rgba(255,255,255,.14), transparent 58%),
-        linear-gradient(180deg, rgba(14,120,140,.40), rgba(6,70,85,.36));
+        linear-gradient(180deg, var(--iA), var(--iB));
       box-shadow:
         0 14px 26px rgba(0,0,0,.22),
         inset 0 1px 0 rgba(255,255,255,.14);
@@ -317,11 +341,11 @@
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
     }
 
-    /* золотой кант внутри строки */
+    /* внутренняя золотая окантовка строки */
     .hud-item::before{
       content:"";
       position:absolute; inset:0;
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 2px;
       background: linear-gradient(180deg, rgba(255,245,205,.70), rgba(245,205,120,.38) 45%, rgba(180,120,35,.28));
       -webkit-mask:
@@ -330,14 +354,32 @@
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events:none;
-      opacity:.9;
+      opacity:.92;
     }
 
-    /* активная строка — теплее/ярче */
+    /* левый ромб-маркер (как на скрине) */
+    .hud-item::after{
+      content:"";
+      position:absolute;
+      left: 8px;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      transform: translateY(-50%) rotate(45deg);
+      border-radius: 2px;
+      background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 16px rgba(0,0,0,.18);
+      opacity:.88;
+    }
+    .hud-item.is-active::after{
+      background: linear-gradient(180deg, rgba(255,240,195,.95), rgba(245,200,110,.86));
+      border-color: rgba(255,255,255,.32);
+      box-shadow: 0 0 10px rgba(255,220,140,.18), 0 10px 16px rgba(0,0,0,.18);
+      opacity:1;
+    }
+
     .hud-item.is-active{
-      background:
-        radial-gradient(120% 140% at 25% 20%, rgba(255,255,255,.18), transparent 56%),
-        linear-gradient(180deg, rgba(28,150,170,.42), rgba(8,80,95,.38));
       box-shadow:
         0 18px 34px rgba(0,0,0,.26),
         inset 0 1px 0 rgba(255,255,255,.18),
@@ -360,17 +402,18 @@
         inset 0 1px 0 rgba(255,255,255,.18);
     }
 
-    /* слева круглая иконка */
+    /* левая иконка-кнопка */
     .hud-ico{
-      width:56px; height:56px;
+      width:58px; height:58px;
       border-radius: 18px;
       display:grid;
       place-items:center;
       flex:0 0 auto;
+      margin-left: 10px; /* чтобы не налезать на ромб */
 
       background:
         radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
-        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.18));
+        linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.18));
       border:1px solid rgba(255,240,190,.20);
 
       box-shadow:
@@ -379,13 +422,13 @@
     }
 
     .hud-ico svg{
-      width:28px; height:28px;
+      width:30px; height:30px;
       stroke: rgba(255,245,220,.95);
       fill:none;
-      stroke-width:2.2;
+      stroke-width:2.3;
       stroke-linecap:round;
       stroke-linejoin:round;
-      filter: drop-shadow(0 2px 0 rgba(0,0,0,.20));
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,.22));
     }
 
     .hud-txt{
@@ -397,14 +440,14 @@
     }
 
     .hud-title{
-      font-size:22px;
+      font-size:24px;
       letter-spacing:.8px;
       text-transform:uppercase;
       line-height:1.0;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      text-shadow: 0 2px 0 rgba(0,0,0,.22);
+      text-shadow: 0 2px 0 rgba(0,0,0,.24);
     }
 
     .hud-sub{
@@ -418,11 +461,11 @@
       text-overflow:ellipsis;
     }
 
-    /* справа pill-кнопка (ACTIVE/INFO/VIDEO/MAP) */
+    /* pill справа (синий/золотой) */
     .hud-pill{
       flex:0 0 auto;
-      min-width: 92px;
-      height: 36px;
+      min-width: 106px;
+      height: 38px;
       padding: 0 14px;
       border-radius: 999px;
       display:inline-flex;
@@ -437,12 +480,12 @@
 
       background:
         radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
-        linear-gradient(180deg, rgba(35,140,175,.88), rgba(20,90,125,.86));
+        linear-gradient(180deg, var(--blueP1), var(--blueP2));
       border:1px solid rgba(255,240,190,.20);
 
       box-shadow:
         0 14px 22px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.18);
+        inset 0 1px 0 rgba(255,255,255,.20);
 
       position:relative;
       overflow:hidden;
@@ -451,32 +494,31 @@
     /* стрелка внутри pill */
     .hud-pill::after{
       content:"›";
-      font-size:20px;
+      font-size:22px;
       line-height:1;
-      opacity:.85;
+      opacity:.88;
       transform: translateY(-1px);
       margin-left:2px;
     }
 
-    /* ACTIVE — золотой */
     .hud-pill.active{
       color: rgba(70,55,28,.95);
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.24), transparent 60%),
-        linear-gradient(180deg, rgba(255,240,190,.98), rgba(245,200,110,.96));
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 60%),
+        linear-gradient(180deg, var(--actP1), var(--actP2));
       border-color: rgba(255,255,255,.34);
       box-shadow:
         0 16px 26px rgba(0,0,0,.24),
-        inset 0 1px 0 rgba(255,255,255,.55);
+        inset 0 1px 0 rgba(255,255,255,.58);
     }
-    .hud-pill.active::after{ opacity:.65; }
+    .hud-pill.active::after{ opacity:.62; }
 
-    /* нижняя большая кнопка */
+    /* ================= CTA ================= */
     .hud-cta{
       position:relative;
       z-index:3;
-      height: 70px;
-      border-radius: 20px;
+      height: 74px;
+      border-radius: 22px;
       display:flex;
       align-items:center;
       gap:14px;
@@ -487,56 +529,77 @@
       color: rgba(70,55,28,.95);
       text-transform:uppercase;
       letter-spacing:.10em;
-      font-size:20px;
+      font-size:22px;
 
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.24), transparent 62%),
-        linear-gradient(180deg, rgba(255,240,195,.98), rgba(245,200,110,.96));
-      border:1px solid rgba(255,255,255,.42);
-      box-shadow: 0 22px 42px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.55);
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 62%),
+        linear-gradient(180deg, rgba(255,240,195,.98), rgba(245,200,110,.98));
+      border:1px solid rgba(255,255,255,.44);
+      box-shadow: 0 22px 42px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.58);
 
       overflow:hidden;
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
     }
+
     .hud-cta::before{
       content:"";
       position:absolute; inset:0;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 2px;
-      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(245,205,120,.50), rgba(140,90,18,.32));
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(245,205,120,.52), rgba(140,90,18,.34));
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events:none;
-      opacity:.85;
+      opacity:.88;
     }
-    .hud-cta:hover{ transform: translateY(-1px); filter:saturate(1.04); box-shadow: 0 26px 50px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.58); }
+
+    /* “кристаллы” по бокам CTA как на скрине */
+    .cta-gem{
+      position:absolute;
+      top:50%;
+      width:22px; height:22px;
+      transform: translateY(-50%) rotate(45deg);
+      border-radius: 4px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), transparent 45%),
+        linear-gradient(180deg, rgba(90, 210, 255, .92), rgba(20, 130, 190, .92));
+      border: 1px solid rgba(255,255,255,.50);
+      box-shadow: 0 14px 22px rgba(0,0,0,.24), 0 0 14px rgba(120,220,255,.18);
+      opacity:.95;
+      pointer-events:none;
+    }
+    .cta-gem.left{ left: 10px; }
+    .cta-gem.right{ right: 10px; }
+
+    .hud-cta:hover{ transform: translateY(-1px); filter:saturate(1.04); box-shadow: 0 26px 50px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.60); }
     .hud-cta:active{ transform: translateY(0px) scale(.992); }
 
     .hud-cta .heart{
-      width:44px; height:44px;
-      border-radius: 16px;
+      width:46px; height:46px;
+      border-radius: 18px;
       display:grid;
       place-items:center;
       background: rgba(255,255,255,.55);
-      border: 1px solid rgba(255,255,255,.40);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+      border: 1px solid rgba(255,255,255,.42);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.58);
       flex:0 0 auto;
       position:relative;
       z-index:2;
+      margin-left: 4px;
     }
     .hud-cta .heart svg{
       width:22px; height:22px;
       stroke: rgba(70,55,28,.90);
       fill:none;
-      stroke-width:2.4;
+      stroke-width:2.5;
       stroke-linecap:round;
       stroke-linejoin:round;
     }
 
-    /* свернуть/развернуть (уезжает влево) */
+    /* collapse */
     .side-nav.is-collapsed .side-nav__panel{
       transform: translateX(calc(-100% - 18px));
       opacity:0;
@@ -544,19 +607,19 @@
       filter: blur(1px);
       transition: transform .22s ease, opacity .22s ease, filter .22s ease;
     }
-    .side-nav__panel{
-      transition: transform .22s ease, opacity .22s ease, filter .22s ease;
-    }
+    .side-nav__panel{ transition: transform .22s ease, opacity .22s ease, filter .22s ease; }
 
-    /* Ночной режим — просто глубже/темнее */
+    /* night */
     .hud--night{
-      --glassA: rgba(6, 32, 40, .78);
-      --glassB: rgba(2, 18, 24, .70);
+      --gA: rgba(6, 34, 42, .82);
+      --gB: rgba(2, 18, 24, .74);
+      --iA: rgba(12, 120, 140, .26);
+      --iB: rgba(6, 70, 85, .22);
     }
 
     @media (max-width: 820px){
-      :root{ --nav-left: 10px; --nav-top: 10px; --panel-w: 330px; }
-      .tab-title{ font-size:18px; }
+      :root{ --nav-left: 10px; --nav-top: 10px; --panel-w: 340px; }
+      .tab-title{ font-size:20px; }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -564,7 +627,7 @@
       .side-nav__panel{ transition:none !important; }
     }
 
-    /* ===== HEADER (твой, без изменений) ===== */
+    /* ===== HEADER (твой) ===== */
     .header{
       position:relative;
       width:100%;
@@ -679,8 +742,20 @@
   <!-- MENU -->
   <nav class="side-nav hud--day" aria-label="Навигация">
     <div class="side-nav__tab">
+      <div class="tab-bracket left" aria-hidden="true">
+        <svg viewBox="0 0 60 300" preserveAspectRatio="none">
+          <path d="M50 20c-20 10-28 22-28 45v170c0 23 8 35 28 45"></path>
+          <path d="M42 30c-12 8-16 18-16 32v176c0 14 4 24 16 32"></path>
+        </svg>
+      </div>
+      <div class="tab-bracket right" aria-hidden="true">
+        <svg viewBox="0 0 60 300" preserveAspectRatio="none">
+          <path d="M50 20c-20 10-28 22-28 45v170c0 23 8 35 28 45"></path>
+          <path d="M42 30c-12 8-16 18-16 32v176c0 14 4 24 16 32"></path>
+        </svg>
+      </div>
+
       <div class="tab-row">
-        <!-- на картинке кнопка "назад" -->
         <button class="back-btn" id="menuToggle" type="button" aria-expanded="true" aria-controls="hudPanel" title="Свернуть/развернуть">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M14.5 6.5 8.5 12l6 5.5"></path>
@@ -700,25 +775,16 @@
       <div class="sparkles" aria-hidden="true"></div>
       <div class="inner-stroke" aria-hidden="true"></div>
 
-      <!-- угловые орнаменты -->
-      <div class="orn tl" aria-hidden="true">
-        <svg viewBox="0 0 48 48">
-          <path d="M40 10c-8 0-12 4-14 12-2-8-6-12-14-12M10 40c8 0 12-4 14-12 2 8 6 12 14 12"></path>
+      <div class="panel-bracket left" aria-hidden="true">
+        <svg viewBox="0 0 60 600" preserveAspectRatio="none">
+          <path d="M50 20c-22 14-32 28-32 56v448c0 28 10 42 32 56"></path>
+          <path d="M42 38c-14 10-20 22-20 44v436c0 22 6 34 20 44"></path>
         </svg>
       </div>
-      <div class="orn tr" aria-hidden="true">
-        <svg viewBox="0 0 48 48">
-          <path d="M40 10c-8 0-12 4-14 12-2-8-6-12-14-12M10 40c8 0 12-4 14-12 2 8 6 12 14 12"></path>
-        </svg>
-      </div>
-      <div class="orn bl" aria-hidden="true">
-        <svg viewBox="0 0 48 48">
-          <path d="M40 10c-8 0-12 4-14 12-2-8-6-12-14-12M10 40c8 0 12-4 14-12 2 8 6 12 14 12"></path>
-        </svg>
-      </div>
-      <div class="orn br" aria-hidden="true">
-        <svg viewBox="0 0 48 48">
-          <path d="M40 10c-8 0-12 4-14 12-2-8-6-12-14-12M10 40c8 0 12-4 14-12 2 8 6 12 14 12"></path>
+      <div class="panel-bracket right" aria-hidden="true">
+        <svg viewBox="0 0 60 600" preserveAspectRatio="none">
+          <path d="M50 20c-22 14-32 28-32 56v448c0 28 10 42 32 56"></path>
+          <path d="M42 38c-14 10-20 22-20 44v436c0 22 6 34 20 44"></path>
         </svg>
       </div>
 
@@ -792,6 +858,9 @@
       </ul>
 
       <a class="hud-cta" href="https://digitalhavenrussia.ru/project.html#help">
+        <span class="cta-gem left" aria-hidden="true"></span>
+        <span class="cta-gem right" aria-hidden="true"></span>
+
         <span class="heart" aria-hidden="true">
           <svg viewBox="0 0 24 24">
             <path d="M12 20s-7-4.6-9.3-8.6C1 8 3 5.7 5.8 5.6c1.6 0 3 .9 3.8 2.1.8-1.2 2.2-2.1 3.8-2.1C16.2 5.7 18 8 21.3 11.4 19 15.4 12 20 12 20z"></path>
@@ -838,7 +907,6 @@
         const path = location.pathname.replace(/\/+$/, '') || '/';
         const items = document.querySelectorAll('.hud-item');
         items.forEach(a => a.classList.remove('is-active'));
-
         const rules = [
           { match: ['/', '/index.html'], hrefPart: 'digitalhavenrussia.ru' },
           { match: ['/project.html'], hrefPart: 'project.html' },
@@ -847,7 +915,6 @@
         ];
         const rule = rules.find(r => r.match.includes(path));
         if(!rule) return;
-
         const active = Array.from(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
         if(active) active.classList.add('is-active');
       }catch(e){}
