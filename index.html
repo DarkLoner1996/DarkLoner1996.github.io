@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -54,6 +54,11 @@
 
       --radius: 26px;
       --rowH: clamp(72px, 10vw, 84px);
+
+      /* Matrix/HUD accents */
+      --mx: rgba(110,255,210,.92);
+      --mx2: rgba(40,220,160,.55);
+      --mxDark: rgba(6,18,16,.55);
     }
 
     .side-nav{
@@ -572,26 +577,17 @@
       .hud-ico{ margin-left: 18px; }
     }
 
-    @media (prefers-reduced-motion: reduce){
-      .hud-item, .hud-cta, .switch, .back-btn { transition:none !important; }
-      .side-nav__panel{ transition:none !important; }
-    }
-
-    /* ===== HEADER (исправлено: без "сосиски") ===== */
+    /* ===== HEADER (без "сосиски") ===== */
     .header{
       position:relative;
       width:100%;
-
-      /* было height:100vh (жестко), теперь нормальная высота + можно скролл */
       min-height: 100vh;
       min-height: 100svh;
       min-height: 100dvh;
-
       overflow:hidden;
       background:#ddeeff;
     }
 
-    /* блюр-слой пусть заполняет экран красиво */
     .header__bg-blur{
       position:absolute;
       inset:0;
@@ -608,60 +604,185 @@
       -webkit-user-drag:none;
     }
 
-    /* ✅ ГЛАВНОЕ: картинка больше НЕ искажается */
     .header__bg{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
       display:block;
-
-      /* прозрачные поля по краям вместо сплющивания */
       object-fit: contain;
       object-position: center;
-
       z-index:1;
       pointer-events:none;
       user-select:none;
       -webkit-user-drag:none;
     }
 
+    /* ===== Matrix layer (вместо "1/0 картинок") ===== */
+    .matrix{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      opacity:.42; /* общая сила эффекта */
+      mix-blend-mode: overlay; /* красиво с фоном */
+      filter: blur(.15px) saturate(1.2);
+    }
+
+    /* легкая HUD-виниетка поверх */
     .header::after{
       content:"";
       position:absolute;
       inset:0;
       background:
-        radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.05), rgba(0,0,0,0.18)),
-        rgba(255,255,255,0.05);
+        radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0.22)),
+        linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.10));
       z-index:3;
       pointer-events:none;
     }
 
-    .cube-container{
+    /* ===== Появление (скан + глич) ===== */
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      pointer-events:none;
+      background:
+        radial-gradient(120% 120% at 50% 20%, rgba(110,255,210,.10), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.35));
+      opacity:0;
+      transform: translateZ(0);
+    }
+    .intro.is-on{
+      opacity:1;
+      animation: introFade 1.05s ease forwards;
+    }
+
+    .intro::before{
+      /* “сканерная” полоса */
+      content:"";
+      position:absolute;
+      left:-20%;
+      top:-30%;
+      width:140%;
+      height:30%;
+      background: linear-gradient(90deg, transparent, rgba(110,255,210,.16), transparent);
+      transform: rotate(12deg) translateY(-120%);
+      filter: blur(1px);
+      opacity:.9;
+      animation: scan 1.05s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
+    .intro::after{
+      /* легкий “цифровой шум” (без картинок) */
+      content:"";
       position:absolute;
       inset:0;
-      display:grid;
-      grid-template-columns:repeat(40, minmax(0, 1fr));
-      grid-template-rows:repeat(25, minmax(0, 1fr));
-      z-index:2;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px),
+        radial-gradient(circle at 20% 30%, rgba(110,255,210,.12), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(110,255,210,.08), transparent 55%);
+      opacity:.22;
+      mix-blend-mode: overlay;
+      animation: glitch 1.05s steps(14) forwards;
+    }
+
+    @keyframes introFade{
+      0%{ opacity:1; }
+      70%{ opacity:1; }
+      100%{ opacity:0; }
+    }
+    @keyframes scan{
+      0%{ transform: rotate(12deg) translateY(-140%); }
+      70%{ transform: rotate(12deg) translateY(120%); }
+      100%{ transform: rotate(12deg) translateY(160%); }
+    }
+    @keyframes glitch{
+      0%{ transform: translateX(0); filter:none; }
+      20%{ transform: translateX(-1px); filter: contrast(1.2); }
+      40%{ transform: translateX(2px); filter: hue-rotate(10deg); }
+      60%{ transform: translateX(-2px); filter: contrast(1.05); }
+      80%{ transform: translateX(1px); filter: hue-rotate(-8deg); }
+      100%{ transform: translateX(0); filter:none; }
+    }
+
+    /* ===== Переход между страницами (Matrix-wipe) ===== */
+    .page-transition{
+      position:fixed;
+      inset:0;
+      z-index:9999;
       pointer-events:none;
-    }
-    .cube{
-      width:100%;
-      height:100%;
-      background:url('code.webp') no-repeat center/contain;
       opacity:0;
-      animation:cubeReveal 1.5s ease forwards;
+      background:
+        radial-gradient(120% 120% at 50% 25%, rgba(110,255,210,.10), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.55));
+      transform: translateZ(0);
     }
-    @keyframes cubeReveal{
-      0%{ transform:translate(var(--tx),var(--ty)) scale(0.1); opacity:0; }
-      50%{ transform:translate(0,0) scale(1); opacity:1; }
-      100%{ transform:translate(0,0) scale(1); opacity:0; }
+    .page-transition.is-leaving{
+      opacity:1;
+      animation: ptIn .52s ease forwards;
+    }
+    .page-transition.is-entering{
+      opacity:1;
+      animation: ptOut .46s ease forwards;
+    }
+
+    .page-transition .wipe{
+      position:absolute;
+      inset:-10%;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(110,255,210,.0) 0 18px,
+          rgba(110,255,210,.06) 18px 20px,
+          rgba(110,255,210,.0) 20px 36px
+        ),
+        radial-gradient(circle at 50% 50%, rgba(110,255,210,.12), transparent 62%);
+      mix-blend-mode: screen;
+      filter: blur(.3px);
+      transform: translateX(-120%);
+      opacity:.95;
+    }
+    .page-transition.is-leaving .wipe{ animation: wipeIn .52s cubic-bezier(.2,.8,.2,1) forwards; }
+    .page-transition.is-entering .wipe{ animation: wipeOut .46s cubic-bezier(.2,.8,.2,1) forwards; }
+
+    @keyframes ptIn{
+      0%{ opacity:0; }
+      25%{ opacity:1; }
+      100%{ opacity:1; }
+    }
+    @keyframes ptOut{
+      0%{ opacity:1; }
+      100%{ opacity:0; }
+    }
+    @keyframes wipeIn{
+      0%{ transform: translateX(-120%); }
+      100%{ transform: translateX(120%); }
+    }
+    @keyframes wipeOut{
+      0%{ transform: translateX(120%); }
+      100%{ transform: translateX(220%); }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .hud-item, .hud-cta, .switch, .back-btn { transition:none !important; }
+      .side-nav__panel{ transition:none !important; }
+      .intro, .page-transition, .page-transition .wipe{ animation:none !important; }
+      .intro.is-on, .page-transition.is-leaving, .page-transition.is-entering{ opacity:0 !important; }
+      .matrix{ display:none !important; }
     }
   </style>
 </head>
 
 <body>
+
+  <!-- Intro on load -->
+  <div class="intro" id="intro" aria-hidden="true"></div>
+
+  <!-- Page transition overlay -->
+  <div class="page-transition" id="pt" aria-hidden="true">
+    <div class="wipe"></div>
+  </div>
 
   <!-- MENU -->
   <nav class="side-nav hud--day" aria-label="Навигация">
@@ -777,28 +898,22 @@
     <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
     <img class="header__bg" src="header-bg-3840.jpg" alt="" loading="eager" decoding="async">
 
-    <div class="cube-container" id="cubes"></div>
+    <!-- Matrix canvas overlay -->
+    <canvas class="matrix" id="matrix" aria-hidden="true"></canvas>
   </div>
 
   <script>
-    // cubes (как у тебя)
-    const container = document.getElementById('cubes');
-    const cols = 40, rows = 25;
+    // =============== Intro (on load) ===============
+    (function introAnim(){
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduce) return;
+      const intro = document.getElementById('intro');
+      if(!intro) return;
+      requestAnimationFrame(() => intro.classList.add('is-on'));
+      setTimeout(() => intro.remove(), 1200);
+    })();
 
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const cube = document.createElement('div');
-        cube.className = 'cube';
-        cube.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
-        cube.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
-        cube.style.gridColumn = x + 1;
-        cube.style.gridRow = y + 1;
-        cube.style.animationDelay = (Math.random() * 0.8) + 's';
-        container.appendChild(cube);
-      }
-    }
-
-    // Активный пункт по URL
+    // =============== Активный пункт по URL ===============
     (function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '') || '/';
@@ -819,7 +934,7 @@
       }catch(e){}
     })();
 
-    // Сворачивание
+    // =============== Сворачивание ===============
     (function toggleMenu(){
       const nav = document.querySelector('.side-nav');
       const btn = document.getElementById('menuToggle');
@@ -832,7 +947,7 @@
       });
     })();
 
-    // Ночной режим
+    // =============== Ночной режим ===============
     (function nightHud(){
       const nav = document.querySelector('.side-nav');
       const sw = document.getElementById('nightSwitch');
@@ -852,6 +967,143 @@
       });
 
       setState(false);
+    })();
+
+    // =============== Matrix rain (canvas) ===============
+    (function matrixRain(){
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduce) return;
+
+      const c = document.getElementById('matrix');
+      if(!c) return;
+      const ctx = c.getContext('2d', { alpha: true });
+
+      // символы: цифры/буквы/псевдо-японские
+      const glyphs = ('01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*+=-<>/\\[]{}()アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴン').split('');
+
+      let w = 0, h = 0, cols = 0;
+      let drops = [];
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+      function resize(){
+        const rect = c.getBoundingClientRect();
+        w = Math.max(1, Math.floor(rect.width));
+        h = Math.max(1, Math.floor(rect.height));
+        c.width = Math.floor(w * dpr);
+        c.height = Math.floor(h * dpr);
+        c.style.width = w + 'px';
+        c.style.height = h + 'px';
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+
+        const fontSize = Math.max(12, Math.round(Math.min(18, w / 90)));
+        c.dataset.font = String(fontSize);
+        cols = Math.floor(w / fontSize);
+        drops = new Array(cols).fill(0).map(() => Math.random() * -40);
+      }
+
+      function frame(){
+        const fontSize = parseInt(c.dataset.font || '14', 10);
+        ctx.font = `600 ${fontSize}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
+
+        // “шлейф” (полупрозрачная заливка) — делает эффект как в Матрице
+        ctx.fillStyle = 'rgba(0,0,0,0.06)';
+        ctx.fillRect(0, 0, w, h);
+
+        // цвет символов
+        ctx.fillStyle = 'rgba(110,255,210,0.85)';
+
+        for(let i=0; i<cols; i++){
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+
+          const g = glyphs[(Math.random() * glyphs.length) | 0];
+          ctx.fillText(g, x, y);
+
+          // скорость/перезапуск
+          const speed = 0.85 + Math.random() * 0.55;
+          drops[i] += speed;
+
+          if (y > h && Math.random() > 0.985) drops[i] = Math.random() * -30;
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      const ro = new ResizeObserver(resize);
+      ro.observe(c);
+      resize();
+      requestAnimationFrame(frame);
+
+      // чуть адаптируем силу под night-mode
+      const nav = document.querySelector('.side-nav');
+      if(nav){
+        const mo = new MutationObserver(() => {
+          const night = nav.classList.contains('hud--night');
+          c.style.opacity = night ? '0.52' : '0.42';
+          c.style.mixBlendMode = night ? 'screen' : 'overlay';
+        });
+        mo.observe(nav, { attributes:true, attributeFilter:['class'] });
+      }
+    })();
+
+    // =============== Переходы между страницами (перехват кликов) ===============
+    (function pageTransitions(){
+      const pt = document.getElementById('pt');
+      if(!pt) return;
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function isModifiedClick(e){
+        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+      }
+      function samePage(href){
+        try{
+          const u = new URL(href, location.href);
+          // если ссылка на этот же документ (включая якорь), не делаем переход
+          return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
+        }catch(_){ return true; }
+      }
+
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href]');
+        if(!a) return;
+
+        const href = a.getAttribute('href');
+        if(!href) return;
+
+        // внешние / mailto / tel / якоря — пропускаем
+        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
+        if(isModifiedClick(e)) return;
+
+        // если просто якорь на той же странице — пропускаем
+        if(samePage(href) && href.includes('#')) return;
+
+        // если prefers-reduced-motion — без анимации
+        if(reduce) return;
+
+        // даём браузеру открыть в новой вкладке, если target=_blank
+        if(a.target === '_blank') return;
+
+        e.preventDefault();
+
+        pt.classList.remove('is-entering');
+        pt.classList.add('is-leaving');
+
+        // минимальный “щит”, чтобы не зависнуть
+        const go = () => { location.href = href; };
+
+        // тайминг под CSS (.52s)
+        setTimeout(go, 420);
+        setTimeout(go, 900);
+      }, { capture: true });
+
+      // когда страница открылась (включая back/forward cache) — красиво “выдохнуть”
+      window.addEventListener('pageshow', () => {
+        if(reduce) return;
+        pt.classList.remove('is-leaving');
+        pt.classList.add('is-entering');
+        setTimeout(() => pt.classList.remove('is-entering'), 520);
+      });
     })();
   </script>
 </body>
