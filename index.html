@@ -63,6 +63,12 @@
       /* Matrix colors (yellow + blue) */
       --mxY: rgba(255, 226, 120, .95); /* жёлтый */
       --mxB: rgba(80, 175, 255, .80);  /* синий */
+
+      /* ✅ Режим хедера:
+         1 = "по ширине 100%, без искажений, лишнее вниз (скролл)" — самый честный
+         2 = "на весь экран cover (будет кроп, но красиво)"
+      */
+      --hero-mode: 1;
     }
 
     .side-nav{
@@ -294,7 +300,6 @@
       opacity:.88;
     }
 
-    /* ✅ маркер слева */
     .hud-item::after{
       content:"";
       position:absolute;
@@ -329,7 +334,6 @@
       box-shadow: 0 0 0 3px var(--ring), 0 18px 34px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.16);
     }
 
-    /* ✅ отступ между маркером и иконкой */
     .hud-ico{
       width: clamp(50px, 11vw, 58px);
       height: clamp(50px, 11vw, 58px);
@@ -581,19 +585,26 @@
       .hud-ico{ margin-left: 18px; }
     }
 
-    /* ===== HEADER (без "сосиски") ===== */
+    /* =========================================================
+       ✅ HEADER: БЕЗ СОСИСКИ / БЕЗ ПЛЮЩЕНИЯ / КРАСИВО НА 4К
+       По умолчанию: 100% ширина + авто-высота (скролл вниз)
+       Альтернатива: cover (кроп, но "во весь экран")
+    ========================================================= */
+
+    /* Контейнер */
     .header{
       position:relative;
       width:100%;
-      min-height: 100vh;
       min-height: 100svh;
-      min-height: 100dvh;
-      overflow:hidden;
       background:#ddeeff;
+      overflow-x:hidden;
+      overflow-y:auto; /* ✅ если картинка выше экрана — появится скролл */
+      isolation:isolate;
     }
 
+    /* Размытый "fill" слой — всегда закрывает экран */
     .header__bg-blur{
-      position:absolute;
+      position:fixed;
       inset:0;
       width:100%;
       height:100%;
@@ -606,30 +617,61 @@
       pointer-events:none;
       user-select:none;
       -webkit-user-drag:none;
+      will-change: transform;
     }
 
+    /* Основная картинка — НЕ absolute, чтобы не насиловать height:100% */
     .header__bg{
+      position:relative;
+      display:block;
+      width:100vw;     /* ✅ по ширине — на весь экран */
+      height:auto;     /* ✅ пропорции сохраняются => не "сосиска" */
+      z-index:1;
+      margin:0 auto;
+      pointer-events:none;
+      user-select:none;
+      -webkit-user-drag:none;
+
+      /* чуть приятнее ресемплинг при даунскейле */
+      image-rendering: auto;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    /* Если хочешь режим "cover на весь экран" — включи переменную:
+       --hero-mode: 2;  (в :root)
+    */
+    :root[style*="--hero-mode: 2"] .header{
+      overflow:hidden; /* в cover-режиме скролл не нужен */
+    }
+    :root[style*="--hero-mode: 2"] .header__bg{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
-      display:block;
-      object-fit: contain;
-      object-position: center;
-      z-index:1;
+      object-fit:cover;     /* ✅ во весь экран без искажений, но с кропом */
+      object-position:center;
+    }
+
+    /* лёгкая HUD-виниетка на хедере */
+    .header::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0.22)),
+        linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.10));
+      z-index:2;
       pointer-events:none;
-      user-select:none;
-      -webkit-user-drag:none;
     }
 
     /* ===================== MATRIX GLOBAL (FULL SITE) ===================== */
     .matrix-wrap{
       position:fixed;
       inset:0;
-      z-index:9997; /* ниже page-transition (9999), ниже intro (9998) */
+      z-index:9997;
       pointer-events:none;
       opacity:0;
-      transition: opacity 1.25s ease; /* ✅ плавнее исчезает */
+      transition: opacity 1.25s ease;
       background: rgba(0,0,0,.26);
       mix-blend-mode: normal;
     }
@@ -649,18 +691,6 @@
       filter: blur(.35px) saturate(1.25) contrast(1.06);
     }
 
-    /* легкая HUD-виниетка на хедере */
-    .header::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0.22)),
-        linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.10));
-      z-index:3;
-      pointer-events:none;
-    }
-
     /* ===== Появление (скан + глич) ===== */
     .intro{
       position:fixed;
@@ -675,7 +705,7 @@
     }
     .intro.is-on{
       opacity:1;
-      animation: introFade 1.35s ease forwards; /* ✅ дольше */
+      animation: introFade 1.35s ease forwards;
     }
 
     .intro::before{
@@ -689,7 +719,7 @@
       transform: rotate(12deg) translateY(-120%);
       filter: blur(1px);
       opacity:.9;
-      animation: scan 1.35s cubic-bezier(.2,.8,.2,1) forwards; /* ✅ дольше */
+      animation: scan 1.35s cubic-bezier(.2,.8,.2,1) forwards;
     }
 
     .intro::after{
@@ -702,7 +732,7 @@
         radial-gradient(circle at 80% 70%, rgba(110,255,210,.08), transparent 55%);
       opacity:.22;
       mix-blend-mode: overlay;
-      animation: glitch 1.35s steps(18) forwards; /* ✅ плавнее/дольше */
+      animation: glitch 1.35s steps(18) forwards;
     }
 
     @keyframes introFade{
@@ -781,7 +811,7 @@
 
 <body>
 
-  <!-- Matrix full-site overlay (появляется при загрузке и исчезает) -->
+  <!-- Matrix full-site overlay -->
   <div class="matrix-wrap" id="matrixWrap" aria-hidden="true">
     <canvas class="matrix" id="matrix" aria-hidden="true"></canvas>
   </div>
@@ -905,8 +935,18 @@
 
   <!-- HEADER -->
   <div class="header">
+    <!-- blur всегда "закрывает" экран -->
     <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
-    <img class="header__bg" src="header-bg-3840.jpg" alt="" loading="eager" decoding="async">
+
+    <!-- основная картинка: по ширине 100%, без искажений -->
+    <img
+      class="header__bg"
+      src="header-bg-3840.jpg"
+      alt=""
+      loading="eager"
+      decoding="async"
+      draggable="false"
+    >
   </div>
 
   <script>
@@ -976,7 +1016,7 @@
       setState(false);
     })();
 
-    // =============== Matrix rain (smooth, longer, yellow+blue, full-site, fade out after drops reach bottom) ===============
+    // =============== Matrix rain (без изменений твоей логики) ===============
     (function matrixRainCinema(){
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if(reduce) return;
@@ -987,7 +1027,6 @@
 
       const ctx = c.getContext('2d', { alpha: true });
 
-      // символы
       const glyphs = (
         "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
         "ハヒフヘホマミムメモヤユヨラリルレロワヲンヴ" +
@@ -1001,10 +1040,8 @@
       let raf=0;
       let stopTimer=0;
 
-      // ✅ чтобы дождь “успевал доходить до низа”
-      let minTravelMs = 2400;      // минимально показываем матрицу после load
-      let fadeOutMs   = 1250;      // должен совпадать с transition .matrix-wrap
-      let startAt = 0;
+      let minTravelMs = 2400;
+      let fadeOutMs   = 1250;
       let loadedAt = 0;
 
       function rand(min,max){ return min + Math.random()*(max-min); }
@@ -1012,7 +1049,6 @@
 
       function makeDrops(layerScale){
         return new Array(cols).fill(0).map(() => {
-          // ✅ медленнее и плавнее (скорость ниже, длина больше)
           const speed = rand(0.55, 1.35) * layerScale;
           const len   = rand(18, 48) * layerScale;
           const y     = rand(-H/font - 80, -10);
@@ -1066,7 +1102,6 @@
           const yTop  = (d.y - d.len) * font;
           const yHead = d.y * font;
 
-          // ✅ градиент “хвоста”: жёлтый -> синий к голове
           const grad = ctx.createLinearGradient(0, yTop, 0, yHead);
           grad.addColorStop(0.00, `rgba(${colorMix.tailR},${colorMix.tailG},${colorMix.tailB},0.00)`);
           grad.addColorStop(0.55, `rgba(${colorMix.tailR},${colorMix.tailG},${colorMix.tailB},${0.14*layerAlpha})`);
@@ -1097,172 +1132,158 @@
       }
 
       function frame(){
-        // ✅ более мягкий “шлейф” (меньше очистка = плавнее)
         ctx.globalCompositeOperation = "source-over";
         ctx.shadowBlur = 0;
         ctx.fillStyle = "rgba(0,0,0,0.06)";
         ctx.fillRect(0,0,W,H);
 
-        // лёгкая “подсветка” экрана
         ctx.globalCompositeOperation = "lighter";
         ctx.fillStyle = "rgba(20, 90, 140, 0.018)";
         ctx.fillRect(0,0,W,H);
 
         ctx.globalCompositeOperation = "source-over";
 
-        // палитра под фон: жёлтый + синий
         const palette = {
-          tailR: 255, tailG: 226, tailB: 120,  // жёлтый хвост
-          midR:   170, midG: 210, midB: 255,   // светло-синий середина
-          headR:   80, headG: 175, headB: 255, // синий голова
-          glowR:  255, glowG: 220, glowB: 120  // тёплый glow
+          tailR: 255, tailG: 226, tailB: 120,
+          midR:   170, midG: 210, midB: 255,
+          headR:   80, headG: 175, headB: 255,
+          glowR:  255, glowG: 220, glowB: 120
         };
 
-         drawLayer(dropsB, 0.55, 6, 0.92, palette);
-      drawLayer(dropsA, 0.92, 10, 1.06, palette);
+        drawLayer(dropsB, 0.55, 6, 0.92, palette);
+        drawLayer(dropsA, 0.92, 10, 1.06, palette);
 
-      raf = requestAnimationFrame(frame);
-    }
-
-    // ✅ проверка: дошли ли “головы” дождей до низа
-    function allReachedBottom(){
-      // считаем “дошли”, когда средний уровень head-y у колонок ниже низа
-      let hits = 0;
-      const need = Math.max(6, Math.floor(cols * 0.55)); // достаточно, чтобы большинство прошло
-      for(let i=0; i<dropsA.length; i++){
-        if(dropsA[i].y * font > H) hits++;
-        if(hits >= need) return true;
+        raf = requestAnimationFrame(frame);
       }
-      return false;
-    }
 
-    function start(){
-      startAt = performance.now();
-      wrap.classList.add('is-on');
+      function allReachedBottom(){
+        let hits = 0;
+        const need = Math.max(6, Math.floor(cols * 0.55));
+        for(let i=0; i<dropsA.length; i++){
+          if(dropsA[i].y * font > H) hits++;
+          if(hits >= need) return true;
+        }
+        return false;
+      }
 
-      resize();
-      raf = requestAnimationFrame(frame);
+      function start(){
+        wrap.classList.add('is-on');
 
-      const stopHard = () => {
-        cancelAnimationFrame(raf);
-        ctx.clearRect(0,0,W,H);
-      };
+        resize();
+        raf = requestAnimationFrame(frame);
 
-      const hide = () => {
-        wrap.classList.remove('is-on');
-        wrap.classList.add('is-off');
+        const stopHard = () => {
+          cancelAnimationFrame(raf);
+          ctx.clearRect(0,0,W,H);
+        };
 
-        clearTimeout(stopTimer);
-        stopTimer = setTimeout(stopHard, fadeOutMs + 120);
-      };
+        const hide = () => {
+          wrap.classList.remove('is-on');
+          wrap.classList.add('is-off');
 
-      // ✅ страница грузится параллельно — мы просто ждём load,
-      // но НЕ убираем матрицу, пока:
-      // 1) не прошло minTravelMs после load
-      // 2) и “дожди” не дошли до низа (или таймаут страховки)
-      const onLoaded = () => {
-        loadedAt = performance.now();
+          clearTimeout(stopTimer);
+          stopTimer = setTimeout(stopHard, fadeOutMs + 120);
+        };
 
-        const tick = () => {
-          const now = performance.now();
-          const afterLoad = now - loadedAt;
+        const onLoaded = () => {
+          loadedAt = performance.now();
 
-          // страховка на случай супер-медленных устройств
-          const hardMax = 5200;
+          const tick = () => {
+            const now = performance.now();
+            const afterLoad = now - loadedAt;
 
-          if((afterLoad >= minTravelMs && allReachedBottom()) || afterLoad >= hardMax){
-            hide();
-            return;
-          }
+            const hardMax = 5200;
+
+            if((afterLoad >= minTravelMs && allReachedBottom()) || afterLoad >= hardMax){
+              hide();
+              return;
+            }
+            requestAnimationFrame(tick);
+          };
+
           requestAnimationFrame(tick);
         };
 
-        requestAnimationFrame(tick);
-      };
+        window.addEventListener('load', onLoaded, { once:true });
 
-      window.addEventListener('load', onLoaded, { once:true });
+        if(document.readyState === 'complete'){
+          setTimeout(onLoaded, 0);
+        }
 
-      // если load уже случился (кеш)
-      if(document.readyState === 'complete'){
-        setTimeout(onLoaded, 0);
-      }
+        const nav = document.querySelector('.side-nav');
+        if(nav){
+          const mo = new MutationObserver(() => {
+            const night = nav.classList.contains('hud--night');
+            c.style.opacity = night ? '0.98' : '0.92';
+            c.style.mixBlendMode = 'screen';
+            c.style.filter = night
+              ? 'blur(.35px) saturate(1.35) contrast(1.10)'
+              : 'blur(.35px) saturate(1.25) contrast(1.06)';
+            wrap.style.background = night ? 'rgba(0,0,0,.40)' : 'rgba(0,0,0,.26)';
+          });
+          mo.observe(nav, { attributes:true, attributeFilter:['class'] });
+        }
 
-      // чуть адаптируем под night-mode (и затемнение)
-      const nav = document.querySelector('.side-nav');
-      if(nav){
-        const mo = new MutationObserver(() => {
-          const night = nav.classList.contains('hud--night');
-          c.style.opacity = night ? '0.98' : '0.92';
-          c.style.mixBlendMode = night ? 'screen' : 'screen';
-          c.style.filter = night
-            ? 'blur(.35px) saturate(1.35) contrast(1.10)'
-            : 'blur(.35px) saturate(1.25) contrast(1.06)';
-          wrap.style.background = night ? 'rgba(0,0,0,.40)' : 'rgba(0,0,0,.26)';
+        window.addEventListener('pagehide', () => {
+          clearTimeout(stopTimer);
+          stopHard();
         });
-        mo.observe(nav, { attributes:true, attributeFilter:['class'] });
       }
 
-      // чистим при уходе/закрытии
-      window.addEventListener('pagehide', () => {
-        clearTimeout(stopTimer);
-        stopHard();
+      const ro = new ResizeObserver(resize);
+      ro.observe(wrap);
+
+      start();
+    })();
+
+    // =============== Переходы между страницами (перехват кликов) ===============
+    (function pageTransitions(){
+      const pt = document.getElementById('pt');
+      if(!pt) return;
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function isModifiedClick(e){
+        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+      }
+      function samePage(href){
+        try{
+          const u = new URL(href, location.href);
+          return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
+        }catch(_){ return true; }
+      }
+
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href]');
+        if(!a) return;
+
+        const href = a.getAttribute('href');
+        if(!href) return;
+
+        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
+        if(isModifiedClick(e)) return;
+
+        if(samePage(href) && href.includes('#')) return;
+        if(reduce) return;
+        if(a.target === '_blank') return;
+
+        e.preventDefault();
+
+        pt.classList.remove('is-entering');
+        pt.classList.add('is-leaving');
+
+        const go = () => { location.href = href; };
+        setTimeout(go, 420);
+        setTimeout(go, 900);
+      }, { capture: true });
+
+      window.addEventListener('pageshow', () => {
+        if(reduce) return;
+        pt.classList.remove('is-leaving');
+        pt.classList.add('is-entering');
+        setTimeout(() => pt.classList.remove('is-entering'), 520);
       });
-    }
-
-    const ro = new ResizeObserver(resize);
-    ro.observe(wrap);
-
-    start();
-  })();
-
-  // =============== Переходы между страницами (перехват кликов) ===============
-  (function pageTransitions(){
-    const pt = document.getElementById('pt');
-    if(!pt) return;
-
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    function isModifiedClick(e){
-      return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
-    }
-    function samePage(href){
-      try{
-        const u = new URL(href, location.href);
-        return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
-      }catch(_){ return true; }
-    }
-
-    document.addEventListener('click', (e) => {
-      const a = e.target.closest('a[href]');
-      if(!a) return;
-
-      const href = a.getAttribute('href');
-      if(!href) return;
-
-      if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
-      if(isModifiedClick(e)) return;
-
-      if(samePage(href) && href.includes('#')) return;
-      if(reduce) return;
-      if(a.target === '_blank') return;
-
-      e.preventDefault();
-
-      pt.classList.remove('is-entering');
-      pt.classList.add('is-leaving');
-
-      const go = () => { location.href = href; };
-      setTimeout(go, 420);
-      setTimeout(go, 900);
-    }, { capture: true });
-
-    window.addEventListener('pageshow', () => {
-      if(reduce) return;
-      pt.classList.remove('is-leaving');
-      pt.classList.add('is-entering');
-      setTimeout(() => pt.classList.remove('is-entering'), 520);
-    });
-  })();
+    })();
   </script>
 </body>
 </html>
