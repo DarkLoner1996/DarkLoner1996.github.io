@@ -59,6 +59,10 @@
       --mx: rgba(110,255,210,.92);
       --mx2: rgba(40,220,160,.55);
       --mxDark: rgba(6,18,16,.55);
+
+      /* Matrix colors (yellow + blue) */
+      --mxY: rgba(255, 226, 120, .95); /* жёлтый */
+      --mxB: rgba(80, 175, 255, .80);  /* синий */
     }
 
     .side-nav{
@@ -622,11 +626,11 @@
     .matrix-wrap{
       position:fixed;
       inset:0;
-      z-index:9997;          /* ниже page-transition (9999), ниже intro (9998) */
+      z-index:9997; /* ниже page-transition (9999), ниже intro (9998) */
       pointer-events:none;
       opacity:0;
-      transition: opacity .55s ease;
-      background: rgba(0,0,0,.32); /* лёгкое затемнение как в фильме */
+      transition: opacity 1.25s ease; /* ✅ плавнее исчезает */
+      background: rgba(0,0,0,.26);
       mix-blend-mode: normal;
     }
     .matrix-wrap.is-on{ opacity:1; }
@@ -642,7 +646,7 @@
 
       opacity:.92;
       mix-blend-mode: screen;
-      filter: blur(.35px) saturate(1.45) contrast(1.14);
+      filter: blur(.35px) saturate(1.25) contrast(1.06);
     }
 
     /* легкая HUD-виниетка на хедере */
@@ -671,7 +675,7 @@
     }
     .intro.is-on{
       opacity:1;
-      animation: introFade 1.05s ease forwards;
+      animation: introFade 1.35s ease forwards; /* ✅ дольше */
     }
 
     .intro::before{
@@ -685,7 +689,7 @@
       transform: rotate(12deg) translateY(-120%);
       filter: blur(1px);
       opacity:.9;
-      animation: scan 1.05s cubic-bezier(.2,.8,.2,1) forwards;
+      animation: scan 1.35s cubic-bezier(.2,.8,.2,1) forwards; /* ✅ дольше */
     }
 
     .intro::after{
@@ -698,25 +702,25 @@
         radial-gradient(circle at 80% 70%, rgba(110,255,210,.08), transparent 55%);
       opacity:.22;
       mix-blend-mode: overlay;
-      animation: glitch 1.05s steps(14) forwards;
+      animation: glitch 1.35s steps(18) forwards; /* ✅ плавнее/дольше */
     }
 
     @keyframes introFade{
       0%{ opacity:1; }
-      70%{ opacity:1; }
+      75%{ opacity:1; }
       100%{ opacity:0; }
     }
     @keyframes scan{
       0%{ transform: rotate(12deg) translateY(-140%); }
-      70%{ transform: rotate(12deg) translateY(120%); }
-      100%{ transform: rotate(12deg) translateY(160%); }
+      75%{ transform: rotate(12deg) translateY(120%); }
+      100%{ transform: rotate(12deg) translateY(170%); }
     }
     @keyframes glitch{
       0%{ transform: translateX(0); filter:none; }
-      20%{ transform: translateX(-1px); filter: contrast(1.2); }
-      40%{ transform: translateX(2px); filter: hue-rotate(10deg); }
-      60%{ transform: translateX(-2px); filter: contrast(1.05); }
-      80%{ transform: translateX(1px); filter: hue-rotate(-8deg); }
+      20%{ transform: translateX(-1px); filter: contrast(1.08); }
+      40%{ transform: translateX(1px); filter: hue-rotate(8deg); }
+      60%{ transform: translateX(-1px); filter: contrast(1.04); }
+      80%{ transform: translateX(1px); filter: hue-rotate(-6deg); }
       100%{ transform: translateX(0); filter:none; }
     }
 
@@ -760,23 +764,10 @@
     .page-transition.is-leaving .wipe{ animation: wipeIn .52s cubic-bezier(.2,.8,.2,1) forwards; }
     .page-transition.is-entering .wipe{ animation: wipeOut .46s cubic-bezier(.2,.8,.2,1) forwards; }
 
-    @keyframes ptIn{
-      0%{ opacity:0; }
-      25%{ opacity:1; }
-      100%{ opacity:1; }
-    }
-    @keyframes ptOut{
-      0%{ opacity:1; }
-      100%{ opacity:0; }
-    }
-    @keyframes wipeIn{
-      0%{ transform: translateX(-120%); }
-      100%{ transform: translateX(120%); }
-    }
-    @keyframes wipeOut{
-      0%{ transform: translateX(120%); }
-      100%{ transform: translateX(220%); }
-    }
+    @keyframes ptIn{ 0%{ opacity:0; } 25%{ opacity:1; } 100%{ opacity:1; } }
+    @keyframes ptOut{ 0%{ opacity:1; } 100%{ opacity:0; } }
+    @keyframes wipeIn{ 0%{ transform: translateX(-120%); } 100%{ transform: translateX(120%); } }
+    @keyframes wipeOut{ 0%{ transform: translateX(120%); } 100%{ transform: translateX(220%); } }
 
     @media (prefers-reduced-motion: reduce){
       .hud-item, .hud-cta, .switch, .back-btn { transition:none !important; }
@@ -926,7 +917,7 @@
       const intro = document.getElementById('intro');
       if(!intro) return;
       requestAnimationFrame(() => intro.classList.add('is-on'));
-      setTimeout(() => intro.remove(), 1200);
+      setTimeout(() => intro.remove(), 1650);
     })();
 
     // =============== Активный пункт по URL ===============
@@ -985,7 +976,7 @@
       setState(false);
     })();
 
-    // =============== Matrix rain (cinema, full-site, fade out) ===============
+    // =============== Matrix rain (smooth, longer, yellow+blue, full-site, fade out after drops reach bottom) ===============
     (function matrixRainCinema(){
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if(reduce) return;
@@ -996,12 +987,11 @@
 
       const ctx = c.getContext('2d', { alpha: true });
 
+      // символы
       const glyphs = (
         "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
         "ハヒフヘホマミムメモヤユヨラリルレロワヲンヴ" +
-        "0123456789" +
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-        "$+-*/=<>[]{}()"
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=<>[]{}()"
       ).split("");
 
       const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1011,16 +1001,23 @@
       let raf=0;
       let stopTimer=0;
 
+      // ✅ чтобы дождь “успевал доходить до низа”
+      let minTravelMs = 2400;      // минимально показываем матрицу после load
+      let fadeOutMs   = 1250;      // должен совпадать с transition .matrix-wrap
+      let startAt = 0;
+      let loadedAt = 0;
+
       function rand(min,max){ return min + Math.random()*(max-min); }
       function pick(arr){ return arr[(Math.random()*arr.length)|0]; }
 
       function makeDrops(layerScale){
         return new Array(cols).fill(0).map(() => {
-          const speed = rand(0.9, 2.8) * layerScale;
-          const len = rand(10, 32) * layerScale;
-          const y = rand(-H/font, 0);
-          const switchEvery = rand(2, 8);
-          const gapChance = 0.02 + Math.random()*0.03;
+          // ✅ медленнее и плавнее (скорость ниже, длина больше)
+          const speed = rand(0.55, 1.35) * layerScale;
+          const len   = rand(18, 48) * layerScale;
+          const y     = rand(-H/font - 80, -10);
+          const switchEvery = rand(3, 9);
+          const gapChance = 0.012 + Math.random()*0.02;
           return { y, speed, len, t:0, switchEvery, ch: pick(glyphs), gapChance };
         });
       }
@@ -1036,19 +1033,19 @@
         c.style.height = H + "px";
         ctx.setTransform(dpr,0,0,dpr,0,0);
 
-        font = Math.max(12, Math.min(20, Math.round(W / 120)));
+        font = Math.max(13, Math.min(22, Math.round(W / 135)));
         cols = Math.floor(W / font);
 
         dropsA = makeDrops(1.0);
-        dropsB = makeDrops(0.75);
+        dropsB = makeDrops(0.80);
       }
 
-      function drawLayer(drops, layerAlpha, glow, headBoost){
+      function drawLayer(drops, layerAlpha, glow, headBoost, colorMix){
         ctx.font = `700 ${font}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
         ctx.textBaseline = "top";
 
         ctx.shadowBlur = glow;
-        ctx.shadowColor = "rgba(120,255,210,0.85)";
+        ctx.shadowColor = `rgba(${colorMix.glowR},${colorMix.glowG},${colorMix.glowB},0.70)`;
 
         for(let i=0;i<drops.length;i++){
           const d = drops[i];
@@ -1056,7 +1053,7 @@
 
           if(Math.random() < d.gapChance){
             d.y += d.speed;
-            if(d.y * font > H + d.len * font) d.y = rand(-60, -10);
+            if(d.y * font > H + d.len * font) d.y = rand(-120, -20);
             continue;
           }
 
@@ -1066,14 +1063,15 @@
             d.ch = pick(glyphs);
           }
 
-          const yTop = (d.y - d.len) * font;
+          const yTop  = (d.y - d.len) * font;
           const yHead = d.y * font;
 
+          // ✅ градиент “хвоста”: жёлтый -> синий к голове
           const grad = ctx.createLinearGradient(0, yTop, 0, yHead);
-          grad.addColorStop(0.0, `rgba(0, 0, 0, 0)`);
-          grad.addColorStop(0.55, `rgba(40, 255, 170, ${0.10*layerAlpha})`);
-          grad.addColorStop(0.85, `rgba(60, 255, 190, ${0.35*layerAlpha})`);
-          grad.addColorStop(1.0, `rgba(210, 255, 245, ${0.95*layerAlpha})`);
+          grad.addColorStop(0.00, `rgba(${colorMix.tailR},${colorMix.tailG},${colorMix.tailB},0.00)`);
+          grad.addColorStop(0.55, `rgba(${colorMix.tailR},${colorMix.tailG},${colorMix.tailB},${0.14*layerAlpha})`);
+          grad.addColorStop(0.85, `rgba(${colorMix.midR},${colorMix.midG},${colorMix.midB},${0.38*layerAlpha})`);
+          grad.addColorStop(1.00, `rgba(${colorMix.headR},${colorMix.headG},${colorMix.headB},${0.96*layerAlpha})`);
 
           for(let k=0;k<d.len;k++){
             const yy = (d.y - k) * font;
@@ -1085,7 +1083,7 @@
 
             if(k === 0){
               ctx.shadowBlur = glow * 1.25;
-              ctx.fillStyle = `rgba(240,255,250,${(0.95*layerAlpha)*headBoost})`;
+              ctx.fillStyle = `rgba(${colorMix.headR},${colorMix.headG},${colorMix.headB},${(0.98*layerAlpha)*headBoost})`;
             } else {
               ctx.shadowBlur = glow;
             }
@@ -1094,129 +1092,177 @@
           }
 
           d.y += d.speed;
-          if(d.y * font > H + d.len * font) d.y = rand(-60, -10);
+          if(d.y * font > H + d.len * font) d.y = rand(-120, -20);
         }
       }
 
       function frame(){
-        // “шлейф”
+        // ✅ более мягкий “шлейф” (меньше очистка = плавнее)
         ctx.globalCompositeOperation = "source-over";
         ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(0,0,0,0.10)";
+        ctx.fillStyle = "rgba(0,0,0,0.06)";
         ctx.fillRect(0,0,W,H);
 
-        // лёгкое зеленое свечение
+        // лёгкая “подсветка” экрана
         ctx.globalCompositeOperation = "lighter";
-        ctx.fillStyle = "rgba(0, 140, 90, 0.03)";
+        ctx.fillStyle = "rgba(20, 90, 140, 0.018)";
         ctx.fillRect(0,0,W,H);
 
         ctx.globalCompositeOperation = "source-over";
-        drawLayer(dropsB, 0.55, 6, 0.90);
-        drawLayer(dropsA, 0.92, 10, 1.05);
 
-        raf = requestAnimationFrame(frame);
-      }
-
-      function start(){
-        wrap.classList.add('is-on');
-        resize();
-        raf = requestAnimationFrame(frame);
-
-        // 1) держим матрицу во время загрузки
-        // 2) после полной загрузки + небольшой паузы — плавно убираем
-        const hide = () => {
-          wrap.classList.remove('is-on');
-          wrap.classList.add('is-off');
-
-          // через время после fade — гасим анимацию, чтобы не жрало CPU
-          clearTimeout(stopTimer);
-          stopTimer = setTimeout(() => {
-            cancelAnimationFrame(raf);
-            ctx.clearRect(0,0,W,H);
-          }, 800);
+        // палитра под фон: жёлтый + синий
+        const palette = {
+          tailR: 255, tailG: 226, tailB: 120,  // жёлтый хвост
+          midR:   170, midG: 210, midB: 255,   // светло-синий середина
+          headR:   80, headG: 175, headB: 255, // синий голова
+          glowR:  255, glowG: 220, glowB: 120  // тёплый glow
         };
 
-        window.addEventListener('load', () => {
-          // чуть “киношной” задержки, чтобы эффект успели увидеть
-          setTimeout(hide, 900);
-        }, { once:true });
+         drawLayer(dropsB, 0.55, 6, 0.92, palette);
+      drawLayer(dropsA, 0.92, 10, 1.06, palette);
 
-        // если load уже случился (кеш), всё равно покажем коротко
-        if(document.readyState === 'complete'){
-          setTimeout(hide, 700);
-        }
+      raf = requestAnimationFrame(frame);
+    }
+
+    // ✅ проверка: дошли ли “головы” дождей до низа
+    function allReachedBottom(){
+      // считаем “дошли”, когда средний уровень head-y у колонок ниже низа
+      let hits = 0;
+      const need = Math.max(6, Math.floor(cols * 0.55)); // достаточно, чтобы большинство прошло
+      for(let i=0; i<dropsA.length; i++){
+        if(dropsA[i].y * font > H) hits++;
+        if(hits >= need) return true;
+      }
+      return false;
+    }
+
+    function start(){
+      startAt = performance.now();
+      wrap.classList.add('is-on');
+
+      resize();
+      raf = requestAnimationFrame(frame);
+
+      const stopHard = () => {
+        cancelAnimationFrame(raf);
+        ctx.clearRect(0,0,W,H);
+      };
+
+      const hide = () => {
+        wrap.classList.remove('is-on');
+        wrap.classList.add('is-off');
+
+        clearTimeout(stopTimer);
+        stopTimer = setTimeout(stopHard, fadeOutMs + 120);
+      };
+
+      // ✅ страница грузится параллельно — мы просто ждём load,
+      // но НЕ убираем матрицу, пока:
+      // 1) не прошло minTravelMs после load
+      // 2) и “дожди” не дошли до низа (или таймаут страховки)
+      const onLoaded = () => {
+        loadedAt = performance.now();
+
+        const tick = () => {
+          const now = performance.now();
+          const afterLoad = now - loadedAt;
+
+          // страховка на случай супер-медленных устройств
+          const hardMax = 5200;
+
+          if((afterLoad >= minTravelMs && allReachedBottom()) || afterLoad >= hardMax){
+            hide();
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
+      };
+
+      window.addEventListener('load', onLoaded, { once:true });
+
+      // если load уже случился (кеш)
+      if(document.readyState === 'complete'){
+        setTimeout(onLoaded, 0);
       }
 
-      const ro = new ResizeObserver(resize);
-      ro.observe(wrap);
-
-      // Под night-mode чуть усилим
+      // чуть адаптируем под night-mode (и затемнение)
       const nav = document.querySelector('.side-nav');
       if(nav){
         const mo = new MutationObserver(() => {
           const night = nav.classList.contains('hud--night');
           c.style.opacity = night ? '0.98' : '0.92';
+          c.style.mixBlendMode = night ? 'screen' : 'screen';
           c.style.filter = night
-            ? 'blur(.35px) saturate(1.55) contrast(1.20)'
-            : 'blur(.35px) saturate(1.45) contrast(1.14)';
-          wrap.style.background = night ? 'rgba(0,0,0,.46)' : 'rgba(0,0,0,.32)';
+            ? 'blur(.35px) saturate(1.35) contrast(1.10)'
+            : 'blur(.35px) saturate(1.25) contrast(1.06)';
+          wrap.style.background = night ? 'rgba(0,0,0,.40)' : 'rgba(0,0,0,.26)';
         });
         mo.observe(nav, { attributes:true, attributeFilter:['class'] });
       }
 
-      start();
-
-      window.addEventListener('pagehide', () => cancelAnimationFrame(raf));
-    })();
-
-    // =============== Переходы между страницами (перехват кликов) ===============
-    (function pageTransitions(){
-      const pt = document.getElementById('pt');
-      if(!pt) return;
-
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      function isModifiedClick(e){
-        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
-      }
-      function samePage(href){
-        try{
-          const u = new URL(href, location.href);
-          return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
-        }catch(_){ return true; }
-      }
-
-      document.addEventListener('click', (e) => {
-        const a = e.target.closest('a[href]');
-        if(!a) return;
-
-        const href = a.getAttribute('href');
-        if(!href) return;
-
-        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
-        if(isModifiedClick(e)) return;
-
-        if(samePage(href) && href.includes('#')) return;
-        if(reduce) return;
-        if(a.target === '_blank') return;
-
-        e.preventDefault();
-
-        pt.classList.remove('is-entering');
-        pt.classList.add('is-leaving');
-
-        const go = () => { location.href = href; };
-        setTimeout(go, 420);
-        setTimeout(go, 900);
-      }, { capture: true });
-
-      window.addEventListener('pageshow', () => {
-        if(reduce) return;
-        pt.classList.remove('is-leaving');
-        pt.classList.add('is-entering');
-        setTimeout(() => pt.classList.remove('is-entering'), 520);
+      // чистим при уходе/закрытии
+      window.addEventListener('pagehide', () => {
+        clearTimeout(stopTimer);
+        stopHard();
       });
-    })();
+    }
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(wrap);
+
+    start();
+  })();
+
+  // =============== Переходы между страницами (перехват кликов) ===============
+  (function pageTransitions(){
+    const pt = document.getElementById('pt');
+    if(!pt) return;
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function isModifiedClick(e){
+      return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+    }
+    function samePage(href){
+      try{
+        const u = new URL(href, location.href);
+        return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
+      }catch(_){ return true; }
+    }
+
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[href]');
+      if(!a) return;
+
+      const href = a.getAttribute('href');
+      if(!href) return;
+
+      if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
+      if(isModifiedClick(e)) return;
+
+      if(samePage(href) && href.includes('#')) return;
+      if(reduce) return;
+      if(a.target === '_blank') return;
+
+      e.preventDefault();
+
+      pt.classList.remove('is-entering');
+      pt.classList.add('is-leaving');
+
+      const go = () => { location.href = href; };
+      setTimeout(go, 420);
+      setTimeout(go, 900);
+    }, { capture: true });
+
+    window.addEventListener('pageshow', () => {
+      if(reduce) return;
+      pt.classList.remove('is-leaving');
+      pt.classList.add('is-entering');
+      setTimeout(() => pt.classList.remove('is-entering'), 520);
+    });
+  })();
   </script>
 </body>
 </html>
