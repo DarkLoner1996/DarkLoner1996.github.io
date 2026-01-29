@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -591,18 +591,16 @@
        Альтернатива: cover (кроп, но "во весь экран")
     ========================================================= */
 
-    /* Контейнер */
     .header{
       position:relative;
       width:100%;
       min-height: 100svh;
       background:#ddeeff;
       overflow-x:hidden;
-      overflow-y:auto; /* ✅ если картинка выше экрана — появится скролл */
+      overflow-y:auto;
       isolation:isolate;
     }
 
-    /* Размытый "fill" слой — всегда закрывает экран */
     .header__bg-blur{
       position:fixed;
       inset:0;
@@ -620,39 +618,32 @@
       will-change: transform;
     }
 
-    /* Основная картинка — НЕ absolute, чтобы не насиловать height:100% */
     .header__bg{
       position:relative;
       display:block;
-      width:100vw;     /* ✅ по ширине — на весь экран */
-      height:auto;     /* ✅ пропорции сохраняются => не "сосиска" */
+      width:100vw;
+      height:auto;
       z-index:1;
       margin:0 auto;
       pointer-events:none;
       user-select:none;
       -webkit-user-drag:none;
-
-      /* чуть приятнее ресемплинг при даунскейле */
       image-rendering: auto;
       -ms-interpolation-mode: bicubic;
     }
 
-    /* Если хочешь режим "cover на весь экран" — включи переменную:
-       --hero-mode: 2;  (в :root)
-    */
     :root[style*="--hero-mode: 2"] .header{
-      overflow:hidden; /* в cover-режиме скролл не нужен */
+      overflow:hidden;
     }
     :root[style*="--hero-mode: 2"] .header__bg{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
-      object-fit:cover;     /* ✅ во весь экран без искажений, но с кропом */
+      object-fit:cover;
       object-position:center;
     }
 
-    /* лёгкая HUD-виниетка на хедере */
     .header::after{
       content:"";
       position:fixed;
@@ -691,7 +682,6 @@
       filter: blur(.35px) saturate(1.25) contrast(1.06);
     }
 
-    /* ===== Появление (скан + глич) ===== */
     .intro{
       position:fixed;
       inset:0;
@@ -754,7 +744,6 @@
       100%{ transform: translateX(0); filter:none; }
     }
 
-    /* ===== Переход между страницами (Matrix-wipe) ===== */
     .page-transition{
       position:fixed;
       inset:0;
@@ -935,10 +924,7 @@
 
   <!-- HEADER -->
   <div class="header">
-    <!-- blur всегда "закрывает" экран -->
     <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
-
-    <!-- основная картинка: по ширине 100%, без искажений -->
     <img
       class="header__bg"
       src="header-bg-3840.jpg"
@@ -1284,7 +1270,46 @@
         setTimeout(() => pt.classList.remove('is-entering'), 520);
       });
     })();
+
+    // =============== ✅ СТАРТ СНИЗУ (скролл вниз при открытии) ===============
+    (function startAtBottom(){
+      function scrollToBottom(){
+        const header = document.querySelector('.header');
+
+        // 1) Если скролл внутри .header
+        if(header && header.scrollHeight > header.clientHeight + 2){
+          header.scrollTop = header.scrollHeight;
+          return;
+        }
+
+        // 2) Иначе — скролл всей страницы
+        const scroller = document.scrollingElement || document.documentElement;
+        scroller.scrollTop = scroller.scrollHeight;
+      }
+
+      function runFewTimes(){
+        scrollToBottom();
+        requestAnimationFrame(scrollToBottom);
+        setTimeout(scrollToBottom, 50);
+        setTimeout(scrollToBottom, 200);
+        setTimeout(scrollToBottom, 600);
+      }
+
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
+      } else {
+        runFewTimes();
+      }
+
+      window.addEventListener('load', runFewTimes, { once:true });
+
+      const img = document.querySelector('.header__bg');
+      if(img){
+        const afterImg = () => setTimeout(scrollToBottom, 0);
+        if(img.complete) afterImg();
+        else img.addEventListener('load', afterImg, { once:true });
+      }
+    })();
   </script>
 </body>
 </html>
-
