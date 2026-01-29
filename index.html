@@ -1,4 +1,4 @@
-<!DOCTYPE html>   
+<!DOCTYPE html>    
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -1235,7 +1235,7 @@
     })();
 
     /* =========================================================
-       ✅ LOGIN PORTAL: появляется через 30 секунд
+       ✅ LOGIN PORTAL: появляется через 30 секунд (ОДИН РАЗ)
        - закрытие по X, Esc, клику по фону
        - фокус на логин
        - показ 1 раз за сессию вкладки (sessionStorage)
@@ -1266,7 +1266,7 @@
       }
 
       function schedule(){
-        if(reduce) return; // в reduce-motion не делаем авто-попап
+        if(reduce) return;
         if(sessionStorage.getItem(KEY) === '1') return;
         openTimer = setTimeout(open, 30000);
       }
@@ -1283,7 +1283,7 @@
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        // TODO: тут будет реальная авторизация (fetch на сервер)
+        // TODO: реальная авторизация (fetch на сервер)
         close();
       });
 
@@ -1295,7 +1295,7 @@
     })();
 
     // =============== Активный пункт по URL ===============
-    (function markActive(){
+(function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '') || '/';
         const items = document.querySelectorAll('.hud-item');
@@ -1655,62 +1655,5 @@
     })();
   </script>
 
-  <script>
-    /* ✅ ДОБАВЛЕНО: Login Portal, не трогая остальной код */
-    (function loginPortal(){
-      const overlay = document.getElementById('loginOverlay');
-      const closeBtn = document.getElementById('loginClose');
-      const form = document.getElementById('loginForm');
-      if(!overlay || !closeBtn || !form) return;
-
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const KEY = 'dh_login_portal_shown';
-      let openTimer = null;
-
-      function open(){
-        if(sessionStorage.getItem(KEY) === '1') return;
-        overlay.classList.add('is-open');
-        overlay.setAttribute('aria-hidden', 'false');
-        sessionStorage.setItem(KEY, '1');
-
-        const loginInput = form.querySelector('input[name="login"]');
-        if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 60);
-      }
-
-      function close(){
-        overlay.classList.remove('is-open');
-        overlay.setAttribute('aria-hidden', 'true');
-      }
-
-      // ✅ через 30 секунд после захода на страницу
-      function schedule(){
-        if(reduce) return;
-        if(sessionStorage.getItem(KEY) === '1') return;
-        openTimer = setTimeout(open, 30000);
-      }
-
-      closeBtn.addEventListener('click', close);
-
-      overlay.addEventListener('click', (e) => {
-        if(e.target === overlay) close();
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape' && overlay.classList.contains('is-open')) close();
-      });
-
-      // пока заглушка — просто закрываем
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        close();
-      });
-
-      window.addEventListener('pagehide', () => {
-        if(openTimer) clearTimeout(openTimer);
-      });
-
-      schedule();
-    })();
-  </script>
 </body>
 </html>
