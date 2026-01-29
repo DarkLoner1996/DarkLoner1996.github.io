@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+впиши исправления выше в этот код и сделай сразу один большой готовый код <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -64,17 +64,11 @@
       --mxY: rgba(255, 226, 120, .95); /* жёлтый */
       --mxB: rgba(80, 175, 255, .80);  /* синий */
 
-      /* ✅ "Отдаление" хедера (как на твоем примере) */
-      --hero-zoom: .82; /* базовый зум (меньше = сильнее отдаление) */
-      --hero-top: 16px; /* сдвиг кадра по Y (можно -10px / 30px) */
-    }
-
-    /* ✅ 4K: чуть сильнее отдаляем, чтобы больше элементов попадало на экран */
-    @media (min-width: 2560px){
-      :root{
-        --hero-zoom: .78;
-        --hero-top: 10px;
-      }
+      /* ✅ Режим хедера:
+         1 = "по ширине 100%, без искажений, лишнее вниз (скролл)" — самый честный
+         2 = "на весь экран cover (будет кроп, но красиво)"
+      */
+      --hero-mode: 2;
     }
 
     .side-nav{
@@ -592,28 +586,25 @@
     }
 
     /* =========================================================
-       ✅ HEADER: "отдалённый" стартовый вид как на примере (без потери качества)
-       - blur слой закрывает весь экран
-       - основная картинка НЕ плющится (width:100vw, height:auto)
-       - "отдаление" делаем scale() (уменьшаем) => больше элементов влезает
+       ✅ HEADER: БЕЗ СОСИСКИ / БЕЗ ПЛЮЩЕНИЯ / КРАСИВО НА 4К
+       По умолчанию: 100% ширина + авто-высота (скролл вниз)
+       Альтернатива: cover (кроп, но "во весь экран")
     ========================================================= */
 
+    /* Контейнер */
     .header{
       position:relative;
       width:100%;
-      min-height: 100vh;
       min-height: 100svh;
-      min-height: 100dvh;
-      overflow:hidden;
       background:#ddeeff;
-
-      display:grid;
-      place-items:start center;
+      overflow-x:hidden;
+      overflow-y:auto; /* ✅ если картинка выше экрана — появится скролл */
       isolation:isolate;
     }
 
+    /* Размытый "fill" слой — всегда закрывает экран */
     .header__bg-blur{
-      position:absolute;
+      position:fixed;
       inset:0;
       width:100%;
       height:100%;
@@ -629,29 +620,42 @@
       will-change: transform;
     }
 
+    /* Основная картинка — НЕ absolute, чтобы не насиловать height:100% */
     .header__bg{
       position:relative;
+      display:block;
+      width:100vw;     /* ✅ по ширине — на весь экран */
+      height:auto;     /* ✅ пропорции сохраняются => не "сосиска" */
       z-index:1;
-
-      width:100vw;
-      height:auto;
-
-      transform: translateY(var(--hero-top)) scale(var(--hero-zoom));
-      transform-origin: top center;
-      will-change: transform;
-
+      margin:0 auto;
       pointer-events:none;
       user-select:none;
       -webkit-user-drag:none;
 
-      image-rendering:auto;
-      -ms-interpolation-mode:bicubic;
+      /* чуть приятнее ресемплинг при даунскейле */
+      image-rendering: auto;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    /* Если хочешь режим "cover на весь экран" — включи переменную:
+       --hero-mode: 2;  (в :root)
+    */
+    :root[style*="--hero-mode: 2"] .header{
+      overflow:hidden; /* в cover-режиме скролл не нужен */
+    }
+    :root[style*="--hero-mode: 2"] .header__bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;     /* ✅ во весь экран без искажений, но с кропом */
+      object-position:center;
     }
 
     /* лёгкая HUD-виниетка на хедере */
     .header::after{
       content:"";
-      position:absolute;
+      position:fixed;
       inset:0;
       background:
         radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0.22)),
@@ -664,10 +668,10 @@
     .matrix-wrap{
       position:fixed;
       inset:0;
-      z-index:9997; /* ниже page-transition (9999), ниже intro (9998) */
+      z-index:9997;
       pointer-events:none;
       opacity:0;
-      transition: opacity 1.25s ease; /* ✅ плавнее исчезает */
+      transition: opacity 1.25s ease;
       background: rgba(0,0,0,.26);
       mix-blend-mode: normal;
     }
@@ -701,7 +705,7 @@
     }
     .intro.is-on{
       opacity:1;
-      animation: introFade 1.35s ease forwards; /* ✅ дольше */
+      animation: introFade 1.35s ease forwards;
     }
 
     .intro::before{
@@ -715,7 +719,7 @@
       transform: rotate(12deg) translateY(-120%);
       filter: blur(1px);
       opacity:.9;
-      animation: scan 1.35s cubic-bezier(.2,.8,.2,1) forwards; /* ✅ дольше */
+      animation: scan 1.35s cubic-bezier(.2,.8,.2,1) forwards;
     }
 
     .intro::after{
@@ -728,7 +732,7 @@
         radial-gradient(circle at 80% 70%, rgba(110,255,210,.08), transparent 55%);
       opacity:.22;
       mix-blend-mode: overlay;
-      animation: glitch 1.35s steps(18) forwards; /* ✅ плавнее/дольше */
+      animation: glitch 1.35s steps(18) forwards;
     }
 
     @keyframes introFade{
@@ -807,7 +811,7 @@
 
 <body>
 
-  <!-- Matrix full-site overlay (появляется при загрузке и исчезает) -->
+  <!-- Matrix full-site overlay -->
   <div class="matrix-wrap" id="matrixWrap" aria-hidden="true">
     <canvas class="matrix" id="matrix" aria-hidden="true"></canvas>
   </div>
@@ -932,21 +936,17 @@
   <!-- HEADER -->
   <div class="header">
     <!-- blur всегда "закрывает" экран -->
-    <img class="header__bg-blur"
-         src="header-bg-3840.jpg"
-         alt=""
-         aria-hidden="true"
-         decoding="async">
+    <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
 
-    <!-- ✅ основная картинка: подхват разных размеров + отдалённый стартовый вид -->
-    <img class="header__bg"
-         src="header-bg-3840.jpg"
-         srcset="header-bg-1920.jpg 1920w, header-bg-2560.jpg 2560w, header-bg-3840.jpg 3840w"
-         sizes="100vw"
-         alt=""
-         loading="eager"
-         decoding="async"
-         draggable="false">
+    <!-- основная картинка: по ширине 100%, без искажений -->
+    <img
+      class="header__bg"
+      src="header-bg-3840.jpg"
+      alt=""
+      loading="eager"
+      decoding="async"
+      draggable="false"
+    >
   </div>
 
   <script>
@@ -1016,7 +1016,7 @@
       setState(false);
     })();
 
-    // =============== Matrix rain (smooth, longer, yellow+blue, full-site, fade out after drops reach bottom) ===============
+    // =============== Matrix rain (без изменений твоей логики) ===============
     (function matrixRainCinema(){
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if(reduce) return;
@@ -1027,7 +1027,6 @@
 
       const ctx = c.getContext('2d', { alpha: true });
 
-      // символы
       const glyphs = (
         "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
         "ハヒフヘホマミムメモヤユヨラリルレロワヲンヴ" +
@@ -1288,4 +1287,3 @@
   </script>
 </body>
 </html>
-
