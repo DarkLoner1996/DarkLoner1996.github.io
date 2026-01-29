@@ -582,18 +582,20 @@
     .matrix-wrap.is-on{ opacity:1; }
     .matrix{ position:absolute; inset:0; width:100%; height:100%; display:block; opacity:.92; mix-blend-mode: screen; }
 
-    .intro{
-      position:fixed;
-      inset:0;
-      z-index:9900; /* ✅ ниже меню */
-      pointer-events:none;
-      background:
-        radial-gradient(120% 120% at 50% 20%, rgba(110,255,210,.10), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.22));
-      opacity:0;
-    }
-    .intro.is-on{ opacity:1; animation: introFade 1.35s ease forwards; }
-    @keyframes introFade{ 0%{ opacity:1; } 75%{ opacity:1; } 100%{ opacity:0; } }
+/* ✅ INTRO: теперь это ЛЕГКИЙ световой флэш без чёрной пелены */
+.intro{
+  position:fixed;
+  inset:0;
+  z-index:9900;
+  pointer-events:none;
+  background:
+    radial-gradient(120% 120% at 50% 15%, rgba(255,255,255,.22), transparent 62%),
+    radial-gradient(90% 90% at 35% 25%, rgba(120,200,255,.14), transparent 62%);
+  opacity:0;
+}
+.intro.is-on{ opacity:1; animation: introFade .75s ease forwards; }
+@keyframes introFade{ 0%{opacity:1} 100%{opacity:0} }
+
 
     .page-transition{
       position:fixed;
@@ -861,57 +863,65 @@
 
   <script>
     // Intro
-    (function introAnim(){
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if(reduce) return;
-      const intro = document.getElementById('intro');
-      if(!intro) return;
-    requestAnimationFrame(() => intro.classList.add('is-on'));
-      setTimeout(() => intro.remove(), 1650);
-    })();
+(function introAnim(){
+  const intro = document.getElementById('intro');
+  if(!intro) return;
+
+  // показываем 1 раз и убираем без шансов “залипнуть”
+  requestAnimationFrame(() => intro.classList.add('is-on'));
+  setTimeout(() => {
+    intro.classList.remove('is-on');
+    intro.style.display = 'none';
+  }, 900);
+})();
+
 
     /* =========================================================
        ✅ LOGIN PORTAL: появляется через 10 секунд (1 раз за сессию)
        - закрытие по X, Esc, клику по фону
        - фокус на логин
     ========================================================= */
-    (function loginPortal(){
-      const overlay = document.getElementById('loginOverlay');
-      const closeBtn = document.getElementById('loginClose');
-      const form = document.getElementById('loginForm');
-      if(!overlay || !closeBtn || !form) return;
+(function loginPortal(){
+  const overlay = document.getElementById('loginOverlay');
+  const closeBtn = document.getElementById('loginClose');
+  const form = document.getElementById('loginForm');
+  if(!overlay || !closeBtn || !form) return;
 
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const KEY = 'dh_login_portal_shown';
-      let openTimer = null;
+  // ✅ Всегда показываем (без sessionStorage), чтобы ты видел результат
+  function open(){
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
 
-      function open(){
-        if(sessionStorage.getItem(KEY) === '1') return;
-        overlay.classList.add('is-open');
-        overlay.setAttribute('aria-hidden', 'false');
-        sessionStorage.setItem(KEY, '1');
+    const loginInput = form.querySelector('input[name="login"]');
+    if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 50);
+  }
 
-        const loginInput = form.querySelector('input[name="login"]');
-        if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 60);
-      }
+  function close(){
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
 
-      function close(){
-        overlay.classList.remove('is-open');
-        overlay.setAttribute('aria-hidden', 'true');
-      }
+  // открыть через 1.2 секунды после загрузки (чтобы точно отрисовалось)
+  window.addEventListener('load', () => setTimeout(open, 1200), { once:true });
 
-      function schedule(){
-        if(reduce) return;
-        if(sessionStorage.getItem(KEY) === '1') return;
-        openTimer = setTimeout(open, 10000);
-      }
+  // закрытие
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+  });
 
-      closeBtn.addEventListener('click', close);
-      overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    close();
+  });
 
-      window.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape' && overlay.classList.contains('is-open')) close();
-      });
+  // ✅ хоткей: L — показать логин в любой момент
+  window.addEventListener('keydown', (e) => {
+    if(e.key.toLowerCase() === 'l' && !overlay.classList.contains('is-open')) open();
+  });
+})();
+
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -1179,4 +1189,5 @@
 
 </body>
 </html>
+
 
