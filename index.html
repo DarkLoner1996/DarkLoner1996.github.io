@@ -977,25 +977,24 @@
        - закрытие по X
        ✅ ДОБАВЛЕНО: admin/admin → показываем ASCII, форма исчезает до перезагрузки
     ========================================================= */
-    (function loginPortal(){
-      const overlay = document.getElementById('loginOverlay');
-      const closeBtn = document.getElementById('loginClose');
-      const form = document.getElementById('loginForm');
-      const warn = document.getElementById('adminWarning');
-      if(!overlay || !closeBtn || !form) return;
+   (function loginPortal(){
+    const overlay = document.getElementById('loginOverlay');
+    const closeBtn = document.getElementById('loginClose');
+    const form = document.getElementById('loginForm');
+    const warn = document.getElementById('adminWarning');
+    if(!overlay || !closeBtn || !form) return;
 
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let openTimer = null;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let openTimer = null;
+    let autoCloseTimer = null; // ✅ авто-скрытие после ASCII
 
-      const loginInput = form.querySelector('input[name="login"]');
-      const passInput  = form.querySelector('input[name="password"]');
-      const submitBtn  = document.getElementById('loginSubmit');
+    const loginInput = form.querySelector('input[name="login"]');
+    const passInput  = form.querySelector('input[name="password"]');
+    const submitBtn  = document.getElementById('loginSubmit');
 
-      /* ✅ ДОБАВЛЕНО: флаг "взломано" (до перезагрузки) */
-      let hacked = false;
+    let hacked = false;
 
-      /* ✅ ДОБАВЛЕНО: ASCII текст */
-      const WARNING_TEXT =
+    const WARNING_TEXT =
 `┌──────────────────────────────────────┐
 │  ░▒▓ CYBERSECURITY CORE v.9.4.1 ▓▒░  │
 ├──────────────────────────────────────┤
@@ -1012,103 +1011,111 @@
 │      МОЛОДОЙ ХАКЕР! ВРЕМЯ ИСТЕКАЕТ... │
 └──────────────────────────────────────┘`;
 
-      function lockScroll(lock){
-        document.documentElement.style.overflow = lock ? 'hidden' : '';
-        document.body.style.overflow = lock ? 'hidden' : '';
-      }
+    function lockScroll(lock){
+      document.documentElement.style.overflow = lock ? 'hidden' : '';
+      document.body.style.overflow = lock ? 'hidden' : '';
+    }
 
-      function normLen(v){ return (v || '').trim().length; }
-      function norm(v){ return (v || '').trim(); }
+    function normLen(v){ return (v || '').trim().length; }
+    function norm(v){ return (v || '').trim(); }
 
-      function updateSubmit(){
-        if(hacked){
-          if(submitBtn) submitBtn.disabled = true;
-          return;
-        }
-        const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
-        if(submitBtn) submitBtn.disabled = !ok;
-      }
-
-      if(loginInput) loginInput.addEventListener('input', updateSubmit);
-      if(passInput)  passInput.addEventListener('input', updateSubmit);
-      updateSubmit();
-
-      /* ✅ ДОБАВЛЕНО: показать предупреждение и убрать форму */
-      function showWarning(){
-        hacked = true;
-
-        // убрать форму навсегда (до перезагрузки)
-        form.style.display = 'none';
-
-        // отключить поля и кнопку
-        if(loginInput) loginInput.disabled = true;
-        if(passInput) passInput.disabled = true;
+    function updateSubmit(){
+      if(hacked){
         if(submitBtn) submitBtn.disabled = true;
+        return;
+      }
+      const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
+      if(submitBtn) submitBtn.disabled = !ok;
+    }
 
-        // показать ASCII блок (если он есть)
-        if(warn){
-          warn.textContent = WARNING_TEXT;
-          warn.classList.add('is-on');
-        }
+    if(loginInput) loginInput.addEventListener('input', updateSubmit);
+    if(passInput)  passInput.addEventListener('input', updateSubmit);
+    updateSubmit();
 
-        // подстраховка таймера
-        if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+    function close(){
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden', 'true');
+      lockScroll(false);
+
+      // ✅ на всякий: если был авто-таймер — стопаем
+      if(autoCloseTimer){ clearTimeout(autoCloseTimer); autoCloseTimer = null; }
+    }
+
+    function showWarningAndAutoHide(){
+      hacked = true;
+
+      // убираем форму и выключаем поля
+      form.style.display = 'none';
+      if(loginInput) loginInput.disabled = true;
+      if(passInput) passInput.disabled = true;
+      if(submitBtn) submitBtn.disabled = true;
+
+      // показываем ASCII
+      if(warn){
+        warn.textContent = WARNING_TEXT;
+        warn.classList.add('is-on');
       }
 
-      function open(){
-        overlay.classList.add('is-open');
-        overlay.setAttribute('aria-hidden', 'false');
-        lockScroll(true);
-
-        // если уже "взломано" — не возвращаем форму
-        if(hacked){
-          showWarning();
-          return;
-        }
-
-        if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
-      }
-
-      function close(){
-        overlay.classList.remove('is-open');
-        overlay.setAttribute('aria-hidden', 'true');
-        lockScroll(false);
-      }
-
-      window.openLogin = open;
-      window.closeLogin = close;
-
-      closeBtn.addEventListener('click', close);
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        updateSubmit();
-        if(submitBtn && submitBtn.disabled) return;
-
-        /* ✅ ДОБАВЛЕНО: проверка admin/admin */
-        const u = norm(loginInput?.value);
-        const p = norm(passInput?.value);
-
-        if(u === 'admin' && p === 'admin'){
-          // не закрываем оверлей — форма пропадает, показываем предупреждение
-          showWarning();
-          return;
-        }
-
-        // ✅ старое поведение без изменений
+      // ✅ ВОТ ГЛАВНОЕ: висит 10 секунд → и окно исчезает
+      if(autoCloseTimer) clearTimeout(autoCloseTimer);
+      autoCloseTimer = setTimeout(() => {
         close();
-      });
+      }, 10000);
+    }
 
-      function schedule(){
-        if(reduce) return;
-        const force = new URLSearchParams(location.search).get('login') === '1';
-        if(force) { open(); return; }
-        openTimer = setTimeout(open, 5000);
+    function open(){
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden', 'false');
+      lockScroll(true);
+
+      if(hacked){
+        // если уже был "взлом" — просто показываем ASCII и снова автоскрытие
+        showWarningAndAutoHide();
+        return;
       }
 
-      window.addEventListener('pagehide', () => { if(openTimer) clearTimeout(openTimer); });
-      schedule();
-    })();
+      if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
+    }
+
+    window.openLogin = open;
+    window.closeLogin = close;
+
+    closeBtn.addEventListener('click', close);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      updateSubmit();
+      if(submitBtn && submitBtn.disabled) return;
+
+      const u = norm(loginInput?.value);
+      const p = norm(passInput?.value);
+
+      if(u === 'admin' && p === 'admin'){
+        // ✅ показываем предупреждение 10 сек и скрываем окно
+        showWarningAndAutoHide();
+        return;
+      }
+
+      // обычное поведение
+      close();
+    });
+
+    function schedule(){
+      if(reduce) return;
+      const force = new URLSearchParams(location.search).get('login') === '1';
+      if(force) { open(); return; }
+
+      // ✅ было 5000, делаем 10000 (10 секунд)
+      openTimer = setTimeout(open, 10000);
+    }
+
+    window.addEventListener('pagehide', () => {
+      if(openTimer) clearTimeout(openTimer);
+      if(autoCloseTimer) clearTimeout(autoCloseTimer);
+    });
+
+    schedule();
+  })();
 
     // =============== Активный пункт по URL ===============
     (function markActive(){
@@ -1182,7 +1189,7 @@
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=<>[]{}()"
       ).split("");
 
-      const dpr = Math.min(2, window.devicePixelRatio || 1
+     const dpr = Math.min(2, window.devicePixelRatio || 1);
 );
       let W=0,H=0,font=16,cols=0,drops=[];
       let raf=0,stopTimer=0;
@@ -1368,3 +1375,4 @@
 
 </body>
 </html>
+
