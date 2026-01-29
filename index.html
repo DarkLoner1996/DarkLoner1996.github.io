@@ -1,4 +1,4 @@
-<!DOCTYPE html>   
+<!DOCTYPE html>     
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -719,75 +719,60 @@
     }
 
     /* ===================== ASCII блок ===================== */
- /* ===================== ASCII блок (RED TERMINAL) ===================== */
-.admin-warning{
-  display:none;
-  width: 100%;                 /* ✅ на всю ширину окна портала */
-  margin: 12px auto 0;
-  padding: 18px 18px;
-  border-radius: 18px;
-
-  /* ✅ темнее и “кибер” */
-  background:
-    radial-gradient(120% 120% at 18% 18%, rgba(255,90,90,.10), transparent 55%),
-    radial-gradient(120% 120% at 82% 18%, rgba(255,180,120,.06), transparent 58%),
-    linear-gradient(180deg, rgba(12,0,0,.72), rgba(0,0,0,.66));
-
-  border: 1px solid rgba(255,90,90,.34);
-  box-shadow:
-    0 22px 44px rgba(0,0,0,.34),
-    0 0 0 1px rgba(255,90,90,.10) inset,
-    0 0 26px rgba(255,70,70,.20);
-
-  color: rgba(255,95,95,.98);   /* ✅ красный текст */
-  text-shadow:
-    0 0 10px rgba(255,70,70,.20),
-    0 1px 0 rgba(0,0,0,.55);
-
-  font-family: ui-monospace, Menlo, Consolas, Monaco, "Courier New", monospace;
-  font-size: 15px;             /* чуть крупнее */
-  line-height: 1.28;
-  text-align:left;
-
-  white-space: pre;            /* ✅ сохраняем ASCII рамки */
-  overflow:auto;
-
-  max-height: min(62vh, 560px);/* ✅ больше места, но без ломания окна */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,90,90,.35) rgba(0,0,0,.20);
-
-  position: relative;
-}
-
-/* ✅ “сканлайны” + легкая сетка как в терминале */
-.admin-warning::before{
-  content:"";
-  position:absolute; inset:0;
-  border-radius: 18px;
-  pointer-events:none;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,.00) 0px,
-      rgba(255,255,255,.00) 7px,
-      rgba(255,90,90,.055) 8px
-    ),
-    linear-gradient(90deg, rgba(255,90,90,.07), transparent 38%, rgba(255,90,90,.05));
-  opacity:.55;
-  mix-blend-mode: screen;
-}
-
-/* ✅ появление */
-.admin-warning.is-on{
-  display:block;
-  animation: warnPop .18s ease-out both;
-}
-
-@keyframes warnPop{
-  from{ transform: translateY(6px); opacity:0; filter: blur(.6px); }
-  to  { transform: translateY(0);   opacity:1; filter: blur(0); }
-}
-
+    .admin-warning{
+      display:none;
+      width: 100%;
+      margin: 12px auto 0;
+      padding: 18px 18px;
+      border-radius: 18px;
+      background:
+        radial-gradient(120% 120% at 18% 18%, rgba(255,90,90,.10), transparent 55%),
+        radial-gradient(120% 120% at 82% 18%, rgba(255,180,120,.06), transparent 58%),
+        linear-gradient(180deg, rgba(12,0,0,.72), rgba(0,0,0,.66));
+      border: 1px solid rgba(255,90,90,.34);
+      box-shadow:
+        0 22px 44px rgba(0,0,0,.34),
+        0 0 0 1px rgba(255,90,90,.10) inset,
+        0 0 26px rgba(255,70,70,.20);
+      color: rgba(255,95,95,.98);
+      text-shadow:
+        0 0 10px rgba(255,70,70,.20),
+        0 1px 0 rgba(0,0,0,.55);
+      font-family: ui-monospace, Menlo, Consolas, Monaco, "Courier New", monospace;
+      font-size: 15px;
+      line-height: 1.28;
+      text-align:left;
+      white-space: pre;
+      overflow:auto;
+      max-height: min(62vh, 560px);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,90,90,.35) rgba(0,0,0,.20);
+      position: relative;
+    }
+    .admin-warning::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 18px;
+      pointer-events:none;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.00) 0px,
+          rgba(255,255,255,.00) 7px,
+          rgba(255,90,90,.055) 8px
+        ),
+        linear-gradient(90deg, rgba(255,90,90,.07), transparent 38%, rgba(255,90,90,.05));
+      opacity:.55;
+      mix-blend-mode: screen;
+    }
+    .admin-warning.is-on{
+      display:block;
+      animation: warnPop .18s ease-out both;
+    }
+    @keyframes warnPop{
+      from{ transform: translateY(6px); opacity:0; filter: blur(.6px); }
+      to  { transform: translateY(0);   opacity:1; filter: blur(0); }
+    }
   </style>
 </head>
 
@@ -968,163 +953,152 @@
     })();
 
     /* =========================================================
-       ✅ LOGIN PORTAL (ИСПРАВЛЕНО):
-       - admin/admin НЕ даёт “успех”
-       - admin/admin → ASCII предупреждение (твоё)
-       - через 10 сек скрывается ТОЛЬКО окно входа
-       - игровое меню НЕ трогаем
+       ✅ LOGIN PORTAL (КАК ТЫ НАПИСАЛ):
+       - ВЕРНО: admin/admin → просто закрыть окно (без сообщений)
+       - НЕВЕРНО: любые другие → "АВТОРИЗАЦИЯ НЕ ПРОЙДЕНА"
+         и через 4 сек окно входа исчезает НАВСЕГДА до обновления страницы
+       - после неверной попытки авто-показ тоже отключается
     ========================================================= */
-    <script>
-  /* =========================================================
-     ✅ LOGIN PORTAL (ТВОЁ ТЗ):
-     - правильные данные: admin / admin → просто закрыть окно (без сообщений)
-     - любые другие данные → показать "АВТОРИЗАЦИЯ НЕ ПРОЙДЕНА"
-       и через 4 секунды скрыть окно входа НАВСЕГДА до обновления страницы
-     - после неправильной попытки окно больше не появляется (даже авто-открытие)
-  ========================================================= */
-  (function loginPortal(){
-    const overlay = document.getElementById('loginOverlay');
-    const closeBtn = document.getElementById('loginClose');
-    const form = document.getElementById('loginForm');
-    const warn = document.getElementById('adminWarning');
-    if(!overlay || !closeBtn || !form) return;
+    (function loginPortal(){
+      const overlay = document.getElementById('loginOverlay');
+      const closeBtn = document.getElementById('loginClose');
+      const form = document.getElementById('loginForm');
+      const warn = document.getElementById('adminWarning');
+      if(!overlay || !closeBtn || !form) return;
 
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const loginInput = form.querySelector('input[name="login"]');
-    const passInput  = form.querySelector('input[name="password"]');
-    const submitBtn  = document.getElementById('loginSubmit');
+      const loginInput = form.querySelector('input[name="login"]');
+      const passInput  = form.querySelector('input[name="password"]');
+      const submitBtn  = document.getElementById('loginSubmit');
 
-    let openTimer = null;
-    let closeTimer = null;
-    let lockedUntilRefresh = false; // ✅ после неверной попытки
+      let openTimer = null;
+      let closeTimer = null;
+      let lockedUntilRefresh = false; // ✅ после провала — больше не показывать
 
-    function lockScroll(lock){
-      document.documentElement.style.overflow = lock ? 'hidden' : '';
-      document.body.style.overflow = lock ? 'hidden' : '';
-    }
-
-    function norm(v){ return (v || '').trim(); }
-    function normLen(v){ return (v || '').trim().length; }
-
-    function updateSubmit(){
-      if(lockedUntilRefresh){
-        if(submitBtn) submitBtn.disabled = true;
-        return;
-      }
-      const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
-      if(submitBtn) submitBtn.disabled = !ok;
-    }
-
-    if(loginInput) loginInput.addEventListener('input', updateSubmit);
-    if(passInput)  passInput.addEventListener('input', updateSubmit);
-    updateSubmit();
-
-    function hardHideForever(){
-      // ✅ скрыть и больше не показывать до обновления страницы
-      lockedUntilRefresh = true;
-
-      if(openTimer){ clearTimeout(openTimer); openTimer = null; }
-      if(closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
-
-      overlay.classList.remove('is-open');
-      overlay.setAttribute('aria-hidden', 'true');
-      overlay.style.display = 'none';           // ✅ вообще убрали из DOM-рендера
-      overlay.style.pointerEvents = 'none';
-      lockScroll(false);
-    }
-
-    function close(){
-      overlay.classList.remove('is-open');
-      overlay.setAttribute('aria-hidden', 'true');
-      lockScroll(false);
-    }
-
-    function open(){
-      if(lockedUntilRefresh) return; // ✅ блокируем повторное появление
-      overlay.classList.add('is-open');
-      overlay.setAttribute('aria-hidden', 'false');
-      lockScroll(true);
-
-      if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
-    }
-
-    window.openLogin = open;
-    window.closeLogin = close;
-
-    closeBtn.addEventListener('click', () => {
-      // крестик закрывает, но НЕ "навсегда"
-      if(closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-      close();
-    });
-
-    function showFailThenDisappear(){
-      lockedUntilRefresh = true;
-
-      // ✅ блокируем форму
-      if(loginInput) loginInput.disabled = true;
-      if(passInput)  passInput.disabled = true;
-      if(submitBtn)  submitBtn.disabled = true;
-
-      // ✅ показываем сообщение
-      if(warn){
-        warn.textContent = "АВТОРИЗАЦИЯ НЕ ПРОЙДЕНА";
-        warn.classList.add('is-on');
+      function lockScroll(lock){
+        document.documentElement.style.overflow = lock ? 'hidden' : '';
+        document.body.style.overflow = lock ? 'hidden' : '';
       }
 
-      // ✅ остановить авто-открытие
-      if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+      function norm(v){ return (v || '').trim(); }
+      function normLen(v){ return (v || '').trim().length; }
 
-      // ✅ через 4 сек исчезает и больше не появляется
-      if(closeTimer) clearTimeout(closeTimer);
-      closeTimer = setTimeout(() => {
-        hardHideForever();
-      }, 4000);
-    }
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      updateSubmit();
-      if(submitBtn && submitBtn.disabled) return;
-      if(lockedUntilRefresh) return;
-
-      const u = norm(loginInput?.value);
-      const p = norm(passInput?.value);
-
-      // ✅ правильные данные
-      if(u === 'admin' && p === 'admin'){
-        // просто закрываем (и больше ничего)
-        if(warn){
-          warn.classList.remove('is-on');
-          warn.textContent = '';
+      function updateSubmit(){
+        if(lockedUntilRefresh){
+          if(submitBtn) submitBtn.disabled = true;
+          return;
         }
-        close();
-        return;
+        const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
+        if(submitBtn) submitBtn.disabled = !ok;
       }
 
-      // ✅ любые другие данные
-      showFailThenDisappear();
-    });
+      if(loginInput) loginInput.addEventListener('input', updateSubmit);
+      if(passInput)  passInput.addEventListener('input', updateSubmit);
+      updateSubmit();
 
-    function schedule(){
-      if(reduce) return;
-      if(lockedUntilRefresh) return;
+      function close(){
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        lockScroll(false);
+      }
 
-      const force = new URLSearchParams(location.search).get('login') === '1';
-      if(force) { open(); return; }
+      function hardHideForever(){
+        lockedUntilRefresh = true;
 
-      openTimer = setTimeout(() => {
-        if(!lockedUntilRefresh) open();
-      }, 5000);
-    }
+        if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+        if(closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
 
-    window.addEventListener('pagehide', () => {
-      if(openTimer) clearTimeout(openTimer);
-      if(closeTimer) clearTimeout(closeTimer);
-    });
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.style.display = 'none';     // ✅ больше не появится
+        overlay.style.pointerEvents = 'none';
+        lockScroll(false);
+      }
 
-    schedule();
-  })();
+      function open(){
+        if(lockedUntilRefresh) return;
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        lockScroll(true);
+        if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
+      }
+
+      window.openLogin = open;
+      window.closeLogin = close;
+
+      closeBtn.addEventListener('click', () => {
+        // крестик — обычное закрытие (не навсегда)
+        if(closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
+        close();
+      });
+
+      function showFailThenDisappear(){
+        lockedUntilRefresh = true;
+
+        // блокируем ввод и кнопку
+        if(loginInput) loginInput.disabled = true;
+        if(passInput)  passInput.disabled = true;
+        if(submitBtn)  submitBtn.disabled = true;
+
+        // выводим текст ошибки (используем тот же pre-блок)
+        if(warn){
+          warn.textContent = "АВТОРИЗАЦИЯ НЕ ПРОЙДЕНА";
+          warn.classList.add('is-on');
+        }
+
+        // отключаем будущие авто-открытия
+        if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+
+        // через 4 сек скрыть навсегда
+        if(closeTimer) clearTimeout(closeTimer);
+        closeTimer = setTimeout(() => {
+          hardHideForever();
+        }, 4000);
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        updateSubmit();
+        if(submitBtn && submitBtn.disabled) return;
+        if(lockedUntilRefresh) return;
+
+        const u = norm(loginInput?.value);
+        const p = norm(passInput?.value);
+
+        // ✅ ВЕРНО: admin/admin
+        if(u === 'admin' && p === 'admin'){
+          if(warn){
+            warn.classList.remove('is-on');
+            warn.textContent = '';
+          }
+          close();
+          return;
+        }
+
+        // ✅ НЕВЕРНО: всё остальное
+        showFailThenDisappear();
+      });
+
+      function schedule(){
+        if(reduce) return;
+        if(lockedUntilRefresh) return;
+
+        const force = new URLSearchParams(location.search).get('login') === '1';
+        if(force) { open(); return; }
+
+        openTimer = setTimeout(() => {
+          if(!lockedUntilRefresh) open();
+        }, 5000);
+      }
+
+      window.addEventListener('pagehide', () => {
+        if(openTimer) clearTimeout(openTimer);
+        if(closeTimer) clearTimeout(closeTimer);
+      });
+
+      schedule();
+    })();
 
     (function markActive(){
       try{
@@ -1141,8 +1115,7 @@
         const rule = rules.find(r => r.match.includes(path));
         if(!rule) return;
 
-        const active = Array.from
-	(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
+        const active = Array.from(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
         if(active) active.classList.add('is-active');
       }catch(e){}
     })();
@@ -1382,7 +1355,3 @@
 
 </body>
 </html>
-
-
-
-
