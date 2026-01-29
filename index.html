@@ -974,145 +974,159 @@
        - через 10 сек скрывается ТОЛЬКО окно входа
        - игровое меню НЕ трогаем
     ========================================================= */
-    (function loginPortal(){
-      const overlay = document.getElementById('loginOverlay');
-      const closeBtn = document.getElementById('loginClose');
-      const form = document.getElementById('loginForm');
-      const warn = document.getElementById('adminWarning');
-      if(!overlay || !closeBtn || !form) return;
+    <script>
+  /* =========================================================
+     ✅ LOGIN PORTAL (ТВОЁ ТЗ):
+     - правильные данные: admin / admin → просто закрыть окно (без сообщений)
+     - любые другие данные → показать "АВТОРИЗАЦИЯ НЕ ПРОЙДЕНА"
+       и через 4 секунды скрыть окно входа НАВСЕГДА до обновления страницы
+     - после неправильной попытки окно больше не появляется (даже авто-открытие)
+  ========================================================= */
+  (function loginPortal(){
+    const overlay = document.getElementById('loginOverlay');
+    const closeBtn = document.getElementById('loginClose');
+    const form = document.getElementById('loginForm');
+    const warn = document.getElementById('adminWarning');
+    if(!overlay || !closeBtn || !form) return;
 
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let openTimer = null;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const loginInput = form.querySelector('input[name="login"]');
-      const passInput  = form.querySelector('input[name="password"]');
-      const submitBtn  = document.getElementById('loginSubmit');
+    const loginInput = form.querySelector('input[name="login"]');
+    const passInput  = form.querySelector('input[name="password"]');
+    const submitBtn  = document.getElementById('loginSubmit');
 
-      let hacked = false;
-      let closeTimer = null;
+    let openTimer = null;
+    let closeTimer = null;
+    let lockedUntilRefresh = false; // ✅ после неверной попытки
 
-const WARNING_TEXT =
-`┌──────────────────────────────────────┐
-│  ░▒▓ CYBERSECURITY CORE v.9.4.1 ▓▒░  │
-├──────────────────────────────────────┤
-│  >> ВНИМАНИЕ: ВНЕШНЕЕ ВМЕШАТЕЛЬСТВО  │
-│  >> ИСТОЧНИК: НЕ ИДЕНТИФИЦИРОВАН     │
-│                                      │
-│  ┌⚠️┐ КТО ТЫ, ХАКЕР?!                │
-│  └──┘ Несанкц. доступ в закрытый узел│
-│                                      │
-│  [!] СЕССИЯ ПЕРЕХВАЧЕНА              │
-│  [!] Трафик перенаправлен →          │
-│      КИБЕРПОЛИГОН «ТехноКрыльяРоссии»│
-│                                      │
-│  >>> НЕМЕДЛЕННО НА КИБЕРПОЛИГОН!     │
-│      ВРЕМЯ ИСТЕКАЕТ...               │
-└──────────────────────────────────────┘`;
+    function lockScroll(lock){
+      document.documentElement.style.overflow = lock ? 'hidden' : '';
+      document.body.style.overflow = lock ? 'hidden' : '';
+    }
 
-      function lockScroll(lock){
-        document.documentElement.style.overflow = lock ? 'hidden' : '';
-        document.body.style.overflow = lock ? 'hidden' : '';
+    function norm(v){ return (v || '').trim(); }
+    function normLen(v){ return (v || '').trim().length; }
+
+    function updateSubmit(){
+      if(lockedUntilRefresh){
+        if(submitBtn) submitBtn.disabled = true;
+        return;
+      }
+      const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
+      if(submitBtn) submitBtn.disabled = !ok;
+    }
+
+    if(loginInput) loginInput.addEventListener('input', updateSubmit);
+    if(passInput)  passInput.addEventListener('input', updateSubmit);
+    updateSubmit();
+
+    function hardHideForever(){
+      // ✅ скрыть и больше не показывать до обновления страницы
+      lockedUntilRefresh = true;
+
+      if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+      if(closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
+
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden', 'true');
+      overlay.style.display = 'none';           // ✅ вообще убрали из DOM-рендера
+      overlay.style.pointerEvents = 'none';
+      lockScroll(false);
+    }
+
+    function close(){
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden', 'true');
+      lockScroll(false);
+    }
+
+    function open(){
+      if(lockedUntilRefresh) return; // ✅ блокируем повторное появление
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden', 'false');
+      lockScroll(true);
+
+      if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
+    }
+
+    window.openLogin = open;
+    window.closeLogin = close;
+
+    closeBtn.addEventListener('click', () => {
+      // крестик закрывает, но НЕ "навсегда"
+      if(closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+      close();
+    });
+
+    function showFailThenDisappear(){
+      lockedUntilRefresh = true;
+
+      // ✅ блокируем форму
+      if(loginInput) loginInput.disabled = true;
+      if(passInput)  passInput.disabled = true;
+      if(submitBtn)  submitBtn.disabled = true;
+
+      // ✅ показываем сообщение
+      if(warn){
+        warn.textContent = "АВТОРИЗАЦИЯ НЕ ПРОЙДЕНА";
+        warn.classList.add('is-on');
       }
 
-      function normLen(v){ return (v || '').trim().length; }
-      function norm(v){ return (v || '').trim(); }
+      // ✅ остановить авто-открытие
+      if(openTimer){ clearTimeout(openTimer); openTimer = null; }
 
-      function updateSubmit(){
-        if(hacked){
-          if(submitBtn) submitBtn.disabled = true;
-          return;
-        }
-        const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
-        if(submitBtn) submitBtn.disabled = !ok;
-      }
+      // ✅ через 4 сек исчезает и больше не появляется
+      if(closeTimer) clearTimeout(closeTimer);
+      closeTimer = setTimeout(() => {
+        hardHideForever();
+      }, 4000);
+    }
 
-      if(loginInput) loginInput.addEventListener('input', updateSubmit);
-      if(passInput)  passInput.addEventListener('input', updateSubmit);
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
       updateSubmit();
+      if(submitBtn && submitBtn.disabled) return;
+      if(lockedUntilRefresh) return;
 
-      function close(){
-        overlay.classList.remove('is-open');
-        overlay.setAttribute('aria-hidden', 'true');
-        lockScroll(false);
-      }
+      const u = norm(loginInput?.value);
+      const p = norm(passInput?.value);
 
-      function showWarning(autoClose){
-        hacked = true;
-        form.style.display = 'none';
-
-        if(loginInput) loginInput.disabled = true;
-        if(passInput)  passInput.disabled = true;
-        if(submitBtn)  submitBtn.disabled = true;
-
+      // ✅ правильные данные
+      if(u === 'admin' && p === 'admin'){
+        // просто закрываем (и больше ничего)
         if(warn){
-          warn.textContent = WARNING_TEXT;
-          warn.classList.add('is-on');
-          warn.classList.remove('is-success'); // ✅ никакого “успеха”
+          warn.classList.remove('is-on');
+          warn.textContent = '';
         }
-
-        if(openTimer){ clearTimeout(openTimer); openTimer = null; }
-
-        if(closeTimer) clearTimeout(closeTimer);
-        if(autoClose){
-          closeTimer = setTimeout(() => {
-            close(); // ✅ закрываем только окно входа
-          }, 10000);
-        }
-      }
-
-      function open(){
-        overlay.classList.add('is-open');
-        overlay.setAttribute('aria-hidden', 'false');
-        lockScroll(true);
-
-        // если уже показали предупреждение — просто оставляем как есть
-        if(hacked){
-          return;
-        }
-
-        if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
-      }
-
-      window.openLogin = open;
-      window.closeLogin = close;
-
-      closeBtn.addEventListener('click', () => {
-        if(closeTimer) clearTimeout(closeTimer);
         close();
-      });
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        updateSubmit();
-        if(submitBtn && submitBtn.disabled) return;
-
-        const u = norm(loginInput?.value);
-        const p = norm(passInput?.value);
-
-        // ✅ ТЗ: admin/admin → показать предупреждение и закрыть логин через 10 сек
-        if(u === 'admin' && p === 'admin'){
-          showWarning(true);
-          return;
-        }
-
-        // иначе просто закрываем окно входа
-        close();
-      });
-
-      function schedule(){
-        if(reduce) return;
-        const force = new URLSearchParams(location.search).get('login') === '1';
-        if(force) { open(); return; }
-        openTimer = setTimeout(open, 5000);
+        return;
       }
 
-      window.addEventListener('pagehide', () => {
-        if(openTimer) clearTimeout(openTimer);
-        if(closeTimer) clearTimeout(closeTimer);
-      });
+      // ✅ любые другие данные
+      showFailThenDisappear();
+    });
 
-      schedule();
-    })();
+    function schedule(){
+      if(reduce) return;
+      if(lockedUntilRefresh) return;
+
+      const force = new URLSearchParams(location.search).get('login') === '1';
+      if(force) { open(); return; }
+
+      openTimer = setTimeout(() => {
+        if(!lockedUntilRefresh) open();
+      }, 5000);
+    }
+
+    window.addEventListener('pagehide', () => {
+      if(openTimer) clearTimeout(openTimer);
+      if(closeTimer) clearTimeout(closeTimer);
+    });
+
+    schedule();
+  })();
+</script>
+
 
     (function markActive(){
       try{
@@ -1370,5 +1384,6 @@ const WARNING_TEXT =
 
 </body>
 </html>
+
 
 
