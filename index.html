@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -12,10 +12,12 @@
     @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
 
     *{ margin:0; padding:0; box-sizing:border-box; }
+
+    /* ✅ FIX: скроллит НЕ страница, а .header (чтобы стартовать снизу) */
     html, body{
       width:100%;
       height:100%;
-      overflow-x:hidden;
+      overflow:hidden; /* было overflow-x:hidden */
       font-family:'Ruslan Display', cursive;
       background:#ddeeff;
 
@@ -586,18 +588,22 @@
     }
 
     /* =========================================================
-       ✅ HEADER: БЕЗ СОСИСКИ / БЕЗ ПЛЮЩЕНИЯ / КРАСИВО НА 4К
-       По умолчанию: 100% ширина + авто-высота (скролл вниз)
-       Альтернатива: cover (кроп, но "во весь экран")
+       ✅ HEADER: СКРОЛЛ ВНУТРИ .header + СТАРТ СНИЗУ
     ========================================================= */
 
+    /* ✅ FIX: делаем .header скролл-контейнером ровно в экран */
     .header{
       position:relative;
       width:100%;
-      min-height: 100svh;
+      height:100vh;             /* было min-height:100svh */
+      max-height:100vh;
       background:#ddeeff;
+
       overflow-x:hidden;
       overflow-y:auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+
       isolation:isolate;
     }
 
@@ -635,15 +641,14 @@
     :root[style*="--hero-mode: 2"] .header{
       overflow:hidden;
     }
-:root[style*="--hero-mode: 2"] .header__bg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position: 50% 100%; /* ✅ низ */
-}
-
+    :root[style*="--hero-mode: 2"] .header__bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position: 50% 100%; /* ✅ низ */
+    }
 
     .header::after{
       content:"";
@@ -924,7 +929,7 @@
   </nav>
 
   <!-- HEADER -->
-  <div class="header">
+  <div class="header" id="hero">
     <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
     <img
       class="header__bg"
@@ -1272,20 +1277,16 @@
       });
     })();
 
-    // =============== ✅ СТАРТ СНИЗУ (скролл вниз при открытии) ===============
+    // =========================================================
+    // ✅ СТАРТ СНИЗУ: скроллим именно .header (не document!)
+    // =========================================================
     (function startAtBottom(){
+      const header = document.getElementById('hero') || document.querySelector('.header');
+      if(!header) return;
+
+      // важно: дождаться layout после вставки изображений/шрифтов
       function scrollToBottom(){
-        const header = document.querySelector('.header');
-
-        // 1) Если скролл внутри .header
-        if(header && header.scrollHeight > header.clientHeight + 2){
-          header.scrollTop = header.scrollHeight;
-          return;
-        }
-
-        // 2) Иначе — скролл всей страницы
-        const scroller = document.scrollingElement || document.documentElement;
-        scroller.scrollTop = scroller.scrollHeight;
+        header.scrollTop = header.scrollHeight;
       }
 
       function runFewTimes(){
@@ -1314,5 +1315,4 @@
   </script>
 </body>
 </html>
-
 
