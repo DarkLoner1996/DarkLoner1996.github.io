@@ -559,15 +559,15 @@
     }
 
     /* ✅ КРАСИВЫЙ мягкий оверлей вместо "грязного затемнения" */
-    .header .hero-soft{
-      position:absolute;
-      inset:0;
-      z-index:2;
-      pointer-events:none;
-      background:
-        radial-gradient(120% 90% at 50% 12%, rgba(255,255,255,.10), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,0) 38%, rgba(0,0,0,.05));
-    }
+.header .hero-soft{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 12%, rgba(255,255,255,.08), transparent 60%),
+    radial-gradient(120% 120% at 50% 85%, rgba(255,255,255,.06), transparent 65%);
+}
 
     /* ===================== MATRIX / INTRO / TRANSITION ===================== */
     .matrix-wrap{
@@ -588,66 +588,54 @@
   inset:0;
   z-index:9900;
   pointer-events:none;
-  background:
-    radial-gradient(120% 120% at 50% 15%, rgba(255,255,255,.22), transparent 62%),
-    radial-gradient(90% 90% at 35% 25%, rgba(120,200,255,.14), transparent 62%);
+  background: rgba(0,0,0,.14);
   opacity:0;
 }
-.intro.is-on{ opacity:1; animation: introFade .75s ease forwards; }
-@keyframes introFade{ 0%{opacity:1} 100%{opacity:0} }
 
+.page-transition{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  pointer-events:none;
+  opacity:0;
+  background: rgba(0,0,0,.22);
+}
 
-    .page-transition{
-      position:fixed;
-      inset:0;
-      z-index:10000; /* ✅ ниже меню */
-      pointer-events:none;
-      opacity:0;
-      background:
-        radial-gradient(120% 120% at 50% 25%, rgba(110,255,210,.10), transparent 62%),
-        linear-gradient(180deg, rgba(0,0,0,.62), rgba(0,0,0,.35));
-    }
     .page-transition.is-leaving{ opacity:1; }
     .page-transition.is-entering{ opacity:1; animation: ptOut .46s ease forwards; }
     @keyframes ptOut{ 0%{ opacity:1; } 100%{ opacity:0; } }
     .page-transition .wipe{ position:absolute; inset:-10%; opacity:.95; }
 
     /* ===================== LOGIN ===================== */
-    .login-overlay{
-      position:fixed;
-      inset:0;
-      z-index:12000; /* ✅ выше меню */
-      display:grid;
-      place-items:center;
-      padding: 18px;
-      background:
-        radial-gradient(120% 120% at 50% 20%, rgba(80,175,255,.10), transparent 62%),
-        radial-gradient(110% 110% at 50% 80%, rgba(255,220,120,.10), transparent 60%),
-        rgba(0,0,0,.22);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .55s ease;
-    }
-    .login-overlay.is-open{ opacity:1; pointer-events:auto; }
+/* ===================== LOGIN ===================== */
+.login-overlay{
+  position:fixed;
+  inset:0;
+  z-index:12000; /* выше меню */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
 
-    /* (оставил твою стилизацию портала — она норм) */
-    .login-portal{
-      width: min(720px, calc(100vw - 36px));
-      border-radius: 28px;
-      position:relative;
-      overflow:hidden;
-      background:
-        radial-gradient(120% 120% at 20% 12%, rgba(255,255,255,.18), transparent 62%),
-        radial-gradient(110% 90% at 82% 14%, rgba(120,200,255,.14), transparent 60%),
-        linear-gradient(180deg, rgba(40,120,170,.28), rgba(10,55,80,.22));
-      backdrop-filter: blur(18px) saturate(1.18);
-      -webkit-backdrop-filter: blur(18px) saturate(1.18);
-      box-shadow: 0 30px 70px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18);
-      transform: translateY(10px) scale(.985);
-      opacity:0;
-      transition: transform .6s ease, opacity .6s ease;
-    }
-    .login-overlay.is-open .login-portal{ transform: translateY(0) scale(1); opacity:1; }
+  /* ✅ ровное мягкое затемнение, без "полосы сверху" */
+  background: rgba(0,0,0,.18);
+
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .35s ease;
+}
+
+.login-overlay.is-open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* чтобы модалка не уезжала и не ломалась на маленьких экранах */
+.login-portal{
+  max-height: min(86vh, 760px);
+  overflow:auto;
+}
+
 
     .login-spark{ position:absolute; inset:-40px; pointer-events:none; opacity:.75; }
     .login-inner{ position:relative; z-index:2; padding: clamp(18px, 3.6vw, 30px); display:grid; gap:14px; text-align:center; color: rgba(250,244,232,.96); }
@@ -881,58 +869,75 @@
        - закрытие по X, Esc, клику по фону
        - фокус на логин
     ========================================================= */
+/* =========================================================
+   ✅ LOGIN PORTAL
+   - появляется через 2 секунды ВСЕГДА (без sessionStorage-ловушки)
+   - можно принудительно открыть: ?login=1
+   - закрытие по X, Esc, клику по фону
+========================================================= */
 (function loginPortal(){
   const overlay = document.getElementById('loginOverlay');
   const closeBtn = document.getElementById('loginClose');
   const form = document.getElementById('loginForm');
   if(!overlay || !closeBtn || !form) return;
 
-  // ✅ Всегда показываем (без sessionStorage), чтобы ты видел результат
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let openTimer = null;
+
+  function lockScroll(lock){
+    // чтобы фон не "дёргался" и не скроллился, когда открыта модалка
+    document.documentElement.style.overflow = lock ? 'hidden' : '';
+    document.body.style.overflow = lock ? 'hidden' : '';
+  }
+
   function open(){
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
+    lockScroll(true);
 
     const loginInput = form.querySelector('input[name="login"]');
-    if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 50);
+    if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
   }
 
   function close(){
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
+    lockScroll(false);
   }
 
-  // открыть через 1.2 секунды после загрузки (чтобы точно отрисовалось)
-  window.addEventListener('load', () => setTimeout(open, 1200), { once:true });
+  // ✅ Глобально: можно открыть из консоли openLogin()
+  window.openLogin = open;
+  window.closeLogin = close;
 
-  // закрытие
   closeBtn.addEventListener('click', close);
   overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
+
   window.addEventListener('keydown', (e) => {
     if(e.key === 'Escape' && overlay.classList.contains('is-open')) close();
   });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    // TODO: реальная авторизация (fetch на сервер)
     close();
   });
 
-  // ✅ хоткей: L — показать логин в любой момент
-  window.addEventListener('keydown', (e) => {
-    if(e.key.toLowerCase() === 'l' && !overlay.classList.contains('is-open')) open();
-  });
+  // ✅ автопоказ
+  function schedule(){
+    if(reduce) return;
+
+    // Принудительно: https://digitalhavenrussia.ru/?login=1
+    const force = new URLSearchParams(location.search).get('login') === '1';
+    if(force) { open(); return; }
+
+    openTimer = setTimeout(open, 2000);
+  }
+
+  window.addEventListener('pagehide', () => { if(openTimer) clearTimeout(openTimer); });
+
+  schedule();
 })();
 
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // TODO: реальная авторизация (fetch на сервер)
-        close();
-      });
-
-      window.addEventListener('pagehide', () => { if(openTimer) clearTimeout(openTimer); });
-
-      schedule();
-    })();
 
     // =============== Активный пункт по URL ===============
     (function markActive(){
@@ -1154,40 +1159,46 @@
     // =========================================================
     // ✅ СТАРТ СНИЗУ: скроллим именно .header (не document!)
     // =========================================================
-    (function startAtBottom(){
-      const header = document.getElementById('hero') || document.querySelector('.header');
-      if(!header) return;
+   (function startAtBottom(){
+  const header = document.getElementById('hero') || document.querySelector('.header');
+  if(!header) return;
 
-      function scrollToBottom(){
-        header.scrollTop = header.scrollHeight;
-      }
+  function canScroll(){
+    return header.scrollHeight > header.clientHeight + 2;
+  }
 
-      function runFewTimes(){
-        scrollToBottom();
-        requestAnimationFrame(scrollToBottom);
-        setTimeout(scrollToBottom, 50);
-        setTimeout(scrollToBottom, 200);
-        setTimeout(scrollToBottom, 600);
-      }
+  function scrollToBottom(){
+    if(!canScroll()) return;
+    header.scrollTop = header.scrollHeight;
+  }
 
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
-      } else {
-        runFewTimes();
-      }
+  function runFewTimes(){
+    scrollToBottom();
+    requestAnimationFrame(scrollToBottom);
+    setTimeout(scrollToBottom, 80);
+    setTimeout(scrollToBottom, 220);
+  }
 
-      window.addEventListener('load', runFewTimes, { once:true });
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
+  } else {
+    runFewTimes();
+  }
 
-      const img = document.querySelector('.header__bg');
-      if(img){
-        const afterImg = () => setTimeout(scrollToBottom, 0);
-        if(img.complete) afterImg();
-        else img.addEventListener('load', afterImg, { once:true });
-      }
-    })();
+  window.addEventListener('load', runFewTimes, { once:true });
+
+  const img = document.querySelector('.header__bg');
+  if(img){
+    const afterImg = () => setTimeout(scrollToBottom, 0);
+    if(img.complete) afterImg();
+    else img.addEventListener('load', afterImg, { once:true });
+  }
+})();
+
   </script>
 
 </body>
 </html>
+
 
 
