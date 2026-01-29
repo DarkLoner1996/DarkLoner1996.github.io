@@ -631,10 +631,35 @@
 }
 
 /* чтобы модалка не уезжала и не ломалась на маленьких экранах */
+/* ✅ УСИЛЕНИЕ ВИДИМОСТИ ОКНА ВХОДА */
 .login-portal{
+  width: min(720px, calc(100vw - 36px));
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+
+  /* было слишком прозрачно — делаем плотнее */
+  background:
+    radial-gradient(120% 120% at 20% 12%, rgba(255,255,255,.30), transparent 62%),
+    radial-gradient(110% 90% at 82% 14%, rgba(120,200,255,.22), transparent 60%),
+    linear-gradient(180deg, rgba(30,90,140,.58), rgba(10,45,75,.52));
+
+  /* сильнее отделяем от фона */
+  box-shadow: 0 40px 90px rgba(0,0,0,.50), inset 0 1px 0 rgba(255,255,255,.22);
+
+  /* делаем “стекло” читаемым */
+  backdrop-filter: blur(22px) saturate(1.25);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+
+  /* твои ограничения */
   max-height: min(86vh, 760px);
-  overflow:auto;
+  overflow: auto;
 }
+
+/* ✅ немного увеличим контраст текста внутри */
+.login-title{ text-shadow: 0 2px 10px rgba(0,0,0,.35); }
+.login-sub{ text-shadow: 0 1px 8px rgba(0,0,0,.28); }
+
 
 
     .login-spark{ position:absolute; inset:-40px; pointer-events:none; opacity:.75; }
@@ -647,7 +672,9 @@
       width:100%; height:56px; border-radius:16px;
       border:1px solid rgba(255,255,255,.20); outline:none;
       padding: 0 16px 0 52px;
-      background: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.18);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: rgba(255,255,255,.95);
       font-family:'Ruslan Display', cursive;
       font-size:18px;
@@ -668,17 +695,41 @@
         linear-gradient(180deg, rgba(255,240,195,.98), rgba(245,206,120,.98));
       box-shadow: 0 22px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.60);
     }
-    .login-close{
-      position:absolute; right:14px; top:14px;
-      width:44px; height:44px; border-radius:16px;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.10);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 10px 18px rgba(0,0,0,.18);
-      cursor:pointer; display:grid; place-items:center;
-      color: rgba(255,255,255,.92);
-      font-size:18px;
-      z-index:3;
-    }
+/* ✅ КРАСНАЯ КНОПКА ЗАКРЫТИЯ */
+.login-close{
+  position:absolute;
+  right:14px;
+  top:14px;
+
+  width:46px;
+  height:46px;
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,.28);
+  background: linear-gradient(180deg, rgba(255,70,70,.95), rgba(175,15,15,.92));
+  box-shadow:
+    0 16px 28px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.35);
+
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+
+  color:#fff;
+  font-size:20px;
+  font-weight:900;
+  line-height:1;
+
+  z-index:5;
+  transition: transform .14s ease, filter .14s ease;
+}
+
+.login-close:hover{ transform: translateY(-1px); filter: brightness(1.05) saturate(1.05); }
+.login-close:active{ transform: translateY(0) scale(.98); }
+
+/* ✅ чтобы крестик выглядел “иконкой”, а не текстом */
+.login-close{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
   </style>
 </head>
 
@@ -1199,6 +1250,7 @@
 
 </body>
 </html>
+
 
 
 
