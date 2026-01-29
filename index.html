@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -794,12 +794,248 @@
     @keyframes wipeIn{ 0%{ transform: translateX(-120%); } 100%{ transform: translateX(120%); } }
     @keyframes wipeOut{ 0%{ transform: translateX(120%); } 100%{ transform: translateX(220%); } }
 
-    @media (prefers-reduced-motion: reduce){
-      .hud-item, .hud-cta, .switch, .back-btn { transition:none !important; }
-      .side-nav__panel{ transition:none !important; }
-      .intro, .page-transition, .page-transition .wipe{ animation:none !important; }
-      .intro.is-on, .page-transition.is-leaving, .page-transition.is-entering{ opacity:0 !important; }
-      .matrix-wrap{ display:none !important; }
+    /* ===================== ✅ LOGIN PORTAL (VARIANT 2) ===================== */
+    .login-overlay{
+      position:fixed;
+      inset:0;
+      z-index:10020; /* выше меню/матрицы, ниже page-transition (9999 уже ниже, поэтому ставим выше 1000 и ниже 9999? -> page-transition 9999, тут 10020, значит портал будет выше перехода. Если хочешь наоборот — поставь 9996 */
+      display:grid;
+      place-items:center;
+      padding: 18px;
+      background:
+        radial-gradient(120% 120% at 50% 20%, rgba(80,175,255,.10), transparent 62%),
+        radial-gradient(110% 110% at 50% 80%, rgba(255,220,120,.10), transparent 60%),
+        rgba(0,0,0,.22);
+
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .55s ease;
+    }
+    .login-overlay.is-open{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .login-portal{
+      width: min(720px, calc(100vw - 36px));
+      border-radius: 28px;
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(120% 120% at 20% 12%, rgba(255,255,255,.18), transparent 62%),
+        radial-gradient(110% 90% at 82% 14%, rgba(120,200,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(40,120,170,.28), rgba(10,55,80,.22));
+
+      backdrop-filter: blur(18px) saturate(1.18);
+      -webkit-backdrop-filter: blur(18px) saturate(1.18);
+
+      box-shadow:
+        0 30px 70px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      transform: translateY(10px) scale(.985);
+      opacity:0;
+      transition: transform .6s ease, opacity .6s ease;
+    }
+    .login-overlay.is-open .login-portal{
+      transform: translateY(0) scale(1);
+      opacity:1;
+    }
+
+    /* светящаяся рамка */
+    .login-portal::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 28px;
+      padding: 2px;
+      background:
+        linear-gradient(180deg,
+          rgba(200,240,255,.85),
+          rgba(120,200,255,.35) 40%,
+          rgba(255,230,160,.35) 75%,
+          rgba(255,210,120,.55)
+        );
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events:none;
+      opacity:.95;
+      filter: drop-shadow(0 0 10px rgba(120,200,255,.25));
+    }
+
+    /* снежинки/пыль в портале */
+    .login-spark{
+      position:absolute;
+      inset:-40px;
+      pointer-events:none;
+      opacity:.75;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255,255,255,.85) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 82% 18%, rgba(200,240,255,.85) 0 2px, transparent 4px),
+        radial-gradient(circle at 72% 62%, rgba(255,230,160,.75) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 28% 78%, rgba(255,255,255,.55) 0 2px, transparent 4px);
+      filter: blur(.2px);
+      mix-blend-mode: screen;
+      animation: loginFloat 5s ease-in-out infinite;
+    }
+    @keyframes loginFloat{
+      0%,100%{ transform: translateY(0px); opacity:.70; }
+      50%{ transform: translateY(-6px); opacity:.86; }
+    }
+
+    .login-inner{
+      position:relative;
+      z-index:2;
+      padding: clamp(18px, 3.6vw, 30px);
+      display:grid;
+      gap: 14px;
+      text-align:center;
+      color: rgba(250,244,232,.96);
+      text-shadow: 0 1px 0 rgba(0,0,0,.18);
+    }
+
+    .login-title{
+      font-size: clamp(26px, 4.8vw, 44px);
+      letter-spacing:.02em;
+    }
+    .login-sub{
+      font-size: clamp(14px, 2.5vw, 18px);
+      color: rgba(245,235,210,.85);
+      margin-top:-6px;
+    }
+
+    .login-form{
+      margin-top: 4px;
+      display:grid;
+      gap: 12px;
+      justify-items:stretch;
+    }
+
+    .login-field{
+      position:relative;
+      width: min(520px, 100%);
+      margin: 0 auto;
+    }
+
+    .login-field input{
+      width:100%;
+      height: 56px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.20);
+      outline:none;
+
+      padding: 0 16px 0 52px;
+
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.95);
+      font-family:'Ruslan Display', cursive;
+      font-size: 18px;
+      letter-spacing:.02em;
+
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 10px 22px rgba(0,0,0,.18);
+
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .login-field input::placeholder{ color: rgba(255,255,255,.70); }
+    .login-field input:focus{
+      border-color: rgba(255,230,160,.35);
+      background: rgba(255,255,255,.14);
+      box-shadow:
+        0 0 0 3px rgba(255,230,160,.12),
+        inset 0 1px 0 rgba(255,255,255,.12),
+        0 12px 26px rgba(0,0,0,.22);
+    }
+
+    .login-ico{
+      position:absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      opacity:.90;
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,.25));
+      pointer-events:none;
+    }
+    .login-ico svg{
+      width:100%;
+      height:100%;
+      stroke: rgba(255,245,220,.95);
+      fill:none;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .login-actions{
+      display:flex;
+      gap: 10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 2px;
+    }
+
+    .login-btn{
+      width: min(520px, 100%);
+      height: 58px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.28);
+      cursor:pointer;
+
+      font-family:'Ruslan Display', cursive;
+      font-size: 22px;
+      letter-spacing:.03em;
+
+      color: rgba(70,55,28,.95);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.28), transparent 62%),
+        linear-gradient(180deg, rgba(255,240,195,.98), rgba(245,206,120,.98));
+
+      box-shadow:
+        0 22px 40px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.60);
+
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .login-btn:hover{
+      transform: translateY(-1px);
+      filter:saturate(1.05);
+      box-shadow:
+        0 28px 52px rgba(0,0,0,.32),
+        inset 0 1px 0 rgba(255,255,255,.62);
+    }
+    .login-btn:active{ transform: translateY(0px) scale(.992); }
+
+    .login-close{
+      position:absolute;
+      right: 14px;
+      top: 14px;
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 10px 18px rgba(0,0,0,.18);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      color: rgba(255,255,255,.92);
+      font-size: 18px;
+      transition: transform .16s ease, filter .16s ease;
+      z-index:3;
+    }
+    .login-close:hover{ transform: translateY(-1px); filter:saturate(1.06); }
+    .login-close:active{ transform: translateY(0px) scale(.985); }
+
+    /* на мобиле чуть ниже, чтобы не закрывать верх */
+    @media (max-width: 520px){
+      .login-portal{ border-radius: 24px; }
+      .login-field input{ height: 54px; font-size: 17px; }
+      .login-btn{ height: 56px; font-size: 20px; }
     }
   </style>
 </head>
@@ -819,113 +1055,43 @@
     <div class="wipe"></div>
   </div>
 
-  <!-- MENU -->
-  <nav class="side-nav hud--day" aria-label="Навигация">
-    <div class="side-nav__tab">
-      <div class="tab-row">
-        <button class="back-btn" id="menuToggle" type="button" aria-expanded="true" aria-controls="hudPanel" title="Свернуть/развернуть">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M14.5 6.5 8.5 12l6 5.5"></path>
-          </svg>
-        </button>
+  <!-- ✅ LOGIN OVERLAY (ПОРТАЛ) -->
+  <div class="login-overlay" id="loginOverlay" aria-hidden="true">
+    <div class="login-portal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="login-spark" aria-hidden="true"></div>
 
-        <div class="tab-title">Игровое меню</div>
+      <button class="login-close" id="loginClose" type="button" aria-label="Закрыть">✕</button>
 
-        <div class="hud-switch" title="Ночной режим">
-          <span class="moon" aria-hidden="true">🌙</span>
-          <div class="switch" id="nightSwitch" role="switch" aria-checked="false" tabindex="0"></div>
-        </div>
+      <div class="login-inner">
+        <div class="login-title" id="loginTitle">Вход в систему</div>
+        <div class="login-sub">Добро пожаловать в цифровое будущее</div>
+
+        <form class="login-form" id="loginForm" autocomplete="on">
+          <label class="login-field">
+            <span class="login-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input name="login" type="text" placeholder="Логин" required>
+          </label>
+
+          <label class="login-field">
+            <span class="login-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            </span>
+            <input name="password" type="password" placeholder="Пароль" required>
+          </label>
+
+          <div class="login-actions">
+            <button class="login-btn" type="submit">Войти</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <div class="side-nav__panel" id="hudPanel">
-      <div class="sparkles" aria-hidden="true"></div>
-      <div class="inner-stroke" aria-hidden="true"></div>
-
-      <ul class="side-nav__list">
-        <li>
-          <a class="hud-item is-active" href="https://digitalhavenrussia.ru">
-            <span class="hud-ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M3 10.5 12 3l9 7.5"></path>
-                <path d="M5 10.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9.5"></path>
-              </svg>
-            </span>
-            <span class="hud-txt">
-              <span class="hud-title">Главная</span>
-              <span class="hud-sub">Миссия активна</span>
-            </span>
-            <span class="hud-pill active">ACTIVE</span>
-          </a>
-        </li>
-
-        <li>
-          <a class="hud-item" href="https://digitalhavenrussia.ru/project.html">
-            <span class="hud-ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9"></circle>
-                <path d="M12 10.5v6"></path>
-                <path d="M12 7.5h.01"></path>
-              </svg>
-            </span>
-            <span class="hud-txt">
-              <span class="hud-title">О проекте</span>
-              <span class="hud-sub">Брифинг</span>
-            </span>
-            <span class="hud-pill">INFO</span>
-          </a>
-        </li>
-
-        <li>
-          <a class="hud-item" href="https://digitalhavenrussia.ru/security.html">
-            <span class="hud-ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 7h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"></path>
-                <path d="M16 10l6-3v10l-6-3"></path>
-              </svg>
-            </span>
-            <span class="hud-txt">
-              <span class="hud-title">Мультфильм</span>
-              <span class="hud-sub">Обучающий контент</span>
-            </span>
-            <span class="hud-pill">VIDEO</span>
-          </a>
-        </li>
-
-        <li>
-          <a class="hud-item" href="https://digitalhavenrussia.ru/map.html">
-            <span class="hud-ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M10 20 4.5 18.2A1 1 0 0 1 4 17.3V5.2a1 1 0 0 1 1.3-.95L10 6"></path>
-                <path d="M14 18 10 20V6l4-2"></path>
-                <path d="M14 18l4.7 1.85A1 1 0 0 0 20 18.9V6.7a1 1 0 0 0-1.3-.95L14 4"></path>
-                <path d="M14 4v14"></path>
-              </svg>
-            </span>
-            <span class="hud-txt">
-              <span class="hud-title hud-title--split">
-                <span>Маршрут</span>
-                <span>помощи</span>
-              </span>
-              <span class="hud-sub">Карта операции</span>
-            </span>
-            <span class="hud-pill">MAP</span>
-          </a>
-        </li>
-      </ul>
-
-      <a class="hud-cta" href="https://digitalhavenrussia.ru/project.html#help">
-        <span class="cta-gem right" aria-hidden="true"></span>
-
-        <span class="heart" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 20s-7-4.6-9.3-8.6C1 8 3 5.7 5.8 5.6c1.6 0 3 .9 3.8 2.1.8-1.2 2.2-2.1 3.8-2.1C16.2 5.7 18 8 21.3 11.4 19 15.4 12 20 12 20z"></path>
-          </svg>
-        </span>
-
-        <span class="cta-text">Поддержать проект</span>
-      </a>
-    </div>
+  <!-- MENU -->
+  <nav class="side-nav hud--day" aria-label="Навигация">
+    <!-- ... твой код меню без изменений ... -->
   </nav>
 
   <!-- HEADER -->
@@ -952,366 +1118,78 @@
       setTimeout(() => intro.remove(), 1650);
     })();
 
-    // =============== Активный пункт по URL ===============
-    (function markActive(){
-      try{
-        const path = location.pathname.replace(/\/+$/, '') || '/';
-        const items = document.querySelectorAll('.hud-item');
-        items.forEach(a => a.classList.remove('is-active'));
-
-        const rules = [
-          { match: ['/', '/index.html'], hrefPart: 'digitalhavenrussia.ru' },
-          { match: ['/project.html'], hrefPart: 'project.html' },
-          { match: ['/security.html'], hrefPart: 'security.html' },
-          { match: ['/map.html'], hrefPart: 'map.html' },
-        ];
-        const rule = rules.find(r => r.match.includes(path));
-        if(!rule) return;
-
-        const active = Array.from(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
-        if(active) active.classList.add('is-active');
-      }catch(e){}
-    })();
-
-    // =============== Сворачивание ===============
-    (function toggleMenu(){
-      const nav = document.querySelector('.side-nav');
-      const btn = document.getElementById('menuToggle');
-      if(!nav || !btn) return;
-
-      btn.addEventListener('click', () => {
-        const collapsed = nav.classList.toggle('is-collapsed');
-        btn.setAttribute('aria-expanded', String(!collapsed));
-        btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
-      });
-    })();
-
-    // =============== Ночной режим ===============
-    (function nightHud(){
-      const nav = document.querySelector('.side-nav');
-      const sw = document.getElementById('nightSwitch');
-      if(!nav || !sw) return;
-
-      const setState = (on) => {
-        sw.classList.toggle('is-on', on);
-        sw.setAttribute('aria-checked', String(on));
-        nav.classList.toggle('hud--night', on);
-      };
-
-      const toggle = () => setState(!(sw.getAttribute('aria-checked') === 'true'));
-
-      sw.addEventListener('click', toggle);
-      sw.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-      });
-
-      setState(false);
-    })();
-
-    // =============== Matrix rain (без изменений твоей логики) ===============
-    (function matrixRainCinema(){
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if(reduce) return;
-
-      const wrap = document.getElementById('matrixWrap');
-      const c = document.getElementById('matrix');
-      if(!wrap || !c) return;
-
-      const ctx = c.getContext('2d', { alpha: true });
-
-      const glyphs = (
-        "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
-        "ハヒフヘホマミムメモヤユヨラリルレロワヲンヴ" +
-        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=<>[]{}()"
-      ).split("");
-
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-
-      let W=0,H=0,font=16,cols=0;
-      let dropsA=[], dropsB=[];
-      let raf=0;
-      let stopTimer=0;
-
-      let minTravelMs = 2400;
-      let fadeOutMs   = 1250;
-      let loadedAt = 0;
-
-      function rand(min,max){ return min + Math.random()*(max-min); }
-      function pick(arr){ return arr[(Math.random()*arr.length)|0]; }
-
-      function makeDrops(layerScale){
-        return new Array(cols).fill(0).map(() => {
-          const speed = rand(0.55, 1.35) * layerScale;
-          const len   = rand(18, 48) * layerScale;
-          const y     = rand(-H/font - 80, -10);
-          const switchEvery = rand(3, 9);
-          const gapChance = 0.012 + Math.random()*0.02;
-          return { y, speed, len, t:0, switchEvery, ch: pick(glyphs), gapChance };
-        });
-      }
-
-      function resize(){
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(1, Math.floor(r.width));
-        H = Math.max(1, Math.floor(r.height));
-
-        c.width  = Math.floor(W * dpr);
-        c.height = Math.floor(H * dpr);
-        c.style.width  = W + "px";
-        c.style.height = H + "px";
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-
-        font = Math.max(13, Math.min(22, Math.round(W / 135)));
-        cols = Math.floor(W / font);
-
-        dropsA = makeDrops(1.0);
-        dropsB = makeDrops(0.80);
-      }
-
-      function drawLayer(drops, layerAlpha, glow, headBoost, colorMix){
-        ctx.font = `700 ${font}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
-        ctx.textBaseline = "top";
-
-        ctx.shadowBlur = glow;
-        ctx.shadowColor = `rgba(${colorMix.glowR},${colorMix.glowG},${colorMix.glowB},0.70)`;
-
-        for(let i=0;i<drops.length;i++){
-          const d = drops[i];
-          const x = i * font;
-
-          if(Math.random() < d.gapChance){
-            d.y += d.speed;
-            if(d.y * font > H + d.len * font) d.y = rand(-120, -20);
-            continue;
-          }
-
-          d.t++;
-          if(d.t >= d.switchEvery){
-            d.t = 0;
-            d.ch = pick(glyphs);
-          }
-
-          const yTop  = (d.y - d.len) * font;
-          const yHead = d.y * font;
-
-          const grad = ctx.createLinearGradient(0, yTop, 0, yHead);
-          grad.addColorStop(0.00, `rgba(${colorMix.tailR},${colorMix.tailG},${colorMix.tailB},0.00)`);
-          grad.addColorStop(0.55, `rgba(${colorMix.tailR},${colorMix.tailG},${colorMix.tailB},${0.14*layerAlpha})`);
-          grad.addColorStop(0.85, `rgba(${colorMix.midR},${colorMix.midG},${colorMix.midB},${0.38*layerAlpha})`);
-          grad.addColorStop(1.00, `rgba(${colorMix.headR},${colorMix.headG},${colorMix.headB},${0.96*layerAlpha})`);
-
-          for(let k=0;k<d.len;k++){
-            const yy = (d.y - k) * font;
-            if(yy < -font || yy > H + font) continue;
-
-            const ch = (k === 0) ? d.ch : pick(glyphs);
-
-            ctx.fillStyle = grad;
-
-            if(k === 0){
-              ctx.shadowBlur = glow * 1.25;
-              ctx.fillStyle = `rgba(${colorMix.headR},${colorMix.headG},${colorMix.headB},${(0.98*layerAlpha)*headBoost})`;
-            } else {
-              ctx.shadowBlur = glow;
-            }
-
-            ctx.fillText(ch, x, yy);
-          }
-
-          d.y += d.speed;
-          if(d.y * font > H + d.len * font) d.y = rand(-120, -20);
-        }
-      }
-
-      function frame(){
-        ctx.globalCompositeOperation = "source-over";
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        ctx.fillRect(0,0,W,H);
-
-        ctx.globalCompositeOperation = "lighter";
-        ctx.fillStyle = "rgba(20, 90, 140, 0.018)";
-        ctx.fillRect(0,0,W,H);
-
-        ctx.globalCompositeOperation = "source-over";
-
-        const palette = {
-          tailR: 255, tailG: 226, tailB: 120,
-          midR:   170, midG: 210, midB: 255,
-          headR:   80, headG: 175, headB: 255,
-          glowR:  255, glowG: 220, glowB: 120
-        };
-
-        drawLayer(dropsB, 0.55, 6, 0.92, palette);
-        drawLayer(dropsA, 0.92, 10, 1.06, palette);
-
-        raf = requestAnimationFrame(frame);
-      }
-
-      function allReachedBottom(){
-        let hits = 0;
-        const need = Math.max(6, Math.floor(cols * 0.55));
-        for(let i=0; i<dropsA.length; i++){
-          if(dropsA[i].y * font > H) hits++;
-          if(hits >= need) return true;
-        }
-        return false;
-      }
-
-      function start(){
-        wrap.classList.add('is-on');
-
-        resize();
-        raf = requestAnimationFrame(frame);
-
-        const stopHard = () => {
-          cancelAnimationFrame(raf);
-          ctx.clearRect(0,0,W,H);
-        };
-
-        const hide = () => {
-          wrap.classList.remove('is-on');
-          wrap.classList.add('is-off');
-
-          clearTimeout(stopTimer);
-          stopTimer = setTimeout(stopHard, fadeOutMs + 120);
-        };
-
-        const onLoaded = () => {
-          loadedAt = performance.now();
-
-          const tick = () => {
-            const now = performance.now();
-            const afterLoad = now - loadedAt;
-
-            const hardMax = 5200;
-
-            if((afterLoad >= minTravelMs && allReachedBottom()) || afterLoad >= hardMax){
-              hide();
-              return;
-            }
-            requestAnimationFrame(tick);
-          };
-
-          requestAnimationFrame(tick);
-        };
-
-        window.addEventListener('load', onLoaded, { once:true });
-
-        if(document.readyState === 'complete'){
-          setTimeout(onLoaded, 0);
-        }
-
-        const nav = document.querySelector('.side-nav');
-        if(nav){
-          const mo = new MutationObserver(() => {
-            const night = nav.classList.contains('hud--night');
-            c.style.opacity = night ? '0.98' : '0.92';
-            c.style.mixBlendMode = 'screen';
-            c.style.filter = night
-              ? 'blur(.35px) saturate(1.35) contrast(1.10)'
-              : 'blur(.35px) saturate(1.25) contrast(1.06)';
-            wrap.style.background = night ? 'rgba(0,0,0,.40)' : 'rgba(0,0,0,.26)';
-          });
-          mo.observe(nav, { attributes:true, attributeFilter:['class'] });
-        }
-
-        window.addEventListener('pagehide', () => {
-          clearTimeout(stopTimer);
-          stopHard();
-        });
-      }
-
-      const ro = new ResizeObserver(resize);
-      ro.observe(wrap);
-
-      start();
-    })();
-
-    // =============== Переходы между страницами (перехват кликов) ===============
-    (function pageTransitions(){
-      const pt = document.getElementById('pt');
-      if(!pt) return;
+    /* =========================================================
+       ✅ LOGIN PORTAL: появляется через 30 секунд
+       - плавный fade/scale
+       - закрытие по X, Esc, клику по фону
+       - фокус на логин
+       - не показывать повторно в текущей сессии (sessionStorage)
+    ========================================================= */
+    (function loginPortal(){
+      const overlay = document.getElementById('loginOverlay');
+      const closeBtn = document.getElementById('loginClose');
+      const form = document.getElementById('loginForm');
+      if(!overlay || !closeBtn || !form) return;
 
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const KEY = 'dh_login_portal_shown';
 
-      function isModifiedClick(e){
-        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+      let openTimer = null;
+
+      function open(){
+        if(sessionStorage.getItem(KEY) === '1') return;
+
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+
+        // помним что показали (в рамках вкладки)
+        sessionStorage.setItem(KEY, '1');
+
+        // фокус на логин
+        const loginInput = form.querySelector('input[name="login"]');
+        if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 60);
       }
-      function samePage(href){
-        try{
-          const u = new URL(href, location.href);
-          return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
-        }catch(_){ return true; }
+
+      function close(){
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
       }
 
-      document.addEventListener('click', (e) => {
-        const a = e.target.closest('a[href]');
-        if(!a) return;
+      // появление через 30 секунд на странице
+      function schedule(){
+        if(sessionStorage.getItem(KEY) === '1') return;
+        if(reduce) return; // в reduce-motion не показываем авто-попап
+        openTimer = setTimeout(open, 30000);
+      }
 
-        const href = a.getAttribute('href');
-        if(!href) return;
+      // закрытие: кнопка, Esc, клик по фону
+      closeBtn.addEventListener('click', close);
 
-        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
-        if(isModifiedClick(e)) return;
+      overlay.addEventListener('click', (e) => {
+        if(e.target === overlay) close();
+      });
 
-        if(samePage(href) && href.includes('#')) return;
-        if(reduce) return;
-        if(a.target === '_blank') return;
+      window.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+      });
 
+      // сабмит: пока просто заглушка (подключишь реальную авторизацию)
+      form.addEventListener('submit', (e) => {
         e.preventDefault();
-
-        pt.classList.remove('is-entering');
-        pt.classList.add('is-leaving');
-
-        const go = () => { location.href = href; };
-        setTimeout(go, 420);
-        setTimeout(go, 900);
-      }, { capture: true });
-
-      window.addEventListener('pageshow', () => {
-        if(reduce) return;
-        pt.classList.remove('is-leaving');
-        pt.classList.add('is-entering');
-        setTimeout(() => pt.classList.remove('is-entering'), 520);
+        // TODO: тут отправка на сервер/валидация
+        close();
       });
+
+      // если ушли со страницы / скрыли вкладку — таймер не обязан жить
+      window.addEventListener('pagehide', () => {
+        if(openTimer) clearTimeout(openTimer);
+      });
+
+      schedule();
     })();
 
-    // =========================================================
-    // ✅ СТАРТ СНИЗУ: скроллим именно .header (не document!)
-    // =========================================================
-    (function startAtBottom(){
-      const header = document.getElementById('hero') || document.querySelector('.header');
-      if(!header) return;
-
-      // важно: дождаться layout после вставки изображений/шрифтов
-      function scrollToBottom(){
-        header.scrollTop = header.scrollHeight;
-      }
-
-      function runFewTimes(){
-        scrollToBottom();
-        requestAnimationFrame(scrollToBottom);
-        setTimeout(scrollToBottom, 50);
-        setTimeout(scrollToBottom, 200);
-        setTimeout(scrollToBottom, 600);
-      }
-
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
-      } else {
-        runFewTimes();
-      }
-
-      window.addEventListener('load', runFewTimes, { once:true });
-
-      const img = document.querySelector('.header__bg');
-      if(img){
-        const afterImg = () => setTimeout(scrollToBottom, 0);
-        if(img.complete) afterImg();
-        else img.addEventListener('load', afterImg, { once:true });
-      }
-    })();
+    // ================= остальной твой JS ниже без изменений =================
+    // (оставь весь твой код markActive / toggleMenu / nightHud / matrix / transitions / startAtBottom)
   </script>
 </body>
 </html>
