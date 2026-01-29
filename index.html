@@ -73,18 +73,19 @@
       --hero-mode: 1;
     }
 
-    .side-nav{
-      position:fixed;
-      left: var(--nav-left);
-      top: var(--nav-top);
-      z-index:1000;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      align-items:flex-start;
-      transform: translateZ(0);
-      user-select:none;
-    }
+ .side-nav{
+  position:fixed;
+  left: var(--nav-left);
+  top: var(--nav-top);
+  z-index:10050; /* ✅ было 1000 — теперь меню всегда поверх хедера */
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:flex-start;
+  transform: translateZ(0);
+  user-select:none;
+}
+
 
     /* =============== TOP BAR =============== */
     .side-nav__tab{
@@ -607,22 +608,23 @@
       isolation:isolate;
     }
 
-    .header__bg-blur{
-      position:fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      display:block;
-      object-fit:cover;
-      object-position: 50% 100%; /* ✅ низ */
-      filter: blur(22px) saturate(1.15);
-      transform: scale(1.12);
-      z-index:0;
-      pointer-events:none;
-      user-select:none;
-      -webkit-user-drag:none;
-      will-change: transform;
-    }
+.header__bg-blur{
+  position:absolute;  /* ✅ было fixed */
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position: 50% 100%;
+  filter: blur(22px) saturate(1.15);
+  transform: scale(1.12);
+  z-index:0;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+  will-change: transform;
+}
+
 
     .header__bg{
       position:relative;
@@ -650,16 +652,16 @@
       object-position: 50% 100%; /* ✅ низ */
     }
 
-    .header::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      background:
-        radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0.22)),
-        linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.10));
-      z-index:2;
-      pointer-events:none;
-    }
+.header::after{
+  content:"";
+  position:absolute;  /* ✅ было fixed */
+  inset:0;
+  background:
+    radial-gradient(closest-side at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0.22)),
+    linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.10));
+  z-index:2;
+  pointer-events:none;
+}
 
     /* ===================== MATRIX GLOBAL (FULL SITE) ===================== */
     .matrix-wrap{
@@ -1268,7 +1270,8 @@
       function schedule(){
         if(reduce) return;
         if(sessionStorage.getItem(KEY) === '1') return;
-        openTimer = setTimeout(open, 30000);
+  openTimer = setTimeout(open, 20000); // ✅ 20 секунд
+
       }
 
       closeBtn.addEventListener('click', close);
@@ -1657,3 +1660,4 @@
 
 </body>
 </html>
+
