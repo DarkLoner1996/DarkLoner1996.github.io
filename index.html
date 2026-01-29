@@ -57,21 +57,12 @@
       --hero-mode: 1;
     }
 
-    /* =========================================================
-       ✅ СЛОИ (важно):
-       Меню: 11000 (всегда видно)
-       Login: 12000 (перекрывает меню когда открыт)
-       Page transition: 10000 (ниже меню, но выше фона)
-       Intro: 9900 (ниже меню)
-       Matrix: 9800 (ниже меню)
-    ========================================================= */
-
     /* ===================== MENU ===================== */
     .side-nav{
       position:fixed;
       left: var(--nav-left);
       top: var(--nav-top);
-      z-index:11000;        /* ✅ меню всегда выше всего (кроме логина) */
+      z-index:11000;
       display:flex;
       flex-direction:column;
       gap:10px;
@@ -559,7 +550,6 @@
       -webkit-user-drag:none;
     }
 
-    /* ✅ КРАСИВЫЙ мягкий оверлей вместо "грязного затемнения" */
     .header .hero-soft{
       position:absolute;
       inset:0;
@@ -574,7 +564,7 @@
     .matrix-wrap{
       position:fixed;
       inset:0;
-      z-index:9800; /* ✅ ниже меню */
+      z-index:9800;
       pointer-events:none;
       opacity:0;
       transition: opacity 1.25s ease;
@@ -583,7 +573,6 @@
     .matrix-wrap.is-on{ opacity:1; }
     .matrix{ position:absolute; inset:0; width:100%; height:100%; display:block; opacity:.92; mix-blend-mode: screen; }
 
-    /* ✅ INTRO: теперь это ЛЕГКИЙ световой флэш без чёрной пелены */
     .intro{
       position:fixed;
       inset:0;
@@ -611,50 +600,37 @@
     .login-overlay{
       position:fixed;
       inset:0;
-      z-index:12000; /* выше меню */
+      z-index:12000;
       display:flex;
       align-items:center;
       justify-content:center;
       padding: 18px;
-
-      /* ✅ ровное мягкое затемнение, без "полосы сверху" */
       background: rgba(0,0,0,.6);
-
       opacity:0;
       pointer-events:none;
       transition: opacity .35s ease;
     }
-
     .login-overlay.is-open{
       opacity:1;
       pointer-events:auto;
     }
 
-    /* ✅ УСИЛЕНИЕ ВИДИМОСТИ ОКНА ВХОДА */
     .login-portal{
       width: min(720px, calc(100vw - 36px));
       border-radius: 28px;
       position: relative;
       overflow: hidden;
-
-      /* ✅ почти прозрачное стекло */
       background:
         radial-gradient(120% 120% at 20% 12%, rgba(255,255,255,.06), transparent 62%),
         radial-gradient(110% 90% at 82% 14%, rgba(120,200,255,.05), transparent 60%),
         linear-gradient(180deg, rgba(55,120,170,.10), rgba(18,65,105,.08));
-
-      /* тень слабее, чтобы не «гасить» плакат */
       box-shadow: 0 18px 44px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.12);
-
-      /* делаем “стекло” читаемым */
       backdrop-filter: blur(34px) saturate(1.10);
       -webkit-backdrop-filter: blur(34px) saturate(1.10);
-
       max-height: none;
       overflow: visible;
     }
 
-    /* ✅ немного увеличим контраст текста внутри */
     .login-title{ text-shadow: 0 2px 10px rgba(0,0,0,.35); }
     .login-sub{ text-shadow: 0 1px 8px rgba(0,0,0,.28); }
 
@@ -710,83 +686,60 @@
       box-shadow: 0 14px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
     }
 
-    /* ✅ КРАСНАЯ КНОПКА ЗАКРЫТИЯ (жёсткий фикс) */
     .login-close{
       position:absolute;
       right:14px;
       top:14px;
-
       width:46px;
       height:46px;
       border-radius:14px;
-
       border:1px solid rgba(255,255,255,.28) !important;
       background: linear-gradient(180deg, rgba(255,70,70,.98), rgba(165,10,10,.95)) !important;
-
-      box-shadow:
-        0 16px 28px rgba(0,0,0,.35),
-        inset 0 1px 0 rgba(255,255,255,.35);
-
+      box-shadow: 0 16px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
       cursor:pointer;
       display:grid;
       place-items:center;
-
       color:#fff !important;
       font-size:20px;
       font-weight:900;
       line-height:1;
-
       z-index:99999;
       transition: transform .14s ease, filter .14s ease;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-
     .login-close:hover{ transform: translateY(-1px); filter: brightness(1.06) saturate(1.08); }
     .login-close:active{ transform: translateY(0) scale(.98); }
 
-    /* ✅ чтобы крестик выглядел “иконкой”, а не текстом */
-    .login-close{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-
-    /* ===================== ✅ EXTRA GLASS (Блок №1) ===================== */
     .side-nav__panel, .side-nav__tab, .hud-item, .hud-ico{
       backdrop-filter: blur(38px) saturate(1.02);
       -webkit-backdrop-filter: blur(38px) saturate(1.02);
     }
-
     .tab-title, .hud-title, .hud-sub{
       text-shadow: 0 2px 10px rgba(0,0,0,.22);
     }
-    /* ===================== ✅ /EXTRA GLASS ===================== */
 
-    /* =========================================================
-       ✅ ДОБАВЛЕНО: ASCII предупреждение (admin/admin)
-       - НЕ трогает существующую логику, просто добавляет блок
-       ✅ ДОБАВЛЕНО: зеленый успешный статус
-    ========================================================= */
+    /* ===================== ASCII блок ===================== */
     .admin-warning{
       display:none;
       width: min(620px, 100%);
       margin: 10px auto 0;
       padding: 16px 16px;
       border-radius: 18px;
-
       background: rgba(0,0,0,.55);
       border: 1px solid rgba(255,255,255,.18);
       box-shadow: 0 22px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10);
-
       color: rgba(245,250,255,.96);
       font-family: ui-monospace, Menlo, Consolas, Monaco, "Courier New", monospace;
       font-size: 14px;
       line-height: 1.25;
       text-align:left;
-
       white-space: pre;
       overflow:auto;
       max-height: min(54vh, 520px);
     }
     .admin-warning.is-on{ display:block; }
 
-    /* ✅ зелёное сообщение (успех) */
+    /* оставлено как было, но больше не используется */
     .admin-warning.is-success{
       display:block;
       color: rgba(150, 255, 170, .98);
@@ -796,20 +749,16 @@
         0 22px 40px rgba(0,0,0,.28),
         inset 0 0 0 1px rgba(90,255,140,.12);
     }
-
   </style>
 </head>
 
 <body>
-  <!-- Matrix full-site overlay -->
   <div class="matrix-wrap" id="matrixWrap" aria-hidden="true">
     <canvas class="matrix" id="matrix" aria-hidden="true"></canvas>
   </div>
 
-  <!-- Intro on load -->
   <div class="intro" id="intro" aria-hidden="true"></div>
 
-  <!-- Page transition overlay -->
   <div class="page-transition" id="pt" aria-hidden="true">
     <div class="wipe"></div>
   </div>
@@ -850,7 +799,6 @@
           </div>
         </form>
 
-        <!-- ✅ ДОБАВЛЕНО: блок под ASCII предупреждение -->
         <pre class="admin-warning" id="adminWarning" aria-live="polite"></pre>
       </div>
     </div>
@@ -963,7 +911,6 @@
     </div>
   </nav>
 
-  <!-- HEADER -->
   <div class="header" id="hero">
     <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
     <img class="header__bg" src="header-bg-3840.jpg" alt="" loading="eager" decoding="async" draggable="false">
@@ -971,11 +918,9 @@
   </div>
 
   <script>
-    // Intro
     (function introAnim(){
       const intro = document.getElementById('intro');
       if(!intro) return;
-
       requestAnimationFrame(() => intro.classList.add('is-on'));
       setTimeout(() => {
         intro.classList.remove('is-on');
@@ -984,10 +929,11 @@
     })();
 
     /* =========================================================
-       ✅ LOGIN PORTAL
-       - появляется через 10 секунд
-       - закрытие по X
-       ✅ admin/admin → зелёный доступ, 10 сек, затем скрыть меню
+       ✅ LOGIN PORTAL (ИСПРАВЛЕНО):
+       - admin/admin НЕ даёт “успех”
+       - admin/admin → ASCII предупреждение (твоё)
+       - через 10 сек скрывается ТОЛЬКО окно входа
+       - игровое меню НЕ трогаем
     ========================================================= */
     (function loginPortal(){
       const overlay = document.getElementById('loginOverlay');
@@ -1003,10 +949,9 @@
       const passInput  = form.querySelector('input[name="password"]');
       const submitBtn  = document.getElementById('loginSubmit');
 
-      /* ✅ флаг “взломано/доступ получен” (до перезагрузки) */
       let hacked = false;
+      let closeTimer = null;
 
-      /* ✅ ASCII “угроза” */
       const WARNING_TEXT =
 `┌──────────────────────────────────────┐
 │  ░▒▓ CYBERSECURITY CORE v.9.4.1 ▓▒░  │
@@ -1018,20 +963,11 @@
 │  └──┘ Это вторжение в закрытый сегмент!│
 │                                      │
 │  [!] ТВОЯ СЕССИЯ ПЕРЕХВАЧЕНА          │
-│  [!] Все запросы → КИБЕРПОЛИГОН «ЭХО»│
+│  [!] Все запросы → КИБЕРПОЛИГОН «ТехноКрыльяРоссии»│
 │                                      │
 │  >>> УХОДИ НЕМЕДЛЕННО НА КИБЕРПОЛИГОН,│
 │      МОЛОДОЙ ХАКЕР! ВРЕМЯ ИСТЕКАЕТ... │
 └──────────────────────────────────────┘`;
-
-      /* ✅ зелёный “успех” */
-      const SUCCESS_TEXT =
-`✅ ДОСТУП РАЗРЕШЁН
-Логин: admin
-Статус: OK
-Меню будет скрыто через 10 секунд…`;
-
-      let successTimer = null;
 
       function lockScroll(lock){
         document.documentElement.style.overflow = lock ? 'hidden' : '';
@@ -1060,54 +996,28 @@
         lockScroll(false);
       }
 
-      function hideMenuAfterSuccess(){
-        const nav = document.querySelector('.side-nav');
-        if(!nav) return;
-        nav.style.opacity = '0';
-        nav.style.pointerEvents = 'none';
-        setTimeout(() => { nav.style.display = 'none'; }, 260);
-      }
-
-      /* ❗ оставил твою “угрозу” как альтернативу */
-      function showWarning(){
+      function showWarning(autoClose){
         hacked = true;
         form.style.display = 'none';
 
         if(loginInput) loginInput.disabled = true;
-        if(passInput) passInput.disabled = true;
-        if(submitBtn) submitBtn.disabled = true;
+        if(passInput)  passInput.disabled = true;
+        if(submitBtn)  submitBtn.disabled = true;
 
         if(warn){
           warn.textContent = WARNING_TEXT;
           warn.classList.add('is-on');
-          warn.classList.remove('is-success');
-        }
-
-        if(openTimer){ clearTimeout(openTimer); openTimer = null; }
-      }
-
-      /* ✅ УСПЕХ: зелёный статус на 10 сек, затем закрыть + скрыть меню */
-      function showSuccess(){
-        hacked = true;
-        form.style.display = 'none';
-
-        if(loginInput) loginInput.disabled = true;
-        if(passInput) passInput.disabled = true;
-        if(submitBtn) submitBtn.disabled = true;
-
-        if(warn){
-          warn.textContent = SUCCESS_TEXT;
-          warn.classList.add('is-on');
-          warn.classList.add('is-success');
+          warn.classList.remove('is-success'); // ✅ никакого “успеха”
         }
 
         if(openTimer){ clearTimeout(openTimer); openTimer = null; }
 
-        if(successTimer) clearTimeout(successTimer);
-        successTimer = setTimeout(() => {
-          close();
-          hideMenuAfterSuccess();
-        }, 10000);
+        if(closeTimer) clearTimeout(closeTimer);
+        if(autoClose){
+          closeTimer = setTimeout(() => {
+            close(); // ✅ закрываем только окно входа
+          }, 10000);
+        }
       }
 
       function open(){
@@ -1115,10 +1025,8 @@
         overlay.setAttribute('aria-hidden', 'false');
         lockScroll(true);
 
-        // если уже было “успех/взломано” — не возвращаем форму
+        // если уже показали предупреждение — просто оставляем как есть
         if(hacked){
-          // показываем то, что уже было выставлено
-          if(warn && !warn.classList.contains('is-on')) showWarning();
           return;
         }
 
@@ -1128,7 +1036,10 @@
       window.openLogin = open;
       window.closeLogin = close;
 
-      closeBtn.addEventListener('click', close);
+      closeBtn.addEventListener('click', () => {
+        if(closeTimer) clearTimeout(closeTimer);
+        close();
+      });
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -1138,15 +1049,13 @@
         const u = norm(loginInput?.value);
         const p = norm(passInput?.value);
 
-        /* ✅ ТВОЁ ТЗ: admin/admin → зелёный доступ + через 10 сек прячем меню */
+        // ✅ ТЗ: admin/admin → показать предупреждение и закрыть логин через 10 сек
         if(u === 'admin' && p === 'admin'){
-          showSuccess();
+          showWarning(true);
           return;
         }
 
-        // ❗ если нужно оставить “угрозу” для admin/admin — поменяй на showWarning()
-        // showWarning();
-
+        // иначе просто закрываем окно входа
         close();
       });
 
@@ -1159,13 +1068,12 @@
 
       window.addEventListener('pagehide', () => {
         if(openTimer) clearTimeout(openTimer);
-        if(successTimer) clearTimeout(successTimer);
+        if(closeTimer) clearTimeout(closeTimer);
       });
 
       schedule();
     })();
 
-    // =============== Активный пункт по URL ===============
     (function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '') || '/';
@@ -1181,7 +1089,8 @@
         const rule = rules.find(r => r.match.includes(path));
         if(!rule) return;
 
-        const active = Array.from(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
+        const active = Array.from
+	(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
         if(active) active.classList.add('is-active');
       }catch(e){}
     })();
@@ -1421,3 +1330,4 @@
 
 </body>
 </html>
+
