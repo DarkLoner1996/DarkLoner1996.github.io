@@ -641,9 +641,9 @@ background: rgba(0,0,0,.12);
 
   /* было слишком прозрачно — делаем плотнее */
   background:
-    radial-gradient(120% 120% at 20% 12%, rgba(255,255,255,.30), transparent 62%),
-    radial-gradient(110% 90% at 82% 14%, rgba(120,200,255,.22), transparent 60%),
-linear-gradient(180deg, rgba(55,120,170,.44), rgba(18,65,105,.40));
+  radial-gradient(120% 120% at 20% 12%, rgba(255,255,255,.20), transparent 62%),
+  radial-gradient(110% 90% at 82% 14%, rgba(120,200,255,.14), transparent 60%),
+  linear-gradient(180deg, rgba(55,120,170,.26), rgba(18,65,105,.24));
 
 
   /* сильнее отделяем от фона */
@@ -711,6 +711,12 @@ overflow: visible;
         linear-gradient(180deg, rgba(255,240,195,.98), rgba(245,206,120,.98));
       box-shadow: 0 22px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.60);
     }
+    .login-btn:disabled{
+  opacity: .55;
+  cursor: not-allowed;
+  filter: grayscale(.15) saturate(.85);
+  box-shadow: 0 14px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+}
 /* ✅ КРАСНАЯ КНОПКА ЗАКРЫТИЯ */
 .login-close{
   position:absolute;
@@ -781,7 +787,7 @@ overflow: visible;
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </span>
-            <input name="login" type="text" placeholder="Логин" required>
+           <input name="login" type="text" placeholder="Логин" minlength="4" required>
           </label>
 
           <label class="login-field">
@@ -791,11 +797,11 @@ overflow: visible;
                 <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
               </svg>
             </span>
-            <input name="password" type="password" placeholder="Пароль" required>
+           <input name="password" type="password" placeholder="Пароль" minlength="4" required>
           </label>
 
           <div class="login-actions">
-            <button class="login-btn" type="submit">Войти</button>
+  <button class="login-btn" id="loginSubmit" type="submit" disabled>Войти</button>
           </div>
         </form>
       </div>
@@ -951,18 +957,33 @@ overflow: visible;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let openTimer = null;
 
+  // поля/кнопка — только после проверки form
+  const loginInput = form.querySelector('input[name="login"]');
+  const passInput  = form.querySelector('input[name="password"]');
+  const submitBtn  = document.getElementById('loginSubmit');
+
   function lockScroll(lock){
-    // чтобы фон не "дёргался" и не скроллился, когда открыта модалка
     document.documentElement.style.overflow = lock ? 'hidden' : '';
     document.body.style.overflow = lock ? 'hidden' : '';
   }
+
+  // ======= кнопка "Войти" активна только если 4+ символа =======
+  function normLen(v){ return (v || '').trim().length; }
+
+  function updateSubmit(){
+    const ok = normLen(loginInput?.value) >= 4 && normLen(passInput?.value) >= 4;
+    if(submitBtn) submitBtn.disabled = !ok;
+  }
+
+  if(loginInput) loginInput.addEventListener('input', updateSubmit);
+  if(passInput)  passInput.addEventListener('input', updateSubmit);
+  updateSubmit();
 
   function open(){
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     lockScroll(true);
 
-    const loginInput = form.querySelector('input[name="login"]');
     if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
   }
 
@@ -972,28 +993,27 @@ overflow: visible;
     lockScroll(false);
   }
 
-  // ✅ Глобально: можно открыть из консоли openLogin()
+  // глобально
   window.openLogin = open;
   window.closeLogin = close;
 
+  // ✅ закрытие только по крестику
   closeBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
-
-  window.addEventListener('keydown', (e) => {
-    if(e.key === 'Escape' && overlay.classList.contains('is-open')) close();
-  });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+
+    // на всякий случай (чтобы нельзя было сабмитнуть программно)
+    updateSubmit();
+    if(submitBtn && submitBtn.disabled) return;
+
     // TODO: реальная авторизация (fetch на сервер)
     close();
   });
 
-  // ✅ автопоказ
   function schedule(){
     if(reduce) return;
 
-    // Принудительно: https://digitalhavenrussia.ru/?login=1
     const force = new URLSearchParams(location.search).get('login') === '1';
     if(force) { open(); return; }
 
@@ -1001,9 +1021,9 @@ overflow: visible;
   }
 
   window.addEventListener('pagehide', () => { if(openTimer) clearTimeout(openTimer); });
-
   schedule();
 })();
+
 
 
     // =============== Активный пункт по URL ===============
@@ -1266,6 +1286,7 @@ overflow: visible;
 
 </body>
 </html>
+
 
 
 
