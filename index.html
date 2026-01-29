@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>   
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -761,6 +761,7 @@
     /* =========================================================
        ✅ ДОБАВЛЕНО: ASCII предупреждение (admin/admin)
        - НЕ трогает существующую логику, просто добавляет блок
+       ✅ ДОБАВЛЕНО: зеленый успешный статус
     ========================================================= */
     .admin-warning{
       display:none;
@@ -784,6 +785,17 @@
       max-height: min(54vh, 520px);
     }
     .admin-warning.is-on{ display:block; }
+
+    /* ✅ зелёное сообщение (успех) */
+    .admin-warning.is-success{
+      display:block;
+      color: rgba(150, 255, 170, .98);
+      border-color: rgba(90, 255, 140, .32);
+      background: rgba(0, 0, 0, .45);
+      box-shadow:
+        0 22px 40px rgba(0,0,0,.28),
+        inset 0 0 0 1px rgba(90,255,140,.12);
+    }
 
   </style>
 </head>
@@ -975,7 +987,7 @@
        ✅ LOGIN PORTAL
        - появляется через 10 секунд
        - закрытие по X
-       ✅ ДОБАВЛЕНО: admin/admin → показываем ASCII, форма исчезает до перезагрузки
+       ✅ admin/admin → зелёный доступ, 10 сек, затем скрыть меню
     ========================================================= */
     (function loginPortal(){
       const overlay = document.getElementById('loginOverlay');
@@ -991,10 +1003,10 @@
       const passInput  = form.querySelector('input[name="password"]');
       const submitBtn  = document.getElementById('loginSubmit');
 
-      /* ✅ ДОБАВЛЕНО: флаг "взломано" (до перезагрузки) */
+      /* ✅ флаг “взломано/доступ получен” (до перезагрузки) */
       let hacked = false;
 
-      /* ✅ ДОБАВЛЕНО: ASCII текст */
+      /* ✅ ASCII “угроза” */
       const WARNING_TEXT =
 `┌──────────────────────────────────────┐
 │  ░▒▓ CYBERSECURITY CORE v.9.4.1 ▓▒░  │
@@ -1011,6 +1023,15 @@
 │  >>> УХОДИ НЕМЕДЛЕННО НА КИБЕРПОЛИГОН,│
 │      МОЛОДОЙ ХАКЕР! ВРЕМЯ ИСТЕКАЕТ... │
 └──────────────────────────────────────┘`;
+
+      /* ✅ зелёный “успех” */
+      const SUCCESS_TEXT =
+`✅ ДОСТУП РАЗРЕШЁН
+Логин: admin
+Статус: OK
+Меню будет скрыто через 10 секунд…`;
+
+      let successTimer = null;
 
       function lockScroll(lock){
         document.documentElement.style.overflow = lock ? 'hidden' : '';
@@ -1033,26 +1054,60 @@
       if(passInput)  passInput.addEventListener('input', updateSubmit);
       updateSubmit();
 
-      /* ✅ ДОБАВЛЕНО: показать предупреждение и убрать форму */
+      function close(){
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        lockScroll(false);
+      }
+
+      function hideMenuAfterSuccess(){
+        const nav = document.querySelector('.side-nav');
+        if(!nav) return;
+        nav.style.opacity = '0';
+        nav.style.pointerEvents = 'none';
+        setTimeout(() => { nav.style.display = 'none'; }, 260);
+      }
+
+      /* ❗ оставил твою “угрозу” как альтернативу */
       function showWarning(){
         hacked = true;
-
-        // убрать форму навсегда (до перезагрузки)
         form.style.display = 'none';
 
-        // отключить поля и кнопку
         if(loginInput) loginInput.disabled = true;
         if(passInput) passInput.disabled = true;
         if(submitBtn) submitBtn.disabled = true;
 
-        // показать ASCII блок (если он есть)
         if(warn){
           warn.textContent = WARNING_TEXT;
           warn.classList.add('is-on');
+          warn.classList.remove('is-success');
         }
 
-        // подстраховка таймера
         if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+      }
+
+      /* ✅ УСПЕХ: зелёный статус на 10 сек, затем закрыть + скрыть меню */
+      function showSuccess(){
+        hacked = true;
+        form.style.display = 'none';
+
+        if(loginInput) loginInput.disabled = true;
+        if(passInput) passInput.disabled = true;
+        if(submitBtn) submitBtn.disabled = true;
+
+        if(warn){
+          warn.textContent = SUCCESS_TEXT;
+          warn.classList.add('is-on');
+          warn.classList.add('is-success');
+        }
+
+        if(openTimer){ clearTimeout(openTimer); openTimer = null; }
+
+        if(successTimer) clearTimeout(successTimer);
+        successTimer = setTimeout(() => {
+          close();
+          hideMenuAfterSuccess();
+        }, 10000);
       }
 
       function open(){
@@ -1060,19 +1115,14 @@
         overlay.setAttribute('aria-hidden', 'false');
         lockScroll(true);
 
-        // если уже "взломано" — не возвращаем форму
+        // если уже было “успех/взломано” — не возвращаем форму
         if(hacked){
-          showWarning();
+          // показываем то, что уже было выставлено
+          if(warn && !warn.classList.contains('is-on')) showWarning();
           return;
         }
 
         if(loginInput) setTimeout(() => loginInput.focus({ preventScroll:true }), 80);
-      }
-
-      function close(){
-        overlay.classList.remove('is-open');
-        overlay.setAttribute('aria-hidden', 'true');
-        lockScroll(false);
       }
 
       window.openLogin = open;
@@ -1085,17 +1135,18 @@
         updateSubmit();
         if(submitBtn && submitBtn.disabled) return;
 
-        /* ✅ ДОБАВЛЕНО: проверка admin/admin */
         const u = norm(loginInput?.value);
         const p = norm(passInput?.value);
 
+        /* ✅ ТВОЁ ТЗ: admin/admin → зелёный доступ + через 10 сек прячем меню */
         if(u === 'admin' && p === 'admin'){
-          // не закрываем оверлей — форма пропадает, показываем предупреждение
-          showWarning();
+          showSuccess();
           return;
         }
 
-        // ✅ старое поведение без изменений
+        // ❗ если нужно оставить “угрозу” для admin/admin — поменяй на showWarning()
+        // showWarning();
+
         close();
       });
 
@@ -1106,7 +1157,11 @@
         openTimer = setTimeout(open, 5000);
       }
 
-      window.addEventListener('pagehide', () => { if(openTimer) clearTimeout(openTimer); });
+      window.addEventListener('pagehide', () => {
+        if(openTimer) clearTimeout(openTimer);
+        if(successTimer) clearTimeout(successTimer);
+      });
+
       schedule();
     })();
 
@@ -1182,8 +1237,7 @@
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=<>[]{}()"
       ).split("");
 
-      const dpr = Math.min(2, window.devicePixelRatio || 1
-);
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
       let W=0,H=0,font=16,cols=0,drops=[];
       let raf=0,stopTimer=0;
 
@@ -1255,7 +1309,6 @@
         raf = requestAnimationFrame(frame);
       }
 
-      // ИЗ ФИЛЬМА МАТРИЦА АНИМАЦИЯ
       function start(){
         wrap.classList.add('is-on');
         resize();
@@ -1368,4 +1421,3 @@
 
 </body>
 </html>
-
