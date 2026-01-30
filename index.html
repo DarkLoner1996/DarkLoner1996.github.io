@@ -985,6 +985,16 @@
     object-position: center;
   }
 
+    /* ✅ FHD: гарантируем, что до низа можно доскроллить */
+  .header{ overflow-y: auto !important; scroll-behavior: auto; }
+
+  /* ✅ FHD: даём запас снизу, чтобы низ не "резало" и было куда докрутить */
+  .bg-main-pic{ padding-bottom: 10vh; }
+
+  /* ✅ FHD: отключаем автоскролл "вниз" (он визуально прячет низ) */
+  .header{ scroll-snap-type: none; }
+
+
   /* ✅ Если по высоте всё равно не помещается — будет скролл */
 }
 
@@ -1563,6 +1573,7 @@
     (function startAtBottom(){
       const header = document.getElementById('hero') || document.querySelector('.header');
       if(!header) return;
+      if (window.matchMedia('(max-width: 1920px)').matches) return;
 
       function canScroll(){
         return header.scrollHeight > header.clientHeight + 2;
@@ -1599,4 +1610,5 @@
 
 </body>
 </html>
+
 
