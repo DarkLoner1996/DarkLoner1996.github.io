@@ -1123,40 +1123,48 @@
    - панель влезает по высоте и скроллится внутри
    - фон остаётся красивым, картинка без обрезки (contain)
 ========================================================= */
+/* ===========================
+   ✅ MOBILE TIGHT (<=520px)
+   - уже по ширине
+   - компактнее по высоте
+   - ничего кроме мобилки
+=========================== */
 @media (max-width: 520px){
 
+  /* ✅ Меню уже: не 100vw, а аккуратный "карточный" блок */
   :root{
-    --nav-left: 6px;
-    --nav-top:  calc(6px + env(safe-area-inset-top, 0px));
-    --panel-w:  calc(100vw - 12px);
-
-    --radius: 16px;
-    --rowH: 40px;                 /* было 46 → ещё меньше */
-
-    --text: rgba(255,255,255,.97);
-    --muted: rgba(255,245,225,.84);
+    --nav-left: 50%;
+    --nav-top: calc(8px + env(safe-area-inset-top, 0px));
+    --panel-w: min(360px, calc(100vw - 32px)); /* было 100vw-12px → стало УЖЕ */
+    --radius: 14px;
+    --rowH: 38px; /* чуть меньше */
   }
 
   .side-nav{
-    gap: 5px !important;
+    left: var(--nav-left) !important;
+    top:  var(--nav-top) !important;
+    transform: translateX(-50%) translateZ(0) !important; /* центрируем */
+    align-items: center !important;
+    gap: 6px !important;
   }
 
   /* верхняя плашка */
   .side-nav__tab{
-    padding: 5px 7px !important;
+    width: var(--panel-w) !important;
+    padding: 4px 6px !important;
     border-radius: 14px !important;
   }
   .tab-row{ gap: 6px !important; }
 
   .back-btn{
-    width: 30px !important;
-    height: 30px !important;
+    width: 28px !important;
+    height: 28px !important;
     border-radius: 10px !important;
   }
-  .back-btn svg{ width: 15px !important; height: 15px !important; }
+  .back-btn svg{ width: 14px !important; height: 14px !important; }
 
   .tab-title{
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
 
   .hud-switch{
@@ -1165,90 +1173,90 @@
     gap: 4px !important;
   }
   .hud-switch .moon{
-    width: 15px !important;
-    height: 15px !important;
-    border-radius: 8px !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 7px !important;
     font-size: 10px !important;
   }
 
   .switch{
-    width: 32px !important;
-    height: 15px !important;
+    width: 30px !important;
+    height: 14px !important;
   }
   .switch::after{
-    width: 11px !important;
-    height: 11px !important;
+    width: 10px !important;
+    height: 10px !important;
     top: 2px !important;
     left: 2px !important;
   }
-  .switch.is-on::after{ left: 17px !important; }
+  .switch.is-on::after{ left: 16px !important; }
 
-  /* панель меню — компактнее + без "пустого низа" */
+  /* панель */
   .side-nav__panel{
-    padding: 7px 7px 7px !important;     /* было 8 8 10 → убрали лишний низ */
+    width: var(--panel-w) !important;
+    padding: 6px 6px 6px !important;
     border-radius: var(--radius) !important;
 
-    /* высота под компактный tab */
-    max-height: calc(100dvh - 52px - env(safe-area-inset-bottom, 0px)) !important;
-
-    /* если у тебя где-то появляется отступ/скролл из-за паддинга — прибьём */
-    margin-bottom: 0 !important;
+    /* чтобы не упиралось в низ экрана */
+    max-height: calc(100dvh - 56px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
-  /* ✅ УБИРАЕМ бесполезный прозрачный отступ снизу */
+  /* список без пустот */
   .side-nav__list{
-    gap: 5px !important;
-    margin: 4px 0 0 !important;          /* было 5px 0 8px → bottom = 0 */
+    gap: 6px !important;
+    margin: 4px 0 6px !important;
     padding: 0 !important;
   }
 
   .hud-item{
-    height: var(--rowH) !important;       /* 40px */
+    height: var(--rowH) !important;
     padding: 6px 7px !important;
     gap: 7px !important;
     border-radius: 13px !important;
   }
 
+  /* ромбик слева чуть меньше и ближе */
+  .hud-item::after{
+    left: 8px !important;
+    width: 8px !important;
+    height: 8px !important;
+  }
+
   .hud-ico{
-    margin-left: 7px !important;
-    width: 30px !important;
-    height: 30px !important;
-    border-radius: 11px !important;
+    margin-left: 10px !important;  /* было 7 → чуть ровнее с ромбиком */
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 10px !important;
   }
   .hud-ico svg{
-    width: 16px !important;
-    height: 16px !important;
+    width: 15px !important;
+    height: 15px !important;
   }
 
   .hud-txt{ gap: 2px !important; }
-
-  .hud-title{
-    font-size: 12px !important;
-  }
+  .hud-title{ font-size: 12px !important; }
   .hud-sub{
     font-size: 7px !important;
-    letter-spacing: .085em !important;
+    letter-spacing: .08em !important;
   }
 
   .hud-pill{
-    min-width: 58px !important;
+    min-width: 56px !important;
     height: 20px !important;
     padding: 0 6px !important;
     font-size: 8px !important;
-    letter-spacing: .11em !important;
   }
-  .hud-pill::after{
-    font-size: 13px !important;
-  }
+  .hud-pill::after{ font-size: 13px !important; }
 
-  /* Киберполигон — тоже ниже и без лишнего низа */
+  /* Киберполигон */
   .hud-cta.hud-cta--cyber{
     height: 40px !important;
     border-radius: 14px !important;
     font-size: 12px !important;
-    padding: 0 36px !important;
-    letter-spacing: .10em !important;
-
+    padding: 0 34px !important;
     margin-top: 6px !important;
   }
   .hud-cta--cyber::after{
@@ -1257,17 +1265,15 @@
   }
   .hud-cta--cyber .cyber-shield{
     left: 8px !important;
-    width: 26px !important;
-    height: 26px !important;
+    width: 24px !important;
+    height: 24px !important;
     border-radius: 9px !important;
   }
   .hud-cta--cyber .cyber-shield svg{
-    width: 15px !important;
-    height: 15px !important;
+    width: 14px !important;
+    height: 14px !important;
   }
 }
-
-
 
 
   </style>
@@ -1890,6 +1896,7 @@
 
 </body>
 </html>
+
 
 
 
