@@ -1597,14 +1597,19 @@
 
     // ✅ СТАРТ СНИЗУ: скроллим именно .header (на FHD скролла нет — не мешает)
    (function startAtBottom(){
-  const header = document.getElementById('hero') || document.querySelector('.header');
-  if(!header) return;
-
   const isFHD = window.matchMedia('(max-width: 1920px)').matches;
+  const header = document.getElementById('hero') || document.querySelector('.header');
 
   function scrollToBottom(){
-    // ✅ на всякий случай делаем чуть с запасом
-    header.scrollTop = header.scrollHeight + 9999;
+    if(isFHD){
+      // ✅ FHD: скроллим страницу
+      const doc = document.scrollingElement || document.documentElement;
+      window.scrollTo(0, doc.scrollHeight + 9999);
+    }else{
+      // ✅ 4K: оставляем твою механику внутреннего скролла
+      if(!header) return;
+      header.scrollTop = header.scrollHeight + 9999;
+    }
   }
 
   function runFewTimes(){
@@ -1615,7 +1620,6 @@
     setTimeout(scrollToBottom, 420);
   }
 
-  // ✅ И на FHD, и на 4K стартуем снизу (как ты хочешь)
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
   } else {
@@ -1631,7 +1635,7 @@
     else img.addEventListener('load', afterImg, { once:true });
   }
 
-  // ✅ на FHD иногда мешает изменение высоты viewport (масштаб/панели) — докрутим ещё раз
+  // ✅ На FHD иногда меняется viewport (панели/масштаб) — докрутим
   if(isFHD && window.visualViewport){
     window.visualViewport.addEventListener('resize', () => {
       setTimeout(scrollToBottom, 0);
@@ -1643,6 +1647,7 @@
 
 </body>
 </html>
+
 
 
 
