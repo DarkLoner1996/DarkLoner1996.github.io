@@ -8,7 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ТехноКрыльяРоссии</title>
 
-  <!-- ✅ PRELOAD: грузим правильную картинку под ширину экрана (4K не трогаем) -->
+  <!-- ✅ PRELOAD: правильная картинка под ширину экрана (4K не трогаем) -->
+  <link rel="preload" as="image" href="bg_mobile.jpg" media="(max-width: 520px)">
   <link rel="preload" as="image" href="bg_fhd.jpg" media="(max-width: 1920px)">
   <link rel="preload" as="image" href="header-bg-3840.jpg" media="(min-width: 1921px)">
 
@@ -467,36 +468,10 @@
     .hud-cta:hover{ transform: translateY(-1px); filter:saturate(1.04); }
     .hud-cta:active{ transform: translateY(0px) scale(.992); }
 
-    .hud-cta .heart{
-      width:44px;
-      height:44px;
-      border-radius: 14px;
-      display:grid;
-      place-items:center;
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.70), rgba(255,255,255,.35) 55%, rgba(255,255,255,.18));
-      border:1px solid rgba(255,255,255,.55);
-      box-shadow: 0 10px 18px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.70);
-      flex:0 0 auto;
-      position:relative;
-      z-index:2;
-      margin-left: 2px;
-    }
-    .hud-cta .heart svg{
-      width:20px; height:20px;
-      stroke: rgba(70,55,28,.92);
-      fill:none;
-      stroke-width:2.6;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      filter: drop-shadow(0 1px 0 rgba(255,255,255,.35));
-    }
-
     /* ===================== ✅ ТОЛЬКО ДЛЯ КИБЕРПОЛИГОНА (ячейка меню) ===================== */
     .hud-cta.hud-cta--cyber{
       color: rgba(235,252,255,.96);
       letter-spacing:.12em;
-
       justify-content: center;
       padding: 0 58px;
 
@@ -602,12 +577,6 @@
       --gB: rgba(8, 30, 40, .54);
       --iA: rgba(255,255,255,.12);
       --iB: rgba(0,0,0,.10);
-    }
-
-    @media (max-width: 520px){
-      .hud-title{ -webkit-line-clamp: 2; }
-      .hud-pill{ min-width: 86px; }
-      .hud-ico{ margin-left: 18px; }
     }
 
     /* ===================== HEADER (скролл внутри) ===================== */
@@ -946,232 +915,331 @@
     }
 
     /* ============================================================
-       ✅ АДАПТИВ НЕ ЛОМАЯ 4K:
-       - на FHD подменяем фон на bg_fhd.jpg
-       - делаем фон "на весь экран" (cover) только на FHD
-       - уменьшаем меню только на FHD
-       - 4K остаётся как есть (вне media)
+       ✅ FHD (не трогаем 4K): твой блок как был
     ============================================================ */
-/* ============================================================
-   ✅ АДАПТИВ НЕ ЛОМАЯ 4K (только FHD и шире телефона):
-   - уменьшаем меню и шрифты
-   - скролл на FHD = окно (как у тебя)
-   - 4K вне media остаётся без изменений
-============================================================ */
-@media (max-width: 1920px) and (min-width: 521px){
+    @media (max-width: 1920px) and (min-width: 521px){
+      :root{
+        --nav-left: 6px;
+        --nav-top:  6px;
+        --panel-w: min(320px, calc(100vw - 12px));
+        --rowH: 54px;
+        --text: rgba(255,255,255,.99);
+        --muted: rgba(255,245,225,.92);
+      }
 
-  /* ✅ FHD: меню ещё меньше (4K вне media не трогаем) */
-  :root{
-    --nav-left: 6px;
-    --nav-top:  6px;
+      .side-nav{
+        transform: none !important;
+        transform-origin: top left;
+        gap: 8px;
+      }
 
-    /* ✅ Сильнее сжимаем ширину панели */
-    --panel-w: min(320px, calc(100vw - 12px));
+      .side-nav__tab{
+        padding: 5px 7px;
+        border-radius: 16px;
+      }
+      .tab-row{ gap: 7px; }
 
-    /* ✅ ниже строки меню */
-    --rowH: 54px;
+      .back-btn{
+        width:34px; height:34px;
+        border-radius:12px;
+      }
+      .back-btn svg{ width:18px; height:18px; }
 
-    /* читаемость */
-    --text: rgba(255,255,255,.99);
-    --muted: rgba(255,245,225,.92);
-  }
+      .tab-title{
+        font-size: 16px;
+        letter-spacing: .16px;
+        text-shadow:
+          0 2px 10px rgba(0,0,0,.38),
+          0 1px 0 rgba(0,0,0,.22);
+      }
 
-  /* ✅ никаких scale */
-  .side-nav{
-    transform: none !important;
-    transform-origin: top left;
-    gap: 8px;
-  }
+      .hud-switch{
+        padding:4px 6px;
+        border-radius:12px;
+        gap:6px;
+      }
+      .hud-switch .moon{ width:18px; height:18px; font-size:12px; }
+      .switch{ width:38px; height:18px; }
+      .switch::after{ width:14px; height:14px; top:2px; left:2px; }
+      .switch.is-on::after{ left:20px; }
 
-  /* ===== верхняя плашка ===== */
-  .side-nav__tab{
-    padding: 5px 7px;
-    border-radius: 16px;
-  }
-  .tab-row{ gap: 7px; }
+      .side-nav__panel{
+        padding: 8px 8px 10px;
+        border-radius: 19px;
+      }
 
-  .back-btn{
-    width:34px; height:34px;
-    border-radius:12px;
-  }
-  .back-btn svg{ width:18px; height:18px; }
+      .side-nav__list{
+        gap: 8px;
+        margin: 6px 0 10px;
+      }
 
-  .tab-title{
-    font-size: 16px;
-    letter-spacing: .16px;
-    text-shadow:
-      0 2px 10px rgba(0,0,0,.38),
-      0 1px 0 rgba(0,0,0,.22);
-  }
+      .hud-item{
+        height: var(--rowH);
+        padding: 8px 10px;
+        gap: 8px;
+        border-radius: 16px;
+      }
 
-  .hud-switch{
-    padding:4px 6px;
-    border-radius:12px;
-    gap:6px;
-  }
-  .hud-switch .moon{ width:18px; height:18px; font-size:12px; }
-  .switch{ width:38px; height:18px; }
-  .switch::after{ width:14px; height:14px; top:2px; left:2px; }
-  .switch.is-on::after{ left:20px; }
+      .hud-ico{
+        margin-left: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
+      .hud-ico svg{
+        width: 21px;
+        height: 21px;
+      }
 
-  /* ===== панель меню ===== */
-  .side-nav__panel{
-    padding: 8px 8px 10px;
-    border-radius: 19px;
-  }
+      .hud-txt{ gap:5px; }
+      .hud-title{
+        font-size: 14px;
+        letter-spacing: .04em;
+        text-shadow:
+          0 2px 10px rgba(0,0,0,.38),
+          0 1px 0 rgba(0,0,0,.22);
+      }
+      .hud-sub{
+        font-size: 9px;
+        letter-spacing: .10em;
+        opacity: 1;
+        color: var(--muted);
+        text-shadow: 0 2px 10px rgba(0,0,0,.34);
+      }
 
-  .side-nav__list{
-    gap: 8px;
-    margin: 6px 0 10px;
-  }
+      .hud-pill{
+        font-size: 10px;
+        min-width: 74px;
+        height: 26px;
+        padding: 0 8px;
+      }
+      .hud-pill::after{
+        font-size: 16px;
+        transform: translateY(-1px);
+      }
 
-  .hud-item{
-    height: var(--rowH);
-    padding: 8px 10px;
-    gap: 8px;
-    border-radius: 16px;
-  }
+      .hud-cta.hud-cta--cyber{
+        height: 50px;
+        font-size: 15px;
+        padding: 0 44px;
+        border-radius: 17px;
+        letter-spacing: .11em;
+      }
+      .hud-cta--cyber::after{
+        inset: 8px;
+        border-radius: 14px;
+      }
+      .hud-cta--cyber .cyber-shield{
+        left: 9px;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+      }
+      .hud-cta--cyber .cyber-shield svg{
+        width: 19px;
+        height: 19px;
+      }
 
-  /* иконка слева */
-  .hud-ico{
-    margin-left: 10px;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-  }
-  .hud-ico svg{
-    width: 21px;
-    height: 21px;
-  }
+      .side-nav__panel{
+        background:
+          radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.10), transparent 62%),
+          radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.06), transparent 60%),
+          linear-gradient(180deg, rgba(10,80,110,.32), rgba(6,40,58,.30));
+        backdrop-filter: blur(20px) saturate(1.10);
+        -webkit-backdrop-filter: blur(20px) saturate(1.10);
+        border: 1px solid rgba(255,240,190,.10);
+        box-shadow: 0 14px 30px rgba(0,0,0,.22);
+      }
 
-  /* тексты */
-  .hud-txt{ gap:5px; }
-  .hud-title{
-    font-size: 14px;
-    letter-spacing: .04em;
-    text-shadow:
-      0 2px 10px rgba(0,0,0,.38),
-      0 1px 0 rgba(0,0,0,.22);
-  }
-  .hud-sub{
-    font-size: 9px;
-    letter-spacing: .10em;
-    opacity: 1;
-    color: var(--muted);
-    text-shadow: 0 2px 10px rgba(0,0,0,.34);
-  }
+      .side-nav__tab{
+        background:
+          radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.10), transparent 60%),
+          radial-gradient(110% 80% at 84% 18%, rgba(255,215,120,.05), transparent 58%),
+          linear-gradient(180deg, rgba(10,80,110,.30), rgba(6,40,58,.28));
+        backdrop-filter: blur(16px) saturate(1.08);
+        -webkit-backdrop-filter: blur(16px) saturate(1.08);
+        box-shadow: 0 12px 24px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.10);
+      }
 
-  /* плашки справа (INFO/VIDEO/MAP/ACTIVE) */
-  .hud-pill{
-    font-size: 10px;
-    min-width: 74px;
-    height: 26px;
-    padding: 0 8px;
-  }
-  .hud-pill::after{
-    font-size: 16px;
-    transform: translateY(-1px);
-  }
+      .hud-item,
+      .hud-ico{
+        backdrop-filter: blur(16px) saturate(1.06);
+        -webkit-backdrop-filter: blur(16px) saturate(1.06);
+      }
 
-  /* ===== КИБЕРПОЛИГОН ===== */
-  .hud-cta.hud-cta--cyber{
-    height: 50px;
-    font-size: 15px;
-    padding: 0 44px;
-    border-radius: 17px;
-    letter-spacing: .11em;
-  }
-  .hud-cta--cyber::after{
-    inset: 8px; /* внутренняя рамка компактнее */
-    border-radius: 14px;
-  }
-  .hud-cta--cyber .cyber-shield{
-    left: 9px;
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-  }
-  .hud-cta--cyber .cyber-shield svg{
-    width: 19px;
-    height: 19px;
-  }
+      html, body{
+        height: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
 
-  /* ✅ Подложка/контраст (оставляем твою идею) */
-  .side-nav__panel{
-    background:
-      radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.10), transparent 62%),
-      radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.06), transparent 60%),
-      linear-gradient(180deg, rgba(10,80,110,.32), rgba(6,40,58,.30));
-    backdrop-filter: blur(20px) saturate(1.10);
-    -webkit-backdrop-filter: blur(20px) saturate(1.10);
-    border: 1px solid rgba(255,240,190,.10);
-    box-shadow: 0 14px 30px rgba(0,0,0,.22);
-  }
+      .header{
+        height: auto !important;
+        max-height: none !important;
+        min-height: 100vh;
+        overflow: visible !important;
+        overscroll-behavior: auto !important;
+      }
 
-  .side-nav__tab{
-    background:
-      radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.10), transparent 60%),
-      radial-gradient(110% 80% at 84% 18%, rgba(255,215,120,.05), transparent 58%),
-      linear-gradient(180deg, rgba(10,80,110,.30), rgba(6,40,58,.28));
-    backdrop-filter: blur(16px) saturate(1.08);
-    -webkit-backdrop-filter: blur(16px) saturate(1.08);
-    box-shadow: 0 12px 24px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.10);
-  }
+      .bg-blur-pic,
+      .header__bg-blur{
+        display: none !important;
+      }
 
-  .hud-item,
-  .hud-ico{
-    backdrop-filter: blur(16px) saturate(1.06);
-    -webkit-backdrop-filter: blur(16px) saturate(1.06);
-  }
+      .bg-main-pic{
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
 
-  /* =========================================================
-     ✅ FHD: скроллится страница (window), как у тебя
-  ========================================================= */
-  html, body{
-    height: auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
+      .header__bg{
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: initial !important;
+      }
 
-  .header{
-    height: auto !important;
-    max-height: none !important;
-    min-height: 100vh;
-    overflow: visible !important;
-    overscroll-behavior: auto !important;
-  }
+      .header .hero-soft{
+        position: absolute;
+        inset: 0;
+      }
+    }
 
-  .bg-blur-pic,
-  .header__bg-blur{
-    display: none !important;
-  }
+    /* =========================================================
+       ✅ MOBILE (<=520px) — ДОБАВЛЕНО
+       - отдельный фон bg_mobile.jpg (портрет)
+       - меню по центру, влезает
+       - панель скроллится внутри
+       - header фикс 100vh + cover
+    ========================================================= */
+    @media (max-width: 520px){
 
-  .bg-main-pic{
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
+      :root{
+        --nav-left: 10px;
+        --nav-top:  calc(10px + env(safe-area-inset-top, 0px));
+        --panel-w:  calc(100vw - 20px);
+        --radius:  22px;
+        --rowH:    62px;
+      }
 
-  .header__bg{
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    object-fit: initial !important;
-  }
+      .side-nav{
+        left: 0 !important;
+        right: 0 !important;
+        top: var(--nav-top) !important;
+        width: 100% !important;
+        align-items: center !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        gap: 10px;
+      }
 
-  .header .hero-soft{
-    position: absolute;
-    inset: 0;
-  }
-}
+      .side-nav__tab,
+      .side-nav__panel{
+        width: var(--panel-w) !important;
+      }
 
+      .side-nav__tab{
+        padding: 8px 10px;
+        border-radius: 20px;
+      }
 
+      .back-btn{
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
 
+      .tab-title{
+        font-size: 18px;
+      }
+
+      .side-nav__panel{
+        max-height: calc(100vh - 92px - env(safe-area-inset-bottom, 0px));
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding: 12px 12px 14px;
+      }
+
+      .side-nav__list{ gap: 10px; }
+
+      .hud-item{
+        height: var(--rowH);
+        padding: 10px 12px;
+        border-radius: 18px;
+      }
+
+      .hud-ico{
+        margin-left: 12px;
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+      }
+
+      .hud-title{
+        -webkit-line-clamp: 2;
+        font-size: 16px;
+      }
+      .hud-sub{ font-size: 10px; opacity: .92; }
+
+      .hud-pill{
+        min-width: 82px;
+        height: 30px;
+        font-size: 11px;
+        padding: 0 10px;
+      }
+
+      .hud-cta.hud-cta--cyber{
+        height: 56px;
+        font-size: 16px;
+        border-radius: 18px;
+        padding: 0 52px;
+      }
+
+      .hud-cta--cyber .cyber-shield{
+        left: 12px;
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+      }
+
+      /* ✅ ФОН НА МОБИЛКЕ: cover + портрет */
+      .header{
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+      }
+
+      .bg-blur-pic,
+      .bg-main-pic{
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      .header__bg-blur{
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: 50% 70% !important;
+      }
+
+      .header__bg{
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: 50% 70% !important;
+      }
+
+      .header .hero-soft{
+        inset: 0 !important;
+      }
+    }
 
   </style>
 </head>
@@ -1338,14 +1406,16 @@
   </nav>
 
   <div class="header" id="hero">
-    <!-- ✅ BLUR: 4K по умолчанию, FHD только на FHD -->
+    <!-- ✅ BLUR: MOBILE → FHD → 4K -->
     <picture class="bg-blur-pic">
+      <source media="(max-width: 520px)" srcset="bg_mobile.jpg">
       <source media="(max-width: 1920px)" srcset="bg_fhd.jpg">
       <img class="header__bg-blur" src="header-bg-3840.jpg" alt="" aria-hidden="true" decoding="async">
     </picture>
 
-    <!-- ✅ MAIN BG: 4K по умолчанию, FHD только на FHD -->
+    <!-- ✅ MAIN BG: MOBILE → FHD → 4K -->
     <picture class="bg-main-pic">
+      <source media="(max-width: 520px)" srcset="bg_mobile.jpg">
       <source media="(max-width: 1920px)" srcset="bg_fhd.jpg">
       <img class="header__bg" src="header-bg-3840.jpg" alt="" loading="eager" decoding="async" draggable="false">
     </picture>
@@ -1365,11 +1435,7 @@
     })();
 
     /* =========================================================
-       ✅ LOGIN PORTAL (ИСПРАВЛЕНО):
-       - admin/admin → ASCII предупреждение
-       - через 10 сек скрывается ТОЛЬКО окно входа
-       - любые другие значения (>=4) → "Авторизация не пройдена" и закрыть через 3 сек
-       - игровое меню НЕ трогаем
+       ✅ LOGIN PORTAL (как было у тебя)
     ========================================================= */
     (function loginPortal(){
       const overlay = document.getElementById('loginOverlay');
@@ -1584,7 +1650,7 @@
       setState(false);
     })();
 
-    // =============== Matrix rain ===============
+    // =============== Matrix rain (как было) ===============
     (function matrixRainCinema(){
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if(reduce) return;
@@ -1744,68 +1810,54 @@
       });
     })();
 
-    // ✅ СТАРТ СНИЗУ: скроллим именно .header (на FHD скролла нет — не мешает)
-   (function startAtBottom(){
-  const isFHD = window.matchMedia('(max-width: 1920px)').matches;
-  const header = document.getElementById('hero') || document.querySelector('.header');
+    // ✅ СТАРТ СНИЗУ: на телефоне ОТКЛЮЧЕНО (чтобы не ломало мобилку)
+    (function startAtBottom(){
+      const isMobile = window.matchMedia('(max-width: 520px)').matches;
+      if(isMobile) return; // ✅ MOBILE FIX
 
-  function scrollToBottom(){
-    if(isFHD){
-      // ✅ FHD: скроллим страницу
-      const doc = document.scrollingElement || document.documentElement;
-      window.scrollTo(0, doc.scrollHeight + 9999);
-    }else{
-      // ✅ 4K: оставляем твою механику внутреннего скролла
-      if(!header) return;
-      header.scrollTop = header.scrollHeight + 9999;
-    }
-  }
+      const isFHD = window.matchMedia('(max-width: 1920px)').matches;
+      const header = document.getElementById('hero') || document.querySelector('.header');
 
-  function runFewTimes(){
-    scrollToBottom();
-    requestAnimationFrame(scrollToBottom);
-    setTimeout(scrollToBottom, 60);
-    setTimeout(scrollToBottom, 200);
-    setTimeout(scrollToBottom, 420);
-  }
+      function scrollToBottom(){
+        if(isFHD){
+          const doc = document.scrollingElement || document.documentElement;
+          window.scrollTo(0, doc.scrollHeight + 9999);
+        }else{
+          if(!header) return;
+          header.scrollTop = header.scrollHeight + 9999;
+        }
+      }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
-  } else {
-    runFewTimes();
-  }
-  window.addEventListener('load', runFewTimes, { once:true });
+      function runFewTimes(){
+        scrollToBottom();
+        requestAnimationFrame(scrollToBottom);
+        setTimeout(scrollToBottom, 60);
+        setTimeout(scrollToBottom, 200);
+        setTimeout(scrollToBottom, 420);
+      }
 
-  // ✅ докрутка после загрузки картинки (важно!)
-  const img = document.querySelector('.header__bg');
-  if(img){
-    const afterImg = () => setTimeout(runFewTimes, 0);
-    if(img.complete) afterImg();
-    else img.addEventListener('load', afterImg, { once:true });
-  }
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
+      } else {
+        runFewTimes();
+      }
+      window.addEventListener('load', runFewTimes, { once:true });
 
-  // ✅ На FHD иногда меняется viewport (панели/масштаб) — докрутим
-  if(isFHD && window.visualViewport){
-    window.visualViewport.addEventListener('resize', () => {
-      setTimeout(scrollToBottom, 0);
-    }, { passive:true });
-  }
-})();
+      const img = document.querySelector('.header__bg');
+      if(img){
+        const afterImg = () => setTimeout(runFewTimes, 0);
+        if(img.complete) afterImg();
+        else img.addEventListener('load', afterImg, { once:true });
+      }
+
+      if(isFHD && window.visualViewport){
+        window.visualViewport.addEventListener('resize', () => {
+          setTimeout(scrollToBottom, 0);
+        }, { passive:true });
+      }
+    })();
 
   </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
