@@ -16,70 +16,90 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 
   <!-- VK OpenAPI (один раз) -->
-  <script
-    type="text/javascript"
-    src="https://vk.com/js/api/openapi.js?168"
-    charset="windows-1251"
-  ></script>
+  <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
 
   <style>
     :root{
       --txt: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.72);
 
-      --glassA: rgba(10,18,34,.62);
-      --glassB: rgba(10,18,34,.42);
-      --stroke: rgba(255,255,255,.12);
+      /* главное стекло (спокойнее) */
+      --panelA: rgba(10,16,28,.62);
+      --panelB: rgba(10,16,28,.42);
 
-      --shadow: 0 18px 60px rgba(0,0,0,.38);
+      --line: rgba(255,255,255,.10);
+      --line2: rgba(255,255,255,.14);
+
+      --shadow: 0 22px 70px rgba(0,0,0,.42);
+      --shadow2: 0 12px 34px rgba(0,0,0,.30);
+
       --r: 22px;
 
-      --triA: rgba(255,255,255,.78);
-      --triB: rgba(0,120,255,.68);
-      --triC: rgba(255,60,60,.68);
+      /* акценты (мягкие) */
+      --blue: rgba(0,120,255,.75);
+      --red: rgba(255,60,60,.70);
 
-      --sidebarW: 360px;
       --gap: 18px;
+
+      /* размеры */
+      --sidebarW: 320px;
+      --wrapW: 980px;
+
+      /* читаемость */
+      --blur: 10px;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: 'Rubik', sans-serif;
+      font-family: 'PT Sans Caption', 'Rubik', sans-serif;
       color: var(--txt);
       overflow-x:hidden;
       scroll-behavior:smooth;
 
-      /* Фон как "главная" (твой арт). Подставь нужный файл (или оставь как есть). */
       background:
-        radial-gradient(1200px 650px at 50% 10%, rgba(255,255,255,.18), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.62)),
+        radial-gradient(1200px 700px at 50% 10%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.58)),
         url("header-bg-3840.jpg") center/cover no-repeat fixed;
     }
 
-    /* ========= TOP NAV (оставил твою логику, но сделал game-glass) ========= */
+    /* затемнение по краям как в игре, чтобы UI читался */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(120% 110% at 50% 30%, rgba(0,0,0,.20), rgba(0,0,0,.60)),
+        radial-gradient(80% 70% at 50% 0%, rgba(0,0,0,.10), transparent 60%);
+      z-index:0;
+    }
+
+    /* ======= TOP NAV (оставил, но сделал тоньше и спокойнее) ======= */
     nav{
       position: fixed;
       top: 0; left: 0;
       width: 100%;
       z-index: 10000;
-      padding: 12px 12px;
+
       display:flex;
       justify-content:center;
+      padding: 10px 12px;
+
+      background: rgba(8,14,28,.28);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
       transition: transform .3s ease-in-out;
       will-change: transform;
-
-      background: rgba(8,14,28,.38);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      box-shadow: 0 8px 28px rgba(0,0,0,.25);
     }
     nav.hidden{ transform: translateY(-110%); }
+
     nav ul{
       list-style:none;
       display:flex;
-      gap: 18px;
+      gap: 14px;
       flex-wrap:wrap;
       margin:0;
       padding:0;
@@ -89,33 +109,35 @@
     nav ul li a{
       font-family: 'Ruslan Display', cursive;
       color: rgba(255,255,255,.92);
-      font-size: 22px;
+      font-size: 18px;
       text-decoration:none;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 14px;
 
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
 
-      text-shadow: 0 8px 22px rgba(0,0,0,.35);
+      text-shadow: 0 10px 26px rgba(0,0,0,.28);
       transition: transform .12s ease, filter .12s ease, background .2s ease;
     }
     nav ul li a:hover{
       transform: translateY(-1px);
-      filter: brightness(1.07);
-      background: linear-gradient(135deg, rgba(0,120,255,.35), rgba(255,60,60,.28));
+      filter: brightness(1.06);
+      background: linear-gradient(135deg, rgba(0,120,255,.20), rgba(255,60,60,.16));
       border-color: rgba(255,255,255,.14);
     }
 
     @media (max-width:768px){
       nav ul{ gap:10px; }
-      nav ul li a{ font-size: 16px; padding: 8px 10px; border-radius: 12px; }
+      nav ul li a{ font-size: 15px; padding: 8px 10px; border-radius: 12px; }
     }
 
-    /* ========= PAGE GRID ========= */
+    /* ======= GRID LAYOUT ======= */
     .page{
-      padding: 72px var(--gap) 26px; /* место под фиксированное nav */
+      position:relative;
+      z-index:1;
+      padding: 66px var(--gap) 26px; /* место под nav */
       display:grid;
       grid-template-columns: var(--sidebarW) 1fr;
       gap: var(--gap);
@@ -123,41 +145,52 @@
       min-height:100vh;
     }
 
-    /* Левое меню (плейсхолдер под твой "игровой блок" с главной) */
+    @media (max-width:1100px){
+      .page{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ======= LEFT GAME MENU (спокойнее, без тумана на всю страницу) ======= */
     .sidebar{
       position: sticky;
-      top: 84px; /* ниже nav */
-      height: calc(100vh - 110px);
-      border-radius: calc(var(--r) + 6px);
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
+      top: 78px; /* ниже nav */
+      border-radius: 22px;
       overflow:hidden;
+
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
     }
-    .sidebar__head{
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      background: rgba(10,18,34,.25);
+
+    .sidebar__cap{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 14px 14px 12px;
+      background: rgba(10,16,28,.30);
+      border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    .sidebar__title{
+
+    .sidebar__cap b{
       font-family: 'Ruslan Display', cursive;
       font-size: 18px;
       letter-spacing:.02em;
-      color: rgba(255,255,255,.92);
-      margin:0;
+      text-shadow: 0 10px 24px rgba(0,0,0,.28);
     }
-    .sidebar__sub{
-      margin-top:8px;
+    .sidebar__cap span{
       font-size: 12px;
       color: rgba(255,255,255,.72);
-      line-height:1.35;
     }
-    .sidebar__body{
-      padding: 14px;
+
+    .side-list{
+      padding: 12px;
       display:grid;
       gap: 10px;
     }
+
     .sidebtn{
       display:flex;
       align-items:center;
@@ -165,176 +198,187 @@
       gap:10px;
       padding: 12px 12px;
       border-radius: 16px;
-      background: rgba(255,255,255,.07);
+
+      background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.10);
       text-decoration:none;
       color: rgba(255,255,255,.92);
-      font-weight:700;
+      font-weight: 700;
       transition: transform .12s ease, filter .12s ease, background .2s ease;
       user-select:none;
     }
+    .sidebtn i{ opacity:.92; }
     .sidebtn:hover{
       transform: translateY(-1px);
       filter: brightness(1.05);
-      background: linear-gradient(135deg, rgba(0,120,255,.22), rgba(255,60,60,.18));
+      background: linear-gradient(135deg, rgba(0,120,255,.18), rgba(255,60,60,.14));
+      border-color: rgba(255,255,255,.14);
     }
     .sidebtn small{
-      font-weight:800;
-      font-size:11px;
+      font-weight: 800;
+      font-size: 11px;
       padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.07);
       border: 1px solid rgba(255,255,255,.10);
-      color: rgba(255,255,255,.86);
+      color: rgba(255,255,255,.80);
     }
 
-    /* Правая зона контента */
+    /* ======= MAIN CENTER PANEL (как на первом макете) ======= */
     .content{
       display:flex;
       justify-content:center;
     }
     .wrap{
-      width: min(1040px, 100%);
-      padding-bottom: 30px;
+      width: min(var(--wrapW), 100%);
     }
 
-    /* ========= GLASS CARD BASE ========= */
-    .card{
-      position:relative;
+    .panel{
       border-radius: var(--r);
-      background: linear-gradient(180deg, var(--glassA), var(--glassB));
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
       overflow:hidden;
-    }
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      padding:1px;
-      border-radius: inherit;
-      background: linear-gradient(135deg, var(--triA), var(--triB), var(--triC));
-      -webkit-mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      opacity:.35;
-      pointer-events:none;
-    }
-    .pad{ padding: 18px 18px 16px; }
 
-    .h1{
-      font-family:'Ruslan Display', cursive;
-      font-size: clamp(34px, 3.2vw, 56px);
-      line-height:1.05;
+      background: linear-gradient(180deg, var(--panelA), var(--panelB));
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+    }
+
+    .panel__head{
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,.08), transparent 70%),
+        rgba(10,16,28,.18);
+    }
+
+    .title{
       margin:0;
-      text-shadow: 0 12px 30px rgba(0,0,0,.35);
+      text-align:center;
+      font-family: 'Ruslan Display', cursive;
+      font-size: clamp(34px, 3.2vw, 54px);
+      line-height: 1.05;
+      text-shadow: 0 14px 34px rgba(0,0,0,.35);
+      letter-spacing:.02em;
     }
     .subtitle{
-      margin-top:10px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.55;
+      margin: 10px auto 0;
+      text-align:center;
       max-width: 70ch;
+      color: rgba(255,255,255,.78);
+      font-size: 16px;
+      line-height: 1.5;
     }
 
-    p{
-      font-size: 1.08rem;
-      line-height: 1.65;
-      color: rgba(255,255,255,.80);
-      margin: 10px 0 0;
-    }
-
-    .section{ margin-top: 16px; }
-    .section h2{
-      margin:0;
-      font-family:'Ruslan Display', cursive;
-      font-size: 22px;
-      letter-spacing:.02em;
-      color: rgba(255,255,255,.92);
+    .tags{
+      margin-top: 12px;
       display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .section h2 .bar{
-      width: 10px; height: 18px;
-      border-radius: 6px;
-      background: linear-gradient(180deg, rgba(0,120,255,.85), rgba(255,60,60,.72));
-      box-shadow: 0 10px 18px rgba(0,0,0,.25);
-      flex: 0 0 auto;
-    }
-
-    .chips{
-      margin-top: 14px;
-      display:flex;
+      justify-content:center;
       flex-wrap:wrap;
-      gap:10px;
+      gap: 8px;
     }
-    .chip{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
+    .tag{
+      font-size: 12px;
+      color: rgba(255,255,255,.82);
+      padding: 7px 10px;
       border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 13px;
-      color: rgba(255,255,255,.86);
-      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
       user-select:none;
     }
 
-    .actions{
+    .cta{
       margin-top: 14px;
       display:flex;
+      justify-content:center;
+      gap: 10px;
       flex-wrap:wrap;
-      gap:12px;
     }
     .btn{
-      border:0;
+      border: 0;
       cursor:pointer;
       border-radius: 14px;
-      padding: 12px 14px;
-      font-weight: 800;
+      padding: 11px 14px;
+      font-weight: 900;
       letter-spacing:.02em;
       transition: transform .12s ease, filter .12s ease;
       user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); filter: brightness(1.06); }
-    .btn:active{ transform: translateY(0px); filter: brightness(.98); }
-    .btn--primary{
       color: rgba(255,255,255,.95);
-      background: linear-gradient(135deg, rgba(0,120,255,.85), rgba(255,60,60,.75));
-      box-shadow: 0 14px 40px rgba(0,0,0,.35);
-    }
-    .btn--ghost{
-      color: rgba(255,255,255,.9);
       background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+    .btn:active{ transform: translateY(0px); filter: brightness(.98); }
+
+    .btn--primary{
+      background: linear-gradient(135deg, rgba(0,120,255,.72), rgba(255,60,60,.62));
+      border-color: rgba(255,255,255,.14);
+      box-shadow: 0 18px 46px rgba(0,0,0,.25);
     }
 
-    /* ========= Swiper in glass frame ========= */
-    .sliderFrame{
-      margin-top: 16px;
+    /* ======= SECTION BLOCKS внутри панели ======= */
+    .panel__body{
+      padding: 18px 18px 20px;
+      display:grid;
+      gap: 14px;
     }
+
+    .block{
+      border-radius: 18px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.09);
+      box-shadow: 0 12px 26px rgba(0,0,0,.20);
+      overflow:hidden;
+    }
+    .block__head{
+      padding: 14px 14px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      background: rgba(10,16,28,.14);
+    }
+    .block__head h2{
+      margin:0;
+      font-family:'Ruslan Display', cursive;
+      font-size: 20px;
+      letter-spacing:.02em;
+    }
+    .block__head .hint{
+      font-size: 12px;
+      color: rgba(255,255,255,.70);
+    }
+    .block__body{
+      padding: 14px;
+    }
+
+    p{
+      margin: 10px 0 0;
+      font-size: 16px;
+      line-height: 1.65;
+      color: rgba(255,255,255,.78);
+    }
+    p strong{ color: rgba(255,255,255,.92); }
+
+    /* ======= Slider (внутри блока) ======= */
     .swiper-container{
       width: 100%;
-      height: 560px;
-      border-radius: calc(var(--r) + 2px);
-      overflow: hidden;
+      height: 520px;
+      border-radius: 16px;
+      overflow:hidden;
       border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.22);
+      background: rgba(0,0,0,.20);
     }
     .swiper-slide img{
       width:100%;
       height:100%;
       object-fit: cover;
       display:block;
-      filter: saturate(1.02) contrast(1.02);
     }
     .swiper-pagination{
       position:absolute;
-      bottom: 14px; left: 0;
+      bottom: 12px; left: 0;
       width:100%;
       display:flex;
       justify-content:center;
@@ -342,10 +386,10 @@
       z-index:10;
     }
     .swiper-pagination-bullet{
-      width: 12px; height: 12px;
+      width: 10px; height: 10px;
       margin: 0 6px;
-      opacity: .65;
-      background: rgba(0,120,255,.9);
+      opacity: .6;
+      background: rgba(0,120,255,.90);
       box-shadow: 0 10px 18px rgba(0,0,0,.25);
     }
     .swiper-pagination-bullet-active{
@@ -353,144 +397,190 @@
       background: rgba(255,60,60,.95);
     }
 
-    .custom-controls{
-      margin: 10px auto 0;
+    .controls{
+      margin-top: 10px;
       display:flex;
       justify-content:space-between;
-      gap: 10px;
-      padding: 0 6px;
+      gap:10px;
     }
-    .custom-controls button{
-      width:54px; height:54px;
+    .controls button{
+      width:52px; height:52px;
       border-radius: 999px;
-      background: rgba(255,255,255,.09);
-      border:1px solid rgba(255,255,255,.14);
-      color: rgba(255,255,255,.9);
-      font-size: 18px;
-      font-weight: 800;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.92);
       cursor:pointer;
       transition: transform .12s ease, filter .12s ease, background .2s ease;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 14px 28px rgba(0,0,0,.25);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 14px 26px rgba(0,0,0,.22);
     }
-    .custom-controls button:hover{
+    .controls button:hover{
       transform: translateY(-1px);
-      filter: brightness(1.06);
-      background: linear-gradient(135deg, rgba(0,120,255,.28), rgba(255,60,60,.22));
+      filter: brightness(1.05);
+      background: linear-gradient(135deg, rgba(0,120,255,.16), rgba(255,60,60,.12));
     }
 
-    /* ========= Mission / Support lists ========= */
-    .list{
-      margin-top: 12px;
+    /* ======= Mission grid (как UI карточки) ======= */
+    .grid2{
       display:grid;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
     }
-    .li{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding: 12px 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.07);
+    @media (max-width:900px){
+      .grid2{ grid-template-columns: 1fr; }
+    }
+    .feature{
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.10);
+      padding: 12px 12px;
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
     }
-    .li .ico{
-      width: 28px; height: 28px;
-      border-radius: 10px;
+    .feature .ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
       display:flex;
       align-items:center;
       justify-content:center;
+      background: rgba(0,120,255,.16);
+      border: 1px solid rgba(0,120,255,.18);
+      box-shadow: 0 10px 16px rgba(0,0,0,.18);
       flex: 0 0 auto;
-      background: rgba(0,120,255,.18);
-      border: 1px solid rgba(0,120,255,.22);
-      box-shadow: 0 12px 18px rgba(0,0,0,.18);
       margin-top: 1px;
     }
-    .li .txt{
-      color: rgba(255,255,255,.82);
-      font-size: 15px;
-      line-height: 1.5;
-      font-weight: 600;
-    }
-    .li .sub{
+    .feature b{
       display:block;
-      margin-top:4px;
-      color: rgba(255,255,255,.68);
+      font-size: 15px;
+      color: rgba(255,255,255,.92);
+      margin-bottom: 2px;
+    }
+    .feature span{
+      display:block;
       font-size: 13px;
-      font-weight: 500;
+      line-height: 1.45;
+      color: rgba(255,255,255,.70);
     }
 
-    /* ========= Social ========= */
-    .social-links{
+    /* ======= Help grid ======= */
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width:980px){
+      .grid3{ grid-template-columns: 1fr; }
+    }
+    .helpCard{
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 12px 12px;
+    }
+    .helpCard .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 6px;
+    }
+    .helpCard .top b{
+      font-size: 15px;
+      color: rgba(255,255,255,.92);
+    }
+    .pill{
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.78);
+      user-select:none;
+    }
+    .helpCard p{
+      margin:0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255,255,255,.70);
+    }
+    .helpCard .miniBtn{
+      margin-top: 10px;
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .helpCard .miniBtn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+
+    /* ======= Social ======= */
+    .social{
       display:flex;
       justify-content:center;
       align-items:center;
-      gap: 18px;
-      margin-top: 14px;
+      gap: 14px;
       flex-wrap:wrap;
+      margin-top: 12px;
     }
-    .social-link{
+    .social a{
+      width: 78px; height: 78px;
       display:inline-flex;
-      width: 86px; height: 86px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 16px 30px rgba(0,0,0,.25);
+      align-items:center;
+      justify-content:center;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 14px 24px rgba(0,0,0,.20);
       transition: transform .12s ease, filter .12s ease, background .2s ease;
-      overflow:hidden;
       padding: 10px;
     }
-    .social-link img{ width:100%; height:100%; object-fit:contain; display:block; }
-    .social-link:hover{
-      transform: translateY(-1px) scale(1.05);
-      filter: brightness(1.08);
-      background: linear-gradient(135deg, rgba(0,120,255,.22), rgba(255,60,60,.18));
+    .social a:hover{
+      transform: translateY(-1px) scale(1.04);
+      filter: brightness(1.06);
+      background: linear-gradient(135deg, rgba(0,120,255,.16), rgba(255,60,60,.12));
     }
+    .social img{ width:100%; height:100%; object-fit:contain; display:block; }
 
-    /* ========= VK posts container ========= */
-    #vk_posts{ margin-top: 14px; }
+    /* ======= VK posts ======= */
     .vkWrap{
-      margin-top: 12px;
       display:grid;
       gap: 12px;
+      margin-top: 10px;
     }
     .vkPost{
-      border-radius: 18px;
+      border-radius: 16px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.03);
       padding: 10px;
     }
 
-    /* ========= Footer ========= */
+    /* ======= Footer ======= */
     footer{
-      margin-top: 18px;
-      padding: 18px 14px;
+      margin-top: 14px;
       text-align:center;
-      color: rgba(255,255,255,.78);
-      background: rgba(8,14,28,.38);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.70);
+      font-size: 13px;
+      padding: 14px 10px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.12);
     }
 
-    /* ========= Responsive ========= */
-    @media (max-width: 1100px){
-      .page{
-        grid-template-columns: 1fr;
-      }
-      .sidebar{
-        position: relative;
-        top: 0;
-        height:auto;
-      }
-    }
+    /* ======= mobile tweaks ======= */
     @media (max-width:768px){
       .swiper-container{ height: 240px; }
-      p{ font-size: 1rem; }
+      .panel__head{ padding: 18px 14px 14px; }
+      .panel__body{ padding: 14px; }
+      .sidebar{ position: relative; top: 0; }
     }
   </style>
 </head>
@@ -506,244 +596,280 @@
   </nav>
 
   <div class="page">
-    <!-- ЛЕВО: Плейсхолдер под твоё игровое меню (можешь заменить на блок с главной 1-в-1) -->
+
+    <!-- ЛЕВО: “Игровое меню” (читаемое) -->
     <aside class="sidebar">
-      <div class="sidebar__head">
-        <h3 class="sidebar__title">Игровое меню</h3>
-        <div class="sidebar__sub">
-          Вставь сюда меню как на главной (третья картинка) — этот контейнер уже готов по сетке и стилю.
-        </div>
+      <div class="sidebar__cap">
+        <b><i class="fa-solid fa-gamepad"></i> Игровое меню</b>
+        <span>PROJECT</span>
       </div>
-      <div class="sidebar__body">
-        <a class="sidebtn" href="#about">О проекте <small>INFO</small></a>
-        <a class="sidebtn" href="#mission">Наша миссия <small>CORE</small></a>
-        <a class="sidebtn" href="#support">Как помочь <small>HELP</small></a>
-        <a class="sidebtn" href="#vk">Новости VK <small>FEED</small></a>
-        <a class="sidebtn" href="#contacts">Контакты <small>MAIL</small></a>
+
+      <div class="side-list">
+        <a class="sidebtn" href="#about"><span><i class="fa-solid fa-circle-info"></i> О проекте</span><small>INFO</small></a>
+        <a class="sidebtn" href="#mission"><span><i class="fa-solid fa-bullseye"></i> Наша миссия</span><small>CORE</small></a>
+        <a class="sidebtn" href="#support"><span><i class="fa-solid fa-handshake-angle"></i> Как помочь</span><small>HELP</small></a>
+        <a class="sidebtn" href="#moments"><span><i class="fa-solid fa-camera"></i> Живые моменты</span><small>LIVE</small></a>
+        <a class="sidebtn" href="#vk"><span><i class="fa-brands fa-vk"></i> Новости VK</span><small>FEED</small></a>
+        <a class="sidebtn" href="#contacts"><span><i class="fa-solid fa-envelope"></i> Контакты</span><small>MAIL</small></a>
       </div>
     </aside>
 
-    <!-- ПРАВО: Контент -->
+    <!-- ПРАВО: Центр-панель как в первом макете -->
     <main class="content">
       <div class="wrap">
+        <section class="panel">
 
-        <!-- HERO -->
-        <section class="card pad" id="top">
-          <h1 class="h1">ТехноКрыльяРоссии</h1>
-          <div class="subtitle"><strong>Строим цифровое будущее вместе!</strong></div>
+          <div class="panel__head">
+            <h1 class="title">О ПРОЕКТЕ</h1>
+            <div class="subtitle">Цифровое будущее — каждому ребёнку</div>
 
-          <div class="chips">
-            <span class="chip">Компьютерные классы</span>
-            <span class="chip">Цифровая грамотность</span>
-            <span class="chip">Кибербезопасность</span>
-            <span class="chip">Профориентация</span>
-          </div>
-
-          <div class="actions">
-            <button class="btn btn--primary" onclick="document.getElementById('support').scrollIntoView({behavior:'smooth'})">
-              Помочь проекту
-            </button>
-            <button class="btn btn--ghost" onclick="document.getElementById('contacts').scrollIntoView({behavior:'smooth'})">
-              Контакты
-            </button>
-            <button class="btn btn--ghost" onclick="document.getElementById('vk').scrollIntoView({behavior:'smooth'})">
-              Новости VK
-            </button>
-          </div>
-        </section>
-
-        <!-- SLIDER -->
-        <section class="card pad sliderFrame">
-          <div class="section">
-            <h2><span class="bar"></span>Живые моменты</h2>
-            <p>Фото со встреч, занятий и поездок.</p>
-          </div>
-
-          <div class="swiper-container" style="margin-top:12px;">
-            <div class="swiper-wrapper">
-              <div class="swiper-slide"><img src="deti.webp" alt="Слайд 1"></div>
-              <div class="swiper-slide"><img src="NG.webp" alt="Слайд 2"></div>
-              <div class="swiper-slide"><img src="PHD.webp" alt="Слайд 3"></div>
-              <div class="swiper-slide"><img src="tver.webp" alt="Слайд 4"></div>
-            </div>
-            <div class="swiper-pagination"></div>
-          </div>
-
-          <div class="custom-controls">
-            <button class="custom-prev" aria-label="Предыдущий слайд"><i class="fas fa-chevron-left"></i></button>
-            <button class="custom-next" aria-label="Следующий слайд"><i class="fas fa-chevron-right"></i></button>
-          </div>
-        </section>
-
-        <!-- VK POSTS ANCHOR (оставил как у тебя) -->
-        <section id="vk_posts"></section>
-
-        <!-- ABOUT -->
-        <section class="card pad section" id="about">
-          <h2><span class="bar"></span>О проекте</h2>
-          <p><strong>ТехноКрыльяРоссии</strong> — "Цифровое будущее – каждому ребенку".</p>
-          <p>Наш проект — это не просто поставка компьютеров или подключение к интернету. Это глубокое преображение самой среды детских домов, возведение надежного цифрового моста между их стенами и безграничными возможностями современного мира. Мы видим своей миссией ликвидировать цифровое неравенство там, где оно бьет по детям особенно больно – в стенах, которые должны быть домом, но часто становятся границей.</p>
-          <p>Мы стремимся к тому, чтобы каждый воспитанник, независимо от своего прошлого, получил полноценный, осмысленный доступ к пульсирующему нерву современности – цифровым технологиям. Это значит не просто экраны и клавиатуры, а открытые врата в мир актуального цифрового образования: от азов компьютерной грамоты до освоения востребованных IT-навыков, программирования, анализа данных, цифрового творчества.</p>
-          <p>Наша цель – вооружить этих детей не гаджетами, а знаниями и компетенциями. Тем самым бесценным багажом, который станет их ключом к уверенной адаптации в стремительно меняющемся обществе. Мы хотим дать им не просто шанс «догнать», а реальную возможность вырваться вперед, обрести востребованную профессию, стать архитекторами собственной судьбы в самой динамичной и перспективной сфере – цифровой индустрии.</p>
-          <p>Это инвестиция не в технику, а в человеческий капитал, в раскрытие талантов, в светлое и конкурентоспособное будущее тех, кто сегодня больше всего нуждается в нашей поддержке и вере. Мы строим для них фундамент успеха в мире, где технологическая грамотность – не привилегия, а необходимое условие для полноценной жизни, самореализации и достойного места под солнцем завтрашнего дня.</p>
-        </section>
-
-        <!-- MISSION -->
-        <section class="card pad section" id="mission">
-          <h2><span class="bar"></span>Наша миссия</h2>
-
-          <div class="list">
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-check"></i></div>
-              <div class="txt">Оснащение детских домов компьютерами, оргтехникой.</div>
+            <div class="tags">
+              <span class="tag">Компьютерные классы</span>
+              <span class="tag">Цифровая грамотность</span>
+              <span class="tag">Кибербезопасность</span>
+              <span class="tag">Профориентация</span>
             </div>
 
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-check"></i></div>
-              <div class="txt">Обучение детей и педагогов цифровой грамотности и IT-навыкам.</div>
-            </div>
-
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-check"></i></div>
-              <div class="txt">Создание безопасной цифровой среды для обучения и развития.</div>
-            </div>
-
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-check"></i></div>
-              <div class="txt">Подготовка воспитанников к профессиям будущего.</div>
+            <div class="cta">
+              <button class="btn btn--primary" onclick="document.getElementById('support').scrollIntoView({behavior:'smooth'})">
+                Помочь проекту
+              </button>
+              <button class="btn" onclick="document.getElementById('contacts').scrollIntoView({behavior:'smooth'})">
+                Стать партнёром / Контакты
+              </button>
             </div>
           </div>
 
-          <div class="section" style="margin-top:14px;">
-            <h2><span class="bar"></span>Почему это важно?</h2>
+          <div class="panel__body">
 
-            <div class="list">
-              <div class="li">
-                <div class="ico"><i class="fa-solid fa-diamond"></i></div>
-                <div class="txt">Многие детские дома не имеют доступа к современным технологиям.</div>
+            <!-- ABOUT -->
+            <div class="block" id="about">
+              <div class="block__head">
+                <h2>Кто мы</h2>
+                <div class="hint">Суть проекта</div>
               </div>
-
-              <div class="li">
-                <div class="ico"><i class="fa-solid fa-diamond"></i></div>
-                <div class="txt">Без цифровых навыков детям сложнее социализироваться и найти работу.</div>
-              </div>
-
-              <div class="li">
-                <div class="ico"><i class="fa-solid fa-diamond"></i></div>
-                <div class="txt">Технологии открывают новые возможности для образования и самореализации.</div>
+              <div class="block__body">
+                <p><strong>ТехноКрыльяРоссии</strong> — "Цифровое будущее – каждому ребенку".</p>
+                <p>Наш проект — это не просто поставка компьютеров или подключение к интернету. Это глубокое преображение самой среды детских домов, возведение надежного цифрового моста между их стенами и безграничными возможностями современного мира.</p>
+                <p>Мы стремимся к тому, чтобы каждый воспитанник получил осмысленный доступ к цифровым технологиям: от азов компьютерной грамотности до востребованных IT-навыков, программирования, анализа данных и цифрового творчества.</p>
+                <p>Наша цель — дать детям не просто “гаджеты”, а знания, компетенции и реальную траекторию будущего: уверенность, профессию и возможность выстроить свою судьбу в цифровой индустрии.</p>
               </div>
             </div>
-          </div>
-        </section>
 
-        <!-- SUPPORT -->
-        <section class="card pad section" id="support">
-          <h2><span class="bar"></span>Как вы можете помочь</h2>
-
-          <div class="list">
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
-              <div class="txt">Помощь в профориентации и карьерном сопровождении<span class="sub">Наставничество, консультации, поддержка траектории развития.</span></div>
+            <!-- PROBLEM -> SOLUTION (аккуратно, без лишних кнопок-градиентов) -->
+            <div class="block">
+              <div class="block__head">
+                <h2>Проблема → Решение</h2>
+                <div class="hint">Почему мы нужны</div>
+              </div>
+              <div class="block__body">
+                <div class="grid2">
+                  <div class="feature">
+                    <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                      <b>Проблема</b>
+                      <span>Там, где нет техники и навыков, ребёнку сложнее учиться, социализироваться и выбирать профессию.</span>
+                    </div>
+                  </div>
+                  <div class="feature">
+                    <div class="ico"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div>
+                      <b>Решение</b>
+                      <span>Компьютерные места, обучение, безопасная среда, проектная практика и поддержка развития.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
-              <div class="txt">Организация мероприятий и экскурсий<span class="sub">Компании, технопарки, вузы, полезные встречи.</span></div>
+            <!-- MISSION -->
+            <div class="block" id="mission">
+              <div class="block__head">
+                <h2>Наша миссия</h2>
+                <div class="hint">4 направления</div>
+              </div>
+              <div class="block__body">
+                <div class="grid2">
+                  <div class="feature">
+                    <div class="ico"><i class="fa-solid fa-desktop"></i></div>
+                    <div>
+                      <b>Оснащение</b>
+                      <span>Компьютеры, оргтехника, рабочие места и инфраструктура.</span>
+                    </div>
+                  </div>
+
+                  <div class="feature">
+                    <div class="ico"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div>
+                      <b>Обучение</b>
+                      <span>Цифровая грамотность и IT-навыки для детей и педагогов.</span>
+                    </div>
+                  </div>
+
+                  <div class="feature">
+                    <div class="ico"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div>
+                      <b>Безопасная среда</b>
+                      <span>Кибергигиена, защита, правила и культура безопасности.</span>
+                    </div>
+                  </div>
+
+                  <div class="feature">
+                    <div class="ico"><i class="fa-solid fa-rocket"></i></div>
+                    <div>
+                      <b>Профессии будущего</b>
+                      <span>Проекты, практика, профориентация и реальный “путь в IT”.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p style="margin-top:12px;"><strong>Почему это важно?</strong></p>
+                <p>Многие детские дома не имеют доступа к современным технологиям. Без цифровых навыков детям сложнее адаптироваться и найти работу. Технологии открывают новые возможности для образования и самореализации.</p>
+              </div>
             </div>
 
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
-              <div class="txt">Организация конкурсов, хакатонов и олимпиад<span class="sub">Проектная практика — лучшее обучение.</span></div>
+            <!-- HELP -->
+            <div class="block" id="support">
+              <div class="block__head">
+                <h2>Как вы можете помочь</h2>
+                <div class="hint">3 сценария</div>
+              </div>
+              <div class="block__body">
+                <div class="grid3">
+                  <div class="helpCard">
+                    <div class="top">
+                      <b><i class="fa-solid fa-compass"></i> Профориентация</b>
+                      <span class="pill">ОЧНО / ONLINE</span>
+                    </div>
+                    <p>Наставничество, консультации, помощь с выбором траектории и карьерным сопровождением.</p>
+                    <button class="miniBtn" onclick="document.getElementById('contacts').scrollIntoView({behavior:'smooth'})">Предложить помощь</button>
+                  </div>
+
+                  <div class="helpCard">
+                    <div class="top">
+                      <b><i class="fa-solid fa-route"></i> Экскурсии</b>
+                      <span class="pill">СОБЫТИЕ</span>
+                    </div>
+                    <p>Организация мероприятий и экскурсий: компании, технопарки, вузы, полезные встречи.</p>
+                    <button class="miniBtn" onclick="document.getElementById('contacts').scrollIntoView({behavior:'smooth'})">Организовать</button>
+                  </div>
+
+                  <div class="helpCard">
+                    <div class="top">
+                      <b><i class="fa-solid fa-code"></i> Хакатоны</b>
+                      <span class="pill">ПРАКТИКА</span>
+                    </div>
+                    <p>Конкурсы, хакатоны, олимпиады — проектная практика как лучший формат обучения.</p>
+                    <button class="miniBtn" onclick="document.getElementById('contacts').scrollIntoView({behavior:'smooth'})">Запустить формат</button>
+                  </div>
+                </div>
+
+                <p style="margin-top:12px;">
+                  Также важно: волонтёрство экспертов (лекции/мастер-классы) и распространение информации в СМИ и соцсетях.
+                </p>
+              </div>
             </div>
 
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
-              <div class="txt">Волонтёрство в качестве эксперта (лекции, мастер-классы)<span class="sub">Провести занятие, показать путь в профессию.</span></div>
+            <!-- MOMENTS (slider) -->
+            <div class="block" id="moments">
+              <div class="block__head">
+                <h2>Живые моменты</h2>
+                <div class="hint">Фото со встреч и занятий</div>
+              </div>
+              <div class="block__body">
+                <div class="swiper-container">
+                  <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="deti.webp" alt="Слайд 1"></div>
+                    <div class="swiper-slide"><img src="NG.webp" alt="Слайд 2"></div>
+                    <div class="swiper-slide"><img src="PHD.webp" alt="Слайд 3"></div>
+                    <div class="swiper-slide"><img src="tver.webp" alt="Слайд 4"></div>
+                  </div>
+                  <div class="swiper-pagination"></div>
+                </div>
+
+                <div class="controls">
+                  <button class="custom-prev" aria-label="Предыдущий слайд"><i class="fas fa-chevron-left"></i></button>
+                  <button class="custom-next" aria-label="Следующий слайд"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
             </div>
 
-            <div class="li">
-              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
-              <div class="txt">Распространение информации в СМИ и соцсетях<span class="sub">Помогает находить партнёров и ресурсы.</span></div>
+            <!-- CONTACTS -->
+            <div class="block" id="contacts">
+              <div class="block__head">
+                <h2>Контакты</h2>
+                <div class="hint">Связаться</div>
+              </div>
+              <div class="block__body">
+                <p>Email: <a href="mailto:digitalhavenrussia@mail.ru" style="color: rgba(160,210,255,.95); font-weight:800; text-decoration:none;">digitalhavenrussia@mail.ru</a></p>
+
+                <div class="social">
+                  <a href="https://vk.com/digitalhavenrussia" target="_blank" aria-label="ВКонтакте"><img src="vk-embl.webp" alt="VK"></a>
+                  <a href="https://t.me/DigitalHavenRussia" target="_blank" aria-label="Telegram"><img src="telega-embl.webp" alt="Telegram"></a>
+                  <a href="https://www.instagram.com/digitalhavenrussia" target="_blank" aria-label="Instagram"><img src="inst-embl.webp" alt="Instagram"></a>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
 
-        <!-- CONTACTS -->
-        <section class="card pad section" id="contacts">
-          <h2><span class="bar"></span>Контакты</h2>
-          <p>Email: <a href="mailto:digitalhavenrussia@mail.ru" style="color: rgba(160,210,255,.95); font-weight:800; text-decoration:none;">digitalhavenrussia@mail.ru</a></p>
+            <!-- VK -->
+            <div class="block" id="vk">
+              <div class="block__head">
+                <h2>Новости VK</h2>
+                <div class="hint">Лента проекта</div>
+              </div>
+              <div class="block__body">
+                <div class="vkWrap">
+                  <div class="vkPost"><div id="vk_post_-224174286_40"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_59"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_58"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_57"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_56"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_55"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_54"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_53"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_52"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_51"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_50"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_49"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_48"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_47"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_46"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_45"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_44"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_43"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_42"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_41"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_32"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_31"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_28"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_27"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_24"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_23"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_22"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_20"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_19"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_18"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_15"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_14"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_13"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_11"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_6"></div></div>
+                  <div class="vkPost"><div id="vk_post_-224174286_4"></div></div>
+                </div>
+              </div>
+            </div>
 
-          <div class="social-links">
-            <a href="https://vk.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="ВКонтакте">
-              <img src="vk-embl.webp" alt="VK">
-            </a>
-            <a href="https://t.me/DigitalHavenRussia" class="social-link" target="_blank" aria-label="Telegram">
-              <img src="telega-embl.webp" alt="Telegram">
-            </a>
-            <a href="https://www.instagram.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="Instagram">
-              <img src="inst-embl.webp" alt="Instagram">
-            </a>
-          </div>
-        </section>
-
-        <!-- VK FEED (оставил все твои посты, но без повторов openapi и без битых хвостов) -->
-        <section class="card pad section" id="vk">
-          <h2><span class="bar"></span>Новости VK</h2>
-          <p>Свежие публикации проекта.</p>
-
-          <div class="vkWrap">
-            <div class="vkPost"><div id="vk_post_-224174286_40"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_59"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_58"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_57"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_56"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_55"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_54"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_53"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_52"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_51"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_50"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_49"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_48"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_47"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_46"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_45"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_44"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_43"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_42"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_41"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_32"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_31"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_28"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_27"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_24"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_23"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_22"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_20"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_19"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_18"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_15"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_14"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_13"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_11"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_6"></div></div>
-            <div class="vkPost"><div id="vk_post_-224174286_4"></div></div>
-          </div>
-        </section>
-
-        <footer class="card" style="margin-top:16px;">
-          <div class="pad" style="text-align:center;">
-            <p style="margin:0; color: rgba(255,255,255,.78); font-size: 14px;">
+            <footer>
               &copy; 2025 ТехноКрыльяРоссии. Все права защищены.
-            </p>
-          </div>
-        </footer>
+            </footer>
 
+          </div>
+        </section>
       </div>
     </main>
   </div>
 
-  <!-- Скрипт для скрытия меню (твоя логика сохранена) -->
+  <!-- скрытие верхнего nav при скролле вниз -->
   <script>
     (function() {
       let lastScroll = 0;
@@ -762,17 +888,16 @@
   <script>
     const mySwiper = new Swiper('.swiper-container', {
       loop: true,
-      speed: 800,
-      autoplay: { delay: 4000, disableOnInteraction: false },
+      speed: 750,
+      autoplay: { delay: 4200, disableOnInteraction: false },
       pagination: { el: '.swiper-pagination', clickable: true }
     });
     document.querySelector('.custom-prev').addEventListener('click', () => mySwiper.slidePrev());
     document.querySelector('.custom-next').addEventListener('click', () => mySwiper.slideNext());
   </script>
 
-  <!-- VK Widgets (все посты, один раз) -->
+  <!-- VK Widgets -->
   <script type="text/javascript">
-    // важно: openapi.js уже загружен в <head>
     VK.Widgets.Post('vk_post_-224174286_40', -224174286, 40, 'ueQ_YHAj6n3p8vwATuEe5LhHCs89');
     VK.Widgets.Post('vk_post_-224174286_59', -224174286, 59, '-E42MHVxpOclEW_HklnOfpElm8E1');
     VK.Widgets.Post('vk_post_-224174286_58', -224174286, 58, 'hfaLrs5Ktzn0LGwQEqpZS6aHNywn');
