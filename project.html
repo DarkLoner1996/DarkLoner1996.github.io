@@ -3,86 +3,499 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="icon" href="embl.ico" type="image/x-icon"> 
-  <link rel="icon" href="embl.png" type="image/png">  
+  <link rel="icon" href="embl.ico" type="image/x-icon">
+  <link rel="icon" href="embl.png" type="image/png">
   <link rel="icon" href="embl.webp" type="image/webp" sizes="72x72">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="ТехноКрылья России — проект по цифровому обучению детей из детских домов." />
-  <title>ТехноКрыльяРоссии</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&family=Russo+One&family=PT+Sans+Caption:wght@400;700&family=Ruslan+Display&display=swap" rel="stylesheet" />
+  <title>ТехноКрыльяРоссии — О проекте</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&family=Russo+One&family=PT+Sans+Caption:wght@400;700&family=Ruslan+Display&display=swap" rel="stylesheet" />
+
   <!-- Swiper CSS -->
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+  <!-- VK OpenAPI (один раз) -->
+  <script
+    type="text/javascript"
+    src="https://vk.com/js/api/openapi.js?168"
+    charset="windows-1251"
+  ></script>
+
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding-top: 60px; font-family: 'Rubik', sans-serif; background: linear-gradient(to bottom right, #f2f2f2, #ffffff); color: #222; scroll-behavior: smooth; }
-        p {
-      font-size: 1.2rem !important;
-      line-height: 1.6 !important;
-    }
-    header { position: relative; overflow: hidden; padding: 100px 20px 40px; text-align: center; background: linear-gradient(90deg, #0039a6 0%, #ffffff 50%, #d52b1e 100%); background-size: 300% 100%; animation: gradientShift 8s ease infinite, fadeIn 1.5s ease-in forwards; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; }
-    header::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('russian-flag.svg') center/200% no-repeat; opacity: 0.08; animation: flagPulse 6s ease-in-out infinite; z-index: 1; }
-    header > * { position: relative; z-index: 2; }
-    header h1 { margin-bottom: 10px; font-size: 2.8em; font-family: 'Russo One', sans-serif; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
-    header h1 span.highlight-wings { color: #0039a6; }
-    header h1 span.highlight-russia { color: #d52b1e; }
-    #vk_posts { max-width:1000px; margin:50px auto; }
-    .slogan { font-size: 1.5em; font-weight: 700; color: #fff; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; margin-top: 15px; }
-    @keyframes gradientShift {0%{background-position:0% 0;}50%{background-position:100% 0;}100%{background-position:0% 0;}}
-    @keyframes flagPulse {0%,100%{opacity:0.05;}50%{opacity:0.15;}}
-    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-    @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+    :root{
+      --txt: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
 
-    nav {
-      background: rgba(0,0,0,0.1);
-      backdrop-filter: blur(8px);
+      --glassA: rgba(10,18,34,.62);
+      --glassB: rgba(10,18,34,.42);
+      --stroke: rgba(255,255,255,.12);
+
+      --shadow: 0 18px 60px rgba(0,0,0,.38);
+      --r: 22px;
+
+      --triA: rgba(255,255,255,.78);
+      --triB: rgba(0,120,255,.68);
+      --triC: rgba(255,60,60,.68);
+
+      --sidebarW: 360px;
+      --gap: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: 'Rubik', sans-serif;
+      color: var(--txt);
+      overflow-x:hidden;
+      scroll-behavior:smooth;
+
+      /* Фон как "главная" (твой арт). Подставь нужный файл (или оставь как есть). */
+      background:
+        radial-gradient(1200px 650px at 50% 10%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.62)),
+        url("header-bg-3840.jpg") center/cover no-repeat fixed;
+    }
+
+    /* ========= TOP NAV (оставил твою логику, но сделал game-glass) ========= */
+    nav{
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 15px 0;
-      z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease-in-out;
+      z-index: 10000;
+      padding: 12px 12px;
+      display:flex;
+      justify-content:center;
+      transition: transform .3s ease-in-out;
       will-change: transform;
+
+      background: rgba(8,14,28,.38);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 8px 28px rgba(0,0,0,.25);
     }
-    nav.hidden { transform: translateY(-100%); }
-    nav ul { list-style: none; display: flex; gap: 40px; flex-wrap: wrap; margin:0; padding:0; }
-    nav ul li a { font-family: 'Ruslan Display', cursive; color: #d52b1e; -webkit-text-stroke: 1px #000; font-size: 30px; padding: 10px 16px; border-radius: 8px; text-shadow: 1px 1px 2px #8B0000; text-decoration: none; transition: .3s; }
-    nav ul li a:hover { background: linear-gradient(90deg, #0039a6, #ffffff, #d52b1e); color: #ffffff; -webkit-text-stroke: 1px #000; transform: scale(1.1); box-shadow: 0 0 12px #0039a6; }
-    @media (max-width:768px) { nav ul { justify-content: center; width:100%; padding:0 10px; gap:20px; } nav ul li a { font-size:18px; padding:8px 12px; } }
+    nav.hidden{ transform: translateY(-110%); }
+    nav ul{
+      list-style:none;
+      display:flex;
+      gap: 18px;
+      flex-wrap:wrap;
+      margin:0;
+      padding:0;
+      align-items:center;
+      justify-content:center;
+    }
+    nav ul li a{
+      font-family: 'Ruslan Display', cursive;
+      color: rgba(255,255,255,.92);
+      font-size: 22px;
+      text-decoration:none;
+      padding: 10px 14px;
+      border-radius: 14px;
 
-    main { padding: 20px; max-width: 1000px; margin: 40px auto; }
-    .swiper-container { position: relative; width: 100%; max-width: 1000px; height: 600px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
-    .swiper-slide img { width:100%; height:100%; object-fit: cover; }
-    .swiper-pagination { position: absolute; bottom: 15px; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; z-index: 10; }
-    .swiper-pagination-bullet { width: 12px; height: 12px; margin: 0 6px; opacity: 0.6; background: #0039a6; }
-    .swiper-pagination-bullet-active { opacity: 1; background: #d52b1e; }
-    .custom-controls { display:flex; justify-content:space-between; max-width:1000px; margin:10px auto; padding:0 10px; }
-    .custom-controls button { width:60px; height:60px; border-radius:50%; background:white; border:3px solid #0039a6; color:#0039a6; font-size:1.8em; font-weight:bold; cursor:pointer; transition:all .3s ease; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 12px rgba(0,0,0,0.2); }
-    .custom-controls button:hover { background:#d52b1e; color:white; border-color:#d52b1e; transform:scale(1.1); }
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
 
-    .social-links { display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 2rem; }
-    .social-link { display: inline-block; width: 112px; height: 112px; transition: transform 0.3s ease, filter 0.3s ease; }
-    .social-link img { width: 100%; height: 100%; object-fit: contain; display: block; }
-    .social-link:hover { transform: scale(1.2); filter: brightness(1.3); }
+      text-shadow: 0 8px 22px rgba(0,0,0,.35);
+      transition: transform .12s ease, filter .12s ease, background .2s ease;
+    }
+    nav ul li a:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.07);
+      background: linear-gradient(135deg, rgba(0,120,255,.35), rgba(255,60,60,.28));
+      border-color: rgba(255,255,255,.14);
+    }
 
-    .section { margin-bottom:50px; background:#fff; padding:20px; border-radius:15px; border:2px solid #d52b1e; box-shadow:0 4px 12px rgba(0,0,0,0.05); animation: fadeInUp 1s ease-out; }
-    .section h2 { color:#0039a6; font-size:1.6em; margin-bottom:15px; border-left:6px solid #d52b1e; padding-left:10px; font-family:'Russo One', sans-serif; }
-    .section ul { list-style:none; padding-left:0; }
-    .section ul li::before { content:"\2713"; color:#28a745; margin-right:10px; }
-    @media (max-width:768px) { .swiper-container { height:240px; } header h1{font-size:2em;} .slogan{font-size:1.2em;} .section ul li{font-size:1em;} }
+    @media (max-width:768px){
+      nav ul{ gap:10px; }
+      nav ul li a{ font-size: 16px; padding: 8px 10px; border-radius: 12px; }
+    }
 
-    footer { background:#0039a6; color:#fff; text-align:center; padding:20px; border-top:4px solid #d52b1e; animation: fadeIn 2s ease-in; }
+    /* ========= PAGE GRID ========= */
+    .page{
+      padding: 72px var(--gap) 26px; /* место под фиксированное nav */
+      display:grid;
+      grid-template-columns: var(--sidebarW) 1fr;
+      gap: var(--gap);
+      align-items:start;
+      min-height:100vh;
+    }
+
+    /* Левое меню (плейсхолдер под твой "игровой блок" с главной) */
+    .sidebar{
+      position: sticky;
+      top: 84px; /* ниже nav */
+      height: calc(100vh - 110px);
+      border-radius: calc(var(--r) + 6px);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow:hidden;
+    }
+    .sidebar__head{
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(10,18,34,.25);
+    }
+    .sidebar__title{
+      font-family: 'Ruslan Display', cursive;
+      font-size: 18px;
+      letter-spacing:.02em;
+      color: rgba(255,255,255,.92);
+      margin:0;
+    }
+    .sidebar__sub{
+      margin-top:8px;
+      font-size: 12px;
+      color: rgba(255,255,255,.72);
+      line-height:1.35;
+    }
+    .sidebar__body{
+      padding: 14px;
+      display:grid;
+      gap: 10px;
+    }
+    .sidebtn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+      text-decoration:none;
+      color: rgba(255,255,255,.92);
+      font-weight:700;
+      transition: transform .12s ease, filter .12s ease, background .2s ease;
+      user-select:none;
+    }
+    .sidebtn:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      background: linear-gradient(135deg, rgba(0,120,255,.22), rgba(255,60,60,.18));
+    }
+    .sidebtn small{
+      font-weight:800;
+      font-size:11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.86);
+    }
+
+    /* Правая зона контента */
+    .content{
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{
+      width: min(1040px, 100%);
+      padding-bottom: 30px;
+    }
+
+    /* ========= GLASS CARD BASE ========= */
+    .card{
+      position:relative;
+      border-radius: var(--r);
+      background: linear-gradient(180deg, var(--glassA), var(--glassB));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      padding:1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, var(--triA), var(--triB), var(--triC));
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.35;
+      pointer-events:none;
+    }
+    .pad{ padding: 18px 18px 16px; }
+
+    .h1{
+      font-family:'Ruslan Display', cursive;
+      font-size: clamp(34px, 3.2vw, 56px);
+      line-height:1.05;
+      margin:0;
+      text-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+    .subtitle{
+      margin-top:10px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+      max-width: 70ch;
+    }
+
+    p{
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,.80);
+      margin: 10px 0 0;
+    }
+
+    .section{ margin-top: 16px; }
+    .section h2{
+      margin:0;
+      font-family:'Ruslan Display', cursive;
+      font-size: 22px;
+      letter-spacing:.02em;
+      color: rgba(255,255,255,.92);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .section h2 .bar{
+      width: 10px; height: 18px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(0,120,255,.85), rgba(255,60,60,.72));
+      box-shadow: 0 10px 18px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .chips{
+      margin-top: 14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .chip{
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,.86);
+      backdrop-filter: blur(8px);
+      user-select:none;
+    }
+
+    .actions{
+      margin-top: 14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 800;
+      letter-spacing:.02em;
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+    .btn:active{ transform: translateY(0px); filter: brightness(.98); }
+    .btn--primary{
+      color: rgba(255,255,255,.95);
+      background: linear-gradient(135deg, rgba(0,120,255,.85), rgba(255,60,60,.75));
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+    }
+    .btn--ghost{
+      color: rgba(255,255,255,.9);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ========= Swiper in glass frame ========= */
+    .sliderFrame{
+      margin-top: 16px;
+    }
+    .swiper-container{
+      width: 100%;
+      height: 560px;
+      border-radius: calc(var(--r) + 2px);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+    }
+    .swiper-slide img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.02) contrast(1.02);
+    }
+    .swiper-pagination{
+      position:absolute;
+      bottom: 14px; left: 0;
+      width:100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:10;
+    }
+    .swiper-pagination-bullet{
+      width: 12px; height: 12px;
+      margin: 0 6px;
+      opacity: .65;
+      background: rgba(0,120,255,.9);
+      box-shadow: 0 10px 18px rgba(0,0,0,.25);
+    }
+    .swiper-pagination-bullet-active{
+      opacity: 1;
+      background: rgba(255,60,60,.95);
+    }
+
+    .custom-controls{
+      margin: 10px auto 0;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 0 6px;
+    }
+    .custom-controls button{
+      width:54px; height:54px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      border:1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.9);
+      font-size: 18px;
+      font-weight: 800;
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, background .2s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 28px rgba(0,0,0,.25);
+    }
+    .custom-controls button:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      background: linear-gradient(135deg, rgba(0,120,255,.28), rgba(255,60,60,.22));
+    }
+
+    /* ========= Mission / Support lists ========= */
+    .list{
+      margin-top: 12px;
+      display:grid;
+      gap: 10px;
+    }
+    .li{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .li .ico{
+      width: 28px; height: 28px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+      background: rgba(0,120,255,.18);
+      border: 1px solid rgba(0,120,255,.22);
+      box-shadow: 0 12px 18px rgba(0,0,0,.18);
+      margin-top: 1px;
+    }
+    .li .txt{
+      color: rgba(255,255,255,.82);
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+    .li .sub{
+      display:block;
+      margin-top:4px;
+      color: rgba(255,255,255,.68);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* ========= Social ========= */
+    .social-links{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap: 18px;
+      margin-top: 14px;
+      flex-wrap:wrap;
+    }
+    .social-link{
+      display:inline-flex;
+      width: 86px; height: 86px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 30px rgba(0,0,0,.25);
+      transition: transform .12s ease, filter .12s ease, background .2s ease;
+      overflow:hidden;
+      padding: 10px;
+    }
+    .social-link img{ width:100%; height:100%; object-fit:contain; display:block; }
+    .social-link:hover{
+      transform: translateY(-1px) scale(1.05);
+      filter: brightness(1.08);
+      background: linear-gradient(135deg, rgba(0,120,255,.22), rgba(255,60,60,.18));
+    }
+
+    /* ========= VK posts container ========= */
+    #vk_posts{ margin-top: 14px; }
+    .vkWrap{
+      margin-top: 12px;
+      display:grid;
+      gap: 12px;
+    }
+    .vkPost{
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 10px;
+    }
+
+    /* ========= Footer ========= */
+    footer{
+      margin-top: 18px;
+      padding: 18px 14px;
+      text-align:center;
+      color: rgba(255,255,255,.78);
+      background: rgba(8,14,28,.38);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    /* ========= Responsive ========= */
+    @media (max-width: 1100px){
+      .page{
+        grid-template-columns: 1fr;
+      }
+      .sidebar{
+        position: relative;
+        top: 0;
+        height:auto;
+      }
+    }
+    @media (max-width:768px){
+      .swiper-container{ height: 240px; }
+      p{ font-size: 1rem; }
+    }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Техно<span class="highlight-wings">Крылья</span><span class="highlight-russia">России</span></h1>
-    <p class="slogan"><strong>Строим цифровое будущее вместе!</strong></p>
-  </header>
   <nav id="site-nav">
     <ul>
       <li><a href="https://digitalhavenrussia.ru">Главная</a></li>
@@ -91,582 +504,254 @@
       <li><a href="https://digitalhavenrussia.ru/map.html">Маршрут помощи</a></li>
     </ul>
   </nav>
-  <main>
-    <div class="swiper-container">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide"><img src="deti.webp" alt="Слайд 1"></div>
-        <div class="swiper-slide"><img src="NG.webp" alt="Слайд 2"></div>
-        <div class="swiper-slide"><img src="PHD.webp" alt="Слайд 3"></div>
-        <div class="swiper-slide"><img src="tver.webp" alt="Слайд 4"></div>
+
+  <div class="page">
+    <!-- ЛЕВО: Плейсхолдер под твоё игровое меню (можешь заменить на блок с главной 1-в-1) -->
+    <aside class="sidebar">
+      <div class="sidebar__head">
+        <h3 class="sidebar__title">Игровое меню</h3>
+        <div class="sidebar__sub">
+          Вставь сюда меню как на главной (третья картинка) — этот контейнер уже готов по сетке и стилю.
+        </div>
       </div>
-      <div class="swiper-pagination"></div>
-    </div>
-    <div class="custom-controls">
-      <button class="custom-prev"><i class="fas fa-chevron-left"></i></button>
-      <button class="custom-next"><i class="fas fa-chevron-right"></i></button>
-    </div>
-
-    <section id="vk_posts"></section>
-
-    <section class="section" id="about">
-      <h2>О проекте</h2>
-      <p><strong>ТехноКрыльяРоссии</strong> — "Цифровое будущее – каждому ребенку".</p>
-      <p>Наш проект — это не просто поставка компьютеров или подключение к интернету. Это глубокое преображение самой среды детских домов, возведение надежного цифрового моста между их стенами и безграничными возможностями современного мира. Мы видим своей миссией ликвидировать цифровое неравенство там, где оно бьет по детям особенно больно – в стенах, которые должны быть домом, но часто становятся границей.</p>
-      <p>Мы стремимся к тому, чтобы каждый воспитанник, независимо от своего прошлого, получил полноценный, осмысленный доступ к пульсирующему нерву современности – цифровым технологиям. Это значит не просто экраны и клавиатуры, а открытые врата в мир актуального цифрового образования: от азов компьютерной грамоты до освоения востребованных IT-навыков, программирования, анализа данных, цифрового творчества.</p>
-      <p>Наша цель – вооружить этих детей не гаджетами, а знаниями и компетенциями. Тем самым бесценным багажом, который станет их ключом к уверенной адаптации в стремительно меняющемся обществе. Мы хотим дать им не просто шанс «догнать», а реальную возможность вырваться вперед, обрести востребованную профессию, стать архитекторами собственной судьбы в самой динамичной и перспективной сфере – цифровой индустрии.</p>
-      <p>Это инвестиция не в технику, а в человеческий капитал, в раскрытие талантов, в светлое и конкурентоспособное будущее тех, кто сегодня больше всего нуждается в нашей поддержке и вере. Мы строим для них фундамент успеха в мире, где технологическая грамотность – не привилегия, а необходимое условие для полноценной жизни, самореализации и достойного места под солнцем завтрашнего дня.</p>
-    </section>
-
-    <section class="section" id="mission">
-      <h2>Наша миссия</h2>
-      <p>✅ Оснащение детских домов компьютерами, оргтехникой.</p>
-      <p>✅ Обучение детей и педагогов цифровой грамотности и IT-навыкам.</p>
-      <p>✅ Создание безопасной цифровой среды для обучения и развития.</p>
-      <p>✅ Подготовка воспитанников к профессиям будущего.</p>
-      <p>Почему это важно?</p>
-      <p>🔹 Многие детские дома не имеют доступа к современным технологиям.</p>
-      <p>🔹 Без цифровых навыков детям сложнее социализироваться и найти работу.</p>
-      <p>🔹 Технологии открывают новые возможности для образования и самореализации.</p>
-    </section>
-
-    <section class="section" id="support">
-      <h2>Как вы можете помочь</h2>
-      <ul>
-        <p>⚠Помощь в профориентации и карьерном сопровождении</p>
-        <p>⚠Организация мероприятий и экскурсий<</p>
-        <p>⚠Организация конкурсов, хакатонов и олимпиад</p>
-        <p>⚠Волонтёрство в качестве эксперта (лекции, мастер-классы)</p>
-        <p>⚠Распространение информации в СМИ и соцсетях</p>
-      </ul>
-    </section>
-
-    <section class="section" id="contacts">
-      <h2>Контакты</h2>
-      <p>Email: <a href="mailto:digitalhavenrussia@mail.ru">digitalhavenrussia@mail.ru</a></p>
-      <div class="social-links max-w-screen-lg mx-auto text-center mb-6">
-        <a href="https://vk.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="ВКонтакте"><img src="vk-embl.webp" alt="VK"></a>
-        <a href="https://t.me/DigitalHavenRussia" class="social-link" target="_blank" aria-label="Telegram"><img src="telega-embl.webp" alt="Telegram"></a>
-        <a href="https://www.instagram.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="Instagram"><img src="inst-embl.webp" alt="Instagram"></a>
+      <div class="sidebar__body">
+        <a class="sidebtn" href="#about">О проекте <small>INFO</small></a>
+        <a class="sidebtn" href="#mission">Наша миссия <small>CORE</small></a>
+        <a class="sidebtn" href="#support">Как помочь <small>HELP</small></a>
+        <a class="sidebtn" href="#vk">Новости VK <small>FEED</small></a>
+        <a class="sidebtn" href="#contacts">Контакты <small>MAIL</small></a>
       </div>
-    </section>
+    </aside>
 
-    <section class="section" id="vk">
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+    <!-- ПРАВО: Контент -->
+    <main class="content">
+      <div class="wrap">
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_40'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_40', -224174286, 40, 'ueQ_YHAj6n3p8vwATuEe5LhHCs89');
-</script>
-  <br></br> 
+        <!-- HERO -->
+        <section class="card pad" id="top">
+          <h1 class="h1">ТехноКрыльяРоссии</h1>
+          <div class="subtitle"><strong>Строим цифровое будущее вместе!</strong></div>
 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="chips">
+            <span class="chip">Компьютерные классы</span>
+            <span class="chip">Цифровая грамотность</span>
+            <span class="chip">Кибербезопасность</span>
+            <span class="chip">Профориентация</span>
+          </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_59'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_59', -224174286, 59, '-E42MHVxpOclEW_HklnOfpElm8E1');
-</script>
-      <br></br> 
-      
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="actions">
+            <button class="btn btn--primary" onclick="document.getElementById('support').scrollIntoView({behavior:'smooth'})">
+              Помочь проекту
+            </button>
+            <button class="btn btn--ghost" onclick="document.getElementById('contacts').scrollIntoView({behavior:'smooth'})">
+              Контакты
+            </button>
+            <button class="btn btn--ghost" onclick="document.getElementById('vk').scrollIntoView({behavior:'smooth'})">
+              Новости VK
+            </button>
+          </div>
+        </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_58'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_58', -224174286, 58, 'hfaLrs5Ktzn0LGwQEqpZS6aHNywn');
-</script>
-<br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <!-- SLIDER -->
+        <section class="card pad sliderFrame">
+          <div class="section">
+            <h2><span class="bar"></span>Живые моменты</h2>
+            <p>Фото со встреч, занятий и поездок.</p>
+          </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_57'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_57', -224174286, 57, 'kTwlgYbdNDXKu8mCAvCyzNzMmdgH');
-</script>
-       <br></br> 
-      
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="swiper-container" style="margin-top:12px;">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide"><img src="deti.webp" alt="Слайд 1"></div>
+              <div class="swiper-slide"><img src="NG.webp" alt="Слайд 2"></div>
+              <div class="swiper-slide"><img src="PHD.webp" alt="Слайд 3"></div>
+              <div class="swiper-slide"><img src="tver.webp" alt="Слайд 4"></div>
+            </div>
+            <div class="swiper-pagination"></div>
+          </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_56'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_56', -224174286, 56, 'dDZVrRgEabiwYO9RqjyopLJF1KG-');
-</script>
- <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="custom-controls">
+            <button class="custom-prev" aria-label="Предыдущий слайд"><i class="fas fa-chevron-left"></i></button>
+            <button class="custom-next" aria-label="Следующий слайд"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_55'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_55', -224174286, 55, 'YbSbgahQ5016sYYA_E-EarQRW968');
-</script>
-      <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <!-- VK POSTS ANCHOR (оставил как у тебя) -->
+        <section id="vk_posts"></section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_54'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_54', -224174286, 54, 't0i0759qZd6xJVGVgwC0uGikI9Vo');
-</script>
-        <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <!-- ABOUT -->
+        <section class="card pad section" id="about">
+          <h2><span class="bar"></span>О проекте</h2>
+          <p><strong>ТехноКрыльяРоссии</strong> — "Цифровое будущее – каждому ребенку".</p>
+          <p>Наш проект — это не просто поставка компьютеров или подключение к интернету. Это глубокое преображение самой среды детских домов, возведение надежного цифрового моста между их стенами и безграничными возможностями современного мира. Мы видим своей миссией ликвидировать цифровое неравенство там, где оно бьет по детям особенно больно – в стенах, которые должны быть домом, но часто становятся границей.</p>
+          <p>Мы стремимся к тому, чтобы каждый воспитанник, независимо от своего прошлого, получил полноценный, осмысленный доступ к пульсирующему нерву современности – цифровым технологиям. Это значит не просто экраны и клавиатуры, а открытые врата в мир актуального цифрового образования: от азов компьютерной грамоты до освоения востребованных IT-навыков, программирования, анализа данных, цифрового творчества.</p>
+          <p>Наша цель – вооружить этих детей не гаджетами, а знаниями и компетенциями. Тем самым бесценным багажом, который станет их ключом к уверенной адаптации в стремительно меняющемся обществе. Мы хотим дать им не просто шанс «догнать», а реальную возможность вырваться вперед, обрести востребованную профессию, стать архитекторами собственной судьбы в самой динамичной и перспективной сфере – цифровой индустрии.</p>
+          <p>Это инвестиция не в технику, а в человеческий капитал, в раскрытие талантов, в светлое и конкурентоспособное будущее тех, кто сегодня больше всего нуждается в нашей поддержке и вере. Мы строим для них фундамент успеха в мире, где технологическая грамотность – не привилегия, а необходимое условие для полноценной жизни, самореализации и достойного места под солнцем завтрашнего дня.</p>
+        </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_53'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_53', -224174286, 53, 'oGxwmepTVgN9flQeZ9ejoC62qho6');
-</script>
-       <br></br> 
-      
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <!-- MISSION -->
+        <section class="card pad section" id="mission">
+          <h2><span class="bar"></span>Наша миссия</h2>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_52'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_52', -224174286, 52, 'cO7wJ-KxTmlelmQFOvIB-yLJWgOZ');
-</script>
- <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="list">
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-check"></i></div>
+              <div class="txt">Оснащение детских домов компьютерами, оргтехникой.</div>
+            </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_51'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_51', -224174286, 51, 'QxN6koRX2fGENlst_CFnHS-EmAMx');
-</script>
-    <br></br>  
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-check"></i></div>
+              <div class="txt">Обучение детей и педагогов цифровой грамотности и IT-навыкам.</div>
+            </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_50'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_50', -224174286, 50, 'LjGABE1OZUV4vuZseQJI1Cxo4THI');
-</script>
-        <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-check"></i></div>
+              <div class="txt">Создание безопасной цифровой среды для обучения и развития.</div>
+            </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_49'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_49', -224174286, 49, 'r0EhsTDPWlFz_H6Jg-_p5vACPUgm');
-</script>
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-check"></i></div>
+              <div class="txt">Подготовка воспитанников к профессиям будущего.</div>
+            </div>
+          </div>
 
-      ></script>
-      
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="section" style="margin-top:14px;">
+            <h2><span class="bar"></span>Почему это важно?</h2>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_48'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_48', -224174286, 48, 'ZWTLCXfzbNl0jGV-jZlmcyMYO_pg');
-</script>
+            <div class="list">
+              <div class="li">
+                <div class="ico"><i class="fa-solid fa-diamond"></i></div>
+                <div class="txt">Многие детские дома не имеют доступа к современным технологиям.</div>
+              </div>
 
-       <br></br> 
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+              <div class="li">
+                <div class="ico"><i class="fa-solid fa-diamond"></i></div>
+                <div class="txt">Без цифровых навыков детям сложнее социализироваться и найти работу.</div>
+              </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_47'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_47', -224174286, 47, 'w-paETfRyqMinCIrFSmTcf_rHnD8');
-</script>
- <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+              <div class="li">
+                <div class="ico"><i class="fa-solid fa-diamond"></i></div>
+                <div class="txt">Технологии открывают новые возможности для образования и самореализации.</div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_46'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_46', -224174286, 46, 'c7QR74D_UwFrVppaAa923K-7-jCz');
-</script>
-      <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <!-- SUPPORT -->
+        <section class="card pad section" id="support">
+          <h2><span class="bar"></span>Как вы можете помочь</h2>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_45'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_45', -224174286, 45, 'kY-UMU6sRPXfE7wuLk7bUfVcDUro');
-</script>
-      <br></br> 
-      
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="list">
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="txt">Помощь в профориентации и карьерном сопровождении<span class="sub">Наставничество, консультации, поддержка траектории развития.</span></div>
+            </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_44'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_44', -224174286, 44, 'wglepp17yuDwzeX4w6z4d8pTXTtV');
-</script>
-      <br></br> 
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="txt">Организация мероприятий и экскурсий<span class="sub">Компании, технопарки, вузы, полезные встречи.</span></div>
+            </div>
 
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="txt">Организация конкурсов, хакатонов и олимпиад<span class="sub">Проектная практика — лучшее обучение.</span></div>
+            </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_43'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_43', -224174286, 43, '_hEiYSbMC4Ei32CR1cWRTN7HHThu');
-</script>
-       <br></br> 
-<!-- Put this script tag to the <head> of your page -->
- 
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_42'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_42', -224174286, 42, 'S-4guFJVsPQb1yVxADBMNXuD0HGy');
-</script>
-       <br></br> 
-      
-      <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="txt">Волонтёрство в качестве эксперта (лекции, мастер-классы)<span class="sub">Провести занятие, показать путь в профессию.</span></div>
+            </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_41'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_41', -224174286, 41, 'Yy624BVrrjGwxqGZlzSTAAUHrdVH');
-</script>
+            <div class="li">
+              <div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="txt">Распространение информации в СМИ и соцсетях<span class="sub">Помогает находить партнёров и ресурсы.</span></div>
+            </div>
+          </div>
+        </section>
 
-        <br></br>
-      <!-- Put this script tag to the <head> of your page -->
-      
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <!-- CONTACTS -->
+        <section class="card pad section" id="contacts">
+          <h2><span class="bar"></span>Контакты</h2>
+          <p>Email: <a href="mailto:digitalhavenrussia@mail.ru" style="color: rgba(160,210,255,.95); font-weight:800; text-decoration:none;">digitalhavenrussia@mail.ru</a></p>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_32'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_32', -224174286, 32, 'RLhrEiuVMpeFjL58Z6HUGpeke0uo');
-</script>
-      
-       <br></br>
-      
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="social-links">
+            <a href="https://vk.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="ВКонтакте">
+              <img src="vk-embl.webp" alt="VK">
+            </a>
+            <a href="https://t.me/DigitalHavenRussia" class="social-link" target="_blank" aria-label="Telegram">
+              <img src="telega-embl.webp" alt="Telegram">
+            </a>
+            <a href="https://www.instagram.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="Instagram">
+              <img src="inst-embl.webp" alt="Instagram">
+            </a>
+          </div>
+        </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_31'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_31', -224174286, 31, 'HF183ZZXFg8jCn5KNev59yM3ViLJ');
-</script>
+        <!-- VK FEED (оставил все твои посты, но без повторов openapi и без битых хвостов) -->
+        <section class="card pad section" id="vk">
+          <h2><span class="bar"></span>Новости VK</h2>
+          <p>Свежие публикации проекта.</p>
 
-      <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+          <div class="vkWrap">
+            <div class="vkPost"><div id="vk_post_-224174286_40"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_59"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_58"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_57"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_56"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_55"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_54"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_53"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_52"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_51"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_50"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_49"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_48"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_47"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_46"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_45"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_44"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_43"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_42"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_41"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_32"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_31"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_28"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_27"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_24"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_23"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_22"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_20"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_19"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_18"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_15"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_14"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_13"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_11"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_6"></div></div>
+            <div class="vkPost"><div id="vk_post_-224174286_4"></div></div>
+          </div>
+        </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_28'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_28', -224174286, 28, 'A4OYWZHoTAFahGYWm-nL2uS8RP2A');
-</script>
- <br></br>
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <footer class="card" style="margin-top:16px;">
+          <div class="pad" style="text-align:center;">
+            <p style="margin:0; color: rgba(255,255,255,.78); font-size: 14px;">
+              &copy; 2025 ТехноКрыльяРоссии. Все права защищены.
+            </p>
+          </div>
+        </footer>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_27'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_27', -224174286, 27, 'vlNkTTmIXVn_q8YpsXiHMJI29Ohr');
-</script>
-      
- <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+      </div>
+    </main>
+  </div>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_24'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_24', -224174286, 24, 'WohO5Jktvte1Dk5byltmg7TNXpJp');
-</script>
- <br></br>
-      
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_23'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_23', -224174286, 23, 'mvv-S-kBxvfRrtZUYKapcsCOBYNl');
-</script>
-
-       <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_22'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_22', -224174286, 22, 'LCFErHNwqu8V0x8PnQiyJJE8f9Ir');
-</script>
-
-       <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_20'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_20', -224174286, 20, 'hibuPhatP-1r97MqcL_cdweI7f8F');
-</script>
-
-       <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_19'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_19', -224174286, 19, 'Jg0q86kbOAayyhs31ZQPIqL9ZPfw');
-</script>
-       <br></br>
-
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_18'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_18', -224174286, 18, 'wdLeSu5NnhkGt3VYxdlCneBgwea9');
-</script>
- <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_15'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_15', -224174286, 15, 'K-E21lCXdqWwJXKxPA91QL6fquoq');
-</script>
- <br></br>
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_14'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_14', -224174286, 14, 'ZNsVOJ7bhgGUWbrJNoa_uP4bI5I-');
-</script>
- <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_13'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_13', -224174286, 13, 'zOvCSYQvFvc7ftH_qPeSBFv1TIH8');
-</script>
- <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_11'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_11', -224174286, 11, 'wWdhQ0D22MqG2sXXC-zJjGMKvsNx');
-</script>
-       <br></br>
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_6'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_6', -224174286, 6, '91Y35y5YwDO9_crU-ljl3Qzih7Nb');
-</script>
-       <br></br>
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
-
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_4'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_4', -224174286, 4, 'TSMK7fAY3HZ-j_Xktaf1Bg__aIPm');
-</script>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 ТехноКрыльяРоссии. Все права защищены.</p>
-  </footer>
-
-  <!-- Скрипт для скрытия меню -->
+  <!-- Скрипт для скрытия меню (твоя логика сохранена) -->
   <script>
     (function() {
       let lastScroll = 0;
       const nav = document.getElementById('site-nav');
       window.addEventListener('scroll', () => {
         const current = window.pageYOffset || document.documentElement.scrollTop;
-        if (current > lastScroll && current > 100) {
-          nav.classList.add('hidden');
-        } else {
-          nav.classList.remove('hidden');
-        }
+        if (current > lastScroll && current > 100) nav.classList.add('hidden');
+        else nav.classList.remove('hidden');
         lastScroll = current <= 0 ? 0 : current;
       });
     })();
@@ -683,6 +768,48 @@
     });
     document.querySelector('.custom-prev').addEventListener('click', () => mySwiper.slidePrev());
     document.querySelector('.custom-next').addEventListener('click', () => mySwiper.slideNext());
+  </script>
+
+  <!-- VK Widgets (все посты, один раз) -->
+  <script type="text/javascript">
+    // важно: openapi.js уже загружен в <head>
+    VK.Widgets.Post('vk_post_-224174286_40', -224174286, 40, 'ueQ_YHAj6n3p8vwATuEe5LhHCs89');
+    VK.Widgets.Post('vk_post_-224174286_59', -224174286, 59, '-E42MHVxpOclEW_HklnOfpElm8E1');
+    VK.Widgets.Post('vk_post_-224174286_58', -224174286, 58, 'hfaLrs5Ktzn0LGwQEqpZS6aHNywn');
+    VK.Widgets.Post('vk_post_-224174286_57', -224174286, 57, 'kTwlgYbdNDXKu8mCAvCyzNzMmdgH');
+    VK.Widgets.Post('vk_post_-224174286_56', -224174286, 56, 'dDZVrRgEabiwYO9RqjyopLJF1KG-');
+    VK.Widgets.Post('vk_post_-224174286_55', -224174286, 55, 'YbSbgahQ5016sYYA_E-EarQRW968');
+    VK.Widgets.Post('vk_post_-224174286_54', -224174286, 54, 't0i0759qZd6xJVGVgwC0uGikI9Vo');
+    VK.Widgets.Post('vk_post_-224174286_53', -224174286, 53, 'oGxwmepTVgN9flQeZ9ejoC62qho6');
+    VK.Widgets.Post('vk_post_-224174286_52', -224174286, 52, 'cO7wJ-KxTmlelmQFOvIB-yLJWgOZ');
+    VK.Widgets.Post('vk_post_-224174286_51', -224174286, 51, 'QxN6koRX2fGENlst_CFnHS-EmAMx');
+    VK.Widgets.Post('vk_post_-224174286_50', -224174286, 50, 'LjGABE1OZUV4vuZseQJI1Cxo4THI');
+    VK.Widgets.Post('vk_post_-224174286_49', -224174286, 49, 'r0EhsTDPWlFz_H6Jg-_p5vACPUgm');
+    VK.Widgets.Post('vk_post_-224174286_48', -224174286, 48, 'ZWTLCXfzbNl0jGV-jZlmcyMYO_pg');
+    VK.Widgets.Post('vk_post_-224174286_47', -224174286, 47, 'w-paETfRyqMinCIrFSmTcf_rHnD8');
+    VK.Widgets.Post('vk_post_-224174286_46', -224174286, 46, 'c7QR74D_UwFrVppaAa923K-7-jCz');
+    VK.Widgets.Post('vk_post_-224174286_45', -224174286, 45, 'kY-UMU6sRPXfE7wuLk7bUfVcDUro');
+    VK.Widgets.Post('vk_post_-224174286_44', -224174286, 44, 'wglepp17yuDwzeX4w6z4d8pTXTtV');
+    VK.Widgets.Post('vk_post_-224174286_43', -224174286, 43, '_hEiYSbMC4Ei32CR1cWRTN7HHThu');
+    VK.Widgets.Post('vk_post_-224174286_42', -224174286, 42, 'S-4guFJVsPQb1yVxADBMNXuD0HGy');
+    VK.Widgets.Post('vk_post_-224174286_41', -224174286, 41, 'Yy624BVrrjGwxqGZlzSTAAUHrdVH');
+
+    VK.Widgets.Post('vk_post_-224174286_32', -224174286, 32, 'RLhrEiuVMpeFjL58Z6HUGpeke0uo');
+    VK.Widgets.Post('vk_post_-224174286_31', -224174286, 31, 'HF183ZZXFg8jCn5KNev59yM3ViLJ');
+    VK.Widgets.Post('vk_post_-224174286_28', -224174286, 28, 'A4OYWZHoTAFahGYWm-nL2uS8RP2A');
+    VK.Widgets.Post('vk_post_-224174286_27', -224174286, 27, 'vlNkTTmIXVn_q8YpsXiHMJI29Ohr');
+    VK.Widgets.Post('vk_post_-224174286_24', -224174286, 24, 'WohO5Jktvte1Dk5byltmg7TNXpJp');
+    VK.Widgets.Post('vk_post_-224174286_23', -224174286, 23, 'mvv-S-kBxvfRrtZUYKapcsCOBYNl');
+    VK.Widgets.Post('vk_post_-224174286_22', -224174286, 22, 'LCFErHNwqu8V0x8PnQiyJJE8f9Ir');
+    VK.Widgets.Post('vk_post_-224174286_20', -224174286, 20, 'hibuPhatP-1r97MqcL_cdweI7f8F');
+    VK.Widgets.Post('vk_post_-224174286_19', -224174286, 19, 'Jg0q86kbOAayyhs31ZQPIqL9ZPfw');
+    VK.Widgets.Post('vk_post_-224174286_18', -224174286, 18, 'wdLeSu5NnhkGt3VYxdlCneBgwea9');
+    VK.Widgets.Post('vk_post_-224174286_15', -224174286, 15, 'K-E21lCXdqWwJXKxPA91QL6fquoq');
+    VK.Widgets.Post('vk_post_-224174286_14', -224174286, 14, 'ZNsVOJ7bhgGUWbrJNoa_uP4bI5I-');
+    VK.Widgets.Post('vk_post_-224174286_13', -224174286, 13, 'zOvCSYQvFvc7ftH_qPeSBFv1TIH8');
+    VK.Widgets.Post('vk_post_-224174286_11', -224174286, 11, 'wWdhQ0D22MqG2sXXC-zJjGMKvsNx');
+    VK.Widgets.Post('vk_post_-224174286_6',  -224174286, 6,  '91Y35y5YwDO9_crU-ljl3Qzih7Nb');
+    VK.Widgets.Post('vk_post_-224174286_4',  -224174286, 4,  'TSMK7fAY3HZ-j_Xktaf1Bg__aIPm');
   </script>
 </body>
 </html>
