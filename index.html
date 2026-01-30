@@ -954,64 +954,119 @@
     ============================================================ */
 @media (max-width: 1920px){
 
-  /* ✅ FHD: делаем меню компактнее, 4K не трогаем */
+  /* =========================================================
+     ✅ FHD: делаем меню компактнее БЕЗ scale (иначе мыло/нечитабельно)
+     4K не трогаем — изменения только здесь
+  ========================================================= */
   :root{
     --nav-left: 12px;
     --nav-top: 10px;
-    --panel-w: min(360px, calc(100vw - 24px));
-    --rowH: clamp(60px, 6.6vw, 72px);
 
-    /* ✅ ЧИТАЕМОСТЬ ТЕКСТА НА FHD (не влияет на 4K) */
-    --text: rgba(255,255,255,.985);
-    --muted: rgba(255,245,225,.92);
+    /* чуть шире, чтобы текст не ломался и был читаемым */
+    --panel-w: min(420px, calc(100vw - 24px));
+
+    /* высота строк меню под FHD */
+    --rowH: 72px;
+
+    /* ✅ читаемость текста */
+    --text: rgba(255,255,255,.99);
+    --muted: rgba(255,245,225,.94);
   }
 
+  /* ✅ УБИРАЕМ scale: именно он делал меню "мыльным" и мелким */
   .side-nav{
-    transform: scale(.74) translateZ(0);
+    transform: none !important;
     transform-origin: top left;
   }
-  .side-nav__panel{ padding: 10px 10px 12px; }
-  .side-nav__tab{ padding: 8px 10px; }
-  .hud-item{ padding: 10px 12px; gap: 10px; }
-  .hud-ico{ margin-left: 14px; border-radius: 16px; }
 
-  /* ✅ УСИЛИВАЕМ ПОДЛОЖКУ + BLUR ПОД МЕНЮ НА FHD (чтобы фон не мешал читать) */
+  /* чуть компактнее отступы */
+  .side-nav__tab{ padding: 8px 10px; }
+  .side-nav__panel{ padding: 12px 12px 14px; }
+  .hud-item{ padding: 12px 14px; gap: 12px; }
+  .hud-ico{ margin-left: 16px; border-radius: 16px; }
+
+  /* ✅ Усиливаем подложку ПОД МЕНЮ (контраст), но без "переблюра" */
   .side-nav__panel{
     background:
-      radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.075), transparent 62%),
-      radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.045), transparent 60%),
-      linear-gradient(180deg, rgba(20,95,120,.14), rgba(8,55,72,.12));
-    backdrop-filter: blur(46px) saturate(1.08);
-    -webkit-backdrop-filter: blur(46px) saturate(1.08);
+      radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.10), transparent 62%),
+      radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.06), transparent 60%),
+      linear-gradient(180deg, rgba(10,80,110,.32), rgba(6,40,58,.30));
+    backdrop-filter: blur(22px) saturate(1.12);
+    -webkit-backdrop-filter: blur(22px) saturate(1.12);
+    border: 1px solid rgba(255,240,190,.10);
+    box-shadow: 0 16px 34px rgba(0,0,0,.22);
   }
 
-  .side-nav__tab,
+  .side-nav__tab{
+    background:
+      radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.10), transparent 60%),
+      radial-gradient(110% 80% at 84% 18%, rgba(255,215,120,.05), transparent 58%),
+      linear-gradient(180deg, rgba(10,80,110,.30), rgba(6,40,58,.28));
+    backdrop-filter: blur(18px) saturate(1.10);
+    -webkit-backdrop-filter: blur(18px) saturate(1.10);
+    box-shadow: 0 14px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.10);
+  }
+
   .hud-item,
   .hud-ico{
-    backdrop-filter: blur(46px) saturate(1.06);
-    -webkit-backdrop-filter: blur(46px) saturate(1.06);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
   }
 
-  /* ✅ КОМПЕНСАЦИЯ scale(.74): делаем шрифты крупнее именно на FHD */
+  /* ✅ Крупнее и контрастнее текст (FHD) */
+  .tab-title{
+    font-size: 20px;
+    text-shadow:
+      0 3px 14px rgba(0,0,0,.42),
+      0 1px 0 rgba(0,0,0,.22);
+  }
+
   .hud-title{
-    font-size: 24px; /* после scale ≈ 17.8px */
+    font-size: 20px;
     letter-spacing: .04em;
     text-shadow:
-      0 2px 12px rgba(0,0,0,.36),
+      0 3px 14px rgba(0,0,0,.42),
       0 1px 0 rgba(0,0,0,.22);
   }
 
   .hud-sub{
-    font-size: 14px; /* после scale ≈ 10.4px */
-    letter-spacing: .10em;
+    font-size: 12px;
+    letter-spacing: .11em;
     opacity: 1;
-    text-shadow: 0 2px 10px rgba(0,0,0,.30);
+    color: var(--muted);
+    text-shadow:
+      0 2px 12px rgba(0,0,0,.38);
   }
 
-  /* ✅ Чуть усилим “плашки” INFO/VIDEO/MAP */
+  /* INFO/VIDEO/MAP — чуть крупнее */
   .hud-pill{
-    font-size: 14px;
-    box-shadow: 0 12px 20px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.22);
+    font-size: 12px;
+    min-width: 96px;
+    height: 34px;
+    box-shadow: 0 14px 22px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.24);
+  }
+
+  /* иконки чуть фиксируем под FHD */
+  .hud-ico{
+    width: 54px;
+    height: 54px;
+  }
+  .hud-ico svg{
+    width: 28px;
+    height: 28px;
+  }
+
+  /* ✅ КИБЕРПОЛИГОН: щит и центровка */
+  .hud-cta.hud-cta--cyber{
+    height: 68px;
+    font-size: 20px;
+    padding: 0 58px 0 58px;
+  }
+  .hud-cta--cyber .cyber-shield{
+    left: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
   }
 
   /* =========================================================
@@ -1029,11 +1084,11 @@
     height: auto !important;
     max-height: none !important;
     min-height: 100vh;
-    overflow: visible !important; /* важно */
+    overflow: visible !important;
     overscroll-behavior: auto !important;
   }
 
-  /* ✅ На FHD убираем blur-слой (он часто даёт визуальный "обрез") */
+  /* ✅ На FHD убираем blur-слой (часто даёт визуальный "обрез") */
   .bg-blur-pic,
   .header__bg-blur{
     display: none !important;
@@ -1055,7 +1110,7 @@
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    object-fit: initial !important; /* на auto-height он не нужен */
+    object-fit: initial !important;
   }
 
   /* ✅ Оверлей пусть остаётся, но не влияет на размеры */
@@ -1064,6 +1119,7 @@
     inset: 0;
   }
 }
+
 
 
 
@@ -1691,6 +1747,7 @@
 
 </body>
 </html>
+
 
 
 
