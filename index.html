@@ -1586,46 +1586,54 @@
     })();
 
     // ✅ СТАРТ СНИЗУ: скроллим именно .header (на FHD скролла нет — не мешает)
-    (function startAtBottom(){
-      const header = document.getElementById('hero') || document.querySelector('.header');
-      if(!header) return;
-    if (!window.matchMedia('(max-width: 1920px)').matches) return;
+   (function startAtBottom(){
+  const header = document.getElementById('hero') || document.querySelector('.header');
+  if(!header) return;
 
-      function canScroll(){
-        return header.scrollHeight > header.clientHeight + 2;
-      }
+  const isFHD = window.matchMedia('(max-width: 1920px)').matches;
 
-      function scrollToBottom(){
-        if(!canScroll()) return;
-        header.scrollTop = header.scrollHeight;
-      }
+  function scrollToBottom(){
+    // ✅ на всякий случай делаем чуть с запасом
+    header.scrollTop = header.scrollHeight + 9999;
+  }
 
-      function runFewTimes(){
-        scrollToBottom();
-        requestAnimationFrame(scrollToBottom);
-        setTimeout(scrollToBottom, 80);
-        setTimeout(scrollToBottom, 220);
-      }
+  function runFewTimes(){
+    scrollToBottom();
+    requestAnimationFrame(scrollToBottom);
+    setTimeout(scrollToBottom, 60);
+    setTimeout(scrollToBottom, 200);
+    setTimeout(scrollToBottom, 420);
+  }
 
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
-      } else {
-        runFewTimes();
-      }
+  // ✅ И на FHD, и на 4K стартуем снизу (как ты хочешь)
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
+  } else {
+    runFewTimes();
+  }
+  window.addEventListener('load', runFewTimes, { once:true });
 
-      window.addEventListener('load', runFewTimes, { once:true });
+  // ✅ докрутка после загрузки картинки (важно!)
+  const img = document.querySelector('.header__bg');
+  if(img){
+    const afterImg = () => setTimeout(runFewTimes, 0);
+    if(img.complete) afterImg();
+    else img.addEventListener('load', afterImg, { once:true });
+  }
 
-      const img = document.querySelector('.header__bg');
-      if(img){
-        const afterImg = () => setTimeout(scrollToBottom, 0);
-        if(img.complete) afterImg();
-        else img.addEventListener('load', afterImg, { once:true });
-      }
-    })();
+  // ✅ на FHD иногда мешает изменение высоты viewport (масштаб/панели) — докрутим ещё раз
+  if(isFHD && window.visualViewport){
+    window.visualViewport.addEventListener('resize', () => {
+      setTimeout(scrollToBottom, 0);
+    }, { passive:true });
+  }
+})();
+
   </script>
 
 </body>
 </html>
+
 
 
 
