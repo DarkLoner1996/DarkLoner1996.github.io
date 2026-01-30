@@ -1117,135 +1117,219 @@
        - панель скроллится внутри
        - header фикс 100vh + cover
     ========================================================= */
-    @media (max-width: 520px){
+   /* =========================================================
+   ✅ MOBILE (<=520px) — ТОЛЬКО МОБИЛКА
+   - меню компактнее, аккуратнее
+   - панель влезает по высоте и скроллится внутри
+   - фон остаётся красивым, картинка без обрезки (contain)
+========================================================= */
+@media (max-width: 520px){
 
-      :root{
-        --nav-left: 10px;
-        --nav-top:  calc(10px + env(safe-area-inset-top, 0px));
-        --panel-w:  calc(100vw - 20px);
-        --radius:  22px;
-        --rowH:    62px;
-      }
+  :root{
+    --nav-left: 8px;
+    --nav-top:  calc(8px + env(safe-area-inset-top, 0px));
+    --panel-w:  calc(100vw - 16px);
 
-      .side-nav{
-        left: 0 !important;
-        right: 0 !important;
-        top: var(--nav-top) !important;
-        width: 100% !important;
-        align-items: center !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-        gap: 10px;
-      }
+    --radius: 20px;
+    --rowH: 54px;
 
-      .side-nav__tab,
-      .side-nav__panel{
-        width: var(--panel-w) !important;
-      }
+    --text: rgba(255,255,255,.97);
+    --muted: rgba(255,245,225,.86);
+  }
 
-      .side-nav__tab{
-        padding: 8px 10px;
-        border-radius: 20px;
-      }
+  /* контейнер меню по центру */
+  .side-nav{
+    left: 0 !important;
+    right: 0 !important;
+    top: var(--nav-top) !important;
+    width: 100% !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 
-      .back-btn{
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-      }
+  .side-nav__tab,
+  .side-nav__panel{
+    width: var(--panel-w) !important;
+  }
 
-      .tab-title{
-        font-size: 18px;
-      }
+  /* верхняя плашка (Игровое меню) — ниже и компактнее */
+  .side-nav__tab{
+    padding: 7px 9px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10) !important;
+  }
 
-      .side-nav__panel{
-        max-height: calc(100vh - 92px - env(safe-area-inset-bottom, 0px));
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-        padding: 12px 12px 14px;
-      }
+  .tab-row{ gap: 8px !important; }
 
-      .side-nav__list{ gap: 10px; }
+  .back-btn{
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 12px !important;
+  }
+  .back-btn svg{ width: 18px !important; height: 18px !important; }
 
-      .hud-item{
-        height: var(--rowH);
-        padding: 10px 12px;
-        border-radius: 18px;
-      }
+  .tab-title{
+    font-size: 16px !important;
+    letter-spacing: .14px !important;
+  }
 
-      .hud-ico{
-        margin-left: 12px;
-        width: 48px;
-        height: 48px;
-        border-radius: 16px;
-      }
+  .hud-switch{
+    padding: 4px 6px !important;
+    border-radius: 12px !important;
+    gap: 6px !important;
+  }
+  .hud-switch .moon{
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+  }
+  .switch{
+    width: 38px !important;
+    height: 18px !important;
+  }
+  .switch::after{
+    width: 14px !important;
+    height: 14px !important;
+    top: 2px !important;
+    left: 2px !important;
+  }
+  .switch.is-on::after{ left: 20px !important; }
 
-      .hud-title{
-        -webkit-line-clamp: 2;
-        font-size: 16px;
-      }
-      .hud-sub{ font-size: 10px; opacity: .92; }
+  /* панель — внутри скролл, чтобы не закрывало картинку и персонажей */
+  .side-nav__panel{
+    padding: 10px 10px 12px !important;
+    border-radius: var(--radius) !important;
 
-      .hud-pill{
-        min-width: 82px;
-        height: 30px;
-        font-size: 11px;
-        padding: 0 10px;
-      }
+    max-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
 
-      .hud-cta.hud-cta--cyber{
-        height: 56px;
-        font-size: 16px;
-        border-radius: 18px;
-        padding: 0 52px;
-      }
+    /* чуть “собраннее” и контрастнее на телефоне */
+    background:
+      radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.10), transparent 62%),
+      radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.06), transparent 60%),
+      linear-gradient(180deg, rgba(10,80,110,.34), rgba(6,40,58,.32)) !important;
 
-      .hud-cta--cyber .cyber-shield{
-        left: 12px;
-        width: 36px;
-        height: 36px;
-        border-radius: 12px;
-      }
+    backdrop-filter: blur(22px) saturate(1.10) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(1.10) !important;
 
-      /* ✅ ФОН НА МОБИЛКЕ: cover + портрет */
-      /* ✅ МОБИЛКА: показываем картинку ЦЕЛИКОМ (без обрезки) */
-.header{
-  height: 100vh !important;
-  height: 100dvh !important;          /* ✅ корректнее на мобилках с адресной строкой */
-  max-height: 100vh !important;
-  max-height: 100dvh !important;
-  overflow: hidden !important;
+    box-shadow: 0 16px 34px rgba(0,0,0,.22) !important;
+
+    /* чтобы скроллбар не мозолил глаза */
+    scrollbar-width: none;
+  }
+  .side-nav__panel::-webkit-scrollbar{ width:0; height:0; }
+
+  .side-nav__list{
+    gap: 8px !important;
+    margin: 6px 0 10px !important;
+  }
+
+  .hud-item{
+    height: var(--rowH) !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    border-radius: 16px !important;
+  }
+
+  .hud-ico{
+    margin-left: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 13px !important;
+  }
+  .hud-ico svg{
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  .hud-txt{ gap: 4px !important; }
+
+  .hud-title{
+    font-size: 14px !important;
+    letter-spacing: .04em !important;
+    -webkit-line-clamp: 1 !important; /* аккуратнее на телефоне */
+  }
+  .hud-sub{
+    font-size: 9px !important;
+    letter-spacing: .10em !important;
+    opacity: .95 !important;
+  }
+
+  .hud-pill{
+    min-width: 72px !important;
+    height: 26px !important;
+    padding: 0 8px !important;
+    font-size: 10px !important;
+    letter-spacing: .14em !important;
+  }
+  .hud-pill::after{
+    font-size: 16px !important;
+    transform: translateY(-1px) !important;
+  }
+
+  /* Киберполигон — компактнее, но жирно и красиво */
+  .hud-cta.hud-cta--cyber{
+    height: 50px !important;
+    border-radius: 17px !important;
+    font-size: 15px !important;
+    padding: 0 46px !important;
+    letter-spacing: .11em !important;
+  }
+  .hud-cta--cyber::after{
+    inset: 8px !important;
+    border-radius: 14px !important;
+  }
+  .hud-cta--cyber .cyber-shield{
+    left: 10px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 11px !important;
+  }
+  .hud-cta--cyber .cyber-shield svg{
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* ✅ МОБИЛКА: показываем картинку ЦЕЛИКОМ (без обрезки) */
+  .header{
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .bg-blur-pic,
+  .bg-main-pic{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Блюр-фон заполняет */
+  .header__bg-blur{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: 50% 50% !important;
+  }
+
+  /* Главное — без обрезки */
+  .header__bg{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: 50% 50% !important;
+  }
+
+  .header .hero-soft{ inset: 0 !important; }
 }
 
-.bg-blur-pic,
-.bg-main-pic{
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* Блюр можно оставлять cover — он просто заполняет фон */
-.header__bg-blur{
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  object-position: 50% 50% !important;
-}
-
-/* ✅ Главное: contain = без обрезки, показываем полностью */
-.header__bg{
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;     /* ✅ ключевой фикс */
-  object-position: 50% 50% !important;
-}
-
-
-      .header .hero-soft{
-        inset: 0 !important;
-      }
-    }
 
   </style>
 </head>
@@ -1867,4 +1951,5 @@
 
 </body>
 </html>
+
 
