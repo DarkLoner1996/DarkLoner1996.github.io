@@ -966,33 +966,39 @@
     transform: scale(.74) translateZ(0);
     transform-origin: top left;
   }
-
   .side-nav__panel{ padding: 10px 10px 12px; }
   .side-nav__tab{ padding: 8px 10px; }
-
   .hud-item{ padding: 10px 12px; gap: 10px; }
   .hud-ico{ margin-left: 14px; border-radius: 16px; }
 
-  /* ✅ ВАЖНО: возвращаем скролл + снимаем фиксацию по 100vh */
+  /* =========================================================
+     ✅ ГЛАВНОЕ: FHD = СКРОЛЛИТСЯ СТРАНИЦА (window),
+     а не внутренний контейнер .header
+  ========================================================= */
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* ✅ .header больше НЕ ограничиваем 100vh — пусть растёт по картинке */
   .header{
     height: auto !important;
     max-height: none !important;
     min-height: 100vh;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: auto;
-    scroll-snap-type: none;
+    overflow: visible !important; /* важно */
+    overscroll-behavior: auto !important;
   }
 
-  /* ✅ FHD: УБИРАЕМ blur-слой, он визуально "режет" низ */
-  .bg-blur-pic{ display:none !important; }
-  .header__bg-blur{ display:none !important; }
+  /* ✅ На FHD убираем blur-слой (он часто даёт визуальный "обрез") */
+  .bg-blur-pic,
+  .header__bg-blur{
+    display: none !important;
+  }
 
-  /* ✅ НЕ делаем absolute и НЕ делаем cover — картинка должна задавать высоту */
+  /* ✅ Картинка должна задавать высоту страницы */
   .bg-main-pic{
     position: relative !important;
-    inset: auto !important;
     display: block !important;
     width: 100% !important;
     height: auto !important;
@@ -1000,15 +1006,13 @@
     margin: 0 !important;
   }
 
-  /* ✅ Показываем картинку целиком на FHD */
   .header__bg{
     position: relative !important;
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    object-fit: contain !important;
-    object-position: 50% 50% !important;
+    object-fit: initial !important; /* на auto-height он не нужен */
   }
 
   /* ✅ Оверлей пусть остаётся, но не влияет на размеры */
@@ -1017,6 +1021,7 @@
     inset: 0;
   }
 }
+
 
 
   </style>
@@ -1638,6 +1643,7 @@
 
 </body>
 </html>
+
 
 
 
