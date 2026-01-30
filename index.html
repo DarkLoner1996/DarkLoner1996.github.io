@@ -952,37 +952,42 @@
        - уменьшаем меню только на FHD
        - 4K остаётся как есть (вне media)
     ============================================================ */
-    @media (max-width: 1920px){
-      /* меню меньше, но на 4K вообще не влияет */
-      .side-nav{
-        transform: scale(.85) translateZ(0);
-        transform-origin: top left;
-      }
+@media (max-width: 1920px){
 
-      /* фон на весь экран под FHD */
-      .header{
-        overflow-y:hidden; /* чтобы не было странного скролла на FHD */
-      }
+  /* меню меньше — ок, 4K не трогаем */
+  .side-nav{
+    transform: scale(.85) translateZ(0);
+    transform-origin: top left;
+  }
 
-      .bg-main-pic{
-        position:absolute;
-        inset:0;
-        width:100%;
-        height:100%;
-        z-index:1;
-      }
+  /* ✅ ВАЖНО: возвращаем скролл */
+  .header{
+    overflow-y: auto;         /* было hidden — из-за этого скролл "не работал" */
+    height: 100vh;
+    max-height: 100vh;
+  }
 
-      .header__bg{
-        width:100%;
-        height:100%;
-        object-fit:cover;
-        object-position: center;
-        margin:0;
-      }
+  /* ✅ НЕ делаем absolute и НЕ делаем cover (они режут) */
+  .bg-main-pic{
+    position: relative;       /* было absolute */
+    inset: auto;
+    width: 100%;
+    height: auto;
+    z-index: 1;
+  }
 
-      /* при желании можно подвинуть кадр (если важно не резать слева/справа) */
-      /* .header__bg{ object-position: 55% center; } */
-    }
+  /* ✅ Показываем картинку целиком на FHD */
+  .header__bg{
+    width: 100%;
+    height: auto;             /* убираем 100% высоту */
+    margin: 0 auto;
+    object-fit: contain;      /* вместо cover */
+    object-position: center;
+  }
+
+  /* ✅ Если по высоте всё равно не помещается — будет скролл */
+}
+
   </style>
 </head>
 
@@ -1594,3 +1599,4 @@
 
 </body>
 </html>
+
