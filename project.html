@@ -23,9 +23,9 @@
     html { scroll-behavior: smooth; }
 
     /* ✅ FIX: чтобы якоря не прятались под фикс-элементами */
-    section[id]{ scroll-margin-top: 84px; }
+    section[id]{ scroll-margin-top: 150px; }
     @media (max-width: 520px){
-      section[id]{ scroll-margin-top: 72px; }
+      section[id]{ scroll-margin-top: 120px; }
     }
 
     :root{
@@ -41,23 +41,8 @@
       --h2: clamp(18px, 2.0vw, 26px);
       --p:  clamp(15px, 1.05vw, 18px);
 
-      /* NEW: compact button-menu placement */
-      --nav-left: 18px;
-      --nav-top: 14px;
-
       --text: rgba(250,244,232,.96);
       --muted: rgba(245,235,210,.78);
-
-      --gA: rgba(90, 170, 195, .035);
-      --gB: rgba(35, 120, 145, .028);
-
-      --iA: rgba(255,255,255,.016);
-      --iB: rgba(0,0,0,.006);
-
-      --goldA:#fff2c9;
-      --goldB:#f2d07a;
-      --goldC:#c58a2c;
-      --goldD:#7a4a12;
 
       --radius: 26px;
 
@@ -67,6 +52,10 @@
       --spaceC: #120a12;
       --glowBlue: rgba(120,190,255,.18);
       --glowRed: rgba(255,110,95,.14);
+
+      /* ✅ NEW: center dock menu sizing */
+      --dock-top: clamp(92px, 7.2vw, 120px);
+      --dock-w: min(980px, calc(100vw - 32px));
     }
 
     body{
@@ -81,7 +70,6 @@
       overflow-x:hidden;
     }
 
-    /* ✅ FIX: доступные фокусы (не ломают дизайн) */
     :focus-visible{
       outline: 2px solid rgba(120,190,255,.75);
       outline-offset: 2px;
@@ -102,43 +90,16 @@
     header.hero{
       position: relative;
       overflow: hidden;
-      padding: 34px 0 26px;
+      padding: 40px 0 28px;
       color: rgba(255,255,255,.96);
-      background: linear-gradient(90deg, #0039a6 0%, #ffffff 50%, #d52b1e 100%);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
       animation: fadeIn 1.2s ease-in forwards;
     }
-    header.hero::before{
-      content:"";
-      position:absolute; inset:0;
-      background: url('russian-flag.svg') center/220% no-repeat;
-      opacity: 0.07;
-      animation: flagPulse 6s ease-in-out infinite;
-      z-index: 0;
-      pointer-events:none;
-    }
 
-    .hero__inner{ position: relative; z-index: 1; }
-    .hero__inner::before{
-      content:"";
-      position:absolute;
-      left: 0;
-      top: 10px;
-      width: min(680px, 92%);
-      height: 240px;
-      pointer-events:none;
-      z-index: 0;
-      background:
-        radial-gradient(closest-side at 35% 35%, rgba(255,255,255,.70), rgba(255,255,255,0) 72%),
-        radial-gradient(closest-side at 55% 55%, rgba(0,57,166,.10), rgba(0,57,166,0) 75%),
-        radial-gradient(closest-side at 70% 45%, rgba(213,43,30,.08), rgba(213,43,30,0) 78%);
-      filter: blur(10px);
-      opacity: .95;
-    }
+    .hero__inner{ position: relative; z-index: 2; }
 
     .hero__grid{
       position: relative;
-      z-index: 1;
+      z-index: 2;
       display: grid;
       gap: 18px;
       align-items: center;
@@ -146,37 +107,16 @@
     }
     @media (max-width: 900px){
       .hero__grid{ grid-template-columns: 1fr; }
-      .hero__inner::before{
-        height: 210px;
-        width: min(720px, 100%);
-        top: 6px;
-        opacity: .92;
-      }
     }
 
     .brand{
       display:flex;
       flex-direction:column;
       gap: 10px;
-      max-width: 680px;
+      max-width: 760px;
       position: relative;
       isolation: isolate;
     }
-    .brand::before{
-      content:"";
-      position:absolute;
-      inset: -18px -22px -18px -22px;
-      border-radius: 26px;
-      pointer-events:none;
-      z-index: 0;
-      background:
-        radial-gradient(closest-side at 25% 30%, rgba(0,0,0,.42), rgba(0,0,0,0) 72%),
-        radial-gradient(closest-side at 45% 55%, rgba(0,57,166,.20), rgba(0,57,166,0) 72%),
-        radial-gradient(closest-side at 65% 40%, rgba(213,43,30,.12), rgba(213,43,30,0) 78%);
-      filter: blur(14px);
-      opacity: .95;
-    }
-    .brand > *{ position: relative; z-index: 1; }
 
     .brand h1{
       margin: 0;
@@ -191,8 +131,6 @@
       -webkit-text-stroke: 1.15px rgba(0,0,0,.35);
       paint-order: stroke fill;
     }
-    .brand h1 .highlight-wings{ color: #0039a6; }
-    .brand h1 .highlight-russia{ color: #d52b1e; }
 
     .hero__lead{
       margin: 0;
@@ -231,6 +169,8 @@
       white-space:nowrap;
       position:relative;
       overflow:hidden;
+      color: rgba(255,255,255,.95);
+      background: rgba(0,0,0,.14);
     }
     .btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
     .btn:active{ transform: translateY(0) scale(.99); }
@@ -253,11 +193,6 @@
     }
     .btn--primary:hover::after{ transform: translateX(120%) skewX(-18deg); }
 
-    .btn--ghost{
-      color: rgba(255,255,255,.95);
-      background: rgba(0,0,0,.14);
-      border-color: rgba(255,255,255,.22);
-    }
     .btn--ghost:hover{ background: rgba(255,255,255,.10); }
 
     .stats{
@@ -272,11 +207,11 @@
     .stat{
       padding: 14px 14px;
       border-radius: 16px;
-      background: rgba(0,0,0,.14);
+      background: rgba(0,0,0,.22);
       border: 1px solid rgba(255,255,255,.22);
       box-shadow:
-        0 14px 26px rgba(0,0,0,.16),
-        inset 0 1px 0 rgba(255,255,255,.16);
+        0 18px 36px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.14);
       backdrop-filter: blur(10px) saturate(1.05);
       -webkit-backdrop-filter: blur(10px) saturate(1.05);
     }
@@ -285,6 +220,7 @@
       font-size: clamp(18px, 2.0vw, 24px);
       letter-spacing: .2px;
       text-shadow: 0 2px 14px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.96);
     }
     .stat span{
       display:block;
@@ -292,8 +228,9 @@
       font-size: 12px;
       letter-spacing: .08em;
       text-transform: uppercase;
-      opacity: .92;
+      opacity: .90;
       text-shadow: 0 2px 10px rgba(0,0,0,.22);
+      color: rgba(255,255,255,.86);
     }
 
     .jump{
@@ -595,34 +532,44 @@
     footer p{ margin:0; color: rgba(255,255,255,.95); font-size: 14px !important; }
 
     /* =========================================================
-       ✅ NEW: COMPACT MENU = BUTTONS like "Как помочь"
-       (replaces the old HUD completely)
+       ✅ MENU DOCK (CENTERED near logo)
     ========================================================= */
     .quick-nav{
       position: fixed;
-      left: var(--nav-left);
-      top:  var(--nav-top);
+      left: 50%;
+      top:  var(--dock-top);
+      transform: translateX(-50%);
       z-index: 12000;
+
+      width: var(--dock-w);
       display:flex;
-      flex-direction:column;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
       gap: 10px;
-      user-select:none;
-      pointer-events:auto;
+
+      padding: 10px 10px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        0 22px 50px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(12px) saturate(1.06);
+      -webkit-backdrop-filter: blur(12px) saturate(1.06);
     }
 
     .quick-nav::before{
       content:"";
       position:absolute;
-      left:-18px; top:-18px;
-      width: 270px;
-      height: calc(100% + 36px);
+      inset:-26px -26px -26px -26px;
       pointer-events:none;
       z-index:-1;
       background:
-        radial-gradient(240px 220px at 30% 20%, rgba(120,190,255,.22), transparent 62%),
-        radial-gradient(220px 200px at 60% 40%, rgba(255,255,255,.08), transparent 60%),
-        radial-gradient(260px 220px at 70% 75%, rgba(255,110,95,.18), transparent 66%);
-      filter: blur(14px);
+        radial-gradient(420px 240px at 18% 35%, rgba(120,190,255,.22), transparent 62%),
+        radial-gradient(420px 260px at 82% 35%, rgba(255,110,95,.16), transparent 66%),
+        radial-gradient(520px 320px at 50% 95%, rgba(255,255,255,.06), transparent 62%);
+      filter: blur(18px);
       opacity: .95;
     }
 
@@ -631,7 +578,8 @@
       align-items:center;
       justify-content:flex-start;
       gap: 10px;
-      width: clamp(210px, 18vw, 260px);
+
+      min-width: 205px;
       padding: 12px 14px;
       border-radius: 14px;
       text-decoration:none;
@@ -645,6 +593,7 @@
       position:relative;
       overflow:hidden;
       white-space:nowrap;
+      flex: 0 0 auto;
     }
 
     .quick-nav__btn::after{
@@ -676,18 +625,20 @@
       min-width:0;
     }
     .quick-nav__title{
-      font-size: 14px;
+      font-size: 13px;
       text-transform: uppercase;
       overflow:hidden;
       text-overflow:ellipsis;
+      color: rgba(255,255,255,.96);
     }
     .quick-nav__sub{
-      font-size: 11px;
+      font-size: 10px;
       opacity:.86;
       letter-spacing:.06em;
       text-transform: uppercase;
       overflow:hidden;
       text-overflow:ellipsis;
+      color: rgba(255,255,255,.82);
     }
 
     /* patriotic styles */
@@ -717,6 +668,10 @@
         linear-gradient(180deg, rgba(255,255,255,.86), rgba(0,0,0,.10));
       border-color: rgba(0,57,166,.14);
     }
+    .quick-nav__btn--white .quick-nav__title,
+    .quick-nav__btn--white .quick-nav__sub{
+      color: rgba(20,24,34,.92);
+    }
 
     .quick-nav__btn--red{
       color: rgba(255,255,255,.96);
@@ -734,75 +689,77 @@
     /* Active highlight */
     .quick-nav__btn.is-active{
       box-shadow:
-        0 18px 36px rgba(0,0,0,.24),
+        0 18px 36px rgba(0,0,0,.26),
         0 0 0 1px rgba(255,255,255,.22) inset,
         0 0 26px rgba(255,220,140,.10);
       border-color: rgba(255,240,200,.32);
     }
-    .quick-nav__btn.is-active .quick-nav__ico{
-      border-color: rgba(255,240,200,.36);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.18),
-        0 12px 22px rgba(0,0,0,.20),
-        0 0 18px rgba(255,220,140,.10);
+
+    /* ✅ Mini anchor pills inside dock (2nd row like in your mock) */
+    .quick-nav__pills{
+      flex: 1 1 100%;
+      display:flex;
+      justify-content:center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+      padding-top: 2px;
+    }
+    .quick-nav__pill{
+      text-decoration:none;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.92);
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.12);
+      box-shadow: 0 10px 20px rgba(0,0,0,.14);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      transition: transform .14s ease, filter .14s ease;
+      white-space: nowrap;
+    }
+    .quick-nav__pill:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.05);
+      background: rgba(255,255,255,.08);
     }
 
-    /* small screen behavior */
+    /* responsive */
     @media (max-width: 900px){
+      :root{ --dock-top: calc(10px + env(safe-area-inset-top, 0px)); }
       .quick-nav{
-        left: 12px;
-        top:  12px;
-        gap: 8px;
+        top: var(--dock-top);
+        width: min(740px, calc(100vw - 16px));
+        padding: 8px 8px;
+        border-radius: 16px;
       }
       .quick-nav__btn{
-        width: min(240px, calc(100vw - 24px));
-        padding: 11px 12px;
+        min-width: min(260px, calc(50vw - 20px));
+        padding: 10px 12px;
       }
-    }
-
-    @media (max-width: 520px){
-      :root{
-        --nav-left: 50%;
-        --nav-top: calc(8px + env(safe-area-inset-top, 0px));
-      }
-      .quick-nav{
-        left: var(--nav-left);
-        top:  var(--nav-top);
-        transform: translateX(-50%);
-        align-items: center;
-      }
-      .quick-nav::before{ width: min(360px, calc(100vw - 16px)); left: 50%; transform: translateX(-50%); }
-      .quick-nav__btn{
-        width: min(360px, calc(100vw - 32px));
-        border-radius: 14px;
-      }
-      .quick-nav__ico{ width: 30px; height: 30px; border-radius: 11px; }
       .quick-nav__title{ font-size: 12px; }
       .quick-nav__sub{ font-size: 9px; }
     }
 
-    /* =========================================================
-       PROJECT PAGE LAYOUT (safe-zone for menu)
-       (keep the same idea: give content room when menu exists)
-    ========================================================= */
-    .page-project .wrap{ margin: 0 auto !important; }
-
-    @media (min-width: 1200px){
-      .page-project .wrap{
-        width: min(
-          var(--content-max),
-          calc(100% - (var(--content-pad) * 2) - 280px - 60px)
-        ) !important;
+    @media (max-width: 520px){
+      .quick-nav{
+        width: min(380px, calc(100vw - 16px));
+        gap: 8px;
       }
-    }
-    @media (max-width: 1199px){
-      .page-project .wrap{
-        width: min(var(--content-max), calc(100% - (var(--content-pad) * 2))) !important;
+      .quick-nav__btn{
+        min-width: 100%;
       }
+      .quick-nav__ico{ width: 30px; height: 30px; border-radius: 11px; }
+      .quick-nav__pills{ gap: 6px; }
+      .quick-nav__pill{ font-size: 10px; padding: 8px 10px; }
     }
 
     /* =========================================================
-       ✅ THE LOOK FROM YOUR IMAGE (space + glossy UI)
+       PROJECT PAGE LOOK (space + glossy UI)
     ========================================================= */
     .page-project{ --content-max: 1280px; }
 
@@ -813,9 +770,6 @@
         linear-gradient(to bottom right, #f4f6fb, #ffffff);
     }
 
-    .page-project{
-      background: none;
-    }
     .page-project main{
       position:relative;
       overflow:hidden;
@@ -841,7 +795,6 @@
     }
     .page-project main > .wrap{ position:relative; z-index:1; }
 
-    /* HERO like mock: space + subtle stars + tri-band */
     .page-project header.hero{
       position: relative;
       overflow: hidden;
@@ -862,8 +815,7 @@
       inset:0;
       z-index:0;
       pointer-events:none;
-      background:
-        url('russian-flag.svg') center/240% no-repeat;
+      background: url('russian-flag.svg') center/240% no-repeat;
       opacity: .10;
       filter: saturate(1.15) contrast(1.08);
       animation: flagPulse 7s ease-in-out infinite;
@@ -899,137 +851,7 @@
       100% { filter: saturate(1.02) contrast(1.02); }
     }
 
-    .page-project .hero__inner,
-    .page-project .hero__grid{
-      position:relative;
-      z-index:2 !important;
-    }
-
-    .page-project .hero__inner::before{
-      background:
-        radial-gradient(circle at 92% 22%, rgba(255,255,255,.16) 0 1px, transparent 2px),
-        radial-gradient(circle at 86% 34%, rgba(255,255,255,.12) 0 1px, transparent 2px),
-        radial-gradient(circle at 78% 18%, rgba(255,255,255,.10) 0 1px, transparent 2px),
-        radial-gradient(circle at 18% 26%, rgba(255,255,255,.10) 0 1px, transparent 2px),
-        radial-gradient(circle at 26% 38%, rgba(255,255,255,.08) 0 1px, transparent 2px),
-        radial-gradient(closest-side at 24% 32%, rgba(0,0,0,.72), rgba(0,0,0,0) 74%),
-        radial-gradient(closest-side at 42% 58%, rgba(0,57,166,.32), rgba(0,57,166,0) 80%),
-        radial-gradient(closest-side at 70% 44%, rgba(213,43,30,.24), rgba(213,43,30,0) 84%) !important;
-      filter: blur(18px) !important;
-      opacity: .98 !important;
-    }
-
-    /* Orbit glow like mock */
-    .page-project header.hero .hero__inner::after{
-      content:"";
-      position:absolute;
-      right: -180px;
-      top:  -210px;
-      width: 540px;
-      height: 540px;
-      pointer-events:none;
-      z-index: 1;
-      background:
-        conic-gradient(from 190deg,
-          rgba(0,57,166,.38),
-          rgba(255,255,255,.12),
-          rgba(213,43,30,.34),
-          rgba(0,57,166,.38)
-        );
-      filter: blur(32px) saturate(1.12);
-      opacity:.55;
-      transform:
-        translate(calc((var(--mx) - .5) * -40px), calc((var(--my) - .5) * -28px))
-        rotate(12deg);
-      animation: orbitGlow 16s ease-in-out infinite;
-    }
-    @keyframes orbitGlow{
-      0%,100%{ opacity:.46; }
-      50%    { opacity:.66; }
-    }
-
-    .page-project .brand h1{
-      color: rgba(255,255,255,.99) !important;
-      -webkit-text-stroke: 1.25px rgba(0,0,0,.48) !important;
-      text-shadow:
-        0 2px 12px rgba(0,0,0,.48),
-        0 24px 46px rgba(0,0,0,.32) !important;
-      position: relative;
-    }
-    .page-project .brand h1::before{
-      content:"";
-      position:absolute;
-      left:-18px;
-      right:-18px;
-      top:  10%;
-      height: 72%;
-      z-index:-1;
-      pointer-events:none;
-      opacity:.55;
-      background:
-        radial-gradient(closest-side at 22% 50%, rgba(255,255,255,.20), transparent 68%),
-        radial-gradient(closest-side at 78% 50%, rgba(255,255,255,.18), transparent 68%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 18px);
-      filter: blur(10px);
-    }
-    .page-project .brand h1::after{
-      content:"";
-      position:absolute;
-      left:-8px; right:-8px;
-      top:-6px; height: 62%;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 72%);
-      mix-blend-mode: screen;
-      filter: blur(10px);
-      opacity: .34;
-      pointer-events:none;
-    }
-
-    .page-project .brand h1 .highlight-wings{
-      color: #66a3ff !important;
-      text-shadow: 0 0 14px rgba(0,57,166,.28), 0 16px 30px rgba(0,0,0,.28);
-    }
-    .page-project .brand h1 .highlight-russia{
-      color: #ff6a5f !important;
-      text-shadow: 0 0 14px rgba(213,43,30,.24), 0 16px 30px rgba(0,0,0,.28);
-    }
-
-    .page-project .stat{
-      background: rgba(0,0,0,.22) !important;
-      border-color: rgba(255,255,255,.22) !important;
-      box-shadow:
-        0 18px 36px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.14),
-        inset 0 0 22px rgba(0,57,166,.08) !important;
-    }
-    .page-project .stat:nth-child(2n){
-      box-shadow:
-        0 18px 36px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.14),
-        inset 0 0 22px rgba(213,43,30,.07) !important;
-    }
-
-    /* “Content shell” glow like mock */
-    .page-project .stack{
-      position:relative;
-    }
-    .page-project .stack::before{
-      content:"";
-      position:absolute;
-      left:-14px; right:-14px;
-      top:-12px; bottom:-12px;
-      border-radius: 26px;
-      pointer-events:none;
-      background:
-        radial-gradient(900px 300px at 22% 0%, rgba(0,57,166,.10), transparent 70%),
-        radial-gradient(900px 320px at 88% 0%, rgba(213,43,30,.07), transparent 72%);
-      filter: blur(10px);
-      opacity:.75;
-      z-index:0;
-    }
-    .page-project .stack > *{ position:relative; z-index:1; }
-
-    /* Ribbon + Badge like mock */
+    /* Ribbon + Badge */
     .page-project header.hero .hero-ribbon{
       position:absolute;
       left:0; right:0; bottom:0;
@@ -1041,15 +863,6 @@
         0 -6px 22px rgba(0,0,0,.20),
         0  6px 26px rgba(0,0,0,.18);
       opacity: .95;
-    }
-    .page-project header.hero .hero-ribbon::before{
-      content:"";
-      position:absolute; inset:-10px 0 0 0;
-      background:
-        radial-gradient(60% 120% at 20% 0%, rgba(0,57,166,.22), transparent 60%),
-        radial-gradient(60% 120% at 80% 0%, rgba(213,43,30,.18), transparent 60%);
-      filter: blur(10px);
-      opacity: .9;
     }
 
     .page-project header.hero .hero-badge{
@@ -1094,36 +907,6 @@
       opacity:.92;
     }
 
-    @media (max-width: 1920px){
-      .page-project header.hero .hero-badge{ padding: 8px 10px; }
-      .page-project header.hero .hero-badge__logo{ width: 30px; height: 30px; border-radius: 11px; }
-      .page-project header.hero .hero-badge__text{ font-size: 11px; }
-    }
-    @media (max-width: 520px){
-      .page-project header.hero .hero-badge{
-        right: 10px;
-        top: 10px;
-        padding: 7px 8px;
-        gap: 8px;
-      }
-      .page-project header.hero .hero-badge__logo{
-        width: 26px; height: 26px;
-        border-radius: 10px;
-        background-size: 70%;
-      }
-      .page-project header.hero .hero-badge__text{
-        font-size: 10px;
-        letter-spacing: .08em;
-      }
-      .page-project header.hero .hero-ribbon{ height: 9px; }
-    }
-
-    /* FHD readability */
-    @media (max-width: 1920px){
-      .page-project p{ color: rgba(18,24,38,.92) !important; }
-    }
-
-    /* ✅ FIX: уважение prefers-reduced-motion (не ломает стиль) */
     @media (prefers-reduced-motion: reduce){
       *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
     }
@@ -1143,7 +926,7 @@
     <div class="wrap hero__inner">
       <div class="hero__grid">
         <div class="brand">
-          <h1>Техно<span class="highlight-wings">Крылья</span><span class="highlight-russia">России</span></h1>
+          <h1>Техно<span class="highlight-wings" style="color:#66a3ff;">Крылья</span><span class="highlight-russia" style="color:#ff6a5f;">России</span></h1>
           <p class="hero__lead">
             Мы помогаем детям из детских домов получить доступ к цифровому образованию и навыкам,
             которые дают реальный шанс на самостоятельное будущее.
@@ -1172,7 +955,7 @@
     </div>
   </header>
 
-  <!-- ✅ NEW MENU (buttons like "Как помочь") -->
+  <!-- ✅ CENTER DOCK MENU (near logo/title like your screenshot) -->
   <nav class="quick-nav" aria-label="Навигация">
     <a class="quick-nav__btn quick-nav__btn--blue" data-nav="home" href="https://digitalhavenrussia.ru">
       <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
@@ -1213,6 +996,14 @@
         <span class="quick-nav__sub">Подключиться</span>
       </span>
     </a>
+
+    <!-- ✅ second row mini anchors (like in your mock) -->
+    <div class="quick-nav__pills" aria-label="Навигация по разделам">
+      <a class="quick-nav__pill" href="#about">О проекте</a>
+      <a class="quick-nav__pill" href="#mission">Миссия</a>
+      <a class="quick-nav__pill" href="#gallery">Галерея</a>
+      <a class="quick-nav__pill" href="#vk">VK</a>
+    </div>
   </nav>
 
   <main>
@@ -1389,12 +1180,11 @@
   </script>
 
   <script>
-    /* ✅ Active highlight for the new button menu */
+    /* ✅ Active highlight for the dock menu */
     (function markActiveQuickNav(){
       try{
         const path = (location.pathname || '').replace(/\/+$/, '') || '/';
         const btns = document.querySelectorAll('.quick-nav__btn');
-
         btns.forEach(b => b.classList.remove('is-active'));
 
         const rules = [
@@ -1410,35 +1200,11 @@
           if(active) active.classList.add('is-active');
         }
 
-        /* If we are on project page and jumped to #help, highlight cyber too */
         if(path === '/project.html' && (location.hash || '') === '#help'){
           const cyber = document.querySelector('.quick-nav__btn[data-nav="cyber"]');
           if(cyber) cyber.classList.add('is-active');
         }
       }catch(e){}
-    })();
-  </script>
-
-  <!-- HERO PARALLAX -->
-  <script>
-    (function heroParallax(){
-      const hero = document.querySelector('.page-project header.hero');
-      if(!hero) return;
-
-      let raf = null, mx = .5, my = .4;
-      const apply = () => {
-        hero.style.setProperty('--mx', mx.toFixed(3));
-        hero.style.setProperty('--my', my.toFixed(3));
-        raf = null;
-      };
-
-      window.addEventListener('mousemove', (e) => {
-        const w = window.innerWidth || 1;
-        const h = window.innerHeight || 1;
-        mx = Math.max(0, Math.min(1, e.clientX / w));
-        my = Math.max(0, Math.min(1, e.clientY / h));
-        if(!raf) raf = requestAnimationFrame(apply);
-      }, { passive:true });
     })();
   </script>
 
