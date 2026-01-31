@@ -1,141 +1,428 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="icon" href="embl.ico" type="image/x-icon"> 
-  <link rel="icon" href="embl.png" type="image/png">  
+  <link rel="icon" href="embl.ico" type="image/x-icon">
+  <link rel="icon" href="embl.png" type="image/png">
   <link rel="icon" href="embl.webp" type="image/webp" sizes="72x72">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="ТехноКрылья России — проект по цифровому обучению детей из детских домов." />
   <title>ТехноКрыльяРоссии</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&family=Russo+One&family=PT+Sans+Caption:wght@400;700&family=Ruslan+Display&display=swap" rel="stylesheet" />
-  <!-- Swiper CSS -->
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 
   <style>
     * { box-sizing: border-box; }
-    body {
+    html { scroll-behavior: smooth; }
+    body{
       margin: 0;
-      padding-top: 0; /* было 60px под старое верхнее меню */
+      padding-top: 0;
       font-family: 'Rubik', sans-serif;
-      background: linear-gradient(to bottom right, #f2f2f2, #ffffff);
-      color: #222;
-      scroll-behavior: smooth;
+      color: #1c2430;
+      background:
+        radial-gradient(1200px 700px at 25% -10%, rgba(0,57,166,.10), transparent 60%),
+        radial-gradient(900px 520px at 85% 0%, rgba(213,43,30,.08), transparent 55%),
+        linear-gradient(to bottom right, #f4f6fb, #ffffff);
     }
-    p { font-size: 1.2rem !important; line-height: 1.6 !important; }
 
-    header {
+    a{ color:#0039a6; }
+    a:hover{ color:#d52b1e; }
+
+    /* =========================
+       ✅ ГЛОБАЛЬНАЯ СЕТКА СТРАНИЦЫ
+    ========================== */
+    :root{
+      --content-max: 1120px;
+      --content-pad: 24px;
+
+      --card-bg: rgba(255,255,255,.92);
+      --card-brd: rgba(30,80,160,.14);
+      --shadow: 0 18px 50px rgba(16,24,40,.10);
+
+      --h1: clamp(28px, 3.2vw, 44px);
+      --h2: clamp(18px, 2.0vw, 26px);
+      --p:  clamp(15px, 1.05vw, 18px);
+    }
+
+    .wrap{
+      width: min(var(--content-max), calc(100% - (var(--content-pad) * 2)));
+      margin: 0 auto;
+    }
+
+    /* На больших экранах учитываем меню слева, как у тебя уже было */
+    @media (min-width: 1200px){
+      .wrap{
+        margin-left: calc(var(--panel-w) + 60px);
+        margin-right: auto;
+      }
+    }
+
+    /* =========================
+       ✅ HERO (первый экран)
+    ========================== */
+    header.hero{
       position: relative;
       overflow: hidden;
-      padding: 100px 20px 40px;
-      text-align: center;
+      padding: 34px 0 26px;
+      color: rgba(255,255,255,.96);
       background: linear-gradient(90deg, #0039a6 0%, #ffffff 50%, #d52b1e 100%);
       background-size: 300% 100%;
-      animation: gradientShift 8s ease infinite, fadeIn 1.5s ease-in forwards;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      color: white;
+      animation: gradientShift 8s ease infinite, fadeIn 1.2s ease-in forwards;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
     }
-    header::before {
-      content: "";
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: url('russian-flag.svg') center/200% no-repeat;
-      opacity: 0.08;
+    header.hero::before{
+      content:"";
+      position:absolute; inset:0;
+      background: url('russian-flag.svg') center/220% no-repeat;
+      opacity: 0.07;
       animation: flagPulse 6s ease-in-out infinite;
-      z-index: 1;
+      z-index: 0;
     }
-    header > * { position: relative; z-index: 2; }
-    header h1 {
-      margin-bottom: 10px;
-      font-size: 2.8em;
+    .hero__inner{ position: relative; z-index: 1; }
+
+    .hero__grid{
+      display: grid;
+      gap: 18px;
+      align-items: center;
+      grid-template-columns: 1.35fr .95fr;
+    }
+    @media (max-width: 900px){
+      .hero__grid{ grid-template-columns: 1fr; }
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .brand h1{
+      margin: 0;
       font-family: 'Russo One', sans-serif;
-      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      font-size: var(--h1);
+      line-height: 1.05;
+      letter-spacing: .2px;
+      text-shadow:
+        0 2px 10px rgba(0,0,0,.25),
+        -1px -1px 0 rgba(0,0,0,.45),
+         1px -1px 0 rgba(0,0,0,.45),
+        -1px  1px 0 rgba(0,0,0,.45),
+         1px  1px 0 rgba(0,0,0,.45);
     }
-    header h1 span.highlight-wings { color: #0039a6; }
-    header h1 span.highlight-russia { color: #d52b1e; }
-    #vk_posts { max-width:1000px; margin:50px auto; }
-    .slogan {
-      font-size: 1.5em;
+    .brand h1 .highlight-wings{ color: #0039a6; }
+    .brand h1 .highlight-russia{ color: #d52b1e; }
+
+    .hero__lead{
+      margin: 0;
+      font-size: clamp(14px, 1.1vw, 18px);
+      color: rgba(255,255,255,.94);
+      text-shadow: 0 2px 12px rgba(0,0,0,.25);
+      max-width: 62ch;
+    }
+
+    .hero__actions{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      text-decoration:none;
       font-weight: 700;
-      color: #fff;
-      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-      margin-top: 15px;
+      letter-spacing: .02em;
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      transition: transform .14s ease, filter .14s ease;
+      user-select:none;
+      white-space:nowrap;
     }
+    .btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .btn:active{ transform: translateY(0) scale(.99); }
+
+    .btn--primary{
+      color: rgba(40,28,12,.95);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 62%),
+        linear-gradient(180deg, rgba(255,242,205,.98), rgba(245,206,120,.98));
+      border-color: rgba(255,255,255,.35);
+    }
+    .btn--ghost{
+      color: rgba(255,255,255,.95);
+      background: rgba(0,0,0,.14);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 900px){
+      .stats{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px){
+      .stats{ grid-template-columns: 1fr; }
+    }
+
+    .stat{
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .stat b{
+      display:block;
+      font-size: clamp(18px, 2.0vw, 24px);
+      letter-spacing: .2px;
+      text-shadow: 0 2px 14px rgba(0,0,0,.25);
+    }
+    .stat span{
+      display:block;
+      margin-top: 4px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .9;
+    }
+
+    /* Быстрые якоря под hero */
+    .jump{
+      margin: 16px 0 0;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .jump a{
+      text-decoration:none;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.92);
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.12);
+      box-shadow: 0 10px 20px rgba(0,0,0,.14);
+      transition: transform .14s ease, filter .14s ease;
+    }
+    .jump a:hover{ transform: translateY(-1px); filter:saturate(1.05); }
 
     @keyframes gradientShift {0%{background-position:0% 0;}50%{background-position:100% 0;}100%{background-position:0% 0;}}
-    @keyframes flagPulse {0%,100%{opacity:0.05;}50%{opacity:0.15;}}
+    @keyframes flagPulse {0%,100%{opacity:0.05;}50%{opacity:0.14;}}
     @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-    @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
-    main { padding: 20px; max-width: 1000px; margin: 40px auto; }
-    .swiper-container {
+    /* =========================
+       ✅ MAIN
+    ========================== */
+    main{
+      padding: 22px 0 32px;
+    }
+
+    .stack{ display:flex; flex-direction:column; gap: 18px; }
+
+    /* Универсальная карточка-секция */
+    .card{
+      background: var(--card-bg);
+      border: 1px solid var(--card-brd);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      animation: fadeInUp .9s ease-out;
+    }
+    .card__head{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .card__title{
+      margin:0;
+      font-family:'Russo One', sans-serif;
+      font-size: var(--h2);
+      letter-spacing:.2px;
+      color:#0f2a63;
+    }
+    .card__sub{
+      margin:0;
+      opacity:.78;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 60ch;
+    }
+    .card__body{
+      padding: 0 18px 18px;
+    }
+
+    p{
+      font-size: var(--p) !important;
+      line-height: 1.7 !important;
+      margin: 0 0 12px;
+      color: rgba(22,30,45,.92);
+    }
+
+    /* =========================
+       ✅ ГАЛЕРЕЯ / SWIPER
+    ========================== */
+    .gallery__wrap{ padding: 0 18px 18px; }
+
+    .swiper-container{
       position: relative;
       width: 100%;
-      max-width: 1000px;
-      height: 600px;
-      margin: 0 auto;
-      border-radius: 12px;
+      height: clamp(260px, 34vw, 520px);
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.14);
+      background: rgba(0,0,0,.04);
     }
-    .swiper-slide img { width:100%; height:100%; object-fit: cover; }
-    .swiper-pagination {
-      position: absolute;
-      bottom: 15px; left: 0; width: 100%;
-      display: flex; justify-content: center; align-items: center;
-      z-index: 10;
+    .swiper-slide img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      transform: scale(1.02);
     }
-    .swiper-pagination-bullet { width: 12px; height: 12px; margin: 0 6px; opacity: 0.6; background: #0039a6; }
-    .swiper-pagination-bullet-active { opacity: 1; background: #d52b1e; }
-    .custom-controls { display:flex; justify-content:space-between; max-width:1000px; margin:10px auto; padding:0 10px; }
-    .custom-controls button {
-      width:60px; height:60px; border-radius:50%;
-      background:white; border:3px solid #0039a6;
-      color:#0039a6; font-size:1.8em; font-weight:bold;
-      cursor:pointer; transition:all .3s ease;
+
+    .swiper-pagination{
+      bottom: 14px !important;
+    }
+    .swiper-pagination-bullet{
+      width: 10px; height: 10px;
+      margin: 0 6px !important;
+      opacity: .55;
+      background: rgba(0,57,166,.85);
+    }
+    .swiper-pagination-bullet-active{
+      opacity: 1;
+      background: rgba(213,43,30, .95);
+    }
+
+    /* Кнопки листания — аккуратнее и ближе к картинке */
+    .custom-controls{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 18px 18px;
+    }
+    .custom-controls button{
+      width:48px; height:48px; border-radius:14px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(30,80,160,.22);
+      color:#0f2a63;
+      font-size:1.1em; font-weight:bold;
+      cursor:pointer;
+      transition: transform .14s ease, filter .14s ease, background .14s ease;
       display:flex; align-items:center; justify-content:center;
-      box-shadow:0 8px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 14px 26px rgba(0,0,0,.14);
     }
-    .custom-controls button:hover { background:#d52b1e; color:white; border-color:#d52b1e; transform:scale(1.1); }
-
-    .social-links { display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 2rem; }
-    .social-link { display: inline-block; width: 112px; height: 112px; transition: transform 0.3s ease, filter 0.3s ease; }
-    .social-link img { width: 100%; height: 100%; object-fit: contain; display: block; }
-    .social-link:hover { transform: scale(1.2); filter: brightness(1.3); }
-
-    .section {
-      margin-bottom:50px;
-      background:#fff;
-      padding:20px;
-      border-radius:15px;
-      border:2px solid #d52b1e;
-      box-shadow:0 4px 12px rgba(0,0,0,0.05);
-      animation: fadeInUp 1s ease-out;
+    .custom-controls button:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.05);
+      background: rgba(245,206,120,.95);
+      border-color: rgba(245,206,120,.65);
     }
-    .section h2 {
-      color:#0039a6;
-      font-size:1.6em;
-      margin-bottom:15px;
-      border-left:6px solid #d52b1e;
-      padding-left:10px;
+
+    /* =========================
+       ✅ СЕКЦИИ: блоки смысла
+    ========================== */
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px){
+      .grid-2{ grid-template-columns: 1fr; }
+    }
+
+    .mini{
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(0,57,166,.04);
+      border: 1px solid rgba(0,57,166,.10);
+    }
+    .mini h3{
+      margin: 0 0 8px;
       font-family:'Russo One', sans-serif;
+      font-size: 16px;
+      letter-spacing:.2px;
+      color:#0f2a63;
     }
-    .section ul { list-style:none; padding-left:0; }
-    .section ul li::before { content:"\2713"; color:#28a745; margin-right:10px; }
+    .mini p{ margin:0; font-size: 14px !important; line-height: 1.6 !important; opacity:.92; }
 
-    @media (max-width:768px) {
-      .swiper-container { height:240px; }
-      header h1{font-size:2em;}
-      .slogan{font-size:1.2em;}
-      .section ul li{font-size:1em;}
+    ul.clean{
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    ul.clean li{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(30,80,160,.10);
+      box-shadow: 0 10px 22px rgba(16,24,40,.06);
+    }
+    ul.clean li::before{
+      content:"✓";
+      flex:0 0 auto;
+      width: 22px; height: 22px;
+      border-radius: 8px;
+      display:grid; place-items:center;
+      background: rgba(40,167,69,.12);
+      color: rgba(27,120,52,.95);
+      font-weight: 900;
+      margin-top: 1px;
     }
 
-    footer { background:#0039a6; color:#fff; text-align:center; padding:20px; border-top:4px solid #d52b1e; animation: fadeIn 2s ease-in; }
+    /* Соц-иконки — уменьшить, чтобы не выглядели как “баннеры” */
+    .social-links{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap: 14px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .social-link{
+      width: 74px;
+      height: 74px;
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .social-link img{ width:100%; height:100%; object-fit:contain; display:block; }
+    .social-link:hover{ transform: translateY(-2px) scale(1.06); filter: brightness(1.12); }
+
+    /* =========================
+       ✅ FOOTER
+    ========================== */
+    footer{
+      margin-top: 22px;
+      background:#0039a6;
+      color:#fff;
+      text-align:center;
+      padding: 18px;
+      border-top: 4px solid #d52b1e;
+    }
+    footer p{ margin:0; color: rgba(255,255,255,.95); font-size: 14px !important; }
 
     /* =====================================================================
-       ✅ НОВОЕ МЕНЮ (ИГРОВОЕ) — полностью заменяет старый <nav id="site-nav">
+       ✅ ТВОЁ МЕНЮ (ИГРОВОЕ) — ОСТАВИЛ КАК ЕСТЬ
     ====================================================================== */
     :root{
       --nav-left: 18px;
@@ -524,7 +811,6 @@
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
     }
 
-    /* ✅ КИБЕРПОЛИГОН (ячейка меню) */
     .hud-cta.hud-cta--cyber{
       color: rgba(235,252,255,.96);
       letter-spacing:.12em;
@@ -610,7 +896,6 @@
       filter: blur(1px);
     }
 
-    /* Ночной стиль */
     .hud--night{
       --gA: rgba(18, 55, 70, .62);
       --gB: rgba(8, 30, 40, .54);
@@ -618,14 +903,6 @@
       --iB: rgba(0,0,0,.10);
     }
 
-    /* Чуть освобождаем место под меню на больших экранах (чтобы не наезжало на контент) */
-    @media (min-width: 1200px){
-      main{ max-width: 980px; margin-left: calc(var(--panel-w) + 60px); margin-right: auto; }
-      header{ padding-left: calc(var(--panel-w) + 60px); padding-right: 20px; text-align:left; }
-      header h1, header .slogan{ text-align:left; }
-    }
-
-    /* FHD сжатие как в твоём меню (упрощённо) */
     @media (max-width: 1920px) and (min-width: 521px){
       :root{
         --nav-left: 6px;
@@ -666,7 +943,6 @@
       .hud-cta--cyber .cyber-shield svg{ width: 19px; height: 19px; }
     }
 
-    /* Мобилка — компакт */
     @media (max-width: 520px){
       :root{
         --nav-left: 50%;
@@ -729,12 +1005,42 @@
 
 <body>
 
-  <header>
-    <h1>Техно<span class="highlight-wings">Крылья</span><span class="highlight-russia">России</span></h1>
-    <p class="slogan"><strong>Строим цифровое будущее вместе!</strong></p>
+  <!-- ✅ HERO -->
+  <header class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__grid">
+        <div class="brand">
+          <h1>Техно<span class="highlight-wings">Крылья</span><span class="highlight-russia">России</span></h1>
+          <p class="hero__lead">
+            Мы помогаем детям из детских домов получить доступ к цифровому образованию и навыкам,
+            которые дают реальный шанс на самостоятельное будущее.
+          </p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#help"><i class="fa-solid fa-hand-holding-heart"></i> Как помочь</a>
+            <a class="btn btn--ghost" href="#contacts"><i class="fa-solid fa-envelope"></i> Контакты</a>
+          </div>
+
+          <div class="jump" aria-label="Быстрая навигация по странице">
+            <a href="#about">О проекте</a>
+            <a href="#mission">Миссия</a>
+            <a href="#gallery">Галерея</a>
+            <a href="#vk">VK</a>
+          </div>
+        </div>
+
+        <!-- ✅ ЦИФРЫ (пока можно оставить как заглушки или заменить реальными) -->
+        <div class="stats" aria-label="Ключевые показатели">
+          <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
+          <div class="stat"><b>Техника</b><span>поставка и настройка</span></div>
+          <div class="stat"><b>Безопасность</b><span>цифровая среда</span></div>
+          <div class="stat"><b>Будущее</b><span>профориентация</span></div>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <!-- ✅ ИГРОВОЕ МЕНЮ (вместо старого nav#site-nav) -->
+  <!-- ✅ ИГРОВОЕ МЕНЮ (как у тебя) -->
   <nav class="side-nav hud--day" aria-label="Навигация">
     <div class="side-nav__tab">
       <div class="tab-row">
@@ -829,7 +1135,6 @@
         </li>
       </ul>
 
-      <!-- КИБЕРПОЛИГОН -->
       <a class="hud-cta hud-cta--cyber" href="https://digitalhavenrussia.ru/project.html#help">
         <span class="cyber-shield" aria-hidden="true">
           <svg viewBox="0 0 24 24">
@@ -843,104 +1148,172 @@
   </nav>
 
   <main>
-    <div class="swiper-container">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide"><img src="deti.webp" alt="Слайд 1"></div>
-        <div class="swiper-slide"><img src="NG.webp" alt="Слайд 2"></div>
-        <div class="swiper-slide"><img src="PHD.webp" alt="Слайд 3"></div>
-        <div class="swiper-slide"><img src="tver.webp" alt="Слайд 4"></div>
-      </div>
-      <div class="swiper-pagination"></div>
+    <div class="wrap stack">
+
+      <!-- ✅ ГАЛЕРЕЯ -->
+      <section class="card" id="gallery">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Галерея</h2>
+            <p class="card__sub">Короткий взгляд на то, как проходят занятия и мероприятия.</p>
+          </div>
+        </div>
+
+        <div class="gallery__wrap">
+          <div class="swiper-container">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide"><img src="deti.webp" alt="Слайд 1"></div>
+              <div class="swiper-slide"><img src="NG.webp" alt="Слайд 2"></div>
+              <div class="swiper-slide"><img src="PHD.webp" alt="Слайд 3"></div>
+              <div class="swiper-slide"><img src="tver.webp" alt="Слайд 4"></div>
+            </div>
+            <div class="swiper-pagination"></div>
+          </div>
+        </div>
+
+        <div class="custom-controls" aria-label="Переключение слайдов">
+          <button class="custom-prev" type="button" aria-label="Предыдущий"><i class="fas fa-chevron-left"></i></button>
+          <button class="custom-next" type="button" aria-label="Следующий"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <!-- ✅ О ПРОЕКТЕ -->
+      <section class="card" id="about">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">О проекте</h2>
+            <p class="card__sub"><b>ТехноКрыльяРоссии</b> — «Цифровое будущее — каждому ребёнку».</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <p>Наш проект — это не просто поставка компьютеров или подключение к интернету. Это глубокое преображение самой среды детских домов, возведение надёжного цифрового моста между их стенами и возможностями современного мира.</p>
+          <p>Мы стремимся к тому, чтобы каждый воспитанник получил осмысленный доступ к цифровым технологиям: от компьютерной грамотности до востребованных IT-навыков, программирования и цифрового творчества.</p>
+          <p>Наша цель — дать детям не «гаджеты», а компетенции и поддержку. Это инвестиция в человеческий капитал: раскрытие талантов и шанс на самостоятельную, конкурентоспособную жизнь.</p>
+
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="mini">
+              <h3>Что меняем</h3>
+              <p>Среду и доступ: техника, обучение, безопасная инфраструктура, сопровождение.</p>
+            </div>
+            <div class="mini">
+              <h3>Что даём детям</h3>
+              <p>Навыки, уверенность и ориентир: цифровая грамотность + реальные траектории развития.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ МИССИЯ -->
+      <section class="card" id="mission">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Наша миссия</h2>
+            <p class="card__sub">Коротко и по пунктам — что именно делает проект.</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="clean">
+            <li>Оснащение детских домов компьютерами и оргтехникой.</li>
+            <li>Обучение детей и педагогов цифровой грамотности и IT-навыкам.</li>
+            <li>Создание безопасной цифровой среды для обучения и развития.</li>
+            <li>Подготовка воспитанников к профессиям будущего.</li>
+          </ul>
+
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="mini">
+              <h3>Почему это важно</h3>
+              <p>Во многих учреждениях до сих пор нет нормального доступа к современным технологиям.</p>
+            </div>
+            <div class="mini">
+              <h3>Что меняет результат</h3>
+              <p>Без цифровых навыков детям сложнее социализироваться и найти достойную работу.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ КАК ПОМОЧЬ -->
+      <section class="card" id="help">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Как вы можете помочь</h2>
+            <p class="card__sub">Если ты эксперт, компания или просто неравнодушный человек — вот варианты.</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="clean">
+            <li>Помощь в профориентации и карьерном сопровождении.</li>
+            <li>Организация мероприятий и экскурсий.</li>
+            <li>Организация конкурсов, хакатонов и олимпиад.</li>
+            <li>Волонтёрство в качестве эксперта (лекции, мастер-классы).</li>
+            <li>Распространение информации в СМИ и соцсетях.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ✅ КОНТАКТЫ -->
+      <section class="card" id="contacts">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Контакты</h2>
+            <p class="card__sub">Пишите — ответим и подскажем, как лучше подключиться к проекту.</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <p>Email: <a href="mailto:digitalhavenrussia@mail.ru">digitalhavenrussia@mail.ru</a></p>
+
+          <div class="social-links">
+            <a href="https://vk.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="ВКонтакте"><img src="vk-embl.webp" alt="VK"></a>
+            <a href="https://t.me/DigitalHavenRussia" class="social-link" target="_blank" aria-label="Telegram"><img src="telega-embl.webp" alt="Telegram"></a>
+            <a href="https://www.instagram.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="Instagram"><img src="inst-embl.webp" alt="Instagram"></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ VK ВИДЖЕТЫ (оставил логику, просто в карточке) -->
+      <section class="card" id="vk">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Новости из VK</h2>
+            <p class="card__sub">Живые обновления и отчёты из социальной сети.</p>
+          </div>
+        </div>
+
+        <div class="card__body">
+          <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
+
+          <div id='vk_post_-224174286_40'></div>
+          <script type="text/javascript">
+            VK.Widgets.Post('vk_post_-224174286_40', -224174286, 40, 'ueQ_YHAj6n3p8vwATuEe5LhHCs89');
+          </script>
+          <br>
+
+          <div id='vk_post_-224174286_59'></div>
+          <script type="text/javascript">
+            VK.Widgets.Post('vk_post_-224174286_59', -224174286, 59, '-E42MHVxpOclEW_HklnOfpElm8E1');
+          </script>
+          <br>
+
+          <div id='vk_post_-224174286_58'></div>
+          <script type="text/javascript">
+            VK.Widgets.Post('vk_post_-224174286_58', -224174286, 58, 'hfaLrs5Ktzn0LGwQEqpZS6aHNywn');
+          </script>
+          <br>
+
+          <div id='vk_post_-224174286_4'></div>
+          <script type="text/javascript">
+            VK.Widgets.Post('vk_post_-224174286_4', -224174286, 4, 'TSMK7fAY3HZ-j_Xktaf1Bg__aIPm');
+          </script>
+        </div>
+      </section>
+
     </div>
-
-    <div class="custom-controls">
-      <button class="custom-prev"><i class="fas fa-chevron-left"></i></button>
-      <button class="custom-next"><i class="fas fa-chevron-right"></i></button>
-    </div>
-
-    <section id="vk_posts"></section>
-
-    <section class="section" id="about">
-      <h2>О проекте</h2>
-      <p><strong>ТехноКрыльяРоссии</strong> — "Цифровое будущее – каждому ребенку".</p>
-      <p>Наш проект — это не просто поставка компьютеров или подключение к интернету. Это глубокое преображение самой среды детских домов, возведение надежного цифрового моста между их стенами и безграничными возможностями современного мира. Мы видим своей миссией ликвидировать цифровое неравенство там, где оно бьет по детям особенно больно – в стенах, которые должны быть домом, но часто становятся границей.</p>
-      <p>Мы стремимся к тому, чтобы каждый воспитанник, независимо от своего прошлого, получил полноценный, осмысленный доступ к пульсирующему нерву современности – цифровым технологиям. Это значит не просто экраны и клавиатуры, а открытые врата в мир актуального цифрового образования: от азов компьютерной грамоты до освоения востребованных IT-навыков, программирования, анализа данных, цифрового творчества.</p>
-      <p>Наша цель – вооружить этих детей не гаджетами, а знаниями и компетенциями. Тем самым бесценным багажом, который станет их ключом к уверенной адаптации в стремительно меняющемся обществе. Мы хотим дать им не просто шанс «догнать», а реальную возможность вырваться вперед, обрести востребованную профессию, стать архитекторами собственной судьбы в самой динамичной и перспективной сфере – цифровой индустрии.</p>
-      <p>Это инвестиция не в технику, а в человеческий капитал, в раскрытие талантов, в светлое и конкурентоспособное будущее тех, кто сегодня больше всего нуждается в нашей поддержке и вере. Мы строим для них фундамент успеха в мире, где технологическая грамотность – не привилегия, а необходимое условие для полноценной жизни, самореализации и достойного места под солнцем завтрашнего дня.</p>
-    </section>
-
-    <section class="section" id="mission">
-      <h2>Наша миссия</h2>
-      <p>✅ Оснащение детских домов компьютерами, оргтехникой.</p>
-      <p>✅ Обучение детей и педагогов цифровой грамотности и IT-навыкам.</p>
-      <p>✅ Создание безопасной цифровой среды для обучения и развития.</p>
-      <p>✅ Подготовка воспитанников к профессиям будущего.</p>
-      <p>Почему это важно?</p>
-      <p>🔹 Многие детские дома не имеют доступа к современным технологиям.</p>
-      <p>🔹 Без цифровых навыков детям сложнее социализироваться и найти работу.</p>
-      <p>🔹 Технологии открывают новые возможности для образования и самореализации.</p>
-    </section>
-
-    <section class="section" id="support">
-      <h2>Как вы можете помочь</h2>
-      <ul>
-        <p>⚠Помощь в профориентации и карьерном сопровождении</p>
-        <p>⚠Организация мероприятий и экскурсий<</p>
-        <p>⚠Организация конкурсов, хакатонов и олимпиад</p>
-        <p>⚠Волонтёрство в качестве эксперта (лекции, мастер-классы)</p>
-        <p>⚠Распространение информации в СМИ и соцсетях</p>
-      </ul>
-    </section>
-
-    <section class="section" id="contacts">
-      <h2>Контакты</h2>
-      <p>Email: <a href="mailto:digitalhavenrussia@mail.ru">digitalhavenrussia@mail.ru</a></p>
-      <div class="social-links max-w-screen-lg mx-auto text-center mb-6">
-        <a href="https://vk.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="ВКонтакте"><img src="vk-embl.webp" alt="VK"></a>
-        <a href="https://t.me/DigitalHavenRussia" class="social-link" target="_blank" aria-label="Telegram"><img src="telega-embl.webp" alt="Telegram"></a>
-        <a href="https://www.instagram.com/digitalhavenrussia" class="social-link" target="_blank" aria-label="Instagram"><img src="inst-embl.webp" alt="Instagram"></a>
-      </div>
-    </section>
-
-    <section class="section" id="vk">
-      <!-- Put this script tag to the <head> of your page -->
-      <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
-
-      <div id='vk_post_-224174286_40'></div>
-      <script type="text/javascript">
-        VK.Widgets.Post('vk_post_-224174286_40', -224174286, 40, 'ueQ_YHAj6n3p8vwATuEe5LhHCs89');
-      </script>
-      <br></br>
-
-      <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
-      <div id='vk_post_-224174286_59'></div>
-      <script type="text/javascript">
-        VK.Widgets.Post('vk_post_-224174286_59', -224174286, 59, '-E42MHVxpOclEW_HklnOfpElm8E1');
-      </script>
-      <br></br>
-
-      <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
-      <div id='vk_post_-224174286_58'></div>
-      <script type="text/javascript">
-        VK.Widgets.Post('vk_post_-224174286_58', -224174286, 58, 'hfaLrs5Ktzn0LGwQEqpZS6aHNywn');
-      </script>
-      <br></br>
-
-      <!-- ... (твой VK блок оставлен как есть ниже, не трогал) ... -->
-
-      <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
-      <div id='vk_post_-224174286_4'></div>
-      <script type="text/javascript">
-        VK.Widgets.Post('vk_post_-224174286_4', -224174286, 4, 'TSMK7fAY3HZ-j_Xktaf1Bg__aIPm');
-      </script>
-    </section>
   </main>
 
   <footer>
     <p>&copy; 2025 ТехноКрыльяРоссии. Все права защищены.</p>
   </footer>
 
-  <!-- Swiper JS -->
   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
   <script>
     const mySwiper = new Swiper('.swiper-container', {
@@ -953,9 +1326,8 @@
     document.querySelector('.custom-next').addEventListener('click', () => mySwiper.slideNext());
   </script>
 
-  <!-- ✅ JS МЕНЮ: активный пункт + сворачивание + ночной режим -->
+  <!-- ✅ JS МЕНЮ: активный пункт + сворачивание + ночной режим (твой) -->
   <script>
-    // Активный пункт (по текущей странице)
     (function markActive(){
       try{
         const path = location.pathname.replace(/\/+$/, '') || '/';
@@ -985,7 +1357,6 @@
       }catch(e){}
     })();
 
-    // Сворачивание панели
     (function toggleMenu(){
       const nav = document.querySelector('.side-nav');
       const btn = document.getElementById('menuToggle');
@@ -998,7 +1369,6 @@
       });
     })();
 
-    // Ночной режим (только визуал меню)
     (function nightHud(){
       const nav = document.querySelector('.side-nav');
       const sw = document.getElementById('nightSwitch');
