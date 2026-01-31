@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -21,18 +21,6 @@
     ========================================================= */
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body{
-      margin: 0;
-      padding-top: 0;
-      font-family: 'Rubik', sans-serif;
-      color: #1c2430;
-      background:
-        radial-gradient(1200px 700px at 25% -10%, rgba(0,57,166,.10), transparent 60%),
-        radial-gradient(900px 520px at 85% 0%, rgba(213,43,30,.08), transparent 55%),
-        linear-gradient(to bottom right, #f4f6fb, #ffffff);
-    }
-    a{ color:#0039a6; }
-    a:hover{ color:#d52b1e; }
 
     :root{
       /* content */
@@ -47,9 +35,7 @@
       --h2: clamp(18px, 2.0vw, 26px);
       --p:  clamp(15px, 1.05vw, 18px);
 
-      /* =========================================================
-         HUD MENU VARS (default for desktop 4K+)
-      ========================================================= */
+      /* HUD MENU VARS (default for desktop 4K+) */
       --nav-left: 18px;
       --nav-top: 14px;
       --panel-w: min(440px, calc(100vw - 36px));
@@ -76,7 +62,29 @@
 
       --radius: 26px;
       --rowH: clamp(72px, 10vw, 84px);
+
+      /* NEW: game-space palette */
+      --spaceA: #060b18;
+      --spaceB: #081a3b;
+      --spaceC: #120a12;
+      --glowBlue: rgba(120,190,255,.18);
+      --glowRed: rgba(255,110,95,.14);
     }
+
+    body{
+      margin: 0;
+      padding-top: 0;
+      font-family: 'Rubik', sans-serif;
+      color: #1c2430;
+      background:
+        radial-gradient(1200px 720px at 20% 0%, rgba(0,57,166,.10), transparent 60%),
+        radial-gradient(900px 560px at 86% 0%, rgba(213,43,30,.08), transparent 55%),
+        linear-gradient(to bottom right, #f4f6fb, #ffffff);
+      overflow-x:hidden;
+    }
+
+    a{ color:#0039a6; }
+    a:hover{ color:#d52b1e; }
 
     .wrap{
       width: min(var(--content-max), calc(100% - (var(--content-pad) * 2)));
@@ -84,7 +92,7 @@
     }
 
     /* =========================================================
-       HERO (base layout) — project gets overridden below
+       HERO (base)
     ========================================================= */
     header.hero{
       position: relative;
@@ -198,6 +206,7 @@
       flex-wrap: wrap;
       margin-top: 8px;
     }
+
     .btn{
       display:inline-flex;
       align-items:center;
@@ -215,6 +224,8 @@
       transition: transform .14s ease, filter .14s ease;
       user-select:none;
       white-space:nowrap;
+      position:relative;
+      overflow:hidden;
     }
     .btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
     .btn:active{ transform: translateY(0) scale(.99); }
@@ -226,11 +237,23 @@
         linear-gradient(180deg, rgba(255,242,205,.98), rgba(245,206,120,.98));
       border-color: rgba(255,255,255,.35);
     }
+    .btn--primary::after{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.28) 42%, transparent 58%);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity:.85;
+      transition: transform .6s ease;
+      pointer-events:none;
+    }
+    .btn--primary:hover::after{ transform: translateX(120%) skewX(-18deg); }
+
     .btn--ghost{
       color: rgba(255,255,255,.95);
       background: rgba(0,0,0,.14);
       border-color: rgba(255,255,255,.22);
     }
+    .btn--ghost:hover{ background: rgba(255,255,255,.10); }
 
     .stats{
       display:grid;
@@ -301,37 +324,6 @@
     main{ padding: 22px 0 32px; }
     .stack{ display:flex; flex-direction:column; gap: 18px; }
 
-    .card{
-      background: var(--card-bg);
-      border: 1px solid var(--card-brd);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      animation: fadeInUp .9s ease-out;
-    }
-    .card__head{
-      padding: 18px 18px 10px;
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap: 12px;
-    }
-    .card__title{
-      margin:0;
-      font-family:'Russo One', sans-serif;
-      font-size: var(--h2);
-      letter-spacing:.2px;
-      color:#0f2a63;
-    }
-    .card__sub{
-      margin:0;
-      opacity:.78;
-      font-size: 13px;
-      line-height: 1.4;
-      max-width: 60ch;
-    }
-    .card__body{ padding: 0 18px 18px; }
-
     p{
       font-size: var(--p) !important;
       line-height: 1.7 !important;
@@ -339,7 +331,80 @@
       color: rgba(22,30,45,.92);
     }
 
-    .gallery__wrap{ padding: 0 18px 18px; }
+    .card{
+      background: var(--card-bg);
+      border: 1px solid var(--card-brd);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      animation: fadeInUp .9s ease-out;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height: 4px;
+      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.95), #d52b1e);
+      opacity:.92;
+      z-index:1;
+      pointer-events:none;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 260px at 14% 0%, rgba(0,57,166,.08), transparent 70%),
+        radial-gradient(900px 300px at 88% 0%, rgba(213,43,30,.06), transparent 72%);
+      opacity:.75;
+      z-index:0;
+    }
+
+    .card__head{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      position:relative;
+      z-index:2;
+    }
+    .card__title{
+      margin:0;
+      font-family:'Russo One', sans-serif;
+      font-size: var(--h2);
+      letter-spacing:.2px;
+      color:#0f2a63;
+      position:relative;
+    }
+    .card__title::after{
+      content:"";
+      display:block;
+      width: 86px;
+      height: 3px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0,57,166,.85), rgba(213,43,30,.85));
+      opacity:.9;
+    }
+
+    .card__sub{
+      margin:0;
+      opacity:.78;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 60ch;
+    }
+    .card__body{
+      padding: 0 18px 18px;
+      position:relative;
+      z-index:2;
+    }
+
+    .gallery__wrap{ padding: 0 18px 18px; position:relative; z-index:2; }
 
     .swiper-container{
       position: relative;
@@ -350,13 +415,38 @@
       box-shadow: 0 14px 40px rgba(0,0,0,0.14);
       background: rgba(0,0,0,.04);
     }
+    .swiper-container::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.28), transparent 40%),
+        linear-gradient(0deg, rgba(0,0,0,.34), transparent 46%);
+      mix-blend-mode: multiply;
+    }
+    .swiper-container::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 3px;
+      z-index:3;
+      pointer-events:none;
+      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.92), #d52b1e);
+      opacity:.9;
+    }
+
     .swiper-slide img{
       width:100%;
       height:100%;
       object-fit: cover;
       transform: scale(1.02);
+      transition: transform .9s ease;
     }
-    .swiper-pagination{ bottom: 14px !important; }
+    .swiper-container:hover .swiper-slide img{ transform: scale(1.05); }
+
+    .swiper-pagination{ bottom: 14px !important; z-index:4 !important; }
     .swiper-pagination-bullet{
       width: 10px; height: 10px;
       margin: 0 6px !important;
@@ -373,10 +463,14 @@
       justify-content:space-between;
       gap: 10px;
       padding: 12px 18px 18px;
+      position:relative;
+      z-index:2;
     }
     .custom-controls button{
       width:48px; height:48px; border-radius:14px;
-      background: rgba(255,255,255,.92);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.24), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
       border:1px solid rgba(30,80,160,.22);
       color:#0f2a63;
       font-size:1.1em; font-weight:bold;
@@ -388,7 +482,9 @@
     .custom-controls button:hover{
       transform: translateY(-1px);
       filter: saturate(1.05);
-      background: rgba(245,206,120,.95);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,240,205,.98), rgba(245,206,120,.98));
       border-color: rgba(245,206,120,.65);
     }
 
@@ -406,6 +502,18 @@
       border-radius: 16px;
       background: rgba(0,57,166,.04);
       border: 1px solid rgba(0,57,166,.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .mini::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      background:
+        radial-gradient(420px 140px at 12% 0%, rgba(0,57,166,.10), transparent 62%),
+        radial-gradient(420px 160px at 88% 0%, rgba(213,43,30,.07), transparent 66%);
+      opacity:.7;
     }
     .mini h3{
       margin: 0 0 8px;
@@ -413,8 +521,17 @@
       font-size: 16px;
       letter-spacing:.2px;
       color:#0f2a63;
+      position:relative;
+      z-index:2;
     }
-    .mini p{ margin:0; font-size: 14px !important; line-height: 1.6 !important; opacity:.92; }
+    .mini p{
+      margin:0;
+      font-size: 14px !important;
+      line-height: 1.6 !important;
+      opacity:.92;
+      position:relative;
+      z-index:2;
+    }
 
     ul.clean{
       margin: 10px 0 0;
@@ -473,7 +590,7 @@
     footer p{ margin:0; color: rgba(255,255,255,.95); font-size: 14px !important; }
 
     /* =========================================================
-       HUD MENU (unchanged logic, cleaned grouping)
+       HUD MENU (unchanged logic)
     ========================================================= */
     .side-nav{
       position:fixed;
@@ -1042,60 +1159,42 @@
       }
     }
 
-    /* Project menu recolor only */
-    .page-project .side-nav{
-      --gA: rgba(10, 28, 56, .72);
-      --gB: rgba(7, 18, 38, .66);
-      --iA: rgba(255,255,255,.08);
-      --iB: rgba(0,0,0,.14);
-      --blueP1: rgba(92, 150, 255, .92);
-      --blueP2: rgba(18, 72, 175, .92);
-      --actP1: rgba(255, 240, 205, .98);
-      --actP2: rgba(255, 205, 110, .98);
-      --text: rgba(255,255,255,.95);
-      --muted: rgba(235,245,255,.78);
-    }
-    .page-project .side-nav__tab{
-      background:
-        radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.05), transparent 62%),
-        radial-gradient(110% 80% at 84% 18%, rgba(120,170,255,.08), transparent 58%),
-        linear-gradient(180deg, rgba(9, 26, 54, .78), rgba(7, 18, 38, .74)) !important;
-      box-shadow: 0 14px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
-    }
-    .page-project .side-nav__panel{
-      background:
-        radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.05), transparent 62%),
-        radial-gradient(120% 100% at 84% 12%, rgba(120,170,255,.06), transparent 60%),
-        linear-gradient(180deg, var(--gA), var(--gB)) !important;
-      box-shadow: 0 18px 46px rgba(0,0,0,.26) !important;
-    }
-    .page-project .hud-item{
-      background:
-        radial-gradient(120% 140% at 25% 20%, rgba(255,255,255,.05), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.08)) !important;
-      border-color: rgba(160,200,255,.12) !important;
-    }
-    .page-project .hud-cta.hud-cta--cyber{
-      border-color: rgba(140,220,255,.32) !important;
-      box-shadow:
-        0 22px 44px rgba(0,0,0,.32),
-        0 0 0 1px rgba(120,230,255,.10) inset,
-        0 0 24px rgba(120,230,255,.16) !important;
-    }
-
     /* =========================================================
-       FINAL: PATRIOT “WOW” HERO + WIDE LAYOUT (project.html)
-       (оставлено последним, чтобы перебивало всё)
+       ✅ THE LOOK FROM YOUR IMAGE (space + glossy UI)
     ========================================================= */
     .page-project{ --content-max: 1280px; }
 
+    /* Space background around content like mock */
+    .page-project body{}
+    .page-project{
+      background: none;
+    }
     .page-project main{
+      position:relative;
+      overflow:hidden;
       background:
         radial-gradient(1200px 700px at 70% 12%, rgba(0,57,166,.10), transparent 60%),
         radial-gradient(900px 560px at 92% 16%, rgba(213,43,30,.08), transparent 55%),
         linear-gradient(to bottom right, #f4f6fb, #ffffff);
     }
+    .page-project main::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      z-index:0;
+      opacity:.55;
+      background:
+        radial-gradient(1200px 640px at 82% 18%, rgba(213,43,30,.08), transparent 62%),
+        radial-gradient(1100px 700px at 22% 24%, rgba(0,57,166,.09), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(10,25,55,.04) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(0deg,  rgba(10,25,55,.03) 0 1px, transparent 1px 22px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+    .page-project main > .wrap{ position:relative; z-index:1; }
 
+    /* HERO like mock: space + subtle stars + tri-band */
     .page-project header.hero{
       position: relative;
       overflow: hidden;
@@ -1107,20 +1206,21 @@
         radial-gradient(900px 520px  at 86% 18%, rgba(213,43,30,.22), transparent 62%),
         linear-gradient(90deg, #061735 0%, #081f46 55%, #0b224c 78%, #2b0b0b 100%) !important;
       box-shadow: 0 10px 28px rgba(0,0,0,.20) !important;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      --mx: .5; --my: .4;
     }
-
     .page-project header.hero::before{
       content:"";
       position:absolute;
       inset:0;
       z-index:0;
       pointer-events:none;
-      background: url('russian-flag.svg') center/240% no-repeat;
+      background:
+        url('russian-flag.svg') center/240% no-repeat;
       opacity: .10;
       filter: saturate(1.15) contrast(1.08);
       animation: flagPulse 7s ease-in-out infinite;
     }
-
     .page-project header.hero::after{
       content:"";
       position:absolute;
@@ -1128,58 +1228,28 @@
       z-index:1;
       pointer-events:none;
       background:
-        linear-gradient(90deg,
-          rgba(4, 8, 18, .86) 0%,
-          rgba(4, 8, 18, .58) 54%,
-          rgba(4, 8, 18, .18) 100%
-        ),
-        linear-gradient(128deg,
-          rgba(0,57,166,.42) 0%,
-          rgba(0,57,166,0) 32%,
-          rgba(255,255,255,.24) 50%,
-          rgba(213,43,30,.34) 68%,
-          rgba(213,43,30,0) 92%
-        ),
-        repeating-linear-gradient(90deg,
-          rgba(255,255,255,.045) 0 1px,
-          rgba(255,255,255,0) 1px 28px
-        ),
-        repeating-linear-gradient(0deg,
-          rgba(255,255,255,.032) 0 1px,
-          rgba(255,255,255,0) 1px 24px
-        ),
-        linear-gradient(90deg,
-          #0039a6 0 33%,
-          rgba(255,255,255,.92) 33% 66%,
-          #d52b1e 66% 100%
-        ),
-        linear-gradient(90deg,
-          rgba(0,57,166,.85),
-          rgba(255,255,255,.65),
-          rgba(213,43,30,.85)
-        );
+        linear-gradient(90deg, rgba(4, 8, 18, .86) 0%, rgba(4, 8, 18, .58) 54%, rgba(4, 8, 18, .18) 100%),
+        linear-gradient(128deg, rgba(0,57,166,.42) 0%, rgba(0,57,166,0) 32%, rgba(255,255,255,.24) 50%, rgba(213,43,30,.34) 68%, rgba(213,43,30,0) 92%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.045) 0 1px, rgba(255,255,255,0) 1px 28px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.032) 0 1px, rgba(255,255,255,0) 1px 24px),
+        radial-gradient(circle at 12% 30%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 22% 54%, rgba(255,255,255,.07) 0 1px, transparent 2px),
+        radial-gradient(circle at 78% 26%, rgba(255,255,255,.09) 0 1px, transparent 2px),
+        radial-gradient(circle at 90% 44%, rgba(255,255,255,.06) 0 1px, transparent 2px),
+        linear-gradient(90deg, #0039a6 0 33%, rgba(255,255,255,.92) 33% 66%, #d52b1e 66% 100%),
+        linear-gradient(90deg, rgba(0,57,166,.85), rgba(255,255,255,.65), rgba(213,43,30,.85));
       background-size:
-        auto,
-        160% 160%,
-        auto,
-        auto,
-        100% 6px,
-        100% 2px;
+        auto, 160% 160%, auto, auto, auto, auto, auto, auto, 100% 6px, 100% 2px;
       background-position:
-        center,
-        18% 40%,
-        center,
-        center,
-        bottom,
-        top;
+        center, 18% 40%, center, center, 0 0, 0 0, 0 0, 0 0, bottom, top;
       background-repeat:
-        no-repeat,
-        no-repeat,
-        repeat,
-        repeat,
-        no-repeat,
-        no-repeat;
+        no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat;
       animation: heroShimmer 10s ease-in-out infinite;
+    }
+    @keyframes heroShimmer{
+      0%   { filter: saturate(1.02) contrast(1.02); }
+      50%  { filter: saturate(1.14) contrast(1.06); }
+      100% { filter: saturate(1.02) contrast(1.02); }
     }
 
     .page-project .hero__inner,
@@ -1190,11 +1260,45 @@
 
     .page-project .hero__inner::before{
       background:
+        radial-gradient(circle at 92% 22%, rgba(255,255,255,.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 86% 34%, rgba(255,255,255,.12) 0 1px, transparent 2px),
+        radial-gradient(circle at 78% 18%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 18% 26%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 26% 38%, rgba(255,255,255,.08) 0 1px, transparent 2px),
         radial-gradient(closest-side at 24% 32%, rgba(0,0,0,.72), rgba(0,0,0,0) 74%),
         radial-gradient(closest-side at 42% 58%, rgba(0,57,166,.32), rgba(0,57,166,0) 80%),
         radial-gradient(closest-side at 70% 44%, rgba(213,43,30,.24), rgba(213,43,30,0) 84%) !important;
       filter: blur(18px) !important;
       opacity: .98 !important;
+    }
+
+    /* Orbit glow like mock */
+    .page-project header.hero .hero__inner::after{
+      content:"";
+      position:absolute;
+      right: -180px;
+      top:  -210px;
+      width: 540px;
+      height: 540px;
+      pointer-events:none;
+      z-index: 1;
+      background:
+        conic-gradient(from 190deg,
+          rgba(0,57,166,.38),
+          rgba(255,255,255,.12),
+          rgba(213,43,30,.34),
+          rgba(0,57,166,.38)
+        );
+      filter: blur(32px) saturate(1.12);
+      opacity:.55;
+      transform:
+        translate(calc((var(--mx) - .5) * -40px), calc((var(--my) - .5) * -28px))
+        rotate(12deg);
+      animation: orbitGlow 16s ease-in-out infinite;
+    }
+    @keyframes orbitGlow{
+      0%,100%{ opacity:.46; }
+      50%    { opacity:.66; }
     }
 
     .page-project .brand h1{
@@ -1204,6 +1308,22 @@
         0 2px 12px rgba(0,0,0,.48),
         0 24px 46px rgba(0,0,0,.32) !important;
       position: relative;
+    }
+    .page-project .brand h1::before{
+      content:"";
+      position:absolute;
+      left:-18px;
+      right:-18px;
+      top:  10%;
+      height: 72%;
+      z-index:-1;
+      pointer-events:none;
+      opacity:.55;
+      background:
+        radial-gradient(closest-side at 22% 50%, rgba(255,255,255,.20), transparent 68%),
+        radial-gradient(closest-side at 78% 50%, rgba(255,255,255,.18), transparent 68%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 18px);
+      filter: blur(10px);
     }
     .page-project .brand h1::after{
       content:"";
@@ -1242,223 +1362,88 @@
         inset 0 0 22px rgba(213,43,30,.07) !important;
     }
 
-    @keyframes heroShimmer{
-      0%   { filter: saturate(1.02) contrast(1.02); }
-      50%  { filter: saturate(1.14) contrast(1.06); }
-      100% { filter: saturate(1.02) contrast(1.02); }
+    /* Project menu recolor only */
+    .page-project .side-nav{
+      --gA: rgba(10, 28, 56, .72);
+      --gB: rgba(7, 18, 38, .66);
+      --iA: rgba(255,255,255,.08);
+      --iB: rgba(0,0,0,.14);
+      --blueP1: rgba(92, 150, 255, .92);
+      --blueP2: rgba(18, 72, 175, .92);
+      --actP1: rgba(255, 240, 205, .98);
+      --actP2: rgba(255, 205, 110, .98);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(235,245,255,.78);
     }
 
-    /* =========================================================
-       ✅ ADDED: PATRIOT WOW PATCH (из твоих “исправлений выше”)
-       (добавлено в самый конец, чтобы аккуратно усиливало стиль)
-    ========================================================= */
-
-    /* 1) “Зерно” + техно-сеточка поверх main, чтобы пустота стала “сценой” */
-    .page-project main{
-      position: relative;
-      overflow: hidden;
-    }
-    .page-project main::before{
+    /* Make HUD look more “space glass” like mock */
+    .page-project .side-nav::before{
       content:"";
       position:absolute;
-      inset:-2px;
+      left:-26px; top:-26px;
+      width: calc(var(--panel-w) + 52px);
+      height: calc(100% + 52px);
       pointer-events:none;
-      z-index:0;
-      opacity:.55;
-      background:
-        radial-gradient(1200px 640px at 82% 18%, rgba(213,43,30,.08), transparent 62%),
-        radial-gradient(1100px 700px at 22% 24%, rgba(0,57,166,.09), transparent 60%),
-
-        repeating-linear-gradient(90deg, rgba(10,25,55,.04) 0 1px, transparent 1px 24px),
-        repeating-linear-gradient(0deg,  rgba(10,25,55,.03) 0 1px, transparent 1px 22px),
-
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
-      mix-blend-mode: multiply;
-    }
-    .page-project main > .wrap{ position:relative; z-index:1; }
-
-    /* 2) HERO: задаём переменные для параллакса */
-    .page-project header.hero{ --mx: .5; --my: .4; }
-
-    /* 2.1) HERO: дополнительный “орбитальный” свет (очень мягко) */
-    .page-project header.hero .hero__inner::after{
-      content:"";
-      position:absolute;
-      right: -180px;
-      top:  -210px;
-      width: 540px;
-      height: 540px;
-      pointer-events:none;
-      z-index: 1;
-      background:
-        conic-gradient(from 190deg,
-          rgba(0,57,166,.38),
-          rgba(255,255,255,.12),
-          rgba(213,43,30,.34),
-          rgba(0,57,166,.38)
-        );
-      filter: blur(32px) saturate(1.12);
-      opacity:.55;
-      transform:
-        translate(calc((var(--mx) - .5) * -40px), calc((var(--my) - .5) * -28px))
-        rotate(12deg);
-      animation: orbitGlow 16s ease-in-out infinite;
-    }
-    @keyframes orbitGlow{
-      0%,100%{ opacity:.46; }
-      50%    { opacity:.66; }
-    }
-
-    /* 3) “Крылья-линии” за заголовком (чистый техно-акцент) */
-    .page-project .brand h1{
-      position:relative;
-    }
-    .page-project .brand h1::before{
-      content:"";
-      position:absolute;
-      left:-18px;
-      right:-18px;
-      top:  10%;
-      height: 72%;
       z-index:-1;
-      pointer-events:none;
-      opacity:.55;
       background:
-        radial-gradient(closest-side at 22% 50%, rgba(255,255,255,.20), transparent 68%),
-        radial-gradient(closest-side at 78% 50%, rgba(255,255,255,.18), transparent 68%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 18px);
+        radial-gradient(360px 260px at 30% 20%, rgba(120,190,255,.18), transparent 62%),
+        radial-gradient(320px 240px at 70% 18%, rgba(255,110,95,.12), transparent 64%);
+      filter: blur(14px);
+      opacity:.95;
+    }
+
+    .page-project .side-nav__tab{
+      background:
+        radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.05), transparent 62%),
+        radial-gradient(110% 80% at 84% 18%, rgba(120,170,255,.08), transparent 58%),
+        linear-gradient(180deg, rgba(9, 26, 54, .78), rgba(7, 18, 38, .74)) !important;
+      box-shadow: 0 14px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    }
+    .page-project .side-nav__panel{
+      background:
+        radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.05), transparent 62%),
+        radial-gradient(120% 100% at 84% 12%, rgba(120,170,255,.06), transparent 60%),
+        linear-gradient(180deg, var(--gA), var(--gB)) !important;
+      box-shadow:
+        0 18px 46px rgba(0,0,0,.26),
+        0 0 0 1px rgba(120,190,255,.06) inset,
+        0 0 22px rgba(120,190,255,.10) !important;
+    }
+    .page-project .hud-item{
+      background:
+        radial-gradient(120% 140% at 25% 20%, rgba(255,255,255,.05), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.08)) !important;
+      border-color: rgba(160,200,255,.12) !important;
+    }
+    .page-project .hud-cta.hud-cta--cyber{
+      border-color: rgba(140,220,255,.32) !important;
+      box-shadow:
+        0 22px 44px rgba(0,0,0,.32),
+        0 0 0 1px rgba(120,230,255,.10) inset,
+        0 0 24px rgba(120,230,255,.16) !important;
+    }
+
+    /* “Content shell” glow like mock */
+    .page-project .stack{
+      position:relative;
+    }
+    .page-project .stack::before{
+      content:"";
+      position:absolute;
+      left:-14px; right:-14px;
+      top:-12px; bottom:-12px;
+      border-radius: 26px;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 300px at 22% 0%, rgba(0,57,166,.10), transparent 70%),
+        radial-gradient(900px 320px at 88% 0%, rgba(213,43,30,.07), transparent 72%);
       filter: blur(10px);
+      opacity:.75;
+      z-index:0;
     }
+    .page-project .stack > *{ position:relative; z-index:1; }
 
-    /* 4) Кнопки: премиум-блеск на primary */
-    .page-project .btn--primary{
-      position:relative;
-      overflow:hidden;
-    }
-    .page-project .btn--primary::after{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      background:
-        linear-gradient(115deg,
-          transparent 0%,
-          rgba(255,255,255,.28) 42%,
-          transparent 58%
-        );
-      transform: translateX(-120%) skewX(-18deg);
-      opacity:.85;
-      transition: transform .6s ease;
-      pointer-events:none;
-    }
-    .page-project .btn--primary:hover::after{
-      transform: translateX(120%) skewX(-18deg);
-    }
-    .page-project .btn--ghost:hover{
-      background: rgba(255,255,255,.10);
-    }
-
-    /* 5) Карточки: “орденская” триколор-кромка + внутренняя глубина */
-    .page-project .card{
-      position: relative;
-      border-color: rgba(30,80,160,.16);
-      box-shadow: 0 18px 60px rgba(16,24,40,.12);
-    }
-    .page-project .card::before{
-      content:"";
-      position:absolute;
-      left:0; right:0; top:0;
-      height: 4px;
-      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.95), #d52b1e);
-      opacity:.92;
-    }
-    .page-project .card::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(800px 260px at 18% 0%, rgba(0,57,166,.08), transparent 70%),
-        radial-gradient(800px 280px at 88% 0%, rgba(213,43,30,.06), transparent 72%);
-      opacity:.65;
-    }
-
-    /* Заголовки секций: лёгкая геро-линиЯ */
-    .page-project .card__title{
-      position:relative;
-    }
-    .page-project .card__title::after{
-      content:"";
-      display:block;
-      width: 86px;
-      height: 3px;
-      margin-top: 10px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(0,57,166,.85), rgba(213,43,30,.85));
-      opacity:.9;
-    }
-
-    /* 6) Галерея: кино-оверлей сверху/снизу + триколор-низ */
-    .page-project .swiper-container{
-      position:relative;
-    }
-    .page-project .swiper-container::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:2;
-      pointer-events:none;
-      background:
-        linear-gradient(180deg, rgba(0,0,0,.28), transparent 40%),
-        linear-gradient(0deg, rgba(0,0,0,.34), transparent 46%);
-      mix-blend-mode: multiply;
-    }
-    .page-project .swiper-container::after{
-      content:"";
-      position:absolute;
-      left:0; right:0; bottom:0;
-      height: 3px;
-      z-index:3;
-      pointer-events:none;
-      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.92), #d52b1e);
-      opacity:.9;
-    }
-    .page-project .swiper-slide img{
-      transition: transform .9s ease;
-    }
-    .page-project .swiper-container:hover .swiper-slide img{
-      transform: scale(1.05);
-    }
-
-    /* 7) Кнопки переключения галереи: “игровые” */
-    .page-project .custom-controls button{
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.24), transparent 62%),
-        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
-    }
-    .page-project .custom-controls button:hover{
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
-        linear-gradient(180deg, rgba(255,240,205,.98), rgba(245,206,120,.98));
-    }
-
-    /* 8) FHD: контраст текста, чтобы читалось “дороже” */
-    @media (max-width: 1920px){
-      .page-project .card{ --card-bg: rgba(255,255,255,.94); }
-      .page-project p{ color: rgba(18,24,38,.92) !important; }
-    }
-
-    /* =========================================================
-       ✅ ADDED: АККУРАТНЫЙ ПАТРИОТ-ПАТЧ ИЗ МОИХ “ПРАВОК ВЫШЕ”
-       (триколор-лента + бейдж + звёздная пыль)
-       В САМОМ КОНЦЕ, ЧТОБЫ ПЕРЕБИВАЛО АККУРАТНО
-    ========================================================= */
-
-    /* тонкая рамка по низу для “парадности” */
-    .page-project header.hero{
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-
-    /* 1) Триколор-лента снизу */
+    /* Ribbon + Badge like mock */
     .page-project header.hero .hero-ribbon{
       position:absolute;
       left:0; right:0; bottom:0;
@@ -1481,7 +1466,6 @@
       opacity: .9;
     }
 
-    /* 2) Бейдж с эмблемой */
     .page-project header.hero .hero-badge{
       position:absolute;
       right: clamp(14px, 2.2vw, 26px);
@@ -1524,36 +1508,11 @@
       opacity:.92;
     }
 
-    /* 3) Звёздная пыль в hero__inner::before (сохраняем твои glow-слои) */
-    .page-project header.hero .hero__inner::before{
-      background:
-        radial-gradient(circle at 92% 22%, rgba(255,255,255,.16) 0 1px, transparent 2px),
-        radial-gradient(circle at 86% 34%, rgba(255,255,255,.12) 0 1px, transparent 2px),
-        radial-gradient(circle at 78% 18%, rgba(255,255,255,.10) 0 1px, transparent 2px),
-        radial-gradient(circle at 18% 26%, rgba(255,255,255,.10) 0 1px, transparent 2px),
-        radial-gradient(circle at 26% 38%, rgba(255,255,255,.08) 0 1px, transparent 2px),
-
-        radial-gradient(closest-side at 24% 32%, rgba(0,0,0,.72), rgba(0,0,0,0) 74%),
-        radial-gradient(closest-side at 42% 58%, rgba(0,57,166,.32), rgba(0,57,166,0) 80%),
-        radial-gradient(closest-side at 70% 44%, rgba(213,43,30,.24), rgba(213,43,30,0) 84%) !important;
-      opacity: .98 !important;
-    }
-
-    /* FHD: бейдж чуть меньше */
     @media (max-width: 1920px){
-      .page-project header.hero .hero-badge{
-        padding: 8px 10px;
-      }
-      .page-project header.hero .hero-badge__logo{
-        width: 30px; height: 30px;
-        border-radius: 11px;
-      }
-      .page-project header.hero .hero-badge__text{
-        font-size: 11px;
-      }
+      .page-project header.hero .hero-badge{ padding: 8px 10px; }
+      .page-project header.hero .hero-badge__logo{ width: 30px; height: 30px; border-radius: 11px; }
+      .page-project header.hero .hero-badge__text{ font-size: 11px; }
     }
-
-    /* Mobile: бейдж компактнее, чтобы не мешал */
     @media (max-width: 520px){
       .page-project header.hero .hero-badge{
         right: 10px;
@@ -1570,9 +1529,12 @@
         font-size: 10px;
         letter-spacing: .08em;
       }
-      .page-project header.hero .hero-ribbon{
-        height: 9px;
-      }
+      .page-project header.hero .hero-ribbon{ height: 9px; }
+    }
+
+    /* FHD readability */
+    @media (max-width: 1920px){
+      .page-project p{ color: rgba(18,24,38,.92) !important; }
     }
   </style>
 </head>
@@ -1581,7 +1543,6 @@
 
   <!-- HERO -->
   <header class="hero">
-    <!-- ✅ ADDED: триколор-лента + бейдж (из правок выше) -->
     <div class="hero-ribbon" aria-hidden="true"></div>
     <div class="hero-badge" aria-hidden="true">
       <span class="hero-badge__logo"></span>
@@ -1964,7 +1925,7 @@
     })();
   </script>
 
-  <!-- ✅ ADDED: HERO PARALLAX -->
+  <!-- HERO PARALLAX -->
   <script>
     (function heroParallax(){
       const hero = document.querySelector('.page-project header.hero');
