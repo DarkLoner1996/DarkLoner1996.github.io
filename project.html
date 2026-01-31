@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -51,13 +51,17 @@
       margin: 0 auto;
     }
 
-    /* На больших экранах учитываем меню слева, как у тебя уже было */
+    /* ❌ УБРАЛ: сдвиг wrap влево на больших экранах
+       (теперь центрируем контент в свободной зоне через padding у header/main/footer)
+    */
+    /*
     @media (min-width: 1200px){
       .wrap{
         margin-left: calc(var(--panel-w) + 60px);
         margin-right: auto;
       }
     }
+    */
 
     /* =========================
        ✅ HERO (первый экран)
@@ -196,7 +200,6 @@
       opacity: .9;
     }
 
-    /* Быстрые якоря под hero */
     .jump{
       margin: 16px 0 0;
       display:flex;
@@ -233,7 +236,6 @@
 
     .stack{ display:flex; flex-direction:column; gap: 18px; }
 
-    /* Универсальная карточка-секция */
     .card{
       background: var(--card-bg);
       border: 1px solid var(--card-brd);
@@ -274,9 +276,6 @@
       color: rgba(22,30,45,.92);
     }
 
-    /* =========================
-       ✅ ГАЛЕРЕЯ / SWIPER
-    ========================== */
     .gallery__wrap{ padding: 0 18px 18px; }
 
     .swiper-container{
@@ -295,9 +294,7 @@
       transform: scale(1.02);
     }
 
-    .swiper-pagination{
-      bottom: 14px !important;
-    }
+    .swiper-pagination{ bottom: 14px !important; }
     .swiper-pagination-bullet{
       width: 10px; height: 10px;
       margin: 0 6px !important;
@@ -309,7 +306,6 @@
       background: rgba(213,43,30, .95);
     }
 
-    /* Кнопки листания — аккуратнее и ближе к картинке */
     .custom-controls{
       display:flex;
       justify-content:space-between;
@@ -334,9 +330,6 @@
       border-color: rgba(245,206,120,.65);
     }
 
-    /* =========================
-       ✅ СЕКЦИИ: блоки смысла
-    ========================== */
     .grid-2{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -391,7 +384,6 @@
       margin-top: 1px;
     }
 
-    /* Соц-иконки — уменьшить, чтобы не выглядели как “баннеры” */
     .social-links{
       display:flex;
       justify-content:center;
@@ -408,9 +400,6 @@
     .social-link img{ width:100%; height:100%; object-fit:contain; display:block; }
     .social-link:hover{ transform: translateY(-2px) scale(1.06); filter: brightness(1.12); }
 
-    /* =========================
-       ✅ FOOTER
-    ========================== */
     footer{
       margin-top: 22px;
       background:#0039a6;
@@ -1000,10 +989,94 @@
       .hud-cta--cyber .cyber-shield{ left: 8px; width: 24px; height: 24px; border-radius: 9px; }
       .hud-cta--cyber .cyber-shield svg{ width: 14px; height: 14px; }
     }
+
+    /* =========================================================
+       ✅ ИСПРАВЛЕНИЯ "КАК Я ПИСАЛ ВЫШЕ"
+       1) Контент центрируется в "свободной зоне" справа от меню
+       2) Меню получает другой цвет ТОЛЬКО на project.html
+       ========================================================= */
+
+    /* 1) Центровка контента: убираем всё, что может прибивать wrap влево */
+    .page-project .wrap{ margin: 0 auto !important; }
+
+    /* На больших экранах делаем отступ под меню через padding у блоков страницы */
+    @media (min-width: 1200px){
+      .page-project header.hero,
+      .page-project main,
+      .page-project footer{
+        padding-left: calc(var(--panel-w) + 60px);
+        padding-right: 32px;
+      }
+    }
+
+    /* На средних/малых — обычная верстка */
+    @media (max-width: 1199px){
+      .page-project header.hero,
+      .page-project main,
+      .page-project footer{
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
+
+    /* 2) Другой цвет меню на project.html */
+    .page-project .side-nav{
+      --gA: rgba(10, 28, 56, .72);
+      --gB: rgba(7, 18, 38, .66);
+
+      --iA: rgba(255,255,255,.08);
+      --iB: rgba(0,0,0,.14);
+
+      --blueP1: rgba(92, 150, 255, .92);
+      --blueP2: rgba(18, 72, 175, .92);
+
+      --actP1: rgba(255, 240, 205, .98);
+      --actP2: rgba(255, 205, 110, .98);
+
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(235,245,255,.78);
+    }
+
+    .page-project .side-nav__tab{
+      background:
+        radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.05), transparent 62%),
+        radial-gradient(110% 80% at 84% 18%, rgba(120,170,255,.08), transparent 58%),
+        linear-gradient(180deg, rgba(9, 26, 54, .78), rgba(7, 18, 38, .74)) !important;
+      box-shadow: 0 14px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    }
+
+    .page-project .side-nav__panel{
+      background:
+        radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.05), transparent 62%),
+        radial-gradient(120% 100% at 84% 12%, rgba(120,170,255,.06), transparent 60%),
+        linear-gradient(180deg, var(--gA), var(--gB)) !important;
+      box-shadow: 0 18px 46px rgba(0,0,0,.26) !important;
+    }
+
+    .page-project .hud-item{
+      background:
+        radial-gradient(120% 140% at 25% 20%, rgba(255,255,255,.05), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.08)) !important;
+      border-color: rgba(160,200,255,.12) !important;
+    }
+
+    .page-project .hud-pill{
+      border-color: rgba(160,200,255,.20) !important;
+    }
+
+    .page-project .hud-cta.hud-cta--cyber{
+      border-color: rgba(140,220,255,.32) !important;
+      box-shadow:
+        0 22px 44px rgba(0,0,0,.32),
+        0 0 0 1px rgba(120,230,255,.10) inset,
+        0 0 24px rgba(120,230,255,.16) !important;
+    }
+
   </style>
 </head>
 
-<body>
+<!-- ✅ ДОБАВИЛ КЛАСС: page-project -->
+<body class="page-project">
 
   <!-- ✅ HERO -->
   <header class="hero">
@@ -1029,7 +1102,6 @@
           </div>
         </div>
 
-        <!-- ✅ ЦИФРЫ (пока можно оставить как заглушки или заменить реальными) -->
         <div class="stats" aria-label="Ключевые показатели">
           <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
           <div class="stat"><b>Техника</b><span>поставка и настройка</span></div>
@@ -1040,7 +1112,6 @@
     </div>
   </header>
 
-  <!-- ✅ ИГРОВОЕ МЕНЮ (как у тебя) -->
   <nav class="side-nav hud--day" aria-label="Навигация">
     <div class="side-nav__tab">
       <div class="tab-row">
@@ -1150,7 +1221,6 @@
   <main>
     <div class="wrap stack">
 
-      <!-- ✅ ГАЛЕРЕЯ -->
       <section class="card" id="gallery">
         <div class="card__head">
           <div>
@@ -1177,7 +1247,6 @@
         </div>
       </section>
 
-      <!-- ✅ О ПРОЕКТЕ -->
       <section class="card" id="about">
         <div class="card__head">
           <div>
@@ -1203,7 +1272,6 @@
         </div>
       </section>
 
-      <!-- ✅ МИССИЯ -->
       <section class="card" id="mission">
         <div class="card__head">
           <div>
@@ -1232,7 +1300,6 @@
         </div>
       </section>
 
-      <!-- ✅ КАК ПОМОЧЬ -->
       <section class="card" id="help">
         <div class="card__head">
           <div>
@@ -1251,7 +1318,6 @@
         </div>
       </section>
 
-      <!-- ✅ КОНТАКТЫ -->
       <section class="card" id="contacts">
         <div class="card__head">
           <div>
@@ -1270,7 +1336,6 @@
         </div>
       </section>
 
-      <!-- ✅ VK ВИДЖЕТЫ (оставил логику, просто в карточке) -->
       <section class="card" id="vk">
         <div class="card__head">
           <div>
@@ -1326,7 +1391,6 @@
     document.querySelector('.custom-next').addEventListener('click', () => mySwiper.slideNext());
   </script>
 
-  <!-- ✅ JS МЕНЮ: активный пункт + сворачивание + ночной режим (твой) -->
   <script>
     (function markActive(){
       try{
