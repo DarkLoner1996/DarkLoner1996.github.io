@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -51,18 +51,6 @@
       margin: 0 auto;
     }
 
-    /* ❌ УБРАЛ: сдвиг wrap влево на больших экранах
-       (теперь центрируем контент в свободной зоне через padding у header/main/footer)
-    */
-    /*
-    @media (min-width: 1200px){
-      .wrap{
-        margin-left: calc(var(--panel-w) + 60px);
-        margin-right: auto;
-      }
-    }
-    */
-
     /* =========================
        ✅ HERO (первый экран)
     ========================== */
@@ -84,9 +72,31 @@
       animation: flagPulse 6s ease-in-out infinite;
       z-index: 0;
     }
+
+    /* ✅ ВАЖНО: inner выше фонового флага */
     .hero__inner{ position: relative; z-index: 1; }
 
+    /* ✅ Локальная “вуаль” под левым блоком (НЕ прямоугольная плашка) */
+    .hero__inner::before{
+      content:"";
+      position:absolute;
+      left: 0;
+      top: 10px;
+      width: min(680px, 92%);
+      height: 240px;
+      pointer-events:none;
+      z-index: 0;
+      background:
+        radial-gradient(closest-side at 35% 35%, rgba(255,255,255,.70), rgba(255,255,255,0) 72%),
+        radial-gradient(closest-side at 55% 55%, rgba(0,57,166,.10), rgba(0,57,166,0) 75%),
+        radial-gradient(closest-side at 70% 45%, rgba(213,43,30,.08), rgba(213,43,30,0) 78%);
+      filter: blur(10px);
+      opacity: .95;
+    }
+
     .hero__grid{
+      position: relative;
+      z-index: 1; /* ✅ контент поверх локальной вуали */
       display: grid;
       gap: 18px;
       align-items: center;
@@ -94,76 +104,49 @@
     }
     @media (max-width: 900px){
       .hero__grid{ grid-template-columns: 1fr; }
+      .hero__inner::before{
+        height: 210px;
+        width: min(720px, 100%);
+        top: 6px;
+        opacity: .92;
+      }
     }
 
     .brand{
       display:flex;
       flex-direction:column;
       gap: 10px;
+      max-width: 680px; /* ✅ композиционно лучше */
     }
 
-.brand h1{
-  margin: 0;
-  font-family: 'Russo One', sans-serif;
-  font-size: var(--h1);
-  line-height: 1.05;
-  letter-spacing: .2px;
+    /* ✅ УБРАЛ “стеклянную плашку” и сделал читабельность через stroke + тень */
+    .brand h1{
+      margin: 0;
+      font-family: 'Russo One', sans-serif;
+      font-size: var(--h1);
+      line-height: 1.05;
+      letter-spacing: .2px;
 
-  /* ✅ читаемость */
-  color: rgba(255,255,255,.98);
-  -webkit-text-stroke: 1px rgba(0,0,0,.28);
+      color: rgba(255,255,255,.98);
+      text-shadow:
+        0 2px 10px rgba(0,0,0,.28),
+        0 12px 26px rgba(0,0,0,.22);
+      -webkit-text-stroke: 1px rgba(0,0,0,.22);
+    }
 
-  /* ✅ “стеклянная” плашка под заголовком */
-  position: relative;
-  display: inline-block;
-  padding: 10px 14px;
-  border-radius: 18px;
+    /* ✅ цвета остаются */
+    .brand h1 .highlight-wings{ color: #0039a6; }
+    .brand h1 .highlight-russia{ color: #d52b1e; }
 
-  text-shadow:
-    0 2px 14px rgba(0,0,0,.38),
-    0 10px 30px rgba(0,0,0,.22);
-}
-
-.brand h1::before{
-  content:"";
-  position:absolute;
-  inset:-8px -12px;
-  border-radius: 22px;
-  z-index:-1;
-
-  background:
-    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 60%),
-    linear-gradient(180deg, rgba(0,0,0,.34), rgba(0,0,0,.18));
-  border: 1px solid rgba(255,255,255,.22);
-
-  backdrop-filter: blur(12px) saturate(1.15);
-  -webkit-backdrop-filter: blur(12px) saturate(1.15);
-
-  box-shadow: 0 18px 46px rgba(0,0,0,.24);
-}
-
-/* ✅ оставляем твои цвета крыльев/россии */
-.brand h1 .highlight-wings{ color: #0039a6; -webkit-text-stroke: 1px rgba(255,255,255,.35); }
-.brand h1 .highlight-russia{ color: #d52b1e; -webkit-text-stroke: 1px rgba(255,255,255,.35); }
-
- .hero__lead{
-  margin: 0;
-  font-size: clamp(14px, 1.1vw, 18px);
-  max-width: 62ch;
-
-  color: rgba(255,255,255,.96);
-  text-shadow: 0 2px 12px rgba(0,0,0,.35);
-
-  /* ✅ плашка под текстом */
-  display: inline-block;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(0,0,0,.18);
-  border: 1px solid rgba(255,255,255,.18);
-  backdrop-filter: blur(10px) saturate(1.10);
-  -webkit-backdrop-filter: blur(10px) saturate(1.10);
-}
-
+    /* ✅ Лид без серой плашки (только мягкая тень/читабельность) */
+    .hero__lead{
+      margin: 0;
+      font-size: clamp(14px, 1.1vw, 18px);
+      color: rgba(255,255,255,.95);
+      text-shadow: 0 2px 12px rgba(0,0,0,.22);
+      max-width: 62ch;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
+    }
 
     .hero__actions{
       display:flex;
@@ -1035,32 +1018,23 @@
        2) Меню получает другой цвет ТОЛЬКО на project.html
        ========================================================= */
 
-    /* 1) Центровка контента: убираем всё, что может прибивать wrap влево */
     .page-project .wrap{ margin: 0 auto !important; }
 
-/* ✅ Центр по экрану + не налезаем на меню (project.html) */
-.page-project .wrap{ margin: 0 auto !important; }
+    @media (min-width: 1200px){
+      .page-project .wrap{
+        width: min(
+          var(--content-max),
+          calc(100% - (var(--content-pad) * 2) - var(--panel-w) - 60px)
+        ) !important;
+      }
+    }
 
-@media (min-width: 1200px){
-  /* уменьшаем доступную ширину контента на ширину меню + зазор,
-     но центрируем по экрану */
-  .page-project .wrap{
-    width: min(
-      var(--content-max),
-      calc(100% - (var(--content-pad) * 2) - var(--panel-w) - 60px)
-    ) !important;
-  }
-}
+    @media (max-width: 1199px){
+      .page-project .wrap{
+        width: min(var(--content-max), calc(100% - (var(--content-pad) * 2))) !important;
+      }
+    }
 
-/* на средних/малых — обычная ширина */
-@media (max-width: 1199px){
-  .page-project .wrap{
-    width: min(var(--content-max), calc(100% - (var(--content-pad) * 2))) !important;
-  }
-}
-
-
-    /* 2) Другой цвет меню на project.html */
     .page-project .side-nav{
       --gA: rgba(10, 28, 56, .72);
       --gB: rgba(7, 18, 38, .66);
@@ -1112,11 +1086,9 @@
         0 0 0 1px rgba(120,230,255,.10) inset,
         0 0 24px rgba(120,230,255,.16) !important;
     }
-
   </style>
 </head>
 
-<!-- ✅ ДОБАВИЛ КЛАСС: page-project -->
 <body class="page-project">
 
   <!-- ✅ HERO -->
