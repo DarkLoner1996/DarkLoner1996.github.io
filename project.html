@@ -22,10 +22,10 @@
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
 
-    /* ✅ якоря с запасом под sticky-док в шапке */
-    section[id]{ scroll-margin-top: 130px; }
+    /* ✅ запас под док-меню */
+    section[id]{ scroll-margin-top: 170px; }
     @media (max-width: 520px){
-      section[id]{ scroll-margin-top: 110px; }
+      section[id]{ scroll-margin-top: 150px; }
     }
 
     :root{
@@ -42,15 +42,12 @@
 
       --radius: 26px;
 
-      /* game-space palette */
-      --spaceA: #060b18;
-      --spaceB: #081a3b;
-      --spaceC: #120a12;
-      --glowBlue: rgba(120,190,255,.18);
-      --glowRed: rgba(255,110,95,.14);
-
       /* ✅ sticky dock inside hero */
       --dock-sticky-top: calc(10px + env(safe-area-inset-top, 0px));
+      --dock-max: 920px;
+
+      --glowBlue: rgba(120,190,255,.18);
+      --glowRed: rgba(255,110,95,.14);
     }
 
     body{
@@ -79,15 +76,26 @@
       margin: 0 auto;
     }
 
+    @keyframes flagPulse {0%,100%{opacity:0.05;}50%{opacity:0.14;}}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes heroShimmer{
+      0%   { filter: saturate(1.02) contrast(1.02); }
+      50%  { filter: saturate(1.14) contrast(1.06); }
+      100% { filter: saturate(1.02) contrast(1.02); }
+    }
+
     /* =========================================================
        HERO
     ========================================================= */
     header.hero{
       position: relative;
-      overflow: hidden;
-      padding: 40px 0 28px;
+      /* ✅ sticky ломается из-за overflow:hidden на родителях */
+      overflow: visible;
+      padding: 40px 0 22px;
       color: rgba(255,255,255,.96);
       animation: fadeIn 1.2s ease-in forwards;
+      isolation: isolate;
     }
 
     .hero__inner{ position: relative; z-index: 2; }
@@ -97,10 +105,10 @@
       z-index: 2;
       display: grid;
       gap: 18px;
-      align-items: center;
+      align-items: start;
       grid-template-columns: 1.35fr .95fr;
     }
-    @media (max-width: 900px){
+    @media (max-width: 980px){
       .hero__grid{ grid-template-columns: 1fr; }
     }
 
@@ -108,9 +116,8 @@
       display:flex;
       flex-direction:column;
       gap: 10px;
-      max-width: 760px;
+      max-width: 820px;
       position: relative;
-      isolation: isolate;
     }
 
     .brand h1{
@@ -134,13 +141,13 @@
       text-shadow:
         0 2px 12px rgba(0,0,0,.28),
         0 10px 24px rgba(0,0,0,.18);
-      max-width: 62ch;
+      max-width: 66ch;
       filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
     }
 
     .hero__actions{
       display:flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       margin-top: 8px;
     }
@@ -150,16 +157,16 @@
       align-items:center;
       justify-content:center;
       gap:10px;
-      padding: 12px 16px;
+      padding: 11px 14px;
       border-radius: 14px;
       text-decoration:none;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: .02em;
-      border: 1px solid rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.18);
       box-shadow: 0 14px 28px rgba(0,0,0,.18);
       backdrop-filter: blur(10px) saturate(1.05);
       -webkit-backdrop-filter: blur(10px) saturate(1.05);
-      transition: transform .14s ease, filter .14s ease;
+      transition: transform .14s ease, filter .14s ease, background .14s ease;
       user-select:none;
       white-space:nowrap;
       position:relative;
@@ -187,9 +194,9 @@
       pointer-events:none;
     }
     .btn--primary:hover::after{ transform: translateX(120%) skewX(-18deg); }
-
     .btn--ghost:hover{ background: rgba(255,255,255,.10); }
 
+    /* ✅ блок справа (крупные смысловые “карты”) */
     .stats{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -203,10 +210,10 @@
       padding: 14px 14px;
       border-radius: 16px;
       background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.18);
       box-shadow:
         0 18px 36px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.14);
+        inset 0 1px 0 rgba(255,255,255,.12);
       backdrop-filter: blur(10px) saturate(1.05);
       -webkit-backdrop-filter: blur(10px) saturate(1.05);
     }
@@ -228,31 +235,222 @@
       color: rgba(255,255,255,.86);
     }
 
-    .jump{
-      margin: 16px 0 0;
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    /* =========================================================
+       ✅ HERO DOCK MENU — красиво и без дублей
+       - строго под текстом про будущее
+       - sticky внутри шапки
+       - сетка 3 + 2 (как на твоём скрине)
+    ========================================================= */
+    .hero-dock{
+      position: sticky;
+      top: var(--dock-sticky-top);
+      z-index: 20;
+      margin-top: 14px;
+      align-self: start;
     }
-    .jump a{
+
+    .quick-nav{
+      width: min(var(--dock-max), 100%);
+      border-radius: 22px;
+      padding: 12px;
+      background:
+        radial-gradient(140% 160% at 10% 10%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.12));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,.32),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(14px) saturate(1.08);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      position: relative;
+    }
+
+    .quick-nav::before{
+      content:"";
+      position:absolute;
+      inset:-22px;
+      pointer-events:none;
+      z-index:-1;
+      background:
+        radial-gradient(420px 240px at 20% 35%, rgba(120,190,255,.22), transparent 62%),
+        radial-gradient(420px 260px at 80% 35%, rgba(255,110,95,.16), transparent 66%),
+        radial-gradient(560px 300px at 50% 100%, rgba(255,255,255,.06), transparent 62%);
+      filter: blur(18px);
+      opacity: .95;
+    }
+
+    /* ✅ КНОПКИ В СЕТКЕ (НЕ flex-wrap кашей) */
+    .quick-nav__grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+    @media (max-width: 980px){
+      .quick-nav__grid{
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+      }
+    }
+    @media (max-width: 520px){
+      .quick-nav__grid{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-nav__btn{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap: 10px;
+      width: 100%;
+      min-height: 54px;
+
+      padding: 12px 14px;
+      border-radius: 16px;
       text-decoration:none;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: .08em;
+      font-weight: 900;
+      letter-spacing: .02em;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      transition: transform .14s ease, filter .14s ease, border-color .14s ease;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .quick-nav__btn::after{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.22) 42%, transparent 58%);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity:.85;
+      transition: transform .6s ease;
+      pointer-events:none;
+    }
+    .quick-nav__btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .quick-nav__btn:hover::after{ transform: translateX(120%) skewX(-18deg); }
+    .quick-nav__btn:active{ transform: translateY(0) scale(.99); }
+
+    .quick-nav__ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      display:grid; place-items:center;
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 20px rgba(0,0,0,.16);
+      flex:0 0 auto;
+    }
+
+    .quick-nav__txt{
+      display:flex;
+      flex-direction:column;
+      gap: 2px;
+      min-width:0;
+    }
+    .quick-nav__title{
+      font-size: 13px;
+      text-transform: uppercase;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(255,255,255,.96);
+      line-height: 1.05;
+    }
+    .quick-nav__sub{
+      font-size: 10px;
+      opacity:.86;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(255,255,255,.82);
+      line-height: 1.05;
+    }
+
+    /* patriotic styles */
+    .quick-nav__btn--blue{
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.82), rgba(7,18,38,.72));
+      border-color: rgba(120,190,255,.22);
+    }
+    .quick-nav__btn--blue .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.58), rgba(0,0,0,.18));
+    }
+
+    .quick-nav__btn--white{
+      color: rgba(20,24,34,.92);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border-color: rgba(0,57,166,.18);
+    }
+    .quick-nav__btn--white .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.86), rgba(0,0,0,.10));
+      border-color: rgba(0,57,166,.14);
+    }
+    .quick-nav__btn--white .quick-nav__title,
+    .quick-nav__btn--white .quick-nav__sub{
+      color: rgba(20,24,34,.92);
+    }
+
+    .quick-nav__btn--red{
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(213,43,30,.82), rgba(43,11,11,.70));
+      border-color: rgba(255,110,95,.22);
+    }
+    .quick-nav__btn--red .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(213,43,30,.55), rgba(0,0,0,.18));
+    }
+
+    .quick-nav__btn.is-active{
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.26),
+        0 0 0 1px rgba(255,255,255,.22) inset,
+        0 0 26px rgba(255,220,140,.10);
+      border-color: rgba(255,240,200,.34);
+    }
+
+    /* ✅ ОДИН раз: аккуратные “пилюли” разделов */
+    .quick-nav__pills{
+      display:flex;
+      justify-content:center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .quick-nav__pill{
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .09em;
       text-transform: uppercase;
       color: rgba(255,255,255,.92);
-      padding: 9px 12px;
+      padding: 8px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.12);
       box-shadow: 0 10px 20px rgba(0,0,0,.14);
-      transition: transform .14s ease, filter .14s ease;
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      transition: transform .14s ease, filter .14s ease, background .14s ease;
+      white-space: nowrap;
     }
-    .jump a:hover{ transform: translateY(-1px); filter:saturate(1.05); }
-
-    @keyframes flagPulse {0%,100%{opacity:0.05;}50%{opacity:0.14;}}
-    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    .quick-nav__pill:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.05);
+      background: rgba(255,255,255,.08);
+    }
 
     /* =========================================================
        MAIN / CARDS / GALLERY
@@ -526,235 +724,6 @@
     footer p{ margin:0; color: rgba(255,255,255,.95); font-size: 14px !important; }
 
     /* =========================================================
-       ✅ HERO DOCK MENU (ПОД ТЕКСТОМ ПРО "БУДУЩЕЕ" В ШАПКЕ)
-       - меню НЕ фиксировано по странице
-       - оно встроено в HERO и "липнет" внутри шапки (sticky)
-    ========================================================= */
-    .hero-dock{
-      position: sticky;
-      top: var(--dock-sticky-top);
-      z-index: 8;
-      margin-top: 14px;
-    }
-
-    .quick-nav{
-      width: 100%;
-      display:flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-
-      padding: 10px 10px;
-      border-radius: 18px;
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow:
-        0 22px 50px rgba(0,0,0,.28),
-        inset 0 1px 0 rgba(255,255,255,.10);
-      backdrop-filter: blur(12px) saturate(1.06);
-      -webkit-backdrop-filter: blur(12px) saturate(1.06);
-    }
-
-    .quick-nav::before{
-      content:"";
-      position:absolute;
-      inset:-26px -26px -26px -26px;
-      pointer-events:none;
-      z-index:-1;
-      background:
-        radial-gradient(420px 240px at 18% 35%, rgba(120,190,255,.22), transparent 62%),
-        radial-gradient(420px 260px at 82% 35%, rgba(255,110,95,.16), transparent 66%),
-        radial-gradient(520px 320px at 50% 95%, rgba(255,255,255,.06), transparent 62%);
-      filter: blur(18px);
-      opacity: .95;
-    }
-
-    .quick-nav{
-      position: relative; /* нужно для ::before */
-    }
-
-    .quick-nav__btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:flex-start;
-      gap: 10px;
-
-      flex: 1 1 190px;          /* ✅ главное: аккуратно встраивается в ширину */
-      min-width: 180px;
-      max-width: 240px;
-
-      padding: 12px 14px;
-      border-radius: 14px;
-      text-decoration:none;
-      font-weight: 800;
-      letter-spacing: .02em;
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 14px 28px rgba(0,0,0,.18);
-      backdrop-filter: blur(10px) saturate(1.05);
-      -webkit-backdrop-filter: blur(10px) saturate(1.05);
-      transition: transform .14s ease, filter .14s ease, background .14s ease, border-color .14s ease;
-      overflow:hidden;
-      white-space:nowrap;
-      position:relative;
-    }
-
-    .quick-nav__btn::after{
-      content:"";
-      position:absolute; inset:-2px;
-      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.22) 42%, transparent 58%);
-      transform: translateX(-120%) skewX(-18deg);
-      opacity:.85;
-      transition: transform .6s ease;
-      pointer-events:none;
-    }
-    .quick-nav__btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
-    .quick-nav__btn:hover::after{ transform: translateX(120%) skewX(-18deg); }
-    .quick-nav__btn:active{ transform: translateY(0) scale(.99); }
-
-    .quick-nav__ico{
-      width: 34px; height: 34px;
-      border-radius: 12px;
-      display:grid; place-items:center;
-      border: 1px solid rgba(255,255,255,.20);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 20px rgba(0,0,0,.16);
-      flex:0 0 auto;
-    }
-
-    .quick-nav__txt{
-      display:flex;
-      flex-direction:column;
-      gap: 2px;
-      min-width:0;
-    }
-    .quick-nav__title{
-      font-size: 13px;
-      text-transform: uppercase;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      color: rgba(255,255,255,.96);
-    }
-    .quick-nav__sub{
-      font-size: 10px;
-      opacity:.86;
-      letter-spacing:.06em;
-      text-transform: uppercase;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      color: rgba(255,255,255,.82);
-    }
-
-    .quick-nav__btn--blue{
-      color: rgba(255,255,255,.96);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
-        linear-gradient(180deg, rgba(0,57,166,.82), rgba(7,18,38,.72));
-      border-color: rgba(120,190,255,.20);
-    }
-    .quick-nav__btn--blue .quick-nav__ico{
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
-        linear-gradient(180deg, rgba(0,57,166,.58), rgba(0,0,0,.18));
-    }
-
-    .quick-nav__btn--white{
-      color: rgba(20,24,34,.92);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
-        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
-      border-color: rgba(0,57,166,.18);
-    }
-    .quick-nav__btn--white .quick-nav__ico{
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
-        linear-gradient(180deg, rgba(255,255,255,.86), rgba(0,0,0,.10));
-      border-color: rgba(0,57,166,.14);
-    }
-    .quick-nav__btn--white .quick-nav__title,
-    .quick-nav__btn--white .quick-nav__sub{
-      color: rgba(20,24,34,.92);
-    }
-
-    .quick-nav__btn--red{
-      color: rgba(255,255,255,.96);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
-        linear-gradient(180deg, rgba(213,43,30,.82), rgba(43,11,11,.70));
-      border-color: rgba(255,110,95,.22);
-    }
-    .quick-nav__btn--red .quick-nav__ico{
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
-        linear-gradient(180deg, rgba(213,43,30,.55), rgba(0,0,0,.18));
-    }
-
-    .quick-nav__btn.is-active{
-      box-shadow:
-        0 18px 36px rgba(0,0,0,.26),
-        0 0 0 1px rgba(255,255,255,.22) inset,
-        0 0 26px rgba(255,220,140,.10);
-      border-color: rgba(255,240,200,.32);
-    }
-
-    .quick-nav__pills{
-      flex: 1 1 100%;
-      display:flex;
-      justify-content:center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 2px;
-      padding-top: 2px;
-    }
-    .quick-nav__pill{
-      text-decoration:none;
-      font-weight: 800;
-      font-size: 11px;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.92);
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.12);
-      box-shadow: 0 10px 20px rgba(0,0,0,.14);
-      backdrop-filter: blur(10px) saturate(1.05);
-      -webkit-backdrop-filter: blur(10px) saturate(1.05);
-      transition: transform .14s ease, filter .14s ease;
-      white-space: nowrap;
-    }
-    .quick-nav__pill:hover{
-      transform: translateY(-1px);
-      filter: saturate(1.05);
-      background: rgba(255,255,255,.08);
-    }
-
-    @media (max-width: 900px){
-      .quick-nav{
-        padding: 8px 8px;
-        border-radius: 16px;
-      }
-      .quick-nav__btn{
-        flex: 1 1 calc(50% - 10px);
-        max-width: none;
-        min-width: 0;
-        padding: 10px 12px;
-      }
-      .quick-nav__title{ font-size: 12px; }
-      .quick-nav__sub{ font-size: 9px; }
-    }
-
-    @media (max-width: 520px){
-      .hero-dock{ top: calc(8px + env(safe-area-inset-top, 0px)); }
-      .quick-nav{ gap: 8px; }
-      .quick-nav__btn{
-        flex: 1 1 100%;
-      }
-      .quick-nav__ico{ width: 30px; height: 30px; border-radius: 11px; }
-      .quick-nav__pills{ gap: 6px; }
-      .quick-nav__pill{ font-size: 10px; padding: 8px 10px; }
-    }
-
-    /* =========================================================
        PROJECT PAGE LOOK (space + glossy UI)
     ========================================================= */
     .page-project{ --content-max: 1280px; }
@@ -792,11 +761,6 @@
     .page-project main > .wrap{ position:relative; z-index:1; }
 
     .page-project header.hero{
-      position: relative;
-      overflow: hidden;
-      color: rgba(255,255,255,.97) !important;
-      padding: 40px 0 28px !important;
-      animation: fadeIn 1.2s ease-in forwards !important;
       background:
         radial-gradient(1200px 560px at 16% 16%, rgba(0,57,166,.30), transparent 58%),
         radial-gradient(900px 520px  at 86% 18%, rgba(213,43,30,.22), transparent 62%),
@@ -839,11 +803,6 @@
       background-repeat:
         no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat;
       animation: heroShimmer 10s ease-in-out infinite;
-    }
-    @keyframes heroShimmer{
-      0%   { filter: saturate(1.02) contrast(1.02); }
-      50%  { filter: saturate(1.14) contrast(1.06); }
-      100% { filter: saturate(1.02) contrast(1.02); }
     }
 
     .page-project header.hero .hero-ribbon{
@@ -921,55 +880,58 @@
       <div class="hero__grid">
         <div class="brand">
           <h1>Техно<span class="highlight-wings" style="color:#66a3ff;">Крылья</span><span class="highlight-russia" style="color:#ff6a5f;">России</span></h1>
+
           <p class="hero__lead">
             Мы помогаем детям из детских домов получить доступ к цифровому образованию и навыкам,
             которые дают реальный шанс на самостоятельное будущее.
           </p>
 
-          <!-- ✅ МЕНЮ ВСТРОЕНО В ШАПКУ ПОД ТЕКСТОМ ПРО "БУДУЩЕЕ" -->
+          <!-- ✅ ОДНО меню, строго под текстом -->
           <div class="hero-dock" aria-label="Меню проекта">
             <nav class="quick-nav" aria-label="Навигация">
-              <a class="quick-nav__btn quick-nav__btn--blue" data-nav="home" href="https://digitalhavenrussia.ru">
-                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
-                <span class="quick-nav__txt">
-                  <span class="quick-nav__title">Главная</span>
-                  <span class="quick-nav__sub">Миссия активна</span>
-                </span>
-              </a>
+              <div class="quick-nav__grid">
+                <a class="quick-nav__btn quick-nav__btn--blue" data-nav="home" href="https://digitalhavenrussia.ru">
+                  <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+                  <span class="quick-nav__txt">
+                    <span class="quick-nav__title">Главная</span>
+                    <span class="quick-nav__sub">Миссия активна</span>
+                  </span>
+                </a>
 
-              <a class="quick-nav__btn quick-nav__btn--white" data-nav="project" href="https://digitalhavenrussia.ru/project.html">
-                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
-                <span class="quick-nav__txt">
-                  <span class="quick-nav__title">О проекте</span>
-                  <span class="quick-nav__sub">Брифинг</span>
-                </span>
-              </a>
+                <a class="quick-nav__btn quick-nav__btn--white" data-nav="project" href="https://digitalhavenrussia.ru/project.html">
+                  <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
+                  <span class="quick-nav__txt">
+                    <span class="quick-nav__title">О проекте</span>
+                    <span class="quick-nav__sub">Брифинг</span>
+                  </span>
+                </a>
 
-              <a class="quick-nav__btn quick-nav__btn--blue" data-nav="video" href="https://digitalhavenrussia.ru/security.html">
-                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-film"></i></span>
-                <span class="quick-nav__txt">
-                  <span class="quick-nav__title">Мультфильм</span>
-                  <span class="quick-nav__sub">Обучающий контент</span>
-                </span>
-              </a>
+                <a class="quick-nav__btn quick-nav__btn--blue" data-nav="video" href="https://digitalhavenrussia.ru/security.html">
+                  <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-film"></i></span>
+                  <span class="quick-nav__txt">
+                    <span class="quick-nav__title">Мультфильм</span>
+                    <span class="quick-nav__sub">Обучающий контент</span>
+                  </span>
+                </a>
 
-              <a class="quick-nav__btn quick-nav__btn--white" data-nav="map" href="https://digitalhavenrussia.ru/map.html">
-                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
-                <span class="quick-nav__txt">
-                  <span class="quick-nav__title">Маршрут помощи</span>
-                  <span class="quick-nav__sub">Карта операции</span>
-                </span>
-              </a>
+                <a class="quick-nav__btn quick-nav__btn--white" data-nav="map" href="https://digitalhavenrussia.ru/map.html">
+                  <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
+                  <span class="quick-nav__txt">
+                    <span class="quick-nav__title">Маршрут помощи</span>
+                    <span class="quick-nav__sub">Карта операции</span>
+                  </span>
+                </a>
 
-              <a class="quick-nav__btn quick-nav__btn--red" data-nav="cyber" href="https://digitalhavenrussia.ru/project.html#help">
-                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
-                <span class="quick-nav__txt">
-                  <span class="quick-nav__title">Киберполигон</span>
-                  <span class="quick-nav__sub">Подключиться</span>
-                </span>
-              </a>
+                <a class="quick-nav__btn quick-nav__btn--red" data-nav="cyber" href="https://digitalhavenrussia.ru/project.html#help">
+                  <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+                  <span class="quick-nav__txt">
+                    <span class="quick-nav__title">Киберполигон</span>
+                    <span class="quick-nav__sub">Подключиться</span>
+                  </span>
+                </a>
+              </div>
 
-              <div class="quick-nav__pills" aria-label="Навигация по разделам">
+              <div class="quick-nav__pills" aria-label="Разделы страницы">
                 <a class="quick-nav__pill" href="#about">О проекте</a>
                 <a class="quick-nav__pill" href="#mission">Миссия</a>
                 <a class="quick-nav__pill" href="#gallery">Галерея</a>
@@ -978,20 +940,14 @@
             </nav>
           </div>
 
+          <!-- ✅ Кнопки действий — один раз, без дублей -->
           <div class="hero__actions">
             <a class="btn btn--primary" href="#help"><i class="fa-solid fa-hand-holding-heart"></i> Как помочь</a>
             <a class="btn btn--ghost" href="#contacts"><i class="fa-solid fa-envelope"></i> Контакты</a>
           </div>
-
-          <div class="jump" aria-label="Быстрая навигация по странице">
-            <a href="#about">О проекте</a>
-            <a href="#mission">Миссия</a>
-            <a href="#gallery">Галерея</a>
-            <a href="#vk">VK</a>
-          </div>
         </div>
 
-        <div class="stats" aria-label="Ключевые показатели">
+        <div class="stats" aria-label="Ключевые направления">
           <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
           <div class="stat"><b>Техника</b><span>поставка и настройка</span></div>
           <div class="stat"><b>Безопасность</b><span>цифровая среда</span></div>
