@@ -20,37 +20,42 @@
 
   <style>
     :root{
-      --txt: rgba(255,255,255,.92);
+      --txt: rgba(255,255,255,.93);
       --muted: rgba(255,255,255,.72);
 
-      /* главное стекло (спокойнее) */
+      /* “ледяное стекло” */
       --panelA: rgba(10,16,28,.62);
-      --panelB: rgba(10,16,28,.42);
+      --panelB: rgba(10,16,28,.38);
 
       --line: rgba(255,255,255,.10);
       --line2: rgba(255,255,255,.14);
 
-      --shadow: 0 22px 70px rgba(0,0,0,.42);
-      --shadow2: 0 12px 34px rgba(0,0,0,.30);
+      --shadow: 0 28px 90px rgba(0,0,0,.45);
+      --shadow2: 0 16px 44px rgba(0,0,0,.34);
 
       --r: 22px;
-
-      /* акценты (мягкие) */
-      --blue: rgba(0,120,255,.75);
-      --red: rgba(255,60,60,.70);
-
       --gap: 18px;
+
+      /* акценты */
+      --blue: rgba(70,170,255,.95);
+      --red: rgba(255,85,85,.85);
+      --gold: rgba(255,210,120,.85);
+      --ice: rgba(185,235,255,.92);
 
       /* размеры */
       --sidebarW: 320px;
-      --wrapW: 980px;
+      --wrapW: 1040px;
 
       /* читаемость */
-      --blur: 10px;
+      --blur: 12px;
+
+      /* якоря с учетом фикс навигации */
+      --anchorOffset: 92px;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
+
     body{
       margin:0;
       font-family: 'PT Sans Caption', 'Rubik', sans-serif;
@@ -59,24 +64,87 @@
       scroll-behavior:smooth;
 
       background:
-        radial-gradient(1200px 700px at 50% 10%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.58)),
+        radial-gradient(1200px 800px at 50% 8%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(900px 500px at 70% 12%, rgba(70,170,255,.14), transparent 62%),
+        radial-gradient(900px 500px at 30% 18%, rgba(255,210,120,.10), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.65)),
         url("header-bg-3840.jpg") center/cover no-repeat fixed;
     }
 
-    /* затемнение по краям как в игре, чтобы UI читался */
+    /* затемнение/виньетка + “игровые края” */
     body::before{
       content:"";
       position:fixed;
       inset:0;
       pointer-events:none;
       background:
-        radial-gradient(120% 110% at 50% 30%, rgba(0,0,0,.20), rgba(0,0,0,.60)),
-        radial-gradient(80% 70% at 50% 0%, rgba(0,0,0,.10), transparent 60%);
+        radial-gradient(110% 110% at 50% 28%, rgba(0,0,0,.08), rgba(0,0,0,.66)),
+        radial-gradient(70% 60% at 50% 0%, rgba(0,0,0,.06), transparent 62%),
+        linear-gradient(90deg, rgba(0,0,0,.30), transparent 18%, transparent 82%, rgba(0,0,0,.30));
       z-index:0;
     }
 
-    /* ======= TOP NAV (оставил, но сделал тоньше и спокойнее) ======= */
+    /* звёзды/искры */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-10%;
+      pointer-events:none;
+      background:
+        radial-gradient(1px 1px at 8% 18%, rgba(255,255,255,.65), transparent 60%),
+        radial-gradient(1px 1px at 22% 8%, rgba(185,235,255,.6), transparent 60%),
+        radial-gradient(1px 1px at 37% 16%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(1px 1px at 55% 7%, rgba(255,210,120,.55), transparent 60%),
+        radial-gradient(1px 1px at 71% 14%, rgba(255,255,255,.6), transparent 60%),
+        radial-gradient(1px 1px at 85% 9%, rgba(185,235,255,.55), transparent 60%),
+        radial-gradient(1px 1px at 12% 46%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(1px 1px at 44% 52%, rgba(185,235,255,.30), transparent 60%),
+        radial-gradient(1px 1px at 78% 44%, rgba(255,255,255,.28), transparent 60%),
+        radial-gradient(1px 1px at 90% 62%, rgba(255,210,120,.20), transparent 60%);
+      opacity:.55;
+      filter: blur(.2px);
+      animation: twinkle 6s ease-in-out infinite alternate;
+      z-index:0;
+    }
+
+    @keyframes twinkle{
+      0%{ opacity:.35; transform: translateY(0px); }
+      100%{ opacity:.70; transform: translateY(-6px); }
+    }
+
+    /* Снег (2 слоя) */
+    .snow, .snow2{
+      position:fixed;
+      inset:-20% 0 0 0;
+      pointer-events:none;
+      z-index:0;
+      opacity:.18;
+      background:
+        radial-gradient(2px 2px at 10% 10%, rgba(255,255,255,.8), transparent 60%),
+        radial-gradient(2px 2px at 30% 40%, rgba(255,255,255,.7), transparent 60%),
+        radial-gradient(2px 2px at 55% 18%, rgba(255,255,255,.75), transparent 60%),
+        radial-gradient(2px 2px at 70% 55%, rgba(255,255,255,.65), transparent 60%),
+        radial-gradient(2px 2px at 85% 25%, rgba(255,255,255,.7), transparent 60%),
+        radial-gradient(2px 2px at 20% 75%, rgba(255,255,255,.65), transparent 60%),
+        radial-gradient(2px 2px at 48% 82%, rgba(255,255,255,.6), transparent 60%),
+        radial-gradient(2px 2px at 78% 88%, rgba(255,255,255,.55), transparent 60%);
+      background-size: 420px 420px;
+      animation: snowFall 14s linear infinite;
+      transform: translateY(-10%);
+      filter: blur(.1px);
+    }
+    .snow2{
+      opacity:.10;
+      background-size: 620px 620px;
+      animation-duration: 22s;
+      filter: blur(.2px);
+    }
+    @keyframes snowFall{
+      0%{ transform: translateY(-18%); }
+      100%{ transform: translateY(18%); }
+    }
+
+    /* ======= TOP NAV ======= */
     nav{
       position: fixed;
       top: 0; left: 0;
@@ -88,10 +156,10 @@
       padding: 10px 12px;
 
       background: rgba(8,14,28,.28);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(255,255,255,.08);
       box-shadow: 0 10px 30px rgba(0,0,0,.18);
-      transition: transform .3s ease-in-out;
+      transition: transform .28s ease-in-out;
       will-change: transform;
     }
     nav.hidden{ transform: translateY(-110%); }
@@ -99,7 +167,7 @@
     nav ul{
       list-style:none;
       display:flex;
-      gap: 14px;
+      gap: 12px;
       flex-wrap:wrap;
       margin:0;
       padding:0;
@@ -116,16 +184,20 @@
 
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
 
       text-shadow: 0 10px 26px rgba(0,0,0,.28);
-      transition: transform .12s ease, filter .12s ease, background .2s ease;
+      transition: transform .12s ease, filter .12s ease, background .2s ease, border-color .2s ease;
+      outline: none;
     }
     nav ul li a:hover{
       transform: translateY(-1px);
       filter: brightness(1.06);
-      background: linear-gradient(135deg, rgba(0,120,255,.20), rgba(255,60,60,.16));
-      border-color: rgba(255,255,255,.14);
+      background: linear-gradient(135deg, rgba(70,170,255,.22), rgba(255,85,85,.16));
+      border-color: rgba(255,255,255,.16);
+    }
+    nav ul li a:focus-visible{
+      box-shadow: 0 0 0 3px rgba(185,235,255,.18), 0 0 0 1px rgba(255,255,255,.20) inset;
     }
 
     @media (max-width:768px){
@@ -137,7 +209,7 @@
     .page{
       position:relative;
       z-index:1;
-      padding: 66px var(--gap) 26px; /* место под nav */
+      padding: 70px var(--gap) 26px;
       display:grid;
       grid-template-columns: var(--sidebarW) 1fr;
       gap: var(--gap);
@@ -146,21 +218,21 @@
     }
 
     @media (max-width:1100px){
-      .page{
-        grid-template-columns: 1fr;
-      }
+      .page{ grid-template-columns: 1fr; }
     }
 
-    /* ======= LEFT GAME MENU (спокойнее, без тумана на всю страницу) ======= */
+    /* ======= LEFT MENU (делаем более “игровым” и аккуратным) ======= */
     .sidebar{
       position: sticky;
-      top: 78px; /* ниже nav */
+      top: 86px;
       border-radius: 22px;
       overflow:hidden;
 
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(10px);
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(185,235,255,.10), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
       box-shadow: var(--shadow2);
     }
 
@@ -170,7 +242,9 @@
       justify-content:space-between;
       gap:10px;
       padding: 14px 14px 12px;
-      background: rgba(10,16,28,.30);
+      background:
+        radial-gradient(120% 120% at 30% 0%, rgba(70,170,255,.20), transparent 58%),
+        rgba(10,16,28,.28);
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
 
@@ -179,10 +253,17 @@
       font-size: 18px;
       letter-spacing:.02em;
       text-shadow: 0 10px 24px rgba(0,0,0,.28);
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
     .sidebar__cap span{
       font-size: 12px;
       color: rgba(255,255,255,.72);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
     }
 
     .side-list{
@@ -203,74 +284,124 @@
       border: 1px solid rgba(255,255,255,.10);
       text-decoration:none;
       color: rgba(255,255,255,.92);
-      font-weight: 700;
-      transition: transform .12s ease, filter .12s ease, background .2s ease;
+      font-weight: 800;
+      transition: transform .12s ease, filter .12s ease, background .2s ease, border-color .2s ease;
       user-select:none;
+      outline:none;
     }
+    .sidebtn span{ display:flex; align-items:center; gap:10px; }
     .sidebtn i{ opacity:.92; }
     .sidebtn:hover{
       transform: translateY(-1px);
       filter: brightness(1.05);
-      background: linear-gradient(135deg, rgba(0,120,255,.18), rgba(255,60,60,.14));
-      border-color: rgba(255,255,255,.14);
+      background: linear-gradient(135deg, rgba(70,170,255,.22), rgba(255,85,85,.14));
+      border-color: rgba(255,255,255,.16);
     }
+    .sidebtn:focus-visible{
+      box-shadow: 0 0 0 3px rgba(185,235,255,.18);
+    }
+
     .sidebtn small{
-      font-weight: 800;
+      font-weight: 900;
       font-size: 11px;
       padding: 6px 10px;
       border-radius: 999px;
       background: rgba(255,255,255,.07);
       border: 1px solid rgba(255,255,255,.10);
-      color: rgba(255,255,255,.80);
+      color: rgba(255,255,255,.82);
     }
 
-    /* ======= MAIN CENTER PANEL (как на первом макете) ======= */
-    .content{
-      display:flex;
-      justify-content:center;
-    }
-    .wrap{
-      width: min(var(--wrapW), 100%);
-    }
+    /* ======= MAIN ======= */
+    .content{ display:flex; justify-content:center; }
+    .wrap{ width: min(var(--wrapW), 100%); }
 
+    /* морозная “рамка” без картинок: градиент + внутренняя тень */
     .panel{
       border-radius: var(--r);
       overflow:hidden;
 
-      background: linear-gradient(180deg, var(--panelA), var(--panelB));
-      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(140% 120% at 50% 0%, rgba(185,235,255,.10), transparent 56%),
+        linear-gradient(180deg, var(--panelA), var(--panelB));
+      border: 1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(var(--blur));
       box-shadow: var(--shadow);
+      position:relative;
+    }
+
+    /* световой “блик” по панели */
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 240px at 50% 0%, rgba(255,255,255,.12), transparent 55%),
+        radial-gradient(420px 180px at 20% 0%, rgba(70,170,255,.12), transparent 60%),
+        radial-gradient(420px 180px at 80% 0%, rgba(255,210,120,.10), transparent 60%);
+      opacity:.9;
+      z-index:0;
     }
 
     .panel__head{
-      padding: 20px 22px 16px;
+      position:relative;
+      z-index:1;
+      padding: 22px 22px 18px;
       border-bottom: 1px solid rgba(255,255,255,.08);
       background:
-        radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,.08), transparent 70%),
-        rgba(10,16,28,.18);
+        radial-gradient(80% 130% at 50% 0%, rgba(255,255,255,.10), transparent 70%),
+        radial-gradient(110% 120% at 30% 0%, rgba(70,170,255,.18), transparent 58%),
+        rgba(10,16,28,.10);
+    }
+
+    /* HERO: мягкая “льдинка” под заголовком */
+    .heroBadge{
+      display:flex;
+      justify-content:center;
+      margin: 2px 0 8px;
+    }
+    .heroBadge span{
+      font-family: 'Russo One', system-ui, sans-serif;
+      font-size: 12px;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      color: rgba(255,255,255,.86);
+      box-shadow: 0 14px 26px rgba(0,0,0,.18);
     }
 
     .title{
       margin:0;
       text-align:center;
       font-family: 'Ruslan Display', cursive;
-      font-size: clamp(34px, 3.2vw, 54px);
-      line-height: 1.05;
-      text-shadow: 0 14px 34px rgba(0,0,0,.35);
-      letter-spacing:.02em;
+      font-size: clamp(38px, 3.8vw, 60px);
+      line-height: 1.03;
+      letter-spacing:.03em;
+      text-shadow: 0 18px 40px rgba(0,0,0,.42);
+      position:relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(185,235,255,.90));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 18px 40px rgba(0,0,0,.35));
     }
+
     .subtitle{
       margin: 10px auto 0;
       text-align:center;
       max-width: 70ch;
-      color: rgba(255,255,255,.78);
+      color: rgba(255,255,255,.80);
       font-size: 16px;
       line-height: 1.5;
+      text-shadow: 0 12px 28px rgba(0,0,0,.28);
     }
 
     .tags{
-      margin-top: 12px;
+      margin-top: 14px;
       display:flex;
       justify-content:center;
       flex-wrap:wrap;
@@ -278,13 +409,49 @@
     }
     .tag{
       font-size: 12px;
-      color: rgba(255,255,255,.82);
-      padding: 7px 10px;
+      color: rgba(255,255,255,.86);
+      padding: 8px 12px;
       border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(120% 120% at 30% 0%, rgba(185,235,255,.14), transparent 56%),
+        rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
       user-select:none;
+      backdrop-filter: blur(10px);
     }
+
+    /* внутренняя “быстрая навигация” как в мокапе */
+    .heroNav{
+      margin-top: 14px;
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap: 10px;
+    }
+    .heroNav a{
+      text-decoration:none;
+      color: rgba(255,255,255,.90);
+      font-weight: 900;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 26px rgba(0,0,0,.18);
+      transition: transform .12s ease, filter .12s ease, border-color .2s ease;
+      outline:none;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .heroNav a:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      border-color: rgba(185,235,255,.22);
+    }
+    .heroNav a i{ opacity:.92; }
 
     .cta{
       margin-top: 14px;
@@ -293,31 +460,39 @@
       gap: 10px;
       flex-wrap:wrap;
     }
+
     .btn{
       border: 0;
       cursor:pointer;
       border-radius: 14px;
-      padding: 11px 14px;
+      padding: 12px 16px;
       font-weight: 900;
       letter-spacing:.02em;
-      transition: transform .12s ease, filter .12s ease;
+      transition: transform .12s ease, filter .12s ease, box-shadow .2s ease;
       user-select:none;
-      color: rgba(255,255,255,.95);
+      color: rgba(255,255,255,.96);
       background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 30px rgba(0,0,0,.22);
     }
-    .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
-    .btn:active{ transform: translateY(0px); filter: brightness(.98); }
+    .btn:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow: 0 20px 40px rgba(0,0,0,.26);
+    }
+    .btn:active{ transform: translateY(0px); filter: brightness(.99); }
 
     .btn--primary{
-      background: linear-gradient(135deg, rgba(0,120,255,.72), rgba(255,60,60,.62));
-      border-color: rgba(255,255,255,.14);
-      box-shadow: 0 18px 46px rgba(0,0,0,.25);
+      background: linear-gradient(135deg, rgba(70,170,255,.92), rgba(255,85,85,.78));
+      border-color: rgba(255,255,255,.16);
+      box-shadow: 0 24px 60px rgba(0,0,0,.28);
     }
 
-    /* ======= SECTION BLOCKS внутри панели ======= */
+    /* ======= SECTION BLOCKS ======= */
     .panel__body{
+      position:relative;
+      z-index:1;
       padding: 18px 18px 20px;
       display:grid;
       gap: 14px;
@@ -325,50 +500,91 @@
 
     .block{
       border-radius: 18px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.09);
-      box-shadow: 0 12px 26px rgba(0,0,0,.20);
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(185,235,255,.08), transparent 58%),
+        rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 14px 32px rgba(0,0,0,.22);
       overflow:hidden;
+      position:relative;
     }
+
+    /* ледяная кромка */
+    .block::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      pointer-events:none;
+      background:
+        linear-gradient(135deg, rgba(185,235,255,.12), transparent 40%),
+        linear-gradient(315deg, rgba(255,210,120,.08), transparent 42%);
+      opacity:.55;
+    }
+
     .block__head{
+      position:relative;
       padding: 14px 14px 10px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-      background: rgba(10,16,28,.14);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(120% 120% at 30% 0%, rgba(70,170,255,.14), transparent 62%),
+        rgba(10,16,28,.10);
+      z-index:1;
     }
     .block__head h2{
       margin:0;
       font-family:'Ruslan Display', cursive;
       font-size: 20px;
       letter-spacing:.02em;
+      text-shadow: 0 12px 26px rgba(0,0,0,.30);
     }
     .block__head .hint{
       font-size: 12px;
-      color: rgba(255,255,255,.70);
+      color: rgba(255,255,255,.72);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
     }
-    .block__body{
-      padding: 14px;
-    }
+
+    .block__body{ position:relative; z-index:1; padding: 14px; }
 
     p{
       margin: 10px 0 0;
       font-size: 16px;
       line-height: 1.65;
-      color: rgba(255,255,255,.78);
+      color: rgba(255,255,255,.80);
+      text-shadow: 0 12px 24px rgba(0,0,0,.20);
     }
-    p strong{ color: rgba(255,255,255,.92); }
+    p strong{ color: rgba(255,255,255,.94); }
 
-    /* ======= Slider (внутри блока) ======= */
+    /* якоря: чтобы не пряталось под nav */
+    [id]{
+      scroll-margin-top: var(--anchorOffset);
+    }
+
+    /* ======= Slider ======= */
     .swiper-container{
       width: 100%;
       height: 520px;
       border-radius: 16px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 18px 40px rgba(0,0,0,.25);
+      position:relative;
+    }
+    .swiper-container::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: radial-gradient(80% 60% at 50% 0%, rgba(255,255,255,.10), transparent 70%);
+      opacity:.65;
     }
     .swiper-slide img{
       width:100%;
@@ -388,13 +604,13 @@
     .swiper-pagination-bullet{
       width: 10px; height: 10px;
       margin: 0 6px;
-      opacity: .6;
-      background: rgba(0,120,255,.90);
+      opacity: .55;
+      background: rgba(70,170,255,.92);
       box-shadow: 0 10px 18px rgba(0,0,0,.25);
     }
     .swiper-pagination-bullet-active{
       opacity: 1;
-      background: rgba(255,60,60,.95);
+      background: rgba(255,85,85,.95);
     }
 
     .controls{
@@ -406,21 +622,26 @@
     .controls button{
       width:52px; height:52px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.07);
       color: rgba(255,255,255,.92);
       cursor:pointer;
-      transition: transform .12s ease, filter .12s ease, background .2s ease;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 14px 26px rgba(0,0,0,.22);
+      transition: transform .12s ease, filter .12s ease, background .2s ease, border-color .2s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 30px rgba(0,0,0,.22);
+      outline:none;
     }
     .controls button:hover{
       transform: translateY(-1px);
-      filter: brightness(1.05);
-      background: linear-gradient(135deg, rgba(0,120,255,.16), rgba(255,60,60,.12));
+      filter: brightness(1.06);
+      background: linear-gradient(135deg, rgba(70,170,255,.18), rgba(255,85,85,.12));
+      border-color: rgba(255,255,255,.18);
+    }
+    .controls button:focus-visible{
+      box-shadow: 0 0 0 3px rgba(185,235,255,.18), 0 16px 30px rgba(0,0,0,.22);
     }
 
-    /* ======= Mission grid (как UI карточки) ======= */
+    /* ======= Mission grid ======= */
     .grid2{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -432,36 +653,39 @@
     }
     .feature{
       border-radius: 16px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(185,235,255,.08), transparent 58%),
+        rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
       padding: 12px 12px;
       display:flex;
       gap: 12px;
       align-items:flex-start;
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
     }
     .feature .ico{
-      width: 34px; height: 34px;
-      border-radius: 12px;
+      width: 36px; height: 36px;
+      border-radius: 14px;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: rgba(0,120,255,.16);
-      border: 1px solid rgba(0,120,255,.18);
-      box-shadow: 0 10px 16px rgba(0,0,0,.18);
+      background: rgba(70,170,255,.16);
+      border: 1px solid rgba(185,235,255,.18);
+      box-shadow: 0 12px 20px rgba(0,0,0,.18);
       flex: 0 0 auto;
       margin-top: 1px;
     }
     .feature b{
       display:block;
       font-size: 15px;
-      color: rgba(255,255,255,.92);
+      color: rgba(255,255,255,.94);
       margin-bottom: 2px;
     }
     .feature span{
       display:block;
       font-size: 13px;
       line-height: 1.45;
-      color: rgba(255,255,255,.70);
+      color: rgba(255,255,255,.72);
     }
 
     /* ======= Help grid ======= */
@@ -476,9 +700,12 @@
     }
     .helpCard{
       border-radius: 16px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(255,210,120,.08), transparent 60%),
+        rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
       padding: 12px 12px;
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
     }
     .helpCard .top{
       display:flex;
@@ -489,37 +716,44 @@
     }
     .helpCard .top b{
       font-size: 15px;
-      color: rgba(255,255,255,.92);
+      color: rgba(255,255,255,.94);
     }
     .pill{
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 900;
       padding: 6px 10px;
       border-radius: 999px;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.10);
-      color: rgba(255,255,255,.78);
+      color: rgba(255,255,255,.80);
       user-select:none;
+      backdrop-filter: blur(10px);
     }
     .helpCard p{
       margin:0;
       font-size: 13px;
       line-height: 1.45;
-      color: rgba(255,255,255,.70);
+      color: rgba(255,255,255,.72);
     }
     .helpCard .miniBtn{
       margin-top: 10px;
       width:100%;
       padding: 10px 12px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.07);
-      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.94);
       font-weight: 900;
       cursor:pointer;
-      transition: transform .12s ease, filter .12s ease;
+      transition: transform .12s ease, filter .12s ease, box-shadow .2s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 26px rgba(0,0,0,.18);
     }
-    .helpCard .miniBtn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+    .helpCard .miniBtn:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow: 0 18px 34px rgba(0,0,0,.22);
+    }
 
     /* ======= Social ======= */
     .social{
@@ -535,19 +769,23 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      border-radius: 16px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 14px 24px rgba(0,0,0,.20);
+      border-radius: 18px;
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(185,235,255,.10), transparent 58%),
+        rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 30px rgba(0,0,0,.20);
       transition: transform .12s ease, filter .12s ease, background .2s ease;
       padding: 10px;
+      outline:none;
     }
     .social a:hover{
       transform: translateY(-1px) scale(1.04);
-      filter: brightness(1.06);
-      background: linear-gradient(135deg, rgba(0,120,255,.16), rgba(255,60,60,.12));
+      filter: brightness(1.07);
+      background: linear-gradient(135deg, rgba(70,170,255,.18), rgba(255,85,85,.12));
     }
+    .social a:focus-visible{ box-shadow: 0 0 0 3px rgba(185,235,255,.18), 0 16px 30px rgba(0,0,0,.20); }
     .social img{ width:100%; height:100%; object-fit:contain; display:block; }
 
     /* ======= VK posts ======= */
@@ -559,33 +797,59 @@
     .vkPost{
       border-radius: 16px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.03);
       padding: 10px;
+      box-shadow: 0 14px 28px rgba(0,0,0,.16);
     }
 
     /* ======= Footer ======= */
     footer{
       margin-top: 14px;
       text-align:center;
-      color: rgba(255,255,255,.70);
+      color: rgba(255,255,255,.72);
       font-size: 13px;
       padding: 14px 10px;
       border-top: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.12);
+      background: rgba(0,0,0,.10);
     }
 
     /* ======= mobile tweaks ======= */
     @media (max-width:768px){
+      :root{ --anchorOffset: 84px; }
       .swiper-container{ height: 240px; }
       .panel__head{ padding: 18px 14px 14px; }
       .panel__body{ padding: 14px; }
       .sidebar{ position: relative; top: 0; }
+      .heroNav a{ font-size: 12px; padding: 9px 11px; }
     }
+
+    /* мягкий вход */
+    .panel, .sidebar{
+      animation: enter .35s ease-out both;
+    }
+    @keyframes enter{
+      from{ transform: translateY(6px); opacity:.0; }
+      to{ transform: translateY(0px); opacity:1; }
+    }
+
+    /* скроллбар (аккуратно) */
+    ::-webkit-scrollbar{ width: 10px; }
+    ::-webkit-scrollbar-track{ background: rgba(0,0,0,.18); }
+    ::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.16);
+      border-radius: 999px;
+      border: 2px solid rgba(0,0,0,.10);
+    }
+    ::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.22); }
   </style>
 </head>
 
 <body>
+  <!-- декоративный снег -->
+  <div class="snow"></div>
+  <div class="snow2"></div>
+
   <nav id="site-nav">
     <ul>
       <li><a href="https://digitalhavenrussia.ru">Главная</a></li>
@@ -597,7 +861,7 @@
 
   <div class="page">
 
-    <!-- ЛЕВО: “Игровое меню” (читаемое) -->
+    <!-- ЛЕВО: “Игровое меню” -->
     <aside class="sidebar">
       <div class="sidebar__cap">
         <b><i class="fa-solid fa-gamepad"></i> Игровое меню</b>
@@ -614,20 +878,32 @@
       </div>
     </aside>
 
-    <!-- ПРАВО: Центр-панель как в первом макете -->
+    <!-- ПРАВО: Центр-панель -->
     <main class="content">
       <div class="wrap">
         <section class="panel">
 
           <div class="panel__head">
+            <div class="heroBadge"><span>ЦИФРОВОЕ БУДУЩЕЕ КАЖДОМУ РЕБЁНКУ</span></div>
+
             <h1 class="title">О ПРОЕКТЕ</h1>
-            <div class="subtitle">Цифровое будущее — каждому ребёнку</div>
+            <div class="subtitle">ТехноКрыльяРоссии — каждому ребёнку</div>
 
             <div class="tags">
               <span class="tag">Компьютерные классы</span>
               <span class="tag">Цифровая грамотность</span>
               <span class="tag">Кибербезопасность</span>
               <span class="tag">Профориентация</span>
+            </div>
+
+            <!-- Быстрая навигация (вау-как в мокапе) -->
+            <div class="heroNav">
+              <a href="#about"><i class="fa-solid fa-circle-info"></i> Кто мы</a>
+              <a href="#mission"><i class="fa-solid fa-bullseye"></i> Миссия</a>
+              <a href="#support"><i class="fa-solid fa-handshake-angle"></i> Помочь</a>
+              <a href="#moments"><i class="fa-solid fa-camera"></i> Моменты</a>
+              <a href="#vk"><i class="fa-brands fa-vk"></i> VK</a>
+              <a href="#contacts"><i class="fa-solid fa-envelope"></i> Контакты</a>
             </div>
 
             <div class="cta">
@@ -656,7 +932,7 @@
               </div>
             </div>
 
-            <!-- PROBLEM -> SOLUTION (аккуратно, без лишних кнопок-градиентов) -->
+            <!-- PROBLEM -> SOLUTION -->
             <div class="block">
               <div class="block__head">
                 <h2>Проблема → Решение</h2>
@@ -801,7 +1077,7 @@
                 <div class="hint">Связаться</div>
               </div>
               <div class="block__body">
-                <p>Email: <a href="mailto:digitalhavenrussia@mail.ru" style="color: rgba(160,210,255,.95); font-weight:800; text-decoration:none;">digitalhavenrussia@mail.ru</a></p>
+                <p>Email: <a href="mailto:digitalhavenrussia@mail.ru" style="color: rgba(185,235,255,.95); font-weight:900; text-decoration:none;">digitalhavenrussia@mail.ru</a></p>
 
                 <div class="social">
                   <a href="https://vk.com/digitalhavenrussia" target="_blank" aria-label="ВКонтакте"><img src="vk-embl.webp" alt="VK"></a>
@@ -876,10 +1152,10 @@
       const nav = document.getElementById('site-nav');
       window.addEventListener('scroll', () => {
         const current = window.pageYOffset || document.documentElement.scrollTop;
-        if (current > lastScroll && current > 100) nav.classList.add('hidden');
+        if (current > lastScroll && current > 120) nav.classList.add('hidden');
         else nav.classList.remove('hidden');
         lastScroll = current <= 0 ? 0 : current;
-      });
+      }, { passive:true });
     })();
   </script>
 
