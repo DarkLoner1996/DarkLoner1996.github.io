@@ -22,6 +22,12 @@
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
 
+    /* ✅ FIX: чтобы якоря не прятались под фикс-элементами */
+    section[id]{ scroll-margin-top: 84px; }
+    @media (max-width: 520px){
+      section[id]{ scroll-margin-top: 72px; }
+    }
+
     :root{
       /* content */
       --content-max: 1120px;
@@ -81,6 +87,13 @@
         radial-gradient(900px 560px at 86% 0%, rgba(213,43,30,.08), transparent 55%),
         linear-gradient(to bottom right, #f4f6fb, #ffffff);
       overflow-x:hidden;
+    }
+
+    /* ✅ FIX: доступные фокусы (не ломают дизайн) */
+    :focus-visible{
+      outline: 2px solid rgba(120,190,255,.75);
+      outline-offset: 2px;
+      border-radius: 12px;
     }
 
     a{ color:#0039a6; }
@@ -1164,8 +1177,14 @@
     ========================================================= */
     .page-project{ --content-max: 1280px; }
 
-    /* Space background around content like mock */
-    .page-project body{}
+    /* ✅ FIX: это было .page-project body{} (не работало), делаем правильно */
+    body.page-project{
+      background:
+        radial-gradient(1200px 720px at 20% 0%, rgba(0,57,166,.10), transparent 60%),
+        radial-gradient(900px 560px at 86% 0%, rgba(213,43,30,.08), transparent 55%),
+        linear-gradient(to bottom right, #f4f6fb, #ffffff);
+    }
+
     .page-project{
       background: none;
     }
@@ -1536,6 +1555,11 @@
     @media (max-width: 1920px){
       .page-project p{ color: rgba(18,24,38,.92) !important; }
     }
+
+    /* ✅ FIX: уважение prefers-reduced-motion (не ломает стиль) */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
 
@@ -1896,10 +1920,20 @@
       const btn = document.getElementById('menuToggle');
       if(!nav || !btn) return;
 
+      // ✅ FIX: запоминаем состояние меню (не влияет на 4K/вёрстку)
+      const KEY = 'hud_collapsed';
+      const saved = localStorage.getItem(KEY);
+      if(saved === '1'){
+        nav.classList.add('is-collapsed');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.title = 'Развернуть меню';
+      }
+
       btn.addEventListener('click', () => {
         const collapsed = nav.classList.toggle('is-collapsed');
         btn.setAttribute('aria-expanded', String(!collapsed));
         btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
+        try{ localStorage.setItem(KEY, collapsed ? '1' : '0'); }catch(e){}
       });
     })();
 
@@ -1908,20 +1942,28 @@
       const sw = document.getElementById('nightSwitch');
       if(!nav || !sw) return;
 
+      // ✅ FIX: запоминаем ночной режим
+      const KEY = 'hud_night';
+
       const setState = (on) => {
         sw.classList.toggle('is-on', on);
         sw.setAttribute('aria-checked', String(on));
         nav.classList.toggle('hud--night', on);
       };
 
-      const toggle = () => setState(!(sw.getAttribute('aria-checked') === 'true'));
+      const toggle = () => {
+        const next = !(sw.getAttribute('aria-checked') === 'true');
+        setState(next);
+        try{ localStorage.setItem(KEY, next ? '1' : '0'); }catch(e){}
+      };
 
       sw.addEventListener('click', toggle);
       sw.addEventListener('keydown', (e) => {
         if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
 
-      setState(false);
+      const saved = localStorage.getItem(KEY);
+      setState(saved === '1');
     })();
   </script>
 
@@ -1950,4 +1992,3 @@
 
 </body>
 </html>
-
