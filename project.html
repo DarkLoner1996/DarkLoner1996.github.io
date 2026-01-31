@@ -999,25 +999,27 @@
     /* 1) Центровка контента: убираем всё, что может прибивать wrap влево */
     .page-project .wrap{ margin: 0 auto !important; }
 
-    /* На больших экранах делаем отступ под меню через padding у блоков страницы */
-    @media (min-width: 1200px){
-      .page-project header.hero,
-      .page-project main,
-      .page-project footer{
-        padding-left: calc(var(--panel-w) + 60px);
-        padding-right: 32px;
-      }
-    }
+/* ✅ Центр по экрану + не налезаем на меню (project.html) */
+.page-project .wrap{ margin: 0 auto !important; }
 
-    /* На средних/малых — обычная верстка */
-    @media (max-width: 1199px){
-      .page-project header.hero,
-      .page-project main,
-      .page-project footer{
-        padding-left: 0;
-        padding-right: 0;
-      }
-    }
+@media (min-width: 1200px){
+  /* уменьшаем доступную ширину контента на ширину меню + зазор,
+     но центрируем по экрану */
+  .page-project .wrap{
+    width: min(
+      var(--content-max),
+      calc(100% - (var(--content-pad) * 2) - var(--panel-w) - 60px)
+    ) !important;
+  }
+}
+
+/* на средних/малых — обычная ширина */
+@media (max-width: 1199px){
+  .page-project .wrap{
+    width: min(var(--content-max), calc(100% - (var(--content-pad) * 2))) !important;
+  }
+}
+
 
     /* 2) Другой цвет меню на project.html */
     .page-project .side-nav{
