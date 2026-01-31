@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -12,6 +12,7 @@
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&family=Russo+One&family=Ruslan+Display&display=swap" rel="stylesheet" />
+  <!-- Swiper -->
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 
   <style>
@@ -96,12 +97,13 @@
 
     .hero__inner{ position: relative; z-index: 2; }
 
+    /* ✅ FIX: выравниваем 2-й ряд по высоте (меню и stats) */
     .hero__grid{
       position: relative;
       z-index: 2;
       display: grid;
       gap: 18px;
-      align-items: stretch;
+      align-items: stretch; /* было start -> из-за этого "не ровно" */
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-template-rows: auto auto;
     }
@@ -154,6 +156,642 @@
       filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
     }
 
+    /* =========================================================
+       ✅ бейдж “Служим будущему детей”
+    ========================================================= */
+    .page-project header.hero .hero-badge{
+      position: relative;
+      z-index: 6;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      pointer-events:none;
+
+      justify-self: start;
+      align-self: start;
+      margin-top: 4px;
+
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 16px 34px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    }
+    @media (max-width: 980px){
+      .page-project header.hero .hero-badge{
+        justify-self: center;
+        margin: 8px 0 2px;
+      }
+    }
+
+    .page-project header.hero .hero-badge__logo{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18)),
+        url("embl.webp") center/72% no-repeat;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 12px 22px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .page-project header.hero .hero-badge__text{
+      font-family: 'Russo One', sans-serif;
+      font-size: 12px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 2px 10px rgba(0,0,0,.28);
+      white-space: nowrap;
+      opacity:.92;
+    }
+
+    /* =========================================================
+       ✅ Общее стеклянное оформление панели (для меню и stats)
+    ========================================================= */
+    .glass-panel{
+      width: 100%;
+      max-width: var(--dock-max);
+      border-radius: 22px;
+      padding: 12px;
+      background:
+        radial-gradient(140% 160% at 10% 10%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.12));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,.32),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(14px) saturate(1.08);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      position: relative;
+    }
+    .glass-panel::before{
+      content:"";
+      position:absolute;
+      inset:-22px;
+      pointer-events:none;
+      z-index:-1;
+      background:
+        radial-gradient(420px 240px at 20% 35%, rgba(120,190,255,.22), transparent 62%),
+        radial-gradient(420px 260px at 80% 35%, rgba(255,110,95,.16), transparent 66%),
+        radial-gradient(560px 300px at 50% 100%, rgba(255,255,255,.06), transparent 62%);
+      filter: blur(18px);
+      opacity: .95;
+    }
+
+    /* =========================================================
+       ✅ HERO DOCK MENU
+    ========================================================= */
+    .hero-dock{
+      position: sticky;
+      top: var(--dock-sticky-top);
+      z-index: 20;
+      margin-top: 0;        /* FIX: было 14px -> давало "криво" */
+      align-self: stretch;  /* FIX: тянем на высоту строки */
+    }
+
+    /* FIX: меню занимает 100% высоты и табы можно прижать вниз */
+    .quick-nav{
+      margin-left: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ✅ КНОПКИ В СЕТКЕ */
+    .quick-nav__grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+    @media (max-width: 980px){
+      .quick-nav__grid{
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+      }
+    }
+    @media (max-width: 520px){
+      .quick-nav__grid{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-nav__btn{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap: 10px;
+      width: 100%;
+      min-height: 54px;
+
+      padding: 12px 14px;
+      border-radius: 16px;
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .02em;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      transition: transform .14s ease, filter .14s ease, border-color .14s ease;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .quick-nav__btn::after{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.22) 42%, transparent 58%);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity:.85;
+      transition: transform .6s ease;
+      pointer-events:none;
+    }
+    .quick-nav__btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .quick-nav__btn:hover::after{ transform: translateX(120%) skewX(-18deg); }
+    .quick-nav__btn:active{ transform: translateY(0) scale(.99); }
+
+    .quick-nav__ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      display:grid; place-items:center;
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 20px rgba(0,0,0,.16);
+      flex:0 0 auto;
+    }
+
+    .quick-nav__txt{
+      display:flex;
+      flex-direction:column;
+      gap: 2px;
+      min-width:0;
+    }
+    .quick-nav__title{
+      font-size: 13px;
+      text-transform: uppercase;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(255,255,255,.96);
+      line-height: 1.05;
+    }
+    .quick-nav__sub{
+      font-size: 10px;
+      opacity:.86;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(255,255,255,.82);
+      line-height: 1.05;
+    }
+
+    .quick-nav__btn--blue{
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.82), rgba(7,18,38,.72));
+      border-color: rgba(120,190,255,.22);
+    }
+    .quick-nav__btn--blue .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.58), rgba(0,0,0,.18));
+    }
+
+    .quick-nav__btn--white{
+      color: rgba(20,24,34,.92);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border-color: rgba(0,57,166,.18);
+    }
+    .quick-nav__btn--white .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.86), rgba(0,0,0,.10));
+      border-color: rgba(0,57,166,.14);
+    }
+    .quick-nav__btn--white .quick-nav__title,
+    .quick-nav__btn--white .quick-nav__sub{
+      color: rgba(20,24,34,.92);
+    }
+
+    .quick-nav__btn--red{
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(213,43,30,.82), rgba(43,11,11,.70));
+      border-color: rgba(255,110,95,.22);
+    }
+    .quick-nav__btn--red .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(213,43,30,.55), rgba(0,0,0,.18));
+    }
+
+    .quick-nav__btn.is-active{
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.26),
+        0 0 0 1px rgba(255,255,255,.22) inset,
+        0 0 26px rgba(255,220,140,.10);
+      border-color: rgba(255,240,200,.34);
+    }
+
+    /* =========================================================
+       ✅ TAB-КНОПКИ: О проекте / Миссия / Галерея / VK
+    ========================================================= */
+    .quick-nav__pills{
+      display:flex;
+      justify-content:center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: auto;    /* FIX: прижимаем табы к низу панели */
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    .quick-tabs{
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 12px 26px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    }
+
+    .quick-tab{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+
+      padding: 8px 10px;
+      border-radius: 12px;
+
+      color: rgba(255,255,255,.90);
+      border: 1px solid transparent;
+      background: rgba(255,255,255,.04);
+
+      transition: transform .14s ease, filter .14s ease, background .14s ease, border-color .14s ease;
+      user-select:none;
+      white-space: nowrap;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .quick-tab i{ opacity:.95; }
+
+    .quick-tab:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.06);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+    }
+
+    .quick-tab.is-active{
+      color: rgba(20,24,34,.95);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border-color: rgba(255,240,200,.35);
+      box-shadow:
+        0 14px 28px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.22);
+    }
+
+    /* =========================================================
+       ✅ STATS: FIX (без JS) — тянется ровно как меню
+    ========================================================= */
+    .stats{
+      width: 100%;
+      max-width: var(--dock-max);
+      height: 100%;         /* FIX: вместо auto + скрипт */
+      align-self: stretch;  /* FIX */
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .stats__grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      height: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    @media (max-width: 520px){
+      .stats__grid{ grid-template-columns: 1fr; }
+    }
+
+    /* FIX: убрали внутреннюю "обводку" у карточек */
+    .stat{
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.20);
+
+      border: none; /* было: 1px solid ... */
+      box-shadow: 0 18px 36px rgba(0,0,0,.22); /* убрали inset */
+
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      min-height: 0;
+    }
+    .stat b{
+      display:block;
+      font-size: clamp(18px, 2.0vw, 24px);
+      letter-spacing: .2px;
+      text-shadow: 0 2px 14px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.96);
+    }
+    .stat span{
+      display:block;
+      margin-top: 4px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .90;
+      text-shadow: 0 2px 10px rgba(0,0,0,.22);
+      color: rgba(255,255,255,.86);
+    }
+
+    /* =========================================================
+       MAIN / CARDS / GALLERY
+    ========================================================= */
+    main{ padding: 22px 0 32px; }
+    .stack{ display:flex; flex-direction:column; gap: 18px; }
+
+    p{
+      font-size: var(--p) !important;
+      line-height: 1.7 !important;
+      margin: 0 0 12px;
+      color: rgba(22,30,45,.92);
+    }
+
+    .card{
+      background: var(--card-bg);
+      border: 1px solid var(--card-brd);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      animation: fadeInUp .9s ease-out;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height: 4px;
+      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.95), #d52b1e);
+      opacity:.92;
+      z-index:1;
+      pointer-events:none;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 260px at 14% 0%, rgba(0,57,166,.08), transparent 70%),
+        radial-gradient(900px 300px at 88% 0%, rgba(213,43,30,.06), transparent 72%);
+      opacity:.75;
+      z-index:0;
+    }
+
+    .card__head{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      position:relative;
+      z-index:2;
+    }
+    .card__title{
+      margin:0;
+      font-family:'Russo One', sans-serif;
+      font-size: var(--h2);
+      letter-spacing:.2px;
+      color:#0f2a63;
+      position:relative;
+    }
+    .card__title::after{
+      content:"";
+      display:block;
+      width: 86px;
+      height: 3px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0,57,166,.85), rgba(213,43,30,.85));
+      opacity:.9;
+    }
+
+    .card__sub{
+      margin:0;
+      opacity:.78;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 60ch;
+    }
+    .card__body{
+      padding: 0 18px 18px;
+      position:relative;
+      z-index:2;
+    }
+
+    .gallery__wrap{ padding: 0 18px 18px; position:relative; z-index:2; }
+
+    .swiper-container{
+      position: relative;
+      width: 100%;
+      height: clamp(260px, 34vw, 520px);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.14);
+      background: rgba(0,0,0,.04);
+    }
+    .swiper-container::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.28), transparent 40%),
+        linear-gradient(0deg, rgba(0,0,0,.34), transparent 46%);
+      mix-blend-mode: multiply;
+    }
+    .swiper-container::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 3px;
+      z-index:3;
+      pointer-events:none;
+      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.92), #d52b1e);
+      opacity:.9;
+    }
+
+    .swiper-slide img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      transform: scale(1.02);
+      transition: transform .9s ease;
+    }
+    .swiper-container:hover .swiper-slide img{ transform: scale(1.05); }
+
+    .swiper-pagination{ bottom: 14px !important; z-index:4 !important; }
+    .swiper-pagination-bullet{
+      width: 10px; height: 10px;
+      margin: 0 6px !important;
+      opacity: .55;
+      background: rgba(0,57,166,.85);
+    }
+    .swiper-pagination-bullet-active{
+      opacity: 1;
+      background: rgba(213,43,30, .95);
+    }
+
+    .custom-controls{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 18px 18px;
+      position:relative;
+      z-index:2;
+    }
+    .custom-controls button{
+      width:48px; height:48px; border-radius:14px;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.24), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border:1px solid rgba(30,80,160,.22);
+      color:#0f2a63;
+      font-size:1.1em; font-weight:bold;
+      cursor:pointer;
+      transition: transform .14s ease, filter .14s ease, background .14s ease;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 14px 26px rgba(0,0,0,.14);
+    }
+    .custom-controls button:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.05);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,240,205,.98), rgba(245,206,120,.98));
+      border-color: rgba(245,206,120,.65);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px){
+      .grid-2{ grid-template-columns: 1fr; }
+    }
+
+    .mini{
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(0,57,166,.04);
+      border: 1px solid rgba(0,57,166,.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .mini::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      background:
+        radial-gradient(420px 140px at 12% 0%, rgba(0,57,166,.10), transparent 62%),
+        radial-gradient(420px 160px at 88% 0%, rgba(213,43,30,.07), transparent 66%);
+      opacity:.7;
+    }
+    .mini h3{
+      margin: 0 0 8px;
+      font-family:'Russo One', sans-serif;
+      font-size: 16px;
+      letter-spacing:.2px;
+      color:#0f2a63;
+      position:relative;
+      z-index:2;
+    }
+    .mini p{
+      margin:0;
+      font-size: 14px !important;
+      line-height: 1.6 !important;
+      opacity:.92;
+      position:relative;
+      z-index:2;
+    }
+
+    ul.clean{
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    ul.clean li{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(30,80,160,.10);
+      box-shadow: 0 10px 22px rgba(16,24,40,.06);
+    }
+    ul.clean li::before{
+      content:"✓";
+      flex:0 0 auto;
+      width: 22px; height: 22px;
+      border-radius: 8px;
+      display:grid; place-items:center;
+      background: rgba(40,167,69,.12);
+      color: rgba(27,120,52,.95);
+      font-weight: 900;
+      margin-top: 1px;
+    }
+
+    .social-links{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap: 14px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .social-link{
+      width: 74px;
+      height: 74px;
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .social-link img{ width:100%; height:100%; object-fit:contain; display:block; }
+    .social-link:hover{ transform: translateY(-2px) scale(1.06); filter: brightness(1.12); }
+
     footer{
       margin-top: 22px;
       background:#0039a6;
@@ -164,10 +802,202 @@
     }
     footer p{ margin:0; color: rgba(255,255,255,.95); font-size: 14px !important; }
 
+    /* =========================================================
+       PROJECT PAGE LOOK
+    ========================================================= */
+    .page-project{ --content-max: 1280px; }
+
+    body.page-project{
+      background:
+        radial-gradient(1200px 720px at 20% 0%, rgba(0,57,166,.10), transparent 60%),
+        radial-gradient(900px 560px at 86% 0%, rgba(213,43,30,.08), transparent 55%),
+        linear-gradient(to bottom right, #f4f6fb, #ffffff);
+    }
+
+    .page-project main{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 700px at 70% 12%, rgba(0,57,166,.10), transparent 60%),
+        radial-gradient(900px 560px at 92% 16%, rgba(213,43,30,.08), transparent 55%),
+        linear-gradient(to bottom right, #f4f6fb, #ffffff);
+    }
+    .page-project main::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      z-index:0;
+      opacity:.55;
+      background:
+        radial-gradient(1200px 640px at 82% 18%, rgba(213,43,30,.08), transparent 62%),
+        radial-gradient(1100px 700px at 22% 24%, rgba(0,57,166,.09), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(10,25,55,.04) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(0deg,  rgba(10,25,55,.03) 0 1px, transparent 1px 22px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+    .page-project main > .wrap{ position:relative; z-index:1; }
+
+    .page-project header.hero{
+      background:
+        radial-gradient(1200px 560px at 16% 16%, rgba(0,57,166,.30), transparent 58%),
+        radial-gradient(900px 520px  at 86% 18%, rgba(213,43,30,.22), transparent 62%),
+        linear-gradient(90deg, #061735 0%, #081f46 55%, #0b224c 78%, #2b0b0b 100%) !important;
+      box-shadow: 0 10px 28px rgba(0,0,0,.20) !important;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .page-project header.hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background: url('russian-flag.svg') center/240% no-repeat;
+      opacity: .10;
+      filter: saturate(1.15) contrast(1.08);
+      animation: flagPulse 7s ease-in-out infinite;
+    }
+    .page-project header.hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg, rgba(4, 8, 18, .86) 0%, rgba(4, 8, 18, .58) 54%, rgba(4, 8, 18, .18) 100%),
+        linear-gradient(128deg, rgba(0,57,166,.42) 0%, rgba(0,57,166,0) 32%, rgba(255,255,255,.24) 50%, rgba(213,43,30,.34) 68%, rgba(213,43,30,0) 92%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.045) 0 1px, rgba(255,255,255,0) 1px 28px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.032) 0 1px, rgba(255,255,255,0) 1px 24px),
+        radial-gradient(circle at 12% 30%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 22% 54%, rgba(255,255,255,.07) 0 1px, transparent 2px),
+        radial-gradient(circle at 78% 26%, rgba(255,255,255,.09) 0 1px, transparent 2px),
+        radial-gradient(circle at 90% 44%, rgba(255,255,255,.06) 0 1px, transparent 2px),
+        linear-gradient(90deg, #0039a6 0 33%, rgba(255,255,255,.92) 33% 66%, #d52b1e 66% 100%),
+        linear-gradient(90deg, rgba(0,57,166,.85), rgba(255,255,255,.65), rgba(213,43,30,.85));
+      background-size:
+        auto, 160% 160%, auto, auto, auto, auto, auto, auto, 100% 6px, 100% 2px;
+      background-position:
+        center, 18% 40%, center, center, 0 0, 0 0, 0 0, 0 0, bottom, top;
+      background-repeat:
+        no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat;
+      animation: heroShimmer 10s ease-in-out infinite;
+    }
+
+    .page-project header.hero .hero-ribbon{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 10px;
+      z-index: 6;
+      pointer-events:none;
+      background: linear-gradient(90deg,#0039a6 0 33%, rgba(255,255,255,.94) 33% 66%, #d52b1e 66% 100%);
+      box-shadow:
+        0 -6px 22px rgba(0,0,0,.20),
+        0  6px 26px rgba(0,0,0,.18);
+      opacity: .95;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
 
-<body>
+<body class="page-project">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-ribbon" aria-hidden="true"></div>
+
+    <div class="wrap hero__inner">
+      <div class="hero__grid">
+
+        <!-- 1 ряд: заголовок + описание -->
+        <div class="brand">
+          <h1>Техно<span class="highlight-wings" style="color:#66a3ff;">Крылья</span><span class="highlight-russia" style="color:#ff6a5f;">России</span></h1>
+
+          <p class="hero__lead">
+            Мы помогаем детям из детских домов получить доступ к цифровому образованию и навыкам,
+            которые дают реальный шанс на самостоятельное будущее.
+          </p>
+        </div>
+
+        <!-- ✅ БЕЙДЖ -->
+        <div class="hero-badge" aria-hidden="true">
+          <span class="hero-badge__logo"></span>
+          <span class="hero-badge__text">Служим будущему детей</span>
+        </div>
+
+        <!-- 2 ряд (слева): главное меню -->
+        <div class="hero-dock" aria-label="Меню проекта">
+          <nav class="quick-nav glass-panel" aria-label="Навигация">
+            <div class="quick-nav__grid">
+              <a class="quick-nav__btn quick-nav__btn--blue" data-nav="home" href="https://digitalhavenrussia.ru">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Главная</span>
+                  <span class="quick-nav__sub">Миссия активна</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--white" data-nav="project" href="https://digitalhavenrussia.ru/project.html">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">О проекте</span>
+                  <span class="quick-nav__sub">Брифинг</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--blue" data-nav="video" href="https://digitalhavenrussia.ru/security.html">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-film"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Мультфильм</span>
+                  <span class="quick-nav__sub">Обучающий контент</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--white" data-nav="map" href="https://digitalhavenrussia.ru/map.html">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Маршрут помощи</span>
+                  <span class="quick-nav__sub">Карта операции</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--red" data-nav="cyber" href="https://digitalhavenrussia.ru/project.html#help">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Киберполигон</span>
+                  <span class="quick-nav__sub">Подключиться</span>
+                </span>
+              </a>
+            </div>
+
+            <!-- ✅ табы -->
+            <div class="quick-nav__pills" aria-label="Разделы страницы">
+              <div class="quick-tabs" role="tablist" aria-label="Разделы">
+                <a class="quick-tab" data-pill="#about" href="#about"><i class="fa-solid fa-circle-info"></i><span>О проекте</span></a>
+                <a class="quick-tab" data-pill="#mission" href="#mission"><i class="fa-solid fa-bullseye"></i><span>Миссия</span></a>
+                <a class="quick-tab" data-pill="#gallery" href="#gallery"><i class="fa-solid fa-images"></i><span>Галерея</span></a>
+                <a class="quick-tab" data-pill="#vk" href="#vk"><i class="fa-brands fa-vk"></i><span>VK</span></a>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <!-- 2 ряд (справа): stats -->
+        <div class="stats glass-panel" aria-label="Ключевые направления">
+          <div class="stats__grid">
+            <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
+            <div class="stat"><b>Техника</b><span>поставка и настройка</span></div>
+            <div class="stat"><b>Безопасность</b><span>цифровая среда</span></div>
+            <div class="stat"><b>Будущее</b><span>профориентация</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
 
   <main>
     <div class="wrap stack">
@@ -192,6 +1022,10 @@
           </div>
         </div>
 
+        <div class="custom-controls" aria-label="Переключение слайдов">
+          <button class="custom-prev" type="button" aria-label="Предыдущий"><i class="fas fa-chevron-left"></i></button>
+          <button class="custom-next" type="button" aria-label="Следующий"><i class="fas fa-chevron-right"></i></button>
+        </div>
       </section>
 
       <section class="card" id="about">
@@ -381,6 +1215,7 @@
         if(a) a.classList.add('is-active');
       };
 
+      // при клике
       tabs.forEach(t => {
         t.addEventListener('click', () => {
           const h = t.getAttribute('data-pill');
@@ -388,6 +1223,7 @@
         });
       });
 
+      // при скролле
       const sections = ['#about','#mission','#gallery','#vk']
         .map(id => document.querySelector(id))
         .filter(Boolean);
@@ -408,6 +1244,7 @@
 
       sections.forEach(s => io.observe(s));
 
+      // старт
       setActive(location.hash && byHash(location.hash) ? location.hash : '#about');
     })();
   </script>
