@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -97,13 +97,13 @@
 
     .hero__inner{ position: relative; z-index: 2; }
 
-    /* ✅ колонки сделали равными, чтобы панель меню и панель stats совпадали по ширине */
+    /* ✅ FIX: выравниваем 2-й ряд по высоте (меню и stats) */
     .hero__grid{
       position: relative;
       z-index: 2;
       display: grid;
       gap: 18px;
-      align-items: start;
+      align-items: stretch; /* было start -> из-за этого "не ровно" */
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-template-rows: auto auto;
     }
@@ -157,7 +157,7 @@
     }
 
     /* =========================================================
-       ✅ бейдж “Служим будущему детей” — перенесли в зону справа от заголовка (как на стрелке)
+       ✅ бейдж “Служим будущему детей”
     ========================================================= */
     .page-project header.hero .hero-badge{
       position: relative;
@@ -169,8 +169,7 @@
       border-radius: 999px;
       pointer-events:none;
 
-      /* ✅ теперь не у края окна, а в контентной зоне */
-      justify-self: start;          /* ближе к центру шапки */
+      justify-self: start;
       align-self: start;
       margin-top: 4px;
 
@@ -252,12 +251,16 @@
       position: sticky;
       top: var(--dock-sticky-top);
       z-index: 20;
-      margin-top: 14px;
-      align-self: start;
+      margin-top: 0;        /* FIX: было 14px -> давало "криво" */
+      align-self: stretch;  /* FIX: тянем на высоту строки */
     }
 
-    .quick-nav{ /* теперь наследует glass-panel */
+    /* FIX: меню занимает 100% высоты и табы можно прижать вниз */
+    .quick-nav{
       margin-left: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ✅ КНОПКИ В СЕТКЕ */
@@ -400,14 +403,14 @@
     }
 
     /* =========================================================
-       ✅ РЕДИЗАЙН TAB-КНОПОК: О проекте / Миссия / Галерея / VK
+       ✅ TAB-КНОПКИ: О проекте / Миссия / Галерея / VK
     ========================================================= */
     .quick-nav__pills{
       display:flex;
       justify-content:center;
       gap: 6px;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: auto;    /* FIX: прижимаем табы к низу панели */
       padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,.10);
     }
@@ -472,16 +475,17 @@
     }
 
     /* =========================================================
-       ✅ STATS: теперь тоже панель (glass-panel) и будет синхронизирована по высоте с меню
+       ✅ STATS: FIX (без JS) — тянется ровно как меню
     ========================================================= */
     .stats{
       width: 100%;
       max-width: var(--dock-max);
-      height: auto; /* будет выставлено скриптом */
+      height: 100%;         /* FIX: вместо auto + скрипт */
+      align-self: stretch;  /* FIX */
       display:flex;
       flex-direction:column;
       gap: 10px;
-      overflow: hidden; /* чтобы было красиво при точном совпадении высоты */
+      overflow: hidden;
     }
 
     .stats__grid{
@@ -496,14 +500,15 @@
       .stats__grid{ grid-template-columns: 1fr; }
     }
 
+    /* FIX: убрали внутреннюю "обводку" у карточек */
     .stat{
       padding: 14px 14px;
       border-radius: 16px;
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 18px 36px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+
+      border: none; /* было: 1px solid ... */
+      box-shadow: 0 18px 36px rgba(0,0,0,.22); /* убрали inset */
+
       backdrop-filter: blur(10px) saturate(1.05);
       -webkit-backdrop-filter: blur(10px) saturate(1.05);
       min-height: 0;
@@ -917,7 +922,7 @@
           </p>
         </div>
 
-        <!-- ✅ БЕЙДЖ перенесли “сюда” (как на стрелке) -->
+        <!-- ✅ БЕЙДЖ -->
         <div class="hero-badge" aria-hidden="true">
           <span class="hero-badge__logo"></span>
           <span class="hero-badge__text">Служим будущему детей</span>
@@ -968,7 +973,7 @@
               </a>
             </div>
 
-            <!-- ✅ Новый вид табов -->
+            <!-- ✅ табы -->
             <div class="quick-nav__pills" aria-label="Разделы страницы">
               <div class="quick-tabs" role="tablist" aria-label="Разделы">
                 <a class="quick-tab" data-pill="#about" href="#about"><i class="fa-solid fa-circle-info"></i><span>О проекте</span></a>
@@ -980,7 +985,7 @@
           </nav>
         </div>
 
-        <!-- ✅ 2 ряд (справа): stats теперь тоже “панель” и будет 1:1 по размеру с меню -->
+        <!-- 2 ряд (справа): stats -->
         <div class="stats glass-panel" aria-label="Ключевые направления">
           <div class="stats__grid">
             <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
@@ -1197,35 +1202,6 @@
   </script>
 
   <script>
-    /* ✅ 1:1 совпадение высоты stats с меню (точно пиксель-в-пиксель) */
-    (function syncStatsWithMenu(){
-      const menu = document.querySelector('.quick-nav');
-      const stats = document.querySelector('.stats');
-      if(!menu || !stats) return;
-
-      let t = null;
-      const apply = () => {
-        const h = Math.ceil(menu.getBoundingClientRect().height);
-        stats.style.height = h + 'px';
-      };
-
-      apply();
-
-      // точнее и стабильнее, чем просто resize
-      const ro = new ResizeObserver(() => {
-        clearTimeout(t);
-        t = setTimeout(apply, 10);
-      });
-      ro.observe(menu);
-
-      window.addEventListener('resize', () => {
-        clearTimeout(t);
-        t = setTimeout(apply, 80);
-      }, { passive: true });
-    })();
-  </script>
-
-  <script>
     /* ✅ Активная подсветка TAB-кнопок по текущему разделу */
     (function tabsActive(){
       const tabs = Array.from(document.querySelectorAll('.quick-tab'));
@@ -1258,7 +1234,6 @@
       }
 
       const io = new IntersectionObserver((entries) => {
-        // берем самый “видимый” раздел
         const visible = entries
           .filter(e => e.isIntersecting)
           .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
