@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -22,7 +22,6 @@
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
 
-    /* ✅ запас под док-меню */
     section[id]{ scroll-margin-top: 170px; }
     @media (max-width: 520px){
       section[id]{ scroll-margin-top: 150px; }
@@ -42,7 +41,6 @@
 
       --radius: 26px;
 
-      /* ✅ sticky dock inside hero */
       --dock-sticky-top: calc(10px + env(safe-area-inset-top, 0px));
       --dock-max: 920px;
 
@@ -90,7 +88,6 @@
     ========================================================= */
     header.hero{
       position: relative;
-      /* ✅ sticky ломается из-за overflow:hidden на родителях */
       overflow: visible;
       padding: 40px 0 22px;
       color: rgba(255,255,255,.96);
@@ -100,29 +97,27 @@
 
     .hero__inner{ position: relative; z-index: 2; }
 
-    /* ✅ СДЕЛАНО КАК НА СКРИНЕ:
-       1 ряд: заголовок/описание слева, справа пусто
-       2 ряд: главное меню слева, блоки (Обучение/...) справа — в ровень по верхнему краю
-    */
+    /* ✅ колонки сделали равными, чтобы панель меню и панель stats совпадали по ширине */
     .hero__grid{
       position: relative;
       z-index: 2;
       display: grid;
       gap: 18px;
       align-items: start;
-      grid-template-columns: 1.35fr .95fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-template-rows: auto auto;
     }
     .brand{ grid-column: 1; grid-row: 1; }
     .hero-dock{ grid-column: 1; grid-row: 2; }
     .stats{ grid-column: 2; grid-row: 2; }
+    .hero-badge{ grid-column: 2; grid-row: 1; }
 
     @media (max-width: 980px){
       .hero__grid{
         grid-template-columns: 1fr;
         grid-template-rows: auto;
       }
-      .brand, .hero-dock, .stats{
+      .brand, .hero-dock, .stats, .hero-badge{
         grid-column: auto;
         grid-row: auto;
       }
@@ -161,112 +156,68 @@
       filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
     }
 
-    .hero__actions{
+    /* =========================================================
+       ✅ бейдж “Служим будущему детей” — перенесли в зону справа от заголовка (как на стрелке)
+    ========================================================= */
+    .page-project header.hero .hero-badge{
+      position: relative;
+      z-index: 6;
       display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .btn{
-      display:inline-flex;
       align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 11px 14px;
-      border-radius: 14px;
-      text-decoration:none;
-      font-weight: 800;
-      letter-spacing: .02em;
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 14px 28px rgba(0,0,0,.18);
-      backdrop-filter: blur(10px) saturate(1.05);
-      -webkit-backdrop-filter: blur(10px) saturate(1.05);
-      transition: transform .14s ease, filter .14s ease, background .14s ease;
-      user-select:none;
-      white-space:nowrap;
-      position:relative;
-      overflow:hidden;
-      color: rgba(255,255,255,.95);
-      background: rgba(0,0,0,.14);
-    }
-    .btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
-    .btn:active{ transform: translateY(0) scale(.99); }
-
-    .btn--primary{
-      color: rgba(40,28,12,.95);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 62%),
-        linear-gradient(180deg, rgba(255,242,205,.98), rgba(245,206,120,.98));
-      border-color: rgba(255,255,255,.35);
-    }
-    .btn--primary::after{
-      content:"";
-      position:absolute; inset:-2px;
-      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.28) 42%, transparent 58%);
-      transform: translateX(-120%) skewX(-18deg);
-      opacity:.85;
-      transition: transform .6s ease;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
       pointer-events:none;
-    }
-    .btn--primary:hover::after{ transform: translateX(120%) skewX(-18deg); }
-    .btn--ghost:hover{ background: rgba(255,255,255,.10); }
 
-    /* ✅ блок справа (крупные смысловые “карты”) */
-    .stats{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 520px){
-      .stats{ grid-template-columns: 1fr; }
-    }
+      /* ✅ теперь не у края окна, а в контентной зоне */
+      justify-self: start;          /* ближе к центру шапки */
+      align-self: start;
+      margin-top: 4px;
 
-    .stat{
-      padding: 14px 14px;
-      border-radius: 16px;
-      background: rgba(0,0,0,.22);
+      background: rgba(0,0,0,.20);
       border: 1px solid rgba(255,255,255,.18);
       box-shadow:
-        0 18px 36px rgba(0,0,0,.22),
+        0 16px 34px rgba(0,0,0,.22),
         inset 0 1px 0 rgba(255,255,255,.12);
       backdrop-filter: blur(10px) saturate(1.05);
       -webkit-backdrop-filter: blur(10px) saturate(1.05);
     }
-    .stat b{
-      display:block;
-      font-size: clamp(18px, 2.0vw, 24px);
-      letter-spacing: .2px;
-      text-shadow: 0 2px 14px rgba(0,0,0,.25);
-      color: rgba(255,255,255,.96);
+    @media (max-width: 980px){
+      .page-project header.hero .hero-badge{
+        justify-self: center;
+        margin: 8px 0 2px;
+      }
     }
-    .stat span{
-      display:block;
-      margin-top: 4px;
+
+    .page-project header.hero .hero-badge__logo{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18)),
+        url("embl.webp") center/72% no-repeat;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 12px 22px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .page-project header.hero .hero-badge__text{
+      font-family: 'Russo One', sans-serif;
       font-size: 12px;
-      letter-spacing: .08em;
+      letter-spacing: .10em;
       text-transform: uppercase;
-      opacity: .90;
-      text-shadow: 0 2px 10px rgba(0,0,0,.22);
-      color: rgba(255,255,255,.86);
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 2px 10px rgba(0,0,0,.28);
+      white-space: nowrap;
+      opacity:.92;
     }
 
     /* =========================================================
-       ✅ HERO DOCK MENU — красиво и без дублей
-       - строго под текстом про будущее
-       - sticky внутри шапки
-       - сетка 3 + 2 (как на твоём скрине)
+       ✅ Общее стеклянное оформление панели (для меню и stats)
     ========================================================= */
-    .hero-dock{
-      position: sticky;
-      top: var(--dock-sticky-top);
-      z-index: 20;
-      margin-top: 14px;
-      align-self: start;
-    }
-
-    .quick-nav{
-      width: min(var(--dock-max), 100%);
+    .glass-panel{
+      width: 100%;
+      max-width: var(--dock-max);
       border-radius: 22px;
       padding: 12px;
       background:
@@ -280,8 +231,7 @@
       -webkit-backdrop-filter: blur(14px) saturate(1.08);
       position: relative;
     }
-
-    .quick-nav::before{
+    .glass-panel::before{
       content:"";
       position:absolute;
       inset:-22px;
@@ -295,7 +245,22 @@
       opacity: .95;
     }
 
-    /* ✅ КНОПКИ В СЕТКЕ (НЕ flex-wrap кашей) */
+    /* =========================================================
+       ✅ HERO DOCK MENU
+    ========================================================= */
+    .hero-dock{
+      position: sticky;
+      top: var(--dock-sticky-top);
+      z-index: 20;
+      margin-top: 14px;
+      align-self: start;
+    }
+
+    .quick-nav{ /* теперь наследует glass-panel */
+      margin-left: 0;
+    }
+
+    /* ✅ КНОПКИ В СЕТКЕ */
     .quick-nav__grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(170px, 1fr));
@@ -382,7 +347,6 @@
       line-height: 1.05;
     }
 
-    /* patriotic styles */
     .quick-nav__btn--blue{
       color: rgba(255,255,255,.96);
       background:
@@ -435,37 +399,131 @@
       border-color: rgba(255,240,200,.34);
     }
 
-    /* ✅ ОДИН раз: аккуратные “пилюли” разделов */
+    /* =========================================================
+       ✅ РЕДИЗАЙН TAB-КНОПОК: О проекте / Миссия / Галерея / VK
+    ========================================================= */
     .quick-nav__pills{
       display:flex;
       justify-content:center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       margin-top: 10px;
       padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,.10);
     }
-    .quick-nav__pill{
+
+    .quick-tabs{
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 12px 26px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    }
+
+    .quick-tab{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+
       text-decoration:none;
       font-weight: 900;
       font-size: 11px;
-      letter-spacing: .09em;
+      letter-spacing: .10em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.92);
+
       padding: 8px 10px;
-      border-radius: 999px;
+      border-radius: 12px;
+
+      color: rgba(255,255,255,.90);
+      border: 1px solid transparent;
+      background: rgba(255,255,255,.04);
+
+      transition: transform .14s ease, filter .14s ease, background .14s ease, border-color .14s ease;
+      user-select:none;
+      white-space: nowrap;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .quick-tab i{ opacity:.95; }
+
+    .quick-tab:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.06);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+    }
+
+    .quick-tab.is-active{
+      color: rgba(20,24,34,.95);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border-color: rgba(255,240,200,.35);
+      box-shadow:
+        0 14px 28px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.22);
+    }
+
+    /* =========================================================
+       ✅ STATS: теперь тоже панель (glass-panel) и будет синхронизирована по высоте с меню
+    ========================================================= */
+    .stats{
+      width: 100%;
+      max-width: var(--dock-max);
+      height: auto; /* будет выставлено скриптом */
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      overflow: hidden; /* чтобы было красиво при точном совпадении высоты */
+    }
+
+    .stats__grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      height: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    @media (max-width: 520px){
+      .stats__grid{ grid-template-columns: 1fr; }
+    }
+
+    .stat{
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
       border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.12);
-      box-shadow: 0 10px 20px rgba(0,0,0,.14);
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.12);
       backdrop-filter: blur(10px) saturate(1.05);
       -webkit-backdrop-filter: blur(10px) saturate(1.05);
-      transition: transform .14s ease, filter .14s ease, background .14s ease;
-      white-space: nowrap;
+      min-height: 0;
     }
-    .quick-nav__pill:hover{
-      transform: translateY(-1px);
-      filter: saturate(1.05);
-      background: rgba(255,255,255,.08);
+    .stat b{
+      display:block;
+      font-size: clamp(18px, 2.0vw, 24px);
+      letter-spacing: .2px;
+      text-shadow: 0 2px 14px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.96);
+    }
+    .stat span{
+      display:block;
+      margin-top: 4px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .90;
+      text-shadow: 0 2px 10px rgba(0,0,0,.22);
+      color: rgba(255,255,255,.86);
     }
 
     /* =========================================================
@@ -740,7 +798,7 @@
     footer p{ margin:0; color: rgba(255,255,255,.95); font-size: 14px !important; }
 
     /* =========================================================
-       PROJECT PAGE LOOK (space + glossy UI)
+       PROJECT PAGE LOOK
     ========================================================= */
     .page-project{ --content-max: 1280px; }
 
@@ -834,48 +892,6 @@
       opacity: .95;
     }
 
-    .page-project header.hero .hero-badge{
-      position:absolute;
-      right: clamp(14px, 2.2vw, 26px);
-      top:   clamp(14px, 2.2vw, 26px);
-      z-index: 6;
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      pointer-events:none;
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 16px 34px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.12);
-      backdrop-filter: blur(10px) saturate(1.05);
-      -webkit-backdrop-filter: blur(10px) saturate(1.05);
-    }
-    .page-project header.hero .hero-badge__logo{
-      width: 34px; height: 34px;
-      border-radius: 12px;
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18)),
-        url("embl.webp") center/72% no-repeat;
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 12px 22px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-    }
-    .page-project header.hero .hero-badge__text{
-      font-family: 'Russo One', sans-serif;
-      font-size: 12px;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.92);
-      text-shadow: 0 2px 10px rgba(0,0,0,.28);
-      white-space: nowrap;
-      opacity:.92;
-    }
-
     @media (prefers-reduced-motion: reduce){
       *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
     }
@@ -887,15 +903,11 @@
   <!-- HERO -->
   <header class="hero">
     <div class="hero-ribbon" aria-hidden="true"></div>
-    <div class="hero-badge" aria-hidden="true">
-      <span class="hero-badge__logo"></span>
-      <span class="hero-badge__text">Служим будущему детей</span>
-    </div>
 
     <div class="wrap hero__inner">
       <div class="hero__grid">
 
-        <!-- ✅ 1 ряд (слева): заголовок + описание -->
+        <!-- 1 ряд: заголовок + описание -->
         <div class="brand">
           <h1>Техно<span class="highlight-wings" style="color:#66a3ff;">Крылья</span><span class="highlight-russia" style="color:#ff6a5f;">России</span></h1>
 
@@ -905,9 +917,15 @@
           </p>
         </div>
 
-        <!-- ✅ 2 ряд (слева): главное меню -->
+        <!-- ✅ БЕЙДЖ перенесли “сюда” (как на стрелке) -->
+        <div class="hero-badge" aria-hidden="true">
+          <span class="hero-badge__logo"></span>
+          <span class="hero-badge__text">Служим будущему детей</span>
+        </div>
+
+        <!-- 2 ряд (слева): главное меню -->
         <div class="hero-dock" aria-label="Меню проекта">
-          <nav class="quick-nav" aria-label="Навигация">
+          <nav class="quick-nav glass-panel" aria-label="Навигация">
             <div class="quick-nav__grid">
               <a class="quick-nav__btn quick-nav__btn--blue" data-nav="home" href="https://digitalhavenrussia.ru">
                 <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
@@ -950,21 +968,26 @@
               </a>
             </div>
 
+            <!-- ✅ Новый вид табов -->
             <div class="quick-nav__pills" aria-label="Разделы страницы">
-              <a class="quick-nav__pill" href="#about">О проекте</a>
-              <a class="quick-nav__pill" href="#mission">Миссия</a>
-              <a class="quick-nav__pill" href="#gallery">Галерея</a>
-              <a class="quick-nav__pill" href="#vk">VK</a>
+              <div class="quick-tabs" role="tablist" aria-label="Разделы">
+                <a class="quick-tab" data-pill="#about" href="#about"><i class="fa-solid fa-circle-info"></i><span>О проекте</span></a>
+                <a class="quick-tab" data-pill="#mission" href="#mission"><i class="fa-solid fa-bullseye"></i><span>Миссия</span></a>
+                <a class="quick-tab" data-pill="#gallery" href="#gallery"><i class="fa-solid fa-images"></i><span>Галерея</span></a>
+                <a class="quick-tab" data-pill="#vk" href="#vk"><i class="fa-brands fa-vk"></i><span>VK</span></a>
+              </div>
             </div>
           </nav>
         </div>
 
-        <!-- ✅ 2 ряд (справа): блоки опущены вниз и в ровень с меню -->
-        <div class="stats" aria-label="Ключевые направления">
-          <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
-          <div class="stat"><b>Техника</b><span>поставка и настройка</span></div>
-          <div class="stat"><b>Безопасность</b><span>цифровая среда</span></div>
-          <div class="stat"><b>Будущее</b><span>профориентация</span></div>
+        <!-- ✅ 2 ряд (справа): stats теперь тоже “панель” и будет 1:1 по размеру с меню -->
+        <div class="stats glass-panel" aria-label="Ключевые направления">
+          <div class="stats__grid">
+            <div class="stat"><b>Обучение</b><span>уроки и наставники</span></div>
+            <div class="stat"><b>Техника</b><span>поставка и настройка</span></div>
+            <div class="stat"><b>Безопасность</b><span>цифровая среда</span></div>
+            <div class="stat"><b>Будущее</b><span>профориентация</span></div>
+          </div>
         </div>
 
       </div>
@@ -1170,6 +1193,84 @@
           if(cyber) cyber.classList.add('is-active');
         }
       }catch(e){}
+    })();
+  </script>
+
+  <script>
+    /* ✅ 1:1 совпадение высоты stats с меню (точно пиксель-в-пиксель) */
+    (function syncStatsWithMenu(){
+      const menu = document.querySelector('.quick-nav');
+      const stats = document.querySelector('.stats');
+      if(!menu || !stats) return;
+
+      let t = null;
+      const apply = () => {
+        const h = Math.ceil(menu.getBoundingClientRect().height);
+        stats.style.height = h + 'px';
+      };
+
+      apply();
+
+      // точнее и стабильнее, чем просто resize
+      const ro = new ResizeObserver(() => {
+        clearTimeout(t);
+        t = setTimeout(apply, 10);
+      });
+      ro.observe(menu);
+
+      window.addEventListener('resize', () => {
+        clearTimeout(t);
+        t = setTimeout(apply, 80);
+      }, { passive: true });
+    })();
+  </script>
+
+  <script>
+    /* ✅ Активная подсветка TAB-кнопок по текущему разделу */
+    (function tabsActive(){
+      const tabs = Array.from(document.querySelectorAll('.quick-tab'));
+      if(!tabs.length) return;
+
+      const byHash = (hash) => tabs.find(t => (t.getAttribute('data-pill') || '') === hash);
+
+      const setActive = (hash) => {
+        tabs.forEach(t => t.classList.remove('is-active'));
+        const a = byHash(hash);
+        if(a) a.classList.add('is-active');
+      };
+
+      // при клике
+      tabs.forEach(t => {
+        t.addEventListener('click', () => {
+          const h = t.getAttribute('data-pill');
+          if(h) setActive(h);
+        });
+      });
+
+      // при скролле
+      const sections = ['#about','#mission','#gallery','#vk']
+        .map(id => document.querySelector(id))
+        .filter(Boolean);
+
+      if(!sections.length){
+        setActive(location.hash || '#about');
+        return;
+      }
+
+      const io = new IntersectionObserver((entries) => {
+        // берем самый “видимый” раздел
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if(visible && visible.target && visible.target.id){
+          setActive('#' + visible.target.id);
+        }
+      }, { root: null, threshold: [0.25, 0.35, 0.5, 0.65] });
+
+      sections.forEach(s => io.observe(s));
+
+      // старт
+      setActive(location.hash && byHash(location.hash) ? location.hash : '#about');
     })();
   </script>
 
