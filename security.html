@@ -315,7 +315,7 @@
       isolation:isolate;
     }
 
-    /* ✅ обёртки <picture> (не ломаем 4K, просто добавляем контейнер) */
+    /* ✅ обёртки <picture> */
     .bg-blur-pic{
       position:absolute;
       inset:0;
@@ -351,7 +351,7 @@
       -webkit-user-drag:none;
     }
 
-    /* ✅ 4K поведение оставляем как было */
+    /* ✅ 4K поведение оставляем */
     .header__bg{
       position:relative;
       display:block;
@@ -374,12 +374,12 @@
         radial-gradient(120% 120% at 50% 85%, rgba(255,255,255,.08), transparent 65%);
     }
 
-    /* ===================== UI OVERLAY (как на картинке) ===================== */
+    /* ===================== UI OVERLAY ===================== */
     .ui{
       position:absolute;
       inset:0;
       z-index:5;
-      pointer-events:none; /* включаем клики только нужным элементам */
+      pointer-events:none;
       display:grid;
       grid-template-rows: auto 1fr auto;
       padding: var(--uiPad);
@@ -629,10 +629,13 @@
     .movie-btn:active{ transform: translateY(0) scale(.992); }
     .movie-btn svg{ width:18px; height:18px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
 
-    /* мини-блок "Фишинг" слева */
+    /* ============================================================
+       ✅ FIX: "Фишинг" НЕ под меню (ПК/планшет)
+       - когда меню раскрыто: чип уходит вправо от панели
+       - когда меню свернуто: возвращается в левый угол
+    ============================================================ */
     .side-chip{
       position:absolute;
-      left: calc(var(--nav-left) + 10px);
       bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
       z-index: 6;
       pointer-events:auto;
@@ -640,6 +643,18 @@
       align-items:center;
       gap: 12px;
     }
+
+    /* по умолчанию (>=521px) — справа от меню */
+    @media (min-width: 521px){
+      .side-chip{
+        left: calc(var(--nav-left) + var(--panel-w) + 18px);
+      }
+      body.menu-collapsed .side-chip{
+        left: calc(var(--nav-left) + 10px);
+      }
+    }
+
+    /* мини-блок "Фишинг" */
     .avatar{
       width: 74px;
       height: 74px;
@@ -724,6 +739,7 @@
       align-items:center;
       justify-content:space-between;
       gap: 12px;
+      text-decoration:none;
     }
     .rules .rules-title{
       color: rgba(245,250,255,.98);
@@ -743,19 +759,7 @@
     }
     .check svg{ width: 22px; height: 22px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
 
-    /* ===================== MATRIX / INTRO / TRANSITION ===================== */
-    .matrix-wrap{
-      position:fixed;
-      inset:0;
-      z-index:9800;
-      pointer-events:none;
-      opacity:0;
-      transition: opacity 1.25s ease;
-      background: rgba(0,0,0,.20);
-    }
-    .matrix-wrap.is-on{ opacity:1; }
-    .matrix{ position:absolute; inset:0; width:100%; height:100%; display:block; opacity:.92; mix-blend-mode: screen; }
-
+    /* ===================== INTRO / TRANSITION (оставляем) ===================== */
     .intro{
       position:fixed;
       inset:0;
@@ -826,7 +830,7 @@
         object-fit: initial !important;
       }
 
-      .ui{ position: absolute; } /* оставляем overlay */
+      .ui{ position: absolute; }
 
       .cinema-grid{
         grid-template-columns: repeat(3, minmax(200px, 1fr));
@@ -879,7 +883,6 @@
         object-position: 50% 50% !important;
       }
 
-      /* ✅ меню по центру, как у тебя было */
       .side-nav{
         left: var(--nav-left) !important;
         top:  var(--nav-top) !important;
@@ -929,7 +932,6 @@
       .hud-title{ font-size: 14px !important; }
       .hud-sub{ font-size: 9px !important; }
 
-      /* ✅ UI: заголовок меньше, кинотеатр в 1 колонку */
       .title-card{ border-radius: 20px !important; }
       .ui-h1{ font-size: 24px !important; }
       .ui-h2{ font-size: 13px !important; }
@@ -944,7 +946,7 @@
         max-width: calc(100vw - 32px) !important;
       }
 
-      /* нижние чипы компактно */
+      /* ✅ на мобилке — как у тебя было (внизу слева), но компактно */
       .side-chip{
         left: 12px !important;
         bottom: 12px !important;
@@ -965,10 +967,6 @@
 </head>
 
 <body>
-  <div class="matrix-wrap" id="matrixWrap" aria-hidden="true">
-    <canvas class="matrix" id="matrix" aria-hidden="true"></canvas>
-  </div>
-
   <div class="intro" id="intro" aria-hidden="true"></div>
 
   <div class="page-transition" id="pt" aria-hidden="true">
@@ -1110,7 +1108,7 @@
 
     <div class="hero-soft" aria-hidden="true"></div>
 
-    <!-- ✅ UI overlay (всё как на твоей картинке) -->
+    <!-- ✅ UI overlay -->
     <main class="ui" aria-label="Игровой интерфейс">
       <div class="ui-top">
         <div class="title-card">
@@ -1209,7 +1207,7 @@
         </section>
       </div>
 
-      <!-- мини-блок слева как на картинке -->
+      <!-- ✅ "Фишинг" теперь НЕ под меню: на ПК уходит вправо от панели -->
       <div class="side-chip" aria-label="Быстрый запуск: Фишинг">
         <div class="avatar" aria-hidden="true">🐱</div>
         <div class="chip-card">
@@ -1221,7 +1219,7 @@
         </div>
       </div>
 
-      <!-- "Правила" справа снизу как на картинке -->
+      <!-- "Правила" справа снизу -->
       <div class="rules" aria-label="Правила">
         <div class="avatar" aria-hidden="true">☃️</div>
         <a class="rules-card" href="https://digitalhavenrussia.ru/project.html#rules" aria-label="Открыть правила">
@@ -1271,123 +1269,16 @@
       const btn = document.getElementById('menuToggle');
       if(!nav || !btn) return;
 
+      // стартовое состояние: развернуто → body без класса
+      document.body.classList.toggle('menu-collapsed', nav.classList.contains('is-collapsed'));
+
       btn.addEventListener('click', () => {
         const collapsed = nav.classList.toggle('is-collapsed');
+        document.body.classList.toggle('menu-collapsed', collapsed);
+
         btn.setAttribute('aria-expanded', String(!collapsed));
         btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
       });
-    })();
-
-    // =============== Matrix rain (как было) ===============
-    (function matrixRainCinema(){
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if(reduce) return;
-
-      const wrap = document.getElementById('matrixWrap');
-      const c = document.getElementById('matrix');
-      if(!wrap || !c) return;
-
-      const ctx = c.getContext('2d', { alpha: true });
-      const glyphs = (
-        "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
-        "ハヒフヘホマミムメモヤユヨラリルレロワヲンヴ" +
-        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=<>[]{}()"
-      ).split("");
-
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      let W=0,H=0,font=16,cols=0,drops=[];
-      let raf=0,stopTimer=0;
-
-      function rand(min,max){ return min + Math.random()*(max-min); }
-      function pick(arr){ return arr[(Math.random()*arr.length)|0]; }
-
-      function resize(){
-        W = Math.max(1, Math.floor(window.innerWidth));
-        H = Math.max(1, Math.floor(window.innerHeight));
-
-        c.width  = Math.floor(W * dpr);
-        c.height = Math.floor(H * dpr);
-        c.style.width  = W + "px";
-        c.style.height = H + "px";
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-
-        font = Math.max(14, Math.min(22, Math.round(W / 140)));
-        cols = Math.max(1, Math.floor(W / font));
-
-        drops = new Array(cols).fill(0).map(() => ({
-          y: rand(-60, -10),
-          speed: rand(0.6, 1.35),
-          len: rand(18, 46),
-          t: 0,
-          sw: rand(3, 8),
-          ch: pick(glyphs),
-          gap: 0.012 + Math.random()*0.02
-        }));
-      }
-
-      function frame(){
-        ctx.globalCompositeOperation = "source-over";
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        ctx.fillRect(0,0,W,H);
-
-        ctx.globalCompositeOperation = "lighter";
-        ctx.font = `700 ${font}px ui-monospace, Menlo, Consolas, monospace`;
-        ctx.textBaseline = "top";
-
-        for(let i=0;i<drops.length;i++){
-          const d = drops[i];
-          const x = i * font;
-
-          if(Math.random() < d.gap){
-            d.y += d.speed;
-            if(d.y * font > H + d.len * font) d.y = rand(-80, -20);
-            continue;
-          }
-
-          d.t++;
-          if(d.t >= d.sw){ d.t = 0; d.ch = pick(glyphs); }
-
-          for(let k=0;k<d.len;k++){
-            const yy = (d.y - k) * font;
-            if(yy < -font || yy > H + font) continue;
-
-            const alpha = k === 0 ? 0.95 : Math.max(0, 0.55 - k/(d.len*1.2));
-            ctx.fillStyle = k === 0
-              ? `rgba(80,175,255,${alpha})`
-              : `rgba(255,226,120,${alpha*0.55})`;
-
-            ctx.fillText(k === 0 ? d.ch : pick(glyphs), x, yy);
-          }
-
-          d.y += d.speed;
-          if(d.y * font > H + d.len * font) d.y = rand(-80, -20);
-        }
-
-        raf = requestAnimationFrame(frame);
-      }
-
-      function start(){
-        wrap.classList.add('is-on');
-        resize();
-        raf = requestAnimationFrame(frame);
-
-        clearTimeout(stopTimer);
-        stopTimer = setTimeout(() => {
-          wrap.classList.remove('is-on');
-          setTimeout(() => {
-            cancelAnimationFrame(raf);
-            ctx.clearRect(0,0,W,H);
-          }, 800);
-        }, 1600);
-      }
-
-      window.addEventListener('resize', resize, { passive:true });
-      window.addEventListener('pagehide', () => {
-        clearTimeout(stopTimer);
-        cancelAnimationFrame(raf);
-      });
-
-      start();
     })();
 
     // =============== Переходы между страницами ===============
@@ -1438,7 +1329,7 @@
       });
     })();
 
-    // ✅ СТАРТ СНИЗУ: на телефоне ОТКЛЮЧЕНО (чтобы не ломало мобилку)
+    // ✅ СТАРТ СНИЗУ: на телефоне ОТКЛЮЧЕНО
     (function startAtBottom(){
       const isMobile = window.matchMedia('(max-width: 520px)').matches;
       if(isMobile) return;
