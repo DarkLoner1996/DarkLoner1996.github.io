@@ -1,4 +1,4 @@
-<!DOCTYPE html>     
+<!DOCTYPE html>      
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -1110,268 +1110,237 @@
       }
     }
 
-    /* =========================================================
-       ✅ MOBILE (<=520px) — ДОБАВЛЕНО
-       - отдельный фон bg_mobile.jpg (портрет)
-       - меню по центру, влезает
-       - панель скроллится внутри
-       - header фикс 100vh + cover
-    ========================================================= */
-   /* =========================================================
-   ✅ MOBILE (<=520px) — ТОЛЬКО МОБИЛКА
-   - меню компактнее, аккуратнее
-   - панель влезает по высоте и скроллится внутри
-   - фон остаётся красивым, картинка без обрезки (contain)
-========================================================= */
-/* ===========================
-   ✅ MOBILE TIGHT (<=520px)
-   - уже по ширине
-   - компактнее по высоте
-   - ничего кроме мобилки
-=========================== */
-@media (max-width: 520px){
+    /* ===========================
+       ✅ MOBILE TIGHT (<=520px)
+       + ✅ FIX: фон на весь экран телефона (cover)
+       + ✅ FIX: меню аккуратнее (чуть плотнее/читабельнее)
+    =========================== */
+    @media (max-width: 520px){
 
-  /* ✅ Меню уже: не 100vw, а аккуратный "карточный" блок */
-  :root{
-    --nav-left: 50%;
-    --nav-top: calc(8px + env(safe-area-inset-top, 0px));
-    --panel-w: min(360px, calc(100vw - 32px)); /* было 100vw-12px → стало УЖЕ */
-    --radius: 14px;
-    --rowH: 38px; /* чуть меньше */
-  }
+      :root{
+        --nav-left: 50%;
+        --nav-top: calc(8px + env(safe-area-inset-top, 0px));
+        --panel-w: min(360px, calc(100vw - 32px));
+        --radius: 14px;
+        --rowH: 38px;
+      }
 
-  .side-nav{
-    left: var(--nav-left) !important;
-    top:  var(--nav-top) !important;
-    transform: translateX(-50%) translateZ(0) !important; /* центрируем */
-    align-items: center !important;
-    gap: 6px !important;
-  }
+      /* ✅ FIX: фон на весь экран телефона */
+      html, body{ height: 100% !important; }
+      .header{
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important; /* на мобилке "герой" как экран */
+      }
 
-  /* верхняя плашка */
-  .side-nav__tab{
-    width: var(--panel-w) !important;
-    padding: 4px 6px !important;
-    border-radius: 14px !important;
-  }
-  .tab-row{ gap: 6px !important; }
+      .bg-blur-pic,
+      .bg-main-pic{
+        position:absolute !important;
+        inset:0 !important;
+        width:100% !important;
+        height:100% !important;
+        display:block !important;
+      }
 
-  .back-btn{
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 10px !important;
-  }
-  .back-btn svg{ width: 14px !important; height: 14px !important; }
+      .header__bg-blur{
+        width:100% !important;
+        height:100% !important;
+        object-fit: cover !important;
+        object-position: 50% 50% !important;
+      }
 
-  .tab-title{
-    font-size: 13px !important;
-  }
+      .header__bg{
+        position:absolute !important;
+        inset:0 !important;
+        width:100% !important;
+        height:100% !important;
+        object-fit: cover !important;         /* ✅ главное: закрывает весь экран */
+        object-position: 50% 50% !important;  /* центр */
+      }
 
-  .hud-switch{
-    padding: 3px 4px !important;
-    border-radius: 10px !important;
-    gap: 4px !important;
-  }
-  .hud-switch .moon{
-    width: 14px !important;
-    height: 14px !important;
-    border-radius: 7px !important;
-    font-size: 10px !important;
-  }
+      /* ✅ меню по центру */
+      .side-nav{
+        left: var(--nav-left) !important;
+        top:  var(--nav-top) !important;
+        transform: translateX(-50%) translateZ(0) !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
 
-  .switch{
-    width: 30px !important;
-    height: 14px !important;
-  }
-  .switch::after{
-    width: 10px !important;
-    height: 10px !important;
-    top: 2px !important;
-    left: 2px !important;
-  }
-  .switch.is-on::after{ left: 16px !important; }
+      .side-nav__tab{
+        width: var(--panel-w) !important;
+        padding: 4px 6px !important;
+        border-radius: 14px !important;
+      }
+      .tab-row{ gap: 6px !important; }
 
-  /* панель */
-  .side-nav__panel{
-    width: var(--panel-w) !important;
-    padding: 6px 6px 6px !important;
-    border-radius: var(--radius) !important;
+      .back-btn{
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 10px !important;
+      }
+      .back-btn svg{ width: 14px !important; height: 14px !important; }
 
-    /* чтобы не упиралось в низ экрана */
-    max-height: calc(100dvh - 56px - env(safe-area-inset-bottom, 0px)) !important;
-    overflow: auto !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
+      .tab-title{ font-size: 13px !important; }
 
-  /* список без пустот */
-  .side-nav__list{
-    gap: 6px !important;
-    margin: 4px 0 6px !important;
-    padding: 0 !important;
-  }
+      .hud-switch{
+        padding: 3px 4px !important;
+        border-radius: 10px !important;
+        gap: 4px !important;
+      }
+      .hud-switch .moon{
+        width: 14px !important;
+        height: 14px !important;
+        border-radius: 7px !important;
+        font-size: 10px !important;
+      }
 
-  .hud-item{
-    height: var(--rowH) !important;
-    padding: 6px 7px !important;
-    gap: 7px !important;
-    border-radius: 13px !important;
-  }
+      .switch{ width: 30px !important; height: 14px !important; }
+      .switch::after{
+        width: 10px !important;
+        height: 10px !important;
+        top: 2px !important;
+        left: 2px !important;
+      }
+      .switch.is-on::after{ left: 16px !important; }
 
-  /* ромбик слева чуть меньше и ближе */
-  .hud-item::after{
-    left: 8px !important;
-    width: 8px !important;
-    height: 8px !important;
-  }
+      /* ✅ панель влезает и скроллится */
+      .side-nav__panel{
+        width: var(--panel-w) !important;
+        padding: 6px 6px 6px !important;
+        border-radius: var(--radius) !important;
 
-  .hud-ico{
-    margin-left: 10px !important;  /* было 7 → чуть ровнее с ромбиком */
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 10px !important;
-  }
-  .hud-ico svg{
-    width: 15px !important;
-    height: 15px !important;
-  }
+        max-height: calc(100dvh - 56px - env(safe-area-inset-bottom, 0px)) !important;
+        overflow: auto !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
 
-  .hud-txt{ gap: 2px !important; }
-  .hud-title{ font-size: 12px !important; }
-  .hud-sub{
-    font-size: 7px !important;
-    letter-spacing: .08em !important;
-  }
+        /* чуть читабельнее на мобилке */
+        background:
+          radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.08), transparent 62%),
+          radial-gradient(120% 100% at 84% 12%, rgba(255,215,120,.05), transparent 60%),
+          linear-gradient(180deg, rgba(8,70,92,.22), rgba(6,35,50,.20)) !important;
+        box-shadow: 0 18px 36px rgba(0,0,0,.22) !important;
+      }
 
-  .hud-pill{
-    min-width: 56px !important;
-    height: 20px !important;
-    padding: 0 6px !important;
-    font-size: 8px !important;
-  }
-  .hud-pill::after{ font-size: 13px !important; }
+      .side-nav__list{
+        gap: 6px !important;
+        margin: 4px 0 6px !important;
+        padding: 0 !important;
+      }
 
-  /* Киберполигон */
-  .hud-cta.hud-cta--cyber{
-    height: 40px !important;
-    border-radius: 14px !important;
-    font-size: 12px !important;
-    padding: 0 34px !important;
-    margin-top: 6px !important;
-  }
-  .hud-cta--cyber::after{
-    inset: 6px !important;
-    border-radius: 11px !important;
-  }
-  .hud-cta--cyber .cyber-shield{
-    left: 8px !important;
-    width: 24px !important;
-    height: 24px !important;
-    border-radius: 9px !important;
-  }
-  .hud-cta--cyber .cyber-shield svg{
-    width: 14px !important;
-    height: 14px !important;
-  }
+      .hud-item{
+        height: var(--rowH) !important;
+        padding: 6px 7px !important;
+        gap: 7px !important;
+        border-radius: 13px !important;
+      }
 
-  /* ======================================================
-     ✅ ДОБАВЛЕНО: MOBILE LOGIN COMPACT (только мобилка)
-     - уменьшает окно "Вход в систему"
-     - ничего не ломает в FHD/4K
-  ====================================================== */
+      .hud-item::after{
+        left: 8px !important;
+        width: 8px !important;
+        height: 8px !important;
+      }
 
-  /* оверлей: меньше рамок */
-  .login-overlay{
-    padding: 10px !important;
-  }
+      .hud-ico{
+        margin-left: 10px !important;
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 10px !important;
+      }
+      .hud-ico svg{
+        width: 15px !important;
+        height: 15px !important;
+      }
 
-  /* само окно */
-  .login-portal{
-    width: min(360px, calc(100vw - 20px)) !important;
-    border-radius: 18px !important;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
+      .hud-txt{ gap: 2px !important; }
+      .hud-title{ font-size: 12px !important; }
+      .hud-sub{
+        font-size: 7px !important;
+        letter-spacing: .08em !important;
+      }
 
-  /* внутренние отступы */
-  .login-inner{
-    padding: 14px !important;
-    gap: 10px !important;
-  }
+      .hud-pill{
+        min-width: 56px !important;
+        height: 20px !important;
+        padding: 0 6px !important;
+        font-size: 8px !important;
+      }
+      .hud-pill::after{ font-size: 13px !important; }
 
-  /* заголовки меньше */
-  .login-title{
-    font-size: 22px !important;
-    letter-spacing: .02em !important;
-  }
-  .login-sub{
-    font-size: 12px !important;
-    margin-top: -4px !important;
-  }
+      .hud-cta.hud-cta--cyber{
+        height: 40px !important;
+        border-radius: 14px !important;
+        font-size: 12px !important;
+        padding: 0 34px !important;
+        margin-top: 6px !important;
+      }
+      .hud-cta--cyber::after{
+        inset: 6px !important;
+        border-radius: 11px !important;
+      }
+      .hud-cta--cyber .cyber-shield{
+        left: 8px !important;
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 9px !important;
+      }
+      .hud-cta--cyber .cyber-shield svg{
+        width: 14px !important;
+        height: 14px !important;
+      }
 
-  /* поля компактнее */
-  .login-form{
-    gap: 10px !important;
-    margin-top: 2px !important;
-  }
-  .login-field{
-    width: 100% !important;
-  }
-  .login-field input{
-    height: 44px !important;
-    border-radius: 14px !important;
-    padding: 0 12px 0 42px !important;
-    font-size: 16px !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 8px 16px rgba(0,0,0,.16) !important;
-  }
-
-  /* иконки в полях меньше */
-  .login-ico{
-    left: 12px !important;
-    width: 20px !important;
-    height: 20px !important;
-  }
-
-  /* кнопка компактнее */
-  .login-btn{
-    height: 46px !important;
-    border-radius: 16px !important;
-    font-size: 18px !important;
-    width: 100% !important;
-    box-shadow: 0 16px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.55) !important;
-  }
-
-  /* ✅ крестик меньше (исправлено) */
-  .login-close{
-    right: 10px !important;
-    top: 10px !important;
-    width: 30px !important;
-    height: 30px !important;
-    border-radius: 10px !important;
-    font-size: 16px !important;
-    line-height: 1 !important;
-  }
-
-  /* сообщения компактнее */
-  .admin-warning{
-    font-size: 12px !important;
-    line-height: 1.25 !important;
-    padding: 12px !important;
-    border-radius: 14px !important;
-    max-height: min(54vh, 420px) !important;
-  }
-  .login-denied{
-    font-size: 13px !important;
-    padding: 10px 12px !important;
-    border-radius: 14px !important;
-  }
-
-}
-
-
-
-
+      /* ✅ MOBILE LOGIN COMPACT (как у тебя, оставил) */
+      .login-overlay{ padding: 10px !important; }
+      .login-portal{
+        width: min(360px, calc(100vw - 20px)) !important;
+        border-radius: 18px !important;
+        max-height: calc(100dvh - 24px) !important;
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      .login-inner{ padding: 14px !important; gap: 10px !important; }
+      .login-title{ font-size: 22px !important; letter-spacing: .02em !important; }
+      .login-sub{ font-size: 12px !important; margin-top: -4px !important; }
+      .login-form{ gap: 10px !important; margin-top: 2px !important; }
+      .login-field{ width: 100% !important; }
+      .login-field input{
+        height: 44px !important;
+        border-radius: 14px !important;
+        padding: 0 12px 0 42px !important;
+        font-size: 16px !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 8px 16px rgba(0,0,0,.16) !important;
+      }
+      .login-ico{ left: 12px !important; width: 20px !important; height: 20px !important; }
+      .login-btn{
+        height: 46px !important;
+        border-radius: 16px !important;
+        font-size: 18px !important;
+        width: 100% !important;
+        box-shadow: 0 16px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.55) !important;
+      }
+      .login-close{
+        right: 10px !important;
+        top: 10px !important;
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
+        line-height: 1 !important;
+      }
+      .admin-warning{
+        font-size: 12px !important;
+        line-height: 1.25 !important;
+        padding: 12px !important;
+        border-radius: 14px !important;
+        max-height: min(54vh, 420px) !important;
+      }
+      .login-denied{
+        font-size: 13px !important;
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+      }
+    }
   </style>
 </head>
 
@@ -1987,14 +1956,7 @@
         }, { passive:true });
       }
     })();
-
   </script>
 
 </body>
 </html>
-
-
-
-
-
-
