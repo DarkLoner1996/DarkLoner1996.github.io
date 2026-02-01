@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>   
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -85,12 +85,9 @@
       transform: translateZ(0);
       user-select:none;
       pointer-events:auto;
-
-      /* ✅ добавили мягкость общей реакции */
       transition: width .28s cubic-bezier(.4,0,.2,1);
     }
 
-    /* Верхняя “плашка” меню — компактнее, чище, со “золотой кромкой” */
     .side-nav__tab{
       width: var(--panel-w);
       border-radius: 22px;
@@ -152,7 +149,6 @@
       gap:10px;
     }
 
-    /* “ИГРОВОЕ МЕНЮ” — меньше пластика, больше HUD */
     .menu-pill{
       display:inline-flex;
       align-items:center;
@@ -184,7 +180,6 @@
       filter: drop-shadow(0 2px 10px rgba(0,0,0,.18));
     }
 
-    /* Кнопка свернуть — выглядит как “контроллер” */
     .back-btn{
       margin-left:auto;
       width:40px; height:40px;
@@ -221,12 +216,9 @@
       stroke-linecap:round;
       stroke-linejoin:round;
       opacity:.98;
-
-      /* ✅ чтобы поворот был плавным */
       transition: transform .25s ease;
     }
 
-    /* Панель меню — добавляем глубину и “мягкую сетку HUD” */
     .side-nav__panel{
       width: var(--panel-w);
       border-radius: var(--radius);
@@ -248,6 +240,8 @@
       backdrop-filter: blur(22px) saturate(1.08);
       -webkit-backdrop-filter: blur(22px) saturate(1.08);
       transition: transform .22s ease, opacity .22s ease, filter .22s ease, width .22s ease, padding .22s ease;
+      transform-origin: top left;
+      margin-top: 8px;
     }
     .side-nav__panel::before{
       content:"";
@@ -279,7 +273,6 @@
       pointer-events:none;
     }
 
-    /* Список */
     .side-nav__list{
       list-style:none;
       display:flex;
@@ -291,7 +284,6 @@
       z-index:3;
     }
 
-    /* Элемент меню — теперь “карта” с активной подсветкой, без унылой серости */
     .hud-item{
       height: var(--rowH);
       border-radius: 20px;
@@ -364,7 +356,6 @@
     }
     .hud-item.is-active::after{ opacity:.85; }
 
-    /* Иконка — теперь “синее стекло + золотой блик” */
     .hud-ico{
       width: clamp(44px, 10vw, 54px);
       height: clamp(44px, 10vw, 54px);
@@ -433,7 +424,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Стрелка — более “игровая”, меньше квадрата */
     .hud-arrow{
       flex:0 0 auto;
       width: 34px;
@@ -461,15 +451,6 @@
       filter: drop-shadow(0 2px 10px rgba(0,0,0,.18));
     }
 
-    /* ===================== ✅ COLLAPSE КАК НА ГЛАВНОЙ: прячем ТОЛЬКО панель, таб остаётся ===================== */
-
-    /* чтобы схлопывание не “вылезало” и красиво анимировалось */
-    .side-nav__panel{
-      transform-origin: top left;
-      margin-top: 8px;
-    }
-
-    /* ✅ скрываем панель вверх (таб “ИГРОВОЕ МЕНЮ” не трогаем!) */
     .side-nav.is-collapsed .side-nav__panel{
       opacity: 0;
       transform: translateY(-10px) scaleY(.92);
@@ -483,15 +464,9 @@
       border-width: 0 !important;
     }
 
-    /* ✅ чтобы таб точно всегда был кликабельный */
     .side-nav__tab{ pointer-events: auto; }
+    .side-nav.is-collapsed #menuToggle svg{ transform: rotate(180deg); }
 
-    /* ✅ вращение стрелки оставляем */
-    .side-nav.is-collapsed #menuToggle svg{
-      transform: rotate(180deg);
-    }
-
-    /* ✅ на мобилке панель тоже схлопывается без ухода за край */
     @media (max-width: 520px){
       .side-nav.is-collapsed .side-nav__panel{
         transform: translateY(-8px) scaleY(.94);
@@ -664,7 +639,6 @@
       text-shadow: 0 10px 24px rgba(0,0,0,.22);
     }
 
-    /* ✅ Центральный блок целиком "выше" */
     .ui-bottom{
       display:flex;
       flex-direction:column;
@@ -830,65 +804,60 @@
       text-overflow: ellipsis;
     }
 
-/* ✅ КИНОТЕАТР — более акцентно, но без перебора */
-.cinema-title{
-  pointer-events:none;
-  text-align:center;
-  font-size: clamp(20px, 3.5vw, 34px);          /* чуть заметнее */
-  font-weight: 900;                             /* добавляем “вес” */
-  letter-spacing: .20em;
-  text-transform: uppercase;
-  margin-top: 6px;
-  position:relative;
+    /* ✅ КИНОТЕАТР */
+    .cinema-title{
+      pointer-events:none;
+      text-align:center;
+      font-size: clamp(20px, 3.5vw, 34px);
+      font-weight: 900;
+      letter-spacing: .20em;
+      text-transform: uppercase;
+      margin-top: 6px;
+      position:relative;
 
-  /* лёгкая “золотая” премиум-подача (без крика) */
-  color: rgba(255, 244, 220, .98);
-  text-shadow:
-    0 2px 0 rgba(0,0,0,.22),
-    0 16px 38px rgba(0,0,0,.34),
-    0 0 18px rgba(255, 214, 120, .16);
-}
+      color: rgba(255, 244, 220, .98);
+      text-shadow:
+        0 2px 0 rgba(0,0,0,.22),
+        0 16px 38px rgba(0,0,0,.34),
+        0 0 18px rgba(255, 214, 120, .16);
+    }
     .cinema-title::before{
-  content:"";
-  display:block;
-  width:min(560px, 78vw);
-  height: 10px;
-  margin: 8px auto -6px;
-  border-radius: 999px;
-  background: radial-gradient(closest-side, rgba(120,230,255,.22), transparent 70%);
-  filter: blur(2px);
-  opacity: .70;
-}
-    
-/* основная линия (второй слой) — чуть толще и читабельнее */
-/* ✅ более ЗОЛОТОЕ подчёркивание (основная линия) */
-.cinema-title::after{
-  content:"";
-  display:block;
-  width:min(560px, 78vw);
-  height: 3px;
-  margin: 10px auto 0;
-  border-radius: 999px;
+      content:"";
+      display:block;
+      width:min(560px, 78vw);
+      height: 10px;
+      margin: 8px auto -6px;
+      border-radius: 999px;
+      background: radial-gradient(closest-side, rgba(120,230,255,.22), transparent 70%);
+      filter: blur(2px);
+      opacity: .70;
+    }
+    .cinema-title::after{
+      content:"";
+      display:block;
+      width:min(560px, 78vw);
+      height: 3px;
+      margin: 10px auto 0;
+      border-radius: 999px;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 232, 165, .95),   /* мягкое светлое золото */
-    rgba(255, 198, 92,  .90),   /* ядро золота */
-    rgba(200, 140, 40,  .82),   /* тёплая глубина */
-    rgba(255, 198, 92,  .90),
-    rgba(255, 232, 165, .95),
-    transparent
-  );
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 232, 165, .95),
+        rgba(255, 198, 92,  .90),
+        rgba(200, 140, 40,  .82),
+        rgba(255, 198, 92,  .90),
+        rgba(255, 232, 165, .95),
+        transparent
+      );
 
-  box-shadow:
-    0 10px 26px rgba(0,0,0,.20),        /* объём */
-    0 0 18px rgba(255, 200, 110, .28),  /* золотой glow */
-    0 0 6px  rgba(255, 240, 180, .35);  /* мягкий блик */
-  
-  opacity: .98;
-}
+      box-shadow:
+        0 10px 26px rgba(0,0,0,.20),
+        0 0 18px rgba(255, 200, 110, .28),
+        0 0 6px  rgba(255, 240, 180, .35);
 
+      opacity: .98;
+    }
 
     .cinema-grid{
       pointer-events:auto;
@@ -1051,6 +1020,7 @@
 
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
       min-width: 176px;
+      cursor:pointer;
     }
 
     .movie-btn::before{
@@ -1214,6 +1184,26 @@
       text-shadow: 0 10px 28px rgba(0,0,0,.26);
       margin-bottom: 8px;
       letter-spacing: .06em;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .chip-badge{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(20,85,135,.34), rgba(10,50,85,.30));
+      color: rgba(255,255,255,.92);
+      box-shadow: 0 14px 22px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.10);
+      opacity:.98;
     }
 
     .chip-btn{
@@ -1234,10 +1224,26 @@
       text-transform: uppercase;
       font-weight: 900;
       transition: transform .16s ease, filter .16s ease;
+      cursor:pointer;
     }
     .chip-btn:hover{ transform: translateY(-1px); filter:saturate(1.08); }
     .chip-btn:active{ transform: translateY(0) scale(.992); }
     .chip-btn svg{ width:18px; height:18px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+
+    .chip-btn.is-ghost{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.30));
+      border-color: rgba(255,255,255,.16);
+      opacity:.96;
+    }
+
+    .chip-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
 
     /* ============================================================
        ✅ "Правила" справа — сдвигаем НИЖЕ
@@ -1344,6 +1350,358 @@
     .page-transition .wipe{ position:absolute; inset:-10%; opacity:.95; }
 
     /* ============================================================
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" (закрываемая)
+    ============================================================ */
+    .mg-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:12050; /* выше меню и переходов */
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(12px, 2vw, 22px);
+      background:
+        radial-gradient(120% 120% at 50% 40%, rgba(10,20,35,.28), rgba(0,0,0,.48)),
+        rgba(0,0,0,.45);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      pointer-events:auto;
+    }
+    .mg-backdrop.is-open{ display:flex; }
+
+    .mg-modal{
+      width: min(980px, calc(100vw - 24px));
+      border-radius: 28px;
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        radial-gradient(120% 120% at 86% 22%, rgba(120,230,255,.14), transparent 58%),
+        linear-gradient(180deg, rgba(10,55,90,.68), rgba(8,35,60,.62));
+
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 40px 120px rgba(0,0,0,.46),
+        0 16px 44px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      transform: translateY(8px) scale(.985);
+      opacity:0;
+      transition: transform .22s ease, opacity .22s ease, filter .22s ease;
+      filter: saturate(1.04);
+    }
+    .mg-backdrop.is-open .mg-modal{
+      transform: translateY(0) scale(1);
+      opacity:1;
+    }
+
+    .mg-modal::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 28px;
+      padding: 2px;
+      background:
+        linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.92;
+      pointer-events:none;
+    }
+
+    .mg-top{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .mg-title{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .mg-h1{
+      font-size: clamp(22px, 4.2vw, 44px);
+      letter-spacing: .03em;
+      line-height: 1.05;
+      color: rgba(255,236,170,255);
+      text-shadow: 0 16px 44px rgba(0,0,0,.34), 0 0 18px rgba(255, 214, 120, .14);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .mg-sub{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 650;
+      font-size: clamp(12px, 1.8vw, 16px);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(230,245,255,.90);
+      opacity:.98;
+    }
+
+    .mg-close{
+      width: 44px; height: 44px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background:
+        radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.16), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.56), rgba(8,35,60,.52));
+      box-shadow: 0 18px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition: transform .16s ease, filter .16s ease;
+      flex:0 0 auto;
+    }
+    .mg-close:hover{ transform: translateY(-1px); filter:saturate(1.08); }
+    .mg-close:active{ transform: translateY(0) scale(.985); }
+    .mg-close svg{
+      width: 22px; height: 22px;
+      stroke: rgba(255,255,255,.96);
+      fill:none;
+      stroke-width:2.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .mg-progress{
+      padding: 0 18px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+    }
+    .mg-dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 10px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
+      opacity:.92;
+      transition: transform .16s ease, background .16s ease, opacity .16s ease;
+    }
+    .mg-dot.is-on{
+      background: rgba(120,230,255,.72);
+      opacity:1;
+      transform: scale(1.15);
+      box-shadow: 0 10px 20px rgba(0,0,0,.18), 0 0 18px rgba(120,230,255,.26);
+    }
+
+    .mg-body{
+      padding: 0 18px 18px;
+      display:grid;
+      gap: 14px;
+    }
+
+    .mg-card{
+      border-radius: 22px;
+      overflow:hidden;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: 0 26px 62px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .mg-cardHead{
+      padding: 10px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background:
+        radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.22), transparent 60%),
+        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
+      color:#fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .mg-level{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      opacity:.98;
+      white-space: nowrap;
+    }
+
+    .mg-msg{
+      padding: 14px 14px 16px;
+      color: rgba(10,20,30,.95);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+    .mg-msg .mg-link{
+      display:inline-block;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px dashed rgba(0,0,0,.22);
+      background: rgba(255,255,255,.65);
+      font-size: 13px;
+      letter-spacing: .02em;
+      max-width: 100%;
+      word-break: break-all;
+      opacity:.95;
+    }
+
+    .mg-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+      justify-content:center;
+      padding: 2px 0 0;
+    }
+    .mg-btn{
+      min-width: 190px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.98);
+      text-decoration:none;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-weight: 900;
+      font-size: 12px;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+      box-shadow:
+        0 22px 48px rgba(0,0,0,.18),
+        0 8px 18px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .mg-btn:hover{ transform: translateY(-1px); filter:saturate(1.08); }
+    .mg-btn:active{ transform: translateY(0) scale(.992); }
+
+    .mg-btn.is-red{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(235, 120, 100, .92), rgba(190, 70, 56, .92));
+    }
+    .mg-btn.is-green{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(70,170,120,.92), rgba(35,130,88,.92));
+    }
+
+    .mg-explain{
+      border-radius: 20px;
+      padding: 12px 14px;
+      position:relative;
+      overflow:hidden;
+      display:none;
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.16), rgba(0,0,0,.18));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 22px 46px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.12);
+      color: rgba(230,245,255,.95);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.35;
+    }
+    .mg-explain.is-on{ display:block; }
+    .mg-explain b{ color: rgba(255,242,205,.96); }
+
+    .mg-nextRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      margin-top: 2px;
+    }
+    .mg-miniHint{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 650;
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,242,205,.88);
+      opacity:.98;
+    }
+
+    .mg-next{
+      min-width: 190px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+      color: rgba(255,255,255,.98);
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-size: 12px;
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,160,70,.90), rgba(215,95,20,.88));
+      box-shadow:
+        0 22px 48px rgba(0,0,0,.18),
+        0 8px 18px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .16s ease, filter .16s ease;
+      display:none;
+    }
+    .mg-next.is-on{ display:inline-flex; align-items:center; justify-content:center; gap:10px; }
+    .mg-next:hover{ transform: translateY(-1px); filter:saturate(1.08); }
+    .mg-next:active{ transform: translateY(0) scale(.992); }
+
+    .mg-next svg{ width:18px; height:18px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+
+    .mg-finish{
+      display:none;
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 26px 62px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: rgba(10,20,30,.95);
+      line-height: 1.35;
+    }
+    .mg-finish.is-on{ display:block; }
+
+    .mg-scoreRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .mg-scorePill{
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(120,230,255,.18);
+    }
+
+    /* ✅ адаптация мини-игры для мобилок */
+    @media (max-width: 520px){
+      .mg-modal{ border-radius: 22px; }
+      .mg-top{ padding: 14px 14px 8px; }
+      .mg-progress{ padding: 0 14px 10px; gap: 8px; }
+      .mg-body{ padding: 0 14px 14px; gap: 12px; }
+      .mg-card{ border-radius: 18px; }
+      .mg-msg{ font-size: 15px; }
+      .mg-btn, .mg-next{ min-width: 160px; }
+      .mg-actions{ gap: 10px; }
+    }
+
+    /* ============================================================
        ✅ FHD (не трогаем 4K)
     ============================================================ */
     @media (max-width: 1920px) and (min-width: 521px){
@@ -1352,8 +1710,6 @@
         --nav-top:  6px;
         --panel-w: min(320px, calc(100vw - 12px));
         --rowH: 54px;
-
-        /* ✅ для FHD поднимаем умеренно */
         --movies-down: clamp(-110px, -6vh, -36px);
       }
 
@@ -1411,8 +1767,6 @@
         --panel-w: min(360px, calc(100vw - 32px));
         --radius: 16px;
         --rowH: 44px;
-
-        /* ✅ на мобилке тоже вверх, но мягче */
         --movies-down: clamp(-46px, -4vh, -14px);
       }
 
@@ -1528,7 +1882,6 @@
         font-size: 11px !important;
       }
 
-      /* ✅ нижние чипы ещё ближе к низу на мобилке */
       .side-chip{
         left: 12px !important;
         bottom: 8px !important;
@@ -1787,15 +2140,26 @@
         </section>
       </div>
 
-      <!-- ✅ "Фишинг" (ниже) -->
+      <!-- ✅ "Фишинг" (ниже) — теперь запускает мини-игру + есть доп.кнопка "смотреть" -->
       <div class="side-chip" aria-label="Быстрый запуск: Фишинг">
         <div class="avatar" aria-hidden="true">🐱</div>
         <div class="chip-card">
-          <div class="chip-name">Фишинг</div>
-          <a class="chip-btn" href="https://digitalhavenrussia.ru/security.html">
-            <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-            Смотреть
-          </a>
+          <div class="chip-name">
+            Фишинг
+            <span class="chip-badge" aria-hidden="true">игра</span>
+          </div>
+
+          <div class="chip-actions">
+            <button class="chip-btn" id="openPhishGame" type="button" aria-haspopup="dialog" aria-controls="phishGame">
+              <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+              Играть
+            </button>
+
+            <a class="chip-btn is-ghost" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм про фишинг">
+              <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+              Смотреть
+            </a>
+          </div>
         </div>
       </div>
 
@@ -1810,6 +2174,74 @@
         </a>
       </div>
     </main>
+  </div>
+
+  <!-- ============================================================
+       ✅ МОДАЛКА МИНИ-ИГРЫ (закрывается крестиком / ESC / кликом по фону)
+  ============================================================ -->
+  <div class="mg-backdrop" id="phishGame" aria-hidden="true">
+    <section class="mg-modal" role="dialog" aria-modal="true" aria-labelledby="mgTitle">
+      <div class="mg-top">
+        <div class="mg-title">
+          <div class="mg-h1" id="mgTitle">Фишинг или правда?</div>
+          <div class="mg-sub">Мини-детектив: распознай опасное сообщение</div>
+        </div>
+
+        <button class="mg-close" id="closePhishGame" type="button" aria-label="Закрыть мини-игру">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12"></path>
+            <path d="M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="mg-progress" id="mgDots" aria-label="Прогресс игры"></div>
+
+      <div class="mg-body">
+        <div class="mg-card" aria-label="Сообщение">
+          <div class="mg-cardHead">
+            <div id="mgCardNo">Сообщение #1</div>
+            <div class="mg-level" id="mgDifficulty">уровень: легко</div>
+          </div>
+
+          <div class="mg-msg">
+            <div id="mgText">...</div>
+            <div class="mg-link" id="mgLink" hidden></div>
+          </div>
+        </div>
+
+        <div class="mg-actions" aria-label="Выбор">
+          <button class="mg-btn is-red" id="mgBtnPhish" type="button">Фишинг</button>
+          <button class="mg-btn is-green" id="mgBtnReal" type="button">Настоящее</button>
+        </div>
+
+        <div class="mg-explain" id="mgExplain" aria-live="polite"></div>
+
+        <div class="mg-nextRow">
+          <div class="mg-miniHint" id="mgHint">Подсказка: проверяй срочность, ссылки и просьбы кода</div>
+
+          <button class="mg-next" id="mgNext" type="button">
+            Далее
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10 7l6 5-6 5"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="mg-finish" id="mgFinish">
+          <div style="font-weight:900; letter-spacing:.06em; margin-bottom:8px;">Готово! Ты прошёл мини-детектив 🛡️</div>
+          <div id="mgFinishText"></div>
+
+          <div class="mg-scoreRow">
+            <div class="mg-scorePill" id="mgScore">Очки: 0</div>
+            <button class="chip-btn" id="mgRestart" type="button">
+              <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 3v6h-6"></path></svg>
+              Ещё раз
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -1894,6 +2326,9 @@
         if(reduce) return;
         if(a.target === '_blank') return;
 
+        // ✅ если открыт модал игры — не перехватываем клики внутри него
+        if(e.target.closest('#phishGame')) return;
+
         e.preventDefault();
 
         pt.classList.remove('is-entering');
@@ -1957,6 +2392,316 @@
           setTimeout(scrollToBottom, 0);
         }, { passive:true });
       }
+    })();
+
+    /* ============================================================
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация
+       - открытие по кнопке слева "Играть"
+       - закрытие: крестик / ESC / клик по фону
+       - после ответа: показываем разбор + кнопку "Далее"
+       - финал: очки и повтор
+    ============================================================ */
+    (function phishingGame(){
+      const openBtn = document.getElementById('openPhishGame');
+      const backdrop = document.getElementById('phishGame');
+      const closeBtn = document.getElementById('closePhishGame');
+
+      if(!openBtn || !backdrop || !closeBtn) return;
+
+      const dotsWrap = document.getElementById('mgDots');
+      const cardNo = document.getElementById('mgCardNo');
+      const difficulty = document.getElementById('mgDifficulty');
+      const mgText = document.getElementById('mgText');
+      const mgLink = document.getElementById('mgLink');
+      const btnPhish = document.getElementById('mgBtnPhish');
+      const btnReal  = document.getElementById('mgBtnReal');
+      const explain  = document.getElementById('mgExplain');
+      const nextBtn  = document.getElementById('mgNext');
+      const hint     = document.getElementById('mgHint');
+
+      const finish   = document.getElementById('mgFinish');
+      const finishText = document.getElementById('mgFinishText');
+      const scorePill  = document.getElementById('mgScore');
+      const restartBtn = document.getElementById('mgRestart');
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // 8 карточек (можешь менять текст/сложность/объяснения)
+      const cards = [
+        {
+          level: "легко",
+          real: false,
+          text: "🎁 Вы выиграли iPhone! Заберите приз прямо сейчас.",
+          link: "http://iph0ne-prize.ru/claim",
+          explain: [
+            "Признаки: <b>«вы выиграли»</b>, срочность, странная ссылка и домен.",
+            "Правильно: не нажимай, закрой сообщение, спроси взрослого."
+          ]
+        },
+        {
+          level: "легко",
+          real: false,
+          text: "⚠️ Ваш аккаунт заблокирован! Срочно подтвердите пароль, иначе всё удалится.",
+          link: "https://support-acc0unt.com/login",
+          explain: [
+            "Признаки: <b>страх</b> и <b>срочность</b> («иначе удалится»), подозрительный домен.",
+            "Правильно: зайди на сайт вручную (не по ссылке) или спроси взрослого."
+          ]
+        },
+        {
+          level: "средне",
+          real: false,
+          text: "👨‍👧 Папа: «Скинь код из SMS, мне срочно надо войти!»",
+          link: "",
+          explain: [
+            "Признак: просьба <b>кода</b>. Коды — это как ключи, их никому нельзя.",
+            "Правильно: перезвони папе обычным звонком и уточни."
+          ]
+        },
+        {
+          level: "средне",
+          real: true,
+          text: "🏫 Школа: «Завтра собрание. Расписание в электронном дневнике».",
+          link: "",
+          explain: [
+            "Это похоже на правду: без ссылок на «призы», без просьб пароля/кодов.",
+            "Правильно: проверяй через официальный дневник/приложение."
+          ]
+        },
+        {
+          level: "средне",
+          real: false,
+          text: "🎮 Вам выдан «БЕСПЛАТНЫЙ донат»! Введите логин и пароль от игры.",
+          link: "https://free-d0nat-gifts.net",
+          explain: [
+            "Признаки: «бесплатно», просьба <b>логина/пароля</b>, странный домен.",
+            "Правильно: никому не давай пароль. Удали сообщение."
+          ]
+        },
+        {
+          level: "сложно",
+          real: false,
+          text: "📦 Доставка: «Посылка задержана. Оплатите 59₽ по ссылке».",
+          link: "https://pay-delivery-fast.ru/59",
+          explain: [
+            "Признаки: мелкая сумма для «легкой оплаты», ссылка на оплату от неизвестного.",
+            "Правильно: проверяй доставку в официальном приложении."
+          ]
+        },
+        {
+          level: "сложно",
+          real: true,
+          text: "🔐 Ваш код входа: 381-992. Никому не сообщайте. Если это не вы — отмените вход.",
+          link: "",
+          explain: [
+            "Это сообщение может быть настоящим: оно <b>не просит</b> отправить код кому-то.",
+            "Правильно: если вход не ваш — срочно меняй пароль и включай 2FA."
+          ]
+        },
+        {
+          level: "сложно",
+          real: false,
+          text: "📷 «Привет! Это твоё фото? Открой» (файл: photo.zip)",
+          link: "",
+          explain: [
+            "Признаки: неизвестный файл/архив, провокация «это твоё фото».",
+            "Правильно: не открывай файлы от незнакомцев, удали и сообщи взрослому."
+          ]
+        }
+      ];
+
+      let idx = 0;
+      let score = 0;
+      let locked = false; // чтобы не нажимали второй раз до "Далее"
+      let lastFocus = null;
+
+      function setHidden(el, hidden){
+        if(!el) return;
+        el.hidden = !!hidden;
+      }
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>"']/g, (m) => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[m]));
+      }
+
+      function buildDots(){
+        if(!dotsWrap) return;
+        dotsWrap.innerHTML = "";
+        for(let i=0;i<cards.length;i++){
+          const d = document.createElement('span');
+          d.className = "mg-dot" + (i===idx ? " is-on" : "");
+          dotsWrap.appendChild(d);
+        }
+      }
+
+      function setDots(){
+        if(!dotsWrap) return;
+        const dots = dotsWrap.querySelectorAll('.mg-dot');
+        dots.forEach((d, i) => d.classList.toggle('is-on', i===idx));
+      }
+
+      function resetUIForCard(){
+        locked = false;
+        explain.classList.remove('is-on');
+        explain.innerHTML = "";
+        nextBtn.classList.remove('is-on');
+        finish.classList.remove('is-on');
+
+        btnPhish.disabled = false;
+        btnReal.disabled = false;
+
+        hint.textContent = "Подсказка: проверяй срочность, ссылки и просьбы кода";
+      }
+
+      function renderCard(){
+        const c = cards[idx];
+        cardNo.textContent = `Сообщение #${idx+1}`;
+        difficulty.textContent = `уровень: ${c.level}`;
+
+        mgText.textContent = c.text;
+
+        if(c.link && c.link.trim()){
+          mgLink.textContent = c.link;
+          setHidden(mgLink, false);
+        }else{
+          setHidden(mgLink, true);
+        }
+
+        setDots();
+        resetUIForCard();
+      }
+
+      function open(){
+        lastFocus = document.activeElement;
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+
+        // отключаем скролл под модалкой
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
+        // фокус на закрыть (или на первую кнопку)
+        setTimeout(() => {
+          closeBtn.focus({ preventScroll:true });
+        }, reduce ? 0 : 60);
+      }
+
+      function close(){
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+
+        if(lastFocus && typeof lastFocus.focus === 'function'){
+          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
+        }
+      }
+
+      function finishGame(){
+        const total = cards.length;
+        const pct = Math.round((score/total)*100);
+
+        finishText.innerHTML = `
+          Ты правильно ответил(а) на <b>${score}</b> из <b>${total}</b> сообщений.<br>
+          Это <b>${pct}%</b> точности.
+          <br><br>
+          <b>Золотое правило:</b> не вводи пароль по ссылкам из сообщений, не передавай коды, проверяй домены.
+        `;
+        scorePill.textContent = `Очки: ${score}/${total}`;
+
+        finish.classList.add('is-on');
+        explain.classList.remove('is-on');
+        nextBtn.classList.remove('is-on');
+
+        btnPhish.disabled = true;
+        btnReal.disabled = true;
+
+        hint.textContent = "Хочешь — пройди ещё раз и улучши результат!";
+      }
+
+      function answer(isPhish){
+        if(locked) return;
+        locked = true;
+
+        const c = cards[idx];
+        const correct = (isPhish === !c.real);
+
+        if(correct) score++;
+
+        btnPhish.disabled = true;
+        btnReal.disabled = true;
+
+        const topLine = correct
+          ? `✅ Верно! Это ${c.real ? "настоящее" : "фишинг"}.`
+          : `❌ Почти! Правильный ответ: ${c.real ? "НАСТОЯЩЕЕ" : "ФИШИНГ"}.`;
+
+        const lines = [topLine, ...c.explain].map(s => `<div style="margin:6px 0;">${s}</div>`).join("");
+        explain.innerHTML = lines;
+        explain.classList.add('is-on');
+
+        hint.textContent = correct
+          ? "Отлично! Запоминай признаки — так ты защищаешь себя."
+          : "Ничего страшного — ошибки учат. Смотри признаки и пробуй дальше.";
+
+        // кнопка Далее / Финал
+        if(idx < cards.length - 1){
+          nextBtn.classList.add('is-on');
+          nextBtn.focus({ preventScroll:true });
+        }else{
+          finishGame();
+          restartBtn.focus({ preventScroll:true });
+        }
+      }
+
+      function next(){
+        if(idx >= cards.length - 1) return;
+        idx++;
+        renderCard();
+      }
+
+      function restart(){
+        idx = 0;
+        score = 0;
+        buildDots();
+        renderCard();
+      }
+
+      // init
+      buildDots();
+      renderCard();
+
+      // open/close
+      openBtn.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+
+      // click on backdrop closes (но клики внутри модалки не закрывают)
+      backdrop.addEventListener('click', (e) => {
+        if(e.target === backdrop) close();
+      });
+
+      // ESC closes
+      window.addEventListener('keydown', (e) => {
+        if(!backdrop.classList.contains('is-open')) return;
+        if(e.key === 'Escape') close();
+      });
+
+      // answer buttons
+      btnPhish.addEventListener('click', () => answer(true));
+      btnReal.addEventListener('click', () => answer(false));
+      nextBtn.addEventListener('click', next);
+      restartBtn.addEventListener('click', restart);
+
+      // чуть приятнее: Enter на "Далее" когда видна
+      window.addEventListener('keydown', (e) => {
+        if(!backdrop.classList.contains('is-open')) return;
+        if(e.key === 'Enter' && nextBtn.classList.contains('is-on')){
+          e.preventDefault();
+          next();
+        }
+      });
     })();
   </script>
 </body>
