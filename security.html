@@ -375,23 +375,18 @@
     }
 
     /* ===================== UI OVERLAY ===================== */
+    /* ✅ ВАЖНО: теперь весь "мультфильмный" UI прижат к низу */
     .ui{
       position:absolute;
       inset:0;
       z-index:5;
       pointer-events:none;
       display:grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: 1fr auto; /* верх пустой, контент внизу */
       padding: var(--uiPad);
     }
 
-    .ui-top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding-top: clamp(10px, 2vw, 20px);
-    }
-
+    /* Заголовок-карточка (бывший ui-top) */
     .title-card{
       pointer-events:none;
       text-align:center;
@@ -408,6 +403,7 @@
       backdrop-filter: blur(14px) saturate(1.06);
       -webkit-backdrop-filter: blur(14px) saturate(1.06);
       max-width: min(980px, calc(100vw - 40px));
+      margin: 0 auto;
     }
     .title-card::before{
       content:"";
@@ -437,11 +433,14 @@
       text-shadow: 0 8px 24px rgba(0,0,0,.10);
     }
 
-    .ui-mid{
+    /* ✅ Внизу теперь ВСЁ мультфильмное */
+    .ui-bottom{
       display:flex;
+      flex-direction:column;
+      gap: 12px;
+      padding-bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
       align-items:center;
-      justify-content:center;
-      padding-top: clamp(12px, 2vw, 18px);
+      justify-content:flex-end;
     }
 
     .cta-row{
@@ -451,6 +450,7 @@
       flex-wrap:wrap;
       align-items:center;
       justify-content:center;
+      width: 100%;
     }
 
     .cta{
@@ -512,14 +512,6 @@
       text-overflow: ellipsis;
     }
 
-    .ui-bottom{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      padding-bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
-      align-items:end;
-    }
-
     .cinema-title{
       pointer-events:none;
       text-align:center;
@@ -537,6 +529,7 @@
       gap: clamp(10px, 1.6vw, 16px);
       max-width: min(1100px, calc(100vw - 40px));
       margin: 0 auto;
+      width: 100%;
     }
 
     .movie-card{
@@ -644,7 +637,6 @@
       gap: 12px;
     }
 
-    /* по умолчанию (>=521px) — справа от меню */
     @media (min-width: 521px){
       .side-chip{
         left: calc(var(--nav-left) + var(--panel-w) + 18px);
@@ -654,7 +646,6 @@
       }
     }
 
-    /* мини-блок "Фишинг" */
     .avatar{
       width: 74px;
       height: 74px;
@@ -946,7 +937,6 @@
         max-width: calc(100vw - 32px) !important;
       }
 
-      /* ✅ на мобилке — как у тебя было (внизу слева), но компактно */
       .side-chip{
         left: 12px !important;
         bottom: 12px !important;
@@ -1110,14 +1100,13 @@
 
     <!-- ✅ UI overlay -->
     <main class="ui" aria-label="Игровой интерфейс">
-      <div class="ui-top">
+      <!-- ✅ ВЕСЬ мультфильмный блок теперь ВНИЗУ -->
+      <div class="ui-bottom">
         <div class="title-card">
           <div class="ui-h1">Мультфильмы<br>о цифровой безопасности</div>
           <div class="ui-h2">Для детей • Родителей • Школ</div>
         </div>
-      </div>
 
-      <div class="ui-mid">
         <div class="cta-row" role="navigation" aria-label="Быстрые действия">
           <a class="cta" href="https://digitalhavenrussia.ru/security.html">
             <span class="cta-ico" aria-hidden="true">
@@ -1160,9 +1149,7 @@
             </span>
           </a>
         </div>
-      </div>
 
-      <div class="ui-bottom">
         <div class="cinema-title">Кинотеатр</div>
 
         <section class="cinema-grid" aria-label="Подборка мультфильмов">
@@ -1207,7 +1194,7 @@
         </section>
       </div>
 
-      <!-- ✅ "Фишинг" теперь НЕ под меню: на ПК уходит вправо от панели -->
+      <!-- ✅ "Фишинг" (уже снизу) -->
       <div class="side-chip" aria-label="Быстрый запуск: Фишинг">
         <div class="avatar" aria-hidden="true">🐱</div>
         <div class="chip-card">
@@ -1269,7 +1256,6 @@
       const btn = document.getElementById('menuToggle');
       if(!nav || !btn) return;
 
-      // стартовое состояние: развернуто → body без класса
       document.body.classList.toggle('menu-collapsed', nav.classList.contains('is-collapsed'));
 
       btn.addEventListener('click', () => {
