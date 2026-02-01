@@ -1680,7 +1680,7 @@
   </script>
 
 <script>
-  /* ✅ Зум + перетаскивание (drag) по увеличенной карте */
+  /* ✅ Зум + перетаскивание (drag) + НОРМАЛЬНОЕ ОТДАЛЕНИЕ */
   (function(){
     const img = document.getElementById('zoomable-image');
     if(!img) return;
@@ -1692,7 +1692,7 @@
       return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
-    // как и было: зум только на десктопе
+    // зум только на десктопе
     if(isMobile()){
       img.style.cursor = 'default';
       return;
@@ -1703,32 +1703,49 @@
     let startX = 0, startY = 0;
     let startScrollLeft = 0, startScrollTop = 0;
 
+    // 👇 важно: не давать "moved=true" ломать клик по зум-офф навсегда
+    let movedResetTimer = 0;
+
     const setZoom = (on) => {
+      // включаем/выключаем класс у картинки
       img.classList.toggle('zoomed', on);
-      frame.classList.toggle('is-zoom', on);
 
       if(on){
-        // небольшой лайфхак: при первом зуме скролл в "центр" (чтобы не казалось, что прыгает)
+        frame.classList.add('is-zoom');
+
+        // дать браузеру применить scale -> затем выставить скролл
         requestAnimationFrame(() => {
           const maxX = frame.scrollWidth - frame.clientWidth;
           const maxY = frame.scrollHeight - frame.clientHeight;
           frame.scrollLeft = Math.max(0, maxX * 0.25);
           frame.scrollTop  = Math.max(0, maxY * 0.25);
         });
+
       }else{
+        // ✅ правильное отдаление:
+        // 1) сначала вернем скролл в начало, пока overflow ещё auto
+        // 2) затем (в след. кадр) снимем is-zoom и получим overflow:hidden без дерганий
         frame.scrollLeft = 0;
         frame.scrollTop  = 0;
+
+        requestAnimationFrame(() => {
+          frame.classList.remove('is-zoom');
+        });
       }
     };
 
-    // клик: включить/выключить зум (НО если тащили — клик игнорируем)
+    // клик: включить/выключить зум
+    // moved сбрасываем "позже", чтобы клик после драга не ломал отдаление
     img.addEventListener('click', (e) => {
-      if(moved) { moved = false; return; }
-      const on = !img.classList.contains('zoomed');
-      setZoom(on);
+      if(moved){
+        // это клик после перетаскивания — игнорируем
+        moved = false;
+        return;
+      }
+      setZoom(!img.classList.contains('zoomed'));
     });
 
-    // drag-перемещение по увеличенной карте
+    // drag по контейнеру
     frame.addEventListener('pointerdown', (e) => {
       if(!img.classList.contains('zoomed')) return;
 
@@ -1741,7 +1758,6 @@
       startScrollTop  = frame.scrollTop;
 
       frame.setPointerCapture(e.pointerId);
-      frame.classList.add('is-dragging');
     });
 
     frame.addEventListener('pointermove', (e) => {
@@ -1750,9 +1766,14 @@
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
 
-      if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+      if(Math.abs(dx) > 4 || Math.abs(dy) > 4){
+        moved = true;
 
-      // инверсия для "хвата рукой"
+        // сброс moved чуть позже (чтобы следующий клик уже точно работал на отдаление)
+        clearTimeout(movedResetTimer);
+        movedResetTimer = setTimeout(() => { moved = false; }, 120);
+      }
+
       frame.scrollLeft = startScrollLeft - dx;
       frame.scrollTop  = startScrollTop  - dy;
     });
@@ -1760,19 +1781,22 @@
     const endDrag = (e) => {
       if(!isDown) return;
       isDown = false;
-      frame.classList.remove('is-dragging');
       try{ frame.releasePointerCapture(e.pointerId); }catch(_){}
     };
 
     frame.addEventListener('pointerup', endDrag);
     frame.addEventListener('pointercancel', endDrag);
 
-    // ESC — быстро выйти из зума
+    // ESC — выйти из зума
     window.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape' && img.classList.contains('zoomed')) setZoom(false);
+      if(e.key === 'Escape' && img.classList.contains('zoomed')){
+        moved = false;
+        setZoom(false);
+      }
     });
   })();
 </script>
+
 
 
 </body>
