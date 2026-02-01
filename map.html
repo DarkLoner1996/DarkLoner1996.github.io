@@ -3,687 +3,1597 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="embl.ico" type="image/x-icon"> 
-  <link rel="icon" href="embl.png" type="image/png">  
+
+  <link rel="icon" href="embl.ico" type="image/x-icon">
+  <link rel="icon" href="embl.png" type="image/png">
   <link rel="icon" href="embl.webp" type="image/webp" sizes="72x72">
+
   <meta name="description" content="ТехноКрылья России — проект по цифровому обучению детей из детских домов." />
-  <title>ТехноКрыльяРоссии</title>
+  <title>ТехноКрыльяРоссии — Маршрут помощи</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&family=Russo+One&family=PT+Sans+Caption:wght@400;700&family=Ruslan+Display&display=swap" rel="stylesheet" />
+
   <style>
-    * { box-sizing: border-box; }
-    body {
+    /* =========================================================
+       GLOBAL BASE (из “эталонного” дизайна)
+    ========================================================= */
+    *{ box-sizing: border-box; }
+    html{ scroll-behavior: smooth; }
+    section[id]{ scroll-margin-top: 170px; }
+    @media (max-width: 520px){ section[id]{ scroll-margin-top: 140px; } }
+
+    :root{
+      --content-max: 1180px;
+      --content-pad: 24px;
+
+      --card-bg: rgba(255,255,255,.92);
+      --card-brd: rgba(30,80,160,.14);
+      --shadow: 0 18px 50px rgba(16,24,40,.10);
+
+      --h1: clamp(28px, 3.2vw, 44px);
+      --h2: clamp(18px, 2.0vw, 26px);
+      --p:  clamp(15px, 1.05vw, 18px);
+
+      --dock-sticky-top: calc(10px + env(safe-area-inset-top, 0px));
+      --dock-max: 920px;
+
+      --glowBlue: rgba(120,190,255,.18);
+      --glowRed: rgba(255,110,95,.14);
+    }
+
+    body{
       margin: 0;
-      padding-top: 60px;
-      font-family: 'PT Sans Caption', sans-serif;
-      background: linear-gradient(to bottom right, #f2f2f2, #ffffff);
-      color: #222;
-      scroll-behavior: smooth;
+      padding-top: 0;
+      font-family: 'Rubik', sans-serif;
+      color: #1c2430;
+      background:
+        radial-gradient(1200px 720px at 20% 0%, rgba(0,57,166,.10), transparent 60%),
+        radial-gradient(900px 560px at 86% 0%, rgba(213,43,30,.08), transparent 55%),
+        linear-gradient(to bottom right, #f4f6fb, #ffffff);
+      overflow-x:hidden;
     }
-     #vk_posts { max-width:1000px; margin:50px auto; }
-    header {
+
+    :focus-visible{
+      outline: 2px solid rgba(120,190,255,.75);
+      outline-offset: 2px;
+      border-radius: 12px;
+    }
+
+    a{ color:#0039a6; }
+    a:hover{ color:#d52b1e; }
+
+    .wrap{
+      width: min(var(--content-max), calc(100% - (var(--content-pad) * 2)));
+      margin: 0 auto;
+    }
+
+    @keyframes flagPulse {0%,100%{opacity:0.05;}50%{opacity:0.14;}}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes heroShimmer{
+      0%   { filter: saturate(1.02) contrast(1.02); }
+      50%  { filter: saturate(1.14) contrast(1.06); }
+      100% { filter: saturate(1.02) contrast(1.02); }
+    }
+
+    /* =========================================================
+       HERO (из “эталонного” дизайна)
+    ========================================================= */
+    header.hero{
       position: relative;
-      overflow: hidden;
-      padding: 80px 20px 30px;
-      text-align: center;
-      background: linear-gradient(90deg, #0039a6 0%, #ffffff 50%, #d52b1e 100%);
-      background-size: 300% 100%;
-      animation: gradientShift 8s ease infinite, fadeIn 1.5s ease-in forwards;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      color: white;
+      overflow: visible;
+      padding: 40px 0 22px;
+      color: rgba(255,255,255,.96);
+      animation: fadeIn 1.1s ease-in forwards;
+      isolation: isolate;
+
+      background:
+        radial-gradient(1200px 560px at 16% 16%, rgba(0,57,166,.30), transparent 58%),
+        radial-gradient(900px 520px  at 86% 18%, rgba(213,43,30,.22), transparent 62%),
+        linear-gradient(90deg, #061735 0%, #081f46 55%, #0b224c 78%, #2b0b0b 100%);
+      box-shadow: 0 10px 28px rgba(0,0,0,.20);
+      border-bottom: 1px solid rgba(255,255,255,.10);
     }
-    header::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: url('russian-flag.svg') center/200% no-repeat;
-      opacity: 0.08;
-      animation: flagPulse 6s ease-in-out infinite;
-      z-index: 1;
+    header.hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background: url('russian-flag.svg') center/240% no-repeat;
+      opacity: .10;
+      filter: saturate(1.15) contrast(1.08);
+      animation: flagPulse 7s ease-in-out infinite;
     }
-    header > * { position: relative; z-index: 2; }
-    header h1 {
-      margin-bottom: 10px;
-      font-size: 2.6em;
+    header.hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg, rgba(4, 8, 18, .86) 0%, rgba(4, 8, 18, .58) 54%, rgba(4, 8, 18, .18) 100%),
+        linear-gradient(128deg, rgba(0,57,166,.42) 0%, rgba(0,57,166,0) 32%, rgba(255,255,255,.24) 50%, rgba(213,43,30,.34) 68%, rgba(213,43,30,0) 92%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.045) 0 1px, rgba(255,255,255,0) 1px 28px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.032) 0 1px, rgba(255,255,255,0) 1px 24px),
+        radial-gradient(circle at 12% 30%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 22% 54%, rgba(255,255,255,.07) 0 1px, transparent 2px),
+        radial-gradient(circle at 78% 26%, rgba(255,255,255,.09) 0 1px, transparent 2px),
+        radial-gradient(circle at 90% 44%, rgba(255,255,255,.06) 0 1px, transparent 2px),
+        linear-gradient(90deg, #0039a6 0 33%, rgba(255,255,255,.92) 33% 66%, #d52b1e 66% 100%),
+        linear-gradient(90deg, rgba(0,57,166,.85), rgba(255,255,255,.65), rgba(213,43,30,.85));
+      background-size:
+        auto, 160% 160%, auto, auto, auto, auto, auto, auto, 100% 6px, 100% 2px;
+      background-position:
+        center, 18% 40%, center, center, 0 0, 0 0, 0 0, 0 0, bottom, top;
+      background-repeat:
+        no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat;
+      animation: heroShimmer 10s ease-in-out infinite;
+    }
+
+    .hero-ribbon{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 10px;
+      z-index: 6;
+      pointer-events:none;
+      background: linear-gradient(90deg,#0039a6 0 33%, rgba(255,255,255,.94) 33% 66%, #d52b1e 66% 100%);
+      box-shadow:
+        0 -6px 22px rgba(0,0,0,.20),
+        0  6px 26px rgba(0,0,0,.18);
+      opacity: .95;
+    }
+
+    .hero__inner{ position: relative; z-index: 2; }
+
+    .hero__grid{
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 18px;
+      align-items: stretch;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+    }
+    .brand{ grid-column: 1; grid-row: 1; }
+    .hero-dock{ grid-column: 1; grid-row: 2; }
+    .stats{ grid-column: 2; grid-row: 2; }
+    .hero-badge{ grid-column: 2; grid-row: 1; }
+
+    @media (max-width: 980px){
+      .hero__grid{ grid-template-columns: 1fr; grid-template-rows: auto; }
+      .brand, .hero-dock, .stats, .hero-badge{ grid-column:auto; grid-row:auto; }
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      max-width: 820px;
+      position: relative;
+      z-index: 60;
+    }
+    .brand h1{
+      margin: 0;
       font-family: 'Russo One', sans-serif;
-      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      font-size: var(--h1);
+      line-height: 1.05;
+      letter-spacing: .2px;
+      color: rgba(255,255,255,.98);
+      text-shadow:
+        0 2px 10px rgba(0,0,0,.32),
+        0 14px 30px rgba(0,0,0,.22);
+      -webkit-text-stroke: 1.15px rgba(0,0,0,.35);
+      paint-order: stroke fill;
+      transform: translateZ(0);
     }
-    .highlight-wings { color: #0039a6; }
-    .highlight-russia { color: #d52b1e; }
-    .slogan {
-      font-size: 1.3em;
-      font-weight: 700;
-      color: #fff;
-      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-      margin-top: 15px;
+    .hero__lead{
+      margin: 0;
+      font-size: clamp(14px, 1.1vw, 18px);
+      color: rgba(255,255,255,.95);
+      text-shadow:
+        0 2px 12px rgba(0,0,0,.28),
+        0 10px 24px rgba(0,0,0,.18);
+      max-width: 70ch;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
     }
 
-    /* Навигация */
-    nav {
-      position: fixed;
-      top: 0; left: 0;
+    /* Бейдж */
+    .hero-badge{
+      position: relative;
+      z-index: 70;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      pointer-events:none;
+
+      justify-self: start;
+      align-self: start;
+      margin-top: 4px;
+
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 16px 34px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    }
+    @media (max-width: 980px){
+      .hero-badge{ justify-self: center; margin: 8px 0 2px; }
+    }
+    .hero-badge__logo{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18)),
+        url("embl.webp") center/72% no-repeat;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 12px 22px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .hero-badge__text{
+      font-family: 'Russo One', sans-serif;
+      font-size: 12px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 2px 10px rgba(0,0,0,.28);
+      white-space: nowrap;
+      opacity:.92;
+    }
+
+    /* стеклянная панель */
+    .glass-panel{
       width: 100%;
-      background: rgba(0,0,0,0.1);
-      backdrop-filter: blur(8px);
+      max-width: var(--dock-max);
+      border-radius: 22px;
+      padding: 12px;
+      background:
+        radial-gradient(140% 160% at 10% 10%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.12));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,.32),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(14px) saturate(1.08);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      position: relative;
+    }
+    .glass-panel::before{
+      content:"";
+      position:absolute;
+      inset:-22px;
+      pointer-events:none;
+      z-index:-1;
+      background:
+        radial-gradient(420px 240px at 20% 35%, rgba(120,190,255,.22), transparent 62%),
+        radial-gradient(420px 260px at 80% 35%, rgba(255,110,95,.16), transparent 66%),
+        radial-gradient(560px 300px at 50% 100%, rgba(255,255,255,.06), transparent 62%);
+      filter: blur(18px);
+      opacity: .95;
+    }
+
+    /* =========================================================
+       DOCK MENU (как в проекте)
+    ========================================================= */
+    .hero-dock{
+      position: sticky;
+      top: var(--dock-sticky-top);
+      z-index: 20;
+      align-self: stretch;
+    }
+    .quick-nav{
+      height: 100%;
       display: flex;
-      justify-content: center;
-      padding: 15px 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease-in-out;
-      z-index: 1000;
+      flex-direction: column;
     }
-    /* при скролле добавляем этот класс */
-    nav.hidden {
-      transform: translateY(-100%);
+    .quick-nav__grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+      gap: 10px;
+      align-items: stretch;
     }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 40px;
-      margin: 0; padding: 0;
+    @media (max-width: 980px){ .quick-nav__grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); } }
+    @media (max-width: 520px){ .quick-nav__grid{ grid-template-columns: 1fr; } }
+
+    .quick-nav__btn{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap: 10px;
+      width: 100%;
+      min-height: 54px;
+
+      padding: 12px 14px;
+      border-radius: 16px;
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .02em;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      transition: transform .14s ease, filter .14s ease, border-color .14s ease;
+      overflow:hidden;
+      position:relative;
+      -webkit-tap-highlight-color: transparent;
     }
-    nav ul li a {
-      font-family: 'Ruslan Display', cursive;
-      color: #d52b1e;
-      -webkit-text-stroke: 1px #000;
-      font-size: 30px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      text-shadow: 1px 1px 2px #8B0000;
-      text-decoration: none;
-      transition: .3s;
+    .quick-nav__btn::after{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.22) 42%, transparent 58%);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity:.85;
+      transition: transform .6s ease;
+      pointer-events:none;
     }
-    nav ul li a:hover {
-      background: linear-gradient(90deg, #0039a6, #ffffff, #d52b1e);
-      color: #ffffff;
-      -webkit-text-stroke: 1px #000;
-      transform: scale(1.1);
-      box-shadow: 0 0 12px #0039a6;
+    .quick-nav__btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .quick-nav__btn:hover::after{ transform: translateX(120%) skewX(-18deg); }
+    .quick-nav__btn:active{ transform: translateY(0) scale(.99); }
+
+    .quick-nav__ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      display:grid; place-items:center;
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 20px rgba(0,0,0,.16);
+      flex:0 0 auto;
     }
 
-    /* Остальное без изменений */
-    .table-wrapper { overflow-x:auto; margin-top:20px; border:1px solid #ccc; border-radius:8px; }
-    table { width:100%; border-collapse:collapse; min-width:600px; }
-    th, td { padding:10px; border:1px solid #ccc; text-align:left; }
-    thead { background:#0039a6; color:#fff; }
-    .map-image-container { text-align:center; margin:40px auto; }
-    .map-image-container img { width:100%; max-width:960px; border-radius:12px; cursor:zoom-in; transition:transform .3s ease; }
-    .map-image-container img.zoomed { transform:scale(1.8); cursor:zoom-out; position:relative; z-index:1000; }
+    .quick-nav__txt{ display:flex; flex-direction:column; gap: 2px; min-width:0; }
+    .quick-nav__title{
+      font-size: 13px;
+      text-transform: uppercase;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(255,255,255,.96);
+      line-height: 1.05;
+    }
+    .quick-nav__sub{
+      font-size: 10px;
+      opacity:.86;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(255,255,255,.82);
+      line-height: 1.05;
+    }
 
+    .quick-nav__btn--blue{
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.82), rgba(7,18,38,.72));
+      border-color: rgba(120,190,255,.22);
+    }
+    .quick-nav__btn--blue .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.58), rgba(0,0,0,.18));
+    }
 
-    .section {
-  max-width: 1000px;
-  margin: 0 auto 50px;  /* автоматические отступы слева/справа + 50px снизу */
-  background: #fff;
-  padding: 20px;
-  border-radius: 15px;
-  border: 2px solid #d52b1e;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  animation: fadeInUp 1s ease-out;
-}
+    .quick-nav__btn--white{
+      color: rgba(20,24,34,.92);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border-color: rgba(0,57,166,.18);
+    }
+    .quick-nav__btn--white .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.86), rgba(0,0,0,.10));
+      border-color: rgba(0,57,166,.14);
+    }
+    .quick-nav__btn--white .quick-nav__title,
+    .quick-nav__btn--white .quick-nav__sub{ color: rgba(20,24,34,.92); }
 
-    
-    .section h2 {
-      color:#0039a6;
-      font-size:1.6em;
-      margin-bottom:15px;
-      border-left:6px solid #d52b1e;
-      padding-left:10px;
+    .quick-nav__btn--red{
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(213,43,30,.82), rgba(43,11,11,.70));
+      border-color: rgba(255,110,95,.22);
+    }
+    .quick-nav__btn--red .quick-nav__ico{
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(213,43,30,.55), rgba(0,0,0,.18));
+    }
+
+    .quick-nav__btn.is-active{
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.26),
+        0 0 0 1px rgba(255,255,255,.22) inset,
+        0 0 26px rgba(255,220,140,.10);
+      border-color: rgba(255,240,200,.34);
+    }
+
+    /* Пиллы/табы страницы */
+    .quick-nav__pills{
+      display:flex;
+      justify-content:center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .quick-tabs{
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 12px 26px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    }
+    .quick-tab{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+
+      padding: 8px 10px;
+      border-radius: 12px;
+
+      color: rgba(255,255,255,.90);
+      border: 1px solid transparent;
+      background: rgba(255,255,255,.04);
+
+      transition: transform .14s ease, filter .14s ease, background .14s ease, border-color .14s ease;
+      user-select:none;
+      white-space: nowrap;
+      position:relative;
+      overflow:hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .quick-tab:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.06);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+    }
+    .quick-tab.is-active{
+      color: rgba(20,24,34,.95);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border-color: rgba(255,240,200,.35);
+      box-shadow:
+        0 14px 28px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.22);
+    }
+
+    /* =========================================================
+       STATS (под страницу карты)
+    ========================================================= */
+    .stats{
+      width: 100%;
+      max-width: var(--dock-max);
+      height: 100%;
+      align-self: stretch;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      overflow: hidden;
+    }
+    .stats__grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      height: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    @media (max-width: 520px){ .stats__grid{ grid-template-columns: 1fr; } }
+
+    .stat{
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.20);
+      border: none;
+      box-shadow: 0 18px 36px rgba(0,0,0,.22);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      min-height: 0;
+    }
+    .stat b{
+      display:block;
+      font-size: clamp(18px, 2.0vw, 24px);
+      letter-spacing: .2px;
+      text-shadow: 0 2px 14px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.96);
+    }
+    .stat span{
+      display:block;
+      margin-top: 4px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .90;
+      text-shadow: 0 2px 10px rgba(0,0,0,.22);
+      color: rgba(255,255,255,.86);
+    }
+
+    /* =========================================================
+       MAIN / CARDS
+    ========================================================= */
+    main{ padding: 22px 0 32px; }
+    .stack{ display:flex; flex-direction:column; gap: 18px; }
+
+    p{
+      font-size: var(--p) !important;
+      line-height: 1.7 !important;
+      margin: 0 0 12px;
+      color: rgba(22,30,45,.92);
+    }
+
+    .card{
+      background: var(--card-bg);
+      border: 1px solid var(--card-brd);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      animation: fadeInUp .85s ease-out;
+      position:relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height: 4px;
+      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.95), #d52b1e);
+      opacity:.92;
+      z-index:1;
+      pointer-events:none;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 260px at 14% 0%, rgba(0,57,166,.08), transparent 70%),
+        radial-gradient(900px 300px at 88% 0%, rgba(213,43,30,.06), transparent 72%);
+      opacity:.75;
+      z-index:0;
+    }
+
+    .card__head{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      position:relative;
+      z-index:2;
+    }
+    .card__title{
+      margin:0;
       font-family:'Russo One', sans-serif;
+      font-size: var(--h2);
+      letter-spacing:.2px;
+      color:#0f2a63;
+      position:relative;
     }
-    footer {
-      background:#0039a6;
+    .card__title::after{
+      content:"";
+      display:block;
+      width: 86px;
+      height: 3px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0,57,166,.85), rgba(213,43,30,.85));
+      opacity:.9;
+    }
+    .card__sub{
+      margin:0;
+      opacity:.78;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 70ch;
+    }
+    .card__body{
+      padding: 0 18px 18px;
+      position:relative;
+      z-index:2;
+    }
+
+    /* =========================================================
+       MAP (ваш функционал, но в новом стиле)
+    ========================================================= */
+    .map-wrap{ padding: 0 18px 18px; position:relative; z-index:2; }
+    .map-frame{
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(0,0,0,.04);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.14);
+      position: relative;
+    }
+    .map-frame::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 3px;
+      z-index:3;
+      pointer-events:none;
+      background: linear-gradient(90deg, #0039a6, rgba(255,255,255,.92), #d52b1e);
+      opacity:.9;
+    }
+
+    .map-image{
+      width: 100%;
+      height: auto;
+      display:block;
+      cursor: zoom-in;
+      transition: transform .28s ease;
+      transform-origin: center center;
+    }
+
+    /* зум только на десктопе (как было) */
+    .map-image.zoomed{
+      transform: scale(1.8);
+      cursor: zoom-out;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Таблицы: аккуратно */
+    .table-wrapper{
+      overflow-x:auto;
+      margin-top: 14px;
+      border: 1px solid rgba(30,80,160,.14);
+      border-radius: 14px;
+      background: rgba(255,255,255,.62);
+      box-shadow: 0 10px 22px rgba(16,24,40,.06);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width: 720px;
+    }
+    th, td{
+      padding: 10px 12px;
+      border: 1px solid rgba(30,80,160,.12);
+      text-align:left;
+      vertical-align: top;
+      font-size: 14px;
+      color: rgba(22,30,45,.92);
+      background: rgba(255,255,255,.82);
+    }
+    thead th{
+      background: linear-gradient(180deg, rgba(0,57,166,.92), rgba(7,18,38,.78));
       color:#fff;
+      border-color: rgba(255,255,255,.10);
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    /* Легенда точек */
+    .legend{
+      display:flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 10px 0 0;
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: rgba(0,57,166,.04);
+      border: 1px solid rgba(0,57,166,.10);
+    }
+    .legend__item{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      font-size: 14px;
+      color: rgba(22,30,45,.92);
+    }
+    .dot{
+      width: 12px; height: 12px;
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 6px 14px rgba(0,0,0,.08);
+      flex: 0 0 auto;
+    }
+    .dot--green{ background: #2ecc71; }
+    .dot--red{ background: #e74c3c; }
+
+    /* Кнопка “…” в отчетах */
+    .kebab{
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom: 10px;
+    }
+    .kebab button{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.24), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,246,255,.92));
+      border:1px solid rgba(30,80,160,.22);
+      color:#0f2a63;
+      cursor:pointer;
+      box-shadow: 0 14px 26px rgba(0,0,0,.12);
+      transition: transform .14s ease, filter .14s ease;
+    }
+    .kebab button:hover{ transform: translateY(-1px); filter: saturate(1.05); }
+
+    /* VK spacing */
+    .vk-feed > div[id^="vk_post_"]{ margin: 14px 0; }
+    .vk-feed iframe{ max-width: 100% !important; width: 100% !important; }
+
+    /* =========================================================
+       FOOTER (из “эталонного” дизайна)
+    ========================================================= */
+    footer{
+      position: relative;
+      margin-top: 28px;
+      color:#fff;
+      overflow: hidden;
+      isolation: isolate;
       text-align:center;
-      padding:20px;
-      border-top:4px solid #d52b1e;
-      animation: fadeIn 2s ease-in;
+
+      background:
+        radial-gradient(900px 260px at 18% 20%, rgba(120,190,255,.22), transparent 62%),
+        radial-gradient(900px 300px at 82% 25%, rgba(255,110,95,.18), transparent 66%),
+        linear-gradient(90deg, #061735 0%, #081f46 55%, #0b224c 78%, #2b0b0b 100%);
+      border-top: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 -18px 40px rgba(0,0,0,.18);
+    }
+    footer::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height: 6px;
+      background: linear-gradient(90deg,#0039a6 0 33%, rgba(255,255,255,.94) 33% 66%, #d52b1e 66% 100%);
+      opacity: .95;
+      z-index: 3;
+      pointer-events:none;
+      box-shadow: 0 10px 26px rgba(0,0,0,.22);
+    }
+    footer::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index: 1;
+      pointer-events:none;
+      opacity: .55;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 26px),
+        repeating-linear-gradient(0deg,  rgba(255,255,255,.035) 0 1px, transparent 1px 22px),
+        radial-gradient(circle at 18% 40%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 80% 45%, rgba(255,255,255,.08) 0 1px, transparent 2px);
+      mix-blend-mode: overlay;
+    }
+    .footer__inner{ position: relative; z-index: 4; padding: 18px 0 20px; }
+    .footer__card{
+      width: min(var(--content-max), calc(100% - (var(--content-pad) * 2)));
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.26),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter: blur(12px) saturate(1.06);
+      -webkit-backdrop-filter: blur(12px) saturate(1.06);
+    }
+    .footer__mark{
+      width: 36px; height: 36px;
+      border-radius: 14px;
+      flex: 0 0 auto;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18)),
+        url("embl.webp") center/72% no-repeat;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 12px 22px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .footer__text{
+      margin:0;
+      text-align:center;
+      color: rgba(255,255,255,.92);
+      font-size: 13px !important;
+      line-height: 1.35;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 12px rgba(0,0,0,.28);
+    }
+    .footer__brand{
+      font-family: 'Russo One', sans-serif;
+      letter-spacing: .06em;
+      color: rgba(255,255,255,.96);
+    }
+    .footer__dot{ opacity:.75; padding: 0 6px; }
+
+    /* =========================================================
+       MOBILE (как в эталоне: ничего не ломает)
+    ========================================================= */
+    @media (max-width: 520px){
+      :root{
+        --content-pad: 14px;
+        --dock-sticky-top: calc(8px + env(safe-area-inset-top, 0px));
+      }
+
+      header.hero{ padding: 20px 0 14px; }
+      .hero__grid{ gap: 12px; }
+      .brand{ gap: 8px; }
+      .brand h1{ line-height: 1.02; -webkit-text-stroke: 1px rgba(0,0,0,.34); }
+      .hero__lead{ font-size: 14px; line-height: 1.55; max-width: 52ch; }
+
+      .hero-dock{ position: relative; top: auto; }
+      section[id]{ scroll-margin-top: 120px; }
+
+      .glass-panel{
+        padding: 10px;
+        border-radius: 18px;
+        box-shadow: 0 18px 44px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10);
+      }
+      .glass-panel::before{ inset:-16px; filter: blur(14px); opacity: .9; }
+
+      .quick-nav__btn{ min-height: 52px; padding: 11px 12px; border-radius: 14px; }
+      .quick-nav__ico{ width: 32px; height: 32px; border-radius: 12px; }
+      .quick-nav__title{ font-size: 12px; letter-spacing: .02em; }
+      .quick-nav__sub{ font-size: 9.5px; letter-spacing: .08em; }
+
+      .quick-nav__pills{ padding-top: 8px; }
+      .quick-tabs{
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .quick-tabs::-webkit-scrollbar{ height: 0; }
+
+      .stats{ height: auto; overflow: visible; }
+      .stats__grid{ height: auto; flex: 0 0 auto; }
+      .stat{ padding: 12px 12px; border-radius: 14px; }
+      .stat b{ font-size: 18px; }
+      .stat span{ font-size: 11px; }
+
+      main{ padding: 16px 0 24px; }
+      .stack{ gap: 14px; }
+
+      .card{ border-radius: 18px; }
+      .card__head{ padding: 14px 14px 8px; align-items: flex-start; }
+      .card__title::after{ width: 72px; margin-top: 8px; }
+      .card__sub{ font-size: 12.5px; max-width: 52ch; }
+      .card__body{ padding: 0 14px 14px; }
+      .map-wrap{ padding: 0 14px 14px; }
+
+      .footer__card{ flex-direction: column; gap: 10px; }
+      .footer__text{ font-size: 11.5px !important; letter-spacing: .06em; }
     }
 
-    @media (max-width:768px) {
-      header h1 { font-size:1.8em; }
-      .slogan { font-size:1em; }
-      nav ul { flex-wrap:wrap; justify-content:center; gap:20px; }
-      nav ul li a { font-size:18px; padding:8px 12px; }
-      table, th, td { font-size:.9em; }
-      table { min-width:0; }
+    @media (prefers-reduced-motion: reduce){
+      *{
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
     }
-
-    @keyframes gradientShift {0%{background-position:0 0}50%{background-position:100% 0}100%{background-position:0 0}}
-    @keyframes flagPulse {0%,100%{opacity:0.05}50%{opacity:0.15}}
-    @keyframes fadeIn {from{opacity:0}to{opacity:1}}
-    @keyframes fadeInUp {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
-<body>
 
-  <header>
-    <h1>Техно<span class="highlight-wings">Крылья</span><span class="highlight-russia">России</span></h1>
-    <p class="slogan"><strong>Строим цифровое будущее вместе!</strong></p>
+<body class="page-map">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-ribbon" aria-hidden="true"></div>
+
+    <div class="wrap hero__inner">
+      <div class="hero__grid">
+
+        <!-- 1 ряд: заголовок + описание -->
+        <div class="brand">
+          <h1>Техно<span style="color:#66a3ff;">Крылья</span><span style="color:#ff6a5f;">России</span></h1>
+          <p class="hero__lead">
+            «Маршрут помощи» — прозрачная карта наших поездок и доставок.
+            Каждая точка — это конкретная история поддержки детей и учреждений.
+          </p>
+        </div>
+
+        <!-- бейдж -->
+        <div class="hero-badge" aria-hidden="true">
+          <span class="hero-badge__logo"></span>
+          <span class="hero-badge__text">Маршрут помощи</span>
+        </div>
+
+        <!-- 2 ряд (слева): главное меню -->
+        <div class="hero-dock" aria-label="Меню проекта">
+          <nav class="quick-nav glass-panel" aria-label="Навигация">
+            <div class="quick-nav__grid">
+              <a class="quick-nav__btn quick-nav__btn--blue" data-nav="home" href="https://digitalhavenrussia.ru">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Главная</span>
+                  <span class="quick-nav__sub">Миссия активна</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--white" data-nav="project" href="https://digitalhavenrussia.ru/project.html">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">О проекте</span>
+                  <span class="quick-nav__sub">Брифинг</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--blue" data-nav="video" href="https://digitalhavenrussia.ru/security.html">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-film"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Мультфильм</span>
+                  <span class="quick-nav__sub">Обучающий контент</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--white" data-nav="map" href="https://digitalhavenrussia.ru/map.html">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Маршрут помощи</span>
+                  <span class="quick-nav__sub">Карта операции</span>
+                </span>
+              </a>
+
+              <a class="quick-nav__btn quick-nav__btn--red" data-nav="cyber" href="https://digitalhavenrussia.ru/project.html#help">
+                <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+                <span class="quick-nav__txt">
+                  <span class="quick-nav__title">Киберполигон</span>
+                  <span class="quick-nav__sub">Подключиться</span>
+                </span>
+              </a>
+            </div>
+
+            <!-- табы (я привязал к вашей структуре карты) -->
+            <div class="quick-nav__pills" aria-label="Разделы страницы">
+              <div class="quick-tabs" role="tablist" aria-label="Разделы">
+                <a class="quick-tab" data-pill="#map" href="#map"><i class="fa-solid fa-map"></i><span>Карта</span></a>
+                <a class="quick-tab" data-pill="#about" href="#about"><i class="fa-solid fa-circle-info"></i><span>Инфо</span></a>
+                <a class="quick-tab" data-pill="#reports" href="#reports"><i class="fa-solid fa-receipt"></i><span>Отчёты</span></a>
+                <a class="quick-tab" data-pill="#vk" href="#vk"><i class="fa-brands fa-vk"></i><span>VK</span></a>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <!-- 2 ряд (справа): stats -->
+        <div class="stats glass-panel" aria-label="Ключевые принципы">
+          <div class="stats__grid">
+            <div class="stat"><b>Прозрачно</b><span>таблицы и отчёты</span></div>
+            <div class="stat"><b>Точно</b><span>маршрут и точки</span></div>
+            <div class="stat"><b>С заботой</b><span>помощь адресно</span></div>
+            <div class="stat"><b>Публично</b><span>обновления в VK</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </header>
 
-  <nav id="site-nav">
-    <ul>
-      <li><a href="https://digitalhavenrussia.ru">Главная</a></li>
-      <li><a href="https://digitalhavenrussia.ru/project.html">О проекте</a></li>
-      <li><a href="https://digitalhavenrussia.ru/security.html">Мультик</a></li>
-      <li><a href="https://digitalhavenrussia.ru/map.html">Маршрут помощи</a></li>
-    </ul>
-  </nav>
+  <main>
+    <div class="wrap stack">
 
-   <main>
-    <div class="map-image-container">
-      <img src="map.webp" alt="Карта посещённых детских домов" id="zoomable-image">
-    </div>
-<section class="section" id="about">
-  <h2>✨Крылья Мечты: Карта Помощи</h2>
-  <p><strong>Инструкция</strong> — Добро пожаловать на Карту Помощи "Крылья Мечты"! </p>
-  <p>Эта карта визуализирует наше общее движение добра, показывая, откуда начинается помощь и куда она приходит. Каждая точка – это история участия и заботы. Ведь наша помощь абсолютно прозрачна и видна каждому.</p>
-   
-  <div style="margin: 20px 0;">   
-    <span style="display: inline-flex; align-items: center; margin-right: 20px;">
-      <span style="width: 14px; height: 14px; background-color: green; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
-      <strong>Зеленые точки</strong> — Места Отправления (базы волонтеров)
-    </span>
-    <span style="display: inline-flex; align-items: center;">
-      <span style="width: 14px; height: 14px; background-color: red; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
-      <strong>Красные точки</strong> — Места Назначения (детские дома и школы)
-    </span>
-  </div>
-   <div class="table-wrapper">
-    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1em;">
-    <thead style="background-color: #0039a6; color: white;">
-      <tr>
-        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Город</th>
-        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Учреждение</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ccc;">Рязань</td>
-        <td style="padding: 10px; border: 1px solid #ccc;">МБОУ "Школа - интернат им. Героя СССР Полетаева Ф.А."</td>
-      </tr>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ccc;">Нижний Новгород</td>
-        <td style="padding: 10px; border: 1px solid #ccc;">Детский дом НИГРэС</td>
-      </tr>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ccc;">Тверь</td>
-        <td style="padding: 10px; border: 1px solid #ccc;">ГКУ "Центр кадетского воспитания"</td>
-      </tr>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ccc;">Владимир</td>
-        <td style="padding: 10px; border: 1px solid #ccc;">ГКУ ВО "Центр содействия семейному воспитанию и постинтернатного сопровождения"</td>
-      </tr>
-    </tbody>
-  </table>
-      </div>
-  
-</section>
-    <section class="section" id="report">
-  <h2>🚀 ТехноОтчёт: Финансовая траектория доставки помощи.</h2>
-  <p>Подробная информация о том, что было закуплено для каждого учреждения, примерные стоимости товаров и общие затраты.</p>
- <!-- Отчёт 1 -->
-<div style="text-align: right; margin-bottom: 10px;">
-  <button onclick="toggleReport('report-details-1')" style="border: none; background: none; cursor: pointer; font-size: 24px;">
-    <i class="fas fa-ellipsis-h"></i>
-  </button>
-</div>
-<div id="report-details-1" style="display: none; animation: fadeIn 0.5s ease-in;">
- <div class="table-wrapper">
-  <table style="width: 100%; border-collapse: collapse; font-size: 1em;">
-      <thead style="background-color: #0039a6; color: white;">
-        <tr>
-          <th style="padding: 12px; border: 1px solid #ccc;">Город</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Год</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Товар</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Примерная цена</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Общая сумма</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2024</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.Системные блоки (3 шт)
-            <p>2.Мини-компьютеры (7 шт)</p>
-            <p>3.Мониторы (10 шт)</p>
-            <p>4.Клавиатуры и мышки (9 шт)</p>
-            <p>5.Колонки (3 пары)</p>
-            <p>6.Наушники (7 штук)</p>
-            <p>7.Вебкамеры (6 штук)</p>
-            <p>8.Принтер (1 шт)</p>
-            <p>9.Проекторы (2 шт)</p>
-            <p>10.Очки виртуальной реальности (5 шт)</p>
-            <p>11.Умные колонки сбербанк (3 шт)</p>
-            <p>12.Колонка с микрафонами (1 шт)</p>
-            <p>13.Планшет для рисования (1 шт)</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~165 800 ₽ 
-           <p>2.~155 000 ₽</p>
-           <p>3.~71 800 ₽</p>
-           <p>4.~13 500 ₽</p>
-           <p>5.~4 500 ₽</p>            
-           <p>6.~17 500 ₽</p> 
-           <p>7.~6 000 ₽</p>   
-           <p>8.~7 000 ₽</p>   
-           <p>9.~40 000 ₽</p>  
-           <p>10.~6 500 ₽</p>
-           <p>11.~13 500 ₽</p>
-           <p>12.~2 000 ₽</p>
-           <p>13.~5 000 ₽</p>
-            </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~508 100 </td>
-        </tr>
-        <tr>
-              <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2025</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.3-D принтер Elegoo Saturn 4 ULTRA
-            <p>2.Квадракоптеры (2 шт)</p>
-            <p>3.Студийный микрафон (1 шт)</p>
-            <p>4.Телескоп (1 шт)</p>
-            <p>5.Планшеты для рисования (3 шт)</p>
-            <p>6.Кольцевая лампа (1 шт)</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~45 000 ₽ 
-           <p>2.~12 000 ₽</p>
-           <p>3.~7 800 ₽</p>
-           <p>4.~10 000 ₽</p>
-           <p>5.~15 000 ₽</p>
-           <p>6.~2 000 ₽</p>
-            </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~91 800 ₽</td>
-        </tr>
-        <tr>
-             <td style="padding: 10px; border: 1px solid #ccc;">Нижний Новгород (Детский дом НиГРЭС)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2023</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.Системные блоки (4 шт)
-            <p>2.Мониторы (4 шт)</p>
-            <p>3.Клавиатуры и мышки (4 шт)</p>
-            <p>4.PS-4 и игры (1 шт)</p>
-            <p>5.Колонки (2 пары)</p>
-            <p>6.Наушники (3 штуки)</p>
-            <p>7.Вебкамеры (3 штук)</p>
-            <p>8.Принтер (1 шт)</p>
-            <p>9.Очки виртуальной реальности (1 шт)</p>
-            <p>10.Антибактериальные лампы (10 шт)</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~100 000 ₽ 
-           <p>2.~30 000 ₽</p>
-           <p>3.~10 000 ₽</p>
-           <p>4.~30 000 ₽</p>
-           <p>5.~4 000 ₽</p>
-           <p>6.~7 500 ₽</p>
-           <p>7.~3 000 ₽</p>
-           <p>8.~8 000 ₽</p>
-           <p>9.~1 500 ₽</p>
-           <p>10.~40 000 ₽</p>
-          <td style="padding: 10px; border: 1px solid #ccc;">~234 000 ₽</td>
-        </tr>
+      <!-- MAP -->
+      <section class="card" id="map">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Маршрут помощи</h2>
+            <p class="card__sub">Нажмите на карту (на ПК) — для увеличения.</p>
+          </div>
+        </div>
+
+        <div class="map-wrap">
+          <div class="map-frame">
+            <img src="map.webp" alt="Карта посещённых детских домов" id="zoomable-image" class="map-image">
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="card" id="about">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">✨Крылья Мечты: Карта Помощи</h2>
+            <p class="card__sub">Инструкция и список учреждений.</p>
+          </div>
+        </div>
+
+        <div class="card__body">
+          <p><strong>Инструкция</strong> — Добро пожаловать на Карту Помощи «Крылья Мечты».</p>
+          <p>
+            Эта карта визуализирует наше движение добра: откуда начинается помощь и куда она приходит.
+            Каждая точка — это история участия и заботы. Наша помощь прозрачна и видна каждому.
+          </p>
+
+          <div class="legend" aria-label="Легенда карты">
+            <div class="legend__item"><span class="dot dot--green"></span><strong>Зеленые точки</strong> — места отправления (базы волонтеров)</div>
+            <div class="legend__item"><span class="dot dot--red"></span><strong>Красные точки</strong> — места назначения (детские дома и школы)</div>
+          </div>
+
+          <div class="table-wrapper" role="region" aria-label="Список учреждений">
+            <table>
+              <thead>
                 <tr>
-             <td style="padding: 10px; border: 1px solid #ccc;">Нижний Новгород (Детский дом НиГРЭС)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2025</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.Ноутбук (1 шт)
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~20 000 ₽ 
-          <td style="padding: 10px; border: 1px solid #ccc;">~20 000 ₽</td>
-        </tr>
-        <tr>
-            <td style="padding: 10px; border: 1px solid #ccc;">Тверь (ГКУ "Центр кадетского воспитания")</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2024</td>
-        <td style="padding: 10px; border: 1px solid #ccc;">1.Системные блоки (4 шт)
-            <p>2.Мини-компьютер (1 шт)</p>
-            <p>3.Мониторы (6 шт)</p>
-            <p>4.Клавиатуры и мышки (6 шт)</p>
-            <p>5.Наушники (2 шт)</p>
-            <p>6.Колонки (1 пары)</p>
-            <p>7.Вебкамера (1 штук)</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~130 000 ₽ 
-           <p>2.~25 000 ₽</p>
-           <p>3.~35 000 ₽</p>
-           <p>4.~6 000 ₽</p>
-           <p>5.~4 000 ₽</p>
-           <p>6.~1 500 ₽</p>
-           <p>7.~1 000 ₽</p>
-            </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~202 500 ₽</td>   
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Владимир (ГКУ ВО «Центр ССВ и ПС»)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2023</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.Компьютер (2 шт)
-            <p>2.Мониторы (2 шт)</p>
-            <p>3.Ноутбук (1 шт)</p>
-            <p>4.Клавиатуры и мышки (2 шт)</p>
-            <p>5.Колонки (1 пара)</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~40 000 ₽ 
-           <p>2.~8 000 ₽</p>
-           <p>3.~13 800 ₽</p>
-           <p>4.~1 000 ₽</p>
-           <p>5.~1 000 ₽</p>
-          <td style="padding: 10px; border: 1px solid #ccc;">~63 800 ₽</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-      
-</section>
-    
-      <section class="section" id="report">
-  <h2>🚀 УютОтчёт: Летопись бытовых рейсов.</h2>
-  <p>Подробная информация о том, что было закуплено для каждого учреждения, примерные стоимости товаров и общие затраты.</p>
-<!-- Отчёт 2 -->
-<div style="text-align: right; margin-bottom: 10px;">
-  <button onclick="toggleReport('report-details-2')" style="border: none; background: none; cursor: pointer; font-size: 24px;">
-    <i class="fas fa-ellipsis-h"></i>
-  </button>
-</div>
-<div id="report-details-2" style="display: none; animation: fadeIn 0.5s ease-in;">
-  <div class="table-wrapper">
-  <table style="width: 100%; border-collapse: collapse; font-size: 1em;">
-      <thead style="background-color: #0039a6; color: white;">
-        <tr>
-          <th style="padding: 12px; border: 1px solid #ccc;">Город</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Год</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Товар</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Примерная цена</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Общая сумма</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Нижний Новгород (Детский дом НиГРЭС)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2025</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.Тапочки мужские (22 пары)
-              <p>2.Тапочки женские (13 пар)</p>
-              <p>3.Носки мужские (44 пары)</p>
-              <p>4.Носки женские (26 пар)</p>
-              <p>5.Спортивные штаны мужские (22 штуки)</p>
-              <p>6.Ветровки мужские (22 штуки)</p>
-              <p>7.Ветровки женские (13 штук)</p>
-              <p>8.Трусы мужские (44 штуки)</p>
-              <p>9.Трусы женские (26 штук)</p>
-              <p>10.Пеналы мальчики (20 штук)</p>
-              <p>11.Пеналы девочки (11 штук)</p>
-              <p>12.Канцелярия, альбомы, ручки, карандаши, тетрадки и т.д.</p>
-              <p>12.Аккумуляторная пила (1 штука)</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">1.~8 800 ₽ 
-           <p>2.~5 200 ₽</p>
-           <p>3.~11 000 ₽</p>
-           <p>4.~6 500 ₽</p>
-           <p>5.~77 000 ₽</p>
-           <p>6.~66 000 ₽</p>
-           <p>7.~39 000 ₽</p>
-           <p>8.~19 800 ₽</p>
-           <p>9.~11 700 ₽</p>
-           <p>10.~7 000 ₽</p>
-           <p>11.~3 850 ₽</p>
-           <p>12.~4 500 ₽</p>
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~247 050 ₽</td>
-        </tr>
-         <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Нижний Новгород (Детский дом НиГРЭС)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2024</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Ночнушки девочкам разных размеров, мальчикам комплект футболка и шорты, тапочки розовые, мальчикам синие, наборы для купания, игрушки, канцелярия.
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~40 800 ₽ 
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~40 000 ₽</td>
-        </tr>
-        <tr>
-            <td style="padding: 10px; border: 1px solid #ccc;">Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
-            <td style="padding: 10px; border: 1px solid #ccc;">2024</td>
-            <td style="padding: 10px; border: 1px solid #ccc;">
-              1.Ёлка новогодняя (3м) (1 шт)
-              <p>2.Ёлка новогодняя (2,20) (1 шт)</p>
-              <p>3.Новогодние елочные игрушки  (550 шт)</p>
-              <p>4.Дед мороз серебряный (1 шт)</p>
-              <p>5.Дед мороз золотой (1 шт)</p>
-              <p>6.Гирлянда (шторка световая, 3м) (4 шт) </p>
-              <p>7.Гирлянда световая 15м (6 шт) </p>
-              <p>8.Чайный сервиз (1 шт) </p>
-              <p>9.Набор для сервировки стола (столовые приборы) (1 шт)</p>
-              <p>10.Духовой шкаф (1 шт)</p>
-              <p>11.Набор инструментов (рожковые ключи и головки) (1шт) </p>
-              <p>12.Обручи (10 шт) </p>
-              <p>13.Футбольные мячи (6 шт) </p>
-              <p>14.Баскетбольные мячи (3 шт) Волейбольные мячи</p>
-              <p>15.Волейбольные мячи (3 шт) </p>
-              <p>16.Скакалки (10 шт) </p>
-              <p>17.Сетки на футбольные ворота (2 шт) </p>
-              <p>18.Сетка волейбольная (1 шт) </p>
-              <p>19.Зеркало 800х600 (8 шт) </p>
-              <p>20.Шторка в душевую комнату (1,2м) (34 шт) </p>
-              <p>21.Ботинки зимние (унисекс) (26 шт) </p>
-              <p>22.Настольная игра «Дубль», «Бэнг», «Диксит», «Соображарий»,  «Черепашьи бега», «Эмоджинариум», «Алиас», «Корова 006», «Время приключений», «Экивоки», «Кольт экспресс» (по 3 шт), игрушки </p>
-              <p>23.Микрофон студийный </p>
-              <p>24.Настольный футбол (2 шт) </p>
-              <p>25.Настольный хоккей (2 шт) </p>
-              <p>26.Флаг РФ + древко (3 шт) </p>
-              <p>27.Канцелярские товары</p>
-              <p>28.Одеяла (39 шт) </p>
-              <p>29.Военные аптечки (2 шт) </p>
-            </td>
-            <td style="padding: 10px; border: 1px solid #ccc;">1. ~7 000 ₽
-              <p>2.~5 500 ₽</p>
-              <p>3.~3 300 ₽</p>
-              <p>4.~2 300 ₽</p>
-              <p>5.~3 500 ₽</p>
-              <p>6.~4 000 ₽</p>
-              <p>7.~9 000 ₽</p>
-              <p>8.~1 500 ₽</p>
-              <p>9.~2 000 ₽</p>
-              <p>10.~8 000 ₽</p>
-              <p>11~8 000 ₽</p>
-              <p>12~13 000 ₽</p>
-              <p>13~10 200 ₽</p>
-              <p>14~5 100 ₽</p>
-              <p>15~6 000 ₽</p>
-              <p>16~6 000 ₽</p>
-              <p>17~5 000 ₽</p>
-              <p>18~4 000 ₽</p>
-              <p>19.~40 000 ₽</p>
-              <p>20.~10 200 ₽</p>
-              <p>21.~91 000 ₽</p>
-              <p>21.~91 000 ₽</p>
-              <p>22.~45 000 ₽</p>
-              <p>23.~6 000 ₽</p>
-              <p>24.~7 000 ₽</p>
-              <p>25.~7 000 ₽</p>
-              <p>26.~3 000 ₽</p>
-              <p>27.~5 000 ₽</p>
-              <p>28.~56 550 ₽</p>
-              <p>29.~3 000 ₽</p>
-            </td>
-            <td style="padding: 10px; border: 1px solid #ccc;">~468 150 ₽</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Тверь (ГКУ "Центр кадетского воспитания")</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2024</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Одежда, канцелерия, тапочки</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~30 000 ₽</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~30 000 ₽</td>
-        </tr>
-            <tr>
-                    <td style="padding: 10px; border: 1px solid #ccc;">Владимир (ГКУ ВО «Центр ССВ и ПС»)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2023</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Одежда и игрушки</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~10 000 ₽</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~10 000 ₽</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-        
-</section>
-     <section class="section" id="report">
-  <h2>🚀 ДесертОтчёт: Траектория сладостей.</h2>
-  <p>Подробная информация о том, что было закуплено для каждого учреждения, примерные стоимости товаров и общие затраты.</p>
-<!-- Отчёт 3 -->
-<div style="text-align: right; margin-bottom: 10px;">
-  <button onclick="toggleReport('report-details-3')" style="border: none; background: none; cursor: pointer; font-size: 24px;">
-    <i class="fas fa-ellipsis-h"></i>
-  </button>
-</div>
-<div id="report-details-3" style="display: none; animation: fadeIn 0.5s ease-in;">
-  <div class="table-wrapper">
-  <table style="width: 100%; border-collapse: collapse; font-size: 1em;">
-      <thead style="background-color: #0039a6; color: white;">
-        <tr>
-          <th style="padding: 12px; border: 1px solid #ccc;">Город</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Год</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Товар</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Примерная цена</th>
-          <th style="padding: 12px; border: 1px solid #ccc;">Общая сумма</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2024</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Сладкие подарки  (426 шт)
-          </td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~135 000 ₽</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~135 000 ₽</td>
-        </tr>
-        
-    <!--  <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Нижний Новгород (Детский дом НиГРЭС)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2025</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Компьютер (0 шт)<p>Компьютер (0 шт)</p><p>Монитор (0 шт)</p></td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~45 000 ₽</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">180 000 ₽</td>
-        </tr> -->
-        
-      <!--  <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Владимир (ГКУ ВО «Центр ССВ и ПС»)</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2025</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Компьютер (0 шт)<p>Компьютер (0 шт)</p><p>Монитор (0 шт)</p></td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~15 000 ₽</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">15 000 ₽</td> 
-        </tr>
-        -->
-        <!--
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ccc;">Тверь (ГКУ "Центр кадетского воспитания")</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">2025</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">Компьютер (0 шт)<p>Компьютер (0 шт)</p><p>Монитор (0 шт)</p></td>
-          <td style="padding: 10px; border: 1px solid #ccc;">~25 000 ₽</td>
-          <td style="padding: 10px; border: 1px solid #ccc;">25 000 ₽</td>
-        </tr> -->
-      </tbody>
-    </table>
-  </div>
-</div>
-</section>
-        
+                  <th>Город</th>
+                  <th>Учреждение</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Рязань</td>
+                  <td>МБОУ "Школа - интернат им. Героя СССР Полетаева Ф.А."</td>
+                </tr>
+                <tr>
+                  <td>Нижний Новгород</td>
+                  <td>Детский дом НИГРэС</td>
+                </tr>
+                <tr>
+                  <td>Тверь</td>
+                  <td>ГКУ "Центр кадетского воспитания"</td>
+                </tr>
+                <tr>
+                  <td>Владимир</td>
+                  <td>ГКУ ВО "Центр содействия семейному воспитанию и постинтернатного сопровождения"</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-  <section class="section" id="vk">
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        </div>
+      </section>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_16'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_16', -224174286, 16, 'ET95CKUeVm_JnRfWrhwr_7tPUVVb');
-</script>
-    <br></br>
+      <!-- REPORTS WRAP -->
+      <section class="card" id="reports">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Отчёты</h2>
+            <p class="card__sub">Финансовая траектория, бытовые рейсы и сладости — по разделам.</p>
+          </div>
+        </div>
 
-<!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+        <div class="card__body">
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_10'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_10', -224174286, 10, 'cEM-KtVeO7y-kHPpRR4ebHdHSNiJ');
-</script>
-     <br></br>
+          <!-- Отчёт 1 -->
+          <section id="report-tech">
+            <p style="margin-bottom:8px;"><strong>🚀 ТехноОтчёт:</strong> Финансовая траектория доставки помощи.</p>
+            <div class="kebab">
+              <button type="button" onclick="toggleReport('report-details-1')" aria-label="Открыть/закрыть ТехноОтчёт">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+            </div>
 
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+            <div id="report-details-1" style="display:none;">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Город</th>
+                      <th>Год</th>
+                      <th>Товар</th>
+                      <th>Примерная цена</th>
+                      <th>Общая сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
+                      <td>2024</td>
+                      <td>
+                        1.Системные блоки (3 шт)
+                        <p>2.Мини-компьютеры (7 шт)</p>
+                        <p>3.Мониторы (10 шт)</p>
+                        <p>4.Клавиатуры и мышки (9 шт)</p>
+                        <p>5.Колонки (3 пары)</p>
+                        <p>6.Наушники (7 штук)</p>
+                        <p>7.Вебкамеры (6 штук)</p>
+                        <p>8.Принтер (1 шт)</p>
+                        <p>9.Проекторы (2 шт)</p>
+                        <p>10.Очки виртуальной реальности (5 шт)</p>
+                        <p>11.Умные колонки сбербанк (3 шт)</p>
+                        <p>12.Колонка с микрафонами (1 шт)</p>
+                        <p>13.Планшет для рисования (1 шт)</p>
+                      </td>
+                      <td>
+                        1.~165 800 ₽
+                        <p>2.~155 000 ₽</p>
+                        <p>3.~71 800 ₽</p>
+                        <p>4.~13 500 ₽</p>
+                        <p>5.~4 500 ₽</p>
+                        <p>6.~17 500 ₽</p>
+                        <p>7.~6 000 ₽</p>
+                        <p>8.~7 000 ₽</p>
+                        <p>9.~40 000 ₽</p>
+                        <p>10.~6 500 ₽</p>
+                        <p>11.~13 500 ₽</p>
+                        <p>12.~2 000 ₽</p>
+                        <p>13.~5 000 ₽</p>
+                      </td>
+                      <td>~508 100 ₽</td>
+                    </tr>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_8'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_8', -224174286, 8, 'lrzUhQlEFAwGgswATCSBVZFWFc5J');
-</script>
- <br></br>
+                    <tr>
+                      <td>Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
+                      <td>2025</td>
+                      <td>
+                        1.3-D принтер Elegoo Saturn 4 ULTRA
+                        <p>2.Квадракоптеры (2 шт)</p>
+                        <p>3.Студийный микрафон (1 шт)</p>
+                        <p>4.Телескоп (1 шт)</p>
+                        <p>5.Планшеты для рисования (3 шт)</p>
+                        <p>6.Кольцевая лампа (1 шт)</p>
+                      </td>
+                      <td>
+                        1.~45 000 ₽
+                        <p>2.~12 000 ₽</p>
+                        <p>3.~7 800 ₽</p>
+                        <p>4.~10 000 ₽</p>
+                        <p>5.~15 000 ₽</p>
+                        <p>6.~2 000 ₽</p>
+                      </td>
+                      <td>~91 800 ₽</td>
+                    </tr>
 
-    <!-- Put this script tag to the <head> of your page -->
-<script
-  type="text/javascript"
-  src="https://vk.com/js/api/openapi.js?168"
-  charset="windows-1251"
-></script>
+                    <tr>
+                      <td>Нижний Новгород (Детский дом НиГРЭС)</td>
+                      <td>2023</td>
+                      <td>
+                        1.Системные блоки (4 шт)
+                        <p>2.Мониторы (4 шт)</p>
+                        <p>3.Клавиатуры и мышки (4 шт)</p>
+                        <p>4.PS-4 и игры (1 шт)</p>
+                        <p>5.Колонки (2 пары)</p>
+                        <p>6.Наушники (3 штуки)</p>
+                        <p>7.Вебкамеры (3 штук)</p>
+                        <p>8.Принтер (1 шт)</p>
+                        <p>9.Очки виртуальной реальности (1 шт)</p>
+                        <p>10.Антибактериальные лампы (10 шт)</p>
+                      </td>
+                      <td>
+                        1.~100 000 ₽
+                        <p>2.~30 000 ₽</p>
+                        <p>3.~10 000 ₽</p>
+                        <p>4.~30 000 ₽</p>
+                        <p>5.~4 000 ₽</p>
+                        <p>6.~7 500 ₽</p>
+                        <p>7.~3 000 ₽</p>
+                        <p>8.~8 000 ₽</p>
+                        <p>9.~1 500 ₽</p>
+                        <p>10.~40 000 ₽</p>
+                      </td>
+                      <td>~234 000 ₽</td>
+                    </tr>
 
-<!-- Put this script tag to the place, where the Post block will be -->
-<div id='vk_post_-224174286_5'></div>
-<script type="text/javascript">
-   VK.Widgets.Post('vk_post_-224174286_5', -224174286, 5, 'nOFyzCWjO4WpLa6kLpfhQ8fH_0T8');
-</script>
-    
+                    <tr>
+                      <td>Нижний Новгород (Детский дом НиГРЭС)</td>
+                      <td>2025</td>
+                      <td>1.Ноутбук (1 шт)</td>
+                      <td>1.~20 000 ₽</td>
+                      <td>~20 000 ₽</td>
+                    </tr>
 
+                    <tr>
+                      <td>Тверь (ГКУ "Центр кадетского воспитания")</td>
+                      <td>2024</td>
+                      <td>
+                        1.Системные блоки (4 шт)
+                        <p>2.Мини-компьютер (1 шт)</p>
+                        <p>3.Мониторы (6 шт)</p>
+                        <p>4.Клавиатуры и мышки (6 шт)</p>
+                        <p>5.Наушники (2 шт)</p>
+                        <p>6.Колонки (1 пары)</p>
+                        <p>7.Вебкамера (1 штук)</p>
+                      </td>
+                      <td>
+                        1.~130 000 ₽
+                        <p>2.~25 000 ₽</p>
+                        <p>3.~35 000 ₽</p>
+                        <p>4.~6 000 ₽</p>
+                        <p>5.~4 000 ₽</p>
+                        <p>6.~1 500 ₽</p>
+                        <p>7.~1 000 ₽</p>
+                      </td>
+                      <td>~202 500 ₽</td>
+                    </tr>
 
+                    <tr>
+                      <td>Владимир (ГКУ ВО «Центр ССВ и ПС»)</td>
+                      <td>2023</td>
+                      <td>
+                        1.Компьютер (2 шт)
+                        <p>2.Мониторы (2 шт)</p>
+                        <p>3.Ноутбук (1 шт)</p>
+                        <p>4.Клавиатуры и мышки (2 шт)</p>
+                        <p>5.Колонки (1 пара)</p>
+                      </td>
+                      <td>
+                        1.~40 000 ₽
+                        <p>2.~8 000 ₽</p>
+                        <p>3.~13 800 ₽</p>
+                        <p>4.~1 000 ₽</p>
+                        <p>5.~1 000 ₽</p>
+                      </td>
+                      <td>~63 800 ₽</td>
+                    </tr>
 
-<!-- Модифицированный скрипт для переключения нескольких отчётов -->
-<script>
-function toggleReport(id) {
-  const block = document.getElementById(id);
-  block.style.display = block.style.display === 'none' ? 'block' : 'none';
-}
-</script>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
 
-    </section>
+          <hr style="border:none;border-top:1px solid rgba(30,80,160,.14);margin:18px 0;">
+
+          <!-- Отчёт 2 -->
+          <section id="report-cozy">
+            <p style="margin-bottom:8px;"><strong>🚀 УютОтчёт:</strong> Летопись бытовых рейсов.</p>
+            <div class="kebab">
+              <button type="button" onclick="toggleReport('report-details-2')" aria-label="Открыть/закрыть УютОтчёт">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+            </div>
+
+            <div id="report-details-2" style="display:none;">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Город</th>
+                      <th>Год</th>
+                      <th>Товар</th>
+                      <th>Примерная цена</th>
+                      <th>Общая сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Нижний Новгород (Детский дом НиГРЭС)</td>
+                      <td>2025</td>
+                      <td>
+                        1.Тапочки мужские (22 пары)
+                        <p>2.Тапочки женские (13 пар)</p>
+                        <p>3.Носки мужские (44 пары)</p>
+                        <p>4.Носки женские (26 пар)</p>
+                        <p>5.Спортивные штаны мужские (22 штуки)</p>
+                        <p>6.Ветровки мужские (22 штуки)</p>
+                        <p>7.Ветровки женские (13 штук)</p>
+                        <p>8.Трусы мужские (44 штуки)</p>
+                        <p>9.Трусы женские (26 штук)</p>
+                        <p>10.Пеналы мальчики (20 штук)</p>
+                        <p>11.Пеналы девочки (11 штук)</p>
+                        <p>12.Канцелярия, альбомы, ручки, карандаши, тетрадки и т.д.</p>
+                        <p>12.Аккумуляторная пила (1 штука)</p>
+                      </td>
+                      <td>
+                        1.~8 800 ₽
+                        <p>2.~5 200 ₽</p>
+                        <p>3.~11 000 ₽</p>
+                        <p>4.~6 500 ₽</p>
+                        <p>5.~77 000 ₽</p>
+                        <p>6.~66 000 ₽</p>
+                        <p>7.~39 000 ₽</p>
+                        <p>8.~19 800 ₽</p>
+                        <p>9.~11 700 ₽</p>
+                        <p>10.~7 000 ₽</p>
+                        <p>11.~3 850 ₽</p>
+                        <p>12.~4 500 ₽</p>
+                      </td>
+                      <td>~247 050 ₽</td>
+                    </tr>
+                    <tr>
+                      <td>Нижний Новгород (Детский дом НиГРЭС)</td>
+                      <td>2024</td>
+                      <td>Ночнушки девочкам разных размеров, мальчикам комплект футболка и шорты, тапочки розовые, мальчикам синие, наборы для купания, игрушки, канцелярия.</td>
+                      <td>~40 800 ₽</td>
+                      <td>~40 000 ₽</td>
+                    </tr>
+                    <tr>
+                      <td>Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
+                      <td>2024</td>
+                      <td>
+                        1.Ёлка новогодняя (3м) (1 шт)
+                        <p>2.Ёлка новогодняя (2,20) (1 шт)</p>
+                        <p>3.Новогодние елочные игрушки (550 шт)</p>
+                        <p>4.Дед мороз серебряный (1 шт)</p>
+                        <p>5.Дед мороз золотой (1 шт)</p>
+                        <p>6.Гирлянда (шторка световая, 3м) (4 шт)</p>
+                        <p>7.Гирлянда световая 15м (6 шт)</p>
+                        <p>8.Чайный сервиз (1 шт)</p>
+                        <p>9.Набор для сервировки стола (1 шт)</p>
+                        <p>10.Духовой шкаф (1 шт)</p>
+                        <p>11.Набор инструментов (1 шт)</p>
+                        <p>12.Обручи (10 шт)</p>
+                        <p>13.Футбольные мячи (6 шт)</p>
+                        <p>14.Баскетбольные мячи (3 шт)</p>
+                        <p>15.Волейбольные мячи (3 шт)</p>
+                        <p>16.Скакалки (10 шт)</p>
+                        <p>17.Сетки на футбольные ворота (2 шт)</p>
+                        <p>18.Сетка волейбольная (1 шт)</p>
+                        <p>19.Зеркало 800х600 (8 шт)</p>
+                        <p>20.Шторка в душевую комнату (34 шт)</p>
+                        <p>21.Ботинки зимние (унисекс) (26 шт)</p>
+                        <p>22.Настольные игры / игрушки</p>
+                        <p>23.Микрофон студийный</p>
+                        <p>24.Настольный футбол (2 шт)</p>
+                        <p>25.Настольный хоккей (2 шт)</p>
+                        <p>26.Флаг РФ + древко (3 шт)</p>
+                        <p>27.Канцелярские товары</p>
+                        <p>28.Одеяла (39 шт)</p>
+                        <p>29.Военные аптечки (2 шт)</p>
+                      </td>
+                      <td>
+                        1.~7 000 ₽
+                        <p>2.~5 500 ₽</p>
+                        <p>3.~3 300 ₽</p>
+                        <p>4.~2 300 ₽</p>
+                        <p>5.~3 500 ₽</p>
+                        <p>6.~4 000 ₽</p>
+                        <p>7.~9 000 ₽</p>
+                        <p>8.~1 500 ₽</p>
+                        <p>9.~2 000 ₽</p>
+                        <p>10.~8 000 ₽</p>
+                        <p>11.~8 000 ₽</p>
+                        <p>12.~13 000 ₽</p>
+                        <p>13.~10 200 ₽</p>
+                        <p>14.~5 100 ₽</p>
+                        <p>15.~6 000 ₽</p>
+                        <p>16.~6 000 ₽</p>
+                        <p>17.~5 000 ₽</p>
+                        <p>18.~4 000 ₽</p>
+                        <p>19.~40 000 ₽</p>
+                        <p>20.~10 200 ₽</p>
+                        <p>21.~91 000 ₽</p>
+                        <p>22.~45 000 ₽</p>
+                        <p>23.~6 000 ₽</p>
+                        <p>24.~7 000 ₽</p>
+                        <p>25.~7 000 ₽</p>
+                        <p>26.~3 000 ₽</p>
+                        <p>27.~5 000 ₽</p>
+                        <p>28.~56 550 ₽</p>
+                        <p>29.~3 000 ₽</p>
+                      </td>
+                      <td>~468 150 ₽</td>
+                    </tr>
+                    <tr>
+                      <td>Тверь (ГКУ "Центр кадетского воспитания")</td>
+                      <td>2024</td>
+                      <td>Одежда, канцелерия, тапочки</td>
+                      <td>~30 000 ₽</td>
+                      <td>~30 000 ₽</td>
+                    </tr>
+                    <tr>
+                      <td>Владимир (ГКУ ВО «Центр ССВ и ПС»)</td>
+                      <td>2023</td>
+                      <td>Одежда и игрушки</td>
+                      <td>~10 000 ₽</td>
+                      <td>~10 000 ₽</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <hr style="border:none;border-top:1px solid rgba(30,80,160,.14);margin:18px 0;">
+
+          <!-- Отчёт 3 -->
+          <section id="report-dessert">
+            <p style="margin-bottom:8px;"><strong>🚀 ДесертОтчёт:</strong> Траектория сладостей.</p>
+            <div class="kebab">
+              <button type="button" onclick="toggleReport('report-details-3')" aria-label="Открыть/закрыть ДесертОтчёт">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+            </div>
+
+            <div id="report-details-3" style="display:none;">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Город</th>
+                      <th>Год</th>
+                      <th>Товар</th>
+                      <th>Примерная цена</th>
+                      <th>Общая сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Рязань (МБОУ «Школа-интернат им. Ф.А. Полетаева»)</td>
+                      <td>2024</td>
+                      <td>Сладкие подарки (426 шт)</td>
+                      <td>~135 000 ₽</td>
+                      <td>~135 000 ₽</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </section>
+
+      <!-- VK -->
+      <section class="card" id="vk">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Новости из VK</h2>
+            <p class="card__sub">Живые обновления и отчёты из социальной сети.</p>
+          </div>
+        </div>
+
+        <div class="card__body vk-feed">
+          <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168" charset="windows-1251"></script>
+
+          <div id="vk_post_-224174286_16"></div>
+          <div id="vk_post_-224174286_10"></div>
+          <div id="vk_post_-224174286_8"></div>
+          <div id="vk_post_-224174286_5"></div>
+
+          <script>
+            (function(){
+              const posts = [
+                [16,'ET95CKUeVm_JnRfWrhwr_7tPUVVb'],
+                [10,'cEM-KtVeO7y-kHPpRR4ebHdHSNiJ'],
+                [8,'lrzUhQlEFAwGgswATCSBVZFWFc5J'],
+                [5,'nOFyzCWjO4WpLa6kLpfhQ8fH_0T8']
+              ];
+
+              const run = () => {
+                if(!window.VK || !VK.Widgets || !VK.Widgets.Post) return false;
+                posts.forEach(([id, hash]) => VK.Widgets.Post(`vk_post_-224174286_${id}`, -224174286, id, hash));
+                return true;
+              };
+
+              if(run()) return;
+              let tries = 0;
+              const t = setInterval(() => {
+                tries++;
+                if(run() || tries > 40) clearInterval(t);
+              }, 100);
+            })();
+          </script>
+        </div>
+      </section>
+
+    </div>
   </main>
 
+  <!-- FOOTER -->
   <footer>
-    <p>&copy; 2025 ТехноКрылья России. Все права защищены.</p>
+    <div class="footer__inner">
+      <div class="footer__card" role="contentinfo" aria-label="Нижний колонтитул">
+        <span class="footer__mark" aria-hidden="true"></span>
+        <p class="footer__text">
+          © 2025 <span class="footer__brand">ТехноКрыльяРоссии</span>
+          <span class="footer__dot">•</span>
+          Все права защищены
+        </p>
+      </div>
+    </div>
   </footer>
 
-  
   <script>
-    // Скрытие/показ навигации при скролле
-    (function(){
-      let lastScroll = 0;
-      const nav = document.getElementById('site-nav');
-      window.addEventListener('scroll', () => {
-        const st = window.pageYOffset || document.documentElement.scrollTop;
-        if (st > lastScroll && st > 100) {
-          nav.classList.add('hidden');
-        } else {
-          nav.classList.remove('hidden');
-        }
-        lastScroll = st <= 0 ? 0 : st;
-      });
-    })();
+    /* ваш переключатель отчетов (оставил) */
+    function toggleReport(id) {
+      const block = document.getElementById(id);
+      if(!block) return;
+      block.style.display = (block.style.display === 'none' || !block.style.display) ? 'block' : 'none';
+    }
+  </script>
 
-    // Зумирование карты на десктопе
+  <script>
+    /* ✅ Active highlight for the dock menu (как в эталоне) */
+    (function markActiveQuickNav(){
+      try{
+        const path = (location.pathname || '').replace(/\/+$/, '') || '/';
+        const btns = document.querySelectorAll('.quick-nav__btn');
+        btns.forEach(b => b.classList.remove('is-active'));
+
+        const rules = [
+          { match: ['/', '/index.html'],       key: 'home'    },
+          { match: ['/project.html'],          key: 'project'  },
+          { match: ['/security.html'],         key: 'video'    },
+          { match: ['/map.html'],              key: 'map'      },
+        ];
+
+        const rule = rules.find(r => r.match.includes(path));
+        if(rule){
+          const active = document.querySelector(`.quick-nav__btn[data-nav="${rule.key}"]`);
+          if(active) active.classList.add('is-active');
+        }
+
+        if(path === '/project.html' && (location.hash || '') === '#help'){
+          const cyber = document.querySelector('.quick-nav__btn[data-nav="cyber"]');
+          if(cyber) cyber.classList.add('is-active');
+        }
+      }catch(e){}
+    })();
+  </script>
+
+  <script>
+    /* ✅ Активная подсветка TAB-кнопок по текущему разделу */
+    (function tabsActive(){
+      const tabs = Array.from(document.querySelectorAll('.quick-tab'));
+      if(!tabs.length) return;
+
+      const byHash = (hash) => tabs.find(t => (t.getAttribute('data-pill') || '') === hash);
+
+      const setActive = (hash) => {
+        tabs.forEach(t => t.classList.remove('is-active'));
+        const a = byHash(hash);
+        if(a) a.classList.add('is-active');
+      };
+
+      tabs.forEach(t => {
+        t.addEventListener('click', () => {
+          const h = t.getAttribute('data-pill');
+          if(h) setActive(h);
+        });
+      });
+
+      const sections = ['#map','#about','#reports','#vk']
+        .map(id => document.querySelector(id))
+        .filter(Boolean);
+
+      if(!sections.length){
+        setActive(location.hash || '#map');
+        return;
+      }
+
+      const io = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if(visible && visible.target && visible.target.id){
+          setActive('#' + visible.target.id);
+        }
+      }, { root: null, threshold: [0.25, 0.35, 0.5, 0.65] });
+
+      sections.forEach(s => io.observe(s));
+
+      setActive(location.hash && byHash(location.hash) ? location.hash : '#map');
+    })();
+  </script>
+
+  <script>
+    /* Зумирование карты на десктопе (как было) */
     const img = document.getElementById('zoomable-image');
     function isMobile(){
       return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
-    if (!isMobile()){
+    if (img && !isMobile()){
       img.addEventListener('click', () => img.classList.toggle('zoomed'));
+    }else if(img){
+      img.style.cursor = 'default';
     }
   </script>
+
 </body>
 </html>
