@@ -61,6 +61,29 @@
 
       --uiPad: clamp(14px, 2.2vw, 22px);
       --movies-down: clamp(36px, 7vh, 140px);
+
+      /* ✅ новые, для “шик” кнопок */
+      --aura1: rgba(120,230,255,.38);
+      --aura2: rgba(255,235,170,.26);
+      --aura3: rgba(0,0,0,.22);
+
+      --focus: 0 0 0 3px rgba(255, 242, 205, .34), 0 0 0 6px rgba(105,205,255,.22);
+    }
+
+    /* ============================================================
+      ✅ Общие улучшения интерактивов: фокус, кликабельность, smooth
+    ============================================================ */
+    a, button{
+      -webkit-tap-highlight-color: transparent;
+    }
+    :focus{ outline: none; }
+    :focus-visible{
+      outline: none;
+      box-shadow: var(--focus) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; scroll-behavior:auto !important; }
     }
 
     /* ===================== MENU (как на картинке) ===================== */
@@ -435,19 +458,19 @@
     }
 
     /* ✅ Внизу теперь ВСЁ мультфильмное */
- .ui-bottom{
-  display:flex;
-  flex-direction:column;
-  gap: 12px;
-  padding-bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
-  align-items:center;
-  justify-content:flex-end;
+    .ui-bottom{
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      padding-bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
+      align-items:center;
+      justify-content:flex-end;
 
-  transform: translateY(var(--movies-down));
-  will-change: transform;
-}
+      transform: translateY(var(--movies-down));
+      will-change: transform;
+    }
 
-
+    /* ===================== CTA (улучшили “дорого”) ===================== */
     .cta-row{
       pointer-events:auto;
       display:flex;
@@ -464,20 +487,67 @@
       gap: 12px;
       padding: clamp(12px, 2.0vw, 16px) clamp(16px, 2.6vw, 22px);
       border-radius: 22px;
-      border: 1px solid rgba(255,255,255,.28);
+      border: 1px solid rgba(255,255,255,.30);
       text-decoration:none;
       color: rgba(245,250,255,.98);
+      position:relative;
+      overflow:hidden;
+
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 62%),
-        linear-gradient(180deg, rgba(105,205,255,.86), rgba(35,140,210,.86));
-      box-shadow: 0 22px 46px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.26);
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.30), transparent 62%),
+        radial-gradient(120% 120% at 86% 30%, rgba(255,242,205,.16), transparent 58%),
+        linear-gradient(180deg, rgba(105,205,255,.88), rgba(35,140,210,.88));
+
+      box-shadow:
+        0 26px 56px rgba(0,0,0,.18),
+        0 10px 22px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.28);
       backdrop-filter: blur(12px) saturate(1.06);
       -webkit-backdrop-filter: blur(12px) saturate(1.06);
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
       min-width: min(320px, calc(100vw - 48px));
       max-width: 420px;
     }
-    .cta:hover{ transform: translateY(-2px); filter:saturate(1.06); box-shadow: 0 28px 56px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.26); }
+
+    .cta::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 24px;
+      background:
+        radial-gradient(70% 80% at 20% 10%, rgba(255,255,255,.45), transparent 60%),
+        linear-gradient(90deg, rgba(255,255,255,.35), rgba(140,220,255,.18), rgba(255,242,205,.18), rgba(255,255,255,.22));
+      opacity:.55;
+      filter: blur(.2px);
+      pointer-events:none;
+      transform: translateZ(0);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .cta::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,.16), transparent 55%),
+        radial-gradient(90% 120% at 0% 90%, rgba(255,242,205,.10), transparent 60%),
+        radial-gradient(90% 120% at 100% 90%, rgba(120,230,255,.12), transparent 60%);
+      opacity:.95;
+      mix-blend-mode: screen;
+    }
+
+    .cta:hover{
+      transform: translateY(-2px);
+      filter:saturate(1.06);
+      box-shadow:
+        0 34px 70px rgba(0,0,0,.22),
+        0 12px 26px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.30);
+    }
     .cta:active{ transform: translateY(0) scale(.992); }
 
     .cta .cta-ico{
@@ -486,13 +556,31 @@
       border-radius: 18px;
       display:grid;
       place-items:center;
+      position:relative;
+      overflow:hidden;
+
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 62%),
-        linear-gradient(180deg, rgba(16,95,140,.44), rgba(10,60,95,.40));
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.28), transparent 62%),
+        linear-gradient(180deg, rgba(16,95,140,.46), rgba(10,60,95,.40));
       border: 1px solid rgba(255,255,255,.22);
       box-shadow: 0 12px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.16);
       flex:0 0 auto;
     }
+    .cta .cta-ico::after{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.30), transparent);
+      transform: rotate(18deg) translateX(-60%);
+      opacity:.55;
+      transition: transform .45s ease, opacity .45s ease;
+      pointer-events:none;
+    }
+    .cta:hover .cta-ico::after{
+      transform: rotate(18deg) translateX(60%);
+      opacity:.75;
+    }
+
     .cta .cta-ico svg{ width: 26px; height: 26px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
 
     .cta .cta-txt{
@@ -525,8 +613,23 @@
       text-shadow: 0 10px 34px rgba(0,0,0,.26);
       letter-spacing: .06em;
       margin-top: 6px;
+      position:relative;
+    }
+    .cinema-title::after{
+      content:"";
+      display:block;
+      width:min(420px, 70vw);
+      height: 2px;
+      margin: 10px auto 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.52), rgba(140,220,255,.32), rgba(255,242,205,.26), transparent);
+      box-shadow: 0 10px 26px rgba(0,0,0,.14);
+      opacity:.92;
     }
 
+    /* ===========================
+       ✅ КИНОТЕАТР: карточки + КНОПКИ (главный “вау”)
+    =========================== */
     .cinema-grid{
       pointer-events:auto;
       display:grid;
@@ -539,25 +642,39 @@
 
     .movie-card{
       position:relative;
-      border-radius: 22px;
+      border-radius: 24px;
       overflow:hidden;
-      padding: 14px;
-      min-height: 140px;
+      padding: 16px;
+      min-height: 152px;
 
+      /* ✅ более “дорогой” стекло-пластик */
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-        linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.10));
-      border: 1px solid rgba(255,255,255,.26);
-      box-shadow: 0 22px 50px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
-      backdrop-filter: blur(12px) saturate(1.05);
-      -webkit-backdrop-filter: blur(12px) saturate(1.05);
+        radial-gradient(150% 140% at 18% 18%, rgba(255,255,255,.22), transparent 58%),
+        radial-gradient(110% 120% at 90% 10%, rgba(120,230,255,.10), transparent 60%),
+        radial-gradient(120% 120% at 50% 120%, rgba(255,242,205,.10), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.14));
+
+      border: 1px solid rgba(255,255,255,.28);
+
+      box-shadow:
+        0 28px 62px rgba(0,0,0,.18),
+        0 10px 22px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.18);
+
+      backdrop-filter: blur(14px) saturate(1.06);
+      -webkit-backdrop-filter: blur(14px) saturate(1.06);
+
+      transform: translateZ(0);
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
     }
+
     .movie-card::before{
       content:"";
       position:absolute; inset:0;
-      border-radius: 22px;
+      border-radius: 24px;
       padding: 2px;
-      background: linear-gradient(180deg, rgba(255,255,255,.52), rgba(140,220,255,.16), rgba(255,255,255,.14));
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.62), rgba(140,220,255,.18), rgba(255,242,205,.16), rgba(255,255,255,.18));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
@@ -565,37 +682,76 @@
       pointer-events:none;
     }
 
+    /* ✅ “аура” вокруг карточки на hover */
+    .movie-card::after{
+      content:"";
+      position:absolute;
+      inset:-26px;
+      border-radius: 34px;
+      background:
+        radial-gradient(60% 60% at 30% 30%, var(--aura1), transparent 62%),
+        radial-gradient(60% 60% at 70% 30%, rgba(255,255,255,.22), transparent 60%),
+        radial-gradient(60% 60% at 50% 80%, var(--aura2), transparent 62%);
+      opacity:0;
+      filter: blur(12px);
+      pointer-events:none;
+      transition: opacity .18s ease;
+      z-index:0;
+    }
+
+    .movie-card:hover{
+      transform: translateY(-2px);
+      filter: saturate(1.06);
+      box-shadow:
+        0 38px 80px rgba(0,0,0,.22),
+        0 12px 26px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .movie-card:hover::after{ opacity:.78; }
+
     .movie-top{
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
       gap: 10px;
       position:relative;
       z-index:2;
     }
+
+    /* ✅ бейджик “2 мин” красивее */
+    .movie-meta{
+      color: rgba(245,250,255,.92);
+      font-size: 11px;
+      letter-spacing: .10em;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      white-space: nowrap;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.22);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 62%),
+        linear-gradient(180deg, rgba(16,95,140,.34), rgba(10,60,95,.30));
+      box-shadow: 0 14px 22px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.14);
+      opacity:.98;
+    }
+
+    .dot{
+      width:6px; height:6px; border-radius:50%;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    }
+
     .movie-name{
       color: rgba(245,250,255,.98);
       font-size: clamp(14px, 2.8vw, 18px);
-      text-shadow: 0 10px 28px rgba(0,0,0,.22);
+      text-shadow: 0 12px 30px rgba(0,0,0,.22);
       max-width: 100%;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-    }
-    .movie-meta{
-      color: rgba(235,245,255,.86);
-      font-size: 12px;
-      letter-spacing: .06em;
-      display:flex;
-      align-items:center;
-      gap: 8px;
-      white-space: nowrap;
-      opacity:.95;
-    }
-    .dot{
-      width:6px; height:6px; border-radius:50%;
-      background: rgba(255,255,255,.70);
-      box-shadow: 0 6px 14px rgba(0,0,0,.20);
+      padding-right: 8px;
     }
 
     .movie-actions{
@@ -605,27 +761,106 @@
       position:relative;
       z-index:2;
     }
+
+    /* ✅ КНОПКА “Смотреть” — максимально “шик” */
     .movie-btn{
       display:inline-flex;
       align-items:center;
+      justify-content:center;
       gap:10px;
-      padding: 10px 16px;
+
+      padding: 11px 18px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.26);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.26), transparent 62%),
-        linear-gradient(180deg, rgba(105,205,255,.88), rgba(35,140,210,.88));
-      box-shadow: 0 18px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.32);
       color: rgba(245,250,255,.98);
       text-decoration:none;
-      font-size: 14px;
-      letter-spacing: .08em;
+
+      font-size: 13px;
+      letter-spacing: .14em;
       text-transform: uppercase;
-      transition: transform .16s ease, filter .16s ease;
+      font-weight: 900;
+
+      position:relative;
+      overflow:hidden;
+      transform: translateZ(0);
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.34), transparent 60%),
+        radial-gradient(120% 120% at 86% 26%, rgba(255,242,205,.16), transparent 62%),
+        linear-gradient(180deg, rgba(105,205,255,.92), rgba(35,140,210,.92));
+
+      box-shadow:
+        0 22px 48px rgba(0,0,0,.18),
+        0 8px 18px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.28);
+
+      backdrop-filter: blur(10px) saturate(1.08);
+      -webkit-backdrop-filter: blur(10px) saturate(1.08);
+
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+      min-width: 170px;
     }
-    .movie-btn:hover{ transform: translateY(-1px); filter:saturate(1.06); }
+
+    /* ✅ золотой “кант” + стеклянный блик */
+    .movie-btn::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 999px;
+      padding: 2px;
+      background:
+        linear-gradient(90deg,
+          rgba(255,255,255,.42),
+          rgba(140,220,255,.22),
+          rgba(255,242,205,.22),
+          rgba(255,255,255,.26)
+        );
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    /* ✅ “shine” проходящий */
+    .movie-btn::after{
+      content:"";
+      position:absolute;
+      top:-60%;
+      left:-40%;
+      width: 60%;
+      height: 220%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+      transform: rotate(18deg) translateX(-10%);
+      opacity:.0;
+      pointer-events:none;
+      transition: transform .55s ease, opacity .55s ease;
+      filter: blur(.2px);
+    }
+
+    .movie-btn:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.08);
+      box-shadow:
+        0 30px 66px rgba(0,0,0,.22),
+        0 10px 22px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.30);
+    }
+    .movie-btn:hover::after{
+      opacity:.75;
+      transform: rotate(18deg) translateX(220%);
+    }
     .movie-btn:active{ transform: translateY(0) scale(.992); }
-    .movie-btn svg{ width:18px; height:18px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+
+    .movie-btn svg{
+      width:18px; height:18px;
+      stroke: rgba(255,255,255,.96);
+      fill:none;
+      stroke-width:2.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,.18));
+    }
 
     /* ============================================================
        ✅ FIX: "Фишинг" НЕ под меню (ПК/планшет)
@@ -943,6 +1178,23 @@
         max-width: calc(100vw - 32px) !important;
       }
 
+      .movie-card{
+        border-radius: 20px !important;
+        padding: 14px !important;
+        min-height: 140px !important;
+      }
+
+      .movie-meta{
+        padding: 6px 9px !important;
+        font-size: 10px !important;
+      }
+
+      .movie-btn{
+        min-width: 160px !important;
+        padding: 10px 16px !important;
+        font-size: 12px !important;
+      }
+
       .side-chip{
         left: 12px !important;
         bottom: 12px !important;
@@ -1165,7 +1417,7 @@
               <div class="movie-meta"><span class="dot"></span> 2 мин</div>
             </div>
             <div class="movie-actions">
-              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html">
+              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Опасный пароль">
                 <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
                 Смотреть
               </a>
@@ -1178,7 +1430,7 @@
               <div class="movie-meta"><span class="dot"></span> 2 мин</div>
             </div>
             <div class="movie-actions">
-              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html">
+              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Что такое фишинг?">
                 <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
                 Смотреть
               </a>
@@ -1191,7 +1443,7 @@
               <div class="movie-meta"><span class="dot"></span> 2 мин</div>
             </div>
             <div class="movie-actions">
-              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html">
+              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Поделился личным">
                 <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
                 Смотреть
               </a>
