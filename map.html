@@ -898,6 +898,102 @@
         scroll-behavior: auto !important;
       }
     }
+    /* =========================================================
+   MOBILE FIX: full-width / no "лишних" полей (ТОЛЬКО МОБИЛА)
+   Вставь в конец <style> (после текущих @media)
+========================================================= */
+@media (max-width: 520px){
+
+  /* 1) Убираем ощущение "не на весь экран" */
+  :root{
+    --content-max: 100%;
+    --dock-max: 100%;
+    --content-pad: 10px;  /* было 14px — делаем плотнее */
+  }
+
+  body{
+    overflow-x: hidden;
+    /* безопасные зоны (особенно iPhone) */
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* wrap на весь экран + аккуратный внутренний паддинг */
+  .wrap{
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding-left: var(--content-pad) !important;
+    padding-right: var(--content-pad) !important;
+  }
+
+  /* 2) HERO: делаем "крышку" компактнее и шире */
+  header.hero{ padding: 16px 0 12px !important; }
+  .hero__grid{ gap: 10px !important; }
+
+  /* стеклянные панели в шапке — на всю ширину, без max-width */
+  .glass-panel{
+    max-width: none !important;
+    width: 100% !important;
+  }
+  .hero-dock{ position: relative !important; top: auto !important; }
+
+  /* 3) Карточки — почти full-bleed: меньше радиус/тени, шире */
+  main{ padding: 12px 0 18px !important; }
+  .stack{ gap: 12px !important; }
+
+  .card{
+    border-radius: 16px !important;
+    /* чуть спокойнее тень, чтобы не выглядело "вставкой" */
+    box-shadow: 0 14px 32px rgba(16,24,40,.10) !important;
+  }
+
+  /* Внутренние отступы карточек — плотнее, но читабельно */
+  .card__head{ padding: 14px 14px 8px !important; }
+  .card__body{ padding: 0 14px 14px !important; }
+  .map-wrap{ padding: 0 14px 14px !important; }
+
+  /* 4) Карта: гарантируем ровно по ширине, без “поля внутри” */
+  .map-frame{
+    border-radius: 14px !important;
+    /* убираем лишнюю “подложку”, чтобы не казалось меньше */
+    background: rgba(0,0,0,.02) !important;
+  }
+  .map-image{
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  /* 5) Меню-табсы: делаем как “приложение” — горизонтальный скролл, без обрезаний */
+  .quick-nav__pills{ padding-top: 8px !important; }
+  .quick-tabs{
+    width: 100% !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding-bottom: 2px !important;
+  }
+  .quick-tabs::-webkit-scrollbar{ height: 0 !important; }
+  .quick-tab{ flex: 0 0 auto !important; }
+
+  /* 6) Таблицы: делаем “виджет” с приятным скроллом */
+  .table-wrapper{
+    border-radius: 14px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  table{ min-width: 720px !important; } /* оставляем: таблицы пусть скроллятся */
+  th, td{ font-size: 13.5px !important; }
+
+  /* 7) Footer — на всю ширину, без ощущения "внутри блока" */
+  .footer__card{
+    width: calc(100% - (var(--content-pad) * 2)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
   </style>
 </head>
 
