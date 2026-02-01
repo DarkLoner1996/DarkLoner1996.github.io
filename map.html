@@ -626,6 +626,7 @@
   background: rgba(0,0,0,.04);
   box-shadow: 0 14px 40px rgba(0,0,0,0.14);
   position: relative;
+  cursor: zoom-in;
 
   /* важно для скролла/drag */
   touch-action: pan-x pan-y;
@@ -1680,122 +1681,143 @@
   </script>
 
 <script>
-  /* ✅ Зум + перетаскивание (drag) + НОРМАЛЬНОЕ ОТДАЛЕНИЕ */
-  (function(){
-    const img = document.getElementById('zoomable-image');
-    if(!img) return;
+/* ✅ Зум + Drag (исправлено: отдаление/выход из зума работает всегда) */
+(function(){
+  const img = document.getElementById('zoomable-image');
+  if(!img) return;
 
-    const frame = img.closest('.map-frame');
-    if(!frame) return;
+  const frame = img.closest('.map-frame');
+  if(!frame) return;
 
-    function isMobile(){
-      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // зум только на десктопе
+  if(isMobile()){
+    img.style.cursor = 'default';
+    return;
+  }
+
+  let down = false;
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let startScrollLeft = 0, startScrollTop = 0;
+  let pointerId = null;
+
+  const DRAG_THR = 6; // порог движения, чтобы считать "перетаскивание", а не клик
+
+  function setZoom(on){
+    img.classList.toggle('zoomed', on);
+
+    if(on){
+      frame.classList.add('is-zoom');
+
+      // после scale даём кадр и ставим позицию
+      requestAnimationFrame(() => {
+        const maxX = frame.scrollWidth - frame.clientWidth;
+        const maxY = frame.scrollHeight - frame.clientHeight;
+        frame.scrollLeft = Math.max(0, maxX * 0.25);
+        frame.scrollTop  = Math.max(0, maxY * 0.25);
+      });
+    }else{
+      // ✅ гарантированный выход: сначала скролл в 0, пока overflow:auto
+      frame.scrollLeft = 0;
+      frame.scrollTop  = 0;
+
+      requestAnimationFrame(() => {
+        frame.classList.remove('is-zoom');
+      });
+    }
+  }
+
+  function toggleZoom(){
+    setZoom(!img.classList.contains('zoomed'));
+  }
+
+  // ВАЖНО: переключение делаем по pointerup на контейнере (а не click на img)
+  frame.addEventListener('pointerdown', (e) => {
+    // только мышь/перо, чтобы не конфликтовать с моб. тачем (хотя мы уже отсеяли мобилки)
+    if(e.pointerType === 'touch') return;
+
+    down = true;
+    dragging = false;
+    pointerId = e.pointerId;
+
+    startX = e.clientX;
+    startY = e.clientY;
+    startScrollLeft = frame.scrollLeft;
+    startScrollTop  = frame.scrollTop;
+
+    // захват указателя на контейнер
+    frame.setPointerCapture(pointerId);
+
+    // если уже в зуме — показываем "grab"
+    if(img.classList.contains('zoomed')){
+      frame.style.cursor = 'grabbing';
+    }
+  });
+
+  frame.addEventListener('pointermove', (e) => {
+    if(!down) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    // если движение больше порога — это drag
+    if(!dragging && (Math.abs(dx) > DRAG_THR || Math.abs(dy) > DRAG_THR)){
+      dragging = true;
     }
 
-    // зум только на десктопе
-    if(isMobile()){
-      img.style.cursor = 'default';
-      return;
-    }
-
-    let isDown = false;
-    let moved = false;
-    let startX = 0, startY = 0;
-    let startScrollLeft = 0, startScrollTop = 0;
-
-    // 👇 важно: не давать "moved=true" ломать клик по зум-офф навсегда
-    let movedResetTimer = 0;
-
-    const setZoom = (on) => {
-      // включаем/выключаем класс у картинки
-      img.classList.toggle('zoomed', on);
-
-      if(on){
-        frame.classList.add('is-zoom');
-
-        // дать браузеру применить scale -> затем выставить скролл
-        requestAnimationFrame(() => {
-          const maxX = frame.scrollWidth - frame.clientWidth;
-          const maxY = frame.scrollHeight - frame.clientHeight;
-          frame.scrollLeft = Math.max(0, maxX * 0.25);
-          frame.scrollTop  = Math.max(0, maxY * 0.25);
-        });
-
-      }else{
-        // ✅ правильное отдаление:
-        // 1) сначала вернем скролл в начало, пока overflow ещё auto
-        // 2) затем (в след. кадр) снимем is-zoom и получим overflow:hidden без дерганий
-        frame.scrollLeft = 0;
-        frame.scrollTop  = 0;
-
-        requestAnimationFrame(() => {
-          frame.classList.remove('is-zoom');
-        });
-      }
-    };
-
-    // клик: включить/выключить зум
-    // moved сбрасываем "позже", чтобы клик после драга не ломал отдаление
-    img.addEventListener('click', (e) => {
-      if(moved){
-        // это клик после перетаскивания — игнорируем
-        moved = false;
-        return;
-      }
-      setZoom(!img.classList.contains('zoomed'));
-    });
-
-    // drag по контейнеру
-    frame.addEventListener('pointerdown', (e) => {
-      if(!img.classList.contains('zoomed')) return;
-
-      isDown = true;
-      moved = false;
-
-      startX = e.clientX;
-      startY = e.clientY;
-      startScrollLeft = frame.scrollLeft;
-      startScrollTop  = frame.scrollTop;
-
-      frame.setPointerCapture(e.pointerId);
-    });
-
-    frame.addEventListener('pointermove', (e) => {
-      if(!isDown) return;
-
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-
-      if(Math.abs(dx) > 4 || Math.abs(dy) > 4){
-        moved = true;
-
-        // сброс moved чуть позже (чтобы следующий клик уже точно работал на отдаление)
-        clearTimeout(movedResetTimer);
-        movedResetTimer = setTimeout(() => { moved = false; }, 120);
-      }
-
+    // перетаскиваем ТОЛЬКО когда зум включен
+    if(dragging && img.classList.contains('zoomed')){
       frame.scrollLeft = startScrollLeft - dx;
       frame.scrollTop  = startScrollTop  - dy;
-    });
+      e.preventDefault();
+    }
+  });
 
-    const endDrag = (e) => {
-      if(!isDown) return;
-      isDown = false;
-      try{ frame.releasePointerCapture(e.pointerId); }catch(_){}
-    };
+  frame.addEventListener('pointerup', (e) => {
+    if(!down) return;
+    down = false;
 
-    frame.addEventListener('pointerup', endDrag);
-    frame.addEventListener('pointercancel', endDrag);
+    try{ frame.releasePointerCapture(pointerId); }catch(_){}
+    pointerId = null;
 
-    // ESC — выйти из зума
-    window.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape' && img.classList.contains('zoomed')){
-        moved = false;
-        setZoom(false);
-      }
-    });
-  })();
+    // курсор обратно
+    frame.style.cursor = img.classList.contains('zoomed') ? 'grab' : 'default';
+
+    // если это был "клик" (не drag) и палец/мышь отпущены над картой — переключаем зум
+    const overMap = e.target === img || (e.target && e.target.closest && e.target.closest('.map-frame'));
+    if(!dragging && overMap){
+      toggleZoom();
+    }
+
+    dragging = false;
+  });
+
+  frame.addEventListener('pointercancel', () => {
+    down = false;
+    dragging = false;
+    pointerId = null;
+    frame.style.cursor = img.classList.contains('zoomed') ? 'grab' : 'default';
+  });
+
+  // ESC — выйти из зума
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && img.classList.contains('zoomed')){
+      setZoom(false);
+    }
+  });
+
+  // подсказка курсора
+  frame.addEventListener('mouseenter', () => {
+    frame.style.cursor = img.classList.contains('zoomed') ? 'grab' : 'zoom-in';
+  });
+  frame.addEventListener('mouseleave', () => {
+    frame.style.cursor = 'default';
+  });
+})();
 </script>
+
 
 
 
