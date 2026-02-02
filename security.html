@@ -1704,58 +1704,272 @@
     /* ============================================================
        ✅ FHD (не трогаем 4K)
     ============================================================ */
-    @media (max-width: 1920px) and (min-width: 521px){
-      :root{
-        --nav-left: 6px;
-        --nav-top:  6px;
-        --panel-w: min(320px, calc(100vw - 12px));
-        --rowH: 54px;
-        --movies-down: clamp(-110px, -6vh, -36px);
-      }
+  /* ============================================================
+   ✅ FHD / Laptop / 1920..521 (4K НЕ ТРОГАЕМ)
+   Главная цель: меньше размеры + меньше "подъём" + сдвиг UI от меню
+============================================================ */
+@media (max-width: 1920px) and (min-width: 521px){
 
-      html, body{
-        height: auto !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-      }
+  :root{
+    /* меню компактнее */
+    --nav-left: 10px;
+    --nav-top:  10px;
+    --panel-w: min(320px, calc(100vw - 20px));
+    --radius: 20px;
+    --rowH: 54px;
 
-      .header{
-        height: auto !important;
-        max-height: none !important;
-        min-height: 100vh;
-        overflow: visible !important;
-        overscroll-behavior: auto !important;
-      }
+    /* общий UI плотнее */
+    --uiPad: 14px;
 
-      .bg-blur-pic,
-      .header__bg-blur{
-        display: none !important;
-      }
+    /* ВАЖНО: на FHD поднимаем меньше, иначе налепание */
+    --movies-down: clamp(-64px, -4.6vh, -18px);
+  }
 
-      .bg-main-pic{
-        position: relative !important;
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
+  /* у тебя тут было "height:auto" — оставляем, но аккуратнее */
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
 
-      .header__bg{
-        position: relative !important;
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        object-fit: initial !important;
-      }
+  .header{
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100vh;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+  }
 
-      .ui{ position: absolute; }
+  /* blur слой можно оставить выключенным (как у тебя) */
+  .bg-blur-pic,
+  .header__bg-blur{
+    display: none !important;
+  }
 
-      .cinema-grid{
-        grid-template-columns: repeat(3, minmax(200px, 1fr));
-      }
-    }
+  .bg-main-pic{
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .header__bg{
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: initial !important;
+  }
+
+  /* ✅ Ключевое: уводим центральный UI вправо, чтобы он не залезал под меню */
+  .ui{
+    position: absolute;
+    inset: 0;
+    padding: var(--uiPad);
+    /* левый “коридор” под меню */
+    --ui-left: clamp(14px, calc(var(--panel-w) + 34px), 380px);
+    padding-left: var(--ui-left);
+    padding-right: clamp(12px, 1.4vw, 18px);
+    padding-top: clamp(10px, 1.4vw, 18px);
+    padding-bottom: clamp(10px, 1.4vw, 18px);
+  }
+
+  /* ===== Title ===== */
+  .title-card{
+    max-width: min(900px, calc(100% - 10px));
+    border-radius: 22px;
+    padding: 14px 18px;
+  }
+
+  .ui-h1{
+    font-size: clamp(22px, 3.2vw, 44px);
+    line-height: 1.03;
+    letter-spacing: .01em;
+  }
+
+  .ui-h2{
+    margin-top: 4px;
+    font-size: clamp(11px, 1.4vw, 15px);
+    letter-spacing: .16em;
+  }
+
+  /* ===== CTA ===== */
+  .cta-row{
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .cta{
+    padding: 10px 14px;
+    border-radius: 18px;
+    min-width: min(280px, calc(100% - 14px));
+    max-width: 360px;
+  }
+
+  .cta .cta-ico{
+    width: 38px;
+    height: 38px;
+    border-radius: 15px;
+  }
+  .cta .cta-ico svg{
+    width: 22px;
+    height: 22px;
+  }
+
+  .cta .cta-title{
+    font-size: clamp(14px, 1.9vw, 18px);
+  }
+
+  .cta .cta-sub{
+    font-size: 10px;
+    letter-spacing: .14em;
+  }
+
+  /* ===== Кинотеатр заголовок ===== */
+  .cinema-title{
+    font-size: clamp(18px, 2.2vw, 26px);
+    letter-spacing: .18em;
+    margin-top: 2px;
+  }
+  .cinema-title::before{
+    height: 8px;
+    margin: 6px auto -6px;
+  }
+  .cinema-title::after{
+    height: 3px;
+    margin: 8px auto 0;
+  }
+
+  /* ===== Сетка карточек ===== */
+  .cinema-grid{
+    max-width: min(980px, calc(100% - 10px));
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .movie-card{
+    border-radius: 20px;
+    padding: 12px;
+    min-height: 132px;
+  }
+
+  .movie-name{
+    font-size: clamp(13px, 1.5vw, 16px);
+  }
+
+  .movie-meta{
+    font-size: 10px;
+    padding: 6px 9px;
+  }
+
+  .movie-actions{
+    margin-top: 10px;
+  }
+
+  .movie-btn{
+    min-width: 150px;
+    padding: 9px 14px;
+    font-size: 11px;
+    letter-spacing: .14em;
+  }
+
+  /* ===== Левое меню — чуть плотнее ===== */
+  .side-nav{
+    gap: 8px;
+  }
+
+  .side-nav__tab{
+    padding: 8px 10px;
+    border-radius: 20px;
+  }
+
+  .menu-pill{
+    font-size: 11px;
+    padding: 7px 10px;
+    border-radius: 14px;
+  }
+
+  .back-btn{
+    width: 36px;
+    height: 36px;
+    border-radius: 13px;
+  }
+  .back-btn svg{
+    width: 18px;
+    height: 18px;
+  }
+
+  .side-nav__panel{
+    padding: 10px 10px 12px;
+    border-radius: 20px;
+  }
+
+  .side-nav__list{
+    gap: 10px;
+  }
+
+  .hud-item{
+    height: var(--rowH);
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+
+  .hud-ico{
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+  }
+  .hud-ico svg{
+    width: 22px;
+    height: 22px;
+  }
+
+  .hud-title{
+    font-size: 15px;
+  }
+  .hud-sub{
+    font-size: 10px;
+  }
+
+  .hud-arrow{
+    width: 30px;
+    height: 30px;
+  }
+  .hud-arrow svg{
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ===== Нижние чипы (Фишинг/Правила) — чуть меньше, чтобы не давили ===== */
+  .side-chip,
+  .rules{
+    bottom: 8px;
+    transform: scale(.90);
+  }
+  .side-chip{ transform-origin: left bottom; }
+  .rules{ transform-origin: right bottom; }
+
+  .avatar{
+    width: 66px;
+    height: 66px;
+    border-radius: 24px;
+    font-size: 30px;
+  }
+
+  .chip-card{ min-width: 220px; padding: 10px 12px; }
+  .chip-name{ font-size: 16px; margin-bottom: 6px; }
+  .chip-btn{ padding: 9px 12px; font-size: 11px; }
+
+  .rules .rules-card{ min-width: 150px; padding: 10px 12px; }
+  .rules .rules-title{ font-size: 16px; }
+  .check{ width: 38px; height: 38px; border-radius: 14px; }
+  .check svg{ width: 20px; height: 20px; }
+}
+
 
     /* ===========================
        ✅ MOBILE TIGHT (<=520px)
