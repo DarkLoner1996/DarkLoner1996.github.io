@@ -33,9 +33,15 @@
       --nav-left: 18px;
       --nav-top: 14px;
       --panel-w: min(420px, calc(100vw - 36px));
-      --bear-top-frac: 0.65139;  /* 65.139% высоты изображения */
-      --ui-bear-gap: 18px;       /* зазор между блоком и медведем */
-      --ui-bottom-extra: 140px; /* сдвиг вниз */
+
+      /* ============================================================
+         ✅ ЯКОРЬ МЕДВЕДЯ + точная посадка UI над медведем (FHD + 4K)
+         ============================================================ */
+      --bear-top-frac: 0.65139;    /* базовый якорь (переопределим ниже медиа-правками) */
+      --ui-bear-gap: 22px;         /* зазор между UI и медведем */
+      --ui-bottom-extra: 0px;      /* доп. сдвиг (на 4K дадим ниже) */
+      --ui-safe-top: 14px;         /* защита от обрезания сверху */
+      --ui-target-frac: 0.72;      /* куда скроллить (если header скроллится) */
 
       --radius: 22px;
       --rowH: clamp(68px, 9.5vw, 82px);
@@ -80,6 +86,29 @@
          ================================================================= */
       --ui-bottom-top: 220px;
       --ui-bottom-scale: 1;
+    }
+
+    /* ============================================================
+       ✅ РАЗНЫЕ ФОНЫ = РАЗНЫЙ “ЯКОРЬ МЕДВЕДЯ”
+       FHD (bg_fhd_m.jpg) и 4K (header-bg-m-3840.jpg) — разная композиция
+       ============================================================ */
+
+    /* ✅ FULL HD и всё до 1920px: поднимаем блок (чтобы НЕ накрывал медведя) */
+    @media (max-width: 1920px) and (min-width: 521px){
+      :root{
+        --bear-top-frac: 0.635;
+        --ui-bear-gap: 28px;
+        --ui-bottom-extra: 0px;
+      }
+    }
+
+    /* ✅ 4K (>=1921px): слегка опускаем (чтобы не уезжало вверх) */
+    @media (min-width: 1921px){
+      :root{
+        --bear-top-frac: 0.665;
+        --ui-bear-gap: 22px;
+        --ui-bottom-extra: 160px;
+      }
     }
 
     a, button{ -webkit-tap-highlight-color: transparent; }
@@ -896,11 +925,8 @@
 
     /* =====================================================================
        ✅ ВОССТАНОВЛЕННЫЙ CSS (РАНЬШЕ У ТЕБЯ ЗДЕСЬ БЫЛА ЗАГЛУШКА)
-       - фикс "огромных черных треугольников" (SVG)
-       - стили карточек кино, чипов, правил, модалок, переходов и искр
        ===================================================================== */
 
-    /* ---------- Sparkles (фоновые “искры”) ---------- */
     .sparkles{
       position:absolute;
       inset:0;
@@ -935,7 +961,6 @@
       50%{ transform: translate3d(12px,-10px,0); opacity:1; }
     }
 
-    /* ---------- Intro overlay (JS: .is-on) ---------- */
     .intro{
       position:fixed;
       inset:0;
@@ -949,7 +974,6 @@
     }
     .intro.is-on{ opacity: 1; }
 
-    /* ---------- Page transition (pt) ---------- */
     .page-transition{
       position:fixed;
       inset:0;
@@ -978,7 +1002,6 @@
     }
     .page-transition.is-entering .wipe{ transform: translateX(110%); }
 
-    /* ---------- Movie cards (ключевой фикс SVG размеров/заливки) ---------- */
     .movie-card{
       min-height: var(--movie-card-minh);
       padding: var(--movie-card-pad);
@@ -1093,7 +1116,6 @@
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
       min-width: 160px;
     }
-    /* ✅ ГЛАВНЫЙ ФИКС: чтобы SVG не становился 300×150 и не был “черным” */
     .movie-btn svg{
       width: 18px;
       height: 18px;
@@ -1110,7 +1132,6 @@
     }
     .movie-btn:active{ transform: translateY(0) scale(.99); }
 
-    /* ---------- Side chip + Rules (нижние карточки) ---------- */
     .side-chip{
       position:fixed;
       left: var(--nav-left);
@@ -1258,7 +1279,6 @@
     }
     .chip-btn:active{ transform: translateY(0) scale(.992); }
 
-    /* ✅ Нормальные размеры SVG в кнопках + безопасные stroke-иконки */
     .chip-btn svg{
       width: 18px;
       height: 18px;
@@ -1270,7 +1290,6 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    /* ✅ А для play-иконок — заливка */
     .chip-btn svg.is-fill{
       stroke: none;
       fill: currentColor;
@@ -1704,7 +1723,7 @@
         --rowH: 46px;
         --uiPad: 12px;
 
-        /* ✅ только масштаб; top считает JS snapUiAboveBear() */
+        /* ✅ только масштаб; top считает общий heroUiSnap() */
         --ui-bottom-scale: .86;
 
         --movie-card-minh: 92px;
@@ -3085,71 +3104,111 @@
     })();
   </script>
 
+  <!-- ============================================================
+       ✅ ЕДИНЫЙ ФИКС ДЛЯ FHD + 4K: заменяет два твоих старых скрипта
+       - ставит .ui-bottom над медведем
+       - корректно работает и на FHD, и на 4K
+       - не использует getBoundingClientRect() для расчёта top (это ломало тебе всё)
+  ============================================================ -->
   <script>
-    /* ============================================================
-       ✅ FHD FIX: ставим центральный UI ровно НАД медведем
-       ============================================================ */
-    (function snapUiAboveBear(){
-      const mq = matchMedia('(max-width: 1920px) and (min-width: 521px)');
+    (function heroUiSnap(){
+      const desktopMQ = matchMedia('(min-width: 521px)');
+      if(!desktopMQ.matches) return;
 
-      function getNum(val, fallback){
+      const header   = document.getElementById('hero') || document.querySelector('.header');
+      const img      = document.querySelector('.header__bg');
+      const uiBottom = document.querySelector('.ui-bottom');
+      if(!header || !img || !uiBottom) return;
+
+      let userTouched = false;
+      const markTouched = () => { userTouched = true; };
+
+      header.addEventListener('wheel', markTouched, { passive:true });
+      header.addEventListener('touchstart', markTouched, { passive:true });
+      header.addEventListener('pointerdown', markTouched, { passive:true });
+      window.addEventListener('keydown', markTouched, { passive:true });
+
+      function num(val, fallback){
         const n = parseFloat(String(val).replace(',', '.'));
         return Number.isFinite(n) ? n : fallback;
       }
-
-      function place(){
-        if(!mq.matches) return;
-
-        const img = document.querySelector('.header__bg');
-        const uiBottom = document.querySelector('.ui-bottom');
-        if(!img || !uiBottom) return;
-
-        const rect = img.getBoundingClientRect();
-        if(rect.height < 10) return;
-
+      function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
+      function cssVar(name, fallback){
         const rs = getComputedStyle(document.documentElement);
+        return num(rs.getPropertyValue(name), fallback);
+      }
 
-        const bearFrac = getNum(rs.getPropertyValue('--bear-top-frac'), 0.65139);
-        const scale = getNum(rs.getPropertyValue('--ui-bottom-scale'), 1);
+      function isScrollable(el){
+        const st = getComputedStyle(el);
+        const oy = st.overflowY;
+        return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
+      }
 
-        let gap = getNum(rs.getPropertyValue('--ui-bear-gap'), 18);
-        gap = Math.max(12, Math.min(gap, 28));
+      function anchorY(){
+        const bearFrac = clamp(cssVar('--bear-top-frac', 0.65139), 0.35, 0.90);
+        const h = img.offsetHeight || 0;
+        const t = img.offsetTop || 0;
+        return t + h * bearFrac;
+      }
 
-        const bearY = rect.top + rect.height * bearFrac;
-        const uiH = uiBottom.offsetHeight * scale;
+      function snap(){
+        const scale = clamp(cssVar('--ui-bottom-scale', 1), 0.6, 1.2);
+        const gap   = clamp(cssVar('--ui-bear-gap', 18), 8, 90);
+        const extra = cssVar('--ui-bottom-extra', 0);
 
-        let top = bearY - uiH - gap;
+        const imgTop = img.offsetTop || 0;
+        const imgH   = img.offsetHeight || 0;
 
-        const extra = getNum(rs.getPropertyValue('--ui-bottom-extra'), 0);
-        top += extra;
+        const aY = anchorY();
+        const uiH = (uiBottom.offsetHeight || 0) * scale;
 
-        const minTop = 10;
-        const maxTop = rect.bottom - uiH - gap;
-        top = Math.max(minTop, Math.min(top, maxTop));
+        if(imgH < 10 || uiH < 10) return;
 
+        let top = aY - uiH - gap + extra;
+
+        const safeTop = clamp(cssVar('--ui-safe-top', 12), 0, 160);
+        const maxTop = (imgTop + imgH) - uiH - gap;
+
+        top = clamp(top, safeTop, maxTop);
         document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
       }
 
+      function smartScroll(){
+        if(userTouched) return;
+        if(!isScrollable(header)) return;
+
+        const aY = anchorY();
+        const targetFrac = clamp(cssVar('--ui-target-frac', 0.72), 0.55, 0.85);
+        const target = aY - header.clientHeight * targetFrac;
+
+        const maxScroll = header.scrollHeight - header.clientHeight;
+        header.scrollTop = clamp(target, 0, maxScroll);
+      }
+
+      let raf = 0;
       function schedule(){
-        requestAnimationFrame(() => {
-          place();
-          requestAnimationFrame(place);
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          smartScroll();
+          snap();
+          requestAnimationFrame(snap);
         });
-        setTimeout(place, 80);
-        setTimeout(place, 220);
+
+        setTimeout(() => { smartScroll(); snap(); }, 60);
+        setTimeout(() => { smartScroll(); snap(); }, 180);
+        setTimeout(() => { smartScroll(); snap(); }, 420);
       }
 
       if(document.readyState === 'loading'){
         document.addEventListener('DOMContentLoaded', schedule, { once:true });
-      } else {
+      }else{
         schedule();
       }
 
-      const img = document.querySelector('.header__bg');
-      if(img){
-        if(img.complete) schedule();
-        else img.addEventListener('load', schedule, { once:true });
-      }
+      window.addEventListener('load', schedule, { once:true });
+
+      if(img.complete) schedule();
+      else img.addEventListener('load', schedule, { once:true });
 
       window.addEventListener('resize', schedule, { passive:true });
       if(window.visualViewport){
@@ -3159,111 +3218,6 @@
       const toggle = document.getElementById('menuToggle');
       if(toggle){
         toggle.addEventListener('click', () => setTimeout(schedule, 0));
-      }
-    })();
-  </script>
-
-  <script>
-    /* ============================================================
-       ✅ 4K FIX: ТОЛЬКО для min-width:1921px
-       - стартуем снизу
-       - ставим ui-bottom над медведем
-       (FHD не трогаем)
-    ============================================================ */
-    (function start4kAtBottomAndSnapUI(){
-      const mq = matchMedia('(min-width: 1921px)');
-      if(!mq.matches) return;
-
-      const header = document.getElementById('hero') || document.querySelector('.header');
-      const img = document.querySelector('.header__bg');
-      if(!header || !img) return;
-
-      let userTouched = false;
-      const markTouched = () => { userTouched = true; };
-      header.addEventListener('wheel', markTouched, { passive:true });
-      header.addEventListener('touchstart', markTouched, { passive:true });
-      header.addEventListener('pointerdown', markTouched, { passive:true });
-      window.addEventListener('keydown', markTouched, { passive:true });
-
-      function num(v, fallback){
-        const n = parseFloat(String(v).replace(',', '.'));
-        return Number.isFinite(n) ? n : fallback;
-      }
-
-      function scrollToBottom(){
-        if(userTouched) return;
-        if(header.scrollHeight > header.clientHeight + 2){
-          header.scrollTop = header.scrollHeight - header.clientHeight + 9999;
-        }
-      }
-
-      function snapUiAboveBear(){
-        const uiBottom = document.querySelector('.ui-bottom');
-        if(!uiBottom) return;
-
-        const rect = img.getBoundingClientRect();
-        if(rect.height < 10) return;
-
-        const rs = getComputedStyle(document.documentElement);
-        const bearFrac = num(rs.getPropertyValue('--bear-top-frac'), 0.65139);
-        const scale = num(rs.getPropertyValue('--ui-bottom-scale'), 1);
-
-        let gap = num(rs.getPropertyValue('--ui-bear-gap'), 18);
-        gap = Math.max(12, Math.min(gap, 28));
-
-        const bearY = rect.top + rect.height * bearFrac;
-        const uiH   = uiBottom.offsetHeight * scale;
-
-        let top = bearY - uiH - gap;
-
-        const extra = num(rs.getPropertyValue('--ui-bottom-extra'), 0);
-        top += extra;
-
-        const minTop = 10;
-        const maxTop = window.innerHeight - uiH - gap;
-        top = Math.max(minTop, Math.min(top, maxTop));
-
-        document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
-      }
-
-      function runInit(){
-        scrollToBottom();
-
-        requestAnimationFrame(() => {
-          scrollToBottom();
-          snapUiAboveBear();
-          requestAnimationFrame(snapUiAboveBear);
-        });
-
-        setTimeout(() => { scrollToBottom(); snapUiAboveBear(); }, 60);
-        setTimeout(() => { scrollToBottom(); snapUiAboveBear(); }, 200);
-        setTimeout(() => { scrollToBottom(); snapUiAboveBear(); }, 420);
-      }
-
-      function onResize(){
-        snapUiAboveBear();
-        requestAnimationFrame(snapUiAboveBear);
-      }
-
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', runInit, { once:true });
-      } else {
-        runInit();
-      }
-
-      window.addEventListener('load', runInit, { once:true });
-
-      if(img.complete) runInit();
-      else img.addEventListener('load', runInit, { once:true });
-
-      window.addEventListener('resize', onResize, { passive:true });
-      if(window.visualViewport){
-        window.visualViewport.addEventListener('resize', onResize, { passive:true });
-      }
-
-      const toggle = document.getElementById('menuToggle');
-      if(toggle){
-        toggle.addEventListener('click', () => setTimeout(onResize, 0));
       }
     })();
   </script>
