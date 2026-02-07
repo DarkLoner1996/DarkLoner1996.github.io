@@ -33,6 +33,8 @@
       --nav-left: 18px;
       --nav-top: 14px;
       --panel-w: min(420px, calc(100vw - 36px));
+      --bear-top-frac: 0.65139;  /* 65.139% высоты изображения */
+      --ui-bear-gap: 18px;       /* зазор между блоком и медведем */
 
       --radius: 22px;
       --rowH: clamp(68px, 9.5vw, 82px);
@@ -648,16 +650,16 @@
       text-shadow: 0 10px 24px rgba(0,0,0,.22);
     }
 
-    .ui-bottom{
-      display:flex;
-      flex-direction:column;
-      gap: 12px;
-      padding-bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
-      align-items:center;
-      justify-content:flex-end;
-      transform: translateY(var(--movies-down));
-      will-change: transform;
-    }
+   .ui-bottom{
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--ui-bottom-top);
+  transform: scale(var(--ui-bottom-scale)) !important;
+  transform-origin: center top;
+  justify-content: flex-start !important;
+}
+
 
     .cta-row{
       pointer-events:auto;
@@ -2851,5 +2853,90 @@
       rgAgain.addEventListener('click', again);
     })();
   </script>
+  <script>
+/* ============================================================
+   ✅ FHD FIX: ставим центральный UI ровно НАД медведем
+   ============================================================ */
+(function snapUiAboveBear(){
+  const mq = matchMedia('(max-width: 1920px) and (min-width: 521px)');
+
+  function getNum(val, fallback){
+    const n = parseFloat(String(val).replace(',', '.'));
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function place(){
+    if(!mq.matches) return;
+
+    const img = document.querySelector('.header__bg');
+    const uiBottom = document.querySelector('.ui-bottom');
+    if(!img || !uiBottom) return;
+
+    const rect = img.getBoundingClientRect();
+    if(rect.height < 10) return;
+
+    const rs = getComputedStyle(document.documentElement);
+
+    const bearFrac = getNum(rs.getPropertyValue('--bear-top-frac'), 0.65139);
+    const scale = getNum(rs.getPropertyValue('--ui-bottom-scale'), 1);
+
+    // gap: можно регулировать переменной --ui-bear-gap
+    let gap = getNum(rs.getPropertyValue('--ui-bear-gap'), 18);
+    gap = Math.max(12, Math.min(gap, 28));
+
+    // где в пикселях находится верх медведя
+    const bearY = rect.top + rect.height * bearFrac;
+
+    // реальная (отрендеренная) высота блока с учётом scale
+    const uiH = uiBottom.offsetHeight * scale;
+
+    // хотим: bottom(ui-bottom) = bearY - gap
+    let top = bearY - uiH - gap;
+
+    // защита от улёта за экран/картинку
+    const minTop = 10;
+    const maxTop = rect.bottom - uiH - gap;
+    top = Math.max(minTop, Math.min(top, maxTop));
+
+    document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
+  }
+
+  function schedule(){
+    requestAnimationFrame(() => {
+      place();
+      requestAnimationFrame(place);
+    });
+    setTimeout(place, 80);
+    setTimeout(place, 220);
+  }
+
+  // initial
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', schedule, { once:true });
+  } else {
+    schedule();
+  }
+
+  // after image load
+  const img = document.querySelector('.header__bg');
+  if(img){
+    if(img.complete) schedule();
+    else img.addEventListener('load', schedule, { once:true });
+  }
+
+  // on resize / viewport changes
+  window.addEventListener('resize', schedule, { passive:true });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, { passive:true });
+  }
+
+  // after menu collapse/expand (меняется коридор/возможная высота)
+  const toggle = document.getElementById('menuToggle');
+  if(toggle){
+    toggle.addEventListener('click', () => setTimeout(schedule, 0));
+  }
+})();
+</script>
+
 </body>
 </html>
