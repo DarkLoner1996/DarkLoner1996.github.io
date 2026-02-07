@@ -2264,54 +2264,64 @@
     // ============================================================
     // ✅ СТАРТ СНИЗУ — универсально (скроллим header если он скроллится, иначе окно)
     // ============================================================
-    (function startAtBottom(){
-      const header = document.getElementById('hero') || document.querySelector('.header');
-      if(!header) return;
+ <script>
+  // ============================================================
+  // ✅ СТАРТ СНИЗУ — ТОЛЬКО MOBILE (<=520px)
+  // (на десктопе/4K не скроллим, чтобы UI не "улетал" вверх)
+  // ============================================================
+  (function startAtBottom(){
+    const mq = matchMedia('(max-width: 520px)');
+    if(!mq.matches) return;
 
-      function getScrollTarget(){
-        const st = getComputedStyle(header);
-        const canScrollHeader =
-          (st.overflowY === 'auto' || st.overflowY === 'scroll') &&
-          header.scrollHeight > header.clientHeight + 2;
-        return canScrollHeader ? header : (document.scrollingElement || document.documentElement);
-      }
+    const header = document.getElementById('hero') || document.querySelector('.header');
+    if(!header) return;
 
-      function scrollToBottom(){
-        const t = getScrollTarget();
-        if(t === header){
-          header.scrollTop = header.scrollHeight + 9999;
-        }else{
-          window.scrollTo(0, t.scrollHeight + 9999);
-        }
-      }
+    function getScrollTarget(){
+      const st = getComputedStyle(header);
+      const canScrollHeader =
+        (st.overflowY === 'auto' || st.overflowY === 'scroll') &&
+        header.scrollHeight > header.clientHeight + 2;
+      return canScrollHeader ? header : (document.scrollingElement || document.documentElement);
+    }
 
-      function runFewTimes(){
-        scrollToBottom();
-        requestAnimationFrame(scrollToBottom);
-        setTimeout(scrollToBottom, 60);
-        setTimeout(scrollToBottom, 200);
-        setTimeout(scrollToBottom, 420);
+    function scrollToBottom(){
+      const t = getScrollTarget();
+      if(t === header){
+        header.scrollTop = header.scrollHeight + 9999;
+      }else{
+        window.scrollTo(0, t.scrollHeight + 9999);
       }
+    }
 
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
-      } else {
-        runFewTimes();
-      }
-      window.addEventListener('load', runFewTimes, { once:true });
+    function runFewTimes(){
+      scrollToBottom();
+      requestAnimationFrame(scrollToBottom);
+      setTimeout(scrollToBottom, 60);
+      setTimeout(scrollToBottom, 200);
+      setTimeout(scrollToBottom, 420);
+    }
 
-      const img = document.querySelector('.header__bg');
-      if(img){
-        const afterImg = () => setTimeout(runFewTimes, 0);
-        if(img.complete) afterImg();
-        else img.addEventListener('load', afterImg, { once:true });
-      }
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
+    } else {
+      runFewTimes();
+    }
+    window.addEventListener('load', runFewTimes, { once:true });
 
-      window.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
-      if(window.visualViewport){
-        window.visualViewport.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
-      }
-    })();
+    const img = document.querySelector('.header__bg');
+    if(img){
+      const afterImg = () => setTimeout(runFewTimes, 0);
+      if(img.complete) afterImg();
+      else img.addEventListener('load', afterImg, { once:true });
+    }
+
+    window.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
+    }
+  })();
+</script>
+
 
     /* ============================================================
        ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация (без изменений)
