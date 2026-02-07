@@ -2572,57 +2572,77 @@
     // ============================================================
     // ✅ СТАРТ СНИЗУ — ТОЛЬКО MOBILE (<=520px)
     // ============================================================
-    (function startAtBottom(){
-      const mq = matchMedia('(max-width: 520px)');
-      if(!mq.matches) return;
+    
+  // ============================================================
+  // ✅ СТАРТ СНИЗУ — ВСЕ УСТРОЙСТВА (mobile + FHD + 4K)
+  // ============================================================
+  (function startAtBottomAll(){
+    const header = document.getElementById('hero') || document.querySelector('.header');
+    if(!header) return;
 
-      const header = document.getElementById('hero') || document.querySelector('.header');
-      if(!header) return;
+    let userTouched = false;
+    const markTouched = () => { userTouched = true; };
 
-      function getScrollTarget(){
-        const st = getComputedStyle(header);
-        const canScrollHeader =
-          (st.overflowY === 'auto' || st.overflowY === 'scroll') &&
-          header.scrollHeight > header.clientHeight + 2;
-        return canScrollHeader ? header : (document.scrollingElement || document.documentElement);
+    // если пользователь начал скроллить/кликать — больше не мешаем
+    window.addEventListener('wheel', markTouched, { passive:true });
+    window.addEventListener('touchstart', markTouched, { passive:true });
+    window.addEventListener('pointerdown', markTouched, { passive:true });
+    window.addEventListener('keydown', markTouched, { passive:true });
+
+    function isScrollable(el){
+      const st = getComputedStyle(el);
+      const oy = st.overflowY;
+      return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
+    }
+
+    function getScrollTarget(){
+      // если прокрутка внутри header — крутим её, иначе крутим документ
+      return isScrollable(header) ? header : (document.scrollingElement || document.documentElement);
+    }
+
+    function scrollToBottom(force){
+      if(userTouched && !force) return;
+      const t = getScrollTarget();
+
+      if(t === header){
+        header.scrollTop = header.scrollHeight + 999999;
+      }else{
+        window.scrollTo(0, t.scrollHeight + 999999);
       }
+    }
 
-      function scrollToBottom(){
-        const t = getScrollTarget();
-        if(t === header){
-          header.scrollTop = header.scrollHeight + 9999;
-        }else{
-          window.scrollTo(0, t.scrollHeight + 9999);
-        }
-      }
+    function runFewTimes(force){
+      scrollToBottom(force);
+      requestAnimationFrame(() => scrollToBottom(force));
+      setTimeout(() => scrollToBottom(force), 60);
+      setTimeout(() => scrollToBottom(force), 200);
+      setTimeout(() => scrollToBottom(force), 420);
+    }
 
-      function runFewTimes(){
-        scrollToBottom();
-        requestAnimationFrame(scrollToBottom);
-        setTimeout(scrollToBottom, 60);
-        setTimeout(scrollToBottom, 200);
-        setTimeout(scrollToBottom, 420);
-      }
+    // старт
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', () => runFewTimes(true), { once:true });
+    } else {
+      runFewTimes(true);
+    }
+    window.addEventListener('load', () => runFewTimes(true), { once:true });
 
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
-      } else {
-        runFewTimes();
-      }
-      window.addEventListener('load', runFewTimes, { once:true });
+    // после прогрузки главной картинки — ещё раз вниз (часто меняется высота)
+    const img = document.querySelector('.header__bg');
+    if(img){
+      const afterImg = () => setTimeout(() => runFewTimes(true), 0);
+      if(img.complete) afterImg();
+      else img.addEventListener('load', afterImg, { once:true });
+    }
 
-      const img = document.querySelector('.header__bg');
-      if(img){
-        const afterImg = () => setTimeout(runFewTimes, 0);
-        if(img.complete) afterImg();
-        else img.addEventListener('load', afterImg, { once:true });
-      }
+    // на ресайз/смену viewport — поддерживаем низ
+    window.addEventListener('resize', () => setTimeout(() => scrollToBottom(false), 0), { passive:true });
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', () => setTimeout(() => scrollToBottom(false), 0), { passive:true });
+    }
+  })();
 
-      window.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
-      if(window.visualViewport){
-        window.visualViewport.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
-      }
-    })();
+
 
     /* ============================================================
        ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация (без изменений)
