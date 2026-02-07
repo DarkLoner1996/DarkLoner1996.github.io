@@ -1,4 +1,4 @@
-<!DOCTYPE html>     
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -66,13 +66,19 @@
       --focus: 0 0 0 3px rgba(255, 242, 205, .34), 0 0 0 6px rgba(105,205,255,.22);
 
       /* =================================================================
-         ✅ ДОБАВЛЕНО: переменные для "кино-карточек" (чтобы легко ужимать в FHD)
+         ✅ переменные "кино-карточек"
          ================================================================= */
       --movie-card-minh: 156px;
       --movie-card-pad: 14px;
       --movie-actions-mt: 14px;
       --movie-btn-pad-y: 11px;
       --movie-btn-pad-x: 18px;
+
+      /* =================================================================
+         ✅ ДОБАВЛЕНО: дефолты, чтобы ui-bottom не ломался без media/JS
+         ================================================================= */
+      --ui-bottom-top: 220px;
+      --ui-bottom-scale: 1;
     }
 
     a, button{ -webkit-tap-highlight-color: transparent; }
@@ -650,16 +656,23 @@
       text-shadow: 0 10px 24px rgba(0,0,0,.22);
     }
 
-   .ui-bottom{
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: var(--ui-bottom-top);
-  transform: scale(var(--ui-bottom-scale)) !important;
-  transform-origin: center top;
-  justify-content: flex-start !important;
-}
+    /* ============================================================
+       ✅ ИСПРАВЛЕНО: ui-bottom всегда работает (top+scale), без !important
+       ============================================================ */
+    .ui-bottom{
+      position:absolute;
+      left:0;
+      right:0;
+      top: var(--ui-bottom-top);
 
+      transform: translateZ(0) scale(var(--ui-bottom-scale));
+      transform-origin: center top;
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 12px;
+    }
 
     .cta-row{
       pointer-events:auto;
@@ -885,7 +898,6 @@
       border-radius: 22px;
       overflow:hidden;
 
-      /* ✅ ИЗМЕНЕНО: было padding:14px; min-height:156px; */
       padding: var(--movie-card-pad);
       min-height: var(--movie-card-minh);
 
@@ -993,10 +1005,7 @@
     .movie-actions{
       display:flex;
       justify-content:center;
-
-      /* ✅ ИЗМЕНЕНО: было margin-top:14px */
       margin-top: var(--movie-actions-mt);
-
       position:relative;
       z-index:2;
     }
@@ -1007,7 +1016,6 @@
       justify-content:center;
       gap:10px;
 
-      /* ✅ ИЗМЕНЕНО: было padding:11px 18px */
       padding: var(--movie-btn-pad-y) var(--movie-btn-pad-x);
 
       border-radius: 999px;
@@ -1391,264 +1399,205 @@
     /* ... (дальше код без изменений до FHD блока) ... */
 
     /* ============================================================
-       ✅ FHD (не трогаем 4K)
-    ============================================================ */
-/* ============================================================
-   ✅ FHD (не трогаем 4K) — переносим центральный блок ВВЕРХ
-   ============================================================ */
-@media (max-width: 1920px) and (min-width: 521px) and (max-height: 980px){
+       ✅ FHD (не трогаем 4K) — ОСТАВЛЕН ОДИН БЛОК (без дублей)
+       ============================================================ */
+    @media (max-width: 1920px) and (min-width: 521px) and (max-height: 980px){
 
-  :root{
-    /* --- меню реально меньше --- */
-    --nav-left: 10px;
-    --nav-top:  10px;
+      :root{
+        /* --- меню меньше --- */
+        --nav-left: 10px;
+        --nav-top:  10px;
 
-    --panel-w: min(260px, calc(100vw - 20px));
-    --radius: 18px;
-    --rowH: 46px;
-    --uiPad: 12px;
+        --panel-w: min(260px, calc(100vw - 20px));
+        --radius: 18px;
+        --rowH: 46px;
+        --uiPad: 12px;
 
-    /* ✅ NEW: позиция и масштаб центрального блока на FHD */
-    --ui-bottom-top: clamp(180px, 22vh, 320px);
-    --ui-bottom-scale: .86;
+        /* ✅ только масштаб; top считает JS snapUiAboveBear() */
+        --ui-bottom-scale: .86;
 
-    /* кино-карточки (как было) */
-    --movie-card-minh: 104px;
-    --movie-card-pad: 10px;
-    --movie-actions-mt: 8px;
-    --movie-btn-pad-y: 8px;
-    --movie-btn-pad-x: 12px;
-  }
+        /* кино-карточки компактнее (взято из твоих дублей) */
+        --movie-card-minh: 92px;
+        --movie-card-pad: 9px;
+        --movie-actions-mt: 6px;
+        --movie-btn-pad-y: 7px;
+        --movie-btn-pad-x: 10px;
 
-  html, body{
-    height: auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
+        /* доп. поджим */
+        --movies-down: clamp(-360px, -20vh, -240px);
+      }
 
-  .header{
-    height: auto !important;
-    max-height: none !important;
-    min-height: 100vh;
-    overflow: visible !important;
-  }
+      html, body{
+        height: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
 
-  /* blur слой на FHD скрыт */
-  .bg-blur-pic,
-  .header__bg-blur{
-    display: none !important;
-  }
+      .header{
+        height: auto !important;
+        max-height: none !important;
+        min-height: 100vh;
+        overflow: visible !important;
+      }
 
-  .bg-main-pic{
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
+      /* blur слой на FHD скрыт */
+      .bg-blur-pic,
+      .header__bg-blur{
+        display: none !important;
+      }
 
-  .header__bg{
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    object-fit: initial !important;
-  }
+      .bg-main-pic{
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
 
-  /* ✅ коридор справа от меню */
-  .ui{
-    position: absolute;
-    inset: 0;
-    padding: var(--uiPad);
+      .header__bg{
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: initial !important;
+      }
 
-    --ui-left: clamp(12px, calc(var(--panel-w) + 26px), 340px);
-    padding-left: var(--ui-left);
+      /* ✅ коридор справа от меню */
+      .ui{
+        position: absolute;
+        inset: 0;
+        padding: var(--uiPad);
 
-    padding-right: 12px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+        --ui-left: clamp(12px, calc(var(--panel-w) + 26px), 340px);
+        padding-left: var(--ui-left);
 
-    /* ✅ важно: чтобы absolute-дети жили в рамках .ui */
-    overflow: visible;
-  }
+        padding-right: 12px;
+        padding-top: 10px;
+        padding-bottom: 10px;
 
-  /* ============================================================
-     ✅ ГЛАВНЫЙ ФИКС: центральный блок больше НЕ внизу.
-     Теперь он вверху (зелёная зона) и не перекрывает персонажей.
-  ============================================================ */
-  .ui-bottom{
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: var(--ui-bottom-top);
+        overflow: visible;
+      }
 
-    transform: scale(var(--ui-bottom-scale)) !important;
-    transform-origin: center top;
+      /* TITLE — компактнее */
+      .title-card{
+        max-width: min(760px, calc(100% - 8px));
+        border-radius: 20px;
+        padding: 12px 16px;
+      }
 
-    /* убираем “прилипание к низу” */
-    justify-content: flex-start !important;
+      .ui-h1{
+        font-size: clamp(18px, 2.6vw, 34px);
+        line-height: 1.02;
+        letter-spacing: .01em;
+      }
 
-    gap: 10px;
-    will-change: transform;
-  }
+      .ui-h2{
+        margin-top: 4px;
+        font-size: clamp(10px, 1.1vw, 13px);
+        letter-spacing: .18em;
+      }
 
-  /* TITLE — компактнее */
-  .title-card{
-    max-width: min(760px, calc(100% - 8px));
-    border-radius: 20px;
-    padding: 12px 16px;
-  }
+      /* CTA — меньше */
+      .cta-row{
+        gap: 10px;
+        margin-top: 6px;
+        width: 100%;
+        max-width: 860px;
+      }
 
-  .ui-h1{
-    font-size: clamp(18px, 2.6vw, 34px);
-    line-height: 1.02;
-    letter-spacing: .01em;
-  }
+      .cta{
+        padding: 9px 12px;
+        border-radius: 18px;
+        min-width: 240px;
+        max-width: 300px;
+        flex: 1 1 260px;
+      }
 
-  .ui-h2{
-    margin-top: 4px;
-    font-size: clamp(10px, 1.1vw, 13px);
-    letter-spacing: .18em;
-  }
+      .cta .cta-ico{ width: 36px; height: 36px; border-radius: 14px; }
+      .cta .cta-ico svg{ width: 20px; height: 20px; }
+      .cta .cta-title{ font-size: clamp(13px, 1.4vw, 16px); }
+      .cta .cta-sub{ font-size: 9px; letter-spacing: .14em; }
 
-  /* CTA — меньше */
-  .cta-row{
-    gap: 10px;
-    margin-top: 6px;
-    width: 100%;
-    max-width: 860px;
-  }
+      /* Кинотеатр */
+      .cinema-title{
+        font-size: clamp(16px, 1.7vw, 22px);
+        letter-spacing: .20em;
+        margin-top: 0;
+      }
 
-  .cta{
-    padding: 9px 12px;
-    border-radius: 18px;
-    min-width: 240px;
-    max-width: 300px;
-    flex: 1 1 260px;
-  }
+      .cinema-grid{
+        max-width: min(900px, calc(100% - 10px));
+        grid-template-columns: repeat(3, minmax(170px, 1fr));
+        gap: 10px;
+        margin-top: 6px;
+      }
 
-  .cta .cta-ico{ width: 36px; height: 36px; border-radius: 14px; }
-  .cta .cta-ico svg{ width: 20px; height: 20px; }
-  .cta .cta-title{ font-size: clamp(13px, 1.4vw, 16px); }
-  .cta .cta-sub{ font-size: 9px; letter-spacing: .14em; }
+      .movie-card{ border-radius: 18px; }
+      .movie-name{ font-size: clamp(12px, 1.2vw, 14px); }
+      .movie-meta{ font-size: 9px; padding: 4px 7px; }
+      .movie-btn{ min-width: 132px; font-size: 10px; letter-spacing: .12em; }
 
-  /* Кинотеатр */
-  .cinema-title{
-    font-size: clamp(16px, 1.7vw, 22px);
-    letter-spacing: .20em;
-    margin-top: 0;
-  }
+      /* меню */
+      .side-nav{ gap: 7px; }
+      .side-nav__tab{ width: var(--panel-w); padding: 7px 9px; border-radius: 18px; }
+      .menu-pill{ font-size: 10px; padding: 6px 10px; border-radius: 14px; letter-spacing: .12em; }
+      .menu-pill svg{ width: 16px; height: 16px; }
+      .back-btn{ width: 34px; height: 34px; border-radius: 12px; }
+      .back-btn svg{ width: 18px; height: 18px; }
 
-  .cinema-grid{
-    max-width: min(900px, calc(100% - 10px));
-    grid-template-columns: repeat(3, minmax(170px, 1fr));
-    gap: 10px;
-    margin-top: 6px;
-  }
+      .side-nav__panel{
+        width: var(--panel-w);
+        padding: 9px 9px 10px;
+        border-radius: 18px;
+        max-height: calc(100vh - 72px);
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
 
-  .movie-card{ border-radius: 18px; }
-  .movie-name{ font-size: clamp(12px, 1.2vw, 14px); }
-  .movie-meta{ font-size: 9px; padding: 5px 8px; }
-  .movie-btn{ min-width: 140px; font-size: 10px; letter-spacing: .14em; }
+      .side-nav__list{ gap: 9px; margin-top: 6px; }
 
-  /* меню — как было */
-  .side-nav{ gap: 7px; }
-  .side-nav__tab{ width: var(--panel-w); padding: 7px 9px; border-radius: 18px; }
-  .menu-pill{ font-size: 10px; padding: 6px 10px; border-radius: 14px; letter-spacing: .12em; }
-  .menu-pill svg{ width: 16px; height: 16px; }
-  .back-btn{ width: 34px; height: 34px; border-radius: 12px; }
-  .back-btn svg{ width: 18px; height: 18px; }
+      .hud-item{ height: var(--rowH); padding: 8px 10px; border-radius: 16px; gap: 10px; }
+      .hud-ico{ width: 38px; height: 38px; border-radius: 14px; }
+      .hud-ico svg{ width: 20px; height: 20px; }
+      .hud-title{ font-size: 13px; letter-spacing: .05em; }
+      .hud-sub{ font-size: 9px; letter-spacing: .10em; opacity: .78; }
+      .hud-arrow{ width: 28px; height: 28px; }
+      .hud-arrow svg{ width: 14px; height: 14px; }
 
-  .side-nav__panel{
-    width: var(--panel-w);
-    padding: 9px 9px 10px;
-    border-radius: 18px;
-    max-height: calc(100vh - 72px);
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+      /* нижние чипы */
+      .side-chip,
+      .rules{
+        bottom: 8px;
+        transform: scale(.86);
+      }
+      .side-chip{ transform-origin: left bottom; }
+      .rules{ transform-origin: right bottom; }
 
-  .side-nav__list{ gap: 9px; margin-top: 6px; }
+      .avatar{ width: 60px; height: 60px; border-radius: 22px; font-size: 28px; }
+      .chip-card{ min-width: 210px; padding: 9px 11px; }
+      .chip-name{ font-size: 15px; margin-bottom: 6px; }
+      .chip-btn{ padding: 8px 11px; font-size: 10px; }
 
-  .hud-item{ height: var(--rowH); padding: 8px 10px; border-radius: 16px; gap: 10px; }
-  .hud-ico{ width: 38px; height: 38px; border-radius: 14px; }
-  .hud-ico svg{ width: 20px; height: 20px; }
-  .hud-title{ font-size: 13px; letter-spacing: .05em; }
-  .hud-sub{ font-size: 9px; letter-spacing: .10em; opacity: .78; }
-  .hud-arrow{ width: 28px; height: 28px; }
-  .hud-arrow svg{ width: 14px; height: 14px; }
+      .rules .rules-card{ min-width: 140px; padding: 9px 11px; }
+      .rules .rules-title{ font-size: 15px; }
+      .check{ width: 36px; height: 36px; border-radius: 13px; }
+      .check svg{ width: 18px; height: 18px; }
 
-  /* нижние чипы — как было */
-  .side-chip,
-  .rules{
-    bottom: 8px;
-    transform: scale(.86);
-  }
-  .side-chip{ transform-origin: left bottom; }
-  .rules{ transform-origin: right bottom; }
+      .side-chip{
+        left: 10px !important;
+        bottom: 10px !important;
+        transform: scale(.86) !important;
+        transform-origin: left bottom !important;
+      }
+      body.menu-collapsed .side-chip{ left: 10px !important; }
 
-  .avatar{ width: 60px; height: 60px; border-radius: 22px; font-size: 28px; }
-  .chip-card{ min-width: 210px; padding: 9px 11px; }
-  .chip-name{ font-size: 15px; margin-bottom: 6px; }
-  .chip-btn{ padding: 8px 11px; font-size: 10px; }
-
-  .rules .rules-card{ min-width: 140px; padding: 9px 11px; }
-  .rules .rules-title{ font-size: 15px; }
-  .check{ width: 36px; height: 36px; border-radius: 13px; }
-  .check svg{ width: 18px; height: 18px; }
-
-  .side-chip{
-    left: 10px !important;
-    bottom: 10px !important;
-    transform: scale(.86) !important;
-    transform-origin: left bottom !important;
-  }
-  body.menu-collapsed .side-chip{ left: 10px !important; }
-
-  .rules{
-    right: 10px !important;
-    bottom: 10px !important;
-  }
-}
-
-/* ============================================================
-   ✅ FHD, но низкая высота окна — поднимаем ещё чуть выше
-   ============================================================ */
-@media (max-width: 1920px) and (min-width: 521px) and (max-height: 980px){
-  :root{
-    --ui-bottom-top: clamp(40px, 6vh, 110px);
-    --ui-bottom-scale: .86;
-
-    --movie-card-minh: 92px;
-    --movie-card-pad: 9px;
-    --movie-actions-mt: 6px;
-    --movie-btn-pad-y: 7px;
-    --movie-btn-pad-x: 10px;
-  }
-}
-
-
-/* ============================================================
-   ✅ ДОБАВЛЕНО: FHD, но "низкая" высота окна (часто при 125%/панелях)
-   ============================================================ */
-@media (max-width: 1920px) and (min-width: 521px) and (max-height: 980px){
-  :root{
-    --movie-card-minh: 92px;
-    --movie-card-pad: 9px;
-    --movie-actions-mt: 6px;
-    --movie-btn-pad-y: 7px;
-    --movie-btn-pad-x: 10px;
-
-    /* (не обязательно, но помогает на низких высотах) */
-    --movies-down: clamp(-360px, -20vh, -240px);
-  }
-
-  .movie-name{ font-size: 13px; }
-  .movie-meta{ font-size: 9px; padding: 4px 7px; }
-  .movie-btn{ min-width: 132px; font-size: 10px; letter-spacing: .12em; }
-}
+      .rules{
+        right: 10px !important;
+        bottom: 10px !important;
+      }
+    }
 
     /* ===========================
        ✅ MOBILE TIGHT (<=520px)
@@ -1683,7 +1632,8 @@
         width:100% !important;
         height:100% !important;
         object-fit: cover !important;
-        object-position: 50% 50% !important;
+        /* ✅ ИСПРАВЛЕНО: "открывается снизу" */
+        object-position: 50% 100% !important;
       }
 
       .header__bg{
@@ -1692,7 +1642,8 @@
         width:100% !important;
         height:100% !important;
         object-fit: cover !important;
-        object-position: 50% 50% !important;
+        /* ✅ ИСПРАВЛЕНО: "открывается снизу" */
+        object-position: 50% 100% !important;
       }
 
       .side-nav{
@@ -2033,7 +1984,7 @@
         </section>
       </div>
 
-      <!-- ✅ "Фишинг" (ниже) — теперь запускает мини-игру + есть доп.кнопка "смотреть" -->
+      <!-- ✅ "Фишинг" -->
       <div class="side-chip" aria-label="Быстрый запуск: Фишинг">
         <div class="avatar" aria-hidden="true">🐱</div>
         <div class="chip-card">
@@ -2056,7 +2007,7 @@
         </div>
       </div>
 
-      <!-- ✅ "Правила" (ниже) — теперь запускает мини-игру "Правило дня" -->
+      <!-- ✅ "Правила" -->
       <div class="rules" aria-label="Правила">
         <div class="avatar" aria-hidden="true">☃️</div>
         <a class="rules-card" id="openRuleGame" href="#" role="button" aria-haspopup="dialog" aria-controls="ruleGame" aria-label="Открыть: Правило дня">
@@ -2138,9 +2089,7 @@
   </div>
 
   <!-- ============================================================
-       ✅ МОДАЛКА МИНИ-ИГРЫ: "ПРАВИЛО ДНЯ" (1 день = 1 правило)
-       - стиль один-в-один (те же классы mg-)
-       - хранит прохождение в localStorage на текущую дату
+       ✅ МОДАЛКА МИНИ-ИГРЫ: "ПРАВИЛО ДНЯ"
   ============================================================ -->
   <div class="mg-backdrop" id="ruleGame" aria-hidden="true">
     <section class="mg-modal" role="dialog" aria-modal="true" aria-labelledby="rgTitle">
@@ -2240,7 +2189,7 @@
       }catch(e){}
     })();
 
-    // =============== Сворачивание меню (как на главной: таб сверху, панель прячется) ===============
+    // =============== Сворачивание меню ===============
     (function toggleMenu(){
       const nav = document.querySelector('.side-nav');
       const btn = document.getElementById('menuToggle');
@@ -2291,7 +2240,6 @@
         if(reduce) return;
         if(a.target === '_blank') return;
 
-        // ✅ если открыт модал игры — не перехватываем клики внутри него
         if(e.target.closest('#phishGame') || e.target.closest('#ruleGame')) return;
 
         e.preventDefault();
@@ -2312,21 +2260,27 @@
       });
     })();
 
-    // ✅ СТАРТ СНИЗУ: на телефоне ОТКЛЮЧЕНО
+    // ============================================================
+    // ✅ СТАРТ СНИЗУ — универсально (скроллим header если он скроллится, иначе окно)
+    // ============================================================
     (function startAtBottom(){
-      const isMobile = window.matchMedia('(max-width: 520px)').matches;
-      if(isMobile) return;
-
-      const isFHD = window.matchMedia('(max-width: 1920px)').matches;
       const header = document.getElementById('hero') || document.querySelector('.header');
+      if(!header) return;
+
+      function getScrollTarget(){
+        const st = getComputedStyle(header);
+        const canScrollHeader =
+          (st.overflowY === 'auto' || st.overflowY === 'scroll') &&
+          header.scrollHeight > header.clientHeight + 2;
+        return canScrollHeader ? header : (document.scrollingElement || document.documentElement);
+      }
 
       function scrollToBottom(){
-        if(isFHD){
-          const doc = document.scrollingElement || document.documentElement;
-          window.scrollTo(0, doc.scrollHeight + 9999);
-        }else{
-          if(!header) return;
+        const t = getScrollTarget();
+        if(t === header){
           header.scrollTop = header.scrollHeight + 9999;
+        }else{
+          window.scrollTo(0, t.scrollHeight + 9999);
         }
       }
 
@@ -2352,15 +2306,14 @@
         else img.addEventListener('load', afterImg, { once:true });
       }
 
-      if(isFHD && window.visualViewport){
-        window.visualViewport.addEventListener('resize', () => {
-          setTimeout(scrollToBottom, 0);
-        }, { passive:true });
+      window.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize', () => setTimeout(scrollToBottom, 0), { passive:true });
       }
     })();
 
     /* ============================================================
-       ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация (НЕ ТРОГАЕМ)
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация (без изменений)
     ============================================================ */
     (function phishingGame(){
       const openBtn = document.getElementById('openPhishGame');
@@ -2570,11 +2523,7 @@
     })();
 
     /* ============================================================
-       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — 1 день = 1 правило (новая)
-       - открытие по клику "Правила" справа
-       - закрытие: крестик / ESC / клик по фону
-       - после ответа: разбор + кнопка "Понятно"
-       - прогресс на день сохраняется (localStorage)
+       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — (без изменений)
     ============================================================ */
     (function ruleOfDayGame(){
       const openLink = document.getElementById('openRuleGame');
@@ -2685,7 +2634,6 @@
         return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
       }
       function dayIndex(key){
-        // детерминированно: из строки даты делаем число и берём по модулю
         let h = 0;
         for(let i=0;i<key.length;i++){
           h = (h * 31 + key.charCodeAt(i)) >>> 0;
@@ -2736,7 +2684,6 @@
         resetUI();
 
         if(isDone(dKey)){
-          // если уже пройдено сегодня — показываем финал сразу (но можно повторить)
           rgFinishText.innerHTML = `
             Сегодняшнее правило уже пройдено 🎉<br>
             <b>Правило:</b> ${r.title}
@@ -2775,7 +2722,7 @@
         }
       }
 
-      function answer(choice){ // "bad" | "good"
+      function answer(choice){
         if(locked) return;
 
         const dKey = todayKey();
@@ -2830,7 +2777,6 @@
         setTimeout(() => btnBad.focus({ preventScroll:true }), 0);
       }
 
-      // handlers
       openLink.addEventListener('click', (e) => {
         e.preventDefault();
         open();
@@ -2853,90 +2799,81 @@
       rgAgain.addEventListener('click', again);
     })();
   </script>
+
   <script>
-/* ============================================================
-   ✅ FHD FIX: ставим центральный UI ровно НАД медведем
-   ============================================================ */
-(function snapUiAboveBear(){
-  const mq = matchMedia('(max-width: 1920px) and (min-width: 521px)');
+    /* ============================================================
+       ✅ FHD FIX: ставим центральный UI ровно НАД медведем
+       ============================================================ */
+    (function snapUiAboveBear(){
+      const mq = matchMedia('(max-width: 1920px) and (min-width: 521px)');
 
-  function getNum(val, fallback){
-    const n = parseFloat(String(val).replace(',', '.'));
-    return Number.isFinite(n) ? n : fallback;
-  }
+      function getNum(val, fallback){
+        const n = parseFloat(String(val).replace(',', '.'));
+        return Number.isFinite(n) ? n : fallback;
+      }
 
-  function place(){
-    if(!mq.matches) return;
+      function place(){
+        if(!mq.matches) return;
 
-    const img = document.querySelector('.header__bg');
-    const uiBottom = document.querySelector('.ui-bottom');
-    if(!img || !uiBottom) return;
+        const img = document.querySelector('.header__bg');
+        const uiBottom = document.querySelector('.ui-bottom');
+        if(!img || !uiBottom) return;
 
-    const rect = img.getBoundingClientRect();
-    if(rect.height < 10) return;
+        const rect = img.getBoundingClientRect();
+        if(rect.height < 10) return;
 
-    const rs = getComputedStyle(document.documentElement);
+        const rs = getComputedStyle(document.documentElement);
 
-    const bearFrac = getNum(rs.getPropertyValue('--bear-top-frac'), 0.65139);
-    const scale = getNum(rs.getPropertyValue('--ui-bottom-scale'), 1);
+        const bearFrac = getNum(rs.getPropertyValue('--bear-top-frac'), 0.65139);
+        const scale = getNum(rs.getPropertyValue('--ui-bottom-scale'), 1);
 
-    // gap: можно регулировать переменной --ui-bear-gap
-    let gap = getNum(rs.getPropertyValue('--ui-bear-gap'), 18);
-    gap = Math.max(12, Math.min(gap, 28));
+        let gap = getNum(rs.getPropertyValue('--ui-bear-gap'), 18);
+        gap = Math.max(12, Math.min(gap, 28));
 
-    // где в пикселях находится верх медведя
-    const bearY = rect.top + rect.height * bearFrac;
+        const bearY = rect.top + rect.height * bearFrac;
+        const uiH = uiBottom.offsetHeight * scale;
 
-    // реальная (отрендеренная) высота блока с учётом scale
-    const uiH = uiBottom.offsetHeight * scale;
+        let top = bearY - uiH - gap;
 
-    // хотим: bottom(ui-bottom) = bearY - gap
-    let top = bearY - uiH - gap;
+        const minTop = 10;
+        const maxTop = rect.bottom - uiH - gap;
+        top = Math.max(minTop, Math.min(top, maxTop));
 
-    // защита от улёта за экран/картинку
-    const minTop = 10;
-    const maxTop = rect.bottom - uiH - gap;
-    top = Math.max(minTop, Math.min(top, maxTop));
+        document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
+      }
 
-    document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
-  }
+      function schedule(){
+        requestAnimationFrame(() => {
+          place();
+          requestAnimationFrame(place);
+        });
+        setTimeout(place, 80);
+        setTimeout(place, 220);
+      }
 
-  function schedule(){
-    requestAnimationFrame(() => {
-      place();
-      requestAnimationFrame(place);
-    });
-    setTimeout(place, 80);
-    setTimeout(place, 220);
-  }
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', schedule, { once:true });
+      } else {
+        schedule();
+      }
 
-  // initial
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, { once:true });
-  } else {
-    schedule();
-  }
+      const img = document.querySelector('.header__bg');
+      if(img){
+        if(img.complete) schedule();
+        else img.addEventListener('load', schedule, { once:true });
+      }
 
-  // after image load
-  const img = document.querySelector('.header__bg');
-  if(img){
-    if(img.complete) schedule();
-    else img.addEventListener('load', schedule, { once:true });
-  }
+      window.addEventListener('resize', schedule, { passive:true });
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize', schedule, { passive:true });
+      }
 
-  // on resize / viewport changes
-  window.addEventListener('resize', schedule, { passive:true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, { passive:true });
-  }
-
-  // after menu collapse/expand (меняется коридор/возможная высота)
-  const toggle = document.getElementById('menuToggle');
-  if(toggle){
-    toggle.addEventListener('click', () => setTimeout(schedule, 0));
-  }
-})();
-</script>
+      const toggle = document.getElementById('menuToggle');
+      if(toggle){
+        toggle.addEventListener('click', () => setTimeout(schedule, 0));
+      }
+    })();
+  </script>
 
 </body>
 </html>
