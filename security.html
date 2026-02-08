@@ -2285,11 +2285,15 @@
     .cinema-dot{
       width: 10px;
       height: 10px;
+      cursor: pointer;
       border-radius: 999px;
       background: rgba(255,255,255,.16);
       border: 1px solid rgba(255,255,255,.16);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
     }
+    .cinema-dot:focus-visible {
+  box-shadow: var(--focus);
+}
     .cinema-dot.is-on{
       background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(120,230,255,.75));
       box-shadow: 0 0 14px rgba(120,230,255,.35);
@@ -3359,15 +3363,21 @@
       let spinning = false;
       let rot = 0;
 
-      function renderDots(){
-        if(!dotsEl) return;
-        dotsEl.innerHTML = '';
-        EPISODES.forEach((_, i) => {
-          const d = document.createElement('span');
-          d.className = 'cinema-dot' + (i === current ? ' is-on' : '');
-          dotsEl.appendChild(d);
-        });
-      }
+function renderDots() {
+  if (!dotsEl) return;
+  dotsEl.innerHTML = '';
+  EPISODES.forEach((ep, i) => {
+    const d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'cinema-dot' + (i === current ? ' is-on' : '');
+    d.setAttribute('aria-label', `Выбрать ${ep.badge}`);
+    d.addEventListener('click', () => {
+      applyEpisode(i);  // Выбираем серию при клике
+      toast(toastEl, `Выбрано: ${ep.badge}`);
+    });
+    dotsEl.appendChild(d);
+  });
+}
 
       function setThumb(i){
         if(!thumbEl) return;
@@ -3381,23 +3391,18 @@
         `;
       }
 
-      function applyEpisode(i){
-        current = i;
-        const ep = EPISODES[i];
+const EP_KEY = 'dh_cinema_ep';
 
-        titleEl.textContent = ep.title;
-        badgeEl.textContent = ep.badge;
-        metaEl.textContent = ep.meta;
-        descEl.textContent = ep.desc;
+function applyEpisode(i) {
+  current = i;
+  localStorage.setItem(EP_KEY, String(i));  // Сохраняем выбранную серию
+  // остальная логика для отображения серии
+}
 
-        if(pickedEl) pickedEl.textContent = `Выбрано: ${ep.badge}`;
-        if(topicEl) topicEl.textContent = `Тема: ${ep.topic}`;
-
-        if(watchEl) watchEl.href = ep.link;
-
-        setThumb(i);
-        renderDots();
-      }
+// Восстановление последней серии при загрузке страницы
+const savedIndex = Number(localStorage.getItem(EP_KEY));
+if (Number.isFinite(savedIndex) && EPISODES[savedIndex]) applyEpisode(savedIndex);
+else applyEpisode(0);  // Если индекс не сохранен, выбираем первую серию
 
       function buildSheet(){
         if(!listBody) return;
@@ -3435,32 +3440,36 @@
         });
       }
 
-      function spin(){
-        if(spinning) return;
-        spinning = true;
+let spinning = false;
+function spin() {
+  if (spinning) return;
+  spinning = true;
 
-        const prev = current;
-        const next = Math.floor(Math.random() * EPISODES.length);
+  btnSpin.disabled = true;  // Блокируем кнопки
+  btnSpinAlt && (btnSpinAlt.disabled = true);
 
-        // 4..7 оборотов + небольшой довод
-        const spins = 4 + Math.floor(Math.random() * 4);
-        const segment = 360 / EPISODES.length;
+  const next = Math.floor(Math.random() * EPISODES.length);  // Случайная серия
+  const n = EPISODES.length;
+  const segment = 360 / n;
 
-        // хотим остановиться "на" выбранной серии
-        // (условно — визуально, колесо декоративное)
-        rot += spins * 360 + (next * segment) + Math.random() * (segment * 0.6);
+  // Вращаем с плавной остановкой
+  const spins = 5 + Math.floor(Math.random() * 3);
+  const base = Math.ceil(rot / 360) * 360;  // Для предотвращения резких сдвигов
+  const target = base + spins * 360 + (90 - (next + 0.5) * segment);
 
-        wheel.style.setProperty('--wheel-rot', `${rot}deg`);
+  rot = target;
+  wheel.style.setProperty('--wheel-rot', `${rot}deg`);
 
-        // подсветка/обновление после анимации
-        const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 2150;
-        setTimeout(() => {
-          applyEpisode(next);
-          if(prev !== next) toast(toastEl, `Рулетка выбрала: ${EPISODES[next].badge}`);
-          spinning = false;
-        }, dur + 40);
-      }
+  const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 2150;
+  setTimeout(() => {
+    applyEpisode(next);  // Применяем выбранную серию
+    toast(toastEl, `Рулетка выбрала: ${EPISODES[next].badge}`);
 
+    spinning = false;
+    btnSpin.disabled = false;  // Разблокируем кнопки
+    btnSpinAlt && (btnSpinAlt.disabled = false);
+  }, dur + 40);
+}
       // init
       applyEpisode(0);
       buildSheet();
@@ -3829,6 +3838,22 @@
         setTimeout(() => pt.classList.remove('is-entering'), 520);
       });
     })();
+    const roulette = document.querySelector('[data-cinema]');
+roulette?.setAttribute('tabindex', '0');
+roulette?.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    applyEpisode((current + 1) % EPISODES.length);
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    applyEpisode((current - 1 + EPISODES.length) % EPISODES.length);
+  }
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    spin();  // Запуск рулетки
+  }
+});
   </script>
 </body>
 </html>
