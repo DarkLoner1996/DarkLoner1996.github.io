@@ -983,7 +983,7 @@
     }
     .page-transition.is-entering .wipe{ transform: translateX(110%); }
 
-    /* Movie cards */
+    /* Movie cards (оставлено — не мешает, даже если блок заменён на рулетку) */
     .movie-card{
       min-height: var(--movie-card-minh);
       padding: var(--movie-card-pad);
@@ -2040,6 +2040,676 @@
 
       .mg-actions{ grid-template-columns: 1fr; }
     }
+
+    /* ============================================================
+       ✅ ДОБАВЛЕНО: CINEMA ROULETTE (компактно + не перекрывает медведя)
+    ============================================================ */
+    .cinema-roulette{
+      pointer-events:auto;
+      width:100%;
+      max-width: min(1100px, calc(100vw - 40px));
+      margin: 0 auto;
+
+      display:grid;
+      grid-template-columns: minmax(320px, 1.25fr) auto minmax(220px, .9fr);
+      align-items:center;
+      gap: clamp(12px, 2vw, 18px);
+
+      border-radius: 28px;
+      padding: clamp(12px, 1.6vw, 16px);
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.14), transparent 62%),
+        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(10,55,90,.60), rgba(8,35,60,.52));
+
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow:
+        0 34px 90px rgba(0,0,0,.26),
+        0 12px 26px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      backdrop-filter: blur(18px) saturate(1.06);
+      -webkit-backdrop-filter: blur(18px) saturate(1.06);
+    }
+    .cinema-roulette::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 28px;
+      padding: 2px;
+      background:
+        linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.22), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events:none;
+      opacity:.92;
+    }
+    .cinema-roulette::after{
+      content:"";
+      position:absolute; inset:-30%;
+      background:
+        radial-gradient(6px 6px at 12% 18%, rgba(255,255,255,.46), transparent 72%),
+        radial-gradient(5px 5px at 26% 62%, rgba(255,255,255,.26), transparent 72%),
+        radial-gradient(6px 6px at 72% 26%, rgba(255,255,255,.30), transparent 72%),
+        radial-gradient(5px 5px at 82% 58%, rgba(255,255,255,.20), transparent 72%),
+        linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      opacity:.70;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      animation: cinemaSpark 7.4s ease-in-out infinite;
+    }
+    @keyframes cinemaSpark{
+      0%,100%{ transform: translate3d(0,0,0); opacity:.62; }
+      50%{ transform: translate3d(12px,-10px,0); opacity:.90; }
+    }
+
+    .cinema-roulette__left{
+      display:flex;
+      align-items:center;
+      gap: 14px;
+      min-width:0;
+      position:relative;
+      z-index:2;
+    }
+
+    .cinema-thumb{
+      width: clamp(58px, 6.2vw, 76px);
+      height: clamp(58px, 6.2vw, 76px);
+      border-radius: 22px;
+      flex:0 0 auto;
+
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+        radial-gradient(120% 120% at 80% 20%, rgba(255,242,205,.14), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.45), rgba(12,55,95,.40));
+
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+      position:relative;
+      overflow:hidden;
+    }
+    .cinema-thumb::after{
+      content:"";
+      position:absolute; inset:-30%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+      transform: rotate(18deg) translateX(-80%);
+      opacity:.60;
+      transition: transform .55s ease, opacity .55s ease;
+    }
+    .cinema-roulette:hover .cinema-thumb::after{
+      transform: rotate(18deg) translateX(80%);
+      opacity:.86;
+    }
+
+    .cinema-ep{ min-width:0; }
+
+    .cinema-epHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    .cinema-epTitle{
+      min-width:0;
+      font-size: clamp(14px, 2.1vw, 20px);
+      line-height: 1.06;
+      letter-spacing: .03em;
+      color: rgba(245,250,255,.98);
+      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cinema-epBadge{
+      flex:0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      color: rgba(255,242,205,.90);
+
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
+
+      border: 1px solid rgba(255,255,255,.14);
+      white-space: nowrap;
+    }
+
+    .cinema-epMeta{
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color: rgba(255, 242, 205, .86);
+      opacity:.95;
+    }
+
+    .cinema-epDesc{
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.18;
+      color: rgba(245,250,255,.95);
+      opacity: .92;
+
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+
+    .cinema-epActions{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .cinema-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+      text-decoration:none;
+
+      color: rgba(255,255,255,.96);
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+
+      box-shadow:
+        0 16px 30px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .cinema-btn svg{
+      width:18px; height:18px;
+      stroke: currentColor;
+      fill:none;
+      stroke-width:2.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .cinema-btn svg.is-fill{
+      stroke:none;
+      fill: currentColor;
+    }
+    .cinema-btn:hover{
+      transform: translateY(-1px);
+      filter:saturate(1.06);
+      box-shadow:
+        0 22px 44px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.16);
+    }
+    .cinema-btn:active{ transform: translateY(0) scale(.992); }
+
+    .cinema-btn.is-primary{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.90), rgba(18,110,200,.88));
+    }
+
+    .cinema-btn.is-ghost{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.44), rgba(8,35,60,.40));
+    }
+    .cinema-btn.is-disabled{
+      opacity:.55;
+      pointer-events:none;
+      transform:none !important;
+      filter:none !important;
+    }
+
+    .cinema-dots{
+      margin-top: 10px;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+    }
+    .cinema-dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+    }
+    .cinema-dot.is-on{
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(120,230,255,.75));
+      box-shadow: 0 0 14px rgba(120,230,255,.35);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .wheel-wrap{
+      width: clamp(92px, 10vw, 128px);
+      height: clamp(92px, 10vw, 128px);
+      position:relative;
+      display:grid;
+      place-items:center;
+      z-index:2;
+    }
+
+    .wheel{
+      width:100%;
+      height:100%;
+      border-radius: 999px;
+
+      background: conic-gradient(from -90deg,
+        rgba(40,170,240,.92),
+        rgba(55,200,130,.86),
+        rgba(255,160,70,.90),
+        rgba(40,170,240,.92)
+      );
+
+      transform: rotate(var(--wheel-rot, 0deg));
+      transition: transform 2.15s cubic-bezier(.18,.82,.24,1);
+
+      box-shadow:
+        0 22px 50px rgba(0,0,0,.22),
+        inset 0 2px 0 rgba(255,255,255,.22),
+        inset 0 -10px 18px rgba(0,0,0,.22);
+
+      border: 1px solid rgba(255,255,255,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    @media (prefers-reduced-motion: reduce){
+      .wheel{ transition: none !important; }
+    }
+
+    .wheel::before{
+      content:"";
+      position:absolute; inset: 10px;
+      border-radius: 999px;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+        linear-gradient(180deg, rgba(10,55,90,.55), rgba(8,35,60,.50));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+    }
+
+    .wheel::after{
+      content:"";
+      position:absolute; inset:-35%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+      transform: rotate(18deg) translateX(-70%);
+      opacity:.70;
+      transition: transform .55s ease, opacity .55s ease;
+      mix-blend-mode: screen;
+    }
+    .cinema-roulette:hover .wheel::after{
+      transform: rotate(18deg) translateX(70%);
+      opacity:.92;
+    }
+
+    .wheel-ring{
+      position:absolute;
+      inset:-8px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.16);
+      box-shadow: 0 0 22px rgba(120,230,255,.18);
+      pointer-events:none;
+    }
+
+    .wheel-pointer{
+      position:absolute;
+      top:-10px;
+      width:0; height:0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 20px solid rgba(255,255,255,.92);
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.25));
+    }
+    .wheel-pointer::after{
+      content:"";
+      position:absolute;
+      left:-10px; top:4px;
+      width:0; height:0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 14px solid rgba(60,170,255,.95);
+      opacity:.95;
+    }
+
+    .wheel-center{
+      position:absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.88), rgba(255,255,255,.62));
+
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.22);
+
+      display:grid;
+      place-items:center;
+
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .wheel-center svg{
+      width: 22px;
+      height: 22px;
+      fill: rgba(12,55,95,.92);
+    }
+    .wheel-center:hover{
+      transform: translateY(-1px);
+      filter:saturate(1.06);
+      box-shadow:
+        0 22px 44px rgba(0,0,0,.26),
+        inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .wheel-center:active{ transform: translateY(0) scale(.985); }
+
+    .cinema-roulette__right{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      align-items:flex-start;
+      justify-content:center;
+      min-width:0;
+      z-index:2;
+    }
+
+    .cinema-picked{
+      font-size: 18px;
+      letter-spacing: .02em;
+      color: rgba(245,250,255,.98);
+      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+    }
+
+    .cinema-topic{
+      font-size: 11px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color: rgba(255, 242, 205, .86);
+      opacity:.95;
+    }
+
+    .cinema-pill{
+      margin-top: 4px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+
+      color: rgba(255,255,255,.96);
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.44), rgba(8,35,60,.40));
+
+      box-shadow:
+        0 16px 30px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .cinema-pill:hover{
+      transform: translateY(-1px);
+      filter:saturate(1.06);
+      box-shadow:
+        0 22px 44px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.16);
+    }
+    .cinema-pill:active{ transform: translateY(0) scale(.992); }
+
+    .cinema-toast{
+      grid-column: 1 / -1;
+      margin-top: 6px;
+      text-align:center;
+      font-size: 12px;
+      letter-spacing:.06em;
+      color: rgba(120,230,255,.92);
+      opacity:0;
+      transform: translateY(-6px);
+      transition: opacity .18s ease, transform .18s ease;
+      z-index:2;
+    }
+    .cinema-toast.is-on{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 920px){
+      .cinema-roulette{
+        grid-template-columns: 1fr;
+        text-align:center;
+      }
+      .cinema-roulette__left{
+        justify-content:center;
+      }
+      .cinema-roulette__right{
+        align-items:center;
+      }
+      .cinema-epHead{
+        justify-content:center;
+      }
+    }
+    @media (max-width: 520px){
+      .cinema-roulette{
+        max-width: calc(100vw - 32px);
+      }
+    }
+
+    /* ============================================================
+       ✅ CINEMA SHEET (bottom sheet)
+    ============================================================ */
+    .cinema-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:14500;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding: clamp(12px, 3vw, 22px);
+
+      background: rgba(0,0,0,.55);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+    }
+    .cinema-backdrop.is-open{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .cinema-modal{
+      width: min(860px, 100%);
+      border-radius: 26px;
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(120% 140% at 20% 10%, rgba(255,255,255,.14), transparent 62%),
+        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(10,55,90,.74), rgba(8,35,60,.68));
+
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 44px 120px rgba(0,0,0,.42),
+        0 14px 30px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      backdrop-filter: blur(18px) saturate(1.06);
+      -webkit-backdrop-filter: blur(18px) saturate(1.06);
+
+      transform: translateY(16px) scale(.99);
+      transition: transform .18s ease;
+    }
+    .cinema-backdrop.is-open .cinema-modal{
+      transform: translateY(0) scale(1);
+    }
+
+    .cinema-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      padding: 16px 18px 10px;
+    }
+
+    .cinema-sheetTitle{
+      font-size: clamp(18px, 3.2vw, 26px);
+      letter-spacing:.02em;
+      color: rgba(255, 222, 150, .98);
+      text-shadow: 0 14px 34px rgba(0,0,0,.34);
+    }
+    .cinema-sheetSub{
+      margin-top: 6px;
+      font-size: 12px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color: rgba(255, 242, 205, .86);
+      opacity:.95;
+    }
+
+    .cinema-close{
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+
+      background:
+        radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.16), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.52), rgba(8,35,60,.46));
+
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      display:grid;
+      place-items:center;
+    }
+    .cinema-close svg{
+      width: 20px; height: 20px;
+      stroke: rgba(255,255,255,.96);
+      fill:none;
+      stroke-width:2.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      display:block;
+    }
+
+    .cinema-list{
+      padding: 0 18px 18px;
+      display:grid;
+      gap: 10px;
+      max-height: min(62vh, 560px);
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .cinema-item{
+      width:100%;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      gap:12px;
+
+      border-radius: 22px;
+      padding: 12px 12px;
+
+      background:
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.12));
+
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.12);
+
+      cursor:pointer;
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .cinema-item:hover{
+      transform: translateY(-1px);
+      filter:saturate(1.06);
+      box-shadow:
+        0 26px 52px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .cinema-item:active{ transform: translateY(0) scale(.992); }
+
+    .cinema-itemThumb{
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
+      flex:0 0 auto;
+
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.45), rgba(12,55,95,.40));
+
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+
+    .cinema-itemTxt{ min-width:0; flex:1 1 auto; }
+    .cinema-itemTitle{
+      font-size: 18px;
+      letter-spacing:.02em;
+      color: rgba(245,250,255,.98);
+      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .cinema-itemMeta{
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color: rgba(255,242,205,.86);
+      opacity:.95;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cinema-itemGo{
+      flex:0 0 auto;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
+      color: rgba(255,255,255,.96);
+      font-weight: 900;
+      font-size: 10px;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -2239,45 +2909,63 @@
 
         <div class="cinema-title">Кинотеатр</div>
 
-        <section class="cinema-grid" aria-label="Подборка мультфильмов">
-          <article class="movie-card">
-            <div class="movie-top">
-              <div class="movie-name">Опасный пароль</div>
-              <div class="movie-meta"><span class="dot"></span> 2 мин</div>
-            </div>
-            <div class="movie-actions">
-              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Опасный пароль">
-                <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-                Смотреть
-              </a>
-            </div>
-          </article>
+        <!-- ✅ ЗАМЕНА: вместо 3 карточек — компактная рулетка -->
+        <section class="cinema-roulette" data-cinema aria-label="Кинотеатр: рулетка серий">
+          <div class="cinema-roulette__left">
+            <div class="cinema-thumb" id="cinemaThumb" aria-hidden="true"></div>
 
-          <article class="movie-card">
-            <div class="movie-top">
-              <div class="movie-name">Что такое фишинг?</div>
-              <div class="movie-meta"><span class="dot"></span> 2 мин</div>
-            </div>
-            <div class="movie-actions">
-              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Что такое фишинг?">
-                <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-                Смотреть
-              </a>
-            </div>
-          </article>
+            <div class="cinema-ep">
+              <div class="cinema-epHead">
+                <div class="cinema-epTitle" id="cinemaEpTitle">Серия</div>
+                <div class="cinema-epBadge" id="cinemaEpBadge">серия 1</div>
+              </div>
 
-          <article class="movie-card">
-            <div class="movie-top">
-              <div class="movie-name">Поделился личным</div>
-              <div class="movie-meta"><span class="dot"></span> 2 мин</div>
+              <div class="cinema-epMeta" id="cinemaEpMeta">1:40 • 6+ • мультфильм</div>
+              <div class="cinema-epDesc" id="cinemaEpDesc">Описание серии…</div>
+
+              <div class="cinema-epActions" aria-label="Действия кинотеатра">
+                <a class="cinema-btn is-primary" id="cinemaWatch" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть выбранную серию">
+                  <svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 8l8 4-8 4V8z"></path></svg>
+                  Смотреть
+                </a>
+
+                <button class="cinema-btn is-ghost" id="cinemaList" type="button" aria-haspopup="dialog" aria-controls="cinemaSheet">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path>
+                    <path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path>
+                  </svg>
+                  Список серий
+                </button>
+              </div>
+
+              <div class="cinema-dots" id="cinemaDots" aria-hidden="true"></div>
             </div>
-            <div class="movie-actions">
-              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Поделился личным">
-                <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-                Смотреть
-              </a>
-            </div>
-          </article>
+          </div>
+
+          <div class="wheel-wrap" aria-label="Рулетка серий">
+            <div class="wheel-pointer" aria-hidden="true"></div>
+
+            <div class="wheel" id="cinemaWheel" style="--wheel-rot:0deg;" aria-hidden="true"></div>
+
+            <button class="wheel-center" id="cinemaSpin" type="button" aria-label="Крутить рулетку">
+              <svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 8l8 4-8 4V8z"></path>
+              </svg>
+            </button>
+
+            <div class="wheel-ring" aria-hidden="true"></div>
+          </div>
+
+          <div class="cinema-roulette__right" aria-label="Информация о выборе">
+            <div class="cinema-picked" id="cinemaPicked">Выбрано: серия 1</div>
+            <div class="cinema-topic" id="cinemaTopic">Тема: цифровая безопасность</div>
+
+            <button class="cinema-pill" id="cinemaSpinAlt" type="button" aria-label="Крутить рулетку ещё раз">
+              ↺ Крутить ещё раз
+            </button>
+          </div>
+
+          <div class="cinema-toast" id="cinemaToast" aria-live="polite"></div>
         </section>
       </div>
 
@@ -2448,12 +3136,12 @@
 
           <div class="mg-scoreRow">
             <div class="mg-scorePill" id="rgStatus">Статус: пройдено</div>
-            <button class="chip-btn" id="rgAgain" type="button">
-              <svg viewBox="0 0 24 24">
+            <button class="chip-btn" id="rgRestart" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M21 12a9 9 0 1 1-3-6.7"></path>
                 <path d="M21 3v6h-6"></path>
               </svg>
-              Повторить
+              Ещё раз
             </button>
           </div>
         </div>
@@ -2461,809 +3149,627 @@
     </section>
   </div>
 
-  <script>
-    (function introAnim(){
-      const intro = document.getElementById('intro');
-      if(!intro) return;
-      requestAnimationFrame(() => intro.classList.add('is-on'));
-      setTimeout(() => {
-        intro.classList.remove('is-on');
-        intro.style.display = 'none';
-      }, 900);
-    })();
-
-    (function markActive(){
-      try{
-        const path = location.pathname.replace(/\/+$/, '') || '/';
-        const items = document.querySelectorAll('.hud-item');
-        items.forEach(a => a.classList.remove('is-active'));
-
-        const rules = [
-          { match: ['/', '/index.html'], hrefPart: 'digitalhavenrussia.ru' },
-          { match: ['/project.html'], hrefPart: 'project.html' },
-          { match: ['/security.html'], hrefPart: 'security.html' },
-          { match: ['/map.html'], hrefPart: 'map.html' },
-        ];
-        const rule = rules.find(r => r.match.includes(path));
-        if(!rule) return;
-
-        const active = Array.from(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
-        if(active) active.classList.add('is-active');
-      }catch(e){}
-    })();
-
-    // =============== Сворачивание меню ===============
-    (function toggleMenu(){
-      const nav = document.querySelector('.side-nav');
-      const btn = document.getElementById('menuToggle');
-      if(!nav || !btn) return;
-
-      function sync(){
-        const collapsed = nav.classList.contains('is-collapsed');
-        document.body.classList.toggle('menu-collapsed', collapsed);
-        btn.setAttribute('aria-expanded', String(!collapsed));
-        btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
-      }
-
-      sync();
-
-      btn.addEventListener('click', () => {
-        nav.classList.toggle('is-collapsed');
-        sync();
-        window.dispatchEvent(new Event('resize')); // чтобы перерасчёт UI сработал сразу
-      });
-    })();
-
-    // =============== Переходы между страницами ===============
-    (function pageTransitions(){
-      const pt = document.getElementById('pt');
-      if(!pt) return;
-
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      function isModifiedClick(e){
-        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
-      }
-      function samePage(href){
-        try{
-          const u = new URL(href, location.href);
-          return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
-        }catch(_){ return true; }
-      }
-
-      document.addEventListener('click', (e) => {
-        const a = e.target.closest('a[href]');
-        if(!a) return;
-
-        const href = a.getAttribute('href');
-        if(!href) return;
-
-        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
-        if(isModifiedClick(e)) return;
-        if(samePage(href) && href.includes('#')) return;
-        if(reduce) return;
-        if(a.target === '_blank') return;
-
-        if(e.target.closest('#phishGame') || e.target.closest('#ruleGame')) return;
-
-        e.preventDefault();
-
-        pt.classList.remove('is-entering');
-        pt.classList.add('is-leaving');
-
-        const go = () => { location.href = href; };
-        setTimeout(go, 420);
-        setTimeout(go, 900);
-      }, { capture: true });
-
-      window.addEventListener('pageshow', () => {
-        if(reduce) return;
-        pt.classList.remove('is-leaving');
-        pt.classList.add('is-entering');
-        setTimeout(() => pt.classList.remove('is-entering'), 520);
-      });
-    })();
-  </script>
-
   <!-- ============================================================
-       ✅ ЕДИНЫЙ ФИКС ДЛЯ MOBILE + FHD + 4K:
-       - ставит .ui-bottom над медведем (FHD/4K)
-       - корректно автоскроллит к “нижней” зоне (и не мешает после действий пользователя)
-       - больше нет двух конкурирующих автоскроллов
+       ✅ CINEMA SHEET (Список серий) — bottom sheet
   ============================================================ -->
-  <script>
-    (function heroUiSnap(){
-      const header   = document.getElementById('hero') || document.querySelector('.header');
-      const img      = document.querySelector('.header__bg');
-      const uiBottom = document.querySelector('.ui-bottom');
-      if(!header || !img || !uiBottom) return;
+  <div class="cinema-backdrop" id="cinemaSheet" aria-hidden="true">
+    <section class="cinema-modal" role="dialog" aria-modal="true" aria-labelledby="cinemaSheetTitle">
+      <div class="cinema-top">
+        <div>
+          <div class="cinema-sheetTitle" id="cinemaSheetTitle">Список серий</div>
+          <div class="cinema-sheetSub" id="cinemaSheetSub">Выбери серию или крути рулетку</div>
+        </div>
 
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        <button class="cinema-close" id="cinemaClose" type="button" aria-label="Закрыть список серий">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12"></path>
+            <path d="M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
 
-      let userTouched = false;
-      const markTouched = () => { userTouched = true; };
-
-      // Любое реальное действие пользователя — прекращаем автоподстройку прокрутки
-      window.addEventListener('wheel', markTouched, { passive:true });
-      window.addEventListener('touchstart', markTouched, { passive:true });
-      window.addEventListener('pointerdown', markTouched, { passive:true });
-      window.addEventListener('keydown', markTouched, { passive:true });
-
-      function num(val, fallback){
-        const n = parseFloat(String(val).replace(',', '.'));
-        return Number.isFinite(n) ? n : fallback;
-      }
-      function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
-      function cssVar(name, fallback){
-        const rs = getComputedStyle(document.documentElement);
-        return num(rs.getPropertyValue(name), fallback);
-      }
-      function isScrollable(el){
-        const st = getComputedStyle(el);
-        const oy = st.overflowY;
-        return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
-      }
-
-      function anchorY(){
-        // якорь медведя по высоте картинки
-        const bearFrac = clamp(cssVar('--bear-top-frac', 0.65139), 0.35, 0.90);
-        const h = img.offsetHeight || 0;
-        const t = img.offsetTop || 0;
-        return t + h * bearFrac;
-      }
-
-      function snap(){
-        // На мобилке картинка cover/без скролла — оставляем дефолт
-        if(matchMedia('(max-width: 520px)').matches) return;
-
-        const scale = clamp(cssVar('--ui-bottom-scale', 1), 0.6, 1.2);
-        const gap   = clamp(cssVar('--ui-bear-gap', 18), 8, 90);
-        const extra = cssVar('--ui-bottom-extra', 0);
-
-        const imgTop = img.offsetTop || 0;
-        const imgH   = img.offsetHeight || 0;
-        const aY     = anchorY();
-        const uiH    = (uiBottom.offsetHeight || 0) * scale;
-
-        if(imgH < 10 || uiH < 10) return;
-
-        let top = aY - uiH - gap + extra;
-
-        const safeTop = clamp(cssVar('--ui-safe-top', 12), 0, 160);
-        const maxTop  = (imgTop + imgH) - uiH - gap;
-
-        top = clamp(top, safeTop, maxTop);
-        document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
-      }
-
-      function autoScrollOnce(force){
-        if(reduce) return;
-        if(userTouched && !force) return;
-
-        const targetFrac = clamp(cssVar('--ui-target-frac', 0.72), 0.55, 0.85);
-
-        // Если hero реально скроллится — скроллим hero
-        if(isScrollable(header)){
-          const aY = anchorY();
-          const target = aY - header.clientHeight * targetFrac;
-          const maxScroll = header.scrollHeight - header.clientHeight;
-          header.scrollTop = clamp(target, 0, maxScroll);
-          return;
-        }
-
-        // Иначе (редко) — скроллим документ вниз
-        const se = document.scrollingElement || document.documentElement;
-        window.scrollTo(0, se.scrollHeight + 999999);
-      }
-
-      let raf = 0;
-      function schedule(forceScroll){
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          snap();
-          requestAnimationFrame(snap);
-        });
-
-        // серия дозамеров (картинка/шрифты/viewport часто “прыгают”)
-        setTimeout(() => { snap(); }, 60);
-        setTimeout(() => { snap(); }, 180);
-        setTimeout(() => { snap(); }, 420);
-
-        // автоскролл — только при первом входе/после загрузки
-        setTimeout(() => { autoScrollOnce(!!forceScroll); }, 0);
-        setTimeout(() => { autoScrollOnce(false); }, 90);
-        setTimeout(() => { autoScrollOnce(false); }, 260);
-      }
-
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', () => schedule(true), { once:true });
-      }else{
-        schedule(true);
-      }
-
-      window.addEventListener('load', () => schedule(true), { once:true });
-      if(img.complete) schedule(true);
-      else img.addEventListener('load', () => schedule(true), { once:true });
-
-      window.addEventListener('resize', () => schedule(false), { passive:true });
-      if(window.visualViewport){
-        window.visualViewport.addEventListener('resize', () => schedule(false), { passive:true });
-      }
-    })();
-  </script>
+      <div class="cinema-list" id="cinemaListBody" aria-label="Серии кинотеатра">
+        <!-- items injected by JS -->
+      </div>
+    </section>
+  </div>
 
   <script>
     /* ============================================================
-       ✅ МИНИ-ИГРА: "Фишинг или правда?" — логика как у тебя,
-       + ДОБАВЛЕНО: фокус-трап (Tab не уходит за пределы модалки)
+       ✅ Helpers
     ============================================================ */
-    (function phishingGame(){
-      const openBtn = document.getElementById('openPhishGame');
-      const backdrop = document.getElementById('phishGame');
-      const closeBtn = document.getElementById('closePhishGame');
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-      if(!openBtn || !backdrop || !closeBtn) return;
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
-      const modal = backdrop.querySelector('.mg-modal');
+    function openModal(backdropEl){
+      if(!backdropEl) return;
+      backdropEl.classList.add('is-open');
+      backdropEl.setAttribute('aria-hidden', 'false');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
 
-      const dotsWrap = document.getElementById('mgDots');
-      const cardNo = document.getElementById('mgCardNo');
-      const difficulty = document.getElementById('mgDifficulty');
-      const mgText = document.getElementById('mgText');
-      const mgLink = document.getElementById('mgLink');
-      const btnPhish = document.getElementById('mgBtnPhish');
-      const btnReal  = document.getElementById('mgBtnReal');
-      const explain  = document.getElementById('mgExplain');
-      const nextBtn  = document.getElementById('mgNext');
-      const hint     = document.getElementById('mgHint');
+    function closeModal(backdropEl){
+      if(!backdropEl) return;
+      backdropEl.classList.remove('is-open');
+      backdropEl.setAttribute('aria-hidden', 'true');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
 
-      const finish   = document.getElementById('mgFinish');
-      const finishText = document.getElementById('mgFinishText');
-      const scorePill  = document.getElementById('mgScore');
-      const restartBtn = document.getElementById('mgRestart');
+    function toast(el, text){
+      if(!el) return;
+      el.textContent = text;
+      el.classList.add('is-on');
+      clearTimeout(el._t);
+      el._t = setTimeout(()=> el.classList.remove('is-on'), 1600);
+    }
 
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* ============================================================
+       ✅ MENU collapse
+    ============================================================ */
+    (function initMenu(){
+      const sideNav = $('.side-nav');
+      const btn = $('#menuToggle');
+      const panel = $('#hudPanel');
 
-      const cards = [
-        { level:"легко", real:false, text:"🎁 Вы выиграли iPhone! Заберите приз прямо сейчас.", link:"http://iph0ne-prize.ru/claim",
-          explain:["Признаки: <b>«вы выиграли»</b>, срочность, странная ссылка и домен.","Правильно: не нажимай, закрой сообщение, спроси взрослого."]},
-        { level:"легко", real:false, text:"⚠️ Ваш аккаунт заблокирован! Срочно подтвердите пароль, иначе всё удалится.", link:"https://support-acc0unt.com/login",
-          explain:["Признаки: <b>страх</b> и <b>срочность</b> («иначе удалится»), подозрительный домен.","Правильно: зайди на сайт вручную (не по ссылке) или спроси взрослого."]},
-        { level:"средне", real:false, text:"👨‍👧 Папа: «Скинь код из SMS, мне срочно надо войти!»", link:"",
-          explain:["Признак: просьба <b>кода</b>. Коды — это как ключи, их никому нельзя.","Правильно: перезвони папе обычным звонком и уточни."]},
-        { level:"средне", real:true, text:"🏫 Школа: «Завтра собрание. Расписание в электронном дневнике».", link:"",
-          explain:["Это похоже на правду: без ссылок на «призы», без просьб пароля/кодов.","Правильно: проверяй через официальный дневник/приложение."]},
-        { level:"средне", real:false, text:"🎮 Вам выдан «БЕСПЛАТНЫЙ донат»! Введите логин и пароль от игры.", link:"https://free-d0nat-gifts.net",
-          explain:["Признаки: «бесплатно», просьба <b>логина/пароля</b>, странный домен.","Правильно: никому не давай пароль. Удали сообщение."]},
-        { level:"сложно", real:false, text:"📦 Доставка: «Посылка задержана. Оплатите 59₽ по ссылке».", link:"https://pay-delivery-fast.ru/59",
-          explain:["Признаки: мелкая сумма для «легкой оплаты», ссылка на оплату от неизвестного.","Правильно: проверяй доставку в официальном приложении."]},
-        { level:"сложно", real:true, text:"🔐 Ваш код входа: 381-992. Никому не сообщайте. Если это не вы — отмените вход.", link:"",
-          explain:["Это сообщение может быть настоящим: оно <b>не просит</b> отправить код кому-то.","Правильно: если вход не ваш — срочно меняй пароль и включай 2FA."]},
-        { level:"сложно", real:false, text:"📷 «Привет! Это твоё фото? Открой» (файл: photo.zip)", link:"",
-          explain:["Признаки: неизвестный файл/архив, провокация «это твоё фото».","Правильно: не открывай файлы от незнакомцев, удали и сообщи взрослому."]}
+      if(!sideNav || !btn || !panel) return;
+
+      const setCollapsed = (v) => {
+        sideNav.classList.toggle('is-collapsed', v);
+        document.body.classList.toggle('menu-collapsed', v);
+        btn.setAttribute('aria-expanded', String(!v));
+      };
+
+      // default expanded
+      setCollapsed(false);
+
+      btn.addEventListener('click', () => {
+        setCollapsed(!sideNav.classList.contains('is-collapsed'));
+      });
+
+      // Close panel if user taps outside on mobile
+      document.addEventListener('pointerdown', (e) => {
+        const isMobile = matchMedia('(max-width: 520px)').matches;
+        if(!isMobile) return;
+        if(sideNav.contains(e.target)) return;
+        setCollapsed(true);
+      }, {passive:true});
+    })();
+
+    /* ============================================================
+       ✅ UI bottom positioning: keep UI above "bear" anchor
+       - uses CSS vars:
+         --bear-top-frac, --ui-bear-gap, --ui-bottom-extra
+         --ui-safe-top
+    ============================================================ */
+    (function initUiBottomAnchor(){
+      const hero = $('#hero');
+      const uiBottom = $('.ui-bottom');
+      if(!hero || !uiBottom) return;
+
+      const ro = new ResizeObserver(recalc);
+      ro.observe(hero);
+
+      window.addEventListener('resize', recalc, {passive:true});
+      window.addEventListener('orientationchange', recalc, {passive:true});
+
+      // If images load late, recalc again
+      window.addEventListener('load', () => setTimeout(recalc, 60), {once:true});
+
+      function recalc(){
+        const cs = getComputedStyle(document.documentElement);
+
+        const bearFrac = parseFloat(cs.getPropertyValue('--bear-top-frac')) || 0.65;
+        const gap = parseFloat(cs.getPropertyValue('--ui-bear-gap')) || 22;
+        const extra = parseFloat(cs.getPropertyValue('--ui-bottom-extra')) || 0;
+        const safeTop = parseFloat(cs.getPropertyValue('--ui-safe-top')) || 14;
+
+        const heroH = hero.clientHeight || window.innerHeight;
+
+        // target Y where bear starts
+        const bearTopPx = heroH * bearFrac;
+
+        // UI block height
+        const uiH = uiBottom.getBoundingClientRect().height;
+
+        // place uiBottom so that its bottom is above bearTopPx by gap
+        let top = bearTopPx - gap - uiH + extra;
+
+        // safety clamp so it doesn't go off-screen
+        top = clamp(top, safeTop, heroH - uiH - 6);
+
+        document.documentElement.style.setProperty('--ui-bottom-top', `${top}px`);
+      }
+    })();
+
+    /* ============================================================
+       ✅ CINEMA ROULETTE
+    ============================================================ */
+    (function initCinema(){
+      const wheel = $('#cinemaWheel');
+      const btnSpin = $('#cinemaSpin');
+      const btnSpinAlt = $('#cinemaSpinAlt');
+      const titleEl = $('#cinemaEpTitle');
+      const badgeEl = $('#cinemaEpBadge');
+      const metaEl = $('#cinemaEpMeta');
+      const descEl = $('#cinemaEpDesc');
+      const pickedEl = $('#cinemaPicked');
+      const topicEl = $('#cinemaTopic');
+      const dotsEl = $('#cinemaDots');
+      const thumbEl = $('#cinemaThumb');
+      const watchEl = $('#cinemaWatch');
+      const toastEl = $('#cinemaToast');
+
+      const listBtn = $('#cinemaList');
+      const sheet = $('#cinemaSheet');
+      const sheetClose = $('#cinemaClose');
+      const listBody = $('#cinemaListBody');
+
+      if(!wheel || !btnSpin || !titleEl) return;
+
+      // ✅ Здесь заполни свои серии. Можно добавлять сколько угодно.
+      // link — куда вести при "Смотреть" (можно с якорем/параметром)
+      const EPISODES = [
+        {
+          title: 'Фишинг: не ведись на приманки',
+          badge: 'серия 1',
+          meta: '1:40 • 6+ • мультфильм',
+          desc: 'Как отличить опасное сообщение и почему нельзя вводить коды по просьбе незнакомцев.',
+          topic: 'фишинг',
+          link: 'https://digitalhavenrussia.ru/security.html'
+        },
+        {
+          title: 'Пароли и секреты',
+          badge: 'серия 2',
+          meta: '2:10 • 6+ • мультфильм',
+          desc: 'Почему пароль — как ключ от дома. Учимся делать надёжные пароли и не делиться ими.',
+          topic: 'пароли',
+          link: 'https://digitalhavenrussia.ru/security.html'
+        },
+        {
+          title: 'Ссылки и ловушки',
+          badge: 'серия 3',
+          meta: '1:55 • 6+ • мультфильм',
+          desc: 'Что проверять в ссылках, чтобы не попасть на поддельные сайты и не потерять данные.',
+          topic: 'ссылки',
+          link: 'https://digitalhavenrussia.ru/security.html'
+        },
+        {
+          title: 'Личная информация',
+          badge: 'серия 4',
+          meta: '2:05 • 6+ • мультфильм',
+          desc: 'Какие данные нельзя отправлять в чатах и почему “просто фото” иногда тоже опасно.',
+          topic: 'приватность',
+          link: 'https://digitalhavenrussia.ru/security.html'
+        },
+        {
+          title: 'Друзья в сети',
+          badge: 'серия 5',
+          meta: '2:20 • 6+ • мультфильм',
+          desc: 'Как общаться в интернете безопасно и что делать, если кто-то просит странные вещи.',
+          topic: 'общение',
+          link: 'https://digitalhavenrussia.ru/security.html'
+        }
       ];
 
-      let idx = 0, score = 0, locked = false, lastFocus = null;
+      let current = 0;
+      let spinning = false;
+      let rot = 0;
 
-      function setHidden(el, hidden){ if(el) el.hidden = !!hidden; }
-
-      function buildDots(){
-        if(!dotsWrap) return;
-        dotsWrap.innerHTML = "";
-        for(let i=0;i<cards.length;i++){
+      function renderDots(){
+        if(!dotsEl) return;
+        dotsEl.innerHTML = '';
+        EPISODES.forEach((_, i) => {
           const d = document.createElement('span');
-          d.className = "mg-dot" + (i===idx ? " is-on" : "");
-          dotsWrap.appendChild(d);
-        }
-      }
-      function setDots(){
-        if(!dotsWrap) return;
-        const dots = dotsWrap.querySelectorAll('.mg-dot');
-        dots.forEach((d, i) => d.classList.toggle('is-on', i===idx));
-      }
-
-      function resetUIForCard(){
-        locked = false;
-        explain.classList.remove('is-on');
-        explain.innerHTML = "";
-        nextBtn.classList.remove('is-on');
-        finish.classList.remove('is-on');
-
-        btnPhish.disabled = false;
-        btnReal.disabled = false;
-
-        hint.textContent = "Подсказка: проверяй срочность, ссылки и просьбы кода";
-      }
-
-      function renderCard(){
-        const c = cards[idx];
-        cardNo.textContent = `Сообщение #${idx+1}`;
-        difficulty.textContent = `уровень: ${c.level}`;
-        mgText.textContent = c.text;
-
-        if(c.link && c.link.trim()){
-          mgLink.textContent = c.link;
-          setHidden(mgLink, false);
-        }else{
-          setHidden(mgLink, true);
-        }
-
-        setDots();
-        resetUIForCard();
-      }
-
-      function getFocusable(){
-        if(!modal) return [];
-        const nodes = modal.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        return Array.from(nodes).filter(el => {
-          if(!el) return false;
-          if(el.hasAttribute('disabled')) return false;
-          if(el.getAttribute('aria-hidden') === 'true') return false;
-          // скрытые через hidden / display none
-          if(el.hidden) return false;
-          if(el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return false;
-          return true;
+          d.className = 'cinema-dot' + (i === current ? ' is-on' : '');
+          dotsEl.appendChild(d);
         });
       }
 
-      let keyHandler = null;
-
-      function open(){
-        lastFocus = document.activeElement;
-        backdrop.classList.add('is-open');
-        backdrop.setAttribute('aria-hidden', 'false');
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-
-        // фокус-трап + Escape/Enter
-        keyHandler = (e) => {
-          if(!backdrop.classList.contains('is-open')) return;
-
-          if(e.key === 'Escape'){
-            e.preventDefault();
-            close();
-            return;
-          }
-
-          if(e.key === 'Enter' && nextBtn.classList.contains('is-on')){
-            e.preventDefault();
-            next();
-            return;
-          }
-
-          if(e.key !== 'Tab') return;
-
-          const focusables = getFocusable();
-          if(focusables.length === 0) return;
-
-          const first = focusables[0];
-          const last = focusables[focusables.length - 1];
-
-          if(e.shiftKey){
-            if(document.activeElement === first || !modal.contains(document.activeElement)){
-              e.preventDefault();
-              last.focus({ preventScroll:true });
-            }
-          }else{
-            if(document.activeElement === last){
-              e.preventDefault();
-              first.focus({ preventScroll:true });
-            }
-          }
-        };
-        window.addEventListener('keydown', keyHandler);
-
-        setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
-      }
-
-      function close(){
-        backdrop.classList.remove('is-open');
-        backdrop.setAttribute('aria-hidden', 'true');
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-
-        if(keyHandler){
-          window.removeEventListener('keydown', keyHandler);
-          keyHandler = null;
-        }
-
-        if(lastFocus && typeof lastFocus.focus === 'function'){
-          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
-        }
-      }
-
-      function finishGame(){
-        const total = cards.length;
-        const pct = Math.round((score/total)*100);
-
-        finishText.innerHTML = `
-          Ты правильно ответил(а) на <b>${score}</b> из <b>${total}</b> сообщений.<br>
-          Это <b>${pct}%</b> точности.
-          <br><br>
-          <b>Золотое правило:</b> не вводи пароль по ссылкам из сообщений, не передавай коды, проверяй домены.
+      function setThumb(i){
+        if(!thumbEl) return;
+        // простая “обложка” без картинок — градиент меняется от индекса
+        const hues = [200, 145, 30, 260, 95, 10, 180];
+        const h = hues[i % hues.length];
+        thumbEl.style.background = `
+          radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+          radial-gradient(120% 120% at 80% 20%, rgba(255,242,205,.14), transparent 62%),
+          linear-gradient(180deg, hsla(${h}, 85%, 58%, .55), rgba(12,55,95,.40))
         `;
-        scorePill.textContent = `Очки: ${score}/${total}`;
-
-        finish.classList.add('is-on');
-        explain.classList.remove('is-on');
-        nextBtn.classList.remove('is-on');
-
-        btnPhish.disabled = true;
-        btnReal.disabled = true;
-
-        hint.textContent = "Хочешь — пройди ещё раз и улучши результат!";
       }
 
-      function answer(isPhish){
+      function applyEpisode(i){
+        current = i;
+        const ep = EPISODES[i];
+
+        titleEl.textContent = ep.title;
+        badgeEl.textContent = ep.badge;
+        metaEl.textContent = ep.meta;
+        descEl.textContent = ep.desc;
+
+        if(pickedEl) pickedEl.textContent = `Выбрано: ${ep.badge}`;
+        if(topicEl) topicEl.textContent = `Тема: ${ep.topic}`;
+
+        if(watchEl) watchEl.href = ep.link;
+
+        setThumb(i);
+        renderDots();
+      }
+
+      function buildSheet(){
+        if(!listBody) return;
+        listBody.innerHTML = '';
+
+        EPISODES.forEach((ep, i) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cinema-item';
+          btn.innerHTML = `
+            <span class="cinema-itemThumb" aria-hidden="true"></span>
+            <span class="cinema-itemTxt">
+              <span class="cinema-itemTitle">${ep.badge}: ${ep.title}</span>
+              <span class="cinema-itemMeta">${ep.meta} • тема: ${ep.topic}</span>
+            </span>
+            <span class="cinema-itemGo" aria-hidden="true">выбрать</span>
+          `;
+
+          // mini thumb
+          const t = btn.querySelector('.cinema-itemThumb');
+          const hues = [200, 145, 30, 260, 95, 10, 180];
+          const h = hues[i % hues.length];
+          t.style.background = `
+            radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+            linear-gradient(180deg, hsla(${h}, 85%, 58%, .55), rgba(12,55,95,.40))
+          `;
+
+          btn.addEventListener('click', () => {
+            applyEpisode(i);
+            closeModal(sheet);
+            toast(toastEl, `Выбрано: ${ep.badge}`);
+          });
+
+          listBody.appendChild(btn);
+        });
+      }
+
+      function spin(){
+        if(spinning) return;
+        spinning = true;
+
+        const prev = current;
+        const next = Math.floor(Math.random() * EPISODES.length);
+
+        // 4..7 оборотов + небольшой довод
+        const spins = 4 + Math.floor(Math.random() * 4);
+        const segment = 360 / EPISODES.length;
+
+        // хотим остановиться "на" выбранной серии
+        // (условно — визуально, колесо декоративное)
+        rot += spins * 360 + (next * segment) + Math.random() * (segment * 0.6);
+
+        wheel.style.setProperty('--wheel-rot', `${rot}deg`);
+
+        // подсветка/обновление после анимации
+        const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 2150;
+        setTimeout(() => {
+          applyEpisode(next);
+          if(prev !== next) toast(toastEl, `Рулетка выбрала: ${EPISODES[next].badge}`);
+          spinning = false;
+        }, dur + 40);
+      }
+
+      // init
+      applyEpisode(0);
+      buildSheet();
+
+      btnSpin.addEventListener('click', spin);
+      btnSpinAlt?.addEventListener('click', spin);
+
+      // open sheet
+      listBtn?.addEventListener('click', () => openModal(sheet));
+      sheetClose?.addEventListener('click', () => closeModal(sheet));
+      sheet?.addEventListener('click', (e) => {
+        if(e.target === sheet) closeModal(sheet);
+      });
+
+      // keyboard close
+      window.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape'){
+          closeModal(sheet);
+        }
+      });
+    })();
+
+    /* ============================================================
+       ✅ MINI-GAME: Phishing (логика — базовая, можно расширять)
+    ============================================================ */
+    (function initPhishGame(){
+      const backdrop = $('#phishGame');
+      const openBtn = $('#openPhishGame');
+      const closeBtn = $('#closePhishGame');
+
+      const dotsWrap = $('#mgDots');
+      const noEl = $('#mgCardNo');
+      const diffEl = $('#mgDifficulty');
+      const textEl = $('#mgText');
+      const linkEl = $('#mgLink');
+
+      const btnPhish = $('#mgBtnPhish');
+      const btnReal = $('#mgBtnReal');
+      const explainEl = $('#mgExplain');
+      const nextBtn = $('#mgNext');
+
+      const finish = $('#mgFinish');
+      const finishText = $('#mgFinishText');
+      const scoreEl = $('#mgScore');
+      const restartBtn = $('#mgRestart');
+
+      if(!backdrop || !openBtn || !closeBtn) return;
+
+      const Q = [
+        {
+          diff: 'легко',
+          text: '“Срочно! Ваш аккаунт заблокируют. Нажмите по ссылке и введите код из СМС.”',
+          link: 'http://bank-secure-login.example',
+          correct: 'phish',
+          explain: 'Срочность + просьба ввести код/данные — классический фишинг. Никогда не вводи коды по ссылкам.'
+        },
+        {
+          diff: 'средне',
+          text: '“Привет! Это школьный чат. Завтра урок в 9:00, принеси тетрадь.”',
+          link: '',
+          correct: 'real',
+          explain: 'Нет просьбы о пароле/коде и нет подозрительных ссылок — похоже на обычное сообщение.'
+        },
+        {
+          diff: 'средне',
+          text: '“Вы выиграли приз! Заполните анкету и укажите адрес и номер карты для доставки.”',
+          link: 'https://gift-prize.example',
+          correct: 'phish',
+          explain: 'Просьба о данных карты/адресе ради “приза” — часто обман. Ничего не вводи и спроси взрослых.'
+        },
+        {
+          diff: 'сложно',
+          text: '“Служба поддержки: подтвердите вход. Отправьте код, который пришёл в СМС.”',
+          link: '',
+          correct: 'phish',
+          explain: 'Поддержка НИКОГДА не просит коды из СМС. Код — только для тебя.'
+        }
+      ];
+
+      let i = 0;
+      let score = 0;
+      let locked = false;
+
+      function renderDots(){
+        if(!dotsWrap) return;
+        dotsWrap.innerHTML = '';
+        Q.forEach((_, k) => {
+          const d = document.createElement('span');
+          d.className = 'mg-dot' + (k === i ? ' is-on' : '');
+          dotsWrap.appendChild(d);
+        });
+      }
+
+      function showQuestion(){
+        locked = false;
+        explainEl?.classList.remove('is-on');
+        explainEl.textContent = '';
+        nextBtn?.classList.remove('is-on');
+
+        finish?.classList.remove('is-on');
+
+        const q = Q[i];
+        if(noEl) noEl.textContent = `Сообщение #${i+1}`;
+        if(diffEl) diffEl.textContent = `уровень: ${q.diff}`;
+        if(textEl) textEl.textContent = q.text;
+
+        if(linkEl){
+          if(q.link){
+            linkEl.hidden = false;
+            linkEl.textContent = q.link;
+          }else{
+            linkEl.hidden = true;
+            linkEl.textContent = '';
+          }
+        }
+
+        renderDots();
+        btnPhish.disabled = false;
+        btnReal.disabled = false;
+      }
+
+      function answer(type){
         if(locked) return;
         locked = true;
 
-        const c = cards[idx];
-        const correct = (isPhish === !c.real);
-        if(correct) score++;
+        const q = Q[i];
+        const ok = (type === q.correct);
+
+        if(ok) score += 1;
+
+        if(explainEl){
+          explainEl.textContent = (ok ? '✅ Верно! ' : '❌ Не совсем. ') + q.explain;
+          explainEl.classList.add('is-on');
+        }
 
         btnPhish.disabled = true;
         btnReal.disabled = true;
 
-        const topLine = correct
-          ? `✅ Верно! Это ${c.real ? "настоящее" : "фишинг"}.`
-          : `❌ Почти! Правильный ответ: ${c.real ? "НАСТОЯЩЕЕ" : "ФИШИНГ"}.`;
-
-        const lines = [topLine, ...c.explain].map(s => `<div style="margin:6px 0;">${s}</div>`).join("");
-        explain.innerHTML = lines;
-        explain.classList.add('is-on');
-
-        hint.textContent = correct
-          ? "Отлично! Запоминай признаки — так ты защищаешь себя."
-          : "Ничего страшного — ошибки учат. Смотри признаки и пробуй дальше.";
-
-        if(idx < cards.length - 1){
-          nextBtn.classList.add('is-on');
-          nextBtn.focus({ preventScroll:true });
+        // if last — finish, else show next button
+        if(i >= Q.length - 1){
+          showFinish();
         }else{
-          finishGame();
-          restartBtn.focus({ preventScroll:true });
+          nextBtn?.classList.add('is-on');
         }
       }
 
-      function next(){
-        if(idx >= cards.length - 1) return;
-        idx++;
-        renderCard();
+      function showFinish(){
+        finish?.classList.add('is-on');
+        if(scoreEl) scoreEl.textContent = `Очки: ${score} / ${Q.length}`;
+        if(finishText){
+          const msg =
+            score === Q.length ? 'Идеально! Ты как настоящий кибер-детектив 🛡️' :
+            score >= Math.ceil(Q.length * 0.7) ? 'Отлично! Ещё немного практики — и ты непобедим 🧠' :
+            'Ничего страшного! Повтори правила и попробуй ещё раз 🙂';
+          finishText.textContent = msg;
+        }
       }
 
-      function restart(){
-        idx = 0;
+      function reset(){
+        i = 0;
         score = 0;
-        buildDots();
-        renderCard();
+        showQuestion();
       }
 
-      buildDots();
-      renderCard();
-
-      openBtn.addEventListener('click', open);
-      closeBtn.addEventListener('click', close);
-
-      backdrop.addEventListener('click', (e) => {
-        if(e.target === backdrop) close();
+      // open/close
+      openBtn.addEventListener('click', () => {
+        openModal(backdrop);
+        reset();
       });
 
-      btnPhish.addEventListener('click', () => answer(true));
-      btnReal.addEventListener('click', () => answer(false));
-      nextBtn.addEventListener('click', next);
-      restartBtn.addEventListener('click', restart);
+      closeBtn.addEventListener('click', () => closeModal(backdrop));
+
+      backdrop.addEventListener('click', (e) => {
+        if(e.target === backdrop) closeModal(backdrop);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') closeModal(backdrop);
+      });
+
+      // actions
+      btnPhish?.addEventListener('click', () => answer('phish'));
+      btnReal?.addEventListener('click', () => answer('real'));
+
+      nextBtn?.addEventListener('click', () => {
+        if(i < Q.length - 1){
+          i += 1;
+          showQuestion();
+        }
+      });
+
+      restartBtn?.addEventListener('click', reset);
     })();
 
     /* ============================================================
-       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — (без изменений логики)
-       + ДОБАВЛЕНО: фокус-трап (Tab внутри модалки)
+       ✅ MINI-GAME: Rule of the day
     ============================================================ */
-    (function ruleOfDayGame(){
-      const openLink = document.getElementById('openRuleGame');
-      const backdrop = document.getElementById('ruleGame');
-      const closeBtn = document.getElementById('closeRuleGame');
+    (function initRuleGame(){
+      const backdrop = $('#ruleGame');
+      const openBtn = $('#openRuleGame');
+      const closeBtn = $('#closeRuleGame');
 
-      if(!openLink || !backdrop || !closeBtn) return;
+      const ruleLine = $('#rgRuleLine');
+      const scenario = $('#rgScenario');
+      const datePill = $('#rgDatePill');
 
-      const modal = backdrop.querySelector('.mg-modal');
+      const btnBad = $('#rgBtnBad');
+      const btnGood = $('#rgBtnGood');
 
-      const rgDatePill = document.getElementById('rgDatePill');
-      const rgRuleLine = document.getElementById('rgRuleLine');
-      const rgScenario = document.getElementById('rgScenario');
-      const rgExplain  = document.getElementById('rgExplain');
-      const rgHint     = document.getElementById('rgHint');
+      const explainEl = $('#rgExplain');
+      const doneBtn = $('#rgDone');
 
-      const btnBad  = document.getElementById('rgBtnBad');
-      const btnGood = document.getElementById('rgBtnGood');
+      const finish = $('#rgFinish');
+      const finishText = $('#rgFinishText');
+      const status = $('#rgStatus');
+      const restartBtn = $('#rgRestart');
 
-      const doneBtn = document.getElementById('rgDone');
+      if(!backdrop || !openBtn || !closeBtn) return;
 
-      const rgFinish     = document.getElementById('rgFinish');
-      const rgFinishText = document.getElementById('rgFinishText');
-      const rgStatus     = document.getElementById('rgStatus');
-      const rgAgain      = document.getElementById('rgAgain');
-
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      let lastFocus = null;
-      let locked = false;
-      let keyHandler = null;
-
-      const rules = [
+      // ✅ Пул правил — меняй/расширяй
+      const RULES = [
         {
-          title: "Никому не сообщай коды из SMS и приложений.",
-          scenario: "👨‍👧 «Я твой друг/папа/учитель, пришли код — срочно надо войти!»",
-          correct: "bad",
-          explain: [
-            "Код подтверждения — это <b>ключ</b>. Его нельзя никому передавать.",
-            "Правильно: <b>перезвони</b> человеку обычным звонком и уточни."
-          ]
+          rule: 'Не сообщай никому пароли и коды из СМС.',
+          scenario: 'Тебе пишет “админ игры” и просит код из СМС “для проверки”. Что это?',
+          good: false,
+          explain: 'Опасно. Код из СМС — это ключ. Его нельзя сообщать никому, даже “поддержке”.'
         },
         {
-          title: "Не вводи пароль по ссылкам из сообщений.",
-          scenario: "📩 «Подтвердите аккаунт: перейдите по ссылке и введите пароль»",
-          correct: "bad",
-          explain: [
-            "Ссылки в сообщениях могут вести на подделку.",
-            "Правильно: открой сайт <b>вручную</b> (закладка/ввод адреса) и проверь."
-          ]
+          rule: 'Проверяй ссылку перед тем, как нажать.',
+          scenario: 'Ссылка выглядит странно: bank-login.secure-pay.example. Нажимать?',
+          good: false,
+          explain: 'Опасно. Поддельные сайты часто похожи на настоящие. Лучше набери адрес вручную или спроси взрослых.'
         },
         {
-          title: "Если просят личные данные — стоп.",
-          scenario: "🎮 «Для подарка напиши адрес/телефон/школу и номер карты родителей»",
-          correct: "bad",
-          explain: [
-            "Личные данные помогают мошенникам.",
-            "Правильно: ничего не отправляй, покажи сообщение взрослым."
-          ]
-        },
-        {
-          title: "Незнакомые файлы и архивы не открывай.",
-          scenario: "📎 «Смотри фотку» (photo.zip / video.exe / document.scr)",
-          correct: "bad",
-          explain: [
-            "Файлы могут содержать вирусы и красть данные.",
-            "Правильно: удаляй и блокируй отправителя."
-          ]
-        },
-        {
-          title: "Настоящие сервисы не пугают и не торопят.",
-          scenario: "⚠️ «Срочно! Через 10 минут всё удалится! Нажми и подтверди»",
-          correct: "bad",
-          explain: [
-            "Срочность — классический приём мошенников.",
-            "Правильно: спокойно проверяй через официальный сайт/приложение."
-          ]
-        },
-        {
-          title: "Сомневаешься — спроси взрослого. Это сила, а не слабость.",
-          scenario: "🤔 Ты не уверен(а), правда ли сообщение или сайт.",
-          correct: "good",
-          explain: [
-            "Лучшее действие — <b>попросить помощи</b>.",
-            "Так ты защищаешь себя и свои аккаунты."
-          ]
-        },
-        {
-          title: "Двухфакторная защита — твой щит.",
-          scenario: "🔐 Тебе предлагают отключить подтверждение входа «чтобы было удобнее».",
-          correct: "bad",
-          explain: [
-            "2FA защищает даже если пароль узнали.",
-            "Правильно: оставь включённым, а пароль делай сложным."
-          ]
-        },
-        {
-          title: "Проверяй, кто пишет: имя ≠ настоящий отправитель.",
-          scenario: "🧾 «Это банк/школа» — но адрес странный и текст с ошибками.",
-          correct: "bad",
-          explain: [
-            "Мошенники часто копируют названия и логотипы.",
-            "Правильно: проверяй адрес/домен и не переходи по ссылкам."
-          ]
+          rule: 'Если сомневаешься — остановись и спроси взрослого.',
+          scenario: 'Сообщение просит “срочно” скачать файл. Ты не уверен(а), от кого это.',
+          good: true,
+          explain: 'Безопасно. Остановиться и спросить — лучшая защита, когда есть сомнения.'
         }
       ];
 
-      function pad2(n){ return String(n).padStart(2,'0'); }
-      function todayKey(){
+      let idx = 0;
+      let locked = false;
+
+      function pickRule(){
+        // ежедневная смена по дате (без сервера)
         const d = new Date();
-        return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
-      }
-      function dayIndex(key){
-        let h = 0;
-        for(let i=0;i<key.length;i++){
-          h = (h * 31 + key.charCodeAt(i)) >>> 0;
+        const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+        idx = seed % RULES.length;
+
+        if(datePill){
+          const dd = String(d.getDate()).padStart(2,'0');
+          const mm = String(d.getMonth()+1).padStart(2,'0');
+          datePill.textContent = `${dd}.${mm}`;
         }
-        return h % rules.length;
-      }
-
-      function setLocked(v){
-        locked = !!v;
-        btnBad.disabled = locked;
-        btnGood.disabled = locked;
-      }
-
-      function resetUI(){
-        rgExplain.classList.remove('is-on');
-        rgExplain.innerHTML = "";
-        doneBtn.classList.remove('is-on');
-        rgFinish.classList.remove('is-on');
-        setLocked(false);
-      }
-
-      function markDone(dateStr){
-        try{ localStorage.setItem("tk_rules_done_" + dateStr, "1"); }catch(_){}
-      }
-      function isDone(dateStr){
-        try{ return localStorage.getItem("tk_rules_done_" + dateStr) === "1"; }catch(_){ return false; }
-      }
-      function clearDone(dateStr){
-        try{ localStorage.removeItem("tk_rules_done_" + dateStr); }catch(_){}
       }
 
       function render(){
-        const dKey = todayKey();
-        const i = dayIndex(dKey);
-        const r = rules[i];
+        locked = false;
 
-        rgDatePill.textContent = dKey;
-        rgRuleLine.textContent = "🛡️ " + r.title;
-        rgScenario.textContent = r.scenario;
+        explainEl?.classList.remove('is-on');
+        explainEl.textContent = '';
+        doneBtn?.classList.remove('is-on');
 
-        rgHint.textContent = "Подсказка: если просят пароль/код/личные данные — это опасно";
-        resetUI();
+        finish?.classList.remove('is-on');
 
-        if(isDone(dKey)){
-          rgFinishText.innerHTML = `
-            Сегодняшнее правило уже пройдено 🎉<br>
-            <b>Правило:</b> ${r.title}
-            <br><br>
-            Хочешь — нажми «Повторить», чтобы ещё раз закрепить.
-          `;
-          rgStatus.textContent = "Статус: пройдено";
-          rgFinish.classList.add('is-on');
-          setLocked(true);
-          setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
-        }
+        const r = RULES[idx];
+        if(ruleLine) ruleLine.textContent = r.rule;
+        if(scenario) scenario.textContent = r.scenario;
+
+        btnBad.disabled = false;
+        btnGood.disabled = false;
       }
 
-      function getFocusable(){
-        if(!modal) return [];
-        const nodes = modal.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        return Array.from(nodes).filter(el => {
-          if(!el) return false;
-          if(el.hasAttribute('disabled')) return false;
-          if(el.getAttribute('aria-hidden') === 'true') return false;
-          if(el.hidden) return false;
-          if(el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return false;
-          return true;
-        });
+      function answer(isGood){
+        if(locked) return;
+        locked = true;
+
+        const r = RULES[idx];
+        const ok = (isGood === r.good);
+
+        if(explainEl){
+          explainEl.textContent = (ok ? '✅ Верно! ' : '❌ Не совсем. ') + r.explain;
+          explainEl.classList.add('is-on');
+        }
+
+        btnBad.disabled = true;
+        btnGood.disabled = true;
+
+        doneBtn?.classList.add('is-on');
+      }
+
+      function finishIt(){
+        finish?.classList.add('is-on');
+        if(finishText) finishText.textContent = 'Запомни правило и применяй его каждый день. Ты молодец! 🛡️';
+        if(status) status.textContent = 'Статус: пройдено';
       }
 
       function open(){
-        lastFocus = document.activeElement;
-
-        backdrop.classList.add('is-open');
-        backdrop.setAttribute('aria-hidden', 'false');
-
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-
+        pickRule();
         render();
-
-        // фокус-трап + Escape
-        keyHandler = (e) => {
-          if(!backdrop.classList.contains('is-open')) return;
-
-          if(e.key === 'Escape'){
-            e.preventDefault();
-            close();
-            return;
-          }
-
-          if(e.key !== 'Tab') return;
-
-          const focusables = getFocusable();
-          if(focusables.length === 0) return;
-
-          const first = focusables[0];
-          const last = focusables[focusables.length - 1];
-
-          if(e.shiftKey){
-            if(document.activeElement === first || !modal.contains(document.activeElement)){
-              e.preventDefault();
-              last.focus({ preventScroll:true });
-            }
-          }else{
-            if(document.activeElement === last){
-              e.preventDefault();
-              first.focus({ preventScroll:true });
-            }
-          }
-        };
-        window.addEventListener('keydown', keyHandler);
-
-        setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
+        openModal(backdrop);
       }
 
       function close(){
-        backdrop.classList.remove('is-open');
-        backdrop.setAttribute('aria-hidden', 'true');
-
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-
-        if(keyHandler){
-          window.removeEventListener('keydown', keyHandler);
-          keyHandler = null;
-        }
-
-        if(lastFocus && typeof lastFocus.focus === 'function'){
-          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
-        }
+        closeModal(backdrop);
       }
 
-      function answer(choice){
-        if(locked) return;
-
-        const dKey = todayKey();
-        const r = rules[dayIndex(dKey)];
-
-        setLocked(true);
-
-        const correct = (choice === r.correct);
-        const topLine = correct ? "✅ Верно!" : "❌ Почти!";
-
-        const rightText = (r.correct === "bad") ? "Опасно" : "Безопасно";
-
-        const lines = [
-          `<div style="margin:6px 0;"><b>${topLine}</b> Правильный ответ: <b>${rightText}</b>.</div>`,
-          ...r.explain.map(s => `<div style="margin:6px 0;">${s}</div>`)
-        ].join("");
-
-        rgExplain.innerHTML = lines;
-        rgExplain.classList.add('is-on');
-        doneBtn.classList.add('is-on');
-
-        rgHint.textContent = correct
-          ? "Круто! Ты укрепляешь свой цифровой щит."
-          : "Нормально — так и учатся. Главное: запомни признак и действуй спокойно.";
-
-        doneBtn.focus({ preventScroll:true });
-      }
-
-      function done(){
-        const dKey = todayKey();
-        markDone(dKey);
-
-        const r = rules[dayIndex(dKey)];
-
-        rgFinishText.innerHTML = `
-          <b>Правило дня:</b> ${r.title}<br><br>
-          Завтра будет новое правило — заходи снова ✅
-        `;
-        rgStatus.textContent = "Статус: пройдено";
-        rgFinish.classList.add('is-on');
-
-        rgExplain.classList.remove('is-on');
-        doneBtn.classList.remove('is-on');
-
-        setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
-      }
-
-      function again(){
-        const dKey = todayKey();
-        clearDone(dKey);
-        render();
-        setTimeout(() => btnBad.focus({ preventScroll:true }), 0);
-      }
-
-      openLink.addEventListener('click', (e) => {
+      openBtn.addEventListener('click', (e) => {
         e.preventDefault();
         open();
       });
@@ -3274,12 +3780,56 @@
         if(e.target === backdrop) close();
       });
 
-      btnBad.addEventListener('click', () => answer("bad"));
-      btnGood.addEventListener('click', () => answer("good"));
-      doneBtn.addEventListener('click', done);
-      rgAgain.addEventListener('click', again);
+      window.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') close();
+      });
+
+      btnBad?.addEventListener('click', () => answer(false));
+      btnGood?.addEventListener('click', () => answer(true));
+      doneBtn?.addEventListener('click', finishIt);
+
+      restartBtn?.addEventListener('click', () => {
+        // просто покажем следующее правило (как “ещё раз”)
+        idx = (idx + 1) % RULES.length;
+        render();
+      });
+    })();
+
+    /* ============================================================
+       ✅ Fancy transition on navigation (optional, safe)
+    ============================================================ */
+    (function initPageTransition(){
+      const pt = $('#pt');
+      if(!pt) return;
+
+      // intercept only same-origin navigations? (здесь ссылки внешние на ваш домен — ок)
+      $$('a[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        if(!href) return;
+        if(href.startsWith('#')) return;
+        if(a.getAttribute('target') === '_blank') return;
+
+        a.addEventListener('click', (e) => {
+          // allow modified clicks
+          if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+          // simple fade
+          e.preventDefault();
+          pt.classList.add('is-leaving');
+
+          setTimeout(() => {
+            window.location.href = href;
+          }, 260);
+        });
+      });
+
+      // enter
+      requestAnimationFrame(() => {
+        pt.classList.add('is-entering');
+        setTimeout(() => pt.classList.remove('is-entering'), 520);
+      });
     })();
   </script>
-
 </body>
 </html>
+
