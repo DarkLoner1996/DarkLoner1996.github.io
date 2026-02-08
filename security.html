@@ -41,13 +41,13 @@
       --ui-bear-gap: 22px;         /* зазор между UI и медведем */
       --ui-bottom-extra: 0px;      /* доп. сдвиг (на 4K дадим ниже) */
       --ui-safe-top: 14px;         /* защита от обрезания сверху */
-      --ui-target-frac: 0.72;      /* куда скроллить (если header скроллится) */
+      --ui-target-frac: 0.72;      /* куда скроллить внутри hero */
 
       --radius: 22px;
       --rowH: clamp(68px, 9.5vw, 82px);
       --uiPad: clamp(14px, 2.2vw, 22px);
 
-      /* ✅ ВАЖНО: поднимаем центральные блоки выше (как стрелка вверх на картинке) */
+      /* ✅ ВАЖНО: поднимаем центральные блоки выше */
       --movies-down: clamp(-140px, -7vh, -44px);
 
       /* ====== “КАК НА КАРТИНКЕ”: золото/магия/сказочный UI ====== */
@@ -90,7 +90,6 @@
 
     /* ============================================================
        ✅ РАЗНЫЕ ФОНЫ = РАЗНЫЙ “ЯКОРЬ МЕДВЕДЯ”
-       FHD (bg_fhd_m.jpg) и 4K (header-bg-m-3840.jpg) — разная композиция
        ============================================================ */
 
     /* ✅ FULL HD и всё до 1920px: поднимаем блок (чтобы НЕ накрывал медведя) */
@@ -102,16 +101,14 @@
       }
     }
 
-    /* ✅ 4K (>=1921px): слегка опускаем (чтобы не уезжало вверх) */
-/* ✅ 4K (>=1921px): ПОДНИМАЕМ UI ВЫШЕ */
-@media (min-width: 1921px){
-  :root{
-    --bear-top-frac: 0.665;
-    --ui-bear-gap: 22px;
-    --ui-bottom-extra: -40px;   /* было 160px */
-  }
-}
-
+    /* ✅ 4K (>=1921px): ПОДНИМАЕМ UI ВЫШЕ */
+    @media (min-width: 1921px){
+      :root{
+        --bear-top-frac: 0.665;
+        --ui-bear-gap: 22px;
+        --ui-bottom-extra: -40px;
+      }
+    }
 
     a, button{ -webkit-tap-highlight-color: transparent; }
     :focus{ outline:none; }
@@ -121,21 +118,21 @@
       *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
     }
 
-    /* ===================== MENU (НОВАЯ ВЕРСИЯ — “игровой HUD”, дороже) ===================== */
-.side-nav{
-  position:fixed;
-  left: var(--nav-left);
-  top: var(--nav-top);
-  z-index:11000;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  align-items:flex-start;
-  transform: translateZ(0);
-  user-select:none;
-  pointer-events:auto;
-  transition: width .28s cubic-bezier(.4,0,.2,1);
-}
+    /* ===================== MENU (игровой HUD) ===================== */
+    .side-nav{
+      position:fixed;
+      left: var(--nav-left);
+      top: var(--nav-top);
+      z-index:11000;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-start;
+      transform: translateZ(0);
+      user-select:none;
+      pointer-events:auto;
+      transition: width .28s cubic-bezier(.4,0,.2,1);
+    }
     .side-nav__tab{
       width: var(--panel-w);
       border-radius: 22px;
@@ -267,26 +264,25 @@
       transition: transform .25s ease;
     }
 
-.side-nav__panel{
-  width: var(--panel-w);
-  padding: 12px 12px 14px;
-  position:relative;
-  overflow:hidden;
-  background:
-    radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.12), transparent 62%),
-    radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
-    linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow:
-    0 34px 90px rgba(0,0,0,.30),
-    0 12px 26px rgba(0,0,0,.18);
-  backdrop-filter: blur(22px) saturate(1.08);
-  -webkit-backdrop-filter: blur(22px) saturate(1.08);
-  transition: transform .22s ease, opacity .22s ease, filter .22s ease, width .22s ease, padding .22s ease;
-  transform-origin: top left;
-  margin-top: 8px;
-}
-
+    .side-nav__panel{
+      width: var(--panel-w);
+      padding: 12px 12px 14px;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.12), transparent 62%),
+        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        0 34px 90px rgba(0,0,0,.30),
+        0 12px 26px rgba(0,0,0,.18);
+      backdrop-filter: blur(22px) saturate(1.08);
+      -webkit-backdrop-filter: blur(22px) saturate(1.08);
+      transition: transform .22s ease, opacity .22s ease, filter .22s ease, width .22s ease, padding .22s ease;
+      transform-origin: top left;
+      margin-top: 8px;
+    }
     .side-nav__panel::before{
       content:"";
       position:absolute; inset:0;
@@ -511,39 +507,6 @@
     .side-nav__tab{ pointer-events: auto; }
     .side-nav.is-collapsed #menuToggle svg{ transform: rotate(180deg); }
 
-@media (max-width: 520px){
-  .side-nav{
-    left: var(--nav-left) !important;
-    top:  var(--nav-top) !important;
-    transform: translateX(-50%) translateZ(0) !important;
-    align-items: center !important;
-    gap: 6px !important;
-  }
-  .side-nav__tab{
-    width: var(--panel-w) !important;
-    padding: 6px 8px !important;
-    border-radius: 16px !important;
-  }
-  .menu-pill{
-    padding: 7px 10px !important;
-    border-radius: 14px !important;
-    font-size: 11px !important;
-  }
-  .back-btn{
-    width: 34px !important;
-    height: 34px !important;
-    border-radius: 12px !important;
-  }
-  .side-nav__panel{
-    width: var(--panel-w) !important;
-    max-height: calc(100dvh - 62px - env(safe-area-inset-bottom, 0px)) !important;
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: 10px !important;
-  }
-}
-
-
     /* ===================== HEADER ===================== */
     .header{
       position:relative;
@@ -710,18 +673,14 @@
       text-shadow: 0 10px 24px rgba(0,0,0,.22);
     }
 
-    /* ============================================================
-       ✅ ИСПРАВЛЕНО: ui-bottom всегда работает (top+scale), без !important
-       ============================================================ */
+    /* ✅ ui-bottom всегда работает через CSS var */
     .ui-bottom{
       position:absolute;
       left:0;
       right:0;
       top: var(--ui-bottom-top);
-
       transform: translateZ(0) scale(var(--ui-bottom-scale));
       transform-origin: center top;
-
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -947,10 +906,7 @@
       width: 100%;
     }
 
-    /* =====================================================================
-       ✅ ВОССТАНОВЛЕННЫЙ CSS (РАНЬШЕ У ТЕБЯ ЗДЕСЬ БЫЛА ЗАГЛУШКА)
-       ===================================================================== */
-
+    /* ✨ Sparkles */
     .sparkles{
       position:absolute;
       inset:0;
@@ -985,6 +941,7 @@
       50%{ transform: translate3d(12px,-10px,0); opacity:1; }
     }
 
+    /* Intro + transitions */
     .intro{
       position:fixed;
       inset:0;
@@ -1026,6 +983,7 @@
     }
     .page-transition.is-entering .wipe{ transform: translateX(110%); }
 
+    /* Movie cards */
     .movie-card{
       min-height: var(--movie-card-minh);
       padding: var(--movie-card-pad);
@@ -1156,6 +1114,7 @@
     }
     .movie-btn:active{ transform: translateY(0) scale(.99); }
 
+    /* side chips */
     .side-chip{
       position:fixed;
       left: var(--nav-left);
@@ -1736,30 +1695,22 @@
     }
 
     /* ✅ FHD / до 1920px: меню уже + резервируем место слева под него */
-@media (min-width: 1200px) and (max-width: 1920px){
-  :root{
-    --nav-left: 10px;
-    --nav-top: 10px;
+    @media (min-width: 1200px) and (max-width: 1920px){
+      :root{
+        --nav-left: 10px;
+        --nav-top: 10px;
+        --panel-w: clamp(240px, 16vw, 320px);
+        --rowH: 56px;
+      }
+      .ui{
+        --ui-left: calc(var(--panel-w) + 26px);
+        padding-left: var(--ui-left);
+      }
+    }
 
-    /* было до 420px → делаем уже */
-    --panel-w: clamp(240px, 16vw, 320px);
-
-    /* опционально: чуть компактнее пункты меню */
-    --rowH: 56px;
-  }
-
-  /* ✅ чтобы центральные CTA не попадали под меню */
-  .ui{
-    --ui-left: calc(var(--panel-w) + 26px);
-    padding-left: var(--ui-left);
-  }
-}
-
-    
     /* ============================================================
-       ✅ FHD (не трогаем 4K) — ОСТАВЛЕН ОДИН БЛОК (без дублей)
+       ✅ FHD (низкие высоты) — компактная версия
        ============================================================ */
-    
     @media (max-width: 1920px) and (min-width: 521px) and (max-height: 980px){
       :root{
         --nav-left: 10px;
@@ -1769,7 +1720,6 @@
         --rowH: 46px;
         --uiPad: 12px;
 
-        /* ✅ только масштаб; top считает общий heroUiSnap() */
         --ui-bottom-scale: .86;
 
         --movie-card-minh: 92px;
@@ -2560,6 +2510,7 @@
       btn.addEventListener('click', () => {
         nav.classList.toggle('is-collapsed');
         sync();
+        window.dispatchEvent(new Event('resize')); // чтобы перерасчёт UI сработал сразу
       });
     })();
 
@@ -2612,84 +2563,138 @@
         setTimeout(() => pt.classList.remove('is-entering'), 520);
       });
     })();
+  </script>
 
-    // ============================================================
-    // ✅ СТАРТ СНИЗУ — ТОЛЬКО MOBILE (<=520px)
-    // ============================================================
-    
-  // ============================================================
-  // ✅ СТАРТ СНИЗУ — ВСЕ УСТРОЙСТВА (mobile + FHD + 4K)
-  // ============================================================
-  (function startAtBottomAll(){
-    const header = document.getElementById('hero') || document.querySelector('.header');
-    if(!header) return;
+  <!-- ============================================================
+       ✅ ЕДИНЫЙ ФИКС ДЛЯ MOBILE + FHD + 4K:
+       - ставит .ui-bottom над медведем (FHD/4K)
+       - корректно автоскроллит к “нижней” зоне (и не мешает после действий пользователя)
+       - больше нет двух конкурирующих автоскроллов
+  ============================================================ -->
+  <script>
+    (function heroUiSnap(){
+      const header   = document.getElementById('hero') || document.querySelector('.header');
+      const img      = document.querySelector('.header__bg');
+      const uiBottom = document.querySelector('.ui-bottom');
+      if(!header || !img || !uiBottom) return;
 
-    let userTouched = false;
-    const markTouched = () => { userTouched = true; };
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // если пользователь начал скроллить/кликать — больше не мешаем
-    window.addEventListener('wheel', markTouched, { passive:true });
-    window.addEventListener('touchstart', markTouched, { passive:true });
-    window.addEventListener('pointerdown', markTouched, { passive:true });
-    window.addEventListener('keydown', markTouched, { passive:true });
+      let userTouched = false;
+      const markTouched = () => { userTouched = true; };
 
-    function isScrollable(el){
-      const st = getComputedStyle(el);
-      const oy = st.overflowY;
-      return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
-    }
+      // Любое реальное действие пользователя — прекращаем автоподстройку прокрутки
+      window.addEventListener('wheel', markTouched, { passive:true });
+      window.addEventListener('touchstart', markTouched, { passive:true });
+      window.addEventListener('pointerdown', markTouched, { passive:true });
+      window.addEventListener('keydown', markTouched, { passive:true });
 
-    function getScrollTarget(){
-      // если прокрутка внутри header — крутим её, иначе крутим документ
-      return isScrollable(header) ? header : (document.scrollingElement || document.documentElement);
-    }
-
-    function scrollToBottom(force){
-      if(userTouched && !force) return;
-      const t = getScrollTarget();
-
-      if(t === header){
-        header.scrollTop = header.scrollHeight + 999999;
-      }else{
-        window.scrollTo(0, t.scrollHeight + 999999);
+      function num(val, fallback){
+        const n = parseFloat(String(val).replace(',', '.'));
+        return Number.isFinite(n) ? n : fallback;
       }
-    }
+      function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
+      function cssVar(name, fallback){
+        const rs = getComputedStyle(document.documentElement);
+        return num(rs.getPropertyValue(name), fallback);
+      }
+      function isScrollable(el){
+        const st = getComputedStyle(el);
+        const oy = st.overflowY;
+        return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
+      }
 
-    function runFewTimes(force){
-      scrollToBottom(force);
-      requestAnimationFrame(() => scrollToBottom(force));
-      setTimeout(() => scrollToBottom(force), 60);
-      setTimeout(() => scrollToBottom(force), 200);
-      setTimeout(() => scrollToBottom(force), 420);
-    }
+      function anchorY(){
+        // якорь медведя по высоте картинки
+        const bearFrac = clamp(cssVar('--bear-top-frac', 0.65139), 0.35, 0.90);
+        const h = img.offsetHeight || 0;
+        const t = img.offsetTop || 0;
+        return t + h * bearFrac;
+      }
 
-    // старт
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', () => runFewTimes(true), { once:true });
-    } else {
-      runFewTimes(true);
-    }
-    window.addEventListener('load', () => runFewTimes(true), { once:true });
+      function snap(){
+        // На мобилке картинка cover/без скролла — оставляем дефолт
+        if(matchMedia('(max-width: 520px)').matches) return;
 
-    // после прогрузки главной картинки — ещё раз вниз (часто меняется высота)
-    const img = document.querySelector('.header__bg');
-    if(img){
-      const afterImg = () => setTimeout(() => runFewTimes(true), 0);
-      if(img.complete) afterImg();
-      else img.addEventListener('load', afterImg, { once:true });
-    }
+        const scale = clamp(cssVar('--ui-bottom-scale', 1), 0.6, 1.2);
+        const gap   = clamp(cssVar('--ui-bear-gap', 18), 8, 90);
+        const extra = cssVar('--ui-bottom-extra', 0);
 
-    // на ресайз/смену viewport — поддерживаем низ
-    window.addEventListener('resize', () => setTimeout(() => scrollToBottom(false), 0), { passive:true });
-    if(window.visualViewport){
-      window.visualViewport.addEventListener('resize', () => setTimeout(() => scrollToBottom(false), 0), { passive:true });
-    }
-  })();
+        const imgTop = img.offsetTop || 0;
+        const imgH   = img.offsetHeight || 0;
+        const aY     = anchorY();
+        const uiH    = (uiBottom.offsetHeight || 0) * scale;
 
+        if(imgH < 10 || uiH < 10) return;
 
+        let top = aY - uiH - gap + extra;
 
+        const safeTop = clamp(cssVar('--ui-safe-top', 12), 0, 160);
+        const maxTop  = (imgTop + imgH) - uiH - gap;
+
+        top = clamp(top, safeTop, maxTop);
+        document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
+      }
+
+      function autoScrollOnce(force){
+        if(reduce) return;
+        if(userTouched && !force) return;
+
+        const targetFrac = clamp(cssVar('--ui-target-frac', 0.72), 0.55, 0.85);
+
+        // Если hero реально скроллится — скроллим hero
+        if(isScrollable(header)){
+          const aY = anchorY();
+          const target = aY - header.clientHeight * targetFrac;
+          const maxScroll = header.scrollHeight - header.clientHeight;
+          header.scrollTop = clamp(target, 0, maxScroll);
+          return;
+        }
+
+        // Иначе (редко) — скроллим документ вниз
+        const se = document.scrollingElement || document.documentElement;
+        window.scrollTo(0, se.scrollHeight + 999999);
+      }
+
+      let raf = 0;
+      function schedule(forceScroll){
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          snap();
+          requestAnimationFrame(snap);
+        });
+
+        // серия дозамеров (картинка/шрифты/viewport часто “прыгают”)
+        setTimeout(() => { snap(); }, 60);
+        setTimeout(() => { snap(); }, 180);
+        setTimeout(() => { snap(); }, 420);
+
+        // автоскролл — только при первом входе/после загрузки
+        setTimeout(() => { autoScrollOnce(!!forceScroll); }, 0);
+        setTimeout(() => { autoScrollOnce(false); }, 90);
+        setTimeout(() => { autoScrollOnce(false); }, 260);
+      }
+
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', () => schedule(true), { once:true });
+      }else{
+        schedule(true);
+      }
+
+      window.addEventListener('load', () => schedule(true), { once:true });
+      if(img.complete) schedule(true);
+      else img.addEventListener('load', () => schedule(true), { once:true });
+
+      window.addEventListener('resize', () => schedule(false), { passive:true });
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize', () => schedule(false), { passive:true });
+      }
+    })();
+  </script>
+
+  <script>
     /* ============================================================
-       ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация (без изменений)
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" — (как у тебя, без изменений логики)
     ============================================================ */
     (function phishingGame(){
       const openBtn = document.getElementById('openPhishGame');
@@ -3167,124 +3172,6 @@
       btnGood.addEventListener('click', () => answer("good"));
       doneBtn.addEventListener('click', done);
       rgAgain.addEventListener('click', again);
-    })();
-  </script>
-
-  <!-- ============================================================
-       ✅ ЕДИНЫЙ ФИКС ДЛЯ FHD + 4K: заменяет два твоих старых скрипта
-       - ставит .ui-bottom над медведем
-       - корректно работает и на FHD, и на 4K
-       - не использует getBoundingClientRect() для расчёта top (это ломало тебе всё)
-  ============================================================ -->
-  <script>
-    (function heroUiSnap(){
-      const desktopMQ = matchMedia('(min-width: 521px)');
-      if(!desktopMQ.matches) return;
-
-      const header   = document.getElementById('hero') || document.querySelector('.header');
-      const img      = document.querySelector('.header__bg');
-      const uiBottom = document.querySelector('.ui-bottom');
-      if(!header || !img || !uiBottom) return;
-
-      let userTouched = false;
-      const markTouched = () => { userTouched = true; };
-
-      header.addEventListener('wheel', markTouched, { passive:true });
-      header.addEventListener('touchstart', markTouched, { passive:true });
-      header.addEventListener('pointerdown', markTouched, { passive:true });
-      window.addEventListener('keydown', markTouched, { passive:true });
-
-      function num(val, fallback){
-        const n = parseFloat(String(val).replace(',', '.'));
-        return Number.isFinite(n) ? n : fallback;
-      }
-      function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
-      function cssVar(name, fallback){
-        const rs = getComputedStyle(document.documentElement);
-        return num(rs.getPropertyValue(name), fallback);
-      }
-
-      function isScrollable(el){
-        const st = getComputedStyle(el);
-        const oy = st.overflowY;
-        return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
-      }
-
-      function anchorY(){
-        const bearFrac = clamp(cssVar('--bear-top-frac', 0.65139), 0.35, 0.90);
-        const h = img.offsetHeight || 0;
-        const t = img.offsetTop || 0;
-        return t + h * bearFrac;
-      }
-
-      function snap(){
-        const scale = clamp(cssVar('--ui-bottom-scale', 1), 0.6, 1.2);
-        const gap   = clamp(cssVar('--ui-bear-gap', 18), 8, 90);
-        const extra = cssVar('--ui-bottom-extra', 0);
-
-        const imgTop = img.offsetTop || 0;
-        const imgH   = img.offsetHeight || 0;
-
-        const aY = anchorY();
-        const uiH = (uiBottom.offsetHeight || 0) * scale;
-
-        if(imgH < 10 || uiH < 10) return;
-
-        let top = aY - uiH - gap + extra;
-
-        const safeTop = clamp(cssVar('--ui-safe-top', 12), 0, 160);
-        const maxTop = (imgTop + imgH) - uiH - gap;
-
-        top = clamp(top, safeTop, maxTop);
-        document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
-      }
-
-      function smartScroll(){
-        if(userTouched) return;
-        if(!isScrollable(header)) return;
-
-        const aY = anchorY();
-        const targetFrac = clamp(cssVar('--ui-target-frac', 0.72), 0.55, 0.85);
-        const target = aY - header.clientHeight * targetFrac;
-
-        const maxScroll = header.scrollHeight - header.clientHeight;
-        header.scrollTop = clamp(target, 0, maxScroll);
-      }
-
-      let raf = 0;
-      function schedule(){
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-  snap();
-  requestAnimationFrame(snap);
-});
-
-setTimeout(() => { snap(); }, 60);
-setTimeout(() => { snap(); }, 180);
-setTimeout(() => { snap(); }, 420);
-
-      }
-
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', schedule, { once:true });
-      }else{
-        schedule();
-      }
-
-      window.addEventListener('load', schedule, { once:true });
-
-      if(img.complete) schedule();
-      else img.addEventListener('load', schedule, { once:true });
-
-      window.addEventListener('resize', schedule, { passive:true });
-      if(window.visualViewport){
-        window.visualViewport.addEventListener('resize', schedule, { passive:true });
-      }
-
-      const toggle = document.getElementById('menuToggle');
-      if(toggle){
-        toggle.addEventListener('click', () => setTimeout(schedule, 0));
-      }
     })();
   </script>
 
