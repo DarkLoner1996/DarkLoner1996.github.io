@@ -2694,7 +2694,8 @@
 
   <script>
     /* ============================================================
-       ✅ МИНИ-ИГРА: "Фишинг или правда?" — (как у тебя, без изменений логики)
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" — логика как у тебя,
+       + ДОБАВЛЕНО: фокус-трап (Tab не уходит за пределы модалки)
     ============================================================ */
     (function phishingGame(){
       const openBtn = document.getElementById('openPhishGame');
@@ -2702,6 +2703,8 @@
       const closeBtn = document.getElementById('closePhishGame');
 
       if(!openBtn || !backdrop || !closeBtn) return;
+
+      const modal = backdrop.querySelector('.mg-modal');
 
       const dotsWrap = document.getElementById('mgDots');
       const cardNo = document.getElementById('mgCardNo');
@@ -2789,19 +2792,83 @@
         resetUIForCard();
       }
 
+      function getFocusable(){
+        if(!modal) return [];
+        const nodes = modal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        return Array.from(nodes).filter(el => {
+          if(!el) return false;
+          if(el.hasAttribute('disabled')) return false;
+          if(el.getAttribute('aria-hidden') === 'true') return false;
+          // скрытые через hidden / display none
+          if(el.hidden) return false;
+          if(el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return false;
+          return true;
+        });
+      }
+
+      let keyHandler = null;
+
       function open(){
         lastFocus = document.activeElement;
         backdrop.classList.add('is-open');
         backdrop.setAttribute('aria-hidden', 'false');
         document.documentElement.style.overflow = 'hidden';
         document.body.style.overflow = 'hidden';
+
+        // фокус-трап + Escape/Enter
+        keyHandler = (e) => {
+          if(!backdrop.classList.contains('is-open')) return;
+
+          if(e.key === 'Escape'){
+            e.preventDefault();
+            close();
+            return;
+          }
+
+          if(e.key === 'Enter' && nextBtn.classList.contains('is-on')){
+            e.preventDefault();
+            next();
+            return;
+          }
+
+          if(e.key !== 'Tab') return;
+
+          const focusables = getFocusable();
+          if(focusables.length === 0) return;
+
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+
+          if(e.shiftKey){
+            if(document.activeElement === first || !modal.contains(document.activeElement)){
+              e.preventDefault();
+              last.focus({ preventScroll:true });
+            }
+          }else{
+            if(document.activeElement === last){
+              e.preventDefault();
+              first.focus({ preventScroll:true });
+            }
+          }
+        };
+        window.addEventListener('keydown', keyHandler);
+
         setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
       }
+
       function close(){
         backdrop.classList.remove('is-open');
         backdrop.setAttribute('aria-hidden', 'true');
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
+
+        if(keyHandler){
+          window.removeEventListener('keydown', keyHandler);
+          keyHandler = null;
+        }
+
         if(lastFocus && typeof lastFocus.focus === 'function'){
           setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
         }
@@ -2884,27 +2951,15 @@
         if(e.target === backdrop) close();
       });
 
-      window.addEventListener('keydown', (e) => {
-        if(!backdrop.classList.contains('is-open')) return;
-        if(e.key === 'Escape') close();
-      });
-
       btnPhish.addEventListener('click', () => answer(true));
       btnReal.addEventListener('click', () => answer(false));
       nextBtn.addEventListener('click', next);
       restartBtn.addEventListener('click', restart);
-
-      window.addEventListener('keydown', (e) => {
-        if(!backdrop.classList.contains('is-open')) return;
-        if(e.key === 'Enter' && nextBtn.classList.contains('is-on')){
-          e.preventDefault();
-          next();
-        }
-      });
     })();
 
     /* ============================================================
-       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — (без изменений)
+       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — (без изменений логики)
+       + ДОБАВЛЕНО: фокус-трап (Tab внутри модалки)
     ============================================================ */
     (function ruleOfDayGame(){
       const openLink = document.getElementById('openRuleGame');
@@ -2912,6 +2967,8 @@
       const closeBtn = document.getElementById('closeRuleGame');
 
       if(!openLink || !backdrop || !closeBtn) return;
+
+      const modal = backdrop.querySelector('.mg-modal');
 
       const rgDatePill = document.getElementById('rgDatePill');
       const rgRuleLine = document.getElementById('rgRuleLine');
@@ -2933,6 +2990,7 @@
 
       let lastFocus = null;
       let locked = false;
+      let keyHandler = null;
 
       const rules = [
         {
@@ -3072,6 +3130,21 @@
         }
       }
 
+      function getFocusable(){
+        if(!modal) return [];
+        const nodes = modal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        return Array.from(nodes).filter(el => {
+          if(!el) return false;
+          if(el.hasAttribute('disabled')) return false;
+          if(el.getAttribute('aria-hidden') === 'true') return false;
+          if(el.hidden) return false;
+          if(el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return false;
+          return true;
+        });
+      }
+
       function open(){
         lastFocus = document.activeElement;
 
@@ -3082,6 +3155,39 @@
         document.body.style.overflow = 'hidden';
 
         render();
+
+        // фокус-трап + Escape
+        keyHandler = (e) => {
+          if(!backdrop.classList.contains('is-open')) return;
+
+          if(e.key === 'Escape'){
+            e.preventDefault();
+            close();
+            return;
+          }
+
+          if(e.key !== 'Tab') return;
+
+          const focusables = getFocusable();
+          if(focusables.length === 0) return;
+
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+
+          if(e.shiftKey){
+            if(document.activeElement === first || !modal.contains(document.activeElement)){
+              e.preventDefault();
+              last.focus({ preventScroll:true });
+            }
+          }else{
+            if(document.activeElement === last){
+              e.preventDefault();
+              first.focus({ preventScroll:true });
+            }
+          }
+        };
+        window.addEventListener('keydown', keyHandler);
+
         setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
       }
 
@@ -3091,6 +3197,11 @@
 
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
+
+        if(keyHandler){
+          window.removeEventListener('keydown', keyHandler);
+          keyHandler = null;
+        }
 
         if(lastFocus && typeof lastFocus.focus === 'function'){
           setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
@@ -3161,11 +3272,6 @@
 
       backdrop.addEventListener('click', (e) => {
         if(e.target === backdrop) close();
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if(!backdrop.classList.contains('is-open')) return;
-        if(e.key === 'Escape') close();
       });
 
       btnBad.addEventListener('click', () => answer("bad"));
