@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>    
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -34,20 +34,11 @@
       --nav-top: 14px;
       --panel-w: min(420px, calc(100vw - 36px));
 
-      /* ============================================================
-         ✅ ЯКОРЬ МЕДВЕДЯ + точная посадка UI над медведем (FHD + 4K)
-         ============================================================ */
-      --bear-top-frac: 0.65139;    /* базовый якорь (переопределим ниже медиа-правками) */
-      --ui-bear-gap: 22px;         /* зазор между UI и медведем */
-      --ui-bottom-extra: 0px;      /* доп. сдвиг (на 4K дадим ниже) */
-      --ui-safe-top: 14px;         /* защита от обрезания сверху */
-      --ui-target-frac: 0.72;      /* куда скроллить внутри hero */
-
       --radius: 22px;
       --rowH: clamp(68px, 9.5vw, 82px);
       --uiPad: clamp(14px, 2.2vw, 22px);
 
-      /* ✅ ВАЖНО: поднимаем центральные блоки выше */
+      /* ✅ ВАЖНО: поднимаем центральные блоки выше (как стрелка вверх на картинке) */
       --movies-down: clamp(-140px, -7vh, -44px);
 
       /* ====== “КАК НА КАРТИНКЕ”: золото/магия/сказочный UI ====== */
@@ -71,52 +62,7 @@
       --shadowA: rgba(0,0,0,.22);
 
       --focus: 0 0 0 3px rgba(255, 242, 205, .34), 0 0 0 6px rgba(105,205,255,.22);
-
-      /* =================================================================
-         ✅ переменные "кино-карточек"
-         ================================================================= */
-      --movie-card-minh: 156px;
-      --movie-card-pad: 14px;
-      --movie-actions-mt: 14px;
-      --movie-btn-pad-y: 11px;
-      --movie-btn-pad-x: 18px;
-
-      /* =================================================================
-         ✅ ДОБАВЛЕНО: дефолты, чтобы ui-bottom не ломался без media/JS
-         ================================================================= */
-      --ui-bottom-top: 220px;
-      --ui-bottom-scale: 1;
     }
-
-    /* ============================================================
-       ✅ РАЗНЫЕ ФОНЫ = РАЗНЫЙ “ЯКОРЬ МЕДВЕДЯ”
-       ============================================================ */
-
-    /* ✅ FULL HD и всё до 1920px: поднимаем блок (чтобы НЕ накрывал медведя) */
-    @media (max-width: 1920px) and (min-width: 521px){
-      :root{
-        --bear-top-frac: 0.635;
-        --ui-bear-gap: 28px;
-        --ui-bottom-extra: 0px;
-      }
-    }
-
-    /* ✅ 4K (>=1921px): ПОДНИМАЕМ UI ВЫШЕ */
-@media (min-width: 1921px) {
-  :root {
-    --bear-top-frac: 0.665;
-    --ui-bear-gap: 22px;
-    --ui-bottom-extra: -40px;
-    --ui-bottom-top: 220px; /* This moves the UI towards the bottom */
-    --ui-target-frac: 0.72;
-  }
-
-  .cinema-grid {
-    position: relative;
-    top: var(--movies-down);  /* Adjusts the position above the bear */
-    z-index: 2; /* Ensure the cinema section appears above the background */
-  }
-}
 
     a, button{ -webkit-tap-highlight-color: transparent; }
     :focus{ outline:none; }
@@ -126,7 +72,7 @@
       *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
     }
 
-    /* ===================== MENU (игровой HUD) ===================== */
+    /* ===================== MENU (НОВАЯ ВЕРСИЯ — “игровой HUD”, дороже) ===================== */
     .side-nav{
       position:fixed;
       left: var(--nav-left);
@@ -141,6 +87,7 @@
       pointer-events:auto;
       transition: width .28s cubic-bezier(.4,0,.2,1);
     }
+
     .side-nav__tab{
       width: var(--panel-w);
       border-radius: 22px;
@@ -274,17 +221,22 @@
 
     .side-nav__panel{
       width: var(--panel-w);
+      border-radius: var(--radius);
       padding: 12px 12px 14px;
       position:relative;
       overflow:hidden;
+
       background:
         radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.12), transparent 62%),
         radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
         linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
+
       border: 1px solid rgba(255,255,255,.14);
+
       box-shadow:
         0 34px 90px rgba(0,0,0,.30),
         0 12px 26px rgba(0,0,0,.18);
+
       backdrop-filter: blur(22px) saturate(1.08);
       -webkit-backdrop-filter: blur(22px) saturate(1.08);
       transition: transform .22s ease, opacity .22s ease, filter .22s ease, width .22s ease, padding .22s ease;
@@ -515,6 +467,12 @@
     .side-nav__tab{ pointer-events: auto; }
     .side-nav.is-collapsed #menuToggle svg{ transform: rotate(180deg); }
 
+    @media (max-width: 520px){
+      .side-nav.is-collapsed .side-nav__panel{
+        transform: translateY(-8px) scaleY(.94);
+      }
+    }
+
     /* ===================== HEADER ===================== */
     .header{
       position:relative;
@@ -681,18 +639,15 @@
       text-shadow: 0 10px 24px rgba(0,0,0,.22);
     }
 
-    /* ✅ ui-bottom всегда работает через CSS var */
     .ui-bottom{
-      position:absolute;
-      left:0;
-      right:0;
-      top: var(--ui-bottom-top);
-      transform: translateZ(0) scale(var(--ui-bottom-scale));
-      transform-origin: center top;
       display:flex;
       flex-direction:column;
-      align-items:center;
       gap: 12px;
+      padding-bottom: calc(var(--uiPad) + env(safe-area-inset-bottom, 0px));
+      align-items:center;
+      justify-content:flex-end;
+      transform: translateY(var(--movies-down));
+      will-change: transform;
     }
 
     .cta-row{
@@ -914,166 +869,117 @@
       width: 100%;
     }
 
-    /* ✨ Sparkles */
-    .sparkles{
-      position:absolute;
-      inset:0;
-      z-index:3;
-      pointer-events:none;
-      mix-blend-mode: screen;
-      opacity:.9;
-    }
-    .sparkles::before,
-    .sparkles::after{
-      content:"";
-      position:absolute;
-      inset:-25%;
-      background:
-        radial-gradient(6px 6px at 12% 18%, rgba(255,255,255,.52), transparent 72%),
-        radial-gradient(5px 5px at 26% 62%, rgba(255,255,255,.28), transparent 72%),
-        radial-gradient(6px 6px at 72% 26%, rgba(255,255,255,.32), transparent 72%),
-        radial-gradient(5px 5px at 82% 58%, rgba(255,255,255,.22), transparent 72%),
-        radial-gradient(420px 300px at 20% 10%, rgba(120,230,255,.10), transparent 62%),
-        radial-gradient(420px 320px at 80% 15%, rgba(255,242,205,.08), transparent 62%),
-        linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
-      filter: blur(.2px);
-      animation: sparkMove 7.4s ease-in-out infinite;
-    }
-    .sparkles::after{
-      opacity:.65;
-      animation-duration: 9.2s;
-      animation-direction: reverse;
-    }
-    @keyframes sparkMove{
-      0%,100%{ transform: translate3d(0,0,0); opacity:.72; }
-      50%{ transform: translate3d(12px,-10px,0); opacity:1; }
-    }
-
-    /* Intro + transitions */
-    .intro{
-      position:fixed;
-      inset:0;
-      z-index:16000;
-      pointer-events:none;
-      background:
-        radial-gradient(120% 120% at 50% 20%, rgba(255,255,255,.20), transparent 60%),
-        linear-gradient(180deg, rgba(8,35,60,.92), rgba(0,0,0,.88));
-      opacity: 0;
-      transition: opacity .35s ease;
-    }
-    .intro.is-on{ opacity: 1; }
-
-    .page-transition{
-      position:fixed;
-      inset:0;
-      z-index:15500;
-      pointer-events:none;
-      opacity:0;
-      transition: opacity .18s ease;
-    }
-    .page-transition .wipe{
-      position:absolute;
-      inset:0;
-      transform: translateX(-110%);
-      background:
-        radial-gradient(120% 120% at 20% 20%, rgba(255,255,255,.14), transparent 60%),
-        linear-gradient(90deg, rgba(10,55,90,.0), rgba(10,55,90,.92), rgba(10,55,90,.0));
-      filter: blur(.2px);
-      transition: transform .45s cubic-bezier(.4,0,.2,1);
-    }
-    .page-transition.is-leaving{
-      opacity:1;
-      pointer-events:auto;
-    }
-    .page-transition.is-leaving .wipe{ transform: translateX(0); }
-    .page-transition.is-entering{
-      opacity:1;
-    }
-    .page-transition.is-entering .wipe{ transform: translateX(110%); }
-
-    /* Movie cards (оставлено — не мешает, даже если блок заменён на рулетку) */
     .movie-card{
-      min-height: var(--movie-card-minh);
-      padding: var(--movie-card-pad);
+      position:relative;
       border-radius: 22px;
-      position: relative;
-      overflow: hidden;
+      overflow:hidden;
+      padding: 14px;
+      min-height: 156px;
+      transform: translateZ(0);
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
 
       background:
-        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.14), transparent 60%),
-        radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.10), transparent 60%),
-        linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
+        radial-gradient(150% 140% at 18% 18%, rgba(255,255,255,.18), transparent 58%),
+        radial-gradient(110% 120% at 90% 10%, rgba(120,230,255,.10), transparent 60%),
+        radial-gradient(120% 120% at 50% 120%, rgba(255,242,205,.10), transparent 62%),
+        linear-gradient(180deg, rgba(70,35,10,.42), rgba(25,12,5,.42));
 
-      border: 1px solid rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.14);
       box-shadow:
-        0 22px 50px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      backdrop-filter: blur(16px) saturate(1.06);
-      -webkit-backdrop-filter: blur(16px) saturate(1.06);
+        0 28px 62px rgba(0,0,0,.20),
+        0 10px 22px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(14px) saturate(1.06);
+      -webkit-backdrop-filter: blur(14px) saturate(1.06);
     }
+
     .movie-card::before{
       content:"";
       position:absolute; inset:0;
       border-radius: 22px;
       padding: 2px;
       background:
-        linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.22), var(--gold2), var(--gold1));
+        linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
+      opacity:.92;
       pointer-events:none;
-      opacity:.9;
     }
+
+    .movie-card::after{
+      content:"";
+      position:absolute;
+      inset:-26px;
+      border-radius: 34px;
+      background:
+        radial-gradient(60% 60% at 30% 30%, var(--glowA), transparent 62%),
+        radial-gradient(60% 60% at 70% 30%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(60% 60% at 50% 80%, var(--glowB), transparent 62%);
+      opacity:0;
+      filter: blur(12px);
+      pointer-events:none;
+      transition: opacity .18s ease;
+      z-index:0;
+    }
+
+    .movie-card:hover{
+      transform: translateY(-2px);
+      filter: saturate(1.06);
+      box-shadow:
+        0 38px 80px rgba(0,0,0,.24),
+        0 12px 26px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .movie-card:hover::after{ opacity:.80; }
 
     .movie-top{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:10px;
+      gap: 10px;
       position:relative;
       z-index:2;
     }
 
     .movie-name{
-      font-size: clamp(14px, 2.1vw, 18px);
-      line-height: 1.08;
-      letter-spacing: .03em;
-      color: rgba(245,250,255,.98);
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+      color: rgba(255, 242, 205, .98);
+      font-size: clamp(14px, 2.8vw, 18px);
+      text-shadow: 0 12px 30px rgba(0,0,0,.26);
+      max-width: 100%;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      padding-right: 8px;
     }
 
     .movie-meta{
+      color: rgba(255,255,255,.92);
+      font-size: 11px;
+      letter-spacing: .10em;
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.38), rgba(8,35,60,.32));
-
-      border: 1px solid rgba(255,255,255,.14);
-      color: rgba(255, 242, 205, .90);
-      font-size: 11px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
+      gap: 8px;
       white-space: nowrap;
-    }
-
-    .dot{
-      width: 8px;
-      height: 8px;
+      padding: 7px 10px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(120,230,255,.75));
-      box-shadow: 0 0 12px rgba(120,230,255,.35);
+      border: 1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(20,85,135,.34), rgba(10,50,85,.30));
+      box-shadow: 0 14px 22px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.10);
+      opacity:.98;
+    }
+    .dot{
+      width:6px; height:6px; border-radius:50%;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
     }
 
     .movie-actions{
-      margin-top: var(--movie-actions-mt);
       display:flex;
       justify-content:center;
+      margin-top: 14px;
       position:relative;
       z-index:2;
     }
@@ -1084,659 +990,727 @@
       justify-content:center;
       gap:10px;
 
-      padding: var(--movie-btn-pad-y) var(--movie-btn-pad-x);
-      border-radius: 18px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.98);
       text-decoration:none;
 
-      color: rgba(255,255,255,.96);
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing: .14em;
+      font-size: 12px;
+      letter-spacing: .16em;
       text-transform: uppercase;
+      font-weight: 900;
+
+      position:relative;
+      overflow:hidden;
+      transform: translateZ(0);
 
       background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.26), transparent 60%),
+        radial-gradient(120% 120% at 86% 26%, rgba(255,242,205,.12), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92));
 
-      border: 1px solid rgba(255,255,255,.18);
       box-shadow:
-        0 16px 30px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
+        0 22px 48px rgba(0,0,0,.18),
+        0 8px 18px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.20);
+
+      backdrop-filter: blur(10px) saturate(1.08);
+      -webkit-backdrop-filter: blur(10px) saturate(1.08);
 
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
-      min-width: 160px;
+      min-width: 176px;
+      cursor:pointer;
     }
-    .movie-btn svg{
-      width: 18px;
-      height: 18px;
-      flex: 0 0 auto;
-      display:block;
-      fill: currentColor;
+
+    .movie-btn::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 999px;
+      padding: 2px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.92;
+      pointer-events:none;
     }
+    .movie-btn::after{
+      content:"";
+      position:absolute;
+      top:-60%;
+      left:-40%;
+      width: 60%;
+      height: 220%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+      transform: rotate(18deg) translateX(-10%);
+      opacity:0;
+      pointer-events:none;
+      transition: transform .55s ease, opacity .55s ease;
+      filter: blur(.2px);
+    }
+
     .movie-btn:hover{
       transform: translateY(-1px);
-      filter: saturate(1.06);
+      filter: saturate(1.08);
       box-shadow:
-        0 22px 44px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.16);
+        0 30px 66px rgba(0,0,0,.22),
+        0 10px 22px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.22);
     }
-    .movie-btn:active{ transform: translateY(0) scale(.99); }
+    .movie-btn:hover::after{ opacity:.75; transform: rotate(18deg) translateX(220%); }
+    .movie-btn:active{ transform: translateY(0) scale(.992); }
 
-    /* side chips */
+    .movie-btn svg{
+      width:18px; height:18px;
+      stroke: rgba(255,255,255,.96);
+      fill:none;
+      stroke-width:2.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,.18));
+    }
+
+    .sparkles{
+      position:absolute;
+      inset:0;
+      z-index:4;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .sparkles::before{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(6px 6px at 18% 58%, rgba(255,255,255,.42), transparent 72%),
+        radial-gradient(5px 5px at 28% 76%, rgba(255,255,255,.30), transparent 72%),
+        radial-gradient(6px 6px at 62% 62%, rgba(255,255,255,.28), transparent 72%),
+        radial-gradient(5px 5px at 78% 78%, rgba(255,255,255,.22), transparent 72%),
+        radial-gradient(360px 260px at 72% 70%, rgba(120,230,255,.10), transparent 60%),
+        radial-gradient(420px 320px at 38% 82%, rgba(255,240,180,.12), transparent 60%);
+      opacity:.90;
+      animation: sparkFloat 7.5s ease-in-out infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes sparkFloat{
+      0%,100%{ transform: translate3d(0,0,0); }
+      50%{ transform: translate3d(10px,-10px,0); }
+    }
+
+    /* ============================================================
+       ✅ "Фишинг" слева — сдвигаем НИЖЕ
+    ============================================================ */
     .side-chip{
-      position:fixed;
-      left: var(--nav-left);
-      bottom: 14px;
-      z-index:9500;
-      display:flex;
-      align-items:flex-end;
-      gap:12px;
+      position:absolute;
+      bottom: 10px;
+      z-index: 6;
       pointer-events:auto;
-      transform: translateZ(0);
-    }
-    body.menu-collapsed .side-chip{
-      left: var(--nav-left);
+      display:flex;
+      align-items:center;
+      gap: 12px;
     }
 
-    .rules{
-      position:fixed;
-      right: var(--nav-left);
-      bottom: 14px;
-      z-index:9500;
-      display:flex;
-      align-items:flex-end;
-      gap:12px;
-      pointer-events:auto;
-      transform: translateZ(0);
+    @media (min-width: 521px){
+      .side-chip{ left: calc(var(--nav-left) + var(--panel-w) + 18px); }
+      body.menu-collapsed .side-chip{ left: calc(var(--nav-left) + 10px); }
     }
 
     .avatar{
-      width: 72px;
-      height: 72px;
+      width: 74px;
+      height: 74px;
       border-radius: 26px;
+      position:relative;
+      overflow:hidden;
       display:grid;
       place-items:center;
+      color: rgba(255,255,255,.96);
       font-size: 34px;
-      user-select:none;
 
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.58), rgba(8,35,60,.50));
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.50), rgba(8,35,60,.44));
       border: 1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 22px 50px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.14);
+      box-shadow: 0 22px 46px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.12);
       backdrop-filter: blur(10px) saturate(1.06);
       -webkit-backdrop-filter: blur(10px) saturate(1.06);
     }
+    .avatar::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 26px;
+      padding: 2px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.92;
+      pointer-events:none;
+    }
 
     .chip-card{
-      min-width: 240px;
-      padding: 12px 14px;
       border-radius: 22px;
+      padding: 12px 14px;
       position:relative;
       overflow:hidden;
 
       background:
         radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.14), transparent 62%),
-        linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow:
-        0 26px 64px rgba(0,0,0,.24),
-        inset 0 1px 0 rgba(255,255,255,.14);
+        linear-gradient(180deg, rgba(70,35,10,.40), rgba(25,12,5,.40));
 
-      backdrop-filter: blur(14px) saturate(1.06);
-      -webkit-backdrop-filter: blur(14px) saturate(1.06);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 22px 46px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(12px) saturate(1.05);
+      -webkit-backdrop-filter: blur(12px) saturate(1.05);
+      min-width: 240px;
     }
     .chip-card::before{
       content:"";
       position:absolute; inset:0;
       border-radius: 22px;
       padding: 2px;
-      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.22), var(--gold2), var(--gold1));
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
+      opacity:.90;
       pointer-events:none;
-      opacity:.9;
     }
 
     .chip-name{
+      color: rgba(255, 242, 205, .98);
       font-size: 18px;
-      letter-spacing: .03em;
-      color: rgba(245,250,255,.98);
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+      text-shadow: 0 10px 28px rgba(0,0,0,.26);
+      margin-bottom: 8px;
+      letter-spacing: .06em;
       display:flex;
       align-items:center;
-      gap:10px;
-      margin-bottom: 10px;
+      justify-content:space-between;
+      gap: 10px;
     }
     .chip-badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding: 5px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      letter-spacing:.14em;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .10em;
       text-transform: uppercase;
-      color: rgba(255,242,205,.90);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
-      border: 1px solid rgba(255,255,255,.14);
-      white-space: nowrap;
-    }
-
-    .chip-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(20,85,135,.34), rgba(10,50,85,.30));
+      color: rgba(255,255,255,.92);
+      box-shadow: 0 14px 22px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.10);
+      opacity:.98;
     }
 
     .chip-btn{
       display:inline-flex;
       align-items:center;
-      justify-content:center;
       gap:10px;
-      padding: 10px 12px;
-      border-radius: 18px;
+      padding: 10px 14px;
+      border-radius: 999px;
       border: 1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-      text-decoration:none;
-
-      color: rgba(255,255,255,.96);
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-
       background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
-
-      box-shadow:
-        0 16px 30px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92));
+      box-shadow: 0 18px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
+      color: rgba(255,255,255,.98);
+      text-decoration:none;
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 900;
+      transition: transform .16s ease, filter .16s ease;
+      cursor:pointer;
     }
-    .chip-btn:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 22px 44px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.16);
-    }
+    .chip-btn:hover{ transform: translateY(-1px); filter:saturate(1.08); }
     .chip-btn:active{ transform: translateY(0) scale(.992); }
-
-    .chip-btn svg{
-      width: 18px;
-      height: 18px;
-      flex: 0 0 auto;
-      display:block;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2.4;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .chip-btn svg.is-fill{
-      stroke: none;
-      fill: currentColor;
-    }
+    .chip-btn svg{ width:18px; height:18px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
 
     .chip-btn.is-ghost{
       background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.44), rgba(8,35,60,.40));
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.30));
+      border-color: rgba(255,255,255,.16);
+      opacity:.96;
     }
 
-    .rules-card{
-      min-width: 170px;
-      padding: 12px 14px;
+    .chip-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    /* ============================================================
+       ✅ "Правила" справа — сдвигаем НИЖЕ
+    ============================================================ */
+    .rules{
+      position:absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 6;
+      pointer-events:auto;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .rules .rules-card{
       border-radius: 22px;
+      padding: 12px 14px;
       position:relative;
       overflow:hidden;
       text-decoration:none;
 
       background:
         radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.14), transparent 62%),
-        linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow:
-        0 26px 64px rgba(0,0,0,.24),
-        inset 0 1px 0 rgba(255,255,255,.14);
+        linear-gradient(180deg, rgba(70,35,10,.40), rgba(25,12,5,.40));
 
-      backdrop-filter: blur(14px) saturate(1.06);
-      -webkit-backdrop-filter: blur(14px) saturate(1.06);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 22px 46px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter: blur(12px) saturate(1.05);
+      -webkit-backdrop-filter: blur(12px) saturate(1.05);
 
+      min-width: 170px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      pointer-events:auto;
-      color: rgba(245,250,255,.98);
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+      gap: 12px;
     }
-    .rules-card::before{
+    .rules .rules-card::before{
       content:"";
       position:absolute; inset:0;
       border-radius: 22px;
       padding: 2px;
-      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.22), var(--gold2), var(--gold1));
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
+      opacity:.90;
       pointer-events:none;
-      opacity:.9;
     }
-    .rules-card:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 34px 80px rgba(0,0,0,.26),
-        inset 0 1px 0 rgba(255,255,255,.16);
-    }
-    .rules-title{
+    .rules .rules-title{
+      color: rgba(255, 242, 205, .98);
       font-size: 18px;
-      letter-spacing:.04em;
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+      text-shadow: 0 10px 28px rgba(0,0,0,.26);
+      letter-spacing: .06em;
     }
     .check{
-      width: 44px;
-      height: 44px;
+      width: 42px; height: 42px;
       border-radius: 16px;
       display:grid;
       place-items:center;
 
       background:
         radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 62%),
-        linear-gradient(180deg, rgba(55,200,130,.86), rgba(25,150,95,.84));
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 12px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.14);
+        linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 14px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
+      position:relative;
+      overflow:hidden;
     }
-    .check svg{
-      width: 22px;
-      height: 22px;
-      stroke: rgba(255,255,255,.98);
-      fill:none;
-      stroke-width:2.8;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      display:block;
+    .check::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 16px;
+      padding: 2px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.88;
+      pointer-events:none;
+    }
+    .check svg{ width: 22px; height: 22px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+
+    /* ===================== INTRO / TRANSITION (оставляем) ===================== */
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:9900;
+      pointer-events:none;
+      background: rgba(0,0,0,.14);
+      opacity:0;
     }
 
-    /* ---------- Mini-games modal (mg-*) ---------- */
+    .page-transition{
+      position:fixed;
+      inset:0;
+      z-index:10000;
+      pointer-events:none;
+      opacity:0;
+      background: rgba(0,0,0,.22);
+    }
+    .page-transition.is-leaving{ opacity:1; }
+    .page-transition.is-entering{ opacity:1; animation: ptOut .46s ease forwards; }
+    @keyframes ptOut{ 0%{ opacity:1; } 100%{ opacity:0; } }
+    .page-transition .wipe{ position:absolute; inset:-10%; opacity:.95; }
+
+    /* ============================================================
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" (закрываемая)
+    ============================================================ */
     .mg-backdrop{
       position:fixed;
       inset:0;
-      z-index:14000;
-      display:flex;
+      z-index:12050; /* выше меню и переходов */
+      display:none;
       align-items:center;
       justify-content:center;
-      padding: clamp(12px, 3vw, 28px);
-
-      background: rgba(0,0,0,.55);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .18s ease;
-    }
-    .mg-backdrop.is-open{
-      opacity:1;
+      padding: clamp(12px, 2vw, 22px);
+      background:
+        radial-gradient(120% 120% at 50% 40%, rgba(10,20,35,.28), rgba(0,0,0,.48)),
+        rgba(0,0,0,.45);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
       pointer-events:auto;
     }
+    .mg-backdrop.is-open{ display:flex; }
 
     .mg-modal{
-      width: min(760px, 100%);
-      border-radius: 26px;
+      width: min(980px, calc(100vw - 24px));
+      border-radius: 28px;
       position:relative;
       overflow:hidden;
 
       background:
-        radial-gradient(120% 140% at 20% 10%, rgba(255,255,255,.14), transparent 62%),
-        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
-        linear-gradient(180deg, rgba(10,55,90,.72), rgba(8,35,60,.66));
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        radial-gradient(120% 120% at 86% 22%, rgba(120,230,255,.14), transparent 58%),
+        linear-gradient(180deg, rgba(10,55,90,.68), rgba(8,35,60,.62));
 
       border: 1px solid rgba(255,255,255,.18);
       box-shadow:
-        0 44px 120px rgba(0,0,0,.42),
-        0 14px 30px rgba(0,0,0,.20),
+        0 40px 120px rgba(0,0,0,.46),
+        0 16px 44px rgba(0,0,0,.28),
         inset 0 1px 0 rgba(255,255,255,.14);
 
-      backdrop-filter: blur(18px) saturate(1.06);
-      -webkit-backdrop-filter: blur(18px) saturate(1.06);
-
-      transform: translateY(10px) scale(.985);
-      transition: transform .18s ease;
+      transform: translateY(8px) scale(.985);
+      opacity:0;
+      transition: transform .22s ease, opacity .22s ease, filter .22s ease;
+      filter: saturate(1.04);
     }
     .mg-backdrop.is-open .mg-modal{
       transform: translateY(0) scale(1);
+      opacity:1;
+    }
+
+    .mg-modal::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 28px;
+      padding: 2px;
+      background:
+        linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.28), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity:.92;
+      pointer-events:none;
     }
 
     .mg-top{
+      padding: 18px 18px 10px;
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:14px;
-      padding: 16px 18px 10px;
+      gap: 12px;
     }
-    .mg-title{ min-width:0; }
+    .mg-title{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 0;
+    }
     .mg-h1{
-      font-size: clamp(18px, 3.2vw, 26px);
-      letter-spacing:.02em;
-      color: rgba(255, 222, 150, .98);
-      text-shadow: 0 14px 34px rgba(0,0,0,.34);
+      font-size: clamp(22px, 4.2vw, 44px);
+      letter-spacing: .03em;
+      line-height: 1.05;
+      color: rgba(255,236,170,255);
+      text-shadow: 0 16px 44px rgba(0,0,0,.34), 0 0 18px rgba(255, 214, 120, .14);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
     }
     .mg-sub{
-      margin-top: 6px;
-      font-size: 12px;
-      letter-spacing:.12em;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 650;
+      font-size: clamp(12px, 1.8vw, 16px);
+      letter-spacing: .06em;
       text-transform: uppercase;
-      color: rgba(255, 242, 205, .86);
-      opacity:.95;
+      color: rgba(230,245,255,.90);
+      opacity:.98;
     }
 
     .mg-close{
-      width: 42px;
-      height: 42px;
+      width: 44px; height: 44px;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,.18);
       background:
         radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.16), transparent 60%),
-        linear-gradient(180deg, rgba(12,55,95,.52), rgba(8,35,60,.46));
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
+        linear-gradient(180deg, rgba(12,55,95,.56), rgba(8,35,60,.52));
+      box-shadow: 0 18px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
       display:grid;
       place-items:center;
       cursor:pointer;
+      transition: transform .16s ease, filter .16s ease;
+      flex:0 0 auto;
     }
+    .mg-close:hover{ transform: translateY(-1px); filter:saturate(1.08); }
+    .mg-close:active{ transform: translateY(0) scale(.985); }
     .mg-close svg{
-      width: 20px;
-      height: 20px;
+      width: 22px; height: 22px;
       stroke: rgba(255,255,255,.96);
       fill:none;
-      stroke-width:2.6;
+      stroke-width:2.8;
       stroke-linecap:round;
       stroke-linejoin:round;
-      display:block;
     }
 
     .mg-progress{
+      padding: 0 18px 14px;
       display:flex;
-      gap:8px;
-      padding: 0 18px 10px;
       align-items:center;
-      justify-content:flex-start;
-      flex-wrap:wrap;
+      justify-content:center;
+      gap: 10px;
     }
     .mg-dot{
-      width: 10px;
-      height: 10px;
+      width: 10px; height: 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,.16);
       border: 1px solid rgba(255,255,255,.16);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 10px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
+      opacity:.92;
+      transition: transform .16s ease, background .16s ease, opacity .16s ease;
     }
     .mg-dot.is-on{
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(120,230,255,.75));
-      box-shadow: 0 0 14px rgba(120,230,255,.35);
-      border-color: rgba(255,255,255,.22);
+      background: rgba(120,230,255,.72);
+      opacity:1;
+      transform: scale(1.15);
+      box-shadow: 0 10px 20px rgba(0,0,0,.18), 0 0 18px rgba(120,230,255,.26);
     }
 
     .mg-body{
       padding: 0 18px 18px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+      display:grid;
+      gap: 14px;
     }
 
     .mg-card{
       border-radius: 22px;
-      padding: 14px 14px 12px;
-      position:relative;
       overflow:hidden;
-
-      background:
-        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.12), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.12));
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.20),
-        inset 0 1px 0 rgba(255,255,255,.12);
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: 0 26px 62px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
     }
     .mg-cardHead{
+      padding: 10px 14px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      margin-bottom: 10px;
-      font-size: 12px;
-      letter-spacing:.12em;
+      gap: 10px;
+      background:
+        radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.22), transparent 60%),
+        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
+      color:#fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 900;
+      letter-spacing: .10em;
       text-transform: uppercase;
-      color: rgba(255,242,205,.86);
+      font-size: 12px;
     }
     .mg-level{
-      padding: 5px 8px;
+      padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.10), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      opacity:.98;
       white-space: nowrap;
     }
 
     .mg-msg{
-      color: rgba(245,250,255,.98);
+      padding: 14px 14px 16px;
+      color: rgba(10,20,30,.95);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       font-size: 16px;
-      line-height: 1.24;
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
+      line-height: 1.35;
     }
-    .mg-link{
+    .mg-msg .mg-link{
+      display:inline-block;
       margin-top: 10px;
-      font-size: 12px;
-      letter-spacing:.08em;
-      color: rgba(120,230,255,.92);
-      opacity:.95;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px dashed rgba(0,0,0,.22);
+      background: rgba(255,255,255,.65);
+      font-size: 13px;
+      letter-spacing: .02em;
+      max-width: 100%;
       word-break: break-all;
+      opacity:.95;
     }
 
     .mg-actions{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+      justify-content:center;
+      padding: 2px 0 0;
     }
     .mg-btn{
-      padding: 12px 14px;
-      border-radius: 20px;
+      min-width: 190px;
+      padding: 12px 16px;
+      border-radius: 999px;
       border: 1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-
-      color: rgba(255,255,255,.96);
-      font-weight: 900;
-      letter-spacing:.14em;
+      color: rgba(255,255,255,.98);
+      text-decoration:none;
+      letter-spacing: .16em;
       text-transform: uppercase;
+      font-weight: 900;
       font-size: 12px;
-
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
       box-shadow:
-        0 18px 34px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
+        0 22px 48px rgba(0,0,0,.18),
+        0 8px 18px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.18);
       transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
     }
-    .mg-btn:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 26px 52px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.16);
-    }
+    .mg-btn:hover{ transform: translateY(-1px); filter:saturate(1.08); }
     .mg-btn:active{ transform: translateY(0) scale(.992); }
 
     .mg-btn.is-red{
       background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
-        linear-gradient(180deg, rgba(255,95,95,.88), rgba(195,35,55,.86));
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(235, 120, 100, .92), rgba(190, 70, 56, .92));
     }
     .mg-btn.is-green{
       background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
-        linear-gradient(180deg, rgba(55,200,130,.88), rgba(25,150,95,.86));
-    }
-    .mg-btn:disabled{
-      opacity:.55;
-      cursor: default;
-      transform:none !important;
-      filter:none !important;
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(70,170,120,.92), rgba(35,130,88,.92));
     }
 
     .mg-explain{
-      border-radius: 22px;
+      border-radius: 20px;
       padding: 12px 14px;
-      border: 1px solid rgba(255,255,255,.14);
+      position:relative;
+      overflow:hidden;
+      display:none;
+
       background:
-        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.10), transparent 60%),
-        linear-gradient(180deg, rgba(12,55,95,.30), rgba(8,35,60,.26));
-      color: rgba(245,250,255,.98);
-      font-size: 14px;
-      line-height: 1.26;
-      opacity:0;
-      transform: translateY(-6px);
-      transition: opacity .18s ease, transform .18s ease;
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.16), rgba(0,0,0,.18));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 22px 46px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.12);
+      color: rgba(230,245,255,.95);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.35;
     }
-    .mg-explain.is-on{
-      opacity:1;
-      transform: translateY(0);
-    }
+    .mg-explain.is-on{ display:block; }
+    .mg-explain b{ color: rgba(255,242,205,.96); }
 
     .mg-nextRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
+      gap: 12px;
       flex-wrap:wrap;
+      margin-top: 2px;
     }
     .mg-miniHint{
-      font-size: 11px;
-      letter-spacing:.10em;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 650;
+      font-size: 12px;
+      letter-spacing: .06em;
       text-transform: uppercase;
-      color: rgba(255,242,205,.86);
-      opacity:.92;
-      flex: 1 1 320px;
-      min-width: 240px;
+      color: rgba(255,242,205,.88);
+      opacity:.98;
     }
 
     .mg-next{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 18px;
+      min-width: 190px;
+      padding: 12px 16px;
+      border-radius: 999px;
       border: 1px solid rgba(255,255,255,.18);
       cursor:pointer;
-      background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
-      color: rgba(255,255,255,.96);
+      color: rgba(255,255,255,.98);
       font-weight: 900;
-      letter-spacing:.14em;
+      letter-spacing: .16em;
       text-transform: uppercase;
-      font-size: 11px;
-      box-shadow: 0 16px 30px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
-      opacity:0;
-      pointer-events:none;
-      transform: translateY(-6px);
-      transition: opacity .18s ease, transform .18s ease;
+      font-size: 12px;
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,160,70,.90), rgba(215,95,20,.88));
+      box-shadow:
+        0 22px 48px rgba(0,0,0,.18),
+        0 8px 18px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .16s ease, filter .16s ease;
+      display:none;
     }
-    .mg-next.is-on{
-      opacity:1;
-      pointer-events:auto;
-      transform: translateY(0);
-    }
-    .mg-next svg{
-      width: 18px;
-      height: 18px;
-      stroke: rgba(255,255,255,.96);
-      fill:none;
-      stroke-width:2.8;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      display:block;
-    }
+    .mg-next.is-on{ display:inline-flex; align-items:center; justify-content:center; gap:10px; }
+    .mg-next:hover{ transform: translateY(-1px); filter:saturate(1.08); }
+    .mg-next:active{ transform: translateY(0) scale(.992); }
+
+    .mg-next svg{ width:18px; height:18px; stroke: rgba(255,255,255,.96); fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
 
     .mg-finish{
-      border-radius: 22px;
-      padding: 12px 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.10), transparent 60%),
-        linear-gradient(180deg, rgba(12,55,95,.30), rgba(8,35,60,.26));
-      color: rgba(245,250,255,.98);
-      font-size: 14px;
-      line-height: 1.26;
       display:none;
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 26px 62px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: rgba(10,20,30,.95);
+      line-height: 1.35;
     }
     .mg-finish.is-on{ display:block; }
 
     .mg-scoreRow{
-      margin-top: 12px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
+      gap: 12px;
       flex-wrap:wrap;
+      margin-top: 10px;
     }
     .mg-scorePill{
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.10), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
-      color: rgba(255,242,205,.90);
-      font-size: 11px;
-      letter-spacing:.12em;
+      font-weight: 900;
+      letter-spacing: .10em;
       text-transform: uppercase;
-      white-space: nowrap;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(120,230,255,.18);
     }
 
-    /* ✅ FHD / до 1920px: меню уже + резервируем место слева под него */
-    @media (min-width: 1200px) and (max-width: 1920px){
-      :root{
-        --nav-left: 10px;
-        --nav-top: 10px;
-        --panel-w: clamp(240px, 16vw, 320px);
-        --rowH: 56px;
-      }
-      .ui{
-        --ui-left: calc(var(--panel-w) + 26px);
-        padding-left: var(--ui-left);
-      }
+    /* ✅ адаптация мини-игры для мобилок */
+    @media (max-width: 520px){
+      .mg-modal{ border-radius: 22px; }
+      .mg-top{ padding: 14px 14px 8px; }
+      .mg-progress{ padding: 0 14px 10px; gap: 8px; }
+      .mg-body{ padding: 0 14px 14px; gap: 12px; }
+      .mg-card{ border-radius: 18px; }
+      .mg-msg{ font-size: 15px; }
+      .mg-btn, .mg-next{ min-width: 160px; }
+      .mg-actions{ gap: 10px; }
     }
 
     /* ============================================================
-       ✅ FHD (низкие высоты) — компактная версия
-       ============================================================ */
-    @media (max-width: 1920px) and (min-width: 521px) and (max-height: 980px){
+       ✅ FHD (не трогаем 4K)
+    ============================================================ */
+    @media (max-width: 1920px) and (min-width: 521px){
       :root{
-        --nav-left: 10px;
-        --nav-top:  10px;
-        --panel-w: min(260px, calc(100vw - 20px));
-        --radius: 18px;
-        --rowH: 46px;
-        --uiPad: 12px;
-
-        --ui-bottom-scale: .86;
-
-        --movie-card-minh: 92px;
-        --movie-card-pad: 9px;
-        --movie-actions-mt: 6px;
-        --movie-btn-pad-y: 7px;
-        --movie-btn-pad-x: 10px;
-
-        --movies-down: clamp(-360px, -20vh, -240px);
+        --nav-left: 6px;
+        --nav-top:  6px;
+        --panel-w: min(320px, calc(100vw - 12px));
+        --rowH: 54px;
+        --movies-down: clamp(-110px, -6vh, -36px);
       }
 
       html, body{
@@ -1750,6 +1724,7 @@
         max-height: none !important;
         min-height: 100vh;
         overflow: visible !important;
+        overscroll-behavior: auto !important;
       }
 
       .bg-blur-pic,
@@ -1775,132 +1750,10 @@
         object-fit: initial !important;
       }
 
-      .ui{
-        position: absolute;
-        inset: 0;
-        padding: var(--uiPad);
-
-        --ui-left: clamp(12px, calc(var(--panel-w) + 26px), 340px);
-        padding-left: var(--ui-left);
-
-        padding-right: 12px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-
-        overflow: visible;
-      }
-
-      .title-card{
-        max-width: min(760px, calc(100% - 8px));
-        border-radius: 20px;
-        padding: 12px 16px;
-      }
-
-      .ui-h1{
-        font-size: clamp(18px, 2.6vw, 34px);
-        line-height: 1.02;
-        letter-spacing: .01em;
-      }
-
-      .ui-h2{
-        margin-top: 4px;
-        font-size: clamp(10px, 1.1vw, 13px);
-        letter-spacing: .18em;
-      }
-
-      .cta-row{
-        gap: 10px;
-        margin-top: 6px;
-        width: 100%;
-        max-width: 860px;
-      }
-
-      .cta{
-        padding: 9px 12px;
-        border-radius: 18px;
-        min-width: 240px;
-        max-width: 300px;
-        flex: 1 1 260px;
-      }
-
-      .cta .cta-ico{ width: 36px; height: 36px; border-radius: 14px; }
-      .cta .cta-ico svg{ width: 20px; height: 20px; }
-      .cta .cta-title{ font-size: clamp(13px, 1.4vw, 16px); }
-      .cta .cta-sub{ font-size: 9px; letter-spacing: .14em; }
-
-      .cinema-title{
-        font-size: clamp(16px, 1.7vw, 22px);
-        letter-spacing: .20em;
-        margin-top: 0;
-      }
+      .ui{ position: absolute; }
 
       .cinema-grid{
-        max-width: min(900px, calc(100% - 10px));
-        grid-template-columns: repeat(3, minmax(170px, 1fr));
-        gap: 10px;
-        margin-top: 6px;
-      }
-
-      .movie-card{ border-radius: 18px; }
-      .movie-name{ font-size: clamp(12px, 1.2vw, 14px); }
-      .movie-meta{ font-size: 9px; padding: 4px 7px; }
-      .movie-btn{ min-width: 132px; font-size: 10px; letter-spacing: .12em; }
-
-      .side-nav{ gap: 7px; }
-      .side-nav__tab{ width: var(--panel-w); padding: 7px 9px; border-radius: 18px; }
-      .menu-pill{ font-size: 10px; padding: 6px 10px; border-radius: 14px; letter-spacing: .12em; }
-      .menu-pill svg{ width: 16px; height: 16px; }
-      .back-btn{ width: 34px; height: 34px; border-radius: 12px; }
-      .back-btn svg{ width: 18px; height: 18px; }
-
-      .side-nav__panel{
-        width: var(--panel-w);
-        padding: 9px 9px 10px;
-        border-radius: 18px;
-        max-height: calc(100vh - 72px);
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .side-nav__list{ gap: 9px; margin-top: 6px; }
-
-      .hud-item{ height: var(--rowH); padding: 8px 10px; border-radius: 16px; gap: 10px; }
-      .hud-ico{ width: 38px; height: 38px; border-radius: 14px; }
-      .hud-ico svg{ width: 20px; height: 20px; }
-      .hud-title{ font-size: 13px; letter-spacing: .05em; }
-      .hud-sub{ font-size: 9px; letter-spacing: .10em; opacity: .78; }
-      .hud-arrow{ width: 28px; height: 28px; }
-      .hud-arrow svg{ width: 14px; height: 14px; }
-
-      .side-chip,
-      .rules{
-        bottom: 8px;
-        transform: scale(.86);
-      }
-      .side-chip{ transform-origin: left bottom; }
-      .rules{ transform-origin: right bottom; }
-
-      .avatar{ width: 60px; height: 60px; border-radius: 22px; font-size: 28px; }
-      .chip-card{ min-width: 210px; padding: 9px 11px; }
-      .chip-name{ font-size: 15px; margin-bottom: 6px; }
-      .chip-btn{ padding: 8px 11px; font-size: 10px; }
-
-      .rules .rules-card{ min-width: 140px; padding: 9px 11px; }
-      .rules .rules-title{ font-size: 15px; }
-      .check{ width: 36px; height: 36px; border-radius: 13px; }
-      .check svg{ width: 18px; height: 18px; }
-
-      .side-chip{
-        left: 10px !important;
-        bottom: 10px !important;
-        transform: scale(.86) !important;
-        transform-origin: left bottom !important;
-      }
-      body.menu-collapsed .side-chip{ left: 10px !important; }
-
-      .rules{
-        right: 10px !important;
-        bottom: 10px !important;
+        grid-template-columns: repeat(3, minmax(200px, 1fr));
       }
     }
 
@@ -1937,7 +1790,7 @@
         width:100% !important;
         height:100% !important;
         object-fit: cover !important;
-        object-position: 50% 100% !important;
+        object-position: 50% 50% !important;
       }
 
       .header__bg{
@@ -1946,7 +1799,7 @@
         width:100% !important;
         height:100% !important;
         object-fit: cover !important;
-        object-position: 50% 100% !important;
+        object-position: 50% 50% !important;
       }
 
       .side-nav{
@@ -2045,682 +1898,6 @@
       .chip-card{ min-width: 200px !important; }
       .rules .rules-card{ min-width: 150px !important; }
       .avatar{ width: 62px !important; height: 62px !important; border-radius: 22px !important; font-size: 30px !important; }
-
-      .mg-actions{ grid-template-columns: 1fr; }
-    }
-
-    /* ============================================================
-       ✅ ДОБАВЛЕНО: CINEMA ROULETTE (компактно + не перекрывает медведя)
-    ============================================================ */
-    .cinema-roulette{
-      pointer-events:auto;
-      width:100%;
-      max-width: min(1100px, calc(100vw - 40px));
-      margin: 0 auto;
-
-      display:grid;
-      grid-template-columns: minmax(320px, 1.25fr) auto minmax(220px, .9fr);
-      align-items:center;
-      gap: clamp(12px, 2vw, 18px);
-
-      border-radius: 28px;
-      padding: clamp(12px, 1.6vw, 16px);
-      position:relative;
-      overflow:hidden;
-
-      background:
-        radial-gradient(140% 120% at 20% 10%, rgba(255,255,255,.14), transparent 62%),
-        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
-        linear-gradient(180deg, rgba(10,55,90,.60), rgba(8,35,60,.52));
-
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow:
-        0 34px 90px rgba(0,0,0,.26),
-        0 12px 26px rgba(0,0,0,.16),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      backdrop-filter: blur(18px) saturate(1.06);
-      -webkit-backdrop-filter: blur(18px) saturate(1.06);
-    }
-    .cinema-roulette::before{
-      content:"";
-      position:absolute; inset:0;
-      border-radius: 28px;
-      padding: 2px;
-      background:
-        linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.22), var(--gold2), var(--gold1));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events:none;
-      opacity:.92;
-    }
-    .cinema-roulette::after{
-      content:"";
-      position:absolute; inset:-30%;
-      background:
-        radial-gradient(6px 6px at 12% 18%, rgba(255,255,255,.46), transparent 72%),
-        radial-gradient(5px 5px at 26% 62%, rgba(255,255,255,.26), transparent 72%),
-        radial-gradient(6px 6px at 72% 26%, rgba(255,255,255,.30), transparent 72%),
-        radial-gradient(5px 5px at 82% 58%, rgba(255,255,255,.20), transparent 72%),
-        linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
-      opacity:.70;
-      pointer-events:none;
-      mix-blend-mode: screen;
-      animation: cinemaSpark 7.4s ease-in-out infinite;
-    }
-    @keyframes cinemaSpark{
-      0%,100%{ transform: translate3d(0,0,0); opacity:.62; }
-      50%{ transform: translate3d(12px,-10px,0); opacity:.90; }
-    }
-
-    .cinema-roulette__left{
-      display:flex;
-      align-items:center;
-      gap: 14px;
-      min-width:0;
-      position:relative;
-      z-index:2;
-    }
-
-    .cinema-thumb{
-      width: clamp(58px, 6.2vw, 76px);
-      height: clamp(58px, 6.2vw, 76px);
-      border-radius: 22px;
-      flex:0 0 auto;
-
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-        radial-gradient(120% 120% at 80% 20%, rgba(255,242,205,.14), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.45), rgba(12,55,95,.40));
-
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-      position:relative;
-      overflow:hidden;
-    }
-    .cinema-thumb::after{
-      content:"";
-      position:absolute; inset:-30%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
-      transform: rotate(18deg) translateX(-80%);
-      opacity:.60;
-      transition: transform .55s ease, opacity .55s ease;
-    }
-    .cinema-roulette:hover .cinema-thumb::after{
-      transform: rotate(18deg) translateX(80%);
-      opacity:.86;
-    }
-
-    .cinema-ep{ min-width:0; }
-
-    .cinema-epHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 12px;
-    }
-
-    .cinema-epTitle{
-      min-width:0;
-      font-size: clamp(14px, 2.1vw, 20px);
-      line-height: 1.06;
-      letter-spacing: .03em;
-      color: rgba(245,250,255,.98);
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-
-    .cinema-epBadge{
-      flex:0 0 auto;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 10px;
-      letter-spacing:.14em;
-      text-transform: uppercase;
-      color: rgba(255,242,205,.90);
-
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
-
-      border: 1px solid rgba(255,255,255,.14);
-      white-space: nowrap;
-    }
-
-    .cinema-epMeta{
-      margin-top: 6px;
-      font-size: 11px;
-      letter-spacing:.12em;
-      text-transform: uppercase;
-      color: rgba(255, 242, 205, .86);
-      opacity:.95;
-    }
-
-    .cinema-epDesc{
-      margin-top: 6px;
-      font-size: 14px;
-      line-height: 1.18;
-      color: rgba(245,250,255,.95);
-      opacity: .92;
-
-      display:-webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow:hidden;
-    }
-
-    .cinema-epActions{
-      margin-top: 10px;
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .cinema-btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-      text-decoration:none;
-
-      color: rgba(255,255,255,.96);
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-
-      box-shadow:
-        0 16px 30px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
-    }
-    .cinema-btn svg{
-      width:18px; height:18px;
-      stroke: currentColor;
-      fill:none;
-      stroke-width:2.6;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-    }
-    .cinema-btn svg.is-fill{
-      stroke:none;
-      fill: currentColor;
-    }
-    .cinema-btn:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 22px 44px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.16);
-    }
-    .cinema-btn:active{ transform: translateY(0) scale(.992); }
-
-    .cinema-btn.is-primary{
-      background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.90), rgba(18,110,200,.88));
-    }
-
-    .cinema-btn.is-ghost{
-      background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.44), rgba(8,35,60,.40));
-    }
-    .cinema-btn.is-disabled{
-      opacity:.55;
-      pointer-events:none;
-      transform:none !important;
-      filter:none !important;
-    }
-
-    .cinema-dots{
-      margin-top: 10px;
-      display:flex;
-      gap: 8px;
-      align-items:center;
-    }
-    .cinema-dot{
-      width: 10px;
-      height: 10px;
-      cursor: pointer;
-      border-radius: 999px;
-      background: rgba(255,255,255,.16);
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
-    }
-    .cinema-dot:focus-visible {
-  box-shadow: var(--focus);
-}
-    .cinema-dot.is-on{
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(120,230,255,.75));
-      box-shadow: 0 0 14px rgba(120,230,255,.35);
-      border-color: rgba(255,255,255,.22);
-    }
-
-    .wheel-wrap{
-      width: clamp(92px, 10vw, 128px);
-      height: clamp(92px, 10vw, 128px);
-      position:relative;
-      display:grid;
-      place-items:center;
-      z-index:2;
-    }
-
-    .wheel{
-      width:100%;
-      height:100%;
-      border-radius: 999px;
-
-      background: conic-gradient(from -90deg,
-        rgba(40,170,240,.92),
-        rgba(55,200,130,.86),
-        rgba(255,160,70,.90),
-        rgba(40,170,240,.92)
-      );
-
-      transform: rotate(var(--wheel-rot, 0deg));
-      transition: transform 2.15s cubic-bezier(.18,.82,.24,1);
-
-      box-shadow:
-        0 22px 50px rgba(0,0,0,.22),
-        inset 0 2px 0 rgba(255,255,255,.22),
-        inset 0 -10px 18px rgba(0,0,0,.22);
-
-      border: 1px solid rgba(255,255,255,.18);
-      position:relative;
-      overflow:hidden;
-    }
-    @media (prefers-reduced-motion: reduce){
-      .wheel{ transition: none !important; }
-    }
-
-    .wheel::before{
-      content:"";
-      position:absolute; inset: 10px;
-      border-radius: 999px;
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-        linear-gradient(180deg, rgba(10,55,90,.55), rgba(8,35,60,.50));
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
-    }
-
-    .wheel::after{
-      content:"";
-      position:absolute; inset:-35%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
-      transform: rotate(18deg) translateX(-70%);
-      opacity:.70;
-      transition: transform .55s ease, opacity .55s ease;
-      mix-blend-mode: screen;
-    }
-    .cinema-roulette:hover .wheel::after{
-      transform: rotate(18deg) translateX(70%);
-      opacity:.92;
-    }
-
-    .wheel-ring{
-      position:absolute;
-      inset:-8px;
-      border-radius: 999px;
-      border: 2px solid rgba(255,255,255,.16);
-      box-shadow: 0 0 22px rgba(120,230,255,.18);
-      pointer-events:none;
-    }
-
-    .wheel-pointer{
-      position:absolute;
-      top:-10px;
-      width:0; height:0;
-      border-left: 14px solid transparent;
-      border-right: 14px solid transparent;
-      border-bottom: 20px solid rgba(255,255,255,.92);
-      filter: drop-shadow(0 10px 16px rgba(0,0,0,.25));
-    }
-    .wheel-pointer::after{
-      content:"";
-      position:absolute;
-      left:-10px; top:4px;
-      width:0; height:0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 14px solid rgba(60,170,255,.95);
-      opacity:.95;
-    }
-
-    .wheel-center{
-      position:absolute;
-      width: 56px;
-      height: 56px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.88), rgba(255,255,255,.62));
-
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.22);
-
-      display:grid;
-      place-items:center;
-
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
-    }
-    .wheel-center svg{
-      width: 22px;
-      height: 22px;
-      fill: rgba(12,55,95,.92);
-    }
-    .wheel-center:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 22px 44px rgba(0,0,0,.26),
-        inset 0 1px 0 rgba(255,255,255,.22);
-    }
-    .wheel-center:active{ transform: translateY(0) scale(.985); }
-
-    .cinema-roulette__right{
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-      align-items:flex-start;
-      justify-content:center;
-      min-width:0;
-      z-index:2;
-    }
-
-    .cinema-picked{
-      font-size: 18px;
-      letter-spacing: .02em;
-      color: rgba(245,250,255,.98);
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
-    }
-
-    .cinema-topic{
-      font-size: 11px;
-      letter-spacing:.12em;
-      text-transform: uppercase;
-      color: rgba(255, 242, 205, .86);
-      opacity:.95;
-    }
-
-    .cinema-pill{
-      margin-top: 4px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding: 10px 12px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-
-      color: rgba(255,255,255,.96);
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-
-      background:
-        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(12,55,95,.44), rgba(8,35,60,.40));
-
-      box-shadow:
-        0 16px 30px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
-    }
-    .cinema-pill:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 22px 44px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.16);
-    }
-    .cinema-pill:active{ transform: translateY(0) scale(.992); }
-
-    .cinema-toast{
-      grid-column: 1 / -1;
-      margin-top: 6px;
-      text-align:center;
-      font-size: 12px;
-      letter-spacing:.06em;
-      color: rgba(120,230,255,.92);
-      opacity:0;
-      transform: translateY(-6px);
-      transition: opacity .18s ease, transform .18s ease;
-      z-index:2;
-    }
-    .cinema-toast.is-on{
-      opacity:1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 920px){
-      .cinema-roulette{
-        grid-template-columns: 1fr;
-        text-align:center;
-      }
-      .cinema-roulette__left{
-        justify-content:center;
-      }
-      .cinema-roulette__right{
-        align-items:center;
-      }
-      .cinema-epHead{
-        justify-content:center;
-      }
-    }
-    @media (max-width: 520px){
-      .cinema-roulette{
-        max-width: calc(100vw - 32px);
-      }
-    }
-
-    /* ============================================================
-       ✅ CINEMA SHEET (bottom sheet)
-    ============================================================ */
-    .cinema-backdrop{
-      position:fixed;
-      inset:0;
-      z-index:14500;
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-      padding: clamp(12px, 3vw, 22px);
-
-      background: rgba(0,0,0,.55);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .18s ease;
-    }
-    .cinema-backdrop.is-open{
-      opacity:1;
-      pointer-events:auto;
-    }
-
-    .cinema-modal{
-      width: min(860px, 100%);
-      border-radius: 26px;
-      position:relative;
-      overflow:hidden;
-
-      background:
-        radial-gradient(120% 140% at 20% 10%, rgba(255,255,255,.14), transparent 62%),
-        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.14), transparent 60%),
-        linear-gradient(180deg, rgba(10,55,90,.74), rgba(8,35,60,.68));
-
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 44px 120px rgba(0,0,0,.42),
-        0 14px 30px rgba(0,0,0,.20),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      backdrop-filter: blur(18px) saturate(1.06);
-      -webkit-backdrop-filter: blur(18px) saturate(1.06);
-
-      transform: translateY(16px) scale(.99);
-      transition: transform .18s ease;
-    }
-    .cinema-backdrop.is-open .cinema-modal{
-      transform: translateY(0) scale(1);
-    }
-
-    .cinema-top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-      padding: 16px 18px 10px;
-    }
-
-    .cinema-sheetTitle{
-      font-size: clamp(18px, 3.2vw, 26px);
-      letter-spacing:.02em;
-      color: rgba(255, 222, 150, .98);
-      text-shadow: 0 14px 34px rgba(0,0,0,.34);
-    }
-    .cinema-sheetSub{
-      margin-top: 6px;
-      font-size: 12px;
-      letter-spacing:.12em;
-      text-transform: uppercase;
-      color: rgba(255, 242, 205, .86);
-      opacity:.95;
-    }
-
-    .cinema-close{
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-
-      background:
-        radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.16), transparent 60%),
-        linear-gradient(180deg, rgba(12,55,95,.52), rgba(8,35,60,.46));
-
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.18),
-        inset 0 1px 0 rgba(255,255,255,.14);
-
-      display:grid;
-      place-items:center;
-    }
-    .cinema-close svg{
-      width: 20px; height: 20px;
-      stroke: rgba(255,255,255,.96);
-      fill:none;
-      stroke-width:2.6;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      display:block;
-    }
-
-    .cinema-list{
-      padding: 0 18px 18px;
-      display:grid;
-      gap: 10px;
-      max-height: min(62vh, 560px);
-      overflow:auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .cinema-item{
-      width:100%;
-      text-align:left;
-      display:flex;
-      align-items:center;
-      gap:12px;
-
-      border-radius: 22px;
-      padding: 12px 12px;
-
-      background:
-        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.12), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.12));
-
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow:
-        0 18px 34px rgba(0,0,0,.20),
-        inset 0 1px 0 rgba(255,255,255,.12);
-
-      cursor:pointer;
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
-    }
-    .cinema-item:hover{
-      transform: translateY(-1px);
-      filter:saturate(1.06);
-      box-shadow:
-        0 26px 52px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.14);
-    }
-    .cinema-item:active{ transform: translateY(0) scale(.992); }
-
-    .cinema-itemThumb{
-      width: 58px;
-      height: 58px;
-      border-radius: 20px;
-      flex:0 0 auto;
-
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.45), rgba(12,55,95,.40));
-
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 14px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
-    }
-
-    .cinema-itemTxt{ min-width:0; flex:1 1 auto; }
-    .cinema-itemTitle{
-      font-size: 18px;
-      letter-spacing:.02em;
-      color: rgba(245,250,255,.98);
-      text-shadow: 0 12px 28px rgba(0,0,0,.28);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .cinema-itemMeta{
-      margin-top: 6px;
-      font-size: 11px;
-      letter-spacing:.12em;
-      text-transform: uppercase;
-      color: rgba(255,242,205,.86);
-      opacity:.95;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-
-    .cinema-itemGo{
-      flex:0 0 auto;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
-        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
-      color: rgba(255,255,255,.96);
-      font-weight: 900;
-      font-size: 10px;
-      letter-spacing:.14em;
-      text-transform: uppercase;
-      white-space: nowrap;
     }
   </style>
 </head>
@@ -2921,67 +2098,49 @@
 
         <div class="cinema-title">Кинотеатр</div>
 
-        <!-- ✅ ЗАМЕНА: вместо 3 карточек — компактная рулетка -->
-        <section class="cinema-roulette" data-cinema aria-label="Кинотеатр: рулетка серий">
-          <div class="cinema-roulette__left">
-            <div class="cinema-thumb" id="cinemaThumb" aria-hidden="true"></div>
-
-            <div class="cinema-ep">
-              <div class="cinema-epHead">
-                <div class="cinema-epTitle" id="cinemaEpTitle">Серия</div>
-                <div class="cinema-epBadge" id="cinemaEpBadge">серия 1</div>
-              </div>
-
-              <div class="cinema-epMeta" id="cinemaEpMeta">1:40 • 6+ • мультфильм</div>
-              <div class="cinema-epDesc" id="cinemaEpDesc">Описание серии…</div>
-
-              <div class="cinema-epActions" aria-label="Действия кинотеатра">
-                <a class="cinema-btn is-primary" id="cinemaWatch" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть выбранную серию">
-                  <svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 8l8 4-8 4V8z"></path></svg>
-                  Смотреть
-                </a>
-
-                <button class="cinema-btn is-ghost" id="cinemaList" type="button" aria-haspopup="dialog" aria-controls="cinemaSheet">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path>
-                    <path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path>
-                  </svg>
-                  Список серий
-                </button>
-              </div>
-
-              <div class="cinema-dots" id="cinemaDots" aria-hidden="true"></div>
+        <section class="cinema-grid" aria-label="Подборка мультфильмов">
+          <article class="movie-card">
+            <div class="movie-top">
+              <div class="movie-name">Опасный пароль</div>
+              <div class="movie-meta"><span class="dot"></span> 2 мин</div>
             </div>
-          </div>
+            <div class="movie-actions">
+              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Опасный пароль">
+                <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+                Смотреть
+              </a>
+            </div>
+          </article>
 
-          <div class="wheel-wrap" aria-label="Рулетка серий">
-            <div class="wheel-pointer" aria-hidden="true"></div>
+          <article class="movie-card">
+            <div class="movie-top">
+              <div class="movie-name">Что такое фишинг?</div>
+              <div class="movie-meta"><span class="dot"></span> 2 мин</div>
+            </div>
+            <div class="movie-actions">
+              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Что такое фишинг?">
+                <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+                Смотреть
+              </a>
+            </div>
+          </article>
 
-            <div class="wheel" id="cinemaWheel" style="--wheel-rot:0deg;" aria-hidden="true"></div>
-
-            <button class="wheel-center" id="cinemaSpin" type="button" aria-label="Крутить рулетку">
-              <svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M10 8l8 4-8 4V8z"></path>
-              </svg>
-            </button>
-
-            <div class="wheel-ring" aria-hidden="true"></div>
-          </div>
-
-          <div class="cinema-roulette__right" aria-label="Информация о выборе">
-            <div class="cinema-picked" id="cinemaPicked">Выбрано: серия 1</div>
-            <div class="cinema-topic" id="cinemaTopic">Тема: цифровая безопасность</div>
-
-            <button class="cinema-pill" id="cinemaSpinAlt" type="button" aria-label="Крутить рулетку ещё раз">
-              ↺ Крутить ещё раз
-            </button>
-          </div>
-
-          <div class="cinema-toast" id="cinemaToast" aria-live="polite"></div>
+          <article class="movie-card">
+            <div class="movie-top">
+              <div class="movie-name">Поделился личным</div>
+              <div class="movie-meta"><span class="dot"></span> 2 мин</div>
+            </div>
+            <div class="movie-actions">
+              <a class="movie-btn" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм: Поделился личным">
+                <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+                Смотреть
+              </a>
+            </div>
+          </article>
         </section>
       </div>
 
-      <!-- ✅ "Фишинг" -->
+      <!-- ✅ "Фишинг" (ниже) — теперь запускает мини-игру + есть доп.кнопка "смотреть" -->
       <div class="side-chip" aria-label="Быстрый запуск: Фишинг">
         <div class="avatar" aria-hidden="true">🐱</div>
         <div class="chip-card">
@@ -2992,19 +2151,19 @@
 
           <div class="chip-actions">
             <button class="chip-btn" id="openPhishGame" type="button" aria-haspopup="dialog" aria-controls="phishGame">
-              <svg class="is-fill" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+              <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
               Играть
             </button>
 
             <a class="chip-btn is-ghost" href="https://digitalhavenrussia.ru/security.html" aria-label="Смотреть мультфильм про фишинг">
-              <svg class="is-fill" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+              <svg viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
               Смотреть
             </a>
           </div>
         </div>
       </div>
 
-      <!-- ✅ "Правила" -->
+      <!-- ✅ "Правила" (ниже) — теперь запускает мини-игру "Правило дня" -->
       <div class="rules" aria-label="Правила">
         <div class="avatar" aria-hidden="true">☃️</div>
         <a class="rules-card" id="openRuleGame" href="#" role="button" aria-haspopup="dialog" aria-controls="ruleGame" aria-label="Открыть: Правило дня">
@@ -3076,10 +2235,7 @@
           <div class="mg-scoreRow">
             <div class="mg-scorePill" id="mgScore">Очки: 0</div>
             <button class="chip-btn" id="mgRestart" type="button">
-              <svg viewBox="0 0 24 24">
-                <path d="M21 12a9 9 0 1 1-3-6.7"></path>
-                <path d="M21 3v6h-6"></path>
-              </svg>
+              <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 3v6h-6"></path></svg>
               Ещё раз
             </button>
           </div>
@@ -3089,7 +2245,9 @@
   </div>
 
   <!-- ============================================================
-       ✅ МОДАЛКА МИНИ-ИГРЫ: "ПРАВИЛО ДНЯ"
+       ✅ МОДАЛКА МИНИ-ИГРЫ: "ПРАВИЛО ДНЯ" (1 день = 1 правило)
+       - стиль один-в-один (те же классы mg-)
+       - хранит прохождение в localStorage на текущую дату
   ============================================================ -->
   <div class="mg-backdrop" id="ruleGame" aria-hidden="true">
     <section class="mg-modal" role="dialog" aria-modal="true" aria-labelledby="rgTitle">
@@ -3148,12 +2306,9 @@
 
           <div class="mg-scoreRow">
             <div class="mg-scorePill" id="rgStatus">Статус: пройдено</div>
-            <button class="chip-btn" id="rgRestart" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 12a9 9 0 1 1-3-6.7"></path>
-                <path d="M21 3v6h-6"></path>
-              </svg>
-              Ещё раз
+            <button class="chip-btn" id="rgAgain" type="button">
+              <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 3v6h-6"></path></svg>
+              Повторить
             </button>
           </div>
         </div>
@@ -3161,632 +2316,629 @@
     </section>
   </div>
 
-  <!-- ============================================================
-       ✅ CINEMA SHEET (Список серий) — bottom sheet
-  ============================================================ -->
-  <div class="cinema-backdrop" id="cinemaSheet" aria-hidden="true">
-    <section class="cinema-modal" role="dialog" aria-modal="true" aria-labelledby="cinemaSheetTitle">
-      <div class="cinema-top">
-        <div>
-          <div class="cinema-sheetTitle" id="cinemaSheetTitle">Список серий</div>
-          <div class="cinema-sheetSub" id="cinemaSheetSub">Выбери серию или крути рулетку</div>
-        </div>
-
-        <button class="cinema-close" id="cinemaClose" type="button" aria-label="Закрыть список серий">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 6l12 12"></path>
-            <path d="M18 6 6 18"></path>
-          </svg>
-        </button>
-      </div>
-
-      <div class="cinema-list" id="cinemaListBody" aria-label="Серии кинотеатра">
-        <!-- items injected by JS -->
-      </div>
-    </section>
-  </div>
-
   <script>
-    /* ============================================================
-       ✅ Helpers
-    ============================================================ */
-    const $ = (sel, root = document) => root.querySelector(sel);
-    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    (function introAnim(){
+      const intro = document.getElementById('intro');
+      if(!intro) return;
+      requestAnimationFrame(() => intro.classList.add('is-on'));
+      setTimeout(() => {
+        intro.classList.remove('is-on');
+        intro.style.display = 'none';
+      }, 900);
+    })();
 
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    (function markActive(){
+      try{
+        const path = location.pathname.replace(/\/+$/, '') || '/';
+        const items = document.querySelectorAll('.hud-item');
+        items.forEach(a => a.classList.remove('is-active'));
 
-    function openModal(backdropEl){
-      if(!backdropEl) return;
-      backdropEl.classList.add('is-open');
-      backdropEl.setAttribute('aria-hidden', 'false');
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-    }
+        const rules = [
+          { match: ['/', '/index.html'], hrefPart: 'digitalhavenrussia.ru' },
+          { match: ['/project.html'], hrefPart: 'project.html' },
+          { match: ['/security.html'], hrefPart: 'security.html' },
+          { match: ['/map.html'], hrefPart: 'map.html' },
+        ];
+        const rule = rules.find(r => r.match.includes(path));
+        if(!rule) return;
 
-    function closeModal(backdropEl){
-      if(!backdropEl) return;
-      backdropEl.classList.remove('is-open');
-      backdropEl.setAttribute('aria-hidden', 'true');
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
-    }
+        const active = Array.from(items).find(a => (a.getAttribute('href') || '').includes(rule.hrefPart));
+        if(active) active.classList.add('is-active');
+      }catch(e){}
+    })();
 
-    function toast(el, text){
-      if(!el) return;
-      el.textContent = text;
-      el.classList.add('is-on');
-      clearTimeout(el._t);
-      el._t = setTimeout(()=> el.classList.remove('is-on'), 1600);
-    }
+    // =============== Сворачивание меню (как на главной: таб сверху, панель прячется) ===============
+    (function toggleMenu(){
+      const nav = document.querySelector('.side-nav');
+      const btn = document.getElementById('menuToggle');
+      if(!nav || !btn) return;
 
-    /* ============================================================
-       ✅ MENU collapse
-    ============================================================ */
-    (function initMenu(){
-      const sideNav = $('.side-nav');
-      const btn = $('#menuToggle');
-      const panel = $('#hudPanel');
+      function sync(){
+        const collapsed = nav.classList.contains('is-collapsed');
+        document.body.classList.toggle('menu-collapsed', collapsed);
+        btn.setAttribute('aria-expanded', String(!collapsed));
+        btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
+      }
 
-      if(!sideNav || !btn || !panel) return;
-
-      const setCollapsed = (v) => {
-        sideNav.classList.toggle('is-collapsed', v);
-        document.body.classList.toggle('menu-collapsed', v);
-        btn.setAttribute('aria-expanded', String(!v));
-      };
-
-      // default expanded
-      setCollapsed(false);
+      sync();
 
       btn.addEventListener('click', () => {
-        setCollapsed(!sideNav.classList.contains('is-collapsed'));
+        nav.classList.toggle('is-collapsed');
+        sync();
       });
-
-      // Close panel if user taps outside on mobile
-      document.addEventListener('pointerdown', (e) => {
-        const isMobile = matchMedia('(max-width: 520px)').matches;
-        if(!isMobile) return;
-        if(sideNav.contains(e.target)) return;
-        setCollapsed(true);
-      }, {passive:true});
     })();
 
-    /* ============================================================
-       ✅ UI bottom positioning: keep UI above "bear" anchor
-       - uses CSS vars:
-         --bear-top-frac, --ui-bear-gap, --ui-bottom-extra
-         --ui-safe-top
-    ============================================================ */
-    (function initUiBottomAnchor(){
-      const hero = $('#hero');
-      const uiBottom = $('.ui-bottom');
-      if(!hero || !uiBottom) return;
+    // =============== Переходы между страницами ===============
+    (function pageTransitions(){
+      const pt = document.getElementById('pt');
+      if(!pt) return;
 
-      const ro = new ResizeObserver(recalc);
-      ro.observe(hero);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      window.addEventListener('resize', recalc, {passive:true});
-      window.addEventListener('orientationchange', recalc, {passive:true});
+      function isModifiedClick(e){
+        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+      }
+      function samePage(href){
+        try{
+          const u = new URL(href, location.href);
+          return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
+        }catch(_){ return true; }
+      }
 
-      // If images load late, recalc again
-      window.addEventListener('load', () => setTimeout(recalc, 60), {once:true});
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href]');
+        if(!a) return;
 
-      function recalc(){
-        const cs = getComputedStyle(document.documentElement);
+        const href = a.getAttribute('href');
+        if(!href) return;
 
-        const bearFrac = parseFloat(cs.getPropertyValue('--bear-top-frac')) || 0.65;
-        const gap = parseFloat(cs.getPropertyValue('--ui-bear-gap')) || 22;
-        const extra = parseFloat(cs.getPropertyValue('--ui-bottom-extra')) || 0;
-        const safeTop = parseFloat(cs.getPropertyValue('--ui-safe-top')) || 14;
+        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
+        if(isModifiedClick(e)) return;
+        if(samePage(href) && href.includes('#')) return;
+        if(reduce) return;
+        if(a.target === '_blank') return;
 
-        const heroH = hero.clientHeight || window.innerHeight;
+        // ✅ если открыт модал игры — не перехватываем клики внутри него
+        if(e.target.closest('#phishGame') || e.target.closest('#ruleGame')) return;
 
-        // target Y where bear starts
-        const bearTopPx = heroH * bearFrac;
+        e.preventDefault();
 
-        // UI block height
-        const uiH = uiBottom.getBoundingClientRect().height;
+        pt.classList.remove('is-entering');
+        pt.classList.add('is-leaving');
 
-        // place uiBottom so that its bottom is above bearTopPx by gap
-        let top = bearTopPx - gap - uiH + extra;
+        const go = () => { location.href = href; };
+        setTimeout(go, 420);
+        setTimeout(go, 900);
+      }, { capture: true });
 
-        // safety clamp so it doesn't go off-screen
-        top = clamp(top, safeTop, heroH - uiH - 6);
+      window.addEventListener('pageshow', () => {
+        if(reduce) return;
+        pt.classList.remove('is-leaving');
+        pt.classList.add('is-entering');
+        setTimeout(() => pt.classList.remove('is-entering'), 520);
+      });
+    })();
 
-        document.documentElement.style.setProperty('--ui-bottom-top', `${top}px`);
+    // ✅ СТАРТ СНИЗУ: на телефоне ОТКЛЮЧЕНО
+    (function startAtBottom(){
+      const isMobile = window.matchMedia('(max-width: 520px)').matches;
+      if(isMobile) return;
+
+      const isFHD = window.matchMedia('(max-width: 1920px)').matches;
+      const header = document.getElementById('hero') || document.querySelector('.header');
+
+      function scrollToBottom(){
+        if(isFHD){
+          const doc = document.scrollingElement || document.documentElement;
+          window.scrollTo(0, doc.scrollHeight + 9999);
+        }else{
+          if(!header) return;
+          header.scrollTop = header.scrollHeight + 9999;
+        }
+      }
+
+      function runFewTimes(){
+        scrollToBottom();
+        requestAnimationFrame(scrollToBottom);
+        setTimeout(scrollToBottom, 60);
+        setTimeout(scrollToBottom, 200);
+        setTimeout(scrollToBottom, 420);
+      }
+
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', runFewTimes, { once:true });
+      } else {
+        runFewTimes();
+      }
+      window.addEventListener('load', runFewTimes, { once:true });
+
+      const img = document.querySelector('.header__bg');
+      if(img){
+        const afterImg = () => setTimeout(runFewTimes, 0);
+        if(img.complete) afterImg();
+        else img.addEventListener('load', afterImg, { once:true });
+      }
+
+      if(isFHD && window.visualViewport){
+        window.visualViewport.addEventListener('resize', () => {
+          setTimeout(scrollToBottom, 0);
+        }, { passive:true });
       }
     })();
 
     /* ============================================================
-       ✅ CINEMA ROULETTE
+       ✅ МИНИ-ИГРА: "Фишинг или правда?" — реализация (НЕ ТРОГАЕМ)
     ============================================================ */
-    (function initCinema(){
-      const wheel = $('#cinemaWheel');
-      const btnSpin = $('#cinemaSpin');
-      const btnSpinAlt = $('#cinemaSpinAlt');
-      const titleEl = $('#cinemaEpTitle');
-      const badgeEl = $('#cinemaEpBadge');
-      const metaEl = $('#cinemaEpMeta');
-      const descEl = $('#cinemaEpDesc');
-      const pickedEl = $('#cinemaPicked');
-      const topicEl = $('#cinemaTopic');
-      const dotsEl = $('#cinemaDots');
-      const thumbEl = $('#cinemaThumb');
-      const watchEl = $('#cinemaWatch');
-      const toastEl = $('#cinemaToast');
+    (function phishingGame(){
+      const openBtn = document.getElementById('openPhishGame');
+      const backdrop = document.getElementById('phishGame');
+      const closeBtn = document.getElementById('closePhishGame');
 
-      const listBtn = $('#cinemaList');
-      const sheet = $('#cinemaSheet');
-      const sheetClose = $('#cinemaClose');
-      const listBody = $('#cinemaListBody');
+      if(!openBtn || !backdrop || !closeBtn) return;
 
-      if(!wheel || !btnSpin || !titleEl) return;
+      const dotsWrap = document.getElementById('mgDots');
+      const cardNo = document.getElementById('mgCardNo');
+      const difficulty = document.getElementById('mgDifficulty');
+      const mgText = document.getElementById('mgText');
+      const mgLink = document.getElementById('mgLink');
+      const btnPhish = document.getElementById('mgBtnPhish');
+      const btnReal  = document.getElementById('mgBtnReal');
+      const explain  = document.getElementById('mgExplain');
+      const nextBtn  = document.getElementById('mgNext');
+      const hint     = document.getElementById('mgHint');
 
-      // ✅ Здесь заполни свои серии. Можно добавлять сколько угодно.
-      // link — куда вести при "Смотреть" (можно с якорем/параметром)
-      const EPISODES = [
-        {
-          title: 'Фишинг: не ведись на приманки',
-          badge: 'серия 1',
-          meta: '1:40 • 6+ • мультфильм',
-          desc: 'Как отличить опасное сообщение и почему нельзя вводить коды по просьбе незнакомцев.',
-          topic: 'фишинг',
-          link: 'https://digitalhavenrussia.ru/security.html'
-        },
-        {
-          title: 'Пароли и секреты',
-          badge: 'серия 2',
-          meta: '2:10 • 6+ • мультфильм',
-          desc: 'Почему пароль — как ключ от дома. Учимся делать надёжные пароли и не делиться ими.',
-          topic: 'пароли',
-          link: 'https://digitalhavenrussia.ru/security.html'
-        },
-        {
-          title: 'Ссылки и ловушки',
-          badge: 'серия 3',
-          meta: '1:55 • 6+ • мультфильм',
-          desc: 'Что проверять в ссылках, чтобы не попасть на поддельные сайты и не потерять данные.',
-          topic: 'ссылки',
-          link: 'https://digitalhavenrussia.ru/security.html'
-        },
-        {
-          title: 'Личная информация',
-          badge: 'серия 4',
-          meta: '2:05 • 6+ • мультфильм',
-          desc: 'Какие данные нельзя отправлять в чатах и почему “просто фото” иногда тоже опасно.',
-          topic: 'приватность',
-          link: 'https://digitalhavenrussia.ru/security.html'
-        },
-        {
-          title: 'Друзья в сети',
-          badge: 'серия 5',
-          meta: '2:20 • 6+ • мультфильм',
-          desc: 'Как общаться в интернете безопасно и что делать, если кто-то просит странные вещи.',
-          topic: 'общение',
-          link: 'https://digitalhavenrussia.ru/security.html'
-        }
+      const finish   = document.getElementById('mgFinish');
+      const finishText = document.getElementById('mgFinishText');
+      const scorePill  = document.getElementById('mgScore');
+      const restartBtn = document.getElementById('mgRestart');
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const cards = [
+        { level:"легко", real:false, text:"🎁 Вы выиграли iPhone! Заберите приз прямо сейчас.", link:"http://iph0ne-prize.ru/claim",
+          explain:["Признаки: <b>«вы выиграли»</b>, срочность, странная ссылка и домен.","Правильно: не нажимай, закрой сообщение, спроси взрослого."]},
+        { level:"легко", real:false, text:"⚠️ Ваш аккаунт заблокирован! Срочно подтвердите пароль, иначе всё удалится.", link:"https://support-acc0unt.com/login",
+          explain:["Признаки: <b>страх</b> и <b>срочность</b> («иначе удалится»), подозрительный домен.","Правильно: зайди на сайт вручную (не по ссылке) или спроси взрослого."]},
+        { level:"средне", real:false, text:"👨‍👧 Папа: «Скинь код из SMS, мне срочно надо войти!»", link:"",
+          explain:["Признак: просьба <b>кода</b>. Коды — это как ключи, их никому нельзя.","Правильно: перезвони папе обычным звонком и уточни."]},
+        { level:"средне", real:true, text:"🏫 Школа: «Завтра собрание. Расписание в электронном дневнике».", link:"",
+          explain:["Это похоже на правду: без ссылок на «призы», без просьб пароля/кодов.","Правильно: проверяй через официальный дневник/приложение."]},
+        { level:"средне", real:false, text:"🎮 Вам выдан «БЕСПЛАТНЫЙ донат»! Введите логин и пароль от игры.", link:"https://free-d0nat-gifts.net",
+          explain:["Признаки: «бесплатно», просьба <b>логина/пароля</b>, странный домен.","Правильно: никому не давай пароль. Удали сообщение."]},
+        { level:"сложно", real:false, text:"📦 Доставка: «Посылка задержана. Оплатите 59₽ по ссылке».", link:"https://pay-delivery-fast.ru/59",
+          explain:["Признаки: мелкая сумма для «легкой оплаты», ссылка на оплату от неизвестного.","Правильно: проверяй доставку в официальном приложении."]},
+        { level:"сложно", real:true, text:"🔐 Ваш код входа: 381-992. Никому не сообщайте. Если это не вы — отмените вход.", link:"",
+          explain:["Это сообщение может быть настоящим: оно <b>не просит</b> отправить код кому-то.","Правильно: если вход не ваш — срочно меняй пароль и включай 2FA."]},
+        { level:"сложно", real:false, text:"📷 «Привет! Это твоё фото? Открой» (файл: photo.zip)", link:"",
+          explain:["Признаки: неизвестный файл/архив, провокация «это твоё фото».","Правильно: не открывай файлы от незнакомцев, удали и сообщи взрослому."]}
       ];
 
-      let current = 0;
-      let spinning = false;
-      let rot = 0;
+      let idx = 0, score = 0, locked = false, lastFocus = null;
 
-function renderDots() {
-  if (!dotsEl) return;
-  dotsEl.innerHTML = '';
-  EPISODES.forEach((ep, i) => {
-    const d = document.createElement('button');
-    d.type = 'button';
-    d.className = 'cinema-dot' + (i === current ? ' is-on' : '');
-    d.setAttribute('aria-label', `Выбрать ${ep.badge}`);
-    d.addEventListener('click', () => {
-      applyEpisode(i);  // Выбираем серию при клике
-      toast(toastEl, `Выбрано: ${ep.badge}`);
-    });
-    dotsEl.appendChild(d);
-  });
-}
+      function setHidden(el, hidden){ if(el) el.hidden = !!hidden; }
 
-      function setThumb(i){
-        if(!thumbEl) return;
-        // простая “обложка” без картинок — градиент меняется от индекса
-        const hues = [200, 145, 30, 260, 95, 10, 180];
-        const h = hues[i % hues.length];
-        thumbEl.style.background = `
-          radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-          radial-gradient(120% 120% at 80% 20%, rgba(255,242,205,.14), transparent 62%),
-          linear-gradient(180deg, hsla(${h}, 85%, 58%, .55), rgba(12,55,95,.40))
-        `;
-      }
-
-const EP_KEY = 'dh_cinema_ep';
-
-function applyEpisode(i) {
-  current = i;
-  localStorage.setItem(EP_KEY, String(i));  // Сохраняем выбранную серию
-  // остальная логика для отображения серии
-}
-
-// Восстановление последней серии при загрузке страницы
-const savedIndex = Number(localStorage.getItem(EP_KEY));
-if (Number.isFinite(savedIndex) && EPISODES[savedIndex]) applyEpisode(savedIndex);
-else applyEpisode(0);  // Если индекс не сохранен, выбираем первую серию
-
-      function buildSheet(){
-        if(!listBody) return;
-        listBody.innerHTML = '';
-
-        EPISODES.forEach((ep, i) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'cinema-item';
-          btn.innerHTML = `
-            <span class="cinema-itemThumb" aria-hidden="true"></span>
-            <span class="cinema-itemTxt">
-              <span class="cinema-itemTitle">${ep.badge}: ${ep.title}</span>
-              <span class="cinema-itemMeta">${ep.meta} • тема: ${ep.topic}</span>
-            </span>
-            <span class="cinema-itemGo" aria-hidden="true">выбрать</span>
-          `;
-
-          // mini thumb
-          const t = btn.querySelector('.cinema-itemThumb');
-          const hues = [200, 145, 30, 260, 95, 10, 180];
-          const h = hues[i % hues.length];
-          t.style.background = `
-            radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
-            linear-gradient(180deg, hsla(${h}, 85%, 58%, .55), rgba(12,55,95,.40))
-          `;
-
-          btn.addEventListener('click', () => {
-            applyEpisode(i);
-            closeModal(sheet);
-            toast(toastEl, `Выбрано: ${ep.badge}`);
-          });
-
-          listBody.appendChild(btn);
-        });
-      }
-
-let spinning = false;
-function spin() {
-  if (spinning) return;
-  spinning = true;
-
-  btnSpin.disabled = true;  // Блокируем кнопки
-  btnSpinAlt && (btnSpinAlt.disabled = true);
-
-  const next = Math.floor(Math.random() * EPISODES.length);  // Случайная серия
-  const n = EPISODES.length;
-  const segment = 360 / n;
-
-  // Вращаем с плавной остановкой
-  const spins = 5 + Math.floor(Math.random() * 3);
-  const base = Math.ceil(rot / 360) * 360;  // Для предотвращения резких сдвигов
-  const target = base + spins * 360 + (90 - (next + 0.5) * segment);
-
-  rot = target;
-  wheel.style.setProperty('--wheel-rot', `${rot}deg`);
-
-  const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 2150;
-  setTimeout(() => {
-    applyEpisode(next);  // Применяем выбранную серию
-    toast(toastEl, `Рулетка выбрала: ${EPISODES[next].badge}`);
-
-    spinning = false;
-    btnSpin.disabled = false;  // Разблокируем кнопки
-    btnSpinAlt && (btnSpinAlt.disabled = false);
-  }, dur + 40);
-}
-      // init
-      applyEpisode(0);
-      buildSheet();
-
-      btnSpin.addEventListener('click', spin);
-      btnSpinAlt?.addEventListener('click', spin);
-
-      // open sheet
-      listBtn?.addEventListener('click', () => openModal(sheet));
-      sheetClose?.addEventListener('click', () => closeModal(sheet));
-      sheet?.addEventListener('click', (e) => {
-        if(e.target === sheet) closeModal(sheet);
-      });
-
-      // keyboard close
-      window.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape'){
-          closeModal(sheet);
-        }
-      });
-    })();
-
-    /* ============================================================
-       ✅ MINI-GAME: Phishing (логика — базовая, можно расширять)
-    ============================================================ */
-    (function initPhishGame(){
-      const backdrop = $('#phishGame');
-      const openBtn = $('#openPhishGame');
-      const closeBtn = $('#closePhishGame');
-
-      const dotsWrap = $('#mgDots');
-      const noEl = $('#mgCardNo');
-      const diffEl = $('#mgDifficulty');
-      const textEl = $('#mgText');
-      const linkEl = $('#mgLink');
-
-      const btnPhish = $('#mgBtnPhish');
-      const btnReal = $('#mgBtnReal');
-      const explainEl = $('#mgExplain');
-      const nextBtn = $('#mgNext');
-
-      const finish = $('#mgFinish');
-      const finishText = $('#mgFinishText');
-      const scoreEl = $('#mgScore');
-      const restartBtn = $('#mgRestart');
-
-      if(!backdrop || !openBtn || !closeBtn) return;
-
-      const Q = [
-        {
-          diff: 'легко',
-          text: '“Срочно! Ваш аккаунт заблокируют. Нажмите по ссылке и введите код из СМС.”',
-          link: 'http://bank-secure-login.example',
-          correct: 'phish',
-          explain: 'Срочность + просьба ввести код/данные — классический фишинг. Никогда не вводи коды по ссылкам.'
-        },
-        {
-          diff: 'средне',
-          text: '“Привет! Это школьный чат. Завтра урок в 9:00, принеси тетрадь.”',
-          link: '',
-          correct: 'real',
-          explain: 'Нет просьбы о пароле/коде и нет подозрительных ссылок — похоже на обычное сообщение.'
-        },
-        {
-          diff: 'средне',
-          text: '“Вы выиграли приз! Заполните анкету и укажите адрес и номер карты для доставки.”',
-          link: 'https://gift-prize.example',
-          correct: 'phish',
-          explain: 'Просьба о данных карты/адресе ради “приза” — часто обман. Ничего не вводи и спроси взрослых.'
-        },
-        {
-          diff: 'сложно',
-          text: '“Служба поддержки: подтвердите вход. Отправьте код, который пришёл в СМС.”',
-          link: '',
-          correct: 'phish',
-          explain: 'Поддержка НИКОГДА не просит коды из СМС. Код — только для тебя.'
-        }
-      ];
-
-      let i = 0;
-      let score = 0;
-      let locked = false;
-
-      function renderDots(){
+      function buildDots(){
         if(!dotsWrap) return;
-        dotsWrap.innerHTML = '';
-        Q.forEach((_, k) => {
+        dotsWrap.innerHTML = "";
+        for(let i=0;i<cards.length;i++){
           const d = document.createElement('span');
-          d.className = 'mg-dot' + (k === i ? ' is-on' : '');
+          d.className = "mg-dot" + (i===idx ? " is-on" : "");
           dotsWrap.appendChild(d);
-        });
+        }
+      }
+      function setDots(){
+        if(!dotsWrap) return;
+        const dots = dotsWrap.querySelectorAll('.mg-dot');
+        dots.forEach((d, i) => d.classList.toggle('is-on', i===idx));
       }
 
-      function showQuestion(){
+      function resetUIForCard(){
         locked = false;
-        explainEl?.classList.remove('is-on');
-        explainEl.textContent = '';
-        nextBtn?.classList.remove('is-on');
+        explain.classList.remove('is-on');
+        explain.innerHTML = "";
+        nextBtn.classList.remove('is-on');
+        finish.classList.remove('is-on');
 
-        finish?.classList.remove('is-on');
-
-        const q = Q[i];
-        if(noEl) noEl.textContent = `Сообщение #${i+1}`;
-        if(diffEl) diffEl.textContent = `уровень: ${q.diff}`;
-        if(textEl) textEl.textContent = q.text;
-
-        if(linkEl){
-          if(q.link){
-            linkEl.hidden = false;
-            linkEl.textContent = q.link;
-          }else{
-            linkEl.hidden = true;
-            linkEl.textContent = '';
-          }
-        }
-
-        renderDots();
         btnPhish.disabled = false;
         btnReal.disabled = false;
+
+        hint.textContent = "Подсказка: проверяй срочность, ссылки и просьбы кода";
       }
 
-      function answer(type){
-        if(locked) return;
-        locked = true;
+      function renderCard(){
+        const c = cards[idx];
+        cardNo.textContent = `Сообщение #${idx+1}`;
+        difficulty.textContent = `уровень: ${c.level}`;
+        mgText.textContent = c.text;
 
-        const q = Q[i];
-        const ok = (type === q.correct);
-
-        if(ok) score += 1;
-
-        if(explainEl){
-          explainEl.textContent = (ok ? '✅ Верно! ' : '❌ Не совсем. ') + q.explain;
-          explainEl.classList.add('is-on');
+        if(c.link && c.link.trim()){
+          mgLink.textContent = c.link;
+          setHidden(mgLink, false);
+        }else{
+          setHidden(mgLink, true);
         }
+
+        setDots();
+        resetUIForCard();
+      }
+
+      function open(){
+        lastFocus = document.activeElement;
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
+      }
+      function close(){
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        if(lastFocus && typeof lastFocus.focus === 'function'){
+          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
+        }
+      }
+
+      function finishGame(){
+        const total = cards.length;
+        const pct = Math.round((score/total)*100);
+
+        finishText.innerHTML = `
+          Ты правильно ответил(а) на <b>${score}</b> из <b>${total}</b> сообщений.<br>
+          Это <b>${pct}%</b> точности.
+          <br><br>
+          <b>Золотое правило:</b> не вводи пароль по ссылкам из сообщений, не передавай коды, проверяй домены.
+        `;
+        scorePill.textContent = `Очки: ${score}/${total}`;
+
+        finish.classList.add('is-on');
+        explain.classList.remove('is-on');
+        nextBtn.classList.remove('is-on');
 
         btnPhish.disabled = true;
         btnReal.disabled = true;
 
-        // if last — finish, else show next button
-        if(i >= Q.length - 1){
-          showFinish();
-        }else{
-          nextBtn?.classList.add('is-on');
-        }
+        hint.textContent = "Хочешь — пройди ещё раз и улучши результат!";
       }
 
-      function showFinish(){
-        finish?.classList.add('is-on');
-        if(scoreEl) scoreEl.textContent = `Очки: ${score} / ${Q.length}`;
-        if(finishText){
-          const msg =
-            score === Q.length ? 'Идеально! Ты как настоящий кибер-детектив 🛡️' :
-            score >= Math.ceil(Q.length * 0.7) ? 'Отлично! Ещё немного практики — и ты непобедим 🧠' :
-            'Ничего страшного! Повтори правила и попробуй ещё раз 🙂';
-          finishText.textContent = msg;
-        }
-      }
-
-      function reset(){
-        i = 0;
-        score = 0;
-        showQuestion();
-      }
-
-      // open/close
-      openBtn.addEventListener('click', () => {
-        openModal(backdrop);
-        reset();
-      });
-
-      closeBtn.addEventListener('click', () => closeModal(backdrop));
-
-      backdrop.addEventListener('click', (e) => {
-        if(e.target === backdrop) closeModal(backdrop);
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape') closeModal(backdrop);
-      });
-
-      // actions
-      btnPhish?.addEventListener('click', () => answer('phish'));
-      btnReal?.addEventListener('click', () => answer('real'));
-
-      nextBtn?.addEventListener('click', () => {
-        if(i < Q.length - 1){
-          i += 1;
-          showQuestion();
-        }
-      });
-
-      restartBtn?.addEventListener('click', reset);
-    })();
-
-    /* ============================================================
-       ✅ MINI-GAME: Rule of the day
-    ============================================================ */
-    (function initRuleGame(){
-      const backdrop = $('#ruleGame');
-      const openBtn = $('#openRuleGame');
-      const closeBtn = $('#closeRuleGame');
-
-      const ruleLine = $('#rgRuleLine');
-      const scenario = $('#rgScenario');
-      const datePill = $('#rgDatePill');
-
-      const btnBad = $('#rgBtnBad');
-      const btnGood = $('#rgBtnGood');
-
-      const explainEl = $('#rgExplain');
-      const doneBtn = $('#rgDone');
-
-      const finish = $('#rgFinish');
-      const finishText = $('#rgFinishText');
-      const status = $('#rgStatus');
-      const restartBtn = $('#rgRestart');
-
-      if(!backdrop || !openBtn || !closeBtn) return;
-
-      // ✅ Пул правил — меняй/расширяй
-      const RULES = [
-        {
-          rule: 'Не сообщай никому пароли и коды из СМС.',
-          scenario: 'Тебе пишет “админ игры” и просит код из СМС “для проверки”. Что это?',
-          good: false,
-          explain: 'Опасно. Код из СМС — это ключ. Его нельзя сообщать никому, даже “поддержке”.'
-        },
-        {
-          rule: 'Проверяй ссылку перед тем, как нажать.',
-          scenario: 'Ссылка выглядит странно: bank-login.secure-pay.example. Нажимать?',
-          good: false,
-          explain: 'Опасно. Поддельные сайты часто похожи на настоящие. Лучше набери адрес вручную или спроси взрослых.'
-        },
-        {
-          rule: 'Если сомневаешься — остановись и спроси взрослого.',
-          scenario: 'Сообщение просит “срочно” скачать файл. Ты не уверен(а), от кого это.',
-          good: true,
-          explain: 'Безопасно. Остановиться и спросить — лучшая защита, когда есть сомнения.'
-        }
-      ];
-
-      let idx = 0;
-      let locked = false;
-
-      function pickRule(){
-        // ежедневная смена по дате (без сервера)
-        const d = new Date();
-        const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
-        idx = seed % RULES.length;
-
-        if(datePill){
-          const dd = String(d.getDate()).padStart(2,'0');
-          const mm = String(d.getMonth()+1).padStart(2,'0');
-          datePill.textContent = `${dd}.${mm}`;
-        }
-      }
-
-      function render(){
-        locked = false;
-
-        explainEl?.classList.remove('is-on');
-        explainEl.textContent = '';
-        doneBtn?.classList.remove('is-on');
-
-        finish?.classList.remove('is-on');
-
-        const r = RULES[idx];
-        if(ruleLine) ruleLine.textContent = r.rule;
-        if(scenario) scenario.textContent = r.scenario;
-
-        btnBad.disabled = false;
-        btnGood.disabled = false;
-      }
-
-      function answer(isGood){
+      function answer(isPhish){
         if(locked) return;
         locked = true;
 
-        const r = RULES[idx];
-        const ok = (isGood === r.good);
+        const c = cards[idx];
+        const correct = (isPhish === !c.real);
+        if(correct) score++;
 
-        if(explainEl){
-          explainEl.textContent = (ok ? '✅ Верно! ' : '❌ Не совсем. ') + r.explain;
-          explainEl.classList.add('is-on');
+        btnPhish.disabled = true;
+        btnReal.disabled = true;
+
+        const topLine = correct
+          ? `✅ Верно! Это ${c.real ? "настоящее" : "фишинг"}.`
+          : `❌ Почти! Правильный ответ: ${c.real ? "НАСТОЯЩЕЕ" : "ФИШИНГ"}.`;
+
+        const lines = [topLine, ...c.explain].map(s => `<div style="margin:6px 0;">${s}</div>`).join("");
+        explain.innerHTML = lines;
+        explain.classList.add('is-on');
+
+        hint.textContent = correct
+          ? "Отлично! Запоминай признаки — так ты защищаешь себя."
+          : "Ничего страшного — ошибки учат. Смотри признаки и пробуй дальше.";
+
+        if(idx < cards.length - 1){
+          nextBtn.classList.add('is-on');
+          nextBtn.focus({ preventScroll:true });
+        }else{
+          finishGame();
+          restartBtn.focus({ preventScroll:true });
         }
-
-        btnBad.disabled = true;
-        btnGood.disabled = true;
-
-        doneBtn?.classList.add('is-on');
       }
 
-      function finishIt(){
-        finish?.classList.add('is-on');
-        if(finishText) finishText.textContent = 'Запомни правило и применяй его каждый день. Ты молодец! 🛡️';
-        if(status) status.textContent = 'Статус: пройдено';
+      function next(){
+        if(idx >= cards.length - 1) return;
+        idx++;
+        renderCard();
+      }
+
+      function restart(){
+        idx = 0;
+        score = 0;
+        buildDots();
+        renderCard();
+      }
+
+      buildDots();
+      renderCard();
+
+      openBtn.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+
+      backdrop.addEventListener('click', (e) => {
+        if(e.target === backdrop) close();
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if(!backdrop.classList.contains('is-open')) return;
+        if(e.key === 'Escape') close();
+      });
+
+      btnPhish.addEventListener('click', () => answer(true));
+      btnReal.addEventListener('click', () => answer(false));
+      nextBtn.addEventListener('click', next);
+      restartBtn.addEventListener('click', restart);
+
+      window.addEventListener('keydown', (e) => {
+        if(!backdrop.classList.contains('is-open')) return;
+        if(e.key === 'Enter' && nextBtn.classList.contains('is-on')){
+          e.preventDefault();
+          next();
+        }
+      });
+    })();
+
+    /* ============================================================
+       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — 1 день = 1 правило (новая)
+       - открытие по клику "Правила" справа
+       - закрытие: крестик / ESC / клик по фону
+       - после ответа: разбор + кнопка "Понятно"
+       - прогресс на день сохраняется (localStorage)
+    ============================================================ */
+    (function ruleOfDayGame(){
+      const openLink = document.getElementById('openRuleGame');
+      const backdrop = document.getElementById('ruleGame');
+      const closeBtn = document.getElementById('closeRuleGame');
+
+      if(!openLink || !backdrop || !closeBtn) return;
+
+      const rgDatePill = document.getElementById('rgDatePill');
+      const rgRuleLine = document.getElementById('rgRuleLine');
+      const rgScenario = document.getElementById('rgScenario');
+      const rgExplain  = document.getElementById('rgExplain');
+      const rgHint     = document.getElementById('rgHint');
+
+      const btnBad  = document.getElementById('rgBtnBad');
+      const btnGood = document.getElementById('rgBtnGood');
+
+      const doneBtn = document.getElementById('rgDone');
+
+      const rgFinish     = document.getElementById('rgFinish');
+      const rgFinishText = document.getElementById('rgFinishText');
+      const rgStatus     = document.getElementById('rgStatus');
+      const rgAgain      = document.getElementById('rgAgain');
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let lastFocus = null;
+      let locked = false;
+
+      const rules = [
+        {
+          title: "Никому не сообщай коды из SMS и приложений.",
+          scenario: "👨‍👧 «Я твой друг/папа/учитель, пришли код — срочно надо войти!»",
+          correct: "bad",
+          explain: [
+            "Код подтверждения — это <b>ключ</b>. Его нельзя никому передавать.",
+            "Правильно: <b>перезвони</b> человеку обычным звонком и уточни."
+          ]
+        },
+        {
+          title: "Не вводи пароль по ссылкам из сообщений.",
+          scenario: "📩 «Подтвердите аккаунт: перейдите по ссылке и введите пароль»",
+          correct: "bad",
+          explain: [
+            "Ссылки в сообщениях могут вести на подделку.",
+            "Правильно: открой сайт <b>вручную</b> (закладка/ввод адреса) и проверь."
+          ]
+        },
+        {
+          title: "Если просят личные данные — стоп.",
+          scenario: "🎮 «Для подарка напиши адрес/телефон/школу и номер карты родителей»",
+          correct: "bad",
+          explain: [
+            "Личные данные помогают мошенникам.",
+            "Правильно: ничего не отправляй, покажи сообщение взрослым."
+          ]
+        },
+        {
+          title: "Незнакомые файлы и архивы не открывай.",
+          scenario: "📎 «Смотри фотку» (photo.zip / video.exe / document.scr)",
+          correct: "bad",
+          explain: [
+            "Файлы могут содержать вирусы и красть данные.",
+            "Правильно: удаляй и блокируй отправителя."
+          ]
+        },
+        {
+          title: "Настоящие сервисы не пугают и не торопят.",
+          scenario: "⚠️ «Срочно! Через 10 минут всё удалится! Нажми и подтверди»",
+          correct: "bad",
+          explain: [
+            "Срочность — классический приём мошенников.",
+            "Правильно: спокойно проверяй через официальный сайт/приложение."
+          ]
+        },
+        {
+          title: "Сомневаешься — спроси взрослого. Это сила, а не слабость.",
+          scenario: "🤔 Ты не уверен(а), правда ли сообщение или сайт.",
+          correct: "good",
+          explain: [
+            "Лучшее действие — <b>попросить помощи</b>.",
+            "Так ты защищаешь себя и свои аккаунты."
+          ]
+        },
+        {
+          title: "Двухфакторная защита — твой щит.",
+          scenario: "🔐 Тебе предлагают отключить подтверждение входа «чтобы было удобнее».",
+          correct: "bad",
+          explain: [
+            "2FA защищает даже если пароль узнали.",
+            "Правильно: оставь включённым, а пароль делай сложным."
+          ]
+        },
+        {
+          title: "Проверяй, кто пишет: имя ≠ настоящий отправитель.",
+          scenario: "🧾 «Это банк/школа» — но адрес странный и текст с ошибками.",
+          correct: "bad",
+          explain: [
+            "Мошенники часто копируют названия и логотипы.",
+            "Правильно: проверяй адрес/домен и не переходи по ссылкам."
+          ]
+        }
+      ];
+
+      function pad2(n){ return String(n).padStart(2,'0'); }
+      function todayKey(){
+        const d = new Date();
+        return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
+      }
+      function dayIndex(key){
+        // детерминированно: из строки даты делаем число и берём по модулю
+        let h = 0;
+        for(let i=0;i<key.length;i++){
+          h = (h * 31 + key.charCodeAt(i)) >>> 0;
+        }
+        return h % rules.length;
+      }
+
+      function setLocked(v){
+        locked = !!v;
+        btnBad.disabled = locked;
+        btnGood.disabled = locked;
+      }
+
+      function resetUI(){
+        rgExplain.classList.remove('is-on');
+        rgExplain.innerHTML = "";
+        doneBtn.classList.remove('is-on');
+        rgFinish.classList.remove('is-on');
+        setLocked(false);
+      }
+
+      function markDone(dateStr){
+        try{
+          localStorage.setItem("tk_rules_done_" + dateStr, "1");
+        }catch(_){}
+      }
+      function isDone(dateStr){
+        try{
+          return localStorage.getItem("tk_rules_done_" + dateStr) === "1";
+        }catch(_){ return false; }
+      }
+      function clearDone(dateStr){
+        try{
+          localStorage.removeItem("tk_rules_done_" + dateStr);
+        }catch(_){}
+      }
+
+      function render(){
+        const dKey = todayKey();
+        const i = dayIndex(dKey);
+        const r = rules[i];
+
+        rgDatePill.textContent = dKey;
+        rgRuleLine.textContent = "🛡️ " + r.title;
+        rgScenario.textContent = r.scenario;
+
+        rgHint.textContent = "Подсказка: если просят пароль/код/личные данные — это опасно";
+        resetUI();
+
+        if(isDone(dKey)){
+          // если уже пройдено сегодня — показываем финал сразу (но можно повторить)
+          rgFinishText.innerHTML = `
+            Сегодняшнее правило уже пройдено 🎉<br>
+            <b>Правило:</b> ${r.title}
+            <br><br>
+            Хочешь — нажми «Повторить», чтобы ещё раз закрепить.
+          `;
+          rgStatus.textContent = "Статус: пройдено";
+          rgFinish.classList.add('is-on');
+          setLocked(true);
+          setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
+        }
       }
 
       function open(){
-        pickRule();
+        lastFocus = document.activeElement;
+
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
         render();
-        openModal(backdrop);
+        setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
       }
 
       function close(){
-        closeModal(backdrop);
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+
+        if(lastFocus && typeof lastFocus.focus === 'function'){
+          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
+        }
       }
 
-      openBtn.addEventListener('click', (e) => {
+      function answer(choice){ // "bad" | "good"
+        if(locked) return;
+
+        const dKey = todayKey();
+        const r = rules[dayIndex(dKey)];
+
+        setLocked(true);
+
+        const correct = (choice === r.correct);
+        const topLine = correct ? "✅ Верно!" : "❌ Почти!";
+
+        const rightText = (r.correct === "bad") ? "Опасно" : "Безопасно";
+
+        const lines = [
+          `<div style="margin:6px 0;"><b>${topLine}</b> Правильный ответ: <b>${rightText}</b>.</div>`,
+          ...r.explain.map(s => `<div style="margin:6px 0;">${s}</div>`)
+        ].join("");
+
+        rgExplain.innerHTML = lines;
+        rgExplain.classList.add('is-on');
+        doneBtn.classList.add('is-on');
+
+        rgHint.textContent = correct
+          ? "Круто! Ты укрепляешь свой цифровой щит."
+          : "Нормально — так и учатся. Главное: запомни признак и действуй спокойно.";
+
+        doneBtn.focus({ preventScroll:true });
+      }
+
+      function done(){
+        const dKey = todayKey();
+        markDone(dKey);
+
+        const r = rules[dayIndex(dKey)];
+
+        rgFinishText.innerHTML = `
+          <b>Правило дня:</b> ${r.title}<br><br>
+          Завтра будет новое правило — заходи снова ✅
+        `;
+        rgStatus.textContent = "Статус: пройдено";
+        rgFinish.classList.add('is-on');
+
+        rgExplain.classList.remove('is-on');
+        doneBtn.classList.remove('is-on');
+
+        setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
+      }
+
+      function again(){
+        const dKey = todayKey();
+        clearDone(dKey);
+        render();
+        setTimeout(() => btnBad.focus({ preventScroll:true }), 0);
+      }
+
+      // handlers
+      openLink.addEventListener('click', (e) => {
         e.preventDefault();
         open();
       });
@@ -3798,71 +2950,15 @@ function spin() {
       });
 
       window.addEventListener('keydown', (e) => {
+        if(!backdrop.classList.contains('is-open')) return;
         if(e.key === 'Escape') close();
       });
 
-      btnBad?.addEventListener('click', () => answer(false));
-      btnGood?.addEventListener('click', () => answer(true));
-      doneBtn?.addEventListener('click', finishIt);
-
-      restartBtn?.addEventListener('click', () => {
-        // просто покажем следующее правило (как “ещё раз”)
-        idx = (idx + 1) % RULES.length;
-        render();
-      });
+      btnBad.addEventListener('click', () => answer("bad"));
+      btnGood.addEventListener('click', () => answer("good"));
+      doneBtn.addEventListener('click', done);
+      rgAgain.addEventListener('click', again);
     })();
-
-    /* ============================================================
-       ✅ Fancy transition on navigation (optional, safe)
-    ============================================================ */
-    (function initPageTransition(){
-      const pt = $('#pt');
-      if(!pt) return;
-
-      // intercept only same-origin navigations? (здесь ссылки внешние на ваш домен — ок)
-      $$('a[href]').forEach(a => {
-        const href = a.getAttribute('href');
-        if(!href) return;
-        if(href.startsWith('#')) return;
-        if(a.getAttribute('target') === '_blank') return;
-
-        a.addEventListener('click', (e) => {
-          // allow modified clicks
-          if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-
-          // simple fade
-          e.preventDefault();
-          pt.classList.add('is-leaving');
-
-          setTimeout(() => {
-            window.location.href = href;
-          }, 260);
-        });
-      });
-
-      // enter
-      requestAnimationFrame(() => {
-        pt.classList.add('is-entering');
-        setTimeout(() => pt.classList.remove('is-entering'), 520);
-      });
-    })();
-    const roulette = document.querySelector('[data-cinema]');
-roulette?.setAttribute('tabindex', '0');
-roulette?.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight') {
-    e.preventDefault();
-    applyEpisode((current + 1) % EPISODES.length);
-  }
-  if (e.key === 'ArrowLeft') {
-    e.preventDefault();
-    applyEpisode((current - 1 + EPISODES.length) % EPISODES.length);
-  }
-  if (e.key === ' ' || e.key === 'Enter') {
-    e.preventDefault();
-    spin();  // Запуск рулетки
-  }
-});
   </script>
 </body>
 </html>
-
