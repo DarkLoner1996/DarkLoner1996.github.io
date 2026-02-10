@@ -2402,6 +2402,7 @@
     }
     /* Cinema Slider Styles */
 /* Style for the cinema slider */
+/* Style for the cinema slider */
 .cinema-slider {
   position: relative;
   width: 100%;
@@ -2500,6 +2501,7 @@
   display: flex;
   transition: transform 0.5s ease-in-out;
 }
+
 
   </style>
 </head>
@@ -4106,91 +4108,28 @@
 </div>
 </div>
 <script>
-  let correctAnswers = 0;
-
-  // Function to check answers for each level
-  function checkAnswers(level) {
-    let totalQuestions = 6;
-    let correctAnswersInLevel = 0;
-
-    for (let i = 1; i <= totalQuestions; i++) {
-      const selectedAnswer = document.querySelector(`input[name="q${level}"]:checked`);
-      if (selectedAnswer && selectedAnswer.value === "true") {
-        correctAnswersInLevel++;
-      }
-    }
-
-    correctAnswers += correctAnswersInLevel;
-    let percentage = (correctAnswersInLevel / totalQuestions) * 100;
-    document.getElementById("result-text").innerText = `Вы набрали ${percentage}% на уровне ${level}`;
-
-    if (level < 3) {
-      document.getElementById(`level-${level}`).style.display = "none";
-      document.getElementById(`level-${level + 1}`).style.display = "block";
-    } else {
-      document.getElementById("game-results").style.display = "block";
-    }
+ // Function to smoothly move to the next or previous slide
+function moveToSlide(index) {
+  const totalSlides = slides.length;
+  if (index < 0) {
+    currentSlide = totalSlides - 1;
+  } else if (index >= totalSlides) {
+    currentSlide = 0;
+  } else {
+    currentSlide = index;
   }
-
-  // Handle email result
-  document.getElementById("email-result").addEventListener("click", function() {
-    const resultText = document.getElementById("result-text").innerText;
-    window.location.href = `mailto:digitalhavenrussia@mail.ru?subject=Фишинг игра результаты&body=${encodeURIComponent(resultText)}`;
-  });
-</script>
-    <script>
-           // Slider Navigation Script
-document.addEventListener('DOMContentLoaded', function () {
-  const prevBtn = document.querySelector('.slider-prev');
-  const nextBtn = document.querySelector('.slider-next');
-  const sliderWrapper = document.querySelector('.slider-wrapper');
-  const slides = document.querySelectorAll('.movie-slide');
-  let currentSlide = 0;
-
-  function moveToSlide(index) {
-    const totalSlides = slides.length;
-    if (index < 0) {
-      currentSlide = totalSlides - 1;
-    } else if (index >= totalSlides) {
-      currentSlide = 0;
-    } else {
-      currentSlide = index;
-    }
-    sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-  }
-
-  prevBtn.addEventListener('click', () => {
-    moveToSlide(currentSlide - 1);
-  });
-
-  nextBtn.addEventListener('click', () => {
-    moveToSlide(currentSlide + 1);
-  });
-});
-    </script>
-    
-    <script>
-        let currentIndex = 0;
-const slides = document.querySelectorAll('.movie-slide');
-const prevButton = document.querySelector('.slider-prev');
-const nextButton = document.querySelector('.slider-next');
-const slideWrapper = document.querySelector('.slider-wrapper');
-
-// Функция для переключения слайдов
-function updateSlider() {
-  const slideWidth = slides[0].offsetWidth + 20; // Добавляем промежуток между слайдами
-  slideWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+  sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
 }
 
-// Функции для переключения слайдов
-prevButton.addEventListener('click', () => {
-  currentIndex = (currentIndex === 0) ? slides.length - 1 : currentIndex - 1;
-  updateSlider();
+// Adding smoother navigation transitions
+prevBtn.addEventListener('click', () => {
+  moveToSlide(currentSlide - 1);
 });
 
-nextButton.addEventListener('click', () => {
-  currentIndex = (currentIndex === slides.length - 1) ? 0 : currentIndex + 1;
-  updateSlider();
-});</script>
+nextBtn.addEventListener('click', () => {
+  moveToSlide(currentSlide + 1);
+});
+</script>
+ 
 </section></body>
 </html>
