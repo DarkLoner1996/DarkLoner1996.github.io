@@ -2402,15 +2402,17 @@
     }
     /* Cinema Slider Styles */
 /* Main Cinema Slider Section */
+/* Main Cinema Slider Section */
 .cinema-slider {
-  background-color: rgba(0, 0, 0, 0.6); /* Darkened background */
+  background-color: rgba(0, 0, 0, 0.7); /* Slightly darker background */
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.6); /* Subtle box-shadow */
-  backdrop-filter: blur(5px); /* Soft blur to match the snow theme */
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px); /* Subtle blur effect */
+  overflow: hidden; /* Ensures no cards overflow out of bounds */
 }
 
-/* Slider Container for Cards */
+/* Slider Container for Cards - Horizontal Layout */
 .slider-container {
   display: flex;
   gap: 15px;
@@ -2426,6 +2428,7 @@
   position: relative;
   box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 300px; /* Define a fixed width for consistency */
 }
 
 /* Hover Effect for Movie Cards */
@@ -2437,7 +2440,7 @@
 /* Movie Image */
 .movie-img {
   width: 100%;
-  height: auto;
+  height: 200px;
   object-fit: cover;
   border-bottom: 2px solid #fff;
 }
@@ -2476,7 +2479,7 @@
 
 /* Slider Navigation Buttons (Prev/Next) */
 .slider-prev, .slider-next {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
   border: none;
   border-radius: 50%;
@@ -2484,24 +2487,21 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 30px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .slider-prev:hover, .slider-next:hover {
-  background-color: rgba(0, 0, 0, 0.8); /* Darker hover effect */
+  background-color: rgba(0, 0, 0, 0.9); /* Darker hover effect */
 }
 
 .slider-prev {
-  position: absolute;
   left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .slider-next {
-  position: absolute;
   right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
   </style>
@@ -4109,7 +4109,10 @@
 </div>
 </div>
 <script>
-// Move to the next slide with smoother transition
+// JavaScript for sliding behavior
+let currentSlide = 0;
+
+// Move to the next or previous slide
 function moveToSlide(index) {
   const totalSlides = document.querySelectorAll('.movie-slide').length;
   if (index < 0) {
@@ -4120,6 +4123,7 @@ function moveToSlide(index) {
     currentSlide = index;
   }
 
+  // Adjust the offset of the slider
   const offset = -currentSlide * 100;  // Adjust slide by 100% per slide
   document.querySelector('.slider-wrapper').style.transition = "transform 0.6s ease-out";  // Smooth transition
   document.querySelector('.slider-wrapper').style.transform = `translateX(${offset}%)`;
@@ -4136,7 +4140,9 @@ document.querySelector('.slider-prev').addEventListener('click', () => {
 });
 
 document.querySelector('.slider-next').addEventListener('click', () => {
-  moveToSlid
+  moveToSlide(currentSlide + 1);
+});
+
 </script>
  
 </section></body>
