@@ -4208,44 +4208,28 @@ document.querySelector('.slider-next').addEventListener('click', () => {
 </script>
 
   <script>  
-    // Скрываем уровни сразу
-document.querySelectorAll('.game-level').forEach(el => el.style.display = 'none');
+// сначала скрываем этапы игры
+document.querySelectorAll(".game-level").forEach(el => el.style.display = "none");
 
-document.getElementById('startGame').addEventListener('click', function() {
-  const character = document.querySelector('input[name="character"]:checked');
-  const fullName = document.getElementById('fullName').value.trim();
-  const level = document.getElementById('level').value;
+// обработчик кнопки "Начать игру"
+document.getElementById("startGameBtn").addEventListener("click", function(){
+  const character = document.querySelector("input[name=character]:checked");
+  const name = document.getElementById("playerName").value.trim();
+  const level = document.getElementById("playerLevel").value;
 
-  if (!character) {
-    alert("Пожалуйста, выберите персонажа!");
-    return;
-  }
+  if (!character) { alert("Выберите персонажа"); return; }
+  if (!name) { alert("Введите ФИО"); return; }
+  if (!level) { alert("Выберите уровень"); return; }
 
-  if (!fullName) {
-    alert("Пожалуйста, введите ФИО!");
-    return;
-  }
+  // показать нужный уровень
+  document.getElementById("level-" + level).style.display = "block";
 
-  if (!level) {
-    alert("Пожалуйста, выберите уровень!");
-    return;
-  }
+  // скрыть блок выбора
+  document.getElementById("character-section").style.display = "none";
 
-  // Сохраняем данные (можно использовать дальше)
-  window.player = {
-    name: fullName,
-    character: character.value,
-    level: level
-  };
-
-  // Скрываем выбор
-  document.getElementById('character-selection').style.display = 'none';
-
-  // Показываем только нужный уровень
-  document.getElementById('level-' + level).style.display = 'block';
-
-  alert(`Игра началась!\nПерсонаж: ${character.value}\nФИО: ${fullName}\nУровень: ${level}`);
+  console.log("Старт игры:", character.value, name, level);
 });
+
 
 
     </script>
