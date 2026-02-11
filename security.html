@@ -4024,36 +4024,31 @@
   </script>
 <section id="phishing-game">
 <!-- Блок выбора персонажа -->
-<section id="character-selection">
+<section id="character-selection" style="padding:20px; border:2px solid #333; margin-bottom:30px;">
   <h3>Выбор персонажа</h3>
-  <label for="boy">
-    <input type="radio" id="boy" name="character" value="boy" />
-    Мальчик
-  </label>
-  <label for="girl">
-    <input type="radio" id="girl" name="character" value="girl" />
-    Девочка
+
+  <label>
+    <input type="radio" name="character" value="boy" /> Мальчик
   </label>
 
-  <h3>Введите ваше ФИО</h3>
-  <input type="text" id="fullName" placeholder="ФИО" />
+  <label style="margin-left:20px;">
+    <input type="radio" name="character" value="girl" /> Девочка
+  </label>
 
-  <h3>Выберите уровень</h3>
-  <select id="level">
-    <option value="easy">Легкий</option>
-    <option value="medium">Средний</option>
-    <option value="hard">Сложный</option>
+  <h3 style="margin-top:20px;">Введите ваше ФИО</h3>
+  <input type="text" id="fullName" placeholder="ФИО" style="width:100%; padding:8px;" />
+
+  <h3 style="margin-top:20px;">Выберите уровень</h3>
+  <select id="level" style="width:100%; padding:8px;">
+    <option value="">-- Выберите уровень --</option>
+    <option value="1">Легкий</option>
+    <option value="2">Средний</option>
+    <option value="3">Сложный</option>
   </select>
 
-  <button id="startGame">Начать игру</button>
-
-  <!-- Добавим элемент для отображения выбранного персонажа -->
-  <h3>Персонаж:</h3>
-  <img id="characterImage" src="" alt="Выберите персонажа" style="width:200px; height:auto; display:none;" />
+  <button id="startGame" style="margin-top:20px; padding:10px 20px;">Начать игру</button>
 </section>
 
-     
-<div id="game-container"></div>
 <div class="game-level" id="level-1">
 <h3>Уровень 1: Легкие вопросы</h3>
 <ul>
@@ -4213,51 +4208,45 @@ document.querySelector('.slider-next').addEventListener('click', () => {
 </script>
 
   <script>  
-    document.getElementById('startGame').addEventListener('click', function() {
+    // Скрываем уровни сразу
+document.querySelectorAll('.game-level').forEach(el => el.style.display = 'none');
+
+document.getElementById('startGame').addEventListener('click', function() {
   const character = document.querySelector('input[name="character"]:checked');
-  const fullName = document.getElementById('fullName').value;
+  const fullName = document.getElementById('fullName').value.trim();
   const level = document.getElementById('level').value;
 
-  // Проверка, выбран ли персонаж
   if (!character) {
     alert("Пожалуйста, выберите персонажа!");
     return;
   }
 
-  // Проверка, введено ли ФИО
-  if (!fullName.trim()) {
-    alert("Пожалуйста, введите ваше ФИО!");
+  if (!fullName) {
+    alert("Пожалуйста, введите ФИО!");
     return;
   }
 
-  // Проверка, выбран ли уровень
   if (!level) {
     alert("Пожалуйста, выберите уровень!");
     return;
   }
 
-  const characterChoice = character.value;
-  const levelChoice = level;
-  
-  // Логика для начала игры с выбранным персонажем и уровнем
-  console.log(`Персонаж: ${characterChoice}`);
-  console.log(`ФИО: ${fullName}`);
-  console.log(`Уровень: ${levelChoice}`);
+  // Сохраняем данные (можно использовать дальше)
+  window.player = {
+    name: fullName,
+    character: character.value,
+    level: level
+  };
 
-  // Изменение изображения персонажа
-  const characterImage = document.getElementById('characterImage');
-  if (characterChoice === 'boy') {
-    characterImage.src = 'boy-image.png'; // Укажите путь к изображению мальчика
-  } else if (characterChoice === 'girl') {
-    characterImage.src = 'girl-image.png'; // Укажите путь к изображению девочки
-  }
+  // Скрываем выбор
+  document.getElementById('character-selection').style.display = 'none';
 
-  // Показываем изображение персонажа
-  characterImage.style.display = 'block';
+  // Показываем только нужный уровень
+  document.getElementById('level-' + level).style.display = 'block';
 
-  // Запуск игры с выбранными параметрами
-  startGame(characterChoice, fullName, levelChoice);
+  alert(`Игра началась!\nПерсонаж: ${character.value}\nФИО: ${fullName}\nУровень: ${level}`);
 });
+
 
     </script>
     
