@@ -4109,9 +4109,9 @@
 </div>
 </div>
 <script>
- // Function to smoothly move to the next or previous slide
+// Move to the next slide with smoother transition
 function moveToSlide(index) {
-  const totalSlides = slides.length;
+  const totalSlides = document.querySelectorAll('.movie-slide').length;
   if (index < 0) {
     currentSlide = totalSlides - 1;
   } else if (index >= totalSlides) {
@@ -4119,17 +4119,24 @@ function moveToSlide(index) {
   } else {
     currentSlide = index;
   }
-  sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+  const offset = -currentSlide * 100;  // Adjust slide by 100% per slide
+  document.querySelector('.slider-wrapper').style.transition = "transform 0.6s ease-out";  // Smooth transition
+  document.querySelector('.slider-wrapper').style.transform = `translateX(${offset}%)`;
+
+  // Update the active class for the current slide
+  document.querySelectorAll('.movie-slide').forEach((slide, i) => {
+    slide.classList.toggle('is-active', i === currentSlide);
+  });
 }
 
-// Adding smoother navigation transitions
-prevBtn.addEventListener('click', () => {
+// Adding event listeners to navigation buttons
+document.querySelector('.slider-prev').addEventListener('click', () => {
   moveToSlide(currentSlide - 1);
 });
 
-nextBtn.addEventListener('click', () => {
-  moveToSlide(currentSlide + 1);
-});
+document.querySelector('.slider-next').addEventListener('click', () => {
+  moveToSlid
 </script>
  
 </section></body>
