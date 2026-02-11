@@ -2495,6 +2495,50 @@
  opacity: 0.9;
 }
 
+    /* Меню выбора персонажа */
+    #character-selection {
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#character-selection h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+#character-selection label {
+  margin-right: 20px;
+}
+
+#character-selection input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+#character-selection select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+#character-selection button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#character-selection button:hover {
+  background-color: #45a049;
+}
+
 
   </style>
 </head>
@@ -2621,6 +2665,8 @@
 <source media="(max-width: 1920px)" srcset="bg_fhd_m.jpg"/>
 <img alt="" aria-hidden="true" class="header__bg-blur" decoding="async" src="header-bg-m-3840.jpg"/>
 </picture>
+    <!-- Картинка выбора персонажа -->
+    <img id="characterImage" src="" alt="Выбранный персонаж" />
 <!-- ✅ MAIN BG: MOBILE → FHD → 4K -->
 <picture class="bg-main-pic">
 <source media="(max-width: 520px)" srcset="bg_mobile.jpg"/>
@@ -3977,6 +4023,30 @@
     })();
   </script>
 <section id="phishing-game">
+    <!-- Меню выбора персонажа -->.
+    <section id="character-selection">
+  <h3>Выбор персонажа</h3>
+  <label for="boy">
+    <input type="radio" id="boy" name="character" value="boy" />
+    Мальчик
+  </label>
+  <label for="girl">
+    <input type="radio" id="girl" name="character" value="girl" />
+    Девочка
+  </label>
+
+  <h3>Введите ваше ФИО</h3>
+  <input type="text" id="fullName" placeholder="ФИО" />
+
+  <h3>Выберите уровень</h3>
+  <select id="level">
+    <option value="easy">Легкий</option>
+    <option value="medium">Средний</option>
+    <option value="hard">Сложный</option>
+  </select>
+
+  <button id="startGame">Начать игру</button>
+</section>
 <div id="game-container">
 <div class="game-level" id="level-1">
 <h3>Уровень 1: Легкие вопросы</h3>
@@ -4135,6 +4205,54 @@ document.querySelector('.slider-next').addEventListener('click', () => {
 });
 
 </script>
+
+  <script>  
+      document.getElementById('startGame').addEventListener('click', function() {
+  const character = document.querySelector('input[name="character"]:checked');
+  const fullName = document.getElementById('fullName').value;
+  const level = document.getElementById('level').value;
+
+  if (!character) {
+    alert("Пожалуйста, выберите персонажа!");
+    return;
+  }
+
+  if (!fullName.trim()) {
+    alert("Пожалуйста, введите ваше ФИО!");
+    return;
+  }
+
+  if (!level) {
+    alert("Пожалуйста, выберите уровень!");
+    return;
+  }
+
+  const characterChoice = character.value;
+  const levelChoice = level;
   
+  // Логика для начала игры с выбранным персонажем и уровнем
+  console.log(`Персонаж: ${characterChoice}`);
+  console.log(`ФИО: ${fullName}`);
+  console.log(`Уровень: ${levelChoice}`);
+
+  // Здесь можно добавить дальнейшую логику для старта игры
+  startGame(characterChoice, fullName, levelChoice);
+});
+
+function startGame(characterChoice, fullName, levelChoice) {
+  alert(`Игра началась! Персонаж: ${characterChoice}, ФИО: ${fullName}, Уровень: ${levelChoice}`);
+
+  // Добавляем изображение персонажа в интерфейс игры
+  const characterImage = document.getElementById('characterImage');
+  if (characterChoice === 'boy') {
+    characterImage.src = 'path/to/boy-image.png'; // Добавь свой путь к картинке для мальчика
+  } else {
+    characterImage.src = 'path/to/girl-image.png'; // Добавь свой путь к картинке для девочки
+  }
+}
+}
+
+    </script>
+    
 </section></body>
 </html>
