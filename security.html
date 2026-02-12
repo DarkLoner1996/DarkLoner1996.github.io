@@ -2551,6 +2551,9 @@
   padding:0;
   align-items:stretch;
   justify-content:stretch;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 #phishGame .cool-phish-shell{
   position:relative;
@@ -2657,6 +2660,18 @@
       z-index: -1;
       opacity: .55;
       pointer-events: none;}
+/* ✅ Фишинг-игра без фоновой подложки (оставляем только снежинки) */
+#phishGame .cool-phish-root .hero{background: transparent !important;}
+#phishGame .cool-phish-root .hero::before,
+#phishGame .cool-phish-root .hero::after{
+  background: none !important;
+  opacity: 0 !important;
+}
+/* ✅ Убираем и общий фон игры, чтобы был виден фон сайта */
+#phishGame .cool-phish-root{
+  background: transparent !important;
+}
+
 #phishGame .cool-phish-root .wrap{width: var(--uiW);
       max-width: var(--maxW);
       display: grid;
@@ -3336,42 +3351,22 @@
 </section>
 </div>
 <!-- ✅ "Фишинг" -->
-<div aria-label="Быстрый запуск: Фишинг" class="side-chip">
-<div aria-hidden="true" class="avatar">🐱</div>
+<div aria-label="Быстрый запуск: Фишинг" class="side-chip side-chip--phish-min">
+    <div aria-hidden="true" class="avatar" id="phishAvatar">🐱</div>
 <div class="chip-card">
-<div class="chip-name">
-            Фишинг
-            <span aria-hidden="true" class="chip-badge">игра</span>
-</div>
-<div class="chip-actions">
-<button aria-controls="phishGame" aria-haspopup="dialog" class="chip-btn" id="openPhishGame" type="button">
-<svg class="is-fill" viewbox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-              Играть
-            </button>
-    <button id="girl" class="character-choice">Девочка</button>
+    <div class="chip-name">
+      Фишинг
+      <span aria-hidden="true" class="chip-badge">игра</span>
+    </div>
+    <div class="chip-actions">
+      <button aria-controls="phishGame" aria-haspopup="dialog" class="chip-btn" id="openPhishGame" type="button">
+        <svg class="is-fill" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+        Играть
+      </button>
+    </div>
   </div>
-  <h2>Введите ФИО персонажа:</h2>
-  <input type="text" id="character-fio" placeholder="Введите ФИО" />
-  <button id="start-game">Начать игру</button>
-</section>
+</div>
 
-<section id="level-selection" style="display:none;">
-  <h2>Выберите уровень:</h2>
-  <div>
-    <button id="level-1" class="level-choice">Легкий</button>
-    <button id="level-2" class="level-choice">Средний</button>
-    <button id="level-3" class="level-choice">Сложный</button>
-  </div>
-</section>
-Играть
-            </button>
-<a aria-label="Смотреть мультфильм про фишинг" class="chip-btn is-ghost" href="https://digitalhavenrussia.ru/security.html">
-<svg class="is-fill" viewbox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-              Смотреть
-            </a>
-</div>
-</div>
-</div>
 <!-- ✅ "Правила" -->
 <div aria-label="Правила" class="rules">
 <div aria-hidden="true" class="avatar">☃️</div>
@@ -14240,6 +14235,280 @@
 </div>
 </section>
 </div>
+
+<script>
+    /* ============================================================
+       ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — логика
+    ============================================================ */
+    (function ruleOfDayGame(){
+      const openLink = document.getElementById('openRuleGame');
+      const backdrop = document.getElementById('ruleGame');
+      const closeBtn = document.getElementById('closeRuleGame');
+
+      if(!openLink || !backdrop || !closeBtn) return;
+
+      const rgDatePill = document.getElementById('rgDatePill');
+      const rgRuleLine = document.getElementById('rgRuleLine');
+      const rgScenario = document.getElementById('rgScenario');
+      const rgExplain  = document.getElementById('rgExplain');
+      const rgHint     = document.getElementById('rgHint');
+
+      const btnBad  = document.getElementById('rgBtnBad');
+      const btnGood = document.getElementById('rgBtnGood');
+
+      const doneBtn = document.getElementById('rgDone');
+
+      const rgFinish     = document.getElementById('rgFinish');
+      const rgFinishText = document.getElementById('rgFinishText');
+      const rgStatus     = document.getElementById('rgStatus');
+      const rgAgain      = document.getElementById('rgAgain');
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let lastFocus = null;
+      let locked = false;
+
+      const rules = [
+        {
+          title: "Никому не сообщай коды из SMS и приложений.",
+          scenario: "👨‍👧 «Я твой друг/папа/учитель, пришли код — срочно надо войти!»",
+          correct: "bad",
+          explain: [
+            "Код подтверждения — это <b>ключ</b>. Его нельзя никому передавать.",
+            "Правильно: <b>перезвони</b> человеку обычным звонком и уточни."
+          ]
+        },
+        {
+          title: "Не вводи пароль по ссылкам из сообщений.",
+          scenario: "📩 «Подтвердите аккаунт: перейдите по ссылке и введите пароль»",
+          correct: "bad",
+          explain: [
+            "Ссылки в сообщениях могут вести на подделку.",
+            "Правильно: открой сайт <b>вручную</b> (закладка/ввод адреса) и проверь."
+          ]
+        },
+        {
+          title: "Если просят личные данные — стоп.",
+          scenario: "🎮 «Для подарка напиши адрес/телефон/школу и номер карты родителей»",
+          correct: "bad",
+          explain: [
+            "Личные данные помогают мошенникам.",
+            "Правильно: ничего не отправляй, покажи сообщение взрослым."
+          ]
+        },
+        {
+          title: "Незнакомые файлы и архивы не открывай.",
+          scenario: "📎 «Смотри фотку» (photo.zip / video.exe / document.scr)",
+          correct: "bad",
+          explain: [
+            "Файлы могут содержать вирусы и красть данные.",
+            "Правильно: удаляй и блокируй отправителя."
+          ]
+        },
+        {
+          title: "Настоящие сервисы не пугают и не торопят.",
+          scenario: "⚠️ «Срочно! Через 10 минут всё удалится! Нажми и подтверди»",
+          correct: "bad",
+          explain: [
+            "Срочность — классический приём мошенников.",
+            "Правильно: спокойно проверяй через официальный сайт/приложение."
+          ]
+        },
+        {
+          title: "Сомневаешься — спроси взрослого. Это сила, а не слабость.",
+          scenario: "🤔 Ты не уверен(а), правда ли сообщение или сайт.",
+          correct: "good",
+          explain: [
+            "Лучшее действие — <b>попросить помощи</b>.",
+            "Так ты защищаешь себя и свои аккаунты."
+          ]
+        },
+        {
+          title: "Двухфакторная защита — твой щит.",
+          scenario: "🔐 Тебе предлагают отключить подтверждение входа «чтобы было удобнее».",
+          correct: "bad",
+          explain: [
+            "2FA защищает даже если пароль узнали.",
+            "Правильно: оставь включённым, а пароль делай сложным."
+          ]
+        },
+        {
+          title: "Проверяй, кто пишет: имя ≠ настоящий отправитель.",
+          scenario: "🧾 «Это банк/школа» — но адрес странный и текст с ошибками.",
+          correct: "bad",
+          explain: [
+            "Мошенники часто копируют названия и логотипы.",
+            "Правильно: проверяй адрес/домен и не переходи по ссылкам."
+          ]
+        }
+      ];
+
+      function pad2(n){ return String(n).padStart(2,'0'); }
+      function todayKey(){
+        const d = new Date();
+        return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
+      }
+      function dayIndex(key){
+        let h = 0;
+        for(let i=0;i<key.length;i++){
+          h = (h * 31 + key.charCodeAt(i)) >>> 0;
+        }
+        return h % rules.length;
+      }
+
+      function setLocked(v){
+        locked = !!v;
+        btnBad.disabled = locked;
+        btnGood.disabled = locked;
+      }
+
+      function resetUI(){
+        rgExplain.classList.remove('is-on');
+        rgExplain.innerHTML = "";
+        doneBtn.classList.remove('is-on');
+        rgFinish.classList.remove('is-on');
+        setLocked(false);
+      }
+
+      function markDone(dateStr){
+        try{ localStorage.setItem("tk_rules_done_" + dateStr, "1"); }catch(_){}
+      }
+      function isDone(dateStr){
+        try{ return localStorage.getItem("tk_rules_done_" + dateStr) === "1"; }catch(_){ return false; }
+      }
+      function clearDone(dateStr){
+        try{ localStorage.removeItem("tk_rules_done_" + dateStr); }catch(_){}
+      }
+
+      function render(){
+        const dKey = todayKey();
+        const i = dayIndex(dKey);
+        const r = rules[i];
+
+        rgDatePill.textContent = dKey;
+        rgRuleLine.textContent = "🛡️ " + r.title;
+        rgScenario.textContent = r.scenario;
+
+        rgHint.textContent = "Подсказка: если просят пароль/код/личные данные — это опасно";
+        resetUI();
+
+        if(isDone(dKey)){
+          rgFinishText.innerHTML = `
+            Сегодняшнее правило уже пройдено 🎉<br>
+            <b>Правило:</b> ${r.title}
+            <br><br>
+            Хочешь — нажми «Повторить», чтобы ещё раз закрепить.
+          `;
+          rgStatus.textContent = "Статус: пройдено";
+          rgFinish.classList.add('is-on');
+          setLocked(true);
+          setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
+        }
+      }
+
+      function open(){
+        lastFocus = document.activeElement;
+
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
+        render();
+        setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
+      }
+
+      function close(){
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+
+        if(lastFocus && typeof lastFocus.focus === 'function'){
+          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
+        }
+      }
+
+      function answer(choice){
+        if(locked) return;
+
+        const dKey = todayKey();
+        const r = rules[dayIndex(dKey)];
+
+        setLocked(true);
+
+        const correct = (choice === r.correct);
+        const topLine = correct ? "✅ Верно!" : "❌ Почти!";
+
+        const rightText = (r.correct === "bad") ? "Опасно" : "Безопасно";
+
+        const lines = [
+          `<div style="margin:6px 0;"><b>${topLine}</b> Правильный ответ: <b>${rightText}</b>.</div>`,
+          ...r.explain.map(s => `<div style="margin:6px 0;">${s}</div>`)
+        ].join("");
+
+        rgExplain.innerHTML = lines;
+        rgExplain.classList.add('is-on');
+        doneBtn.classList.add('is-on');
+
+        rgHint.textContent = correct
+          ? "Круто! Ты укрепляешь свой цифровой щит."
+          : "Нормально — так и учатся. Главное: запомни признак и действуй спокойно.";
+
+        doneBtn.focus({ preventScroll:true });
+      }
+
+      function done(){
+        const dKey = todayKey();
+        markDone(dKey);
+
+        const r = rules[dayIndex(dKey)];
+
+        rgFinishText.innerHTML = `
+          <b>Правило дня:</b> ${r.title}<br><br>
+          Завтра будет новое правило — заходи снова ✅
+        `;
+        rgStatus.textContent = "Статус: пройдено";
+        rgFinish.classList.add('is-on');
+
+        rgExplain.classList.remove('is-on');
+        doneBtn.classList.remove('is-on');
+
+        setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
+      }
+
+      function again(){
+        const dKey = todayKey();
+        clearDone(dKey);
+        render();
+        setTimeout(() => btnBad.focus({ preventScroll:true }), 0);
+      }
+
+      openLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        open();
+      });
+
+      closeBtn.addEventListener('click', close);
+
+      backdrop.addEventListener('click', (e) => {
+        if(e.target === backdrop) close();
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if(!backdrop.classList.contains('is-open')) return;
+        if(e.key === 'Escape') close();
+      });
+
+      btnBad.addEventListener('click', () => answer("bad"));
+      btnGood.addEventListener('click', () => answer("good"));
+      doneBtn.addEventListener('click', done);
+      rgAgain.addEventListener('click', again);
+    })();
+</script>
+
 <script>
     (function introAnim(){
       const intro = document.getElementById('intro');
