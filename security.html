@@ -5754,7 +5754,32 @@ padding:0;
           </section>
 
           <!-- STEP 1: avatar -->
-          <section class="panel" data-step="avatar" hidden>
+          
+          <!-- (панели игры перенесены в внутреннюю модалку itBackdrop) -->
+
+
+        </div>
+      </main>
+      <!-- GAME MODAL -->
+      <div class="backdrop" id="itBackdrop" aria-hidden="true">
+        <section class="modal" role="dialog" aria-modal="true" aria-label="Информатика-игра">
+          <div class="modal-inner">
+            <header class="modal-head">
+              <div class="head-left">
+                <h2>Информатика-игра</h2>
+                <div class="steps" aria-label="Шаги">
+                  <span class="step-dot" data-stepdot="1"></span>
+                  <span class="step-dot" data-stepdot="2"></span>
+                  <span class="step-dot" data-stepdot="3"></span>
+                </div>
+              </div>
+              <div class="row" style="margin:0">
+                <button class="icon-btn" id="itResetBtn" type="button" title="Сбросить профиль"><svg viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.3 4H3l3.5-3.5L10 9H7.8A5 5 0 1 0 12 7v2l3-3-3-3v2z"></path></svg></button>
+                <button class="icon-btn" id="itCloseBtn" type="button" title="Закрыть (Esc)"><svg viewBox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"></path></svg></button>
+              </div>
+            </header>
+            <div class="modal-body">
+<section class="panel" data-step="avatar" hidden>
             <h3>Шаг 1 — выберите персонажа</h3>
             <p>Выберите героя — он будет показан в карточке игрока.</p>
 
@@ -5787,8 +5812,7 @@ padding:0;
             </div>
           </section>
 
-          <!-- STEP 2: profile -->
-          <section class="panel" data-step="profile" hidden>
+<section class="panel" data-step="profile" hidden>
             <h3>Шаг 2 — введите ФИО</h3>
             <p>Можно указать имя/фамилию — как вам удобно (для демо не вводите реальные данные).</p>
 
@@ -5804,8 +5828,7 @@ padding:0;
             </div>
           </section>
 
-          <!-- STEP 3: play -->
-          <section class="panel" data-step="play" hidden>
+<section class="panel" data-step="play" hidden>
             <div class="play-grid">
               <aside class="profile">
                 <div class="panel">
@@ -5878,8 +5901,7 @@ padding:0;
             </div>
           </section>
 
-          <!-- TRAILER / HELP -->
-          <section class="panel" data-step="trailer" hidden>
+<section class="panel" data-step="trailer" hidden>
             <h3>Смотреть: мини‑подсказка</h3>
             <p>Короткий трейлер‑шпаргалка:</p>
             <ul class="list">
@@ -5893,9 +5915,11 @@ padding:0;
               <button class="btn primary" id="itTrailerStartBtn" type="button">Начать игру</button>
             </div>
           </section>
+            </div>
+          </div>
+        </section>
+      </div>
 
-        </div>
-      </main>
 
     </div>
   </div>
@@ -19360,21 +19384,53 @@ if(fioInput){
   const root = modal.querySelector('.cool-phish-root[data-game="it"]');
   const fx = document.getElementById('fxIt');
 
-  // steps
+  // inner modal/backdrop (как в Фишинге/Инфобезе)
+  const backdrop = modal.querySelector('#itBackdrop');
+  const stepDots = backdrop ? qsa(backdrop,'[data-stepdot]') : [];
+
+  // панели находятся внутри #itBackdrop -> .modal-body
   const steps = {
-    menu: qs(root,'[data-step="menu"]'),
-    avatar: qs(root,'[data-step="avatar"]'),
-    profile: qs(root,'[data-step="profile"]'),
-    play: qs(root,'[data-step="play"]'),
-    trailer: qs(root,'[data-step="trailer"]'),
+    avatar: backdrop ? qs(backdrop,'[data-step="avatar"]') : null,
+    profile: backdrop ? qs(backdrop,'[data-step="profile"]') : null,
+    play: backdrop ? qs(backdrop,'[data-step="play"]') : null,
+    trailer: backdrop ? qs(backdrop,'[data-step="trailer"]') : null,
   };
+
+  function setActiveDot(stepName){
+    const map = { avatar:'1', profile:'2', play:'3' };
+    const active = map[stepName] || null;
+    stepDots.forEach(d=>{
+      d.classList.toggle('is-active', !!active && d.getAttribute('data-stepdot') === active);
+    });
+  }
+
+  function hideAllPanels(){
+    Object.keys(steps).forEach(k=>{
+      if(steps[k]) steps[k].hidden = true;
+    });
+    setActiveDot(null);
+  }
 
   function showStep(name){
     Object.keys(steps).forEach(k=>{
       if(!steps[k]) return;
-      if(k===name){ steps[k].hidden=false; }
-      else { steps[k].hidden=true; }
+      steps[k].hidden = (k !== name);
     });
+    setActiveDot(name);
+  }
+
+  function openInner(stepName){
+    if(!backdrop) return;
+    backdrop.classList.add('is-open');
+    backdrop.setAttribute('aria-hidden','false');
+    showStep(stepName || 'avatar');
+  }
+
+  function closeInner(){
+    if(!backdrop) return;
+    backdrop.classList.remove('is-open');
+    backdrop.setAttribute('aria-hidden','true');
+    hideAllPanels();
   }
 
   // persist
@@ -19430,6 +19486,8 @@ if(fioInput){
   const explainEl = document.getElementById('itExplain');
   const nextBtn = document.getElementById('itNextBtn');
   const restartBtn = document.getElementById('itRestartBtn');
+  const innerCloseBtn = document.getElementById('itCloseBtn');
+  const innerResetBtn = document.getElementById('itResetBtn');
 
   // cards
   const CARDS = [
@@ -19475,9 +19533,15 @@ if(fioInput){
     modal.setAttribute('aria-hidden','false');
     document.documentElement.style.overflow='hidden';
     document.body.style.overflow='hidden';
-    // restore menu
-    showStep('menu');
-    // quick restore
+
+    // меню видно всегда, а игровые панели живут во внутренней модалке (#itBackdrop)
+    if(backdrop){
+      backdrop.classList.remove('is-open');
+      backdrop.setAttribute('aria-hidden','true');
+    }
+    hideAllPanels();
+
+    // быстрый restore
     state = loadState();
     if(state && state.avatar && state.name){
       // allow resume: go straight to play
@@ -19488,18 +19552,24 @@ if(fioInput){
       updateProfileUI();
       updateKpi();
       renderQuestion();
-      showStep('play');
+      openInner('play');
     }
+
     setTimeout(()=>{ try{ (startBtn||closeBtn).focus({preventScroll:true}); }catch(e){} },0);
     startFx();
   }
 
   function closeModal(){
+    // если открыта внутренняя модалка — закрываем её
+    if(backdrop && backdrop.classList && backdrop.classList.contains('is-open')){
+      closeInner();
+    }
+
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden','true');
     document.documentElement.style.overflow='';
     document.body.style.overflow='';
-    showStep('menu');
+    stopFx();
   }
 
   function setAvatarChoice(val){
@@ -19676,7 +19746,9 @@ if(fioInput){
     if(fioInput) fioInput.value='';
     if(toProfileBtn) toProfileBtn.disabled=true;
     if(goPlayBtn) goPlayBtn.disabled=true;
-    showStep('menu');
+
+    // вернуться в меню (закрыть внутреннюю модалку)
+    closeInner();
   }
 
   // ------- FX (simple falling particles on canvas)
@@ -19736,25 +19808,41 @@ if(fioInput){
   if(openBtn) openBtn.addEventListener('click', onOpen, true);
   if(closeBtn) closeBtn.addEventListener('click', function(){ closeModal(); }, true);
 
+  // inner modal controls
+  if(innerCloseBtn) innerCloseBtn.addEventListener('click', function(){ closeInner(); }, true);
+  if(innerResetBtn) innerResetBtn.addEventListener('click', function(){ restart(); openInner('avatar'); }, true);
+
   // close by backdrop click
   modal.addEventListener('mousedown', function(e){
-    if(e.target===modal) closeModal();
-  });
-
-  // esc
-  document.addEventListener('keydown', function(e){
-    if(e.key==='Escape' && modal.classList.contains('is-open')){
+    if(e.target===modal){
+      if(backdrop && backdrop.classList && backdrop.classList.contains('is-open')){
+        closeInner();
+        return;
+      }
       closeModal();
     }
   });
 
-  // menu actions
-  if(startBtn) startBtn.addEventListener('click', function(){ showStep('avatar'); }, true);
-  if(trailerBtn) trailerBtn.addEventListener('click', function(){ showStep('trailer'); }, true);
-  if(backMenuBtn) backMenuBtn.addEventListener('click', function(){ showStep('menu'); }, true);
+  // esc
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    if(!modal.classList.contains('is-open')) return;
 
-  if(trailerBackBtn) trailerBackBtn.addEventListener('click', function(){ showStep('menu'); }, true);
-  if(trailerStartBtn) trailerStartBtn.addEventListener('click', function(){ showStep('avatar'); }, true);
+    // если открыта внутренняя модалка — закрываем её; иначе — внешнюю
+    if(backdrop && backdrop.classList && backdrop.classList.contains('is-open')){
+      closeInner();
+      return;
+    }
+    closeModal();
+  });
+
+  // menu actions
+  if(startBtn) startBtn.addEventListener('click', function(){ openInner('avatar'); }, true);
+  if(trailerBtn) trailerBtn.addEventListener('click', function(){ openInner('trailer'); }, true);
+  if(backMenuBtn) backMenuBtn.addEventListener('click', function(){ closeInner(); }, true);
+
+  if(trailerBackBtn) trailerBackBtn.addEventListener('click', function(){ closeInner(); }, true);
+  if(trailerStartBtn) trailerStartBtn.addEventListener('click', function(){ openInner('avatar'); }, true);
 
   // avatar pick
   function handlePick(btn){
