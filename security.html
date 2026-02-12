@@ -2401,102 +2401,257 @@
         min-width: 0;
       }
     }
-  /* Slider Container */
-.slider-container {
+  /* ===========================
+   🎬 КИНОТЕАТР — слайдер серий (12)
+   Активная серия: чуть вперед + увеличена
+   =========================== */
+.cinema-slider{
+  pointer-events:auto;
+  width:100%;
+}
+
+.cinema-slider .slider-container{
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  overflow: hidden;
-  transition: transform 0.5s ease;  /* Smooth transition */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  max-width: min(1120px, calc(100vw - 40px));
+  margin: 10px auto 0;
+  padding: 0;
 }
 
-/* Slider Buttons (Prev/Next) */
-.slider-prev, .slider-next {
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 30px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-}
-
-.slider-prev:hover, .slider-next:hover {
-  background-color: rgba(0, 0, 0, 0.8); /* Darker hover effect */
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
-}
-
-.slider-prev {
-  position: absolute;
-  left: 10px;
+.cinema-slider .slider-prev,
+.cinema-slider .slider-next{
+  position:absolute;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 5;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(40,170,240,.78), rgba(18,110,200,.78));
+
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.18);
+
+  cursor:pointer;
+  transition: transform .22s ease, filter .22s ease, opacity .22s ease;
+  opacity: .96;
+  display:grid;
+  place-items:center;
+  padding:0;
 }
 
-.slider-next {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+.cinema-slider .slider-prev{ left: 6px; }
+.cinema-slider .slider-next{ right: 6px; }
+
+.cinema-slider .slider-prev:hover,
+.cinema-slider .slider-next:hover{
+  filter: brightness(1.08) saturate(1.05);
+  transform: translateY(-50%) scale(1.05);
 }
 
-/* Slider Wrapping & Movie Slides */
-.slider-wrapper {
-  display: flex;
-  transition: transform 0.5s ease; /* Smooth transition for slides */
+.cinema-slider .slider-prev svg,
+.cinema-slider .slider-next svg{
+  width: 22px;
+  height: 22px;
+  stroke: rgba(255,255,255,.96);
+  fill:none;
+  stroke-width: 2.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,.22));
 }
 
-.movie-slide {
-  position: relative;
+.cinema-slider .slider-wrapper{
+  display:flex;
+  gap: clamp(10px, 1.6vw, 16px);
+  align-items:stretch;
+
+  overflow:auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  padding: 12px 58px 10px; /* место под кнопки */
   width: 100%;
-  display: inline-block;
-  transition: transform 0.5s ease;
+  scrollbar-width: none;
+}
+.cinema-slider .slider-wrapper::-webkit-scrollbar{ display:none; }
+
+.cinema-slider .movie-slide{
+  flex: 0 0 clamp(210px, 28vw, 270px);
+  scroll-snap-align: center;
+  border-radius: 22px;
+  padding: 12px;
+  position:relative;
+  overflow:hidden;
+
+  background:
+    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.14), transparent 60%),
+    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.10), transparent 60%),
+    linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46));
+
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow:
+    0 22px 50px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.14);
+
+  backdrop-filter: blur(14px) saturate(1.06);
+  -webkit-backdrop-filter: blur(14px) saturate(1.06);
+
+  transform: translateZ(0) scale(.93);
+  opacity: .86;
+  transition:
+    transform .34s cubic-bezier(.2,.8,.2,1),
+    opacity .34s ease,
+    filter .34s ease;
 }
 
-.movie-img {
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+.cinema-slider .movie-slide::before{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: 22px;
+  padding: 2px;
+  background:
+    linear-gradient(90deg,
+      rgba(255,244,201,.92),
+      rgba(255,210,122,.74),
+      rgba(255,255,255,.18),
+      rgba(255,210,122,.70),
+      rgba(255,244,201,.90)
+    );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;
+  opacity:.82;
 }
 
-.movie-info {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  color: white;
-  font-size: 16px;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+.cinema-slider .movie-slide.is-active{
+  transform: translateY(-10px) scale(1.06);
+  opacity: 1;
+  filter: saturate(1.05) drop-shadow(0 18px 34px rgba(0,0,0,.26));
+  z-index: 3;
 }
 
-.movie-btn {
-  background-color: #007BFF;
-  border: none;
-  padding: 10px 20px;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.cinema-slider .movie-img{
+  width:100%;
+  height: clamp(110px, 16vw, 150px);
+  object-fit: cover;
+  border-radius: 18px;
+  display:block;
+  box-shadow:
+    0 16px 28px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.10);
 }
 
-.movie-btn:hover {
-  background-color: #0056b3;
+.cinema-slider .movie-info{
+  margin-top: 10px;
+  display:flex;
+  gap: 10px;
+  align-items:flex-end;
+  justify-content:space-between;
+  color: rgba(245,250,255,.96);
 }
 
-/* Active Slide Indicator */
-.slider-wrapper .movie-slide.is-active {
-  transform: scale(1.05); /* Slight zoom effect for active slide */
+.cinema-slider .movie-text{
+  min-width: 0;
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
 }
 
-/* Adding Smooth Transition for Active Indicator */
-.slider-wrapper .movie-slide:not(.is-active) {
- opacity: 0.9;
+.cinema-slider .movie-badges{
+  display:flex;
+  gap: 8px;
+  align-items:center;
+  flex-wrap:wrap;
 }
 
-    /* Меню выбора персонажа */
+.cinema-slider .movie-ep,
+.cinema-slider .movie-duration{
+  display:inline-flex;
+  align-items:center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.08);
+  color: rgba(255,242,205,.88);
+}
+
+.cinema-slider .movie-duration{
+  color: rgba(200,245,255,.88);
+  border-color: rgba(120,230,255,.18);
+  background: rgba(120,230,255,.08);
+}
+
+.cinema-slider .movie-info h3{
+  font-size: clamp(14px, 2.8vw, 18px);
+  line-height: 1.06;
+  margin: 0;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 12px 28px rgba(0,0,0,.24);
+}
+
+.cinema-slider .movie-btn{
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  border-radius: 999px;
+  padding: 10px 14px;
+  min-width: 122px;
+
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 11px;
+
+  color: rgba(245,250,255,.98);
+  background:
+    radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(120,230,255,.78), rgba(24,110,200,.80));
+
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.18);
+
+  transition: transform .2s ease, filter .2s ease;
+  white-space: nowrap;
+}
+
+.cinema-slider .movie-btn:hover{
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.06);
+}
+
+@media (max-width: 520px){
+  .cinema-slider .slider-prev,
+  .cinema-slider .slider-next{
+    display:none; /* на телефоне — свайп */
+  }
+  .cinema-slider .slider-wrapper{
+    padding: 10px 12px 10px;
+  }
+  .cinema-slider .movie-btn{
+    min-width: 108px;
+    padding: 9px 12px;
+    font-size: 10px;
+  }
+}
+
+/* Меню выбора персонажа */
     #character-selection {
   padding: 20px;
   background-color: #f0f0f0;
@@ -3314,30 +3469,171 @@
     </button>
 
     <div class="slider-wrapper">
-      <div class="movie-slide">
-        <img src="movie-1.jpg" alt="Опасный пароль" class="movie-img" />
+            <div class="movie-slide" data-ep="1">
+        <img src="movie-1.jpg" alt="Серия 1 — Опасный пароль" class="movie-img" loading="lazy" />
         <div class="movie-info">
-          <h3>Опасный пароль</h3>
-          <span>15 мин</span>
-          <button class="movie-btn">Смотреть</button>
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 1</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Опасный пароль</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
         </div>
       </div>
 
-      <div class="movie-slide">
-        <img src="movie-2.jpg" alt="Что такое фишинг?" class="movie-img" />
+      <div class="movie-slide" data-ep="2">
+        <img src="movie-2.jpg" alt="Серия 2 — Что такое фишинг?" class="movie-img" loading="lazy" />
         <div class="movie-info">
-          <h3>Что такое фишинг?</h3>
-          <span>15 мин</span>
-          <button class="movie-btn">Смотреть</button>
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 2</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Что такое фишинг?</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
         </div>
       </div>
 
-      <div class="movie-slide">
-        <img src="movie-3.jpg" alt="Поедаем Антивирусы" class="movie-img" />
+      <div class="movie-slide" data-ep="3">
+        <img src="movie-3.jpg" alt="Серия 3 — Поедаем Антивирусы" class="movie-img" loading="lazy" />
         <div class="movie-info">
-          <h3>Поедаем Антивирусы</h3>
-          <span>15 мин</span>
-          <button class="movie-btn">Смотреть</button>
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 3</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Поедаем Антивирусы</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="4">
+        <img src="movie-4.jpg" alt="Серия 4 — Секреты приватности" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 4</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Секреты приватности</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="5">
+        <img src="movie-5.jpg" alt="Серия 5 — Подозрительные ссылки" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 5</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Подозрительные ссылки</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="6">
+        <img src="movie-6.jpg" alt="Серия 6 — Двухфакторная защита" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 6</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Двухфакторная защита</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="7">
+        <img src="movie-7.jpg" alt="Серия 7 — Сила обновлений" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 7</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Сила обновлений</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="8">
+        <img src="movie-8.jpg" alt="Серия 8 — Игры и покупки" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 8</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Игры и покупки</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="9">
+        <img src="movie-9.jpg" alt="Серия 9 — Чаты и незнакомцы" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 9</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Чаты и незнакомцы</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="10">
+        <img src="movie-10.jpg" alt="Серия 10 — Настройки безопасности" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 10</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Настройки безопасности</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="11">
+        <img src="movie-11.jpg" alt="Серия 11 — Вирусы и файлы" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 11</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Вирусы и файлы</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
+        </div>
+      </div>
+
+      <div class="movie-slide" data-ep="12">
+        <img src="movie-12.jpg" alt="Серия 12 — Итоговый квест" class="movie-img" loading="lazy" />
+        <div class="movie-info">
+          <div class="movie-text">
+            <div class="movie-badges">
+              <span class="movie-ep">Серия 12</span>
+              <span class="movie-duration">15 мин</span>
+            </div>
+            <h3>Итоговый квест</h3>
+          </div>
+          <button class="movie-btn" type="button">Смотреть</button>
         </div>
       </div>
     </div>
@@ -15167,38 +15463,83 @@
 
 
 <script>
-let currentIndex = 0;
+/* 🎬 Cinema slider (12 серий): центрирование и подсветка активной карточки */
+(function(){
+  const root = document.querySelector('.cinema-slider');
+  if(!root) return;
 
-// Move to the next or previous card
-function moveToSlide(index) {
-  const totalSlides = document.querySelectorAll('.movie-slide').length;
-  if (index < 0) {
-    currentIndex = totalSlides - 1; // Loop back to the last card
-  } else if (index >= totalSlides) {
-    currentIndex = 0; // Loop back to the first card
-  } else {
-    currentIndex = index;
+  const track = root.querySelector('.slider-wrapper');
+  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+  const prevBtn = root.querySelector('.slider-prev');
+  const nextBtn = root.querySelector('.slider-next');
+
+  if(!track || slides.length === 0) return;
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let active = 0;
+
+  function setActive(i){
+    active = i;
+    slides.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
   }
 
-  // Smoothly move to the next card
-  const offset = -currentIndex * 100;  // Adjust to 100% of width per slide
-  document.querySelector('.slider-wrapper').style.transform = `translateY(${offset}%)`;
+  function wrap(i){
+    const n = slides.length;
+    if(n === 0) return 0;
+    if(i < 0) return n - 1;
+    if(i >= n) return 0;
+    return i;
+  }
 
-  // Update active class (optional)
-  document.querySelectorAll('.movie-slide').forEach((slide, i) => {
-    slide.classList.toggle('is-active', i === currentIndex);
+  function centerOn(i, smooth=true){
+    i = wrap(i);
+    setActive(i);
+    const behavior = (!reduceMotion && smooth) ? 'smooth' : 'auto';
+    slides[i].scrollIntoView({ behavior, inline: 'center', block: 'nearest' });
+  }
+
+  // Выбор активной карточки при прокрутке (ближайшая к центру)
+  let raf = 0;
+  function onScroll(){
+    if(raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const center = track.scrollLeft + track.clientWidth / 2;
+      let best = active;
+      let bestDist = Infinity;
+
+      for(let i=0;i<slides.length;i++){
+        const s = slides[i];
+        const sCenter = s.offsetLeft + s.offsetWidth / 2;
+        const d = Math.abs(center - sCenter);
+        if(d < bestDist){
+          bestDist = d;
+          best = i;
+        }
+      }
+
+      if(best !== active) setActive(best);
+    });
+  }
+
+  track.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll, { passive:true });
+
+  // Клики по карточке — центрируем её (кнопка "Смотреть" не перехватываем)
+  slides.forEach((s, i) => {
+    s.addEventListener('click', (e) => {
+      if(e.target.closest('button') || e.target.closest('a')) return;
+      centerOn(i);
+    });
   });
-}
 
-// Adding event listeners for navigation
-document.querySelector('.slider-prev').addEventListener('click', () => {
-  moveToSlide(currentIndex - 1);
-});
+  if(prevBtn) prevBtn.addEventListener('click', () => centerOn(active - 1));
+  if(nextBtn) nextBtn.addEventListener('click', () => centerOn(active + 1));
 
-document.querySelector('.slider-next').addEventListener('click', () => {
-  moveToSlide(currentIndex + 1);
-});
-
+  // Старт
+  setActive(0);
+  setTimeout(() => centerOn(0, false), 0);
+})();
 </script>
 </body>
 </html>
