@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
 <meta charset="utf-8"/>
@@ -11,7 +12,6 @@
 <link as="image" href="bg_mobile.jpg" media="(max-width: 520px)" rel="preload"/>
 <link as="image" href="bg_fhd_m.jpg" media="(max-width: 1920px)" rel="preload"/>
 <link as="image" href="header-bg-m-3840.jpg" media="(min-width: 1921px)" rel="preload"/>
-
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
 
@@ -1158,6 +1158,15 @@
       pointer-events:auto;
       transform: translateZ(0);
     }
+
+    /* ✅ HOTFIX: гарантируем кликабельность Фишинг/Правила поверх всех слоёв */
+    .side-chip--phish-min{ z-index: 20000 !important; }
+
+    .side-chip--phish-min,
+    .rules{
+      z-index: 12500;
+    }
+
 
     .avatar{
       width: 72px;
@@ -3240,14 +3249,38 @@
 }
 
 
-  </style>
+  
+
+    /* ===================== FIX: launcher stacking + spacing ===================== */
+    /* Эти правила касаются только лаунчеров мини-игр (Инфобез/Фишинг/Правила) */
+    .side-chip, .rules{
+      z-index:12500; /* выше рулетки/меню, ниже модалок (14000+) */
+    }
+    .side-chip--infosec-min{
+      bottom: calc(14px + clamp(72px, 10vh, 98px)); /* блок Инфобез выше Фишинга */
+    }
+
+
+
+    /* FIX: rules-card is button now (убираем дефолтные стили кнопки) */
+    button.rules-card{
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+    }
+
+</style>
 <style id="coolPhishStyles">
 
 /* ============================================================
    ✅ Новая фишинг-игра (scoped): стили только внутри #phishGame
    ============================================================ */
 #phishGame.mg-backdrop{
-  padding:0;
+    z-index: 22000 !important;
+padding:0;
   align-items:stretch;
   justify-content:stretch;
   background: transparent;
@@ -3821,7 +3854,588 @@
 #phishGame .cool-phish-root .modal-body{padding: 14px;}}
 @media (prefers-reduced-motion: reduce){#phishGame .cool-phish-root *{scroll-behavior: auto !important; transition: none !important; animation: none !important;}}
 </style>
+<style id="coolInfoSecStyles">
 
+
+/* ============================================================
+   ✅ Новая ИБ-игра (scoped): стили только внутри #infoSecGame
+   ============================================================ */
+#infoSecGame.mg-backdrop{
+  padding:0;
+  align-items:stretch;
+  justify-content:stretch;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+#infoSecGame .cool-phish-shell{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+#infoSecGame .cool-phish-root{
+  position:relative;
+  width:100%;
+  height:100%;
+}
+#infoSecGame .cool-phish-close{
+  position:fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 20050;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(10,20,35,.55);
+  color: rgba(255,255,255,.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
+}
+#infoSecGame .cool-phish-close svg{
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+#infoSecGame .cool-phish-close:hover{ background: rgba(10,20,35,.72); }
+#infoSecGame .cool-phish-close:active{ transform: translateY(1px); }
+
+#infoSecGame .cool-phish-root{--bg1: #06101d;
+      --bg2: #041225;
+      --accent: #5ee7ff;
+      --accent2: #9b6bff;
+      --good: #5bffb0;
+      --bad: #ff5b7c;
+      --warn: #ffdf6b;
+      --panel: rgba(14, 26, 44, .60);
+      --panel2: rgba(18, 34, 58, .72);
+      --stroke: rgba(255,255,255,.18);
+      --stroke2: rgba(255,255,255,.10);
+      --text: rgba(245,250,255,.95);
+      --muted: rgba(245,250,255,.72);
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 28px rgba(0,0,0,.45);
+      --r: 20px;
+      --r2: 26px;
+
+      --safeTop: 16px;
+      --safeBottom: 14px;
+
+      --maxW: 1040px;
+      --uiW: min(980px, calc(100vw - 40px));}
+#infoSecGame .cool-phish-root *{box-sizing: border-box;}
+#infoSecGame .cool-phish-root, #infoSecGame .cool-phish-root{height: 100%;}
+#infoSecGame .cool-phish-root{margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      background: radial-gradient(1200px 700px at 30% 10%, rgba(94,231,255,.20), transparent 55%),
+                  radial-gradient(900px 600px at 80% 25%, rgba(155,107,255,.18), transparent 60%),
+                  linear-gradient(180deg, var(--bg2), var(--bg1));}
+#infoSecGame .cool-phish-root #fx{position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .9;}
+#infoSecGame .cool-phish-root .hero{position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 18px;
+      z-index: 1;}
+#infoSecGame .cool-phish-root .hero::before{content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(900px 540px at 50% 28%, rgba(90, 180, 255, .36), transparent 60%),
+        radial-gradient(1200px 720px at 20% 55%, rgba(30, 90, 180, .46), transparent 62%),
+        radial-gradient(1000px 700px at 80% 75%, rgba(120, 80, 220, .30), transparent 60%),
+        linear-gradient(120deg, rgba(10, 40, 86, .18), rgba(10, 20, 40, .30));
+      z-index: -2;
+      transform: rotate(-2deg);}
+#infoSecGame .cool-phish-root .hero::after{content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 20%, rgba(255,255,255,.14), transparent 40%),
+        radial-gradient(circle at 84% 30%, rgba(255,255,255,.10), transparent 44%),
+        radial-gradient(circle at 60% 82%, rgba(255,255,255,.10), transparent 40%);
+      z-index: -1;
+      opacity: .55;
+      pointer-events: none;}
+/* ✅ Фишинг-игра без фоновой подложки (оставляем только снежинки) */
+#infoSecGame .cool-phish-root .hero{background: transparent !important;}
+#infoSecGame .cool-phish-root .hero::before,
+#infoSecGame .cool-phish-root .hero::after{
+  background: none !important;
+  opacity: 0 !important;
+}
+/* ✅ Убираем и общий фон игры, чтобы был виден фон сайта */
+#infoSecGame .cool-phish-root{
+  background: transparent !important;
+}
+
+#infoSecGame .cool-phish-root .wrap{width: var(--uiW);
+      max-width: var(--maxW);
+      display: grid;
+      gap: 18px;}
+#infoSecGame .cool-phish-root .menu-card{position: relative;
+      border-radius: var(--r2);
+      background: linear-gradient(180deg, rgba(10, 22, 40, .62), rgba(8, 18, 34, .50));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 16px 18px 14px;}
+#infoSecGame .cool-phish-root .menu-card::before{content: "";
+      position: absolute;
+      inset: -2px;
+      background:
+        radial-gradient(680px 240px at 60% 35%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(520px 220px at 20% 30%, rgba(94,231,255,.22), transparent 55%),
+        radial-gradient(520px 260px at 80% 80%, rgba(155,107,255,.20), transparent 58%);
+      filter: blur(8px);
+      opacity: .7;
+      pointer-events: none;}
+#infoSecGame .cool-phish-root .menu-top{position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;}
+#infoSecGame .cool-phish-root .title-row{display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: .2px;}
+#infoSecGame .cool-phish-root .pill{display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+      font-size: 12px;
+      color: rgba(245,250,255,.86);
+      user-select: none;}
+#infoSecGame .cool-phish-root .pill b{font-size: 14px;
+      letter-spacing: .3px;}
+#infoSecGame .cool-phish-root .tag{padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      font-size: 12px;
+      color: rgba(245,250,255,.92);}
+#infoSecGame .cool-phish-root .menu-body{position: relative;
+      display: grid;
+      grid-template-columns: 86px 1fr auto;
+      gap: 14px;
+      align-items: center;}
+#infoSecGame .cool-phish-root .mascot{width: 86px;
+      height: 86px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.28));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: var(--shadow2);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;}
+#infoSecGame .cool-phish-root .mascot::after{content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 30% 30%, rgba(94,231,255,.35), transparent 55%),
+                  radial-gradient(circle at 70% 60%, rgba(155,107,255,.25), transparent 55%);
+      filter: blur(10px);
+      opacity: .7;}
+#infoSecGame .cool-phish-root .mascot svg{width: 58px;
+      height: 58px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.55));}
+#infoSecGame .cool-phish-root .menu-copy{display: grid;
+      gap: 6px;
+      min-width: 0;}
+#infoSecGame .cool-phish-root .menu-copy h1{margin: 0;
+      font-size: clamp(18px, 2.2vw, 22px);
+      line-height: 1.15;
+      letter-spacing: .2px;}
+#infoSecGame .cool-phish-root .menu-copy p{margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 60ch;}
+#infoSecGame .cool-phish-root .menu-actions{display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;}
+#infoSecGame .cool-phish-root .btn{appearance: none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      color: rgba(245,250,255,.95);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 14px 26px rgba(0,0,0,.35);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      user-select: none;
+      white-space: nowrap;}
+#infoSecGame .cool-phish-root .btn:hover{transform: translateY(-1px);
+      border-color: rgba(255,255,255,.28);
+      background: rgba(0,0,0,.28);}
+#infoSecGame .cool-phish-root .btn:active{transform: translateY(0px) scale(.99);}
+#infoSecGame .cool-phish-root .btn.primary{background: linear-gradient(180deg, rgba(94,231,255,.26), rgba(0,0,0,.22));
+      border-color: rgba(94,231,255,.38);}
+#infoSecGame .cool-phish-root .btn.primary:hover{border-color: rgba(94,231,255,.55);}
+#infoSecGame .cool-phish-root .btn .dot{width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.14);}
+#infoSecGame .cool-phish-root .btn .play{width: 18px;
+      height: 18px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.22);}
+#infoSecGame .cool-phish-root .btn .play svg{width: 10px;
+      height: 10px;
+      transform: translateX(1px);
+      fill: rgba(245,250,255,.95);}
+#infoSecGame .cool-phish-root .hint{position: relative;
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,.16);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: rgba(245,250,255,.70);
+      font-size: 12px;
+      line-height: 1.35;}
+#infoSecGame .cool-phish-root .hint b{color: rgba(245,250,255,.95);}
+#infoSecGame .cool-phish-root .backdrop{position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 18px;}
+#infoSecGame .cool-phish-root .backdrop.is-open{display: flex;}
+#infoSecGame .cool-phish-root .modal{width: min(1040px, calc(100vw - 36px));
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(10, 22, 40, .78), rgba(8, 18, 34, .62));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;}
+#infoSecGame .cool-phish-root .modal::before{content: "";
+      position: absolute;
+      inset: -2px;
+      background:
+        radial-gradient(700px 260px at 70% 20%, rgba(94,231,255,.22), transparent 60%),
+        radial-gradient(720px 280px at 20% 70%, rgba(155,107,255,.18), transparent 60%),
+        radial-gradient(480px 280px at 60% 80%, rgba(255,255,255,.10), transparent 60%);
+      filter: blur(10px);
+      opacity: .8;
+      pointer-events: none;}
+#infoSecGame .cool-phish-root .modal-inner{position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: min(78vh, 760px);}
+#infoSecGame .cool-phish-root .modal-head{display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);}
+#infoSecGame .cool-phish-root .head-left{display: flex; align-items: center; gap: 10px; min-width: 0;}
+#infoSecGame .cool-phish-root .head-left h2{margin: 0; font-size: 16px; letter-spacing: .3px; white-space: nowrap;}
+#infoSecGame .cool-phish-root .steps{display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);}
+#infoSecGame .cool-phish-root .step-dot{width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.22);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);}
+#infoSecGame .cool-phish-root .step-dot.is-on{background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.14);}
+#infoSecGame .cool-phish-root .icon-btn{appearance: none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;}
+#infoSecGame .cool-phish-root .icon-btn:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.30); background: rgba(0,0,0,.26);}
+#infoSecGame .cool-phish-root .icon-btn:active{transform: translateY(0px) scale(.99);}
+#infoSecGame .cool-phish-root .icon-btn svg{width: 18px; height: 18px; fill: rgba(245,250,255,.92);}
+#infoSecGame .cool-phish-root .modal-body{padding: 16px; display: grid; gap: 14px;}
+#infoSecGame .cool-phish-root .panel{border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      border-radius: 22px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;}
+#infoSecGame .cool-phish-root .panel::before{content: "";
+      position: absolute;
+      inset: -50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(94,231,255,.16), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(155,107,255,.14), transparent 60%);
+      filter: blur(10px);
+      opacity: .6;
+      pointer-events: none;}
+#infoSecGame .cool-phish-root .panel > *{position: relative; z-index: 1;}
+#infoSecGame .cool-phish-root .panel h3{margin: 0 0 8px; font-size: 14px; letter-spacing: .25px;}
+#infoSecGame .cool-phish-root .panel p{margin: 0; color: rgba(245,250,255,.72); font-size: 13px; line-height: 1.35;}
+#infoSecGame .cool-phish-root .avatar-grid{display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;}
+#infoSecGame .cool-phish-root .avatar-tile{border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      border-radius: 22px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+      align-items: center;
+      user-select: none;
+      outline: none;}
+#infoSecGame .cool-phish-root .avatar-tile:hover{transform: translateY(-1px);
+      border-color: rgba(255,255,255,.26);
+      background: rgba(0,0,0,.22);}
+#infoSecGame .cool-phish-root .avatar-tile:focus-visible{border-color: rgba(94,231,255,.55);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.12);}
+#infoSecGame .cool-phish-root .avatar-tile.is-selected{border-color: rgba(94,231,255,.55);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.10);}
+#infoSecGame .cool-phish-root .avatar-tile .bubble{width: 70px;
+      height: 70px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.24));
+      position: relative;
+      overflow: hidden;}
+#infoSecGame .cool-phish-root .avatar-tile .bubble::after{content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 30% 35%, rgba(94,231,255,.26), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(155,107,255,.20), transparent 60%);
+      filter: blur(10px);
+      opacity: .8;
+      pointer-events: none;}
+#infoSecGame .cool-phish-root .avatar-tile svg{width: 52px;
+      height: 52px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.55));}
+#infoSecGame .cool-phish-root .avatar-tile strong{font-size: 14px; letter-spacing: .2px;}
+#infoSecGame .cool-phish-root .avatar-tile span{display: block; font-size: 12px; color: rgba(245,250,255,.70); margin-top: 2px; line-height: 1.2;}
+#infoSecGame .cool-phish-root .field{display: grid; gap: 8px; margin-top: 10px;}
+#infoSecGame .cool-phish-root label{font-size: 12px; color: rgba(245,250,255,.78);}
+#infoSecGame .cool-phish-root .input{width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: rgba(245,250,255,.96);
+      padding: 12px 12px;
+      font-weight: 700;
+      letter-spacing: .15px;
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);}
+#infoSecGame .cool-phish-root .input:focus{border-color: rgba(94,231,255,.55);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.12), inset 0 0 0 1px rgba(255,255,255,.06);}
+#infoSecGame .cool-phish-root .row{display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px;}
+#infoSecGame .cool-phish-root .row .btn{padding: 10px 14px;}
+#infoSecGame .cool-phish-root .note{font-size: 12px; color: rgba(245,250,255,.70); line-height: 1.35;}
+#infoSecGame .cool-phish-root .play-grid{display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+      align-items: start;}
+#infoSecGame .cool-phish-root .profile{display: grid; gap: 12px;}
+#infoSecGame .cool-phish-root .profile-top{display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 10px;
+      align-items: center;}
+#infoSecGame .cool-phish-root .avatar-big{width: 90px;
+      height: 90px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.28));
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow2);}
+#infoSecGame .cool-phish-root .avatar-big::after{content: "";
+      position: absolute;
+      inset: -50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(94,231,255,.22), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(155,107,255,.18), transparent 60%);
+      filter: blur(10px);
+      opacity: .8;
+      pointer-events: none;}
+#infoSecGame .cool-phish-root .avatar-big svg{width: 66px;
+      height: 66px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 12px 16px rgba(0,0,0,.55));}
+#infoSecGame .cool-phish-root .profile-meta h4{margin: 0; font-size: 14px; letter-spacing: .2px; line-height: 1.25;}
+#infoSecGame .cool-phish-root .profile-meta .sub{margin-top: 4px; font-size: 12px; color: rgba(245,250,255,.70);}
+#infoSecGame .cool-phish-root .lvl{display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;}
+#infoSecGame .cool-phish-root .badge{padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      font-weight: 900;
+      letter-spacing: .25px;
+      font-size: 12px;}
+#infoSecGame .cool-phish-root .xpbar{height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);}
+#infoSecGame .cool-phish-root .xpfill{height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(94,231,255,.75), rgba(155,107,255,.75));
+      border-radius: 999px;
+      transition: width .24s ease;}
+#infoSecGame .cool-phish-root .small{font-size: 12px; color: rgba(245,250,255,.72); line-height: 1.35;}
+#infoSecGame .cool-phish-root .msg-card{border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.16);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      overflow: hidden;}
+#infoSecGame .cool-phish-root .msg-head{padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      display: grid;
+      gap: 6px;}
+#infoSecGame .cool-phish-root .msg-head .from{display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;}
+#infoSecGame .cool-phish-root .msg-head .from b{font-size: 13px; letter-spacing: .2px;}
+#infoSecGame .cool-phish-root .msg-head .from span{font-size: 12px;
+      color: rgba(245,250,255,.70);
+      word-break: break-all;}
+#infoSecGame .cool-phish-root .msg-head .subject{font-size: 14px; font-weight: 900; letter-spacing: .15px;}
+#infoSecGame .cool-phish-root .msg-body{padding: 14px;
+      font-size: 13px;
+      color: rgba(245,250,255,.82);
+      line-height: 1.45;
+      white-space: pre-wrap;}
+#infoSecGame .cool-phish-root .msg-link{display: none;
+      padding: 12px 14px;
+      border-top: 1px dashed rgba(255,255,255,.16);
+      color: rgba(94,231,255,.92);
+      font-size: 12px;
+      word-break: break-all;}
+#infoSecGame .cool-phish-root .msg-link.is-on{display: block;}
+#infoSecGame .cool-phish-root .actions{display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px;}
+#infoSecGame .cool-phish-root .btn.good{border-color: rgba(91,255,176,.45);
+      background: linear-gradient(180deg, rgba(91,255,176,.18), rgba(0,0,0,.18));}
+#infoSecGame .cool-phish-root .btn.bad{border-color: rgba(255,91,124,.45);
+      background: linear-gradient(180deg, rgba(255,91,124,.16), rgba(0,0,0,.18));}
+#infoSecGame .cool-phish-root .btn[disabled]{opacity: .55; cursor: not-allowed; transform: none !important;}
+#infoSecGame .cool-phish-root .explain{margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      color: rgba(245,250,255,.78);
+      line-height: 1.45;
+      font-size: 13px;
+      display: none;}
+#infoSecGame .cool-phish-root .explain.is-on{display: block;}
+#infoSecGame .cool-phish-root .result-badge{display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .2px;
+      margin-bottom: 10px;}
+#infoSecGame .cool-phish-root .result-badge .chip{width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.30);}
+#infoSecGame .cool-phish-root .result-badge.good .chip{background: var(--good); box-shadow: 0 0 0 6px rgba(91,255,176,.12);}
+#infoSecGame .cool-phish-root .result-badge.bad .chip{background: var(--bad);  box-shadow: 0 0 0 6px rgba(255,91,124,.12);}
+#infoSecGame .cool-phish-root .footer-controls{display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255,255,255,.14);}
+#infoSecGame .cool-phish-root .kpi{display: flex; gap: 8px; align-items: center; flex-wrap: wrap;}
+#infoSecGame .cool-phish-root .kpi .pill{font-size: 12px;}
+#infoSecGame .cool-phish-root .trailer{display: grid;
+      place-items: center;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      min-height: 320px;}
+#infoSecGame .cool-phish-root .trailer svg{width: min(520px, 90%);
+      height: auto;
+      filter: drop-shadow(0 18px 30px rgba(0,0,0,.55));}
+@media (max-width: 860px){#infoSecGame .cool-phish-root .menu-body{grid-template-columns: 86px 1fr;}
+#infoSecGame .cool-phish-root .menu-actions{grid-column: 1 / -1; justify-content: flex-start;}
+#infoSecGame .cool-phish-root .play-grid{grid-template-columns: 1fr;}}
+@media (max-width: 520px){#infoSecGame .cool-phish-root .menu-card{padding: 14px 14px 12px;}
+#infoSecGame .cool-phish-root .menu-body{grid-template-columns: 74px 1fr;}
+#infoSecGame .cool-phish-root .mascot{width: 74px; height: 74px; border-radius: 16px;}
+#infoSecGame .cool-phish-root .modal-body{padding: 14px;}}
+@media (prefers-reduced-motion: reduce){#infoSecGame .cool-phish-root *{scroll-behavior: auto !important; transition: none !important; animation: none !important;}}
+
+</style>
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -3946,7 +4560,6 @@
 <source media="(max-width: 1920px)" srcset="bg_fhd_m.jpg"/>
 <img alt="" aria-hidden="true" class="header__bg-blur" decoding="async" src="header-bg-m-3840.jpg"/>
 </picture>
- 
 <!-- ✅ MAIN BG: MOBILE → FHD → 4K -->
 <picture class="bg-main-pic">
 <source media="(max-width: 520px)" srcset="bg_mobile.jpg"/>
@@ -4005,612 +4618,912 @@
 <div class="cinema-title">Кинотеатр</div>
 <!-- Cinema Slider Section -->
 <section class="cinema-slider">
-  <div class="slider-container">
-    <button class="slider-prev" aria-label="Предыдущий фильм">
-      <svg viewBox="0 0 24 24">
-        <path d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-
-    <div class="slider-wrapper">
-            <div class="movie-slide" data-ep="1">
-        <img src="movie-1.jpg" alt="Серия 1 — Опасный пароль" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 1</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Опасный пароль</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="2">
-        <img src="movie-2.jpg" alt="Серия 2 — Что такое фишинг?" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 2</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Что такое фишинг?</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="3">
-        <img src="movie-3.jpg" alt="Серия 3 — Поедаем Антивирусы" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 3</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Поедаем Антивирусы</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="4">
-        <img src="movie-4.jpg" alt="Серия 4 — Секреты приватности" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 4</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Секреты приватности</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="5">
-        <img src="movie-5.jpg" alt="Серия 5 — Подозрительные ссылки" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 5</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Подозрительные ссылки</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="6">
-        <img src="movie-6.jpg" alt="Серия 6 — Двухфакторная защита" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 6</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Двухфакторная защита</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="7">
-        <img src="movie-7.jpg" alt="Серия 7 — Сила обновлений" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 7</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Сила обновлений</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="8">
-        <img src="movie-8.jpg" alt="Серия 8 — Игры и покупки" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 8</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Игры и покупки</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="9">
-        <img src="movie-9.jpg" alt="Серия 9 — Чаты и незнакомцы" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 9</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Чаты и незнакомцы</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="10">
-        <img src="movie-10.jpg" alt="Серия 10 — Настройки безопасности" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 10</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Настройки безопасности</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="11">
-        <img src="movie-11.jpg" alt="Серия 11 — Вирусы и файлы" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 11</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Вирусы и файлы</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-
-      <div class="movie-slide" data-ep="12">
-        <img src="movie-12.jpg" alt="Серия 12 — Итоговый квест" class="movie-img" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-text">
-            <div class="movie-badges">
-              <span class="movie-ep">Серия 12</span>
-              <span class="movie-duration">15 мин</span>
-            </div>
-            <h3>Итоговый квест</h3>
-          </div>
-          <button class="movie-btn" type="button">Смотреть</button>
-        </div>
-      </div>
-    </div>
-
-    <button class="slider-next" aria-label="Следующий фильм">
-      <svg viewBox="0 0 24 24">
-        <path d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-  </div>
+<div class="slider-container">
+<button aria-label="Предыдущий фильм" class="slider-prev">
+<svg viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7"></path>
+</svg>
+</button>
+<div class="slider-wrapper">
+<div class="movie-slide" data-ep="1">
+<img alt="Серия 1 — Опасный пароль" class="movie-img" loading="lazy" src="movie-1.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 1</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Опасный пароль</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="2">
+<img alt="Серия 2 — Что такое фишинг?" class="movie-img" loading="lazy" src="movie-2.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 2</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Что такое фишинг?</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="3">
+<img alt="Серия 3 — Поедаем Антивирусы" class="movie-img" loading="lazy" src="movie-3.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 3</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Поедаем Антивирусы</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="4">
+<img alt="Серия 4 — Секреты приватности" class="movie-img" loading="lazy" src="movie-4.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 4</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Секреты приватности</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="5">
+<img alt="Серия 5 — Подозрительные ссылки" class="movie-img" loading="lazy" src="movie-5.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 5</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Подозрительные ссылки</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="6">
+<img alt="Серия 6 — Двухфакторная защита" class="movie-img" loading="lazy" src="movie-6.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 6</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Двухфакторная защита</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="7">
+<img alt="Серия 7 — Сила обновлений" class="movie-img" loading="lazy" src="movie-7.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 7</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Сила обновлений</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="8">
+<img alt="Серия 8 — Игры и покупки" class="movie-img" loading="lazy" src="movie-8.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 8</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Игры и покупки</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="9">
+<img alt="Серия 9 — Чаты и незнакомцы" class="movie-img" loading="lazy" src="movie-9.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 9</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Чаты и незнакомцы</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="10">
+<img alt="Серия 10 — Настройки безопасности" class="movie-img" loading="lazy" src="movie-10.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 10</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Настройки безопасности</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="11">
+<img alt="Серия 11 — Вирусы и файлы" class="movie-img" loading="lazy" src="movie-11.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 11</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Вирусы и файлы</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+<div class="movie-slide" data-ep="12">
+<img alt="Серия 12 — Итоговый квест" class="movie-img" loading="lazy" src="movie-12.jpg"/>
+<div class="movie-info">
+<div class="movie-text">
+<div class="movie-badges">
+<span class="movie-ep">Серия 12</span>
+<span class="movie-duration">15 мин</span>
+</div>
+<h3>Итоговый квест</h3>
+</div>
+<button class="movie-btn" type="button">Смотреть</button>
+</div>
+</div>
+</div>
+<button aria-label="Следующий фильм" class="slider-next">
+<svg viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7"></path>
+</svg>
+</button>
+</div>
 </section>
 </div>
+<!-- ✅ "Инфобез" -->
 <!-- ✅ "Фишинг" -->
-<div aria-label="Быстрый запуск: Фишинг" class="side-chip side-chip--phish-min">
-    <div aria-hidden="true" class="avatar" id="phishAvatar">🐱</div>
-<div class="chip-card">
-    <div class="chip-name">
-      Фишинг
-      <span aria-hidden="true" class="chip-badge">игра</span>
-    </div>
-    <div class="chip-actions">
-      <button aria-controls="phishGame" aria-haspopup="dialog" class="chip-btn" id="openPhishGame" type="button">
-        <svg class="is-fill" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-        Играть
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- ✅ "Правила" -->
-<div aria-label="Правила" class="rules">
-<div aria-hidden="true" class="avatar">☃️</div>
-<a aria-controls="ruleGame" aria-haspopup="dialog" aria-label="Открыть: Правило дня" class="rules-card" href="#" id="openRuleGame" role="button">
-<div class="rules-title">Правила</div>
-<div aria-hidden="true" class="check">
-<svg viewbox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
-</div>
-</a>
-</div>
 </main>
 </div>
 <!-- ============================================================
        ✅ РУЛЕТКА + красивый блок рядом (фикс-док)
        (не входит в ui-bottom => не ломает посадку над медведем)
   ============================================================ -->
-<section aria-label="Рулетка безопасности" class="roulette-dock" id="rouletteDock">
-  <div aria-hidden="true" class="roulette-spark"></div>
-  <div aria-hidden="true" class="roulette-burst" id="rouletteBurst"></div>
+<div aria-label="Быстрый запуск: Инфобез" class="side-chip side-chip--infosec-min">
+<div aria-hidden="true" class="avatar" id="infoAvatar">🐱</div>
+<div class="chip-card">
+<div class="chip-name">
+      Инфобез
+      <span aria-hidden="true" class="chip-badge">игра</span>
+</div>
+<div class="chip-actions">
+<button aria-controls="infoSecGame" aria-haspopup="dialog" class="chip-btn" id="openInfoSecGame" type="button">
+<svg class="is-fill" viewbox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+        Играть
+      </button>
+</div>
+</div>
+</div><div aria-label="Быстрый запуск: Фишинг" class="side-chip side-chip--phish-min">
+<div aria-hidden="true" class="avatar" id="phishAvatar">🐱</div>
+<div class="chip-card">
+<div class="chip-name">
+      Фишинг
+      <span aria-hidden="true" class="chip-badge">игра</span>
+</div>
+<div class="chip-actions">
+<button aria-controls="phishGame" aria-haspopup="dialog" class="chip-btn" id="openPhishGame" onclick="(function(ev){
+  try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
+  try{ ev && ev.stopPropagation && ev.stopPropagation(); }catch(_){}
+  var o = document.getElementById('phishGame');
+  if(!o) return false;
+  o.classList.add('is-open');
+  o.setAttribute('aria-hidden','false');
+  document.documentElement.style.overflow='hidden';
+  document.body.style.overflow='hidden';
+  // focus
+  setTimeout(function(){
+    try{
+      var f = o.querySelector('button,[href],input,select,textarea,[tabindex]:not([tabindex=&quot;-1&quot;])');
+      if(f && f.focus) f.focus({preventScroll:true});
+    }catch(__){}
+  },0);
+  return false;
+})(event); return false;" type="button">
+<svg class="is-fill" viewbox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+        Играть
+      </button>
+</div>
+</div>
+</div>
+<script>
+/* ============================================================
+   🔧 PHISH OUTER OPEN FIX (scoped)
+   Делает кнопку «Фишинг → Играть» 100% рабочей.
+   Не трогает другие блоки.
+   ============================================================ */
+(function(){
+  const outer = document.getElementById('phishGame');
+  const openBtn = document.getElementById('openPhishGame');
+  const closeBtn = document.getElementById('closePhishGame');
+  if(!outer || !openBtn) return;
 
-  <div aria-label="Рулетка" class="roulette-card">
-    <div aria-hidden="false" class="wheel-wrap">
-      <div aria-hidden="true" class="wheel-ring"></div>
-      <div aria-hidden="true" class="wheel-pointer"></div>
+  function lockScroll(){
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScroll(){
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
 
-      <div aria-label="Колесо" class="wheel-rot" id="wheelRot">
-        <canvas aria-hidden="true" height="420" id="wheel" width="420"></canvas>
-      </div>
+  function open(ev){
+    try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
+    try{ ev && ev.stopPropagation && ev.stopPropagation(); }catch(_){}
+    outer.classList.add('is-open');
+    outer.setAttribute('aria-hidden','false');
+    lockScroll();
+    setTimeout(()=>{
+      const first = outer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(first) first.focus();
+    },0);
+    return false;
+  }
 
-      <div class="wheel-center" aria-label="Крутить рулетку">GO</div>
-      <div aria-hidden="true" class="wheel-glow"></div>
-    </div>
+  function close(ev){
+    try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
+    outer.classList.remove('is-open');
+    outer.setAttribute('aria-hidden','true');
 
-    <div class="roulette-controls">
-      <div class="roulette-head">
-        <div>
-          <div class="roulette-title">Рулетка</div>
-          <div class="roulette-sub">выбери задание</div>
-        </div>
+    // закрываем внутреннюю модалку тренажёра (если была открыта)
+    const inner = outer.querySelector('#backdrop');
+    if(inner){
+      inner.classList.remove('is-open');
+      inner.setAttribute('aria-hidden','true');
+    }
 
-        <div class="roulette-meter" id="rouletteMeter" aria-label="Прогресс выполненных миссий">
-          <div class="meter-ring" aria-hidden="true"></div>
-          <div class="meter-text"><span id="rouletteDoneCount">0</span>/<span id="rouletteTotalCount">8</span></div>
-        </div>
-      </div>
+    unlockScroll();
+    return false;
+  }
 
-      <button aria-label="Крутить рулетку" class="roulette-btn" id="spinBtn" type="button">
-        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+  // Экспорт для других частей (failsafe/рулетка)
+  window.__tkOpenPhishOuter = function(){ open(); };
+  window.tkOpenPhishGame = window.tkOpenPhishGame || open;
+
+  // Прямая привязка (на случай перекрытий/перехватов)
+  openBtn.addEventListener('click', open);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+
+  // Клик по фону закрывает
+  outer.addEventListener('click', (e)=>{ if(e.target === outer) close(e); });
+
+  // ESC закрывает
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && outer.classList.contains('is-open')) close(e);
+  });
+})();
+</script>
+<div aria-label="Правила" class="rules">
+
+<div aria-hidden="true" class="avatar">☃️</div>
+<button aria-controls="ruleGame" aria-haspopup="dialog" aria-label="Открыть: Правило дня" class="rules-card" id="openRuleGame" onclick="return window.tkOpenRuleGame &amp;&amp; window.tkOpenRuleGame(event)" type="button">
+<div class="rules-title">Правила</div>
+<div aria-hidden="true" class="check">
+<svg viewbox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+</div>
+</button>
+</div><section aria-label="Рулетка безопасности" class="roulette-dock" id="rouletteDock">
+<div aria-hidden="true" class="roulette-spark"></div>
+<div aria-hidden="true" class="roulette-burst" id="rouletteBurst"></div>
+<div aria-label="Рулетка" class="roulette-card">
+<div aria-hidden="false" class="wheel-wrap">
+<div aria-hidden="true" class="wheel-ring"></div>
+<div aria-hidden="true" class="wheel-pointer"></div>
+<div aria-label="Колесо" class="wheel-rot" id="wheelRot">
+<canvas aria-hidden="true" height="420" id="wheel" width="420"></canvas>
+</div>
+<div aria-label="Крутить рулетку" class="wheel-center">GO</div>
+<div aria-hidden="true" class="wheel-glow"></div>
+</div>
+<div class="roulette-controls">
+<div class="roulette-head">
+<div>
+<div class="roulette-title">Рулетка</div>
+<div class="roulette-sub">выбери задание</div>
+</div>
+<div aria-label="Прогресс выполненных миссий" class="roulette-meter" id="rouletteMeter">
+<div aria-hidden="true" class="meter-ring"></div>
+<div class="meter-text"><span id="rouletteDoneCount">0</span>/<span id="rouletteTotalCount">8</span></div>
+</div>
+</div>
+<button aria-label="Крутить рулетку" class="roulette-btn" id="spinBtn" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
         Крутить
       </button>
-
-      <div class="roulette-mini" id="rouletteMini">
+<div class="roulette-mini" id="rouletteMini">
         Подсказка: крути — получай миссию и выполняй вместе с родителями.
       </div>
-
-      <div class="roulette-ghostRow" aria-label="Настройки рулетки">
-        <button class="roulette-ghostBtn" id="rouletteSound" type="button" aria-pressed="false" title="Звук">
-          <span aria-hidden="true">🔊</span>
-          <span class="sr-only">Звук</span>
-        </button>
-        <button class="roulette-ghostBtn" id="rouletteReset" type="button" title="Сбросить прогресс">
-          <span aria-hidden="true">↺</span>
-          <span class="sr-only">Сбросить</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div aria-label="Результат рулетки" class="roulette-info">
-    <div class="roulette-infoHead">
-      <div aria-hidden="true" class="roulette-infoBadge">
-        <span class="dot" style="width:7px;height:7px;"></span>
+<div aria-label="Настройки рулетки" class="roulette-ghostRow">
+<button aria-pressed="false" class="roulette-ghostBtn" id="rouletteSound" title="Звук" type="button">
+<span aria-hidden="true">🔊</span>
+<span class="sr-only">Звук</span>
+</button>
+<button class="roulette-ghostBtn" id="rouletteReset" title="Сбросить прогресс" type="button">
+<span aria-hidden="true">↺</span>
+<span class="sr-only">Сбросить</span>
+</button>
+</div>
+</div>
+</div>
+<div aria-label="Результат рулетки" class="roulette-info">
+<div class="roulette-infoHead">
+<div aria-hidden="true" class="roulette-infoBadge">
+<span class="dot" style="width:7px;height:7px;"></span>
         результат
       </div>
-      <div class="roulette-streak" id="rouletteStreak" aria-label="Выполнено всего">⭐ 0</div>
-    </div>
-
-    <div class="roulette-infoTitle" id="rTitle">Крути рулетку — получи миссию ✅</div>
-    <div class="roulette-infoText" id="rText">
+<div aria-label="Выполнено всего" class="roulette-streak" id="rouletteStreak">⭐ 0</div>
+</div>
+<div class="roulette-infoTitle" id="rTitle">Крути рулетку — получи миссию ✅</div>
+<div class="roulette-infoText" id="rText">
       Здесь появится короткая задача по цифровой безопасности (и ссылка, куда перейти).
     </div>
-
-    <div class="roulette-infoActions">
-      <a aria-label="Перейти к заданию" class="roulette-link" href="https://digitalhavenrussia.ru/project.html#help" id="rLink">
+<div class="roulette-infoActions">
+<a aria-label="Перейти к заданию" class="roulette-link" href="https://digitalhavenrussia.ru/project.html#help" id="rLink">
         Перейти
-        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>
-      </a>
-
-      <button class="roulette-miniBtn" id="rCopy" type="button" aria-label="Скопировать миссию">Копировать</button>
-      <button class="roulette-miniBtn ok" id="rDone" type="button" aria-label="Отметить миссию выполненной">Выполнено ✓</button>
-    </div>
-
-    <div class="roulette-history" id="rouletteHistory" aria-label="Последние миссии"></div>
-  </div>
+        <svg aria-hidden="true" viewbox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>
+</a>
+<button aria-label="Скопировать миссию" class="roulette-miniBtn" id="rCopy" type="button">Копировать</button>
+<button aria-label="Отметить миссию выполненной" class="roulette-miniBtn ok" id="rDone" type="button">Выполнено ✓</button>
+</div>
+<div aria-label="Последние миссии" class="roulette-history" id="rouletteHistory"></div>
+</div>
 </section>
-
 <!-- ============================================================
        ✅ РУЛЕТКА: МОДАЛКА МИССИИ (мини-игры)
        (трогаем только рулетку)
   ============================================================ -->
-<div class="rm-backdrop" id="rouletteMission" aria-hidden="true">
-  <div class="rm-modal" role="dialog" aria-modal="true" aria-label="Миссия рулетки">
-    <button class="rm-close" id="rmClose" type="button" aria-label="Закрыть миссию">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-
-    <div class="rm-head">
-      <div>
-        <div class="rm-title" id="rmTitle">Миссия</div>
-        <div class="rm-sub" id="rmSub">Выполни мини-задание — и миссия засчитается автоматически.</div>
-      </div>
-      <div class="rm-badges">
-        <div class="rm-badge" id="rmLabelBadge">🎯 —</div>
-        <div class="rm-badge" id="rmStepBadge">Шаг 1/1</div>
-        <div class="rm-badge ok" id="rmOkBadge" style="display:none;">готово ✓</div>
-      </div>
-    </div>
-
-    <div class="rm-body" id="rmBody"></div>
-
-    <div class="rm-foot">
-      <button class="rm-btn" id="rmHint" type="button">Подсказка</button>
-      <button class="rm-btn primary" id="rmCheck" type="button">Проверить</button>
-      <button class="rm-btn ok" id="rmFinish" type="button" disabled>Завершить ✓</button>
-    </div>
-  </div>
+<div aria-hidden="true" class="rm-backdrop" id="rouletteMission">
+<div aria-label="Миссия рулетки" aria-modal="true" class="rm-modal" role="dialog">
+<button aria-label="Закрыть миссию" class="rm-close" id="rmClose" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+</button>
+<div class="rm-head">
+<div>
+<div class="rm-title" id="rmTitle">Миссия</div>
+<div class="rm-sub" id="rmSub">Выполни мини-задание — и миссия засчитается автоматически.</div>
 </div>
-
+<div class="rm-badges">
+<div class="rm-badge" id="rmLabelBadge">🎯 —</div>
+<div class="rm-badge" id="rmStepBadge">Шаг 1/1</div>
+<div class="rm-badge ok" id="rmOkBadge" style="display:none;">готово ✓</div>
+</div>
+</div>
+<div class="rm-body" id="rmBody"></div>
+<div class="rm-foot">
+<button class="rm-btn" id="rmHint" type="button">Подсказка</button>
+<button class="rm-btn primary" id="rmCheck" type="button">Проверить</button>
+<button class="rm-btn ok" disabled="" id="rmFinish" type="button">Завершить ✓</button>
+</div>
+</div>
+</div>
 <!-- ============================================================
        ✅ МОДАЛКА МИНИ-ИГРЫ (ФИШИНГ) — НОВАЯ ВЕРСИЯ
   ============================================================ -->
-<div aria-hidden="true" class="mg-backdrop" id="phishGame">
-  <div class="cool-phish-shell" role="dialog" aria-modal="true" aria-label="Фишинг-игра">
-    <button class="cool-phish-close" id="closePhishGame" type="button" aria-label="Закрыть">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-
-    <div class="cool-phish-root">
-<canvas id="fx" aria-hidden="true"></canvas>
-
-  <main class="hero">
-    <div class="wrap">
-      <section class="menu-card" aria-label="Меню игры">
-        <div class="menu-top">
-          <div class="title-row">
-            <span class="pill"><b>Фишинг</b></span>
-            <span class="tag">игра</span>
-          </div>
-          <span class="pill" title="Локально, без интернета">offline • 1 файл</span>
-        </div>
-
-        <div class="menu-body">
-          <div class="mascot" aria-hidden="true">
-            <!-- Cute mascot (fox) -->
-            <svg viewBox="0 0 128 128" role="img" aria-label="Лисёнок">
-              <path d="M18 62c0-22 17-40 46-40s46 18 46 40c0 26-18 48-46 48S18 88 18 62z" fill="rgba(255,255,255,.85)"/>
-              <path d="M31 39l-7-19 22 10z" fill="rgba(255,255,255,.78)"/>
-              <path d="M97 39l7-19-22 10z" fill="rgba(255,255,255,.78)"/>
-              <path d="M36 64c0-14 12-26 28-26s28 12 28 26c0 18-12 32-28 32S36 82 36 64z" fill="rgba(255,190,120,.95)"/>
-              <circle cx="52" cy="64" r="6" fill="rgba(10,20,40,.8)"/>
-              <circle cx="76" cy="64" r="6" fill="rgba(10,20,40,.8)"/>
-              <path d="M64 70c4 0 7 3 7 7 0 6-5 10-7 10s-7-4-7-10c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"/>
-              <path d="M50 86c8 6 20 6 28 0" stroke="rgba(10,20,40,.55)" stroke-width="6" stroke-linecap="round" fill="none"/>
-            </svg>
-          </div>
-
-          <div class="menu-copy">
-            <h1>Тренировка: распознаём фишинг</h1>
-            <p>
+<div aria-hidden="true" class="mg-backdrop" id="infoSecGame">
+<div aria-label="Инфобез-игра" aria-modal="true" class="cool-phish-shell" role="dialog">
+<button aria-label="Закрыть" class="cool-phish-close" id="closeInfoSecGame" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+</button>
+<div class="cool-phish-root">
+<canvas aria-hidden="true" id="fxInfo"></canvas>
+<main class="hero">
+<div class="wrap">
+<section aria-label="Меню игры" class="menu-card">
+<div class="menu-top">
+<div class="title-row">
+<span class="pill"><b>Инфобез</b></span>
+<span class="tag">игра</span>
+</div>
+<span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+</div>
+<div class="menu-body">
+<div aria-hidden="true" class="mascot">
+<!-- Cute mascot (fox) -->
+<svg aria-label="Лисёнок" role="img" viewbox="0 0 128 128">
+<path d="M18 62c0-22 17-40 46-40s46 18 46 40c0 26-18 48-46 48S18 88 18 62z" fill="rgba(255,255,255,.85)"></path>
+<path d="M31 39l-7-19 22 10z" fill="rgba(255,255,255,.78)"></path>
+<path d="M97 39l7-19-22 10z" fill="rgba(255,255,255,.78)"></path>
+<path d="M36 64c0-14 12-26 28-26s28 12 28 26c0 18-12 32-28 32S36 82 36 64z" fill="rgba(255,190,120,.95)"></path>
+<circle cx="52" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
+<circle cx="76" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
+<path d="M64 70c4 0 7 3 7 7 0 6-5 10-7 10s-7-4-7-10c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
+<path d="M50 86c8 6 20 6 28 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<div class="menu-copy">
+<h1>Тренировка: информационная безопасность</h1>
+<p>
               Нажмите «Начать игру» — откроется тренажёр. Сначала выберете персонажа (мальчик/девочка),
               затем введёте ФИО. После этого появится ваш герой и <b>уровень (LVL)</b> — он растёт за правильные ответы.
             </p>
-          </div>
-
-          <div class="menu-actions">
-            <button class="btn primary" id="startBtn" type="button">
-              <span class="play" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M8 5v14l12-7z"/></svg>
-              </span>
+</div>
+<div class="menu-actions">
+<button class="btn primary" id="startInfoBtn" type="button">
+<span aria-hidden="true" class="play">
+<svg viewbox="0 0 24 24"><path d="M8 5v14l12-7z"></path></svg>
+</span>
               Начать игру
             </button>
-            <button class="btn" id="trailerBtn" type="button" title="Посмотреть короткую подсказку">
-              <span class="dot" aria-hidden="true"></span>
+<button class="btn" id="trailerInfoBtn" title="Посмотреть короткую подсказку" type="button">
+<span aria-hidden="true" class="dot"></span>
               Смотреть
             </button>
-          </div>
-        </div>
+</div>
+</div>
+<div class="hint">
+<span aria-hidden="true" class="pill">💡</span>
+<div>
+<b>Совет:</b> если устройство просит отключить защиту, поставить “обновление” с непонятного сайта или дать доступ “всем” — остановитесь и проверьте.</div>
+</div></section>
+</div>
+</main>
+<!-- GAME MODAL -->
+<div aria-hidden="true" class="backdrop" id="infoBackdrop">
+<section aria-label="Инфобез-игра" aria-modal="true" class="modal" role="dialog">
+<div class="modal-inner">
+<header class="modal-head">
+<div class="head-left">
+<h2>Инфобез-игра</h2>
+<div aria-label="Шаги" class="steps">
+<span class="step-dot" data-stepdot="1"></span>
+<span class="step-dot" data-stepdot="2"></span>
+<span class="step-dot" data-stepdot="3"></span>
+</div>
+</div>
+<div class="row" style="margin:0">
+<button class="icon-btn" id="infoResetBtn" title="Сбросить профиль" type="button">
+<svg viewbox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.3 4H3l3.5-3.5L10 9H7.8A5 5 0 1 0 12 7v2l3-3-3-3v2z"></path></svg>
+</button>
+<button class="icon-btn" id="infoCloseBtn" title="Закрыть (Esc)" type="button">
+<svg viewbox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"></path></svg>
+</button>
+</div>
+</header>
+<div class="modal-body">
+<!-- STEP 1: avatar -->
+<section class="panel" data-step="avatar">
+<h3>Шаг 1 — выберите персонажа</h3>
+<p>Выбор влияет только на внешний вид героя. Можете поменять позже.</p>
+<div aria-label="Персонаж" class="avatar-grid" role="radiogroup">
+<div aria-checked="false" class="avatar-tile" data-avatar="boy" role="radio" tabindex="0">
+<div aria-hidden="true" class="bubble">
+<svg viewbox="0 0 128 128">
+<path d="M20 70c0-28 20-50 44-50s44 22 44 50c0 22-14 40-34 46-6 2-12 3-18 3s-12-1-18-3c-20-6-34-24-34-46z" fill="rgba(255,255,255,.85)"></path>
+<path d="M40 46c10-18 38-18 48 0 2 4 3 8 3 12-8-8-18-12-27-12S45 50 37 58c0-4 1-8 3-12z" fill="rgba(94,231,255,.55)"></path>
+<circle cx="50" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<circle cx="78" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<path d="M64 78c4 0 7 3 7 7 0 7-5 12-7 12s-7-5-7-12c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
+<path d="M48 98c10 6 22 6 32 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<div>
+<strong>Мальчик</strong>
+<span>Смелый кибер-капитан</span>
+</div>
+</div>
+<div aria-checked="false" class="avatar-tile" data-avatar="girl" role="radio" tabindex="0">
+<div aria-hidden="true" class="bubble">
+<svg viewbox="0 0 128 128">
+<path d="M20 70c0-28 20-50 44-50s44 22 44 50c0 22-14 40-34 46-6 2-12 3-18 3s-12-1-18-3c-20-6-34-24-34-46z" fill="rgba(255,255,255,.85)"></path>
+<path d="M34 54c2-18 16-32 30-32s28 14 30 32c-8-10-18-14-30-14s-22 4-30 14z" fill="rgba(155,107,255,.50)"></path>
+<circle cx="50" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<circle cx="78" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<path d="M64 78c4 0 7 3 7 7 0 7-5 12-7 12s-7-5-7-12c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
+<path d="M48 98c10 6 22 6 32 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
+<path d="M30 64c-6 10-6 26 1 36 8 12 20 18 33 18-16-6-20-20-20-30 0-12 4-20-14-24z" fill="rgba(255,255,255,.30)"></path>
+<path d="M98 64c6 10 6 26-1 36-8 12-20 18-33 18 16-6 20-20 20-30 0-12-4-20 14-24z" fill="rgba(255,255,255,.30)"></path>
+</svg>
+</div>
+<div>
+<strong>Девочка</strong>
+<span>Кибер-инженер защиты</span>
+</div>
+</div>
+</div>
+<div class="row">
+<button class="btn primary" disabled="" id="infoToProfileBtn" type="button">Далее</button>
+<span class="note">Можно выбрать Tab и нажатием Enter/Пробел.</span>
+</div>
+</section>
+<!-- STEP 2: profile -->
+<section class="panel" data-step="profile" hidden="">
+<h3>Шаг 2 — введите ФИО</h3>
+<p>ФИО будет показано в карточке игрока. Можно указать только имя/фамилию — как вам удобно.</p>
+<div class="field">
+<label for="infoFioInput">ФИО (или имя)</label>
+<input autocomplete="name" class="input" id="infoFioInput" maxlength="48" placeholder="Например: Иван Петров" type="text"/>
+<div class="note">Подсказка: не вводите реальные данные, если это демо.</div>
+</div>
+<div class="row">
+<button class="btn" id="infoBackToAvatarBtn" type="button">Назад</button>
+<button class="btn primary" disabled="" id="infoToPlayBtn" type="button">Начать тренировку</button>
+</div>
+</section>
+<!-- STEP 3: play -->
+<section class="panel" data-step="play" hidden="">
+<div class="play-grid">
+<aside class="profile">
+<div class="panel">
+<div class="profile-top">
+<div aria-hidden="true" class="avatar-big" id="infoAvatarBig"></div>
+<div class="profile-meta">
+<h4 id="infoPlayerName">Игрок</h4>
+<div class="sub" id="infoPlayerRole">Персонаж</div>
+<div class="lvl">
+<span class="badge" id="infoLvlBadge">LVL 1</span>
+<span class="badge" id="infoXpBadge">XP 0</span>
+</div>
+<div aria-label="Прогресс опыта" class="xpbar">
+<div class="xpfill" id="infoXpFill"></div>
+</div>
+<div class="small" id="infoXpText">До следующего уровня: 50 XP</div>
+</div>
+</div>
+<div class="footer-controls">
+<div class="kpi">
+<span class="pill">🎯 <span id="infoKpiCorrect">0</span> верно</span>
+<span class="pill">🧩 <span id="infoKpiTotal">0</span> всего</span>
+</div>
+<button class="btn" id="infoChangeAvatarBtn" type="button">Сменить героя</button>
+</div>
+</div>
+<div class="panel">
+<h3>Как отвечать</h3>
+<p>
+                    Нажмите <b>«Опасно»</b>, если торопят, просят пароль/код или ссылка выглядит странно.
+                    Нажмите <b>«Безопасно»</b>, если всё спокойно, без угроз, и не просят секретные данные.
+                  </p>
+</div>
+</aside>
+<div class="panel">
+<h3>Сообщение</h3>
+<div aria-live="polite" class="msg-card">
+<div class="msg-head">
+<div class="from">
+<b id="infoMsgFromName">—</b>
+<span id="infoMsgFromEmail">—</span>
+</div>
+<div class="subject" id="infoMsgSubject">—</div>
+</div>
+<div class="msg-body" id="infoMsgBody">—</div>
+<div class="msg-link" id="infoMsgLink"></div>
+</div>
+<div class="actions">
+<button class="btn bad" id="infoBtnRisk" type="button">Опасно</button>
+<button class="btn good" id="infoBtnSafe" type="button">Безопасно</button>
+<button class="btn" id="infoBtnSkip" title="Пропустить без очков" type="button">Пропустить</button>
+</div>
+<div class="explain" id="infoExplainBox"></div>
+<div class="footer-controls">
+<div class="kpi">
+<span class="pill">📄 Карточка <span id="infoCardIndex">1</span>/<span id="infoCardCount">15</span></span>
+<span class="pill">⏱️ Без спешки</span>
+</div>
+<button class="btn primary" disabled="" id="infoNextBtn" type="button">Далее</button>
+</div>
+</div>
+</div>
+</section>
+<!-- TRAILER -->
+<section class="panel" data-step="trailer" hidden="">
+<h3>Короткая подсказка</h3>
+<p>Здесь вместо видео — “постер”. Можно заменить на mp4/webm.</p>
+<div aria-label="Постер" class="trailer">
+<svg viewbox="0 0 900 480" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="infoG1" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0" stop-color="rgba(94,231,255,.85)"></stop>
+<stop offset="1" stop-color="rgba(155,107,255,.85)"></stop>
+</lineargradient>
+</defs>
+<rect fill="rgba(0,0,0,.25)" height="440" rx="32" stroke="rgba(255,255,255,.18)" stroke-width="2" width="860" x="20" y="20"></rect>
+<circle cx="190" cy="240" fill="url(#infoG1)" opacity=".25" r="110"></circle>
+<circle cx="720" cy="170" fill="url(#infoG1)" opacity=".18" r="140"></circle>
+<path d="M420 150l220 130-220 130z" fill="rgba(245,250,255,.92)"></path>
+<text fill="rgba(245,250,255,.92)" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="800" x="70" y="90">
+                  3 признака фишинга
+                </text>
+<text fill="rgba(245,250,255,.72)" font-family="system-ui,Segoe UI,Arial" font-size="18" x="70" y="132">
+                  1) Спешка и угрозы  2) Просьба пароля/кода  3) Странная ссылка
+                </text>
+<text fill="rgba(245,250,255,.72)" font-family="system-ui,Segoe UI,Arial" font-size="16" x="70" y="410">
+                  Нажмите «Начать игру», чтобы потренироваться.
+                </text>
+</svg>
+</div>
+<div class="row">
+<button class="btn primary" id="infoBackFromTrailerBtn" type="button">Назад</button>
+</div>
+</section>
+</div>
+</div>
+</section>
+</div>
 
-        <div class="hint">
-          <span class="pill" aria-hidden="true">💡</span>
-          <div>
-            <b>Совет:</b> если сообщение просит “срочно” ввести пароль, код из SMS или оплатить по странной ссылке —
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="mg-backdrop" id="phishGame">
+<div aria-label="Фишинг-игра" aria-modal="true" class="cool-phish-shell" role="dialog">
+<button aria-label="Закрыть" class="cool-phish-close" id="closePhishGame" onclick="(function(ev){
+  try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
+  try{ ev && ev.stopPropagation && ev.stopPropagation(); }catch(_){}
+  var o = document.getElementById('phishGame');
+  if(!o) return false;
+  try{
+    var inner = o.querySelector('#backdrop');
+    if(inner){ inner.classList.remove('is-open'); inner.setAttribute('aria-hidden','true'); }
+  }catch(__){}
+  o.classList.remove('is-open');
+  o.setAttribute('aria-hidden','true');
+  try{
+    if(!document.querySelector('.mg-backdrop.is-open')){
+      document.documentElement.style.overflow='';
+      document.body.style.overflow='';
+    }
+  }catch(_){}
+  return false;
+})(event); return false;" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+</button>
+<div class="cool-phish-root">
+<canvas aria-hidden="true" id="fx"></canvas>
+<main class="hero">
+<div class="wrap">
+<section aria-label="Меню игры" class="menu-card">
+<div class="menu-top">
+<div class="title-row">
+<span class="pill"><b>Фишинг</b></span>
+<span class="tag">игра</span>
+</div>
+<span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+</div>
+<div class="menu-body">
+<div aria-hidden="true" class="mascot">
+<!-- Cute mascot (fox) -->
+<svg aria-label="Лисёнок" role="img" viewbox="0 0 128 128">
+<path d="M18 62c0-22 17-40 46-40s46 18 46 40c0 26-18 48-46 48S18 88 18 62z" fill="rgba(255,255,255,.85)"></path>
+<path d="M31 39l-7-19 22 10z" fill="rgba(255,255,255,.78)"></path>
+<path d="M97 39l7-19-22 10z" fill="rgba(255,255,255,.78)"></path>
+<path d="M36 64c0-14 12-26 28-26s28 12 28 26c0 18-12 32-28 32S36 82 36 64z" fill="rgba(255,190,120,.95)"></path>
+<circle cx="52" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
+<circle cx="76" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
+<path d="M64 70c4 0 7 3 7 7 0 6-5 10-7 10s-7-4-7-10c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
+<path d="M50 86c8 6 20 6 28 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<div class="menu-copy">
+<h1>Тренировка: распознаём фишинг</h1>
+<p>
+              Нажмите «Начать игру» — откроется тренажёр. Сначала выберете персонажа (мальчик/девочка),
+              затем введёте ФИО. После этого появится ваш герой и <b>уровень (LVL)</b> — он растёт за правильные ответы.
+            </p>
+</div>
+<div class="menu-actions">
+<button class="btn primary" id="startBtn" type="button">
+<span aria-hidden="true" class="play">
+<svg viewbox="0 0 24 24"><path d="M8 5v14l12-7z"></path></svg>
+</span>
+              Начать игру
+            </button>
+<button class="btn" id="trailerBtn" title="Посмотреть короткую подсказку" type="button">
+<span aria-hidden="true" class="dot"></span>
+              Смотреть
+            </button>
+</div>
+</div>
+<div class="hint">
+<span aria-hidden="true" class="pill">💡</span>
+<div>
+<b>Совет:</b> если сообщение просит “срочно” ввести пароль, код из SMS или оплатить по странной ссылке —
             это очень похоже на фишинг.
           </div>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <!-- GAME MODAL -->
-  <div class="backdrop" id="backdrop" aria-hidden="true">
-    <section class="modal" role="dialog" aria-modal="true" aria-label="Фишинг-игра">
-      <div class="modal-inner">
-        <header class="modal-head">
-          <div class="head-left">
-            <h2>Фишинг-игра</h2>
-            <div class="steps" aria-label="Шаги">
-              <span class="step-dot" data-stepdot="1"></span>
-              <span class="step-dot" data-stepdot="2"></span>
-              <span class="step-dot" data-stepdot="3"></span>
-            </div>
-          </div>
-          <div class="row" style="margin:0">
-            <button class="icon-btn" id="resetBtn" type="button" title="Сбросить профиль">
-              <svg viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.3 4H3l3.5-3.5L10 9H7.8A5 5 0 1 0 12 7v2l3-3-3-3v2z"/></svg>
-            </button>
-            <button class="icon-btn" id="closeBtn" type="button" title="Закрыть (Esc)">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"/></svg>
-            </button>
-          </div>
-        </header>
-
-        <div class="modal-body">
-          <!-- STEP 1: avatar -->
-          <section class="panel" data-step="avatar">
-            <h3>Шаг 1 — выберите персонажа</h3>
-            <p>Выбор влияет только на внешний вид героя. Можете поменять позже.</p>
-
-            <div class="avatar-grid" role="radiogroup" aria-label="Персонаж">
-              <div class="avatar-tile" data-avatar="boy" tabindex="0" role="radio" aria-checked="false">
-                <div class="bubble" aria-hidden="true">
-                  <svg viewBox="0 0 128 128">
-                    <path d="M20 70c0-28 20-50 44-50s44 22 44 50c0 22-14 40-34 46-6 2-12 3-18 3s-12-1-18-3c-20-6-34-24-34-46z" fill="rgba(255,255,255,.85)"/>
-                    <path d="M40 46c10-18 38-18 48 0 2 4 3 8 3 12-8-8-18-12-27-12S45 50 37 58c0-4 1-8 3-12z" fill="rgba(94,231,255,.55)"/>
-                    <circle cx="50" cy="70" r="6" fill="rgba(10,20,40,.8)"/>
-                    <circle cx="78" cy="70" r="6" fill="rgba(10,20,40,.8)"/>
-                    <path d="M64 78c4 0 7 3 7 7 0 7-5 12-7 12s-7-5-7-12c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"/>
-                    <path d="M48 98c10 6 22 6 32 0" stroke="rgba(10,20,40,.55)" stroke-width="6" stroke-linecap="round" fill="none"/>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Мальчик</strong>
-                  <span>Смелый кибер-капитан</span>
-                </div>
-              </div>
-
-              <div class="avatar-tile" data-avatar="girl" tabindex="0" role="radio" aria-checked="false">
-                <div class="bubble" aria-hidden="true">
-                  <svg viewBox="0 0 128 128">
-                    <path d="M20 70c0-28 20-50 44-50s44 22 44 50c0 22-14 40-34 46-6 2-12 3-18 3s-12-1-18-3c-20-6-34-24-34-46z" fill="rgba(255,255,255,.85)"/>
-                    <path d="M34 54c2-18 16-32 30-32s28 14 30 32c-8-10-18-14-30-14s-22 4-30 14z" fill="rgba(155,107,255,.50)"/>
-                    <circle cx="50" cy="70" r="6" fill="rgba(10,20,40,.8)"/>
-                    <circle cx="78" cy="70" r="6" fill="rgba(10,20,40,.8)"/>
-                    <path d="M64 78c4 0 7 3 7 7 0 7-5 12-7 12s-7-5-7-12c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"/>
-                    <path d="M48 98c10 6 22 6 32 0" stroke="rgba(10,20,40,.55)" stroke-width="6" stroke-linecap="round" fill="none"/>
-                    <path d="M30 64c-6 10-6 26 1 36 8 12 20 18 33 18-16-6-20-20-20-30 0-12 4-20-14-24z" fill="rgba(255,255,255,.30)"/>
-                    <path d="M98 64c6 10 6 26-1 36-8 12-20 18-33 18 16-6 20-20 20-30 0-12-4-20 14-24z" fill="rgba(255,255,255,.30)"/>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Девочка</strong>
-                  <span>Кибер-инженер защиты</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <button class="btn primary" id="toProfileBtn" type="button" disabled>Далее</button>
-              <span class="note">Можно выбрать Tab и нажатием Enter/Пробел.</span>
-            </div>
-          </section>
-
-          <!-- STEP 2: profile -->
-          <section class="panel" data-step="profile" hidden>
-            <h3>Шаг 2 — введите ФИО</h3>
-            <p>ФИО будет показано в карточке игрока. Можно указать только имя/фамилию — как вам удобно.</p>
-
-            <div class="field">
-              <label for="fioInput">ФИО (или имя)</label>
-              <input class="input" id="fioInput" type="text" placeholder="Например: Иван Петров" autocomplete="name" maxlength="48">
-              <div class="note">Подсказка: не вводите реальные данные, если это демо.</div>
-            </div>
-
-            <div class="row">
-              <button class="btn" id="backToAvatarBtn" type="button">Назад</button>
-              <button class="btn primary" id="toPlayBtn" type="button" disabled>Начать тренировку</button>
-            </div>
-          </section>
-
-          <!-- STEP 3: play -->
-          <section class="panel" data-step="play" hidden>
-            <div class="play-grid">
-              <aside class="profile">
-                <div class="panel">
-                  <div class="profile-top">
-                    <div class="avatar-big" id="avatarBig" aria-hidden="true"></div>
-                    <div class="profile-meta">
-                      <h4 id="playerName">Игрок</h4>
-                      <div class="sub" id="playerRole">Персонаж</div>
-
-                      <div class="lvl">
-                        <span class="badge" id="lvlBadge">LVL 1</span>
-                        <span class="badge" id="xpBadge">XP 0</span>
-                      </div>
-
-                      <div class="xpbar" aria-label="Прогресс опыта">
-                        <div class="xpfill" id="xpFill"></div>
-                      </div>
-                      <div class="small" id="xpText">До следующего уровня: 50 XP</div>
-                    </div>
-                  </div>
-
-                  <div class="footer-controls">
-                    <div class="kpi">
-                      <span class="pill">🎯 <span id="kpiCorrect">0</span> верно</span>
-                      <span class="pill">🧩 <span id="kpiTotal">0</span> всего</span>
-                    </div>
-                    <button class="btn" id="changeAvatarBtn" type="button">Сменить героя</button>
-                  </div>
-                </div>
-
-                <div class="panel">
-                  <h3>Как отвечать</h3>
-                  <p>
+</div>
+</section>
+</div>
+</main>
+<!-- GAME MODAL -->
+<div aria-hidden="true" class="backdrop" id="backdrop">
+<section aria-label="Фишинг-игра" aria-modal="true" class="modal" role="dialog">
+<div class="modal-inner">
+<header class="modal-head">
+<div class="head-left">
+<h2>Фишинг-игра</h2>
+<div aria-label="Шаги" class="steps">
+<span class="step-dot" data-stepdot="1"></span>
+<span class="step-dot" data-stepdot="2"></span>
+<span class="step-dot" data-stepdot="3"></span>
+</div>
+</div>
+<div class="row" style="margin:0">
+<button class="icon-btn" id="resetBtn" title="Сбросить профиль" type="button">
+<svg viewbox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.3 4H3l3.5-3.5L10 9H7.8A5 5 0 1 0 12 7v2l3-3-3-3v2z"></path></svg>
+</button>
+<button class="icon-btn" id="closeBtn" title="Закрыть (Esc)" type="button">
+<svg viewbox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"></path></svg>
+</button>
+</div>
+</header>
+<div class="modal-body">
+<!-- STEP 1: avatar -->
+<section class="panel" data-step="avatar">
+<h3>Шаг 1 — выберите персонажа</h3>
+<p>Выбор влияет только на внешний вид героя. Можете поменять позже.</p>
+<div aria-label="Персонаж" class="avatar-grid" role="radiogroup">
+<div aria-checked="false" class="avatar-tile" data-avatar="boy" role="radio" tabindex="0">
+<div aria-hidden="true" class="bubble">
+<svg viewbox="0 0 128 128">
+<path d="M20 70c0-28 20-50 44-50s44 22 44 50c0 22-14 40-34 46-6 2-12 3-18 3s-12-1-18-3c-20-6-34-24-34-46z" fill="rgba(255,255,255,.85)"></path>
+<path d="M40 46c10-18 38-18 48 0 2 4 3 8 3 12-8-8-18-12-27-12S45 50 37 58c0-4 1-8 3-12z" fill="rgba(94,231,255,.55)"></path>
+<circle cx="50" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<circle cx="78" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<path d="M64 78c4 0 7 3 7 7 0 7-5 12-7 12s-7-5-7-12c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
+<path d="M48 98c10 6 22 6 32 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<div>
+<strong>Мальчик</strong>
+<span>Смелый кибер-капитан</span>
+</div>
+</div>
+<div aria-checked="false" class="avatar-tile" data-avatar="girl" role="radio" tabindex="0">
+<div aria-hidden="true" class="bubble">
+<svg viewbox="0 0 128 128">
+<path d="M20 70c0-28 20-50 44-50s44 22 44 50c0 22-14 40-34 46-6 2-12 3-18 3s-12-1-18-3c-20-6-34-24-34-46z" fill="rgba(255,255,255,.85)"></path>
+<path d="M34 54c2-18 16-32 30-32s28 14 30 32c-8-10-18-14-30-14s-22 4-30 14z" fill="rgba(155,107,255,.50)"></path>
+<circle cx="50" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<circle cx="78" cy="70" fill="rgba(10,20,40,.8)" r="6"></circle>
+<path d="M64 78c4 0 7 3 7 7 0 7-5 12-7 12s-7-5-7-12c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
+<path d="M48 98c10 6 22 6 32 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
+<path d="M30 64c-6 10-6 26 1 36 8 12 20 18 33 18-16-6-20-20-20-30 0-12 4-20-14-24z" fill="rgba(255,255,255,.30)"></path>
+<path d="M98 64c6 10 6 26-1 36-8 12-20 18-33 18 16-6 20-20 20-30 0-12-4-20 14-24z" fill="rgba(255,255,255,.30)"></path>
+</svg>
+</div>
+<div>
+<strong>Девочка</strong>
+<span>Кибер-инженер защиты</span>
+</div>
+</div>
+</div>
+<div class="row">
+<button class="btn primary" disabled="" id="toProfileBtn" type="button">Далее</button>
+<span class="note">Можно выбрать Tab и нажатием Enter/Пробел.</span>
+</div>
+</section>
+<!-- STEP 2: profile -->
+<section class="panel" data-step="profile" hidden="">
+<h3>Шаг 2 — введите ФИО</h3>
+<p>ФИО будет показано в карточке игрока. Можно указать только имя/фамилию — как вам удобно.</p>
+<div class="field">
+<label for="fioInput">ФИО (или имя)</label>
+<input autocomplete="name" class="input" id="fioInput" maxlength="48" placeholder="Например: Иван Петров" type="text"/>
+<div class="note">Подсказка: не вводите реальные данные, если это демо.</div>
+</div>
+<div class="row">
+<button class="btn" id="backToAvatarBtn" type="button">Назад</button>
+<button class="btn primary" disabled="" id="toPlayBtn" type="button">Начать тренировку</button>
+</div>
+</section>
+<!-- STEP 3: play -->
+<section class="panel" data-step="play" hidden="">
+<div class="play-grid">
+<aside class="profile">
+<div class="panel">
+<div class="profile-top">
+<div aria-hidden="true" class="avatar-big" id="avatarBig"></div>
+<div class="profile-meta">
+<h4 id="playerName">Игрок</h4>
+<div class="sub" id="playerRole">Персонаж</div>
+<div class="lvl">
+<span class="badge" id="lvlBadge">LVL 1</span>
+<span class="badge" id="xpBadge">XP 0</span>
+</div>
+<div aria-label="Прогресс опыта" class="xpbar">
+<div class="xpfill" id="xpFill"></div>
+</div>
+<div class="small" id="xpText">До следующего уровня: 50 XP</div>
+</div>
+</div>
+<div class="footer-controls">
+<div class="kpi">
+<span class="pill">🎯 <span id="kpiCorrect">0</span> верно</span>
+<span class="pill">🧩 <span id="kpiTotal">0</span> всего</span>
+</div>
+<button class="btn" id="changeAvatarBtn" type="button">Сменить героя</button>
+</div>
+</div>
+<div class="panel">
+<h3>Как отвечать</h3>
+<p>
                     Нажмите <b>«Фишинг»</b>, если торопят, просят пароль/код или ссылка выглядит странно.
                     Нажмите <b>«Правда»</b>, если всё спокойно, без угроз, и не просят секретные данные.
                   </p>
-                </div>
-              </aside>
-
-              <div class="panel">
-                <h3>Сообщение</h3>
-
-                <div class="msg-card" aria-live="polite">
-                  <div class="msg-head">
-                    <div class="from">
-                      <b id="msgFromName">—</b>
-                      <span id="msgFromEmail">—</span>
-                    </div>
-                    <div class="subject" id="msgSubject">—</div>
-                  </div>
-
-                  <div class="msg-body" id="msgBody">—</div>
-                  <div class="msg-link" id="msgLink"></div>
-                </div>
-
-                <div class="actions">
-                  <button class="btn bad" id="btnPhish" type="button">Фишинг</button>
-                  <button class="btn good" id="btnLegit" type="button">Правда</button>
-                  <button class="btn" id="btnSkip" type="button" title="Пропустить без очков">Пропустить</button>
-                </div>
-
-                <div class="explain" id="explainBox"></div>
-
-                <div class="footer-controls">
-                  <div class="kpi">
-                    <span class="pill">📄 Карточка <span id="cardIndex">1</span>/<span id="cardCount">15</span></span>
-                    <span class="pill">⏱️ Без спешки</span>
-                  </div>
-                  <button class="btn primary" id="nextBtn" type="button" disabled>Далее</button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- TRAILER -->
-          <section class="panel" data-step="trailer" hidden>
-            <h3>Короткая подсказка</h3>
-            <p>Здесь вместо видео — “постер”. Можно заменить на mp4/webm.</p>
-
-            <div class="trailer" aria-label="Постер">
-              <svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="rgba(94,231,255,.85)"/>
-                    <stop offset="1" stop-color="rgba(155,107,255,.85)"/>
-                  </linearGradient>
-                </defs>
-                <rect x="20" y="20" width="860" height="440" rx="32" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-                <circle cx="190" cy="240" r="110" fill="url(#g1)" opacity=".25"/>
-                <circle cx="720" cy="170" r="140" fill="url(#g1)" opacity=".18"/>
-                <path d="M420 150l220 130-220 130z" fill="rgba(245,250,255,.92)"/>
-                <text x="70" y="90" font-size="30" fill="rgba(245,250,255,.92)" font-family="system-ui,Segoe UI,Arial" font-weight="800">
+</div>
+</aside>
+<div class="panel">
+<h3>Сообщение</h3>
+<div aria-live="polite" class="msg-card">
+<div class="msg-head">
+<div class="from">
+<b id="msgFromName">—</b>
+<span id="msgFromEmail">—</span>
+</div>
+<div class="subject" id="msgSubject">—</div>
+</div>
+<div class="msg-body" id="msgBody">—</div>
+<div class="msg-link" id="msgLink"></div>
+</div>
+<div class="actions">
+<button class="btn bad" id="btnPhish" type="button">Фишинг</button>
+<button class="btn good" id="btnLegit" type="button">Правда</button>
+<button class="btn" id="btnSkip" title="Пропустить без очков" type="button">Пропустить</button>
+</div>
+<div class="explain" id="explainBox"></div>
+<div class="footer-controls">
+<div class="kpi">
+<span class="pill">📄 Карточка <span id="cardIndex">1</span>/<span id="cardCount">15</span></span>
+<span class="pill">⏱️ Без спешки</span>
+</div>
+<button class="btn primary" disabled="" id="nextBtn" type="button">Далее</button>
+</div>
+</div>
+</div>
+</section>
+<!-- TRAILER -->
+<section class="panel" data-step="trailer" hidden="">
+<h3>Короткая подсказка</h3>
+<p>Здесь вместо видео — “постер”. Можно заменить на mp4/webm.</p>
+<div aria-label="Постер" class="trailer">
+<svg viewbox="0 0 900 480" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="g1" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0" stop-color="rgba(94,231,255,.85)"></stop>
+<stop offset="1" stop-color="rgba(155,107,255,.85)"></stop>
+</lineargradient>
+</defs>
+<rect fill="rgba(0,0,0,.25)" height="440" rx="32" stroke="rgba(255,255,255,.18)" stroke-width="2" width="860" x="20" y="20"></rect>
+<circle cx="190" cy="240" fill="url(#g1)" opacity=".25" r="110"></circle>
+<circle cx="720" cy="170" fill="url(#g1)" opacity=".18" r="140"></circle>
+<path d="M420 150l220 130-220 130z" fill="rgba(245,250,255,.92)"></path>
+<text fill="rgba(245,250,255,.92)" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="800" x="70" y="90">
                   3 признака фишинга
                 </text>
-                <text x="70" y="132" font-size="18" fill="rgba(245,250,255,.72)" font-family="system-ui,Segoe UI,Arial">
+<text fill="rgba(245,250,255,.72)" font-family="system-ui,Segoe UI,Arial" font-size="18" x="70" y="132">
                   1) Спешка и угрозы  2) Просьба пароля/кода  3) Странная ссылка
                 </text>
-                <text x="70" y="410" font-size="16" fill="rgba(245,250,255,.72)" font-family="system-ui,Segoe UI,Arial">
+<text fill="rgba(245,250,255,.72)" font-family="system-ui,Segoe UI,Arial" font-size="16" x="70" y="410">
                   Нажмите «Начать игру», чтобы потренироваться.
                 </text>
-              </svg>
-            </div>
-
-            <div class="row">
-              <button class="btn primary" id="backFromTrailerBtn" type="button">Назад</button>
-            </div>
-          </section>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <script>
+</svg>
+</div>
+<div class="row">
+<button class="btn primary" id="backFromTrailerBtn" type="button">Назад</button>
+</div>
+</section>
+</div>
+</div>
+</section>
+</div>
+<script>
 (function(){
 "use strict";
 
@@ -14617,14 +15530,14 @@
     const closeBtn = document.getElementById("closeBtn");
     const resetBtn = document.getElementById("resetBtn");
 
-    const stepDots = $$("[data-stepdot]");
+    const stepDots = $$("[data-stepdot]", backdrop);
 
-    const stepAvatar = $("[data-step='avatar']");
-    const stepProfile = $("[data-step='profile']");
-    const stepPlay = $("[data-step='play']");
-    const stepTrailer = $("[data-step='trailer']");
+    const stepAvatar = $("[data-step='avatar']", backdrop);
+    const stepProfile = $("[data-step='profile']", backdrop);
+    const stepPlay = $("[data-step='play']", backdrop);
+    const stepTrailer = $("[data-step='trailer']", backdrop);
 
-    const avatarTiles = $$("[data-avatar]");
+    const avatarTiles = $$("[data-avatar]", backdrop);
     const toProfileBtn = document.getElementById("toProfileBtn");
     const backToAvatarBtn = document.getElementById("backToAvatarBtn");
     const toPlayBtn = document.getElementById("toPlayBtn");
@@ -15074,14 +15987,12 @@
     })();
 })();
 </script>
-
-  <!-- ============================================================
+<!-- ============================================================
        Padding lines requested by user (keeps file huge)
        ============================================================ -->
-    </div>
-  </div>
 </div>
-
+</div>
+</div>
 <!-- ============================================================
        ✅ МОДАЛКА МИНИ-ИГРЫ: "ПРАВИЛО ДНЯ"
   ============================================================ -->
@@ -15144,7 +16055,6 @@
 </div>
 </section>
 </div>
-
 <script>
     /* ============================================================
        ✅ МИНИ-ИГРА: "ПРАВИЛО ДНЯ" — логика
@@ -15415,9 +16325,12 @@
       btnGood.addEventListener('click', () => answer("good"));
       doneBtn.addEventListener('click', done);
       rgAgain.addEventListener('click', again);
+
+      // ✅ Экспортируем методы открытия/закрытия для “страховочного” клика
+      window.__tkOpenRuleDay = open;
+      window.__tkCloseRuleDay = close;
     })();
 </script>
-
 <script>
     (function introAnim(){
       const intro = document.getElementById('intro');
@@ -15665,10 +16578,13 @@
   // на случай, если внутренняя логика сбросит overflow
   window.addEventListener('focus', lockBody);
   window.addEventListener('resize', lockBody);
+
+  // ✅ Экспортируем безопасные методы открытия/закрытия (не влияет на остальной код)
+  window.__tkOpenPhishOuter = openOuter;
+  window.__tkClosePhishOuter = closeOuter;
 })();
 
 </script>
-
 <!-- ============================================================
        ✅ ЕДИНЫЙ ФИКС ДЛЯ FHD + 4K: heroUiSnap
   ============================================================ -->
@@ -16945,9 +17861,6 @@ ${currentItem.text}`;
       }
     })();
   </script>
-
-
-
 <script>
 /* 🎬 Cinema slider (12 серий): центрирование и подсветка активной карточки */
 (function(){
@@ -17036,6 +17949,585 @@ ${currentItem.text}`;
   // Старт
   setActive(0);
   setTimeout(() => centerOn(0, false), 0);
+})();
+</script>
+<script>
+/* ============================================================
+   ✅ Инфобез-игра — позиционирование мини-блока над "Фишинг"
+   (ничего не трогаем: просто ставим второй chip выше по высоте)
+   ============================================================ */
+(function positionInfoSecChip(){
+  const phish = document.querySelector('.side-chip--phish-min');
+  const info = document.querySelector('.side-chip--infosec-min');
+  if(!phish || !info) return;
+
+  function place(){
+    const cs = getComputedStyle(phish);
+    const baseBottom = parseFloat(cs.bottom) || 14;
+    const h = phish.getBoundingClientRect().height || 86;
+    const gap = 12;
+    info.style.left = cs.left;
+    info.style.bottom = (baseBottom + h + gap) + 'px';
+  }
+
+  window.addEventListener('load', place);
+  window.addEventListener('resize', place);
+  const mt = document.getElementById('menuToggle');
+  if(mt) mt.addEventListener('click', ()=>setTimeout(place, 240));
+  setTimeout(place, 60);
+  setTimeout(place, 260);
+})();
+</script>
+<script>
+/* ============================================================
+   ✅ Инфобез-игра — оболочка открытия/закрытия модалки (#infoSecGame)
+   ============================================================ */
+(function infoSecModalWrapper(){
+  const openBtn = document.getElementById('openInfoSecGame');
+  const outer = document.getElementById('infoSecGame');
+  const closeBtn = document.getElementById('closeInfoSecGame');
+  if(!openBtn || !outer || !closeBtn) return;
+
+  function lockBody(){
+    if(outer.classList.contains('is-open')) document.body.style.overflow = "hidden";
+  }
+  function unlockBody(){ document.body.style.overflow = ""; }
+
+  function openOuter(){
+    outer.classList.add('is-open');
+    outer.setAttribute('aria-hidden','false');
+    lockBody();
+    setTimeout(() => {
+      const first = outer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(first && first.focus) first.focus({preventScroll:true});
+    }, 0);
+  }
+
+  function closeOuter(){
+    // если внутренняя модалка открыта — закрываем её
+    const inner = outer.querySelector('#infoBackdrop');
+    const innerClose = outer.querySelector('#infoCloseBtn');
+    if(inner && inner.classList && inner.classList.contains('is-open')){
+      if(innerClose) innerClose.click();
+      inner.classList.remove('is-open');
+      inner.setAttribute('aria-hidden','true');
+    }
+
+    outer.classList.remove('is-open');
+    outer.setAttribute('aria-hidden','true');
+    unlockBody();
+    if(openBtn.focus) openBtn.focus({preventScroll:true});
+  }
+
+  openBtn.addEventListener('click', (e)=>{ e.preventDefault(); openOuter(); });
+  closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); closeOuter(); });
+
+  outer.addEventListener('click', (e)=>{ if(e.target === outer) closeOuter(); });
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key !== 'Escape') return;
+    if(!outer.classList.contains('is-open')) return;
+    const inner = outer.querySelector('#infoBackdrop');
+    if(inner && inner.classList && inner.classList.contains('is-open')) return;
+    closeOuter();
+  });
+
+  // защитимся от сброса overflow другими скриптами
+  window.addEventListener('focus', lockBody);
+})();
+</script>
+<script>
+/* ============================================================
+   ✅ Инфобез-игра — логика (как у фишинга: герой, ФИО, LVL/XP, 15 карточек)
+   ============================================================ */
+(function infoSecGame(){
+  const outer = document.getElementById('infoSecGame');
+  if(!outer) return;
+  const root = outer.querySelector('.cool-phish-root');
+  if(!root) return;
+
+  const qs = (sel, base=root) => base.querySelector(sel);
+  const qsa = (sel, base=root) => Array.from(base.querySelectorAll(sel));
+
+  // UI refs
+  const fx = qs('#fxInfo');
+
+  const startBtn = qs('#startInfoBtn');
+  const trailerBtn = qs('#trailerInfoBtn');
+
+  const backdrop = qs('#infoBackdrop');
+  const closeBtn = qs('#infoCloseBtn');
+  const resetBtn = qs('#infoResetBtn');
+
+  const stepDots = qsa('[data-stepdot]', backdrop);
+  const panels = qsa('.panel[data-step]', backdrop);
+
+  const stepAvatar = qs(".panel[data-step='avatar']", backdrop);
+  const stepProfile = qs(".panel[data-step='profile']", backdrop);
+  const stepPlay = qs(".panel[data-step='play']", backdrop);
+  const stepTrailer = qs(".panel[data-step='trailer']", backdrop);
+
+  const avatarTiles = qsa('[data-avatar]', backdrop);
+  const toProfileBtn = qs('#infoToProfileBtn', backdrop);
+  const backToAvatarBtn = qs('#infoBackToAvatarBtn', backdrop);
+  const toPlayBtn = qs('#infoToPlayBtn', backdrop);
+  const fioInput = qs('#infoFioInput', backdrop);
+
+  const playerName = qs('#infoPlayerName', backdrop);
+  const playerRole = qs('#infoPlayerRole', backdrop);
+  const avatarBig = qs('#infoAvatarBig', backdrop);
+  const lvlBadge = qs('#infoLvlBadge', backdrop);
+  const xpBadge = qs('#infoXpBadge', backdrop);
+  const xpFill = qs('#infoXpFill', backdrop);
+  const xpText = qs('#infoXpText', backdrop);
+
+  const kpiCorrect = qs('#infoKpiCorrect', backdrop);
+  const kpiTotal = qs('#infoKpiTotal', backdrop);
+
+  const changeAvatarBtn = qs('#infoChangeAvatarBtn', backdrop);
+
+  const msgFromName = qs('#infoMsgFromName', backdrop);
+  const msgFromEmail = qs('#infoMsgFromEmail', backdrop);
+  const msgSubject = qs('#infoMsgSubject', backdrop);
+  const msgBody = qs('#infoMsgBody', backdrop);
+  const msgLink = qs('#infoMsgLink', backdrop);
+
+  const btnRisk = qs('#infoBtnRisk', backdrop);
+  const btnSafe = qs('#infoBtnSafe', backdrop);
+  const btnSkip = qs('#infoBtnSkip', backdrop);
+
+  const explainBox = qs('#infoExplainBox', backdrop);
+
+  const cardIndex = qs('#infoCardIndex', backdrop);
+  const cardCount = qs('#infoCardCount', backdrop);
+  const nextBtn = qs('#infoNextBtn', backdrop);
+
+  const backFromTrailerBtn = qs('#infoBackFromTrailerBtn', backdrop);
+
+  const STORAGE_PROFILE = 'tk_infosec_profile_v1';
+  const STORAGE_PROGRESS = 'tk_infosec_progress_v1';
+
+  const deck = [
+    // LVL 1 — личные данные и пароли
+    {lvl:1, from:'Сайт игры', email:'support@game.example', subject:'Новый пароль', body:'Выбираю пароль: 12345. Нормально?', link:'', ans:'risk', why:'Короткие и простые пароли легко угадываются. Лучше длинный пароль (12+ символов) и разные пароли для разных сервисов.'},
+    {lvl:1, from:'Мессенджер', email:'chat@friends', subject:'Поделись аккаунтом', body:'Дай логин и пароль — я на минутку зайду, потом выйду.', link:'', ans:'risk', why:'Пароль — это секрет. Нельзя передавать его даже друзьям. Лучше показать на своём устройстве или использовать семейный доступ, если он есть.'},
+    {lvl:1, from:'Настройки', email:'device@system', subject:'Двухфакторная защита', body:'Включить 2FA (подтверждение входа кодом)?', link:'', ans:'safe', why:'2FA добавляет второй “ключ”. Даже если пароль узнают — без кода войти сложнее.'},
+    {lvl:1, from:'Соцсеть', email:'privacy@social.example', subject:'Профиль открыт всем', body:'Сделать дату рождения и телефон видимыми только друзьям?', link:'', ans:'safe', why:'Личные данные лучше показывать ограниченному кругу людей. Это снижает риск мошенничества.'},
+    {lvl:1, from:'Браузер', email:'browser@system', subject:'Сохранить пароль?', body:'Сохранить пароль на общем компьютере в школе?', link:'', ans:'risk', why:'На чужих/общих устройствах не сохраняют пароли. Лучше “гостевой режим” и выход из аккаунта.'},
+
+    // LVL 2 — устройства и приложения
+    {lvl:2, from:'Телефон', email:'os@system', subject:'Обновление', body:'Доступно обновление системы. Установить сегодня вечером (Wi‑Fi)?', link:'', ans:'safe', why:'Обновления закрывают уязвимости. Лучше ставить их с официальных обновлений системы.'},
+    {lvl:2, from:'Неизвестный сайт', email:'download@unknown', subject:'Скачай “ускоритель”', body:'Скачай приложение-ускоритель с этого сайта, будет быстрее!', link:'http://unknown.example/app', ans:'risk', why:'Скачивания с непроверенных сайтов опасны: могут быть вирусы. Безопаснее магазин приложений или официальный сайт.'},
+    {lvl:2, from:'Приложение', email:'app@permissions', subject:'Разрешения', body:'Игра просит доступ к контактам и микрофону. Это нужно?', link:'', ans:'risk', why:'Разрешения дают доступ к данным. Если игре не нужен микрофон/контакты — лучше запретить.'},
+    {lvl:2, from:'Компьютер', email:'usb@system', subject:'Найдена флешка', body:'Подключить найденную на улице флешку “посмотреть что внутри”?', link:'', ans:'risk', why:'Неизвестные флешки могут содержать вредоносные файлы. Их не подключают к своему устройству.'},
+    {lvl:2, from:'Экран', email:'lock@system', subject:'Блокировка', body:'Поставить PIN/пароль и авто-блокировку через 1 минуту?', link:'', ans:'safe', why:'Блокировка защищает данные, если устройство потеряется или кто-то возьмёт его без спроса.'},
+
+    // LVL 3 — сеть, файлы, резервные копии
+    {lvl:3, from:'Wi‑Fi', email:'network@cafe', subject:'Публичная сеть', body:'Подключиться к Wi‑Fi “FREE_CAFE” без пароля и войти в банк?', link:'', ans:'risk', why:'В публичных сетях могут перехватывать данные. Для важных входов лучше мобильный интернет или VPN (если есть).'},
+    {lvl:3, from:'Письмо', email:'backup@system', subject:'Резервная копия', body:'Сделать резервную копию фото и документов в облако?', link:'', ans:'safe', why:'Резервные копии помогают восстановить данные после поломки/вируса/удаления.'},
+    {lvl:3, from:'Файл', email:'file@download', subject:'Скачанный архив', body:'Открыть файл “Homework.zip.exe”, который прислали в чате?', link:'', ans:'risk', why:'Двойное расширение (zip.exe) — опасный признак. Это может быть программа-вирус.'},
+    {lvl:3, from:'Настройки', email:'share@system', subject:'Доступ по ссылке', body:'Открыть документ “по ссылке всем”, чтобы каждый мог редактировать?', link:'', ans:'risk', why:'Публичный доступ на редактирование может привести к порче файла. Лучше “только просмотр” и только нужным людям.'},
+    {lvl:3, from:'Браузер', email:'https@system', subject:'Проверка сайта', body:'Перед вводом пароля проверяю адрес и замочек HTTPS. Это правильно?', link:'', ans:'safe', why:'Да. Нужно проверять адрес сайта и соединение. Это снижает риск попасть на поддельную страницу.'},
+  ];
+
+  const total = deck.length;
+  if(kpiTotal) kpiTotal.textContent = String(total);
+  if(cardCount) cardCount.textContent = String(total);
+
+  const state = {
+    avatar: 'boy',
+    name: '',
+    idx: 0,
+    correct: 0,
+    xp: 0,
+    done: false
+  };
+
+  function save(){
+    try{
+      localStorage.setItem(STORAGE_PROFILE, JSON.stringify({avatar: state.avatar, name: state.name}));
+      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp}));
+    }catch(e){}
+  }
+  function load(){
+    try{
+      const p = JSON.parse(localStorage.getItem(STORAGE_PROFILE) || '{}');
+      if(p && p.avatar) state.avatar = p.avatar;
+      if(p && p.name) state.name = p.name;
+      const pr = JSON.parse(localStorage.getItem(STORAGE_PROGRESS) || '{}');
+      if(typeof pr.idx === 'number') state.idx = Math.max(0, Math.min(total-1, pr.idx));
+      if(typeof pr.correct === 'number') state.correct = Math.max(0, pr.correct);
+      if(typeof pr.xp === 'number') state.xp = Math.max(0, pr.xp);
+    }catch(e){}
+  }
+  load();
+
+  function levelFromXP(xp){
+    // 0-49 => 1, 50-99 => 2, 100+ => 3 (макс 3)
+    return Math.min(3, 1 + Math.floor(xp / 50));
+  }
+  function nextThreshold(xp){
+    const lvl = levelFromXP(xp);
+    return lvl === 1 ? 50 : (lvl === 2 ? 100 : 150);
+  }
+
+  function setAvatarUI(){
+    // set big avatar emoji based on tile selected (simple)
+    const isBoy = state.avatar === 'boy';
+    if(avatarBig) avatarBig.textContent = isBoy ? '🧑‍💻' : '👩‍💻';
+    if(playerRole) playerRole.textContent = isBoy ? 'Герой: мальчик' : 'Герой: девочка';
+  }
+
+  function updateHud(){
+    const lvl = levelFromXP(state.xp);
+    const next = nextThreshold(state.xp);
+    const remaining = Math.max(0, next - state.xp);
+    const fill = Math.max(0, Math.min(1, state.xp / 150));
+
+    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/3';
+    if(xpBadge) xpBadge.textContent = 'XP ' + state.xp;
+    if(xpFill) xpFill.style.width = (fill * 100).toFixed(1) + '%';
+    if(xpText) xpText.textContent = (lvl >= 3) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + remaining + ' XP');
+
+    if(kpiCorrect) kpiCorrect.textContent = String(state.correct);
+  }
+
+  function showStep(step){
+    panels.forEach(p => p.hidden = (p.getAttribute('data-step') !== step));
+    // dots: avatar=1, profile=2, play=3
+    stepDots.forEach(d => d.classList.remove('is-on'));
+    const dot = step === 'avatar' ? '1' : (step === 'profile' ? '2' : (step === 'play' ? '3' : null));
+    if(dot){
+      const el = qs('[data-stepdot="'+dot+'"]', backdrop);
+      if(el) el.classList.add('is-on');
+    }
+  }
+
+  function openInner(step){
+    backdrop.classList.add('is-open');
+    backdrop.setAttribute('aria-hidden','false');
+    showStep(step);
+    // sync avatar selection UI
+    avatarTiles.forEach(t => {
+      const sel = t.getAttribute('data-avatar') === state.avatar;
+      t.classList.toggle('is-selected', sel);
+      t.setAttribute('aria-checked', sel ? 'true' : 'false');
+    });
+    if(toProfileBtn) toProfileBtn.disabled = !state.avatar;
+if(fioInput){
+      fioInput.value = state.name || '';
+      toPlayBtn && (toPlayBtn.disabled = !(fioInput.value.trim().length));
+    }
+    setAvatarUI();
+    updateHud();
+  }
+  function closeInner(){
+    backdrop.classList.remove('is-open');
+    backdrop.setAttribute('aria-hidden','true');
+    // вернуть фокус на меню
+    const focusBack = startBtn || trailerBtn;
+    if(focusBack && focusBack.focus) focusBack.focus({preventScroll:true});
+  }
+
+  function resetProgress(){
+    state.idx = 0;
+    state.correct = 0;
+    state.xp = 0;
+    save();
+    updateHud();
+  }
+
+  function renderCard(){
+    const card = deck[state.idx];
+    if(!card) return;
+
+    cardIndex && (cardIndex.textContent = String(state.idx + 1));
+    cardCount && (cardCount.textContent = String(total));
+
+    // Message
+    if(msgFromName) msgFromName.textContent = card.from;
+    if(msgFromEmail) msgFromEmail.textContent = card.email;
+    if(msgSubject) msgSubject.textContent = 'LVL ' + card.lvl + ' • ' + card.subject;
+    if(msgBody) msgBody.textContent = card.body;
+
+    if(msgLink){
+      if(card.link){
+        msgLink.innerHTML = '<a href="'+card.link+'" target="_blank" rel="noopener noreferrer">'+card.link+'</a>';
+      }else{
+        msgLink.textContent = '';
+      }
+    }
+
+    if(explainBox){
+      explainBox.textContent = '';
+      explainBox.classList.remove('ok','bad');
+    }
+    nextBtn && (nextBtn.disabled = true);
+
+    btnRisk && (btnRisk.disabled = false);
+    btnSafe && (btnSafe.disabled = false);
+    btnSkip && (btnSkip.disabled = false);
+  }
+
+  function finishIfNeeded(){
+    if(state.idx >= total-1){
+      // last card already shown; we will keep next disabled after answer, but allow reset
+      return;
+    }
+  }
+
+  function answer(choice){
+    const card = deck[state.idx];
+    if(!card) return;
+    const correct = (choice === card.ans);
+
+    // lock answer buttons
+    btnRisk && (btnRisk.disabled = true);
+    btnSafe && (btnSafe.disabled = true);
+    btnSkip && (btnSkip.disabled = true);
+
+    if(explainBox){
+      explainBox.textContent = (correct ? '✅ Верно. ' : '❌ Не совсем. ') + card.why;
+      explainBox.classList.toggle('ok', correct);
+      explainBox.classList.toggle('bad', !correct);
+    }
+
+    if(correct){
+      state.correct += 1;
+      state.xp += 10;
+    }else{
+      // маленькая мотивация: не штрафуем XP
+    }
+
+    updateHud();
+    save();
+
+    // enable next
+    if(nextBtn){
+      nextBtn.disabled = false;
+      if(state.idx >= total-1){
+        nextBtn.textContent = 'Заново';
+      }else{
+        nextBtn.textContent = 'Далее';
+      }
+    }
+  }
+
+  function skip(){
+    // no xp, no score
+    if(explainBox){
+      explainBox.textContent = '⏭️ Пропуск. Важно: лучше всегда думать, прежде чем нажимать.';
+      explainBox.classList.remove('ok','bad');
+    }
+    btnRisk && (btnRisk.disabled = true);
+    btnSafe && (btnSafe.disabled = true);
+    btnSkip && (btnSkip.disabled = true);
+    if(nextBtn){
+      nextBtn.disabled = false;
+      nextBtn.textContent = (state.idx >= total-1) ? 'Заново' : 'Далее';
+    }
+    save();
+  }
+
+  // Events
+  if(startBtn) startBtn.addEventListener('click', ()=>openInner('avatar'));
+  if(trailerBtn) trailerBtn.addEventListener('click', ()=>openInner('trailer'));
+  if(closeBtn) closeBtn.addEventListener('click', closeInner);
+
+  // click outside inner closes it (but not outer)
+  if(backdrop){
+    backdrop.addEventListener('click', (e)=>{
+      const modal = qs('.modal', backdrop);
+      if(e.target === backdrop && modal){
+        closeInner();
+      }
+    });
+  }
+
+  if(resetBtn) resetBtn.addEventListener('click', ()=>{
+    resetProgress();
+    openInner('avatar');
+  });
+
+  // avatar select
+  function pickAvatar(val){
+    state.avatar = val;
+    avatarTiles.forEach(t => {
+      const sel = t.getAttribute('data-avatar') === val;
+      t.classList.toggle('is-selected', sel);
+      t.setAttribute('aria-checked', sel ? 'true' : 'false');
+    });
+    if(toProfileBtn) toProfileBtn.disabled = !state.avatar;
+    save();
+  }
+  avatarTiles.forEach(tile=>{
+    tile.addEventListener('click', ()=>pickAvatar(tile.getAttribute('data-avatar')));
+    tile.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickAvatar(tile.getAttribute('data-avatar')); }
+    });
+  });
+
+  if(toProfileBtn) toProfileBtn.addEventListener('click', ()=>{
+    showStep('profile');
+    if(fioInput) fioInput.focus({preventScroll:true});
+  });
+
+  if(backToAvatarBtn) backToAvatarBtn.addEventListener('click', ()=>showStep('avatar'));
+
+  if(fioInput){
+    fioInput.addEventListener('input', ()=>{
+      const val = fioInput.value.trim();
+      if(toPlayBtn) toPlayBtn.disabled = !val;
+    });
+  }
+
+  if(toPlayBtn) toPlayBtn.addEventListener('click', ()=>{
+    state.name = (fioInput && fioInput.value.trim()) ? fioInput.value.trim() : 'Игрок';
+    if(playerName) playerName.textContent = state.name;
+    setAvatarUI();
+    updateHud();
+    renderCard();
+    showStep('play');
+    save();
+  });
+
+  if(changeAvatarBtn) changeAvatarBtn.addEventListener('click', ()=>showStep('avatar'));
+
+  if(btnRisk) btnRisk.addEventListener('click', ()=>answer('risk'));
+  if(btnSafe) btnSafe.addEventListener('click', ()=>answer('safe'));
+  if(btnSkip) btnSkip.addEventListener('click', skip);
+
+  if(nextBtn) nextBtn.addEventListener('click', ()=>{
+    if(state.idx >= total-1){
+      resetProgress();
+      renderCard();
+      updateHud();
+      showStep('play');
+      return;
+    }
+    state.idx = Math.min(total-1, state.idx + 1);
+    renderCard();
+    updateHud();
+    save();
+  });
+
+  if(backFromTrailerBtn) backFromTrailerBtn.addEventListener('click', ()=>showStep('avatar'));
+
+  // If profile existed, update menu hint text (no UI change needed)
+  if(state.name){
+    if(playerName) playerName.textContent = state.name;
+  }
+
+  // FX canvas: subtle drifting dots (optional)
+  (function(){
+    if(!fx) return;
+    const ctx = fx.getContext('2d');
+    let W=0,H=0, dpr=1;
+    const dots = Array.from({length: 60}, ()=>({
+      x: Math.random(), y: Math.random(),
+      r: 0.6 + Math.random()*1.8,
+      v: 0.02 + Math.random()*0.06,
+      a: 0.08 + Math.random()*0.18
+    }));
+
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const rect = fx.getBoundingClientRect();
+      W = Math.max(1, Math.floor(rect.width));
+      H = Math.max(1, Math.floor(rect.height));
+      fx.width = Math.floor(W*dpr);
+      fx.height = Math.floor(H*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let raf=0;
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = 'rgba(255,255,255,.9)';
+      for(const p of dots){
+        p.y += p.v;
+        if(p.y > 1.05){ p.y = -0.05; p.x = Math.random(); }
+        const x = p.x * W;
+        const y = p.y * H;
+        ctx.globalAlpha = p.a;
+        ctx.beginPath();
+        ctx.arc(x,y,p.r,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+  })();
+
+})();
+</script>
+<script>
+/* ============================================================
+   ✅ FAILSAFE v2: гарантированный запуск «Фишинг» и «Правило дня»
+   - работает даже если клик перехватывается (слои/анимации)
+   - слушает pointerdown + click в capture
+   - даёт глобальные функции tkOpenPhishGame / tkOpenRuleGame
+   ============================================================ */
+(function(){
+  function openPhish(){
+    if(typeof window.__tkOpenPhishOuter === 'function'){
+      window.__tkOpenPhishOuter();
+      return;
+    }
+    const outer = document.getElementById('phishGame');
+    if(!outer) return;
+    outer.classList.add('is-open');
+    outer.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function openRule(){
+    if(typeof window.__tkOpenRuleDay === 'function'){
+      window.__tkOpenRuleDay();
+      return;
+    }
+    const b = document.getElementById('ruleGame');
+    if(!b) return;
+    b.classList.add('is-open');
+    b.setAttribute('aria-hidden','false');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Глобальные функции для inline onclick (самый надёжный путь)
+  window.tkOpenPhishGame = function(ev){
+    try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){ }
+    try{ ev && ev.stopPropagation && ev.stopPropagation(); }catch(_){ }
+    openPhish();
+    return false;
+  };
+
+  window.tkOpenRuleGame = function(ev){
+    try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){ }
+    try{ ev && ev.stopPropagation && ev.stopPropagation(); }catch(_){ }
+    openRule();
+    return false;
+  };
+
+  // Capture listeners (на случай, если inline по какой-то причине не сработал)
+  function route(e){
+    const t = e.target && e.target.closest ? e.target.closest('#openPhishGame, #openRuleGame') : null;
+    if(!t) return;
+
+    // если элемент визуально перекрыт, клик может быть странным —
+    // но если дошёл сюда, то мы его поймали.
+    try{ e.preventDefault(); }catch(_){ }
+    try{ e.stopPropagation(); }catch(_){ }
+
+    if(t.id === 'openPhishGame') openPhish();
+    else openRule();
+  }
+
+  document.addEventListener('pointerdown', route, true);
+  document.addEventListener('click', route, true);
 })();
 </script>
 </body>
