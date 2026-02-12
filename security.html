@@ -3252,13 +3252,26 @@
   
 
     /* ===================== FIX: launcher stacking + spacing ===================== */
-    /* Эти правила касаются только лаунчеров мини-игр (Инфобез/Фишинг/Правила) */
+    /* Эти правила касаются только лаунчеров мини-игр (Информатика/Инфобез/Фишинг/Правила) */
+    :root{
+      /* шаг для вертикального стэка (высота аватара + зазор) */
+      --chip-step: calc(clamp(72px, 10vh, 98px) + 14px);
+    }
     .side-chip, .rules{
       z-index:12500; /* выше рулетки/меню, ниже модалок (14000+) */
     }
+    /* низ: Фишинг */
+    .side-chip--phish-min{ bottom: 14px; }
+    /* выше: Инфобез */
     .side-chip--infosec-min{
-      bottom: calc(14px + clamp(72px, 10vh, 98px)); /* блок Инфобез выше Фишинга */
+      bottom: calc(14px + var(--chip-step));
     }
+    /* ещё выше: Информатика (чтобы была ВИДНА над Инфобез) */
+    .side-chip--it-min{
+      bottom: calc(14px + var(--chip-step) + var(--chip-step));
+    }
+
+
 
 
 
@@ -3470,6 +3483,8 @@ padding:0;
       place-items: center;
       position: relative;
       overflow: hidden;}
+.mascot .game-mascot-img{width:100%;height:100%;object-fit:cover;display:block;}
+
 #phishGame .cool-phish-root .mascot::after{content: "";
       position: absolute;
       inset: -40%;
@@ -4478,6 +4493,613 @@ padding:0;
 }
 #infoSecGame .cool-phish-root .avatar-tile .bubble::after{z-index:0;}
 </style>
+<style id="coolItStyles">
+
+
+
+
+/* ============================================================
+   ✅ Новая Игра «Информатика» (scoped): стили только внутри #itGame
+   ============================================================ */
+#itGame.mg-backdrop{
+  padding:0;
+  align-items:stretch;
+  justify-content:stretch;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+#itGame .cool-phish-shell{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+#itGame .cool-phish-root{
+  position:relative;
+  width:100%;
+  height:100%;
+}
+#itGame .cool-phish-close{
+  position:fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 20050;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(10,20,35,.55);
+  color: rgba(255,255,255,.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
+}
+#itGame .cool-phish-close svg{
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+#itGame .cool-phish-close:hover{ background: rgba(10,20,35,.72); }
+#itGame .cool-phish-close:active{ transform: translateY(1px); }
+
+#itGame .cool-phish-root{--bg1: #06101d;
+      --bg2: #041225;
+      --accent: #5ee7ff;
+      --accent2: #9b6bff;
+      --good: #5bffb0;
+      --bad: #ff5b7c;
+      --warn: #ffdf6b;
+      --panel: rgba(14, 26, 44, .60);
+      --panel2: rgba(18, 34, 58, .72);
+      --stroke: rgba(255,255,255,.18);
+      --stroke2: rgba(255,255,255,.10);
+      --text: rgba(245,250,255,.95);
+      --muted: rgba(245,250,255,.72);
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 28px rgba(0,0,0,.45);
+      --r: 20px;
+      --r2: 26px;
+
+      --safeTop: 16px;
+      --safeBottom: 14px;
+
+      --maxW: 1040px;
+      --uiW: min(980px, calc(100vw - 40px));}
+#itGame .cool-phish-root *{box-sizing: border-box;}
+#itGame .cool-phish-root, #itGame .cool-phish-root{height: 100%;}
+#itGame .cool-phish-root{margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      background: radial-gradient(1200px 700px at 30% 10%, rgba(94,231,255,.20), transparent 55%),
+                  radial-gradient(900px 600px at 80% 25%, rgba(155,107,255,.18), transparent 60%),
+                  linear-gradient(180deg, var(--bg2), var(--bg1));}
+#itGame .cool-phish-root #fx{position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .9;}
+#itGame .cool-phish-root .hero{position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 18px;
+      z-index: 1;}
+#itGame .cool-phish-root .hero::before{content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(900px 540px at 50% 28%, rgba(90, 180, 255, .36), transparent 60%),
+        radial-gradient(1200px 720px at 20% 55%, rgba(30, 90, 180, .46), transparent 62%),
+        radial-gradient(1000px 700px at 80% 75%, rgba(120, 80, 220, .30), transparent 60%),
+        linear-gradient(120deg, rgba(10, 40, 86, .18), rgba(10, 20, 40, .30));
+      z-index: -2;
+      transform: rotate(-2deg);}
+#itGame .cool-phish-root .hero::after{content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 20%, rgba(255,255,255,.14), transparent 40%),
+        radial-gradient(circle at 84% 30%, rgba(255,255,255,.10), transparent 44%),
+        radial-gradient(circle at 60% 82%, rgba(255,255,255,.10), transparent 40%);
+      z-index: -1;
+      opacity: .55;
+      pointer-events: none;}
+/* ✅ Фишинг-игра без фоновой подложки (оставляем только снежинки) */
+#itGame .cool-phish-root .hero{background: transparent !important;}
+#itGame .cool-phish-root .hero::before,
+#itGame .cool-phish-root .hero::after{
+  background: none !important;
+  opacity: 0 !important;
+}
+/* ✅ Убираем и общий фон игры, чтобы был виден фон сайта */
+#itGame .cool-phish-root{
+  background: transparent !important;
+}
+
+#itGame .cool-phish-root .wrap{width: var(--uiW);
+      max-width: var(--maxW);
+      display: grid;
+      gap: 18px;}
+#itGame .cool-phish-root .menu-card{position: relative;
+      border-radius: var(--r2);
+      background: linear-gradient(180deg, rgba(10, 22, 40, .62), rgba(8, 18, 34, .50));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 16px 18px 14px;}
+#itGame .cool-phish-root .menu-card::before{content: "";
+      position: absolute;
+      inset: -2px;
+      background:
+        radial-gradient(680px 240px at 60% 35%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(520px 220px at 20% 30%, rgba(94,231,255,.22), transparent 55%),
+        radial-gradient(520px 260px at 80% 80%, rgba(155,107,255,.20), transparent 58%);
+      filter: blur(8px);
+      opacity: .7;
+      pointer-events: none;}
+#itGame .cool-phish-root .menu-top{position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;}
+#itGame .cool-phish-root .title-row{display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: .2px;}
+#itGame .cool-phish-root .pill{display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+      font-size: 12px;
+      color: rgba(245,250,255,.86);
+      user-select: none;}
+#itGame .cool-phish-root .pill b{font-size: 14px;
+      letter-spacing: .3px;}
+#itGame .cool-phish-root .tag{padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      font-size: 12px;
+      color: rgba(245,250,255,.92);}
+#itGame .cool-phish-root .menu-body{position: relative;
+      display: grid;
+      grid-template-columns: 86px 1fr auto;
+      gap: 14px;
+      align-items: center;}
+#itGame .cool-phish-root .mascot{width: 86px;
+      height: 86px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.28));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: var(--shadow2);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;}
+#itGame .cool-phish-root .mascot::after{content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 30% 30%, rgba(94,231,255,.35), transparent 55%),
+                  radial-gradient(circle at 70% 60%, rgba(155,107,255,.25), transparent 55%);
+      filter: blur(10px);
+      opacity: .7;}
+#itGame .cool-phish-root .mascot svg{width: 58px;
+      height: 58px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.55));}
+#itGame .cool-phish-root .menu-copy{display: grid;
+      gap: 6px;
+      min-width: 0;}
+#itGame .cool-phish-root .menu-copy h1{margin: 0;
+      font-size: clamp(18px, 2.2vw, 22px);
+      line-height: 1.15;
+      letter-spacing: .2px;}
+#itGame .cool-phish-root .menu-copy p{margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 60ch;}
+#itGame .cool-phish-root .menu-actions{display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;}
+#itGame .cool-phish-root .btn{appearance: none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      color: rgba(245,250,255,.95);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 14px 26px rgba(0,0,0,.35);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      user-select: none;
+      white-space: nowrap;}
+#itGame .cool-phish-root .btn:hover{transform: translateY(-1px);
+      border-color: rgba(255,255,255,.28);
+      background: rgba(0,0,0,.28);}
+#itGame .cool-phish-root .btn:active{transform: translateY(0px) scale(.99);}
+#itGame .cool-phish-root .btn.primary{background: linear-gradient(180deg, rgba(94,231,255,.26), rgba(0,0,0,.22));
+      border-color: rgba(94,231,255,.38);}
+#itGame .cool-phish-root .btn.primary:hover{border-color: rgba(94,231,255,.55);}
+#itGame .cool-phish-root .btn .dot{width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.14);}
+#itGame .cool-phish-root .btn .play{width: 18px;
+      height: 18px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.22);}
+#itGame .cool-phish-root .btn .play svg{width: 10px;
+      height: 10px;
+      transform: translateX(1px);
+      fill: rgba(245,250,255,.95);}
+#itGame .cool-phish-root .hint{position: relative;
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,.16);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: rgba(245,250,255,.70);
+      font-size: 12px;
+      line-height: 1.35;}
+#itGame .cool-phish-root .hint b{color: rgba(245,250,255,.95);}
+#itGame .cool-phish-root .backdrop{position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 18px;}
+#itGame .cool-phish-root .backdrop.is-open{display: flex;}
+#itGame .cool-phish-root .modal{width: min(1040px, calc(100vw - 36px));
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(10, 22, 40, .78), rgba(8, 18, 34, .62));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;}
+#itGame .cool-phish-root .modal::before{content: "";
+      position: absolute;
+      inset: -2px;
+      background:
+        radial-gradient(700px 260px at 70% 20%, rgba(94,231,255,.22), transparent 60%),
+        radial-gradient(720px 280px at 20% 70%, rgba(155,107,255,.18), transparent 60%),
+        radial-gradient(480px 280px at 60% 80%, rgba(255,255,255,.10), transparent 60%);
+      filter: blur(10px);
+      opacity: .8;
+      pointer-events: none;}
+#itGame .cool-phish-root .modal-inner{position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: min(78vh, 760px);}
+#itGame .cool-phish-root .modal-head{display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);}
+#itGame .cool-phish-root .head-left{display: flex; align-items: center; gap: 10px; min-width: 0;}
+#itGame .cool-phish-root .head-left h2{margin: 0; font-size: 16px; letter-spacing: .3px; white-space: nowrap;}
+#itGame .cool-phish-root .steps{display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);}
+#itGame .cool-phish-root .step-dot{width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.22);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);}
+#itGame .cool-phish-root .step-dot.is-on{background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.14);}
+#itGame .cool-phish-root .icon-btn{appearance: none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;}
+#itGame .cool-phish-root .icon-btn:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.30); background: rgba(0,0,0,.26);}
+#itGame .cool-phish-root .icon-btn:active{transform: translateY(0px) scale(.99);}
+#itGame .cool-phish-root .icon-btn svg{width: 18px; height: 18px; fill: rgba(245,250,255,.92);}
+#itGame .cool-phish-root .modal-body{padding: 16px; display: grid; gap: 14px;}
+#itGame .cool-phish-root .panel{border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      border-radius: 22px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;}
+#itGame .cool-phish-root .panel::before{content: "";
+      position: absolute;
+      inset: -50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(94,231,255,.16), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(155,107,255,.14), transparent 60%);
+      filter: blur(10px);
+      opacity: .6;
+      pointer-events: none;}
+#itGame .cool-phish-root .panel > *{position: relative; z-index: 1;}
+#itGame .cool-phish-root .panel h3{margin: 0 0 8px; font-size: 14px; letter-spacing: .25px;}
+#itGame .cool-phish-root .panel p{margin: 0; color: rgba(245,250,255,.72); font-size: 13px; line-height: 1.35;}
+#itGame .cool-phish-root .avatar-grid{display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;}
+#itGame .cool-phish-root .avatar-tile{border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      border-radius: 22px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+      align-items: center;
+      user-select: none;
+      outline: none;}
+#itGame .cool-phish-root .avatar-tile:hover{transform: translateY(-1px);
+      border-color: rgba(255,255,255,.26);
+      background: rgba(0,0,0,.22);}
+#itGame .cool-phish-root .avatar-tile:focus-visible{border-color: rgba(94,231,255,.55);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.12);}
+#itGame .cool-phish-root .avatar-tile.is-selected{border-color: rgba(94,231,255,.55);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.10);}
+#itGame .cool-phish-root .avatar-tile .bubble{width: 70px;
+      height: 70px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.24));
+      position: relative;
+      overflow: hidden;}
+#itGame .cool-phish-root .avatar-tile .bubble::after{content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 30% 35%, rgba(94,231,255,.26), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(155,107,255,.20), transparent 60%);
+      filter: blur(10px);
+      opacity: .8;
+      pointer-events: none;}
+#itGame .cool-phish-root .avatar-tile svg{width: 52px;
+      height: 52px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.55));}
+#itGame .cool-phish-root .avatar-tile strong{font-size: 14px; letter-spacing: .2px;}
+#itGame .cool-phish-root .avatar-tile span{display: block; font-size: 12px; color: rgba(245,250,255,.70); margin-top: 2px; line-height: 1.2;}
+#itGame .cool-phish-root .field{display: grid; gap: 8px; margin-top: 10px;}
+#itGame .cool-phish-root label{font-size: 12px; color: rgba(245,250,255,.78);}
+#itGame .cool-phish-root .input{width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: rgba(245,250,255,.96);
+      padding: 12px 12px;
+      font-weight: 700;
+      letter-spacing: .15px;
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);}
+#itGame .cool-phish-root .input:focus{border-color: rgba(94,231,255,.55);
+      box-shadow: 0 0 0 6px rgba(94,231,255,.12), inset 0 0 0 1px rgba(255,255,255,.06);}
+#itGame .cool-phish-root .row{display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px;}
+#itGame .cool-phish-root .row .btn{padding: 10px 14px;}
+#itGame .cool-phish-root .note{font-size: 12px; color: rgba(245,250,255,.70); line-height: 1.35;}
+#itGame .cool-phish-root .play-grid{display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+      align-items: start;}
+#itGame .cool-phish-root .profile{display: grid; gap: 12px;}
+#itGame .cool-phish-root .profile-top{display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 10px;
+      align-items: center;}
+#itGame .cool-phish-root .avatar-big{width: 90px;
+      height: 90px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.28));
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow2);}
+#itGame .cool-phish-root .avatar-big::after{content: "";
+      position: absolute;
+      inset: -50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(94,231,255,.22), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(155,107,255,.18), transparent 60%);
+      filter: blur(10px);
+      opacity: .8;
+      pointer-events: none;}
+#itGame .cool-phish-root .avatar-big svg{width: 66px;
+      height: 66px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 12px 16px rgba(0,0,0,.55));}
+#itGame .cool-phish-root .profile-meta h4{margin: 0; font-size: 14px; letter-spacing: .2px; line-height: 1.25;}
+#itGame .cool-phish-root .profile-meta .sub{margin-top: 4px; font-size: 12px; color: rgba(245,250,255,.70);}
+#itGame .cool-phish-root .lvl{display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;}
+#itGame .cool-phish-root .badge{padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      font-weight: 900;
+      letter-spacing: .25px;
+      font-size: 12px;}
+#itGame .cool-phish-root .xpbar{height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);}
+#itGame .cool-phish-root .xpfill{height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(94,231,255,.75), rgba(155,107,255,.75));
+      border-radius: 999px;
+      transition: width .24s ease;}
+#itGame .cool-phish-root .small{font-size: 12px; color: rgba(245,250,255,.72); line-height: 1.35;}
+#itGame .cool-phish-root .msg-card{border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.16);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      overflow: hidden;}
+#itGame .cool-phish-root .msg-head{padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      display: grid;
+      gap: 6px;}
+#itGame .cool-phish-root .msg-head .from{display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;}
+#itGame .cool-phish-root .msg-head .from b{font-size: 13px; letter-spacing: .2px;}
+#itGame .cool-phish-root .msg-head .from span{font-size: 12px;
+      color: rgba(245,250,255,.70);
+      word-break: break-all;}
+#itGame .cool-phish-root .msg-head .subject{font-size: 14px; font-weight: 900; letter-spacing: .15px;}
+#itGame .cool-phish-root .msg-body{padding: 14px;
+      font-size: 13px;
+      color: rgba(245,250,255,.82);
+      line-height: 1.45;
+      white-space: pre-wrap;}
+#itGame .cool-phish-root .msg-link{display: none;
+      padding: 12px 14px;
+      border-top: 1px dashed rgba(255,255,255,.16);
+      color: rgba(94,231,255,.92);
+      font-size: 12px;
+      word-break: break-all;}
+#itGame .cool-phish-root .msg-link.is-on{display: block;}
+#itGame .cool-phish-root .actions{display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px;}
+#itGame .cool-phish-root .btn.good{border-color: rgba(91,255,176,.45);
+      background: linear-gradient(180deg, rgba(91,255,176,.18), rgba(0,0,0,.18));}
+#itGame .cool-phish-root .btn.bad{border-color: rgba(255,91,124,.45);
+      background: linear-gradient(180deg, rgba(255,91,124,.16), rgba(0,0,0,.18));}
+#itGame .cool-phish-root .btn[disabled]{opacity: .55; cursor: not-allowed; transform: none !important;}
+#itGame .cool-phish-root .explain{margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      color: rgba(245,250,255,.78);
+      line-height: 1.45;
+      font-size: 13px;
+      display: none;}
+#itGame .cool-phish-root .explain.is-on{display: block;}
+#itGame .cool-phish-root .result-badge{display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .2px;
+      margin-bottom: 10px;}
+#itGame .cool-phish-root .result-badge .chip{width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.30);}
+#itGame .cool-phish-root .result-badge.good .chip{background: var(--good); box-shadow: 0 0 0 6px rgba(91,255,176,.12);}
+#itGame .cool-phish-root .result-badge.bad .chip{background: var(--bad);  box-shadow: 0 0 0 6px rgba(255,91,124,.12);}
+#itGame .cool-phish-root .footer-controls{display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255,255,255,.14);}
+#itGame .cool-phish-root .kpi{display: flex; gap: 8px; align-items: center; flex-wrap: wrap;}
+#itGame .cool-phish-root .kpi .pill{font-size: 12px;}
+#itGame .cool-phish-root .trailer{display: grid;
+      place-items: center;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      min-height: 320px;}
+#itGame .cool-phish-root .trailer svg{width: min(520px, 90%);
+      height: auto;
+      filter: drop-shadow(0 18px 30px rgba(0,0,0,.55));}
+@media (max-width: 860px){#itGame .cool-phish-root .menu-body{grid-template-columns: 86px 1fr;}
+#itGame .cool-phish-root .menu-actions{grid-column: 1 / -1; justify-content: flex-start;}
+#itGame .cool-phish-root .play-grid{grid-template-columns: 1fr;}}
+@media (max-width: 520px){#itGame .cool-phish-root .menu-card{padding: 14px 14px 12px;}
+#itGame .cool-phish-root .menu-body{grid-template-columns: 74px 1fr;}
+#itGame .cool-phish-root .mascot{width: 74px; height: 74px; border-radius: 16px;}
+#itGame .cool-phish-root .modal-body{padding: 14px;}}
+@media (prefers-reduced-motion: reduce){#itGame .cool-phish-root *{scroll-behavior: auto !important; transition: none !important; animation: none !important;}}
+
+
+/* === Avatars PNG (boy-image.png / girl-image.png) === */
+#itGame .cool-phish-root .avatar-big > *{position:relative; z-index:1;}
+#itGame .cool-phish-root .avatar-big::after{z-index:0;}
+#itGame .cool-phish-root .avatar-big img.avatar-img-big{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  padding:10px;
+}
+#itGame .cool-phish-root .avatar-tile .bubble img.avatar-img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  padding:10px;
+  position:relative;
+  z-index:1;
+}
+#itGame .cool-phish-root .avatar-tile .bubble::after{z-index:0;}
+
+</style>
+
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -4841,6 +5463,21 @@ padding:0;
        ✅ РУЛЕТКА + красивый блок рядом (фикс-док)
        (не входит в ui-bottom => не ломает посадку над медведем)
   ============================================================ -->
+<div aria-label="Быстрый запуск: Информатика" class="side-chip side-chip--it-min">
+  <div class="avatar" id="itAvatar" aria-hidden="true">🐱</div>
+  <div class="chip-card">
+    <div class="chip-name">
+      Информатика
+      <span class="chip-badge" aria-hidden="true">игра</span>
+    </div>
+    <div class="chip-actions">
+      <button type="button" class="chip-btn" id="openItGame" aria-haspopup="dialog" aria-controls="itGame">
+        <svg class="is-fill" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+        Играть
+      </button>
+    </div>
+  </div>
+</div>
 <div aria-label="Быстрый запуск: Инфобез" class="side-chip side-chip--infosec-min">
 <div aria-hidden="true" class="avatar" id="infoAvatar">🐱</div>
 <div class="chip-card">
@@ -5060,6 +5697,209 @@ padding:0;
 <!-- ============================================================
        ✅ МОДАЛКА МИНИ-ИГРЫ (ФИШИНГ) — НОВАЯ ВЕРСИЯ
   ============================================================ -->
+<div class="mg-backdrop" id="itGame" aria-hidden="true">
+  <div class="cool-phish-shell" role="dialog" aria-modal="true" aria-label="Информатика-игра">
+    <button class="cool-phish-close" id="closeItGame" type="button" aria-label="Закрыть">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+    </button>
+
+    <div class="cool-phish-root" data-game="it">
+      <canvas id="fxIt" aria-hidden="true"></canvas>
+
+      <main class="hero">
+        <div class="wrap">
+
+          <!-- MENU -->
+          <section class="menu-card" data-step="menu">
+            <div class="menu-top">
+              <div class="title-row">
+                <span class="pill"><b>Информатика</b></span>
+                <span class="tag">игра</span>
+              </div>
+              <span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+            </div>
+
+            <div class="menu-body">
+              <div class="mascot" aria-hidden="true">
+                <img src="game_avtar1.jpg" alt="" class="game-mascot-img" loading="lazy" decoding="async" />
+              </div>
+
+              <div class="menu-copy">
+                <h2>Тренировка: основы информатики</h2>
+                <p>
+                  Нажмите <b>«Начать игру»</b> — сначала выберите персонажа (мальчик/девочка), затем введите ФИО.
+                  После этого вы пройдёте <b>3 уровня</b> и ответите на <b>15 вопросов</b>.
+                  За правильные ответы растёт ваш <b>LVL</b> и <b>XP</b>.
+                </p>
+              </div>
+
+              <div class="menu-actions">
+                <button class="btn primary" id="itStartBtn" type="button">
+                  <svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 8l8 4-8 4V8z"></path></svg>
+                  Начать игру
+                </button>
+                <button class="btn" id="itTrailerBtn" type="button">
+                  <span class="dot"></span>
+                  Смотреть
+                </button>
+              </div>
+            </div>
+
+            <div class="menu-foot">
+              <div class="tip">
+                <span class="bulb" aria-hidden="true">💡</span>
+                <b>Совет:</b> если не уверены — думайте про <i>точность</i>: что именно спрашивают, какие слова важны.
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 1: avatar -->
+          <section class="panel" data-step="avatar" hidden>
+            <h3>Шаг 1 — выберите персонажа</h3>
+            <p>Выберите героя — он будет показан в карточке игрока.</p>
+
+            <div class="avatar-grid" role="radiogroup" aria-label="Выбор персонажа">
+              <div class="avatar-tile" data-avatar="boy" id="itPickBoy" aria-checked="false" role="radio" tabindex="0">
+                <div class="bubble" aria-hidden="true">
+                  <img class="avatar-img" src="boy-image.png" alt="" loading="lazy" decoding="async" />
+                </div>
+                <div>
+                  <strong>Мальчик</strong>
+                  <span>Юный программист</span>
+                </div>
+              </div>
+
+              <div class="avatar-tile" data-avatar="girl" id="itPickGirl" aria-checked="false" role="radio" tabindex="0">
+                <div class="bubble" aria-hidden="true">
+                  <img class="avatar-img" src="girl-image.png" alt="" loading="lazy" decoding="async" />
+                </div>
+                <div>
+                  <strong>Девочка</strong>
+                  <span>Логическая исследовательница</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <button class="btn" id="itBackToMenuBtn" type="button">Назад</button>
+              <button class="btn primary" id="itToProfileBtn" type="button" disabled>Далее</button>
+              <span class="note">Можно выбрать Tab и нажатием Enter/Пробел.</span>
+            </div>
+          </section>
+
+          <!-- STEP 2: profile -->
+          <section class="panel" data-step="profile" hidden>
+            <h3>Шаг 2 — введите ФИО</h3>
+            <p>Можно указать имя/фамилию — как вам удобно (для демо не вводите реальные данные).</p>
+
+            <div class="field">
+              <label for="itFioInput">ФИО (или имя)</label>
+              <input id="itFioInput" class="input" type="text" maxlength="48" placeholder="Например: Саша Иванов" autocomplete="name" />
+              <div class="note">Данные сохраняются только в вашем браузере (localStorage).</div>
+            </div>
+
+            <div class="row">
+              <button class="btn" id="itBackToAvatarBtn" type="button">Назад</button>
+              <button class="btn primary" id="itGoPlayBtn" type="button" disabled>Играть</button>
+            </div>
+          </section>
+
+          <!-- STEP 3: play -->
+          <section class="panel" data-step="play" hidden>
+            <div class="play-grid">
+              <aside class="profile">
+                <div class="panel">
+                  <div class="profile-top">
+                    <div class="avatar-big" id="itAvatarBig" aria-hidden="true"></div>
+                    <div class="profile-meta">
+                      <h4 id="itPlayerName">Игрок</h4>
+                      <div class="sub" id="itPlayerRole">Персонаж</div>
+                      <div class="lvl">
+                        <span class="badge" id="itLvlBadge">LVL 1</span>
+                        <span class="badge" id="itXpBadge">XP 0</span>
+                      </div>
+                      <div class="xpbar" aria-label="Прогресс опыта">
+                        <div class="xpfill" id="itXpFill"></div>
+                      </div>
+                      <div class="small" id="itXpText">До следующего уровня: 50 XP</div>
+                    </div>
+                  </div>
+
+                  <div class="footer-controls">
+                    <div class="kpi">
+                      <span class="pill">✅ <span id="itKpiCorrect">0</span> верно</span>
+                      <span class="pill">🧩 <span id="itKpiTotal">0</span> всего</span>
+                    </div>
+                    <button class="btn" id="itChangeAvatarBtn" type="button">Сменить героя</button>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <h3>Как отвечать</h3>
+                  <p>
+                    Нажмите <b>«Верно»</b>, если утверждение правильное. Нажмите <b>«Неверно»</b>, если ошибка.
+                    Если трудно — можно <b>пропустить</b> и вернуться позже.
+                  </p>
+                </div>
+              </aside>
+
+              <div class="panel">
+                <h3 id="itQTitle">Вопрос</h3>
+
+                <div class="msg-card" aria-live="polite">
+                  <div class="msg-head">
+                    <div class="from">
+                      <b id="itQLevel">Уровень 1</b>
+                      <span id="itQCount">1/15</span>
+                    </div>
+                    <div class="subject" id="itQTopic">Тема: основы</div>
+                  </div>
+
+                  <div class="msg-body" id="itQBody">—</div>
+                  <div class="msg-link" id="itQHint"></div>
+                </div>
+
+                <div class="actions">
+                  <button class="btn good" id="itBtnTrue" type="button">Верно</button>
+                  <button class="btn bad" id="itBtnFalse" type="button">Неверно</button>
+                  <button class="btn" id="itBtnSkip" type="button">Пропустить</button>
+                </div>
+
+                <div class="result" id="itResult" hidden>
+                  <div class="pill" id="itResultPill">—</div>
+                  <div class="explain" id="itExplain">—</div>
+                  <div class="row" style="margin-top:12px">
+                    <button class="btn primary" id="itNextBtn" type="button">Дальше</button>
+                    <button class="btn" id="itRestartBtn" type="button">Сначала</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- TRAILER / HELP -->
+          <section class="panel" data-step="trailer" hidden>
+            <h3>Смотреть: мини‑подсказка</h3>
+            <p>Короткий трейлер‑шпаргалка:</p>
+            <ul class="list">
+              <li><b>Алгоритм</b> — это пошаговый план действий.</li>
+              <li><b>Переменная</b> — «коробка» для значения (число, слово, список).</li>
+              <li><b>Цикл</b> — повторение действия несколько раз.</li>
+              <li><b>Условие</b> — выбор: если правда — делаем одно, иначе — другое.</li>
+            </ul>
+            <div class="row">
+              <button class="btn" id="itTrailerBackBtn" type="button">Назад</button>
+              <button class="btn primary" id="itTrailerStartBtn" type="button">Начать игру</button>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+</div>
 <div aria-hidden="true" class="mg-backdrop" id="infoSecGame">
 <div aria-label="Инфобез-игра" aria-modal="true" class="cool-phish-shell" role="dialog">
 <button aria-label="Закрыть" class="cool-phish-close" id="closeInfoSecGame" type="button">
@@ -5079,17 +5919,7 @@ padding:0;
 </div>
 <div class="menu-body">
 <div aria-hidden="true" class="mascot">
-<!-- Cute mascot (fox) -->
-<svg aria-label="Лисёнок" role="img" viewbox="0 0 128 128">
-<path d="M18 62c0-22 17-40 46-40s46 18 46 40c0 26-18 48-46 48S18 88 18 62z" fill="rgba(255,255,255,.85)"></path>
-<path d="M31 39l-7-19 22 10z" fill="rgba(255,255,255,.78)"></path>
-<path d="M97 39l7-19-22 10z" fill="rgba(255,255,255,.78)"></path>
-<path d="M36 64c0-14 12-26 28-26s28 12 28 26c0 18-12 32-28 32S36 82 36 64z" fill="rgba(255,190,120,.95)"></path>
-<circle cx="52" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
-<circle cx="76" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
-<path d="M64 70c4 0 7 3 7 7 0 6-5 10-7 10s-7-4-7-10c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
-<path d="M50 86c8 6 20 6 28 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
-</svg>
+<img alt="" class="game-mascot-img" decoding="async" loading="lazy" src="game_avtar1.jpg"/>
 </div>
 <div class="menu-copy">
 <h1>Тренировка: информационная безопасность</h1>
@@ -5325,17 +6155,7 @@ padding:0;
 </div>
 <div class="menu-body">
 <div aria-hidden="true" class="mascot">
-<!-- Cute mascot (fox) -->
-<svg aria-label="Лисёнок" role="img" viewbox="0 0 128 128">
-<path d="M18 62c0-22 17-40 46-40s46 18 46 40c0 26-18 48-46 48S18 88 18 62z" fill="rgba(255,255,255,.85)"></path>
-<path d="M31 39l-7-19 22 10z" fill="rgba(255,255,255,.78)"></path>
-<path d="M97 39l7-19-22 10z" fill="rgba(255,255,255,.78)"></path>
-<path d="M36 64c0-14 12-26 28-26s28 12 28 26c0 18-12 32-28 32S36 82 36 64z" fill="rgba(255,190,120,.95)"></path>
-<circle cx="52" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
-<circle cx="76" cy="64" fill="rgba(10,20,40,.8)" r="6"></circle>
-<path d="M64 70c4 0 7 3 7 7 0 6-5 10-7 10s-7-4-7-10c0-4 3-7 7-7z" fill="rgba(10,20,40,.75)"></path>
-<path d="M50 86c8 6 20 6 28 0" fill="none" stroke="rgba(10,20,40,.55)" stroke-linecap="round" stroke-width="6"></path>
-</svg>
+<img alt="" class="game-mascot-img" decoding="async" loading="lazy" src="game_avtar1.jpg"/>
 </div>
 <div class="menu-copy">
 <h1>Тренировка: распознаём фишинг</h1>
@@ -18519,6 +19339,476 @@ if(fioInput){
 
   document.addEventListener('pointerdown', route, true);
   document.addEventListener('click', route, true);
+})();
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  // --------- helpers
+  function qs(root, sel){ return root.querySelector(sel); }
+  function qsa(root, sel){ return Array.prototype.slice.call(root.querySelectorAll(sel)); }
+  function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+
+  const modal = document.getElementById('itGame');
+  if(!modal) return;
+
+  const openBtn = document.getElementById('openItGame');
+  const closeBtn = document.getElementById('closeItGame');
+
+  const root = modal.querySelector('.cool-phish-root[data-game="it"]');
+  const fx = document.getElementById('fxIt');
+
+  // steps
+  const steps = {
+    menu: qs(root,'[data-step="menu"]'),
+    avatar: qs(root,'[data-step="avatar"]'),
+    profile: qs(root,'[data-step="profile"]'),
+    play: qs(root,'[data-step="play"]'),
+    trailer: qs(root,'[data-step="trailer"]'),
+  };
+
+  function showStep(name){
+    Object.keys(steps).forEach(k=>{
+      if(!steps[k]) return;
+      if(k===name){ steps[k].hidden=false; }
+      else { steps[k].hidden=true; }
+    });
+  }
+
+  // persist
+  const LS_KEY = 'tk_it_game_v1';
+  function loadState(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY)||'null')||null; }catch(e){ return null; }
+  }
+  function saveState(s){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){}
+  }
+  function clearState(){
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  }
+
+  // UI refs
+  const startBtn = document.getElementById('itStartBtn');
+  const trailerBtn = document.getElementById('itTrailerBtn');
+  const backMenuBtn = document.getElementById('itBackToMenuBtn');
+  const toProfileBtn = document.getElementById('itToProfileBtn');
+  const pickBoy = document.getElementById('itPickBoy');
+  const pickGirl = document.getElementById('itPickGirl');
+  const backToAvatarBtn = document.getElementById('itBackToAvatarBtn');
+  const fioInput = document.getElementById('itFioInput');
+  const goPlayBtn = document.getElementById('itGoPlayBtn');
+
+  const trailerBackBtn = document.getElementById('itTrailerBackBtn');
+  const trailerStartBtn = document.getElementById('itTrailerStartBtn');
+
+  const avatarBig = document.getElementById('itAvatarBig');
+  const playerNameEl = document.getElementById('itPlayerName');
+  const playerRoleEl = document.getElementById('itPlayerRole');
+  const lvlBadge = document.getElementById('itLvlBadge');
+  const xpBadge = document.getElementById('itXpBadge');
+  const xpFill = document.getElementById('itXpFill');
+  const xpText = document.getElementById('itXpText');
+  const kpiCorrect = document.getElementById('itKpiCorrect');
+  const kpiTotal = document.getElementById('itKpiTotal');
+  const changeAvatarBtn = document.getElementById('itChangeAvatarBtn');
+
+  const qTitle = document.getElementById('itQTitle');
+  const qLevel = document.getElementById('itQLevel');
+  const qCount = document.getElementById('itQCount');
+  const qTopic = document.getElementById('itQTopic');
+  const qBody = document.getElementById('itQBody');
+  const qHint = document.getElementById('itQHint');
+
+  const btnTrue = document.getElementById('itBtnTrue');
+  const btnFalse = document.getElementById('itBtnFalse');
+  const btnSkip = document.getElementById('itBtnSkip');
+
+  const resultBox = document.getElementById('itResult');
+  const resultPill = document.getElementById('itResultPill');
+  const explainEl = document.getElementById('itExplain');
+  const nextBtn = document.getElementById('itNextBtn');
+  const restartBtn = document.getElementById('itRestartBtn');
+
+  // cards
+  const CARDS = [
+    // Level 1 (5)
+    {level:1, topic:'данные', text:'"Бит" — это минимальная единица информации: 0 или 1.', correct:true, explain:'Верно. Бит хранит одно из двух значений — 0 или 1.'},
+    {level:1, topic:'алгоритмы', text:'Алгоритм — это случайный набор действий без порядка.', correct:false, explain:'Неверно. Алгоритм — это упорядоченные шаги, которые ведут к результату.'},
+    {level:1, topic:'папки', text:'Файл можно положить в папку, чтобы было проще найти.', correct:true, explain:'Верно. Папки помогают организовывать файлы по темам.'},
+    {level:1, topic:'устройства', text:'Монитор — устройство для ввода текста.', correct:false, explain:'Неверно. Монитор выводит изображение (устройство вывода). Текст вводят клавиатурой.'},
+    {level:1, topic:'интернет', text:'Браузер — это программа, чтобы открывать сайты.', correct:true, explain:'Верно. Браузер показывает веб‑страницы и помогает переходить по ссылкам.'},
+
+    // Level 2 (5)
+    {level:2, topic:'переменные', text:'Переменная — это «коробка», в которой хранится значение.', correct:true, explain:'Верно. В переменную можно положить число, текст, список и т.д.'},
+    {level:2, topic:'условия', text:'В программе "если" помогает выбрать действие в зависимости от условия.', correct:true, explain:'Верно. Условие решает, что делать: ветка A или ветка B.'},
+    {level:2, topic:'циклы', text:'Цикл нужен, чтобы повторять одно и то же действие несколько раз.', correct:true, explain:'Верно. Циклы экономят время и делают код короче.'},
+    {level:2, topic:'ошибки', text:'Если программа не запускается, значит ошибок быть не может.', correct:false, explain:'Неверно. Часто программа не запускается именно из‑за ошибок в коде.'},
+    {level:2, topic:'команды', text:'Команда "сохранить" обычно записывает изменения в файл.', correct:true, explain:'Верно. Сохранение фиксирует изменения на диске.'},
+
+    // Level 3 (5)
+    {level:3, topic:'сети', text:'Wi‑Fi — способ подключиться к сети без провода.', correct:true, explain:'Верно. Wi‑Fi использует радиосигнал для связи.'},
+    {level:3, topic:'данные', text:'"Папка" и "файл" — это одно и то же.', correct:false, explain:'Неверно. Папка — контейнер, файл — содержимое (документ, фото, программа).'},
+    {level:3, topic:'логика', text:'"И" в логике означает: верно, только если верно всё сразу.', correct:true, explain:'Верно. Для И нужно, чтобы оба условия были истинны.'},
+    {level:3, topic:'логика', text:'"ИЛИ" означает: верно, только если верно оба условия.', correct:false, explain:'Неверно. Для ИЛИ достаточно, чтобы истинно хотя бы одно условие.'},
+    {level:3, topic:'алгоритмы', text:'Сортировка — это алгоритм, который упорядочивает элементы.', correct:true, explain:'Верно. Например, по возрастанию чисел или по алфавиту.'},
+  ];
+
+  // runtime state
+  let state = null;
+  let selectedAvatar = null; // 'boy' | 'girl'
+  let order = []; // indices order
+  let idx = 0;
+  let locked = false;
+  let skipped = [];
+
+  function computeLevelFromIndex(i){
+    // 0-4 -> 1, 5-9 ->2, 10-14 ->3
+    if(i<5) return 1;
+    if(i<10) return 2;
+    return 3;
+  }
+
+  function openModal(){
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden','false');
+    document.documentElement.style.overflow='hidden';
+    document.body.style.overflow='hidden';
+    // restore menu
+    showStep('menu');
+    // quick restore
+    state = loadState();
+    if(state && state.avatar && state.name){
+      // allow resume: go straight to play
+      selectedAvatar = state.avatar;
+      idx = clamp(state.idx||0,0,14);
+      skipped = Array.isArray(state.skipped)?state.skipped:[];
+      order = state.order && state.order.length===15 ? state.order : Array.from({length:15},(_,i)=>i);
+      updateProfileUI();
+      updateKpi();
+      renderQuestion();
+      showStep('play');
+    }
+    setTimeout(()=>{ try{ (startBtn||closeBtn).focus({preventScroll:true}); }catch(e){} },0);
+    startFx();
+  }
+
+  function closeModal(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow='';
+    document.body.style.overflow='';
+    showStep('menu');
+  }
+
+  function setAvatarChoice(val){
+    selectedAvatar = val;
+    [pickBoy,pickGirl].forEach(btn=>{
+      if(!btn) return;
+      const is = btn.getAttribute('data-avatar')===val;
+      btn.classList.toggle('is-selected', is);
+      btn.setAttribute('aria-checked', is?'true':'false');
+    });
+    if(toProfileBtn) toProfileBtn.disabled = !selectedAvatar;
+  }
+
+  function updateProfileUI(){
+    const name = (state && state.name) ? state.name : 'Игрок';
+    const avatar = selectedAvatar || (state && state.avatar) || 'boy';
+
+    // avatar big
+    if(avatarBig){
+      avatarBig.innerHTML='';
+      const img=document.createElement('img');
+      img.alt='';
+      img.src = avatar==='girl' ? 'girl-image.png' : 'boy-image.png';
+      img.style.width='100%';
+      img.style.height='100%';
+      img.style.objectFit='contain';
+      avatarBig.appendChild(img);
+    }
+
+    if(playerNameEl) playerNameEl.textContent = name;
+    if(playerRoleEl) playerRoleEl.textContent = avatar==='girl' ? 'Логическая исследовательница' : 'Юный программист';
+
+    const xp = (state && typeof state.xp==='number') ? state.xp : 0;
+    const lvl = 1 + Math.floor(xp/50);
+    const nextAt = (lvl)*50;
+    const inLvl = xp - (lvl-1)*50;
+    const pct = clamp(inLvl/50,0,1);
+
+    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl;
+    if(xpBadge) xpBadge.textContent = 'XP ' + xp;
+    if(xpFill) xpFill.style.width = (pct*100).toFixed(1)+'%';
+    if(xpText) xpText.textContent = 'До следующего уровня: ' + Math.max(0, nextAt - xp) + ' XP';
+  }
+
+  function updateKpi(){
+    if(!state) return;
+    if(kpiCorrect) kpiCorrect.textContent = String(state.correct||0);
+    if(kpiTotal) kpiTotal.textContent = String((state.answered||0) + (state.skippedAnswered||0 || 0));
+  }
+
+  function ensureNewRun(){
+    // shuffle order
+    order = Array.from({length:15},(_,i)=>i);
+    for(let i=order.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [order[i],order[j]]=[order[j],order[i]];
+    }
+    idx = 0;
+    skipped = [];
+    state = {
+      avatar: selectedAvatar,
+      name: (fioInput && fioInput.value.trim()) ? fioInput.value.trim() : 'Игрок',
+      xp: 0,
+      correct: 0,
+      answered: 0,
+      order: order,
+      idx: 0,
+      skipped: [],
+      done: false
+    };
+    saveState(state);
+  }
+
+  function renderQuestion(){
+    if(!state) return;
+    locked = false;
+    resultBox.hidden = true;
+    btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = false;
+
+    // if finished
+    if(idx>=order.length){
+      state.done = true;
+      saveState(state);
+      // show completion
+      qTitle.textContent = 'Готово!';
+      qLevel.textContent = 'Финал';
+      qCount.textContent = '15/15';
+      qTopic.textContent = 'Миссия выполнена';
+      qBody.innerHTML = '<b>Отлично!</b> Вы прошли все вопросы по информатике. Можно начать заново или сменить героя.';
+      qHint.textContent = '';
+      btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+      resultBox.hidden = false;
+      resultPill.textContent = '🏁 Завершено';
+      explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат.';
+      nextBtn.disabled = true;
+      return;
+    }
+
+    const card = CARDS[order[idx]];
+    const lvl = computeLevelFromIndex(idx);
+    if(qTitle) qTitle.textContent = 'Вопрос';
+    if(qLevel) qLevel.textContent = 'Уровень ' + lvl;
+    if(qCount) qCount.textContent = (idx+1) + '/15';
+    if(qTopic) qTopic.textContent = 'Тема: ' + card.topic;
+    if(qBody) qBody.textContent = card.text;
+    if(qHint) qHint.textContent = '';
+
+    nextBtn.disabled = false;
+
+    // update totals
+    updateProfileUI();
+    updateKpi();
+  }
+
+  function answer(val){
+    if(locked || !state) return;
+    locked = true;
+
+    const card = CARDS[order[idx]];
+    const ok = (val === card.correct);
+
+    // scoring
+    state.answered = (state.answered||0) + 1;
+    if(ok){
+      state.correct = (state.correct||0) + 1;
+      state.xp = (state.xp||0) + 10;
+    }else{
+      state.xp = (state.xp||0) + 2; // чуть XP даже за попытку
+    }
+
+    // reveal
+    resultBox.hidden = false;
+    resultPill.textContent = ok ? '✅ Верно!' : '⚠️ Неверно';
+    explainEl.textContent = card.explain;
+
+    btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+
+    // save
+    state.idx = idx;
+    saveState(state);
+    updateProfileUI();
+    updateKpi();
+  }
+
+  function doSkip(){
+    if(locked || !state) return;
+    skipped.push(order[idx]);
+    state.skipped = skipped.slice();
+    // move on without counting as answered
+    idx += 1;
+    state.idx = idx;
+    saveState(state);
+    renderQuestion();
+  }
+
+  function next(){
+    if(!state) return;
+    if(state.done) return;
+    idx += 1;
+    state.idx = idx;
+    saveState(state);
+    renderQuestion();
+  }
+
+  function restart(){
+    clearState();
+    state = null;
+    selectedAvatar = null;
+    idx = 0;
+    order = [];
+    skipped = [];
+    // reset UI
+    setAvatarChoice(null);
+    if(fioInput) fioInput.value='';
+    if(toProfileBtn) toProfileBtn.disabled=true;
+    if(goPlayBtn) goPlayBtn.disabled=true;
+    showStep('menu');
+  }
+
+  // ------- FX (simple falling particles on canvas)
+  let fxRunning=false, fxRAF=0, particles=[];
+  function resizeFx(){
+    if(!fx) return;
+    const r = fx.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio||1);
+    fx.width = Math.max(1, Math.floor(r.width*dpr));
+    fx.height = Math.max(1, Math.floor(r.height*dpr));
+    fx._dpr = dpr;
+  }
+  function startFx(){
+    if(!fx || fxRunning) return;
+    fxRunning=true;
+    resizeFx();
+    particles = Array.from({length:80},()=>({
+      x: Math.random(),
+      y: Math.random(),
+      s: 0.6 + Math.random()*1.4,
+      v: 0.15 + Math.random()*0.35,
+      a: 0.15 + Math.random()*0.35,
+    }));
+    const ctx = fx.getContext('2d');
+    function tick(){
+      if(!fxRunning) return;
+      const w=fx.width, h=fx.height;
+      ctx.clearRect(0,0,w,h);
+      ctx.globalAlpha=1;
+      for(const p of particles){
+        p.y += p.v*(fx._dpr||1);
+        p.x += Math.sin((p.y*0.01))*0.0008;
+        if(p.y>1.05) { p.y=-0.05; p.x=Math.random(); }
+        const px = p.x*w;
+        const py = p.y*h;
+        ctx.globalAlpha = p.a;
+        ctx.beginPath();
+        ctx.arc(px, py, p.s*(fx._dpr||1), 0, Math.PI*2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+      }
+      fxRAF = requestAnimationFrame(tick);
+    }
+    fxRAF = requestAnimationFrame(tick);
+  }
+  function stopFx(){
+    fxRunning=false;
+    if(fxRAF) cancelAnimationFrame(fxRAF);
+  }
+
+  // -------- wiring
+  function onOpen(ev){
+    if(ev){ try{ev.preventDefault();}catch(e){}; try{ev.stopPropagation();}catch(e){} }
+    openModal();
+  }
+
+  if(openBtn) openBtn.addEventListener('click', onOpen, true);
+  if(closeBtn) closeBtn.addEventListener('click', function(){ closeModal(); }, true);
+
+  // close by backdrop click
+  modal.addEventListener('mousedown', function(e){
+    if(e.target===modal) closeModal();
+  });
+
+  // esc
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && modal.classList.contains('is-open')){
+      closeModal();
+    }
+  });
+
+  // menu actions
+  if(startBtn) startBtn.addEventListener('click', function(){ showStep('avatar'); }, true);
+  if(trailerBtn) trailerBtn.addEventListener('click', function(){ showStep('trailer'); }, true);
+  if(backMenuBtn) backMenuBtn.addEventListener('click', function(){ showStep('menu'); }, true);
+
+  if(trailerBackBtn) trailerBackBtn.addEventListener('click', function(){ showStep('menu'); }, true);
+  if(trailerStartBtn) trailerStartBtn.addEventListener('click', function(){ showStep('avatar'); }, true);
+
+  // avatar pick
+  function handlePick(btn){
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      setAvatarChoice(btn.getAttribute('data-avatar'));
+    }, true);
+  }
+  handlePick(pickBoy);
+  handlePick(pickGirl);
+
+  if(toProfileBtn) toProfileBtn.addEventListener('click', function(){
+    showStep('profile');
+    setTimeout(()=>{ try{fioInput.focus({preventScroll:true});}catch(e){} },0);
+  }, true);
+
+  if(backToAvatarBtn) backToAvatarBtn.addEventListener('click', function(){ showStep('avatar'); }, true);
+
+  // enable play
+  function syncProfile(){
+    const ok = fioInput && fioInput.value.trim().length>=1;
+    if(goPlayBtn) goPlayBtn.disabled = !ok;
+  }
+  if(fioInput){
+    fioInput.addEventListener('input', syncProfile);
+  }
+
+  if(goPlayBtn) goPlayBtn.addEventListener('click', function(){
+    // start new run
+    ensureNewRun();
+    updateProfileUI();
+    if(kpiTotal) kpiTotal.textContent='0';
+    if(kpiCorrect) kpiCorrect.textContent='0';
+    renderQuestion();
+    showStep('play');
+  }, true);
+
+  if(changeAvatarBtn) changeAvatarBtn.addEventListener('click', function(){
+    // keep name/xp but change avatar via step
+    if(!state){ showStep('avatar'); return; }
+    selectedAvatar = state.avatar;
+    setAvatarChoice(selectedAvatar);
+    showStep('avatar');
+  }, true);
+
+  // answering
+  if(btnTrue) btnTrue.addEventListener('click', function(){ answer(true); }, true);
+  if(btnFalse) btnFalse.addEventListener('click', function(){ answer(false); }, true);
+  if(btnSkip) btnSkip.addEventListener('click', function(){ doSkip(); }, true);
+  if(nextBtn) nextBtn.addEventListener('click', function(){ next(); }, true);
+  if(restartBtn) restartBtn.addEventListener('click', function(){ restart(); }, true);
+
+  // resize fx
+  window.addEventListener('resize', function(){ if(modal.classList.contains('is-open')) resizeFx(); });
 })();
 </script>
 </body>
