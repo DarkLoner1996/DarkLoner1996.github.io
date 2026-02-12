@@ -1720,6 +1720,550 @@
       transition: opacity .18s ease;
     }
     .roulette-dock.is-win .roulette-spark{ opacity:.92; }
+    /* ============================================================
+       ✅ РУЛЕТКА WOW: эффект, конфетти, история, прогресс
+       (не влияет на остальные блоки)
+       ============================================================ */
+    .sr-only{
+      position:absolute !important;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      white-space:nowrap; border:0;
+    }
+
+    .roulette-burst{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:visible;
+      z-index:2;
+    }
+    .roulette-burst .conf{
+      position:absolute;
+      width:10px; height:10px;
+      border-radius: 3px;
+      opacity:0;
+      transform: translate(-50%,-50%) scale(.6);
+      animation: rouletteConfetti .9s ease forwards;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.22));
+      mix-blend-mode: screen;
+    }
+    @keyframes rouletteConfetti{
+      0%   { opacity:0; transform: translate(var(--x0), var(--y0)) rotate(0deg) scale(.6); }
+      12%  { opacity:.95; }
+      100% { opacity:0; transform: translate(var(--x1), var(--y1)) rotate(var(--r)) scale(1.08); }
+    }
+
+    .roulette-card,
+    .roulette-info{
+      transform: perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+      transition: transform .12s ease;
+    }
+
+    .wheel-ring{
+      position:absolute;
+      inset: -3px;
+      border-radius: 999px;
+      background:
+        radial-gradient(closest-side, transparent 76%, rgba(255,255,255,.10) 78%, transparent 82%),
+        repeating-conic-gradient(from -90deg, rgba(255,255,255,.18) 0 6deg, transparent 6deg 18deg),
+        conic-gradient(from -90deg, rgba(255,244,201,.28), rgba(120,230,255,.22), rgba(255,244,201,.28));
+      opacity:.85;
+      mix-blend-mode: screen;
+      pointer-events:none;
+      filter: blur(.2px);
+    }
+    .wheel-glow{
+      position:absolute;
+      inset:-18px;
+      border-radius:999px;
+      background:
+        radial-gradient(closest-side, rgba(255,242,205,.18), transparent 62%),
+        radial-gradient(closest-side, rgba(120,230,255,.14), transparent 58%);
+      opacity:.0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+      filter: blur(.2px);
+      mix-blend-mode: screen;
+    }
+    .roulette-dock.is-spinning .wheel-glow{ opacity:.85; }
+
+    .roulette-dock .wheel-center{
+      pointer-events:auto; /* теперь GO кликабелен */
+      cursor:pointer;
+      user-select:none;
+    }
+    .roulette-dock .wheel-center:active{ transform: scale(.98); }
+
+    .wheel-pointer.is-tick{
+      animation: pointerTick .12s ease;
+    }
+    @keyframes pointerTick{
+      0%{ transform: translateX(-50%) translateY(0); filter: drop-shadow(0 10px 18px rgba(0,0,0,.28)); }
+      50%{ transform: translateX(-50%) translateY(2px) scale(.98); filter: drop-shadow(0 16px 22px rgba(0,0,0,.34)); }
+      100%{ transform: translateX(-50%) translateY(0); }
+    }
+
+    .roulette-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .roulette-meter{
+      position:relative;
+      width: 54px;
+      height: 54px;
+      flex: 0 0 auto;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.36), rgba(8,35,60,.30));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 14px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .roulette-meter .meter-ring{
+      position:absolute;
+      inset:6px;
+      border-radius:999px;
+      background: conic-gradient(from -90deg,
+        rgba(255,242,205,.95) 0deg,
+        rgba(255,242,205,.95) calc(var(--roulette-progress, 0) * 360deg),
+        rgba(255,255,255,.10) 0deg);
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.18));
+      opacity:.92;
+    }
+    .roulette-meter::after{
+      content:"";
+      position:absolute;
+      inset: 12px;
+      border-radius:999px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .roulette-meter .meter-text{
+      position:relative;
+      z-index:1;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.06em;
+      color: rgba(255,255,255,.95);
+      text-shadow: 0 10px 22px rgba(0,0,0,.26);
+    }
+
+    .roulette-ghostRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-start;
+      margin-top: -2px;
+    }
+    .roulette-ghostBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 38px;
+      height: 34px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.30), rgba(8,35,60,.26));
+      color: rgba(255,255,255,.92);
+      cursor:pointer;
+      box-shadow: 0 14px 26px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.10);
+      transition: transform .14s ease, filter .14s ease;
+    }
+    .roulette-ghostBtn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .roulette-ghostBtn:active{ transform: translateY(0) scale(.992); }
+    .roulette-ghostBtn[aria-pressed="false"]{ opacity:.86; }
+    .roulette-ghostBtn[aria-pressed="true"]{
+      opacity:1;
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(55,200,130,.62), rgba(25,150,95,.58));
+    }
+
+    .roulette-streak{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
+      color: rgba(255, 242, 205, .95);
+      font-size: 10px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      white-space:nowrap;
+      box-shadow: 0 12px 22px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.10);
+    }
+
+    .roulette-miniBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+
+      color: rgba(255,255,255,.96);
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.30));
+      box-shadow: 0 14px 26px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
+      transition: transform .14s ease, filter .14s ease, box-shadow .14s ease;
+    }
+    .roulette-miniBtn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .roulette-miniBtn:active{ transform: translateY(0) scale(.992); }
+    .roulette-miniBtn.ok{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(55,200,130,.70), rgba(25,150,95,.66));
+    }
+    .roulette-miniBtn[aria-pressed="true"]{
+      opacity:.75;
+      filter: grayscale(.08);
+    }
+
+    .roulette-history{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 2px;
+      min-height: 18px;
+    }
+    .roulette-history .hist{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.10), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.28), rgba(8,35,60,.24));
+      color: rgba(255,255,255,.92);
+      font-size: 10px;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      cursor:pointer;
+      transition: transform .14s ease, filter .14s ease;
+      white-space:nowrap;
+    }
+    .roulette-history .hist:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .roulette-history .hist:active{ transform: translateY(0) scale(.99); }
+
+    .roulette-dock.is-spinning .roulette-btn{
+      filter: saturate(1.18) brightness(1.02);
+    }
+
+
+    
+    /* ============================================================
+       ✅ РУЛЕТКА: МИССИИ (мини-игры внутри рулетки)
+       (трогаем только рулетку)
+       ============================================================ */
+    .rm-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:14100; /* выше рулетки, ниже/рядом с остальными модалками */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(12px, 3vw, 28px);
+      background: rgba(0,0,0,.42);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+    }
+    .rm-backdrop.is-open{ opacity:1; pointer-events:auto; }
+
+    .rm-modal{
+      width: min(860px, 100%);
+      border-radius: 26px;
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(120% 140% at 20% 10%, rgba(255,255,255,.12), transparent 62%),
+        radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(10,55,90,.66), rgba(8,35,60,.60));
+
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 44px 120px rgba(0,0,0,.42),
+        0 14px 30px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.14);
+
+      backdrop-filter: blur(18px) saturate(1.06);
+      -webkit-backdrop-filter: blur(18px) saturate(1.06);
+
+      transform: translateY(10px) scale(.985);
+      transition: transform .18s ease;
+    }
+    .rm-backdrop.is-open .rm-modal{ transform: translateY(0) scale(1); }
+
+    .rm-modal::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 26px;
+      padding: 2px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), rgba(255,255,255,.22), var(--gold2), var(--gold1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events:none;
+      opacity:.92;
+    }
+
+    .rm-close{
+      position:absolute;
+      top: 12px;
+      right: 12px;
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background:
+        radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.16), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.52), rgba(8,35,60,.46));
+      box-shadow: 0 18px 34px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      z-index:2;
+    }
+    .rm-close svg{
+      width: 20px;
+      height: 20px;
+      stroke: rgba(255,255,255,.96);
+      fill:none;
+      stroke-width:2.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      display:block;
+    }
+
+    .rm-head{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+    .rm-title{
+      font-size: 16px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      color: rgba(255,244,220,.98);
+      text-shadow: 0 14px 34px rgba(0,0,0,.28);
+      line-height:1.06;
+    }
+    .rm-sub{
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color: rgba(255,242,205,.86);
+      opacity:.92;
+      max-width: 520px;
+      line-height:1.25;
+    }
+    .rm-badges{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .rm-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.28));
+      color: rgba(255,242,205,.90);
+      font-size: 10px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      white-space:nowrap;
+      box-shadow: 0 12px 22px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.10);
+    }
+    .rm-badge.ok{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(55,200,130,.62), rgba(25,150,95,.58));
+      color: rgba(255,255,255,.96);
+    }
+
+    .rm-body{
+      padding: 0 18px 14px;
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .rm-card{
+      border-radius: 22px;
+      padding: 14px 14px 12px;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.12));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 34px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .rm-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .rm-field{
+      flex:1 1 160px;
+      min-width: 150px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.28), rgba(8,35,60,.24));
+      color: rgba(255,255,255,.96);
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: .04em;
+    }
+    .rm-field::placeholder{ color: rgba(255,255,255,.65); letter-spacing:.06em; }
+    .rm-small{ font-size: 12px; opacity:.92; line-height:1.25; color: rgba(245,250,255,.96); }
+    .rm-choices{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .rm-choice{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.08), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.22), rgba(8,35,60,.18));
+      cursor:pointer;
+      transition: transform .14s ease, filter .14s ease;
+    }
+    .rm-choice:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .rm-choice input{ margin-top: 2px; }
+    .rm-explain{
+      border-radius: 22px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(12,55,95,.30), rgba(8,35,60,.26));
+      color: rgba(245,250,255,.98);
+      font-size: 14px;
+      line-height: 1.26;
+      display:none;
+    }
+    .rm-explain.is-on{ display:block; }
+
+    .rm-foot{
+      padding: 0 18px 18px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+    .rm-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+
+      color: rgba(255,255,255,.96);
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      font-size: 11px;
+
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.34), rgba(8,35,60,.30));
+      box-shadow: 0 14px 26px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
+      transition: transform .14s ease, filter .14s ease;
+    }
+    .rm-btn:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .rm-btn:active{ transform: translateY(0) scale(.992); }
+    .rm-btn.ok{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(55,200,130,.70), rgba(25,150,95,.66));
+    }
+    .rm-btn.primary{
+      background:
+        radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86));
+    }
+    .rm-btn:disabled{ opacity:.55; cursor: default; transform:none !important; filter:none !important; }
+    .rm-kpi{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+    .rm-kpi .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.10), transparent 62%),
+        linear-gradient(180deg, rgba(12,55,95,.28), rgba(8,35,60,.24));
+      color: rgba(255,242,205,.92);
+      font-size: 10px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      white-space:nowrap;
+    }
+
 
     /* ---------- Mini-games modal (mg-*) ---------- */
     .mg-backdrop{
@@ -3680,48 +4224,117 @@
        (не входит в ui-bottom => не ломает посадку над медведем)
   ============================================================ -->
 <section aria-label="Рулетка безопасности" class="roulette-dock" id="rouletteDock">
-<div aria-hidden="true" class="roulette-spark"></div>
-<div aria-label="Рулетка" class="roulette-card">
-<div aria-hidden="false" class="wheel-wrap">
-<div aria-hidden="true" class="wheel-pointer"></div>
-<div aria-label="Колесо" class="wheel-rot" id="wheelRot">
-<canvas aria-hidden="true" height="420" id="wheel" width="420"></canvas>
-</div>
-<div aria-hidden="true" class="wheel-center">GO</div>
-</div>
-<div class="roulette-controls">
-<div>
-<div class="roulette-title">Рулетка</div>
-<div class="roulette-sub">выбери задание</div>
-</div>
-<button aria-label="Крутить рулетку" class="roulette-btn" id="spinBtn" type="button">
-<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
-          Крутить
-        </button>
-<div class="roulette-mini" id="rouletteMini">
-          Подсказка: крути — получай миссию и выполняй вместе с родителями.
-        </div>
-</div>
-</div>
-<div aria-label="Результат рулетки" class="roulette-info">
-<div class="roulette-infoHead">
-<div aria-hidden="true" class="roulette-infoBadge">
-<span class="dot" style="width:7px;height:7px;"></span>
-          результат
-        </div>
-</div>
-<div class="roulette-infoTitle" id="rTitle">Крути рулетку — получи миссию ✅</div>
-<div class="roulette-infoText" id="rText">
-        Здесь появится короткая задача по цифровой безопасности (и ссылка, куда перейти).
+  <div aria-hidden="true" class="roulette-spark"></div>
+  <div aria-hidden="true" class="roulette-burst" id="rouletteBurst"></div>
+
+  <div aria-label="Рулетка" class="roulette-card">
+    <div aria-hidden="false" class="wheel-wrap">
+      <div aria-hidden="true" class="wheel-ring"></div>
+      <div aria-hidden="true" class="wheel-pointer"></div>
+
+      <div aria-label="Колесо" class="wheel-rot" id="wheelRot">
+        <canvas aria-hidden="true" height="420" id="wheel" width="420"></canvas>
       </div>
-<div class="roulette-infoActions">
-<a aria-label="Перейти к заданию" class="roulette-link" href="https://digitalhavenrussia.ru/project.html#help" id="rLink">
-          Перейти
-          <svg aria-hidden="true" viewbox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>
-</a>
-</div>
-</div>
+
+      <div class="wheel-center" aria-label="Крутить рулетку">GO</div>
+      <div aria-hidden="true" class="wheel-glow"></div>
+    </div>
+
+    <div class="roulette-controls">
+      <div class="roulette-head">
+        <div>
+          <div class="roulette-title">Рулетка</div>
+          <div class="roulette-sub">выбери задание</div>
+        </div>
+
+        <div class="roulette-meter" id="rouletteMeter" aria-label="Прогресс выполненных миссий">
+          <div class="meter-ring" aria-hidden="true"></div>
+          <div class="meter-text"><span id="rouletteDoneCount">0</span>/<span id="rouletteTotalCount">8</span></div>
+        </div>
+      </div>
+
+      <button aria-label="Крутить рулетку" class="roulette-btn" id="spinBtn" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 8l8 4-8 4V8z"></path></svg>
+        Крутить
+      </button>
+
+      <div class="roulette-mini" id="rouletteMini">
+        Подсказка: крути — получай миссию и выполняй вместе с родителями.
+      </div>
+
+      <div class="roulette-ghostRow" aria-label="Настройки рулетки">
+        <button class="roulette-ghostBtn" id="rouletteSound" type="button" aria-pressed="false" title="Звук">
+          <span aria-hidden="true">🔊</span>
+          <span class="sr-only">Звук</span>
+        </button>
+        <button class="roulette-ghostBtn" id="rouletteReset" type="button" title="Сбросить прогресс">
+          <span aria-hidden="true">↺</span>
+          <span class="sr-only">Сбросить</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div aria-label="Результат рулетки" class="roulette-info">
+    <div class="roulette-infoHead">
+      <div aria-hidden="true" class="roulette-infoBadge">
+        <span class="dot" style="width:7px;height:7px;"></span>
+        результат
+      </div>
+      <div class="roulette-streak" id="rouletteStreak" aria-label="Выполнено всего">⭐ 0</div>
+    </div>
+
+    <div class="roulette-infoTitle" id="rTitle">Крути рулетку — получи миссию ✅</div>
+    <div class="roulette-infoText" id="rText">
+      Здесь появится короткая задача по цифровой безопасности (и ссылка, куда перейти).
+    </div>
+
+    <div class="roulette-infoActions">
+      <a aria-label="Перейти к заданию" class="roulette-link" href="https://digitalhavenrussia.ru/project.html#help" id="rLink">
+        Перейти
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>
+      </a>
+
+      <button class="roulette-miniBtn" id="rCopy" type="button" aria-label="Скопировать миссию">Копировать</button>
+      <button class="roulette-miniBtn ok" id="rDone" type="button" aria-label="Отметить миссию выполненной">Выполнено ✓</button>
+    </div>
+
+    <div class="roulette-history" id="rouletteHistory" aria-label="Последние миссии"></div>
+  </div>
 </section>
+
+<!-- ============================================================
+       ✅ РУЛЕТКА: МОДАЛКА МИССИИ (мини-игры)
+       (трогаем только рулетку)
+  ============================================================ -->
+<div class="rm-backdrop" id="rouletteMission" aria-hidden="true">
+  <div class="rm-modal" role="dialog" aria-modal="true" aria-label="Миссия рулетки">
+    <button class="rm-close" id="rmClose" type="button" aria-label="Закрыть миссию">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div class="rm-head">
+      <div>
+        <div class="rm-title" id="rmTitle">Миссия</div>
+        <div class="rm-sub" id="rmSub">Выполни мини-задание — и миссия засчитается автоматически.</div>
+      </div>
+      <div class="rm-badges">
+        <div class="rm-badge" id="rmLabelBadge">🎯 —</div>
+        <div class="rm-badge" id="rmStepBadge">Шаг 1/1</div>
+        <div class="rm-badge ok" id="rmOkBadge" style="display:none;">готово ✓</div>
+      </div>
+    </div>
+
+    <div class="rm-body" id="rmBody"></div>
+
+    <div class="rm-foot">
+      <button class="rm-btn" id="rmHint" type="button">Подсказка</button>
+      <button class="rm-btn primary" id="rmCheck" type="button">Проверить</button>
+      <button class="rm-btn ok" id="rmFinish" type="button" disabled>Завершить ✓</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============================================================
        ✅ МОДАЛКА МИНИ-ИГРЫ (ФИШИНГ) — НОВАЯ ВЕРСИЯ
   ============================================================ -->
@@ -15187,9 +15800,38 @@
 
       if(!dock || !canvas || !rot || !spinBtn || !rTitle || !rText || !rLink) return;
 
+      const pointer = dock.querySelector('.wheel-pointer');
+      const burst   = document.getElementById('rouletteBurst');
+      const mini    = document.getElementById('rouletteMini');
+
+      const rCopy   = document.getElementById('rCopy');
+      const rDone   = document.getElementById('rDone');
+      const histEl  = document.getElementById('rouletteHistory');
+
+      const meter   = document.getElementById('rouletteMeter');
+      const doneEl  = document.getElementById('rouletteDoneCount');
+      const totalEl = document.getElementById('rouletteTotalCount');
+      const streakEl= document.getElementById('rouletteStreak');
+
+      const soundBtn= document.getElementById('rouletteSound');
+      const resetBtn= document.getElementById('rouletteReset');
+
+      // ✅ модалка миссий (мини-игры для рулетки)
+      const rmBack  = document.getElementById('rouletteMission');
+      const rmTitle = document.getElementById('rmTitle');
+      const rmSub   = document.getElementById('rmSub');
+      const rmBody  = document.getElementById('rmBody');
+      const rmClose = document.getElementById('rmClose');
+      const rmHint  = document.getElementById('rmHint');
+      const rmCheck = document.getElementById('rmCheck');
+      const rmFinish= document.getElementById('rmFinish');
+      const rmOkBadge = document.getElementById('rmOkBadge');
+      const rmLabelBadge = document.getElementById('rmLabelBadge');
+      const rmStepBadge  = document.getElementById('rmStepBadge');
+
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // ✅ ЗДЕСЬ меняй на свои пункты из “первого кода” (название/описание/ссылка)
+      // ✅ пункты рулетки (можно расширять)
       const ROULETTE_ITEMS = [
         { label:"Пароль",  text:"Придумай пароль из 3 слов и не рассказывай никому. Проверь: есть ли в нём цифры/символы?", href:"https://digitalhavenrussia.ru/project.html#help" },
         { label:"Ссылки",  text:"Потренируйся: найди в сообщении подозрительную ссылку и объясни, почему она опасная.", href:"https://digitalhavenrussia.ru/security.html" },
@@ -15201,14 +15843,231 @@
         { label:"2FA",     text:"Узнай, что такое двухфакторная защита (2FA) и почему это щит.", href:"https://digitalhavenrussia.ru/project.html#help" }
       ];
 
-      // ----- canvas draw -----
+      const SOUND_KEY   = "tk_roulette_sound_v1";
+      const DONE_KEY    = "tk_roulette_done_v1";
+      const HIST_KEY    = "tk_roulette_hist_v1";
+
+      function clamp(v,a,b){ return Math.max(a, Math.min(v,b)); }
+      function normalizeDeg(a){ a = a % 360; if(a < 0) a += 360; return a; }
+
+      function loadJSON(key, fallback){
+        try{
+          const v = localStorage.getItem(key);
+          if(!v) return fallback;
+          const parsed = JSON.parse(v);
+          return parsed ?? fallback;
+        }catch(_){ return fallback; }
+      }
+      function saveJSON(key, val){
+        try{ localStorage.setItem(key, JSON.stringify(val)); }catch(_){}
+      }
+
+      // ------------------ persistent state ------------------
+      const n = ROULETTE_ITEMS.length;
+      let done = new Set(loadJSON(DONE_KEY, []));
+      let history = loadJSON(HIST_KEY, []);
+      if(!Array.isArray(history)) history = [];
+
+      let currentItem = null;
+
+      // ------------------ missions state ------------------
+      let currentMission = null;
+      let missionComplete = false;
+      let missionCleanup = null;
+      function setMissionComplete(ok){
+        missionComplete = !!ok;
+        if(rmFinish) rmFinish.disabled = !missionComplete;
+        if(rmOkBadge) rmOkBadge.style.display = missionComplete ? '' : 'none';
+      }
+      function openMission(item){
+        if(!rmBack || !rmBody || !item) return;
+        currentMission = item;
+        setMissionComplete(false);
+        if(missionCleanup){ try{ missionCleanup(); }catch(_){ } missionCleanup = null; }
+        rmBack.classList.add('is-open');
+        rmBack.setAttribute('aria-hidden','false');
+        buildMission(item);
+      }
+      function closeMission(){
+        if(!rmBack) return;
+        rmBack.classList.remove('is-open');
+        rmBack.setAttribute('aria-hidden','true');
+        if(missionCleanup){ try{ missionCleanup(); }catch(_){ } missionCleanup = null; }
+        currentMission = null;
+        setMissionComplete(false);
+      }
+
+      function updateProgress(){
+        const doneCount = done.size;
+        if(doneEl) doneEl.textContent = String(doneCount);
+        if(totalEl) totalEl.textContent = String(n);
+        if(streakEl) streakEl.textContent = "⭐ " + String(doneCount);
+        if(meter) meter.style.setProperty('--roulette-progress', (n ? (doneCount/n) : 0).toFixed(4));
+      }
+
+      function markDone(label){
+        if(!label) return;
+        const was = done.has(label);
+        if(!was){
+          done.add(label);
+          saveJSON(DONE_KEY, Array.from(done));
+          updateProgress();
+          burstConfetti(1.15);
+          toast("Миссия выполнена! ✅");
+          if(rDone && currentItem && currentItem.label === label){
+            rDone.setAttribute('aria-pressed','true');
+            rDone.textContent = "Готово ✓";
+          }
+        }else{
+          toast("Уже выполнено ⭐");
+        }
+      }
+
+      function renderHistory(){
+        if(!histEl) return;
+        histEl.innerHTML = "";
+
+        // показываем последние 4 уникальные миссии (с конца)
+        const seen = new Set();
+        const uniq = [];
+        for(let i=history.length-1; i>=0 && uniq.length<4; i--){
+          const lab = history[i];
+          if(!lab || seen.has(lab)) continue;
+          if(!ROULETTE_ITEMS.find(x => x.label === lab)) continue;
+          seen.add(lab);
+          uniq.push(lab);
+        }
+
+        uniq.forEach((lab) => {
+          const b = document.createElement('button');
+          b.type = "button";
+          b.className = "hist";
+          b.textContent = lab;
+          b.title = "Показать миссию: " + lab;
+          b.addEventListener('click', () => {
+            const it = ROULETTE_ITEMS.find(x => x.label === lab);
+            if(it) setResult(it, { push:false, soft:true });
+          });
+          histEl.appendChild(b);
+        });
+      }
+
+      function pushHistory(label){
+        history.push(label);
+        if(history.length > 30) history = history.slice(-30);
+        saveJSON(HIST_KEY, history);
+        renderHistory();
+      }
+
+      function toast(msg){
+        if(!mini) return;
+        const prev = mini.textContent;
+        mini.textContent = msg;
+        mini.classList.add('is-toast');
+        setTimeout(() => {
+          mini.textContent = prev;
+          mini.classList.remove('is-toast');
+        }, 1100);
+      }
+
+      // ------------------ sound + tick ------------------
+      let soundOn = !!loadJSON(SOUND_KEY, false);
+      if(soundBtn){
+        soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+      }
+
+      let audioCtx = null;
+      function ensureAudio(){
+        if(!soundOn || reduce) return null;
+        try{
+          if(!audioCtx){
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if(!Ctx) return null;
+            audioCtx = new Ctx();
+          }
+          if(audioCtx && audioCtx.state === "suspended"){
+            audioCtx.resume().catch(()=>{});
+          }
+          return audioCtx;
+        }catch(_){ return null; }
+      }
+
+      function playTick(){
+        if(!soundOn || reduce) return;
+        const ctxA = ensureAudio();
+        if(!ctxA) return;
+        try{
+          const o = ctxA.createOscillator();
+          const g = ctxA.createGain();
+
+          o.type = "triangle";
+          o.frequency.setValueAtTime(1200, ctxA.currentTime);
+
+          g.gain.setValueAtTime(0.0001, ctxA.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.12, ctxA.currentTime + 0.008);
+          g.gain.exponentialRampToValueAtTime(0.0001, ctxA.currentTime + 0.06);
+
+          o.connect(g);
+          g.connect(ctxA.destination);
+
+          o.start();
+          o.stop(ctxA.currentTime + 0.07);
+        }catch(_){}
+      }
+
+      function pointerTick(){
+        if(!pointer) return;
+        pointer.classList.remove('is-tick');
+        // reflow to restart animation
+        void pointer.offsetWidth;
+        pointer.classList.add('is-tick');
+      }
+
+      // ------------------ confetti burst ------------------
+      function burstConfetti(intensity){
+        if(!burst || reduce) return;
+        const k = clamp(Math.round(16 * (intensity || 1)), 10, 26);
+        const rect = dock.getBoundingClientRect();
+        const cx = rect.width * 0.26; // ближе к колесу
+        const cy = rect.height * 0.48;
+
+        for(let i=0;i<k;i++){
+          const s = document.createElement('span');
+          s.className = "conf";
+
+          const ang = Math.random() * Math.PI * 2;
+          const dist = 60 + Math.random() * 140;
+          const x1 = cx + Math.cos(ang) * dist;
+          const y1 = cy + Math.sin(ang) * dist - (20 + Math.random()*40);
+
+          // старт чуть вокруг центра
+          const x0 = cx + (Math.random()*18 - 9);
+          const y0 = cy + (Math.random()*18 - 9);
+
+          const hue = Math.round(35 + Math.random()*35); // золотисто-голубой диапазон
+          const sat = 90;
+          const light = 60 + Math.random()*18;
+
+          s.style.background = `hsl(${(hue + (i%2?170:0))%360} ${sat}% ${light}%)`;
+          s.style.left = x0 + "px";
+          s.style.top  = y0 + "px";
+          s.style.setProperty('--x0', '0px');
+          s.style.setProperty('--y0', '0px');
+          s.style.setProperty('--x1', (x1 - x0) + "px");
+          s.style.setProperty('--y1', (y1 - y0) + "px");
+          s.style.setProperty('--r', (Math.random()*420 - 210) + "deg");
+
+          burst.appendChild(s);
+          setTimeout(() => s.remove(), 980);
+        }
+      }
+
+      // ------------------ canvas draw ------------------
       const ctx = canvas.getContext('2d', { alpha: true });
       let cssSize = 260;
       let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
       let angle = 0; // degrees
       let spinning = false;
-
-      function clamp(v,a,b){ return Math.max(a, Math.min(v,b)); }
 
       function readWheelSize(){
         const st = getComputedStyle(rot);
@@ -15226,11 +16085,10 @@
         canvas.width  = Math.round(cssSize * dpr);
         canvas.height = Math.round(cssSize * dpr);
 
-        drawWheel();
+        drawWheel(null);
       }
 
-      function drawWheel(){
-        const n = ROULETTE_ITEMS.length;
+      function drawWheel(highlightIndex){
         const w = canvas.width;
         const h = canvas.height;
         const cx = w/2, cy = h/2;
@@ -15239,18 +16097,14 @@
         ctx.clearRect(0,0,w,h);
 
         const step = (Math.PI * 2) / n;
-
-        // чтобы сектор 0 был по центру сверху
         const start0 = -Math.PI/2 - step/2;
 
         for(let i=0;i<n;i++){
           const a0 = start0 + i*step;
           const a1 = a0 + step;
 
-          // чередуем “золото/синева” (в стиле твоего UI)
           const isEven = (i % 2 === 0);
 
-          // сектор
           ctx.beginPath();
           ctx.moveTo(cx,cy);
           ctx.arc(cx,cy,radius,a0,a1,false);
@@ -15269,12 +16123,23 @@
           ctx.fillStyle = grad;
           ctx.fill();
 
-          // граница
-          ctx.strokeStyle = "rgba(255,255,255,.22)";
-          ctx.lineWidth = Math.max(2, 2.2*dpr);
-          ctx.stroke();
+          // highlight
+          if(typeof highlightIndex === "number" && highlightIndex === i){
+            ctx.save();
+            ctx.globalCompositeOperation = "screen";
+            ctx.fillStyle = "rgba(255,255,255,.22)";
+            ctx.fill();
+            ctx.restore();
 
-          // текст
+            ctx.strokeStyle = "rgba(255,242,205,.85)";
+            ctx.lineWidth = Math.max(3.2, 3.6*dpr);
+            ctx.stroke();
+          }else{
+            ctx.strokeStyle = "rgba(255,255,255,.22)";
+            ctx.lineWidth = Math.max(2, 2.2*dpr);
+            ctx.stroke();
+          }
+
           const mid = (a0+a1)/2;
           ctx.save();
           ctx.translate(cx,cy);
@@ -15294,7 +16159,6 @@
           ctx.restore();
         }
 
-        // внешнее кольцо
         ctx.beginPath();
         ctx.arc(cx,cy,radius,0,Math.PI*2);
         ctx.strokeStyle = "rgba(255,242,205,.55)";
@@ -15304,56 +16168,570 @@
         ctx.stroke();
       }
 
-      function normalizeDeg(a){
-        a = a % 360;
-        if(a < 0) a += 360;
-        return a;
-      }
-
       function pickIndex(finalAngle){
-        const n = ROULETTE_ITEMS.length;
         const seg = 360 / n;
-
-        // колесо крутится по часовой (angle растёт).
-        // сектор, который попадает на указатель сверху, “смещается назад”.
         const rotDeg = normalizeDeg(finalAngle);
         const shift = Math.floor((rotDeg + seg/2) / seg) % n;
         const idx = (n - shift) % n;
         return idx;
       }
 
-      function setResult(item){
+      function setResult(item, opts){
+        opts = opts || {};
+        currentItem = item;
+
         rTitle.textContent = "🎯 Миссия: " + item.label;
         rText.textContent = item.text;
 
         // действие по клику “Перейти”
-        if(item.action === "openPhish"){
+
+        // действие по клику “Перейти/Начать”
+        // 1) если есть mission -> открываем мини-игру миссии
+        if(item.mission){
+          const svg = rLink.querySelector('svg') ? rLink.querySelector('svg').outerHTML : '';
           rLink.href = "#";
+          rLink.innerHTML = "Начать\n" + svg;
+          rLink.onclick = (e) => {
+            e.preventDefault();
+            openMission(item);
+          };
+        }
+        // 2) быстрые действия: открыть существующие мини-игры
+        else if(item.action === "openPhish"){
+          const svg = rLink.querySelector('svg') ? rLink.querySelector('svg').outerHTML : '';
+          rLink.href = "#";
+          rLink.innerHTML = "Играть\n" + svg;
           rLink.onclick = (e) => {
             e.preventDefault();
             const btn = document.getElementById('openPhishGame');
             if(btn) btn.click();
           };
         }else if(item.action === "openRule"){
+          const svg = rLink.querySelector('svg') ? rLink.querySelector('svg').outerHTML : '';
           rLink.href = "#";
+          rLink.innerHTML = "Открыть\n" + svg;
           rLink.onclick = (e) => {
             e.preventDefault();
             const btn = document.getElementById('openRuleGame');
             if(btn) btn.click();
           };
-        }else{
+        }
+        // 3) обычная ссылка
+        else{
+          const svg = rLink.querySelector('svg') ? rLink.querySelector('svg').outerHTML : '';
           rLink.onclick = null;
           rLink.href = item.href || "https://digitalhavenrussia.ru/project.html#help";
+          rLink.innerHTML = "Перейти\n" + svg;
         }
 
-        // небольшой “блик-победа”
-        dock.classList.add('is-win');
-        setTimeout(() => dock.classList.remove('is-win'), 420);
+
+        if(!opts.soft){
+          dock.classList.add('is-win');
+          setTimeout(() => dock.classList.remove('is-win'), 420);
+        }
+
+        if(opts.push !== false){
+          pushHistory(item.label);
+        }
+
+        // кнопка "выполнено"
+        if(rDone){
+          const isDone = done.has(item.label);
+          rDone.setAttribute('aria-pressed', isDone ? 'true' : 'false');
+          rDone.textContent = isDone ? "Готово ✓" : "Выполнено ✓";
+        }
+
+        // подчёркиваем сектор
+        try{ drawWheel(ROULETTE_ITEMS.findIndex(x => x.label === item.label)); }catch(_){}
       }
 
+      
+      // ------------------ missions builder ------------------
+      function buildMission(item){
+        if(!rmBody || !rmTitle || !rmSub) return;
+        const lab = item.label || "Миссия";
+        rmTitle.textContent = "Мини-игра: " + lab;
+        if(rmLabelBadge) rmLabelBadge.textContent = "🎯 " + lab;
+        if(rmStepBadge) rmStepBadge.textContent = "Шаг 1/1";
+        if(rmSub) rmSub.textContent = (item.text || "Выполни задание — и миссия засчитается автоматически.");
+        rmBody.innerHTML = "";
+        setMissionComplete(false);
+
+        const explain = document.createElement('div');
+        explain.className = "rm-explain";
+        rmBody.appendChild(explain);
+
+        function showExplain(txt, ok){
+          explain.textContent = txt;
+          explain.classList.add('is-on');
+          if(ok) setMissionComplete(true);
+        }
+
+        function clearExplain(){
+          explain.classList.remove('is-on');
+          explain.textContent = "";
+        }
+
+        // ---- mission types ----
+        const type = item.mission;
+
+        if(type === "password"){
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-kpi">
+              <div class="pill">🛡️ цель: 3 слова + цифры + символ</div>
+              <div class="pill" id="pwLen">длина: 0</div>
+            </div>
+            <div class="rm-row" style="margin-top:12px;">
+              <input class="rm-field" id="pw1" placeholder="слово 1 (например: кот)" autocomplete="off">
+              <input class="rm-field" id="pw2" placeholder="слово 2 (например: лёд)" autocomplete="off">
+              <input class="rm-field" id="pw3" placeholder="слово 3 (например: ракета)" autocomplete="off">
+            </div>
+            <div class="rm-row">
+              <input class="rm-field" id="pwNum" placeholder="цифры (например: 77)" inputmode="numeric" autocomplete="off">
+              <input class="rm-field" id="pwSym" placeholder="символ (! @ # ? *)" maxlength="2" autocomplete="off">
+            </div>
+            <div class="rm-card" style="margin-top:12px;">
+              <div class="rm-small"><b>Предпросмотр:</b> <span id="pwPreview" style="color:rgba(255,242,205,.98)"></span></div>
+              <div class="rm-small" style="margin-top:8px; opacity:.9;">
+                ⚠️ Не используй своё имя, фамилию, школу или дату рождения.
+              </div>
+            </div>
+          `;
+          rmBody.appendChild(card);
+
+          const pw1 = card.querySelector('#pw1');
+          const pw2 = card.querySelector('#pw2');
+          const pw3 = card.querySelector('#pw3');
+          const pwNum = card.querySelector('#pwNum');
+          const pwSym = card.querySelector('#pwSym');
+          const prev = card.querySelector('#pwPreview');
+          const lenEl = card.querySelector('#pwLen');
+
+          const symOk = (s) => /[!@#?$%*+_=]/.test((s||"").trim());
+          const hasDigits = (s) => /\d/.test((s||"").trim());
+
+          function recompute(){
+            clearExplain();
+            const w1 = (pw1.value||"").trim();
+            const w2 = (pw2.value||"").trim();
+            const w3 = (pw3.value||"").trim();
+            const num = (pwNum.value||"").trim().replace(/\s+/g,'');
+            const sym = (pwSym.value||"").trim();
+            const pass = `${w1}${w2}${w3}${num}${sym}`;
+            prev.textContent = pass ? pass : "—";
+            lenEl.textContent = "длина: " + String(pass.length);
+
+            const badPersonal = /^(.*)(иван|петя|аня|маша|саша|дима|202|201|200)/i.test(pass);
+            const ok = w1 && w2 && w3 && hasDigits(num) && symOk(sym) && pass.length >= 12 && !badPersonal;
+
+            setMissionComplete(ok);
+          }
+
+          ['input','change','keyup'].forEach(ev=>{
+            pw1.addEventListener(ev, recompute);
+            pw2.addEventListener(ev, recompute);
+            pw3.addEventListener(ev, recompute);
+            pwNum.addEventListener(ev, recompute);
+            pwSym.addEventListener(ev, recompute);
+          });
+
+          missionCleanup = () => {
+            // no-op
+          };
+
+          // check button gives explanation
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              recompute();
+              if(missionComplete){
+                showExplain("Супер! Это похоже на надёжный пароль-щит 🛡️", true);
+              }else{
+                showExplain("Пока не хватает: нужны 3 слова + цифры + символ и длина 12+ (и без личных данных).", false);
+              }
+            };
+          }
+
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Собери пароль из трёх слов + цифры + символ.", false);
+          }
+        }
+
+        else if(type === "links"){
+          const samples = [
+            {u:"https://school-portal.ru/login", ok:true, why:"Нормальный домен, https."},
+            {u:"http://vk.com.security-check.ru", ok:false, why:"Подозрительно: vk.com — это часть поддомена, домен другой."},
+            {u:"https://g00gle.com", ok:false, why:"Подмена букв: 0 вместо O."},
+            {u:"https://support.yandex.ru/help", ok:true, why:"Похоже на официальный раздел помощи."}
+          ];
+
+          // shuffle and pick 4
+          const shuffled = samples.sort(()=>Math.random()-0.5);
+
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small">Выбери <b>самую подозрительную</b> ссылку:</div>
+            <div class="rm-choices" id="linkChoices"></div>
+          `;
+          rmBody.appendChild(card);
+
+          const holder = card.querySelector('#linkChoices');
+          const name = "rm_links_" + String(Date.now());
+          holder.innerHTML = shuffled.map((s,i)=>`
+            <label class="rm-choice">
+              <input type="radio" name="${name}" value="${i}">
+              <div>
+                <div style="color:rgba(255,255,255,.96); font-size:13px; letter-spacing:.06em; word-break:break-all;">${s.u}</div>
+                <div class="rm-small" style="margin-top:6px; opacity:.86;">нажми, чтобы выбрать</div>
+              </div>
+            </label>
+          `).join('');
+
+          let picked = null;
+
+          holder.addEventListener('change', (e) => {
+            const v = parseInt(e.target.value, 10);
+            picked = Number.isFinite(v) ? v : null;
+            clearExplain();
+            setMissionComplete(false);
+          });
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              if(picked === null){ showExplain("Сначала выбери одну ссылку 🙂", false); return; }
+              const s = shuffled[picked];
+              const correct = !s.ok; // suspicious
+              if(correct){
+                showExplain("Верно! " + s.why, true);
+              }else{
+                showExplain("Эта ссылка выглядит нормально. Ищи странный домен/подмену букв. " + s.why, false);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Смотри на домен (часть после последней точки и перед /).", false);
+          }
+        }
+
+        else if(type === "codes"){
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small"><b>Ситуация:</b> в сообщении пишут: «СРОЧНО! Назови код из SMS, иначе аккаунт заблокируют!»</div>
+            <div class="rm-choices" style="margin-top:10px;">
+              <label class="rm-choice"><input type="radio" name="codes" value="a"><div><b>Отправлю код</b>, чтобы не заблокировали.</div></label>
+              <label class="rm-choice"><input type="radio" name="codes" value="b"><div><b>Введу код</b> по ссылке из сообщения.</div></label>
+              <label class="rm-choice"><input type="radio" name="codes" value="c"><div><b>Не скажу код</b> и спрошу взрослого.</div></label>
+            </div>
+          `;
+          rmBody.appendChild(card);
+
+          let val = null;
+          card.addEventListener('change', (e) => { val = e.target.value; clearExplain(); setMissionComplete(false); });
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              if(!val) return showExplain("Выбери вариант 🙂", false);
+              if(val === "c"){
+                showExplain("Правильно! Код из SMS — секрет. Пауза и взрослый ✅", true);
+              }else{
+                showExplain("Опасно! Так злоумышленник может войти в аккаунт. Код — никому.", false);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Коды из SMS нельзя сообщать никому.", false);
+          }
+        }
+
+        else if(type === "files"){
+          const list = [
+            {f:"photo.jpg", risk:false},
+            {f:"homework.docx", risk:false},
+            {f:"game.exe", risk:true},
+            {f:"archive.zip", risk:true},
+            {f:"invoice.pdf.exe", risk:true},
+            {f:"video.mp4", risk:false}
+          ].sort(()=>Math.random()-0.5);
+
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small">Отметь <b>опасные</b> файлы (которые нельзя открывать от незнакомцев):</div>
+            <div class="rm-choices" id="fileChoices"></div>
+          `;
+          rmBody.appendChild(card);
+
+          const holder = card.querySelector('#fileChoices');
+          holder.innerHTML = list.map((s,i)=>`
+            <label class="rm-choice">
+              <input type="checkbox" value="${i}">
+              <div style="color:rgba(255,255,255,.96); font-size:13px; letter-spacing:.06em;">${s.f}</div>
+            </label>
+          `).join('');
+
+          function getSelected(){
+            return Array.from(holder.querySelectorAll('input[type="checkbox"]:checked')).map(x => parseInt(x.value,10));
+          }
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              const sel = new Set(getSelected());
+              const must = new Set(list.map((x,i)=>x.risk?i:null).filter(i=>i!==null));
+              if(sel.size === 0) return showExplain("Отметь хотя бы один файл 🙂", false);
+
+              // correct if selected all risky and none safe
+              let ok = true;
+              must.forEach(i => { if(!sel.has(i)) ok = false; });
+              sel.forEach(i => { if(!must.has(i)) ok = false; });
+
+              if(ok){
+                showExplain("Верно! Опасны .exe, «двойные» расширения и архивы от незнакомцев ✅", true);
+              }else{
+                showExplain("Почти! Проверь: опасны .exe и «.pdf.exe», а ещё архивы от незнакомцев.", false);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Смотри на расширение в конце имени файла.", false);
+          }
+        }
+
+        else if(type === "profile"){
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small">Кому показывать личные данные?</div>
+            <div class="rm-choices" style="margin-top:10px;">
+              <div class="rm-small" style="opacity:.9; margin-bottom:6px;">1) Телефон:</div>
+              <label class="rm-choice"><input type="radio" name="p1" value="all"><div>Всем</div></label>
+              <label class="rm-choice"><input type="radio" name="p1" value="friends"><div>Только друзьям</div></label>
+              <label class="rm-choice"><input type="radio" name="p1" value="me"><div>Только мне</div></label>
+
+              <div class="rm-small" style="opacity:.9; margin:10px 0 6px;">2) Адрес/школа:</div>
+              <label class="rm-choice"><input type="radio" name="p2" value="all"><div>Всем</div></label>
+              <label class="rm-choice"><input type="radio" name="p2" value="friends"><div>Только друзьям</div></label>
+              <label class="rm-choice"><input type="radio" name="p2" value="me"><div>Только мне</div></label>
+            </div>
+          `;
+          rmBody.appendChild(card);
+
+          function getVal(nm){
+            const el = card.querySelector('input[name="'+nm+'"]:checked');
+            return el ? el.value : null;
+          }
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              const v1 = getVal('p1');
+              const v2 = getVal('p2');
+              if(!v1 || !v2) return showExplain("Ответь на оба вопроса 🙂", false);
+
+              const ok1 = (v1 === "friends" || v1 === "me");
+              const ok2 = (v2 === "me"); // адрес/школа лучше скрыть
+              if(ok1 && ok2){
+                showExplain("Отлично! Чем меньше личных данных видно, тем безопаснее ✅", true);
+              }else{
+                showExplain("Нужно приватнее: телефон — друзьям/только мне, адрес/школа — лучше «только мне».", false);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Личные данные лучше скрывать.", false);
+          }
+        }
+
+        else if(type === "phish"){
+          const qs = [
+            {q:"«Ваш аккаунт заблокирован! Срочно перейдите по ссылке и введите пароль»", a:"ph", why:"Давит срочностью и просит пароль."},
+            {q:"«Мама: купи хлеб и молоко 🙂»", a:"ok", why:"Обычное сообщение без просьбы о паролях/кодах."},
+            {q:"«Вы выиграли приз! Введите код из SMS для получения»", a:"ph", why:"Просит код из SMS — это фишинг."}
+          ];
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small">Ответь на 3 вопроса (Фишинг / Правда):</div>
+            <div id="phQ"></div>
+            <div class="rm-small" style="opacity:.9; margin-top:10px;">Хочешь больше? Можно открыть большой тренажёр «Фишинг».</div>
+            <div class="rm-row" style="justify-content:flex-start; margin-top:10px;">
+              <button class="rm-btn primary" id="openBigPhish" type="button">Открыть тренажёр</button>
+            </div>
+          `;
+          rmBody.appendChild(card);
+
+          const holder = card.querySelector('#phQ');
+          holder.innerHTML = qs.map((x,i)=>`
+            <div class="rm-card" style="margin-top:10px;">
+              <div class="rm-small"><b>${i+1})</b> ${x.q}</div>
+              <div class="rm-choices" style="margin-top:10px;">
+                <label class="rm-choice"><input type="radio" name="ph${i}" value="ph"><div>Фишинг</div></label>
+                <label class="rm-choice"><input type="radio" name="ph${i}" value="ok"><div>Правда</div></label>
+              </div>
+            </div>
+          `).join('');
+
+          const openBig = card.querySelector('#openBigPhish');
+          if(openBig){
+            openBig.addEventListener('click', () => {
+              const btn = document.getElementById('openPhishGame');
+              if(btn) btn.click();
+            });
+          }
+
+          function score(){
+            let ok = 0;
+            for(let i=0;i<qs.length;i++){
+              const el = holder.querySelector('input[name="ph'+i+'"]:checked');
+              if(el && el.value === qs[i].a) ok++;
+            }
+            return ok;
+          }
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              const got = score();
+              if(got < qs.length){
+                showExplain(`Пока ${got}/${qs.length}. Подумай: где просят пароль/код или давят «срочно»?`, false);
+              }else{
+                showExplain("Идеально! Ты распознал фишинг ✅", true);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Фишинг просит пароль/код и давит срочностью.", false);
+          }
+        }
+
+        else if(type === "pause"){
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small"><b>План, если сомневаешься:</b> выбери 3 правильных шага и придумай «стоп-фразу».</div>
+            <div class="rm-choices" style="margin-top:10px;">
+              <label class="rm-choice"><input type="checkbox" value="a"><div>Не отвечать сразу</div></label>
+              <label class="rm-choice"><input type="checkbox" value="b"><div>Проверить (домен/отправителя/официальный сайт)</div></label>
+              <label class="rm-choice"><input type="checkbox" value="c"><div>Спросить взрослого</div></label>
+              <label class="rm-choice"><input type="checkbox" value="d"><div>Срочно отправить пароль, чтобы не ругали</div></label>
+            </div>
+            <div class="rm-row" style="margin-top:12px;">
+              <input class="rm-field" id="stopPhrase" placeholder="Моя стоп-фраза (например: «Пауза! Я проверю!»)" autocomplete="off">
+            </div>
+          `;
+          rmBody.appendChild(card);
+
+          function getSteps(){
+            return new Set(Array.from(card.querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value));
+          }
+          function getPhrase(){
+            return (card.querySelector('#stopPhrase').value || "").trim();
+          }
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              const steps = getSteps();
+              const phrase = getPhrase();
+              const okSteps = steps.has('a') && steps.has('b') && steps.has('c') && !steps.has('d');
+              const okPhrase = phrase.length >= 6;
+              if(okSteps && okPhrase){
+                showExplain("Отличный план! Стоп-фраза поможет вспомнить про паузу ✅", true);
+              }else{
+                showExplain("Нужно: не отвечать сразу, проверить, спросить взрослого — и придумать стоп-фразу (6+ символов).", false);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Пауза → проверка → взрослый.", false);
+          }
+        }
+
+        else if(type === "twofa"){
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `
+            <div class="rm-small"><b>2FA</b> — это…</div>
+            <div class="rm-choices" style="margin-top:10px;">
+              <label class="rm-choice"><input type="radio" name="twofa" value="a"><div>Программа для игр</div></label>
+              <label class="rm-choice"><input type="radio" name="twofa" value="b"><div>Второй замок: кроме пароля нужен ещё код/подтверждение</div></label>
+              <label class="rm-choice"><input type="radio" name="twofa" value="c"><div>Способ делиться паролем с друзьями</div></label>
+            </div>
+            <div class="rm-small" style="opacity:.9; margin-top:10px;">Почему это важно? Потому что даже если пароль украли — без второго шага зайти сложнее.</div>
+          `;
+          rmBody.appendChild(card);
+
+          let val = null;
+          card.addEventListener('change', (e) => { val = e.target.value; clearExplain(); setMissionComplete(false); });
+
+          if(rmCheck){
+            rmCheck.onclick = () => {
+              if(!val) return showExplain("Выбери вариант 🙂", false);
+              if(val === "b"){
+                showExplain("Верно! 2FA — второй замок 🔐", true);
+              }else{
+                showExplain("Нет 🙂 2FA — это защита: пароль + второй шаг (код/подтверждение).", false);
+              }
+            };
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "2FA — второй шаг входа.", false);
+          }
+        }
+
+        else{
+          // fallback
+          const card = document.createElement('div');
+          card.className = "rm-card";
+          card.innerHTML = `<div class="rm-small">Эта миссия скоро получит мини-игру 🙂</div>`;
+          rmBody.appendChild(card);
+
+          if(rmCheck){
+            rmCheck.onclick = () => showExplain("Нажми «Завершить» чтобы отметить вручную.", true);
+          }
+          if(rmHint){
+            rmHint.onclick = () => showExplain(item.hint || "Подсказка скоро появится.", false);
+          }
+        }
+
+        // finish button: auto mark done
+        if(rmFinish){
+          rmFinish.onclick = () => {
+            if(!currentMission) return;
+            if(!missionComplete) return showExplain("Сначала выполни задание 🙂", false);
+            markDone(currentMission.label);
+            closeMission();
+          };
+        }
+
+        // close events
+        if(rmClose) rmClose.onclick = closeMission;
+
+        if(rmBack){
+          rmBack.onclick = (e) => { if(e.target === rmBack) closeMission(); };
+        }
+
+        window.addEventListener('keydown', onMissionEsc, false);
+        function onMissionEsc(e){
+          if(e.key === 'Escape' && rmBack && rmBack.classList.contains('is-open')){
+            e.preventDefault();
+            closeMission();
+          }
+        }
+        missionCleanup = () => {
+          window.removeEventListener('keydown', onMissionEsc, false);
+        };
+      }
+
+
+      // ------------------ animation ------------------
       function animateSpin(toDeg, duration){
         const fromDeg = angle;
         const start = performance.now();
+        const seg = 360 / n;
+
+        let lastTick = Math.floor(normalizeDeg(fromDeg) / seg);
+        let lastTickTime = 0;
+        let lastVibeTime = 0;
 
         function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
 
@@ -15362,7 +16740,22 @@
             const p = clamp((now - start) / duration, 0, 1);
             const eased = reduce ? 1 : easeOutCubic(p);
             angle = fromDeg + (toDeg - fromDeg) * eased;
+
             rot.style.transform = `rotate(${angle}deg)`;
+
+            // тик, когда проходим границы сегментов
+            const curTick = Math.floor(normalizeDeg(angle) / seg);
+            if(curTick !== lastTick && (now - lastTickTime) > 28){
+              lastTick = curTick;
+              lastTickTime = now;
+              pointerTick();
+              playTick();
+              if(!reduce && navigator.vibrate && (now - lastVibeTime) > 110){
+                lastVibeTime = now;
+                try{ navigator.vibrate(8); }catch(_){}
+              }
+            }
+
             if(p < 1) requestAnimationFrame(frame);
             else resolve();
           }
@@ -15373,76 +16766,52 @@
       function spin(){
         if(spinning) return;
         spinning = true;
+        dock.classList.add('is-spinning');
         spinBtn.disabled = true;
 
-        // звук/вибро можно добавить тут при желании (безопасно оставляем пустым)
+        // подготовка: снимаем подсветку
+        try{ drawWheel(null); }catch(_){}
 
-        const n = ROULETTE_ITEMS.length;
+        // включаем звук, если пользователь нажал (разрешение жестом)
+        ensureAudio();
 
-        // случайный сектор + “красивые” обороты
         const targetIndex = Math.floor(Math.random() * n);
         const seg = 360 / n;
 
-        // хотим, чтобы targetIndex оказался на указателе сверху.
-        // pickIndex() рассчитывает индекс по финальному углу, значит подберём угол “внутри сектора”.
-        // Для удобства: сначала вычислим “идеальный” угол для сектора, потом добавим джиттер.
-        // Формула из pickIndex: idx = (n - floor((rotDeg + seg/2)/seg)) % n
-        // Подберём rotDeg так, чтобы floor(...) = (n - idx) % n.
         const desiredShift = (n - targetIndex) % n;
 
-        // диапазон значений rotDeg, которые дадут этот shift:
-        // desiredShift <= (rotDeg + seg/2)/seg < desiredShift+1
-        // => desiredShift*seg - seg/2 <= rotDeg < (desiredShift+1)*seg - seg/2
         const minRot = desiredShift*seg - seg/2;
         const maxRot = (desiredShift+1)*seg - seg/2;
 
-        // джиттер внутри сектора (чтобы не попадать ровно в границу)
         const jitter = (Math.random()*0.76 + 0.12); // 0.12..0.88
         let baseRot = minRot + (maxRot - minRot) * jitter;
 
-        // добавим обороты поверх текущего угла
-        const extraTurns = reduce ? 1 : (5 + Math.floor(Math.random()*3)); // 5..7
+        const extraTurns = reduce ? 1 : (6 + Math.floor(Math.random()*3)); // 6..8
         const currentNorm = normalizeDeg(angle);
         const deltaToBase = normalizeDeg(baseRot - currentNorm);
 
         const final = angle + (extraTurns * 360) + deltaToBase;
-
-        const dur = reduce ? 250 : (2200 + Math.random()*500);
+        const dur = reduce ? 250 : (2400 + Math.random()*650);
 
         animateSpin(final, dur)
           .then(() => {
             const idx = pickIndex(angle);
             const item = ROULETTE_ITEMS[idx];
-            setResult(item);
+            setResult(item, { push:true });
+            if(mini) mini.textContent = "✨ Выпало: " + item.label + " — нажми «Перейти» или отметь «Выполнено».";
           })
           .finally(() => {
             spinning = false;
+            dock.classList.remove('is-spinning');
             spinBtn.disabled = false;
           });
       }
 
-      // init
-      function safeSetup(){
-        try{ setupCanvas(); }catch(_){}
-        rot.style.transform = `rotate(${angle}deg)`;
-      }
-
-      safeSetup();
-      window.addEventListener('resize', () => {
-        // даём layout пересчитаться
-        setTimeout(safeSetup, 0);
-      }, { passive:true });
-
-      if(window.visualViewport){
-        window.visualViewport.addEventListener('resize', () => setTimeout(safeSetup, 0), { passive:true });
-      }
-
+      // ------------------ buttons ------------------
       spinBtn.addEventListener('click', spin);
 
-      // если пользователь кликает по GO — тоже крутим
       const center = dock.querySelector('.wheel-center');
       if(center){
-        center.style.cursor = 'pointer';
         center.setAttribute('role', 'button');
         center.setAttribute('tabindex', '0');
         center.addEventListener('click', spin);
@@ -15451,11 +16820,128 @@
         });
       }
 
+      if(rCopy){
+        rCopy.addEventListener('click', async () => {
+          if(!currentItem) return toast("Сначала крути рулетку 🙂");
+          const msg = `Миссия: ${currentItem.label}
+${currentItem.text}`;
+          try{
+            if(navigator.clipboard && navigator.clipboard.writeText){
+              await navigator.clipboard.writeText(msg);
+              toast("Скопировано ✅");
+            }else{
+              const ta = document.createElement('textarea');
+              ta.value = msg;
+              ta.style.position = 'fixed';
+              ta.style.left = '-9999px';
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              ta.remove();
+              toast("Скопировано ✅");
+            }
+          }catch(_){
+            toast("Не удалось скопировать 😅");
+          }
+        });
+      }
+
+      if(rDone){
+        rDone.addEventListener('click', () => {
+          if(!currentItem) return toast("Сначала крути рулетку 🙂");
+
+          const label = currentItem.label;
+          const was = done.has(label);
+          if(was){
+            done.delete(label);
+            toast("Снято ✖");
+          }else{
+            done.add(label);
+            toast("Отмечено ✅");
+            burstConfetti(1);
+          }
+          saveJSON(DONE_KEY, Array.from(done));
+          updateProgress();
+
+          rDone.setAttribute('aria-pressed', (!was) ? 'true' : 'false');
+          rDone.textContent = (!was) ? "Готово ✓" : "Выполнено ✓";
+        });
+      }
+
+      if(soundBtn){
+        soundBtn.addEventListener('click', () => {
+          soundOn = !soundOn;
+          saveJSON(SOUND_KEY, soundOn);
+          soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+          if(soundOn) ensureAudio();
+          toast(soundOn ? "Звук: ВКЛ" : "Звук: ВЫКЛ");
+        });
+      }
+
+      if(resetBtn){
+        resetBtn.addEventListener('click', () => {
+          done = new Set();
+          history = [];
+          saveJSON(DONE_KEY, []);
+          saveJSON(HIST_KEY, []);
+          updateProgress();
+          renderHistory();
+          currentItem = null;
+          rTitle.textContent = "Крути рулетку — получи миссию ✅";
+          rText.textContent = "Здесь появится короткая задача по цифровой безопасности (и ссылка, куда перейти).";
+          toast("Сброшено ↺");
+          try{ drawWheel(null); }catch(_){}
+        });
+      }
+
+      // ------------------ parallax tilt (wow) ------------------
+      if(!reduce){
+        let hovering = false;
+
+        function setTilt(rx, ry){
+          dock.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+          dock.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+        }
+
+        dock.addEventListener('pointerenter', () => { hovering = true; }, { passive:true });
+        dock.addEventListener('pointerleave', () => {
+          hovering = false;
+          setTilt(0,0);
+        }, { passive:true });
+
+        dock.addEventListener('pointermove', (e) => {
+          if(!hovering) return;
+          // избегаем tilt на тачах
+          if(e.pointerType !== 'mouse') return;
+
+          const r = dock.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width;   // 0..1
+          const y = (e.clientY - r.top)  / r.height;  // 0..1
+
+          const ry = clamp((x - 0.5) * 10, -7, 7);
+          const rx = clamp(-(y - 0.5) * 8, -6, 6);
+          setTilt(rx, ry);
+        }, { passive:true });
+      }
+
+      // ------------------ init ------------------
+      function safeSetup(){
+        try{ setupCanvas(); }catch(_){}
+        rot.style.transform = `rotate(${angle}deg)`;
+      }
+
+      safeSetup();
+      updateProgress();
+      renderHistory();
+
+      window.addEventListener('resize', () => setTimeout(safeSetup, 0), { passive:true });
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize', () => setTimeout(safeSetup, 0), { passive:true });
+      }
+
       // на всякий: перерисовать после загрузки шрифта
       if(document.fonts && document.fonts.ready){
-        document.fonts.ready.then(() => {
-          setTimeout(() => drawWheel(), 0);
-        }).catch(() => {});
+        document.fonts.ready.then(() => setTimeout(() => drawWheel(null), 0)).catch(()=>{});
       }
     })();
   </script>
@@ -15494,8 +16980,19 @@
   function centerOn(i, smooth=true){
     i = wrap(i);
     setActive(i);
+
+    // IMPORTANT:
+    // Не используем scrollIntoView(), чтобы браузер не скроллил всю страницу по горизонтали
+    // (это проявлялось на 11–12 серии как «лишний сдвиг» вправо).
     const behavior = (!reduceMotion && smooth) ? 'smooth' : 'auto';
-    slides[i].scrollIntoView({ behavior, inline: 'center', block: 'nearest' });
+    const s = slides[i];
+
+    // Центрируем карточку внутри track вручную и жёстко ограничиваем пределами скролла.
+    const target = (s.offsetLeft + s.offsetWidth / 2) - (track.clientWidth / 2);
+    const max = Math.max(0, track.scrollWidth - track.clientWidth);
+    const left = Math.max(0, Math.min(target, max));
+
+    track.scrollTo({ left, behavior });
   }
 
   // Выбор активной карточки при прокрутке (ближайшая к центру)
