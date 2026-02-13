@@ -1153,6 +1153,7 @@
       bottom: 14px;
       z-index:9500;
       display:flex;
+      flex-direction: column;
       align-items:flex-end;
       gap:12px;
       pointer-events:auto;
@@ -1271,6 +1272,277 @@
       stroke-linecap: round;
       stroke-linejoin: round;
       display:block;
+    }
+
+    /* ✅ Комикс: меню выбора главы (внешний вид, не влияет на мини-игры) */
+    #comicMenu .mg-modal{
+      max-width: 860px;
+    }
+    #comicMenu .mg-top{
+      align-items:flex-start;
+      gap:14px;
+    }
+    #comicMenu .mg-h1{
+      letter-spacing:.08em;
+    }
+    #comicMenu .comic-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width: 520px){
+      #comicMenu .comic-grid{ grid-template-columns: 1fr; }
+      #comicMenu .mg-modal{ max-width: 94vw; }
+    }
+
+    #comicMenu .comic-ch{
+      text-align:left;
+      padding:14px 14px;
+      border-radius: 18px;
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(120% 140% at 15% 15%, rgba(255,255,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(12, 55, 95, .42), rgba(8, 18, 34, .34));
+      box-shadow:
+        0 18px 44px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter: blur(14px) saturate(1.08);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    #comicMenu .comic-ch:hover{
+      transform: translateY(-1px);
+      border-color: rgba(120, 215, 255, .32);
+      box-shadow:
+        0 22px 54px rgba(0,0,0,.26),
+        0 0 0 1px rgba(120,215,255,.18) inset;
+    }
+    #comicMenu .comic-ch.is-active{
+      border-color: rgba(120, 215, 255, .42);
+      box-shadow:
+        0 26px 64px rgba(0,0,0,.30),
+        0 0 0 1px rgba(120,215,255,.22) inset,
+        0 0 22px rgba(120,215,255,.16);
+    }
+    #comicMenu .comic-ch__top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    #comicMenu .comic-ch__n{
+      font-weight: 900;
+      letter-spacing:.06em;
+      font-size: 15px;
+      color: rgba(245,250,255,.98);
+      text-shadow: 0 1px 0 rgba(0,0,0,.28);
+    }
+    #comicMenu .comic-ch__tag{
+      font-size: 10px;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      padding:6px 10px;
+      border-radius:999px;
+      color: rgba(235,245,255,.95);
+      background:
+        linear-gradient(180deg, rgba(70,180,120,.80), rgba(40,150,95,.78));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      opacity: .9;
+    }
+    #comicMenu .comic-ch__desc{
+      font-size: 13px;
+      line-height: 1.25;
+      color: rgba(235,245,255,.86);
+    }
+    #comicMenu .comic-hint{
+      font-size: 12px;
+      line-height: 1.25;
+      opacity: .75;
+      padding-top: 2px;
+    }
+
+    /* ✅ Комикс: просмотр страниц (10 картинок на главу, заглушки) */
+    #comicMenu .comic-screen{ }
+    #comicMenu .comic-screen[hidden]{ display:none !important; }
+
+    #comicMenu .comic-viewTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 4px 0 10px;
+    }
+    #comicMenu .comic-backBtn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(10,18,28,.28);
+      color: rgba(245,250,255,.92);
+      cursor:pointer;
+      box-shadow: 0 10px 26px rgba(0,0,0,.20);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    #comicMenu .comic-backBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(10,18,28,.36);
+      border-color: rgba(255,255,255,.28);
+    }
+    #comicMenu .comic-viewMeta{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap:2px;
+      min-width: 140px;
+    }
+    #comicMenu .comic-viewTitle{
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(245,250,255,.95);
+    }
+    #comicMenu .comic-viewCounter{
+      font-size: 12px;
+      opacity: .78;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    #comicMenu .comic-viewer{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+    }
+    #comicMenu .comic-pageWrap{
+      position:relative;
+      width: min(760px, 92vw);
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(9,18,30,.42), rgba(9,18,30,.22));
+      box-shadow: 0 24px 60px rgba(0,0,0,.30);
+    }
+    #comicMenu .comic-pageWrap::before{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(1200px 420px at 50% -10%, rgba(120,200,255,.18), transparent 60%),
+                  radial-gradient(900px 360px at 10% 30%, rgba(255,210,120,.12), transparent 55%);
+      pointer-events:none;
+      mix-blend-mode: screen;
+    }
+    #comicMenu .comic-page{
+      position:relative;
+      width:100%;
+      aspect-ratio: 16/9;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #comicMenu .comic-page img{
+      position:relative;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+      filter: saturate(1.05) contrast(1.02);
+    }
+
+    #comicMenu .comic-nav{
+      width: 46px; height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(12,18,28,.28);
+      color: rgba(245,250,255,.92);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      box-shadow: 0 18px 46px rgba(0,0,0,.22);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease, opacity .12s ease;
+      flex: 0 0 auto;
+    }
+    #comicMenu .comic-nav:hover{
+      transform: translateY(-1px);
+      background: rgba(12,18,28,.38);
+      border-color: rgba(255,255,255,.30);
+    }
+    #comicMenu .comic-nav:disabled{
+      opacity:.45;
+      cursor: default;
+      transform:none;
+    }
+    #comicMenu .comic-nav svg{
+      width: 20px; height: 20px;
+      stroke: rgba(245,250,255,.92);
+      stroke-width: 2.8;
+      fill:none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display:block;
+    }
+
+    #comicMenu .comic-strip{
+      margin-top: 12px;
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    #comicMenu .comic-strip::-webkit-scrollbar{ display:none; }
+    #comicMenu .comic-thumb{
+      width: 86px;
+      height: 50px;
+      border-radius: 14px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(9,18,30,.22);
+      cursor:pointer;
+      position:relative;
+      flex: 0 0 auto;
+      box-shadow: 0 10px 26px rgba(0,0,0,.18);
+      transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+    }
+    #comicMenu .comic-thumb:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.26);
+      box-shadow: 0 16px 34px rgba(0,0,0,.22);
+    }
+    #comicMenu .comic-thumb.is-active{
+      border-color: rgba(120,200,255,.60);
+      box-shadow: 0 18px 44px rgba(40,170,255,.18);
+    }
+    #comicMenu .comic-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+
+    @media (max-width:520px){
+      #comicMenu .comic-viewTop{ padding-top:0; }
+      #comicMenu .comic-viewTitle{ font-size: 14px; }
+      #comicMenu .comic-pageWrap{ border-radius: 18px; }
+      #comicMenu .comic-nav{ width: 42px; height: 42px; border-radius: 14px; }
+      #comicMenu .comic-thumb{ width: 78px; height: 46px; border-radius: 12px; }
     }
 
     @media (max-width:520px){
@@ -6826,6 +7098,10 @@ padding:0;
     outer.classList.add('is-open');
     outer.setAttribute('aria-hidden','false');
     lockScroll();
+
+    // всегда открываем с экрана выбора глав
+    try{ back.__comicReset && back.__comicReset(); }catch(_){ }
+
     setTimeout(()=>{
       const first = outer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
       if(first) first.focus();
@@ -6867,6 +7143,20 @@ padding:0;
 })();
 </script>
 <div aria-label="Правила дня" class="rules">
+  <button aria-controls="comicMenu" aria-haspopup="dialog" aria-label="Открыть: Комикс" class="rule-pill" id="openComicMenu" onclick="return window.tkOpenComicMenu && window.tkOpenComicMenu(event)" type="button">
+    <span aria-hidden="true" class="rule-pill__icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" style="width:28px;height:28px;display:block" fill="none" stroke="rgba(245,250,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19a2 2 0 0 0 2 2h12"/>
+        <path d="M6 17V5a2 2 0 0 1 2-2h10v14H8a2 2 0 0 0-2 2z"/>
+        <path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/>
+      </svg>
+    </span>
+    <span class="rule-pill__title">Комикс</span>
+    <span aria-hidden="true" class="rule-pill__badge">
+      <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+    </span>
+  </button>
+
   <button aria-controls="ruleGame" aria-haspopup="dialog" aria-label="Открыть: Правило дня" class="rule-pill" id="openRuleGame" onclick="return window.tkOpenRuleGame && window.tkOpenRuleGame(event)" type="button">
     <span aria-hidden="true" class="rule-pill__icon"><img src="avatar_pravila.jpg" alt="" width="38" height="38" style="width:38px;height:38px;object-fit:contain;display:block;"></span>
     <span class="rule-pill__title">Правила дня</span>
@@ -18100,6 +18390,119 @@ padding:0;
 </div>
 </div>
 <!-- ============================================================
+     ✅ МЕНЮ: «КОМИКС» (рыба — наполнение добавишь позже)
+============================================================ -->
+<div aria-hidden="true" class="mg-backdrop" id="comicMenu">
+  <section aria-labelledby="cmTitle" aria-modal="true" class="mg-modal mg-modal--comic" role="dialog">
+    <div class="mg-top">
+      <div class="mg-title">
+        <div class="mg-h1" id="cmTitle">Комикс</div>
+        <div class="mg-sub" id="cmSub">Выбери главу</div>
+      </div>
+      <button aria-label="Закрыть меню комикса" class="mg-close" id="closeComicMenu" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M6 6l12 12"></path>
+          <path d="M18 6 6 18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mg-body">
+
+      <div class="comic-screen comic-screen--chapters" data-comic-screen="chapters">
+<div class="comic-grid" role="list">
+        <button class="comic-ch is-active" type="button" role="listitem" data-ch="1">
+          <div class="comic-ch__top">
+            <span class="comic-ch__n">Глава 1</span>
+            <span class="comic-ch__tag">скоро</span>
+          </div>
+          <div class="comic-ch__desc">Короткое описание главы ..</div>
+        </button>
+
+        <button class="comic-ch" type="button" role="listitem" data-ch="2">
+          <div class="comic-ch__top">
+            <span class="comic-ch__n">Глава 2</span>
+            <span class="comic-ch__tag">скоро</span>
+          </div>
+          <div class="comic-ch__desc">Короткое описание главы ..</div>
+        </button>
+
+        <button class="comic-ch" type="button" role="listitem" data-ch="3">
+          <div class="comic-ch__top">
+            <span class="comic-ch__n">Глава 3</span>
+            <span class="comic-ch__tag">скоро</span>
+          </div>
+          <div class="comic-ch__desc">Короткое описание главы ..</div>
+        </button>
+
+        <button class="comic-ch" type="button" role="listitem" data-ch="4">
+          <div class="comic-ch__top">
+            <span class="comic-ch__n">Глава 4</span>
+            <span class="comic-ch__tag">скоро</span>
+          </div>
+          <div class="comic-ch__desc">Короткое описание главы ..</div>
+        </button>
+
+        <button class="comic-ch" type="button" role="listitem" data-ch="5">
+          <div class="comic-ch__top">
+            <span class="comic-ch__n">Глава 5</span>
+            <span class="comic-ch__tag">скоро</span>
+          </div>
+          <div class="comic-ch__desc">Короткое описание главы ..</div>
+        </button>
+
+        <button class="comic-ch" type="button" role="listitem" data-ch="6">
+          <div class="comic-ch__top">
+            <span class="comic-ch__n">Глава 6</span>
+            <span class="comic-ch__tag">скоро</span>
+          </div>
+          <div class="comic-ch__desc">Короткое описание главы ..</div>
+        </button>
+      </div>
+
+      <div class="comic-hint">Подсказка: сейчас это меню-«в разработке».</div>
+      </div>
+
+      <div class="comic-screen comic-screen--viewer" data-comic-screen="viewer" hidden>
+        <div class="comic-viewTop">
+          <button class="comic-backBtn" type="button" id="comicBackToChapters" aria-label="Назад к списку глав">
+            <span aria-hidden="true">←</span> Главы
+          </button>
+          <div class="comic-viewMeta">
+            <div class="comic-viewTitle" id="comicViewTitle">Глава 1</div>
+            <div class="comic-viewCounter" id="comicViewCounter">1 / 10</div>
+          </div>
+          <div style="width:46px; height:46px;"></div>
+        </div>
+
+        <div class="comic-viewer" id="comicViewer">
+          <button class="comic-nav" type="button" id="comicPrevPage" aria-label="Предыдущая страница">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          <div class="comic-pageWrap">
+            <div class="comic-page" id="comicPage">
+              <img id="comicPageImg" alt="Страница комикса" draggable="false">
+            </div>
+          </div>
+
+          <button class="comic-nav" type="button" id="comicNextPage" aria-label="Следующая страница">
+            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="comic-strip" id="comicThumbs" aria-label="Страницы главы" role="list"></div>
+
+        <div class="comic-hint" style="opacity:.7; padding-top:6px;">
+          Подсказка: сейчас используются заглушки (10 страниц на главу). Когда загрузишь картинки — просто положи их в папку <b>comics/chN/</b> с именами <b>page01.jpg ... page10.jpg</b>.
+        </div>
+      </div>
+
+    </div></div>
+  </section>
+</div>
+
+<!-- ============================================================
        ✅ МОДАЛКА МИНИ-ИГРЫ: "ПРАВИЛО ДНЯ"
   ============================================================ -->
 <div aria-hidden="true" class="mg-backdrop" id="ruleGame">
@@ -20746,6 +21149,300 @@ if(fioInput){
   document.addEventListener('click', route, true);
 })();
 </script>
+<script>
+/* ============================================================
+   ✅ Комикс: открытие меню глав (не ломает мини-игры)
+   ============================================================ */
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  function anyOverlayOpenExceptComic(){
+    // Проверяем известные модалки/оверлеи из твоего файла, чтобы не снимать scroll-lock лишний раз
+    const ids = ['phishGame','phishModalWrapper','infoSecGame','itGame','ruleGame','infoBackdrop','itBackdrop','rmBack','rouletteMission'];
+    for(const id of ids){
+      const el = $(id);
+      if(el && el.id !== 'comicMenu' && el.classList && el.classList.contains('is-open')) return true;
+    }
+    return false;
+  }
+
+  function lockScroll(){
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScrollMaybe(){
+    if(!anyOverlayOpenExceptComic()){
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+  }
+
+  function openComic(ev){
+    try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
+    try{ ev && ev.stopPropagation && ev.stopPropagation(); }catch(_){}
+    const back = $('comicMenu');
+    if(!back) return false;
+    if(back.classList.contains('is-open')) return false;
+
+    back.__lastFocus = document.activeElement;
+    back.classList.add('is-open');
+    back.setAttribute('aria-hidden','false');
+    lockScroll();
+
+    // всегда открываем с экрана выбора глав
+    try{ back.__comicReset && back.__comicReset(); }catch(_){ }
+
+
+    // фокус на первой главе
+    setTimeout(()=>{
+      const first = back.querySelector('.comic-ch');
+      first && first.focus && first.focus({preventScroll:true});
+    }, 0);
+
+    return false;
+  }
+
+  function closeComic(ev){
+    try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
+    const back = $('comicMenu');
+    if(!back) return;
+    back.classList.remove('is-open');
+    try{ back.__comicReset && back.__comicReset(); }catch(_){ }
+
+    back.setAttribute('aria-hidden','true');
+    unlockScrollMaybe();
+
+    try{
+      const lf = back.__lastFocus;
+      lf && lf.focus && lf.focus({preventScroll:true});
+    }catch(_){}
+  }
+
+  // глобальная функция для inline onclick (как у «Правил дня»)
+  window.tkOpenComicMenu = openComic;
+
+  // биндинги после загрузки DOM (важно: модалка ниже по коду)
+  function bind(){
+    const back = $('comicMenu');
+    const btn = $('openComicMenu');
+    const closeBtn = $('closeComicMenu');
+    if(!back || !btn) return;
+
+    // закрытие
+    closeBtn && closeBtn.addEventListener('click', closeComic);
+    back.addEventListener('click', (e)=>{ if(e.target === back) closeComic(e); });
+
+    // ESC
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && back.classList.contains('is-open')) closeComic(e);
+    });
+
+    // выбор главы → открываем просмотрщик страниц (макет)
+    const screenCh = back.querySelector('[data-comic-screen="chapters"]');
+    const screenView = back.querySelector('[data-comic-screen="viewer"]');
+    const backBtn = back.querySelector('#comicBackToChapters');
+    const prevBtn = back.querySelector('#comicPrevPage');
+    const nextBtn = back.querySelector('#comicNextPage');
+    const imgEl = back.querySelector('#comicPageImg');
+    const thumbs = back.querySelector('#comicThumbs');
+    const titleEl = back.querySelector('#comicViewTitle');
+    const counterEl = back.querySelector('#comicViewCounter');
+    const pageZone = back.querySelector('#comicPage');
+
+    const PAGES_PER_CHAPTER = 10;
+
+    let curChapter = 1;
+    let curIndex = 0;
+
+    function pad2(n){ return String(n).padStart(2,'0'); }
+
+    // 👉 ожидаемые пути для твоих будущих картинок:
+    //    comics/ch1/page01.jpg ... comics/ch1/page10.jpg
+    function realSrcFor(ch, idx){
+      return `comics/ch${ch}/page${pad2(idx+1)}.jpg`;
+    }
+    function placeholderSrc(ch, idx){
+      const line1 = `Глава ${ch} • Стр ${idx+1}`;
+      const line2 = `(картинку добавишь позже)`;
+      const svg =
+        `<svg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'>`+
+          `<defs>`+
+            `<linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>`+
+              `<stop offset='0' stop-color='#0b1a2a'/>`+
+              `<stop offset='1' stop-color='#163c5a'/>`+
+            `</linearGradient>`+
+            `<radialGradient id='r' cx='30%' cy='25%' r='65%'>`+
+              `<stop offset='0' stop-color='#78c8ff' stop-opacity='.35'/>`+
+              `<stop offset='1' stop-color='#000000' stop-opacity='0'/>`+
+            `</radialGradient>`+
+          `</defs>`+
+          `<rect width='100%' height='100%' fill='url(#g)'/>`+
+          `<rect width='100%' height='100%' fill='url(#r)'/>`+
+          `<text x='50%' y='48%' text-anchor='middle' fill='rgba(245,250,255,.92)' font-size='54' font-family='system-ui, -apple-system, Segoe UI, Roboto' font-weight='900'>${line1}</text>`+
+          `<text x='50%' y='56%' text-anchor='middle' fill='rgba(245,250,255,.72)' font-size='28' font-family='system-ui, -apple-system, Segoe UI, Roboto' font-weight='800'>${line2}</text>`+
+          `<text x='50%' y='67%' text-anchor='middle' fill='rgba(245,250,255,.65)' font-size='22' font-family='system-ui, -apple-system, Segoe UI, Roboto' font-weight='700'>Перелистывай стрелками или свайпом</text>`+
+        `</svg>`;
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    function setImageSafe(realSrc, fallback){
+      if(!imgEl) return;
+      const probe = new Image();
+      probe.onload = ()=>{ imgEl.src = realSrc; };
+      probe.onerror = ()=>{ imgEl.src = fallback; };
+      probe.src = realSrc;
+    }
+
+    function showChapters(){
+      screenView && (screenView.hidden = true);
+      screenCh && (screenCh.hidden = false);
+      // фокус на активной главе
+      setTimeout(()=>{
+        const active = back.querySelector('.comic-ch.is-active') || back.querySelector('.comic-ch');
+        active && active.focus && active.focus({preventScroll:true});
+      }, 0);
+    }
+    function showViewer(){
+      screenCh && (screenCh.hidden = true);
+      screenView && (screenView.hidden = false);
+      setTimeout(()=>{ imgEl && imgEl.focus && imgEl.focus({preventScroll:true}); }, 0);
+    }
+
+    function renderThumbs(){
+      if(!thumbs) return;
+      thumbs.innerHTML = '';
+      for(let i=0;i<PAGES_PER_CHAPTER;i++){
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'comic-thumb' + (i===curIndex ? ' is-active' : '');
+        b.setAttribute('role','listitem');
+        b.setAttribute('aria-label', `Страница ${i+1}`);
+        const im = document.createElement('img');
+        im.alt = '';
+        im.draggable = false;
+        // превью тоже безопасно: сначала пробуем реальный файл, иначе — заглушка
+        const real = realSrcFor(curChapter, i);
+        const ph = placeholderSrc(curChapter, i);
+        // грузим превью через probe, чтобы не показывать "битую" картинку
+        const pr = new Image();
+        pr.onload = ()=>{ im.src = real; };
+        pr.onerror = ()=>{ im.src = ph; };
+        pr.src = real;
+        b.appendChild(im);
+        b.addEventListener('click', ()=>{
+          curIndex = i;
+          renderPage();
+        });
+        thumbs.appendChild(b);
+      }
+    }
+
+    function renderPage(){
+      titleEl && (titleEl.textContent = `Глава ${curChapter}`);
+      counterEl && (counterEl.textContent = `${curIndex+1} / ${PAGES_PER_CHAPTER}`);
+      prevBtn && (prevBtn.disabled = (curIndex<=0));
+      nextBtn && (nextBtn.disabled = (curIndex>=PAGES_PER_CHAPTER-1));
+
+      // подсветка активного thumb
+      thumbs && thumbs.querySelectorAll('.comic-thumb').forEach((n,ix)=>{
+        n.classList.toggle('is-active', ix===curIndex);
+      });
+
+      const real = realSrcFor(curChapter, curIndex);
+      const ph = placeholderSrc(curChapter, curIndex);
+      setImageSafe(real, ph);
+
+      // плавно подскроллить полоску миниатюр к активной
+      try{
+        const act = thumbs && thumbs.children && thumbs.children[curIndex];
+        act && act.scrollIntoView && act.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+      }catch(_){}
+    }
+
+    function openChapter(ch){
+      curChapter = ch;
+      curIndex = 0;
+      renderThumbs();
+      showViewer();
+      renderPage();
+    }
+
+    // клик по главе
+    back.addEventListener('click', (e)=>{
+      const card = e.target.closest('.comic-ch');
+      if(!card) return;
+      const ch = parseInt(card.getAttribute('data-ch') || '1', 10) || 1;
+
+      back.querySelectorAll('.comic-ch.is-active').forEach(n=>n.classList.remove('is-active'));
+      card.classList.add('is-active');
+
+      openChapter(ch);
+    });
+
+    // назад к главам
+    backBtn && backBtn.addEventListener('click', showChapters);
+
+    // prev/next
+    prevBtn && prevBtn.addEventListener('click', ()=>{
+      if(curIndex>0){ curIndex--; renderPage(); }
+    });
+    nextBtn && nextBtn.addEventListener('click', ()=>{
+      if(curIndex<PAGES_PER_CHAPTER-1){ curIndex++; renderPage(); }
+    });
+
+    // клавиши ← → работают, когда открыта модалка и экран viewer
+    document.addEventListener('keydown', (e)=>{
+      if(!back.classList.contains('is-open')) return;
+      if(!screenView || screenView.hidden) return;
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); prevBtn && prevBtn.click(); }
+      if(e.key === 'ArrowRight'){ e.preventDefault(); nextBtn && nextBtn.click(); }
+      // Esc оставляем как "закрыть модалку" (уже есть)
+    });
+
+    // свайп по картинке
+    (function(){
+      if(!pageZone) return;
+      let sx=0, sy=0, t0=0;
+      pageZone.addEventListener('touchstart', (e)=>{
+        if(!e.touches || !e.touches[0]) return;
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        t0 = Date.now();
+      }, {passive:true});
+      pageZone.addEventListener('touchend', (e)=>{
+        const dt = Date.now() - t0;
+        if(dt > 800) return;
+        const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+        if(!touch) return;
+        const dx = touch.clientX - sx;
+        const dy = touch.clientY - sy;
+        if(Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+        if(dx < 0){ nextBtn && nextBtn.click(); } else { prevBtn && prevBtn.click(); }
+      }, {passive:true});
+    })();
+
+    // reset при закрытии/открытии модалки
+    back.__comicReset = function(){
+      try{
+        // всегда возвращаемся к списку глав
+        showChapters();
+      }catch(_){}
+    };
+    // failsafe: если где-то слои перехватывают клики — ловим в capture
+    document.addEventListener('click', (e)=>{
+      const t = e.target && e.target.closest ? e.target.closest('#openComicMenu') : null;
+      if(t){ openComic(e); }
+    }, true);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bind, {once:true});
+  } else {
+    bind();
+  }
+})();
+</script>
+
 
 <script>
 (function(){
