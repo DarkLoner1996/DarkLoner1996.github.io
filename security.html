@@ -3457,6 +3457,103 @@
       .roulette-miniBtn{ width: 100%; }
     }
 
+
+
+/* ============================================================
+   ✅ РУЛЕТКА — ULTRA COMPACT v3 (дизайнерское ужатие)
+   Идея: меньше “пустоты”, меньше переносов, чипы в 1 строку,
+   текст в 2–3 строки с аккуратным ellipsis.
+   ============================================================ */
+
+@media (min-width: 521px){
+  /* чуть шире весь док → меньше переносов в правой панели */
+  :root{
+    --roulette-w: min(940px, calc(100vw - 24px));
+  }
+
+  .roulette-dock{ gap: 10px; }
+
+  /* левая карточка компактнее */
+  .roulette-card{ padding: 10px; gap: 10px; }
+  .wheel-center{ width: 40px; height: 40px; font-size: 10px; }
+  .roulette-controls{ min-width: 178px; gap: 8px; }
+  .roulette-title{ font-size: 15px; }
+  .roulette-sub{ font-size: 10px; }
+  .roulette-btn{ padding: 9px 10px; border-radius: 16px; }
+  .roulette-ghostRow{ gap: 8px; margin-top: 0; }
+
+  /* правая карточка: контент сверху, меньше gap/padding */
+  .roulette-info{
+    padding: 10px 12px;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+  .roulette-infoHead{ flex-wrap: nowrap; }
+  .roulette-infoBadge{ padding: 5px 8px; font-size: 9px; }
+  .roulette-streak{ font-size: 11px; }
+
+  .roulette-infoTitle{
+    font-size: 16px;
+    line-height: 1.05;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .roulette-infoText{
+    font-size: 13px;
+    line-height: 1.18;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+
+  .roulette-link,
+  .roulette-miniBtn{
+    padding: 8px 10px;
+    border-radius: 16px;
+    font-size: 10px;
+    letter-spacing: .10em;
+  }
+
+  /* история миссий: 1 строка с горизонтальным скроллом → высота падает */
+  .roulette-history{
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    margin-top: 0;
+    min-height: 0;
+    padding-bottom: 2px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .roulette-history .hist{
+    padding: 5px 8px;
+    font-size: 9px;
+    gap: 6px;
+    scroll-snap-align: start;
+  }
+  .roulette-history::-webkit-scrollbar{ height: 6px; }
+  .roulette-history::-webkit-scrollbar-thumb{
+    background: rgba(255,255,255,.18);
+    border-radius: 999px;
+  }
+}
+
+/* На “низких” экранах — мягкое уменьшение общего масштаба + колеса */
+@media (min-width: 521px) and (max-height: 900px){
+  :root{
+    --roulette-wheel: clamp(120px, 13vw, 152px);
+    --roulette-scale: .94;
+    --roulette-bottom: 8px;
+  }
+}
+
+/* кнопки результата чуть плотнее (v2 уже делал grid) */
+@media (min-width: 740px){
+  .roulette-infoActions{ gap: 8px; }
+}
 </style>
 <style id="coolPhishStyles">
 
@@ -18101,6 +18198,7 @@ padding:0;
 
         rTitle.textContent = "🎯 Миссия: " + item.label;
         rText.textContent = item.text;
+        rText.title = item.text;
 
         // действие по клику “Перейти”
 
