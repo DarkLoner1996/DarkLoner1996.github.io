@@ -3414,7 +3414,49 @@
     display:block;
     border-radius:inherit;
   }
-    
+
+
+    /* ============================================================
+       ✅ РУЛЕТКА — COMPACT: правая панель шире → меньше высота блока
+       (только desktop/tablet, мобильную колонку НЕ трогаем)
+       ============================================================ */
+
+    /* 1) Чуть ужимаем левую часть, чтобы правой было куда “расти” */
+    @media (min-width: 521px){
+      .roulette-card{ padding: 10px; gap: 10px; }
+      .roulette-controls{ min-width: 190px; gap: 8px; }
+
+      .roulette-info{
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      .roulette-infoTitle{ font-size: 17px; }
+      .roulette-infoText{ font-size: 13.5px; line-height: 1.22; }
+
+      /* если истории нет — не держим пустое место */
+      .roulette-history:empty{ display:none; }
+    }
+
+    /* 2) На “обычном” десктопе (не compact по высоте) можно расширить док */
+    @media (min-width: 521px) and (min-height: 981px){
+      :root{
+        --roulette-wheel: clamp(140px, 16vw, 176px); /* было: clamp(150px, 18vw, 188px) */
+        --roulette-w: min(900px, calc(100vw - 32px)); /* было: 860px */
+      }
+    }
+
+    /* 3) Кнопки результата: 2 ряда вместо 3 (меньше высота справа) */
+    @media (min-width: 740px){
+      .roulette-infoActions{
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 0;
+      }
+      .roulette-link{ grid-column: 1 / -1; justify-content:center; }
+      .roulette-miniBtn{ width: 100%; }
+    }
+
 </style>
 <style id="coolPhishStyles">
 
