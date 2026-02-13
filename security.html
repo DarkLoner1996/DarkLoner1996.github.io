@@ -1511,9 +1511,9 @@
        ============================================================ */
     .roulette-dock{
       position:fixed;
-      left:50%;
-      bottom: var(--roulette-bottom);
-      transform: translateX(-50%) translateZ(0) scale(var(--roulette-scale));
+      left: var(--roulette-dock-left, 50%);
+      bottom: var(--roulette-dock-bottom, calc(var(--roulette-bottom) + var(--roulette-over-chips, 0px)));
+      transform: translateX(var(--roulette-dock-tx, -50%)) translateZ(0) scale(var(--roulette-scale));
       transform-origin: center bottom;
       width: var(--roulette-w);
       z-index:9450;
@@ -17183,6 +17183,89 @@ padding:0;
       const rgAgain      = document.getElementById('rgAgain');
 
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // ✅ Позиционирование: рулетка ровно над блоком «Информатика»
+      // Не меняет DOM и не ломает логику — только задаёт offset и X/Y-позицию дока.
+      function snapRouletteAboveIT(){
+        const root = document.documentElement;
+        const dock = document.getElementById('rouletteDock');
+        const itChip = document.querySelector('.side-chip--it-min');
+
+        // если чего-то нет — ничего не двигаем
+        if(!dock || !itChip){
+          root.style.removeProperty('--roulette-dock-left');
+          root.style.removeProperty('--roulette-dock-tx');
+          root.style.removeProperty('--roulette-dock-bottom');
+          root.style.setProperty('--roulette-over-chips','0px');
+          return;
+        }
+
+        // На мобильной вёрстке не двигаем (там другие отступы/сейф-эрия).
+        if(matchMedia('(max-width: 520px)').matches){
+          root.style.removeProperty('--roulette-dock-left');
+          root.style.removeProperty('--roulette-dock-tx');
+          root.style.removeProperty('--roulette-dock-bottom');
+          root.style.setProperty('--roulette-over-chips','0px');
+          return;
+        }
+
+        // Сбрасываем значения, чтобы корректно измерить базовую геометрию.
+        root.style.setProperty('--roulette-dock-left','50%');
+        root.style.setProperty('--roulette-dock-tx','-50%');
+        root.style.removeProperty('--roulette-dock-bottom');
+        root.style.setProperty('--roulette-over-chips','0px');
+
+        const chipRect = itChip.getBoundingClientRect();
+        if(!chipRect || chipRect.width === 0 || chipRect.height === 0){
+          root.style.removeProperty('--roulette-dock-left');
+          root.style.removeProperty('--roulette-dock-tx');
+          root.style.removeProperty('--roulette-dock-bottom');
+          root.style.setProperty('--roulette-over-chips','0px');
+          return;
+        }
+
+        // Берём текущую ширину дока (с учётом scale/transform).
+        const dockRect = dock.getBoundingClientRect();
+        if(!dockRect || dockRect.width === 0 || dockRect.height === 0){
+          return;
+        }
+
+        // ---------- Y: ставим док ВЫШЕ чипа «Информатика» ----------
+        const gapY = 12; // красивый зазор между доком и чипом
+        // bottom = расстояние от низа вьюпорта до ВЕРХА чипа + зазор
+        const desiredBottom = Math.round((window.innerHeight - chipRect.top) + gapY);
+
+        // Минимум — базовый bottom из CSS, чтобы не “провалиться” вниз.
+        const baseBottom = parseFloat(getComputedStyle(dock).bottom) || 0;
+        const finalBottom = Math.max(baseBottom, desiredBottom);
+        root.style.setProperty('--roulette-dock-bottom', finalBottom + 'px');
+
+        // ---------- X: центрируем док по чипу (и не вылезаем за края) ----------
+        const pad = 12; // отступ от краёв экрана
+        const targetCenter = chipRect.left + chipRect.width/2;
+        let leftPx = Math.round(targetCenter - dockRect.width/2);
+        leftPx = Math.max(pad, Math.min(window.innerWidth - dockRect.width - pad, leftPx));
+
+        root.style.setProperty('--roulette-dock-left', leftPx + 'px');
+        root.style.setProperty('--roulette-dock-tx','0px');
+      }
+
+      // первичная посадка + пересчёт на изменение размеров/меню
+      requestAnimationFrame(snapRouletteAboveIT);
+      window.addEventListener('resize', snapRouletteAboveIT, {passive:true});
+      window.addEventListener('orientationchange', snapRouletteAboveIT, {passive:true});
+      if(window.visualViewport) visualViewport.addEventListener('resize', snapRouletteAboveIT, {passive:true});
+
+      // меню и прочие клики могут менять положение лаунчеров — пересчитаем
+      document.addEventListener('click', (e)=>{
+        const t = e && e.target;
+        if(!t) return;
+        if(t.id === 'menuToggle' || (t.closest && t.closest('#menuToggle'))){
+          setTimeout(snapRouletteAboveIT, 60);
+        }
+      }, true);
+
+
 
       let lastFocus = null;
       let locked = false;
