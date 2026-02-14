@@ -4277,6 +4277,50 @@
     0 0 0 1px rgba(255,214,120,.10) inset !important;
 }
 
+
+
+/* ============================================================
+   ✅ АКТИВНАЯ ПОДСВЕТКА КНОПОК МИНИ-ИГР (Информатика/Инфобез/Фишинг)
+   - исправляет ситуацию, когда сверху всегда “торчит” Фишинг
+   - теперь активной становится та кнопка, игра которой открыта
+   ============================================================ */
+.side-chip{ z-index: 12500 !important; }
+/* отменяем старый hotfix только для фишинга (чтобы он не был "вечно сверху") */
+.side-chip--phish-min{ z-index: 12500 !important; }
+/* активная кнопка всегда поверх всего */
+.side-chip.is-active{ z-index: 23050 !important; }
+
+.side-chip.is-active .chip-card{
+  border-color: rgba(120,230,255,.32);
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.34),
+    0 0 0 2px rgba(120,230,255,.14),
+    0 0 26px rgba(120,230,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.16);
+}
+.side-chip.is-active .avatar{
+  box-shadow:
+    0 24px 62px rgba(0,0,0,.28),
+    0 0 0 2px rgba(255,215,120,.18),
+    0 0 22px rgba(255,215,120,.14),
+    inset 0 1px 0 rgba(255,255,255,.16);
+  transform: translateY(-1px);
+}
+.side-chip.is-active .chip-btn{
+  background:
+    radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
+    linear-gradient(180deg, rgba(72,214,255,.92), rgba(24,142,255,.88));
+  filter: saturate(1.08);
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .side-chip.is-active .chip-card{ animation: tkChipPulse 1.8s ease-in-out infinite; }
+  @keyframes tkChipPulse{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-2px); }
+  }
+}
+
 </style>
 <style id="coolPhishStyles">
 
@@ -6683,6 +6727,430 @@ padding:0;
 }
 </style>
 
+
+<style id="tkHudMenuWowCompact">
+/* ============================================================
+   ✅ HUD-МЕНЮ — WOW COMPACT (только стиль/габариты, без логики)
+   Не трогает мини-игры/слайдер/рулетку: только .side-nav*
+   ============================================================ */
+
+/* компактные базовые переменные */
+:root{
+  --panel-w: min(360px, calc(100vw - 24px));
+  --rowH: clamp(56px, 7.6vw, 64px);
+}
+
+/* общий блок */
+.side-nav{
+  gap: 8px;
+  filter: drop-shadow(0 18px 38px rgba(0,0,0,.22));
+}
+
+/* верхняя плашка */
+.side-nav__tab{
+  border-radius: 20px;
+  padding: 8px 10px;
+  backdrop-filter: blur(18px) saturate(1.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.12);
+}
+.side-nav__tab::before{ opacity: .95; }
+.side-nav__tab::after{ opacity: .40; }
+
+.menu-pill{
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  letter-spacing: .14em;
+}
+.menu-pill svg{ width: 18px; height: 18px; }
+
+.back-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+}
+.back-btn svg{ width: 16px; height: 16px; }
+
+/* панель */
+.side-nav__panel{
+  padding: 10px;
+  border-radius: 20px;
+  margin-top: 6px;
+
+  /* чуть "дороже" стекло */
+  background:
+    radial-gradient(140% 180% at 12% 10%, rgba(120,230,255,.20), transparent 55%),
+    radial-gradient(120% 160% at 86% 14%, rgba(255,210,122,.14), transparent 62%),
+    linear-gradient(180deg, rgba(7,24,44,.72), rgba(4,18,32,.64));
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 34px 92px rgba(0,0,0,.32),
+    0 12px 26px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 0 0 1px rgba(120,230,255,.08);
+}
+.side-nav__panel::after{ opacity: .16; }
+
+.side-nav__list{
+  gap: 10px;
+  margin: 6px 0 0;
+}
+
+/* пункты меню */
+.hud-item{
+  height: var(--rowH);
+  border-radius: 18px;
+  padding: 10px 12px;
+  gap: 10px;
+
+  background:
+    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.11), transparent 60%),
+    radial-gradient(120% 160% at 88% 14%, rgba(120,230,255,.10), transparent 62%),
+    linear-gradient(180deg, rgba(10,45,76,.30), rgba(6,28,50,.22));
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 14px 26px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, filter .18s ease;
+}
+
+.hud-item:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,.20);
+  box-shadow:
+    0 20px 36px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 0 18px rgba(120,230,255,.10);
+}
+
+.hud-item.is-active{
+  border-color: rgba(255,255,255,.24);
+  box-shadow:
+    0 26px 52px rgba(0,0,0,.26),
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 0 22px rgba(120,230,255,.14);
+  filter: saturate(1.06);
+}
+
+/* иконка слева */
+.hud-ico{
+  width: clamp(38px, 9.2vw, 46px);
+  height: clamp(38px, 9.2vw, 46px);
+  border-radius: 15px;
+  box-shadow:
+    0 14px 28px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.16);
+}
+.hud-ico svg{ width: 20px; height: 20px; }
+
+/* тексты */
+.hud-title{
+  font-size: clamp(13px, 3.0vw, 16px);
+  letter-spacing: .08em;
+}
+.hud-sub{
+  font-size: clamp(8px, 2.0vw, 10px);
+  opacity: .88;
+}
+
+/* стрелка справа */
+.hud-arrow{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  box-shadow:
+    0 12px 24px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+/* в свернутом состоянии — еще компактнее */
+body.menu-collapsed .side-nav__panel{
+  transform: scale(.96);
+  transform-origin: top left;
+}
+
+/* уважение reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .hud-item{ transition: none; }
+  .hud-item:hover{ transform: none; }
+}
+</style>
+
+
+<style id="miniAvatarBump">
+/* ============================================================
+   ✅ Mini-games: bigger character avatars (desktop/tablet)
+   Scoped to #phishGame, #itGame, #infoSecGame
+   ============================================================ */
+@media (min-width: 521px){
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+    grid-template-columns: 88px 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
+    width: 88px;
+    height: 88px;
+    border-radius: 26px;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile svg{
+    width: 66px;
+    height: 66px;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble img.avatar-img{
+    padding: 6px;
+  }
+
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .profile-top{
+    grid-template-columns: 112px 1fr;
+    gap: 12px;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big{
+    width: 112px;
+    height: 112px;
+    border-radius: 30px;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big svg{
+    width: 82px;
+    height: 82px;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big img.avatar-img-big{
+    padding: 8px;
+  }
+}
+</style>
+
+
+<style id="mgAvatarBoostV2">
+/* ============================================================
+   ✅ MINI-ИГРЫ — БОЛЬШЕ АВАТАРЫ v2 (смело)
+   Не трогает логику. Только размеры картинок/плашек.
+   ============================================================ */
+:root{
+  --mgPickSize: 96px;
+  --mgPickRadius: 28px;
+  --mgBigSize: 128px;
+  --mgBigRadius: 34px;
+}
+
+/* выбор персонажа (плитки) */
+#phishGame .cool-phish-root .avatar-tile,
+#itGame .cool-phish-root .avatar-tile,
+#infoSecGame .cool-phish-root .avatar-tile{
+  grid-template-columns: var(--mgPickSize) 1fr !important;
+  gap: 14px !important;
+  padding: 14px !important;
+  border-radius: 24px !important;
+}
+#phishGame .cool-phish-root .avatar-tile .bubble,
+#itGame .cool-phish-root .avatar-tile .bubble,
+#infoSecGame .cool-phish-root .avatar-tile .bubble{
+  width: var(--mgPickSize) !important;
+  height: var(--mgPickSize) !important;
+  border-radius: var(--mgPickRadius) !important;
+}
+
+/* png внутри (чуть меньше паддинг — больше персонаж) */
+#phishGame .cool-phish-root .avatar-tile .bubble img.avatar-img,
+#itGame .cool-phish-root .avatar-tile .bubble img.avatar-img,
+#infoSecGame .cool-phish-root .avatar-tile .bubble img.avatar-img{
+  padding: 6px !important;
+  object-fit: contain !important;
+}
+
+/* профиль игрока (большой аватар) */
+#phishGame .cool-phish-root .profile-top,
+#itGame .cool-phish-root .profile-top,
+#infoSecGame .cool-phish-root .profile-top{
+  grid-template-columns: var(--mgBigSize) 1fr !important;
+  gap: 12px !important;
+}
+#phishGame .cool-phish-root .avatar-big,
+#itGame .cool-phish-root .avatar-big,
+#infoSecGame .cool-phish-root .avatar-big{
+  width: var(--mgBigSize) !important;
+  height: var(--mgBigSize) !important;
+  border-radius: var(--mgBigRadius) !important;
+}
+#phishGame .cool-phish-root .avatar-big img.avatar-img-big,
+#itGame .cool-phish-root .avatar-big img.avatar-img-big,
+#infoSecGame .cool-phish-root .avatar-big img.avatar-img-big{
+  padding: 8px !important;
+  object-fit: contain !important;
+}
+
+/* мобильная/узкая версия — тоже увеличено, но аккуратно */
+@media (max-width:520px){
+  :root{
+    --mgPickSize: 78px;
+    --mgPickRadius: 24px;
+    --mgBigSize: 96px;
+    --mgBigRadius: 28px;
+  }
+}
+
+
+/* =========================
+   ❤️ HP индикатор (100 HP)
+   ========================= */
+#phishGame .cool-phish-root .hp-row,
+#itGame .cool-phish-root .hp-row,
+#infoSecGame .cool-phish-root .hp-row{
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+#phishGame .cool-phish-root .hp-label,
+#itGame .cool-phish-root .hp-label,
+#infoSecGame .cool-phish-root .hp-label{
+  font-size: 12px;
+  opacity: .9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: .2px;
+}
+#phishGame .cool-phish-root .hpbar,
+#itGame .cool-phish-root .hpbar,
+#infoSecGame .cool-phish-root .hpbar{
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.18);
+}
+#phishGame .cool-phish-root .hpfill,
+#itGame .cool-phish-root .hpfill,
+#infoSecGame .cool-phish-root .hpfill{
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255,89,89,.95), rgba(255,199,92,.95), rgba(94,255,190,.95));
+  box-shadow: 0 0 14px rgba(94,255,190,.18);
+}
+
+/* game over overlay (fullscreen inside mini-game) */
+#phishGame .cool-phish-root,
+#itGame .cool-phish-root,
+#infoSecGame .cool-phish-root{
+  position: relative;
+}
+
+/* block interaction under overlay */
+#phishGame .cool-phish-root.hp-dead > *:not(.hp-gameover),
+#itGame .cool-phish-root.hp-dead > *:not(.hp-gameover),
+#infoSecGame .cool-phish-root.hp-dead > *:not(.hp-gameover){
+  pointer-events: none;
+  user-select: none;
+  filter: blur(1px);
+  opacity: .55;
+}
+
+#phishGame .cool-phish-root .hp-gameover,
+#itGame .cool-phish-root .hp-gameover,
+#infoSecGame .cool-phish-root .hp-gameover{
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,.58);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* IMPORTANT: allow [hidden] to actually hide overlay (our specificity is higher than UA stylesheet) */
+#phishGame .cool-phish-root .hp-gameover[hidden],
+#itGame .cool-phish-root .hp-gameover[hidden],
+#infoSecGame .cool-phish-root .hp-gameover[hidden]{
+  display: none !important;
+}
+
+#phishGame .cool-phish-root .hp-go-card,
+#itGame .cool-phish-root .hp-go-card,
+#infoSecGame .cool-phish-root .hp-go-card{
+  width: min(720px, 100%);
+  border-radius: 22px;
+  padding: 18px 18px 16px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  text-align: center;
+}
+
+#phishGame .cool-phish-root .hp-go-title,
+#itGame .cool-phish-root .hp-go-title,
+#infoSecGame .cool-phish-root .hp-go-title{
+  font-size: 14px;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: .95;
+}
+
+#phishGame .cool-phish-root .hp-go-img,
+#itGame .cool-phish-root .hp-go-img,
+#infoSecGame .cool-phish-root .hp-go-img{
+  width: min(520px, 92vw);
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 12px;
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+#phishGame .cool-phish-root .hp-go-btn,
+#itGame .cool-phish-root .hp-go-btn,
+#infoSecGame .cool-phish-root .hp-go-btn{
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+  background: rgba(255,255,255,.20);
+  border: 1px solid rgba(255,255,255,.20);
+  box-shadow: 0 10px 24px rgba(0,0,0,.20);
+}
+
+#phishGame .cool-phish-root .hp-go-btn:hover,
+#itGame .cool-phish-root .hp-go-btn:hover,
+#infoSecGame .cool-phish-root .hp-go-btn:hover{
+  transform: translateY(-1px);
+}
+
+@media (max-width: 520px){
+  #phishGame .cool-phish-root .hp-go-card,
+  #itGame .cool-phish-root .hp-go-card,
+  #infoSecGame .cool-phish-root .hp-go-card{
+    padding: 16px 14px 14px;
+    border-radius: 18px;
+  }
+  #phishGame .cool-phish-root .hp-go-img,
+  #itGame .cool-phish-root .hp-go-img,
+  #infoSecGame .cool-phish-root .hp-go-img{
+    border-radius: 14px;
+  }
+}
+/* компактнее на очень узких экранах */
+@media (max-width: 520px){
+  #phishGame .cool-phish-root .hpbar,
+  #itGame .cool-phish-root .hpbar,
+  #infoSecGame .cool-phish-root .hpbar{
+    height: 9px;
+  }
+}
+
+</style>
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -7409,6 +7877,12 @@ padding:0;
                         <div class="xpfill" id="itXpFill"></div>
                       </div>
                       <div class="small" id="itXpText">До следующего уровня: 50 XP</div>
+                      <div class="hp-row" aria-label="Здоровье персонажа">
+                        <div class="hp-label">❤️ HP <span id="itHpVal">100</span>/100</div>
+                        <div class="hpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                          <div class="hpfill" id="itHpFill" style="width:100%"></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -7620,6 +8094,12 @@ padding:0;
 <div class="xpfill" id="infoXpFill"></div>
 </div>
 <div class="small" id="infoXpText">До следующего уровня: 50 XP</div>
+                      <div class="hp-row" aria-label="Здоровье персонажа">
+                        <div class="hp-label">❤️ HP <span id="infoHpVal">100</span>/100</div>
+                        <div class="hpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                          <div class="hpfill" id="infoHpFill" style="width:100%"></div>
+                        </div>
+                      </div>
 </div>
 </div>
 <div class="footer-controls">
@@ -7859,6 +8339,12 @@ padding:0;
 <div class="xpfill" id="xpFill"></div>
 </div>
 <div class="small" id="xpText">До следующего уровня: 50 XP</div>
+                      <div class="hp-row" aria-label="Здоровье персонажа">
+                        <div class="hp-label">❤️ HP <span id="phishHpVal">100</span>/100</div>
+                        <div class="hpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                          <div class="hpfill" id="phishHpFill" style="width:100%"></div>
+                        </div>
+                      </div>
 </div>
 </div>
 <div class="footer-controls">
@@ -17849,6 +18335,118 @@ padding:0;
     link: "https://edunet-help.ru/login?ref=21628",
     explain: "Признак фишинга: ссылка ведёт на домен, похожий на настоящий. Всегда проверяйте адрес сайта и не вводите пароль по ссылкам из неожиданных сообщений.",
   },
+
+  // --- Added LVL 4-5 расширение (5 уровней)
+  {
+    id: "c9001",
+    level: 4,
+    kind: "phish",
+    fromName: "Служба поддержки GamePass",
+    fromEmail: "support@gamepass-security.help",
+    subject: "Подтверждение входа • Срочно",
+    body: "Мы обнаружили подозрительный вход. Подтвердите аккаунт по ссылке в течение 10 минут.",
+    link: "https://gamepass-security.help/verify",
+    explain: "Фишинг: давление временем, подозрительный домен. Не входите по ссылкам из писем — откройте сайт вручную и проверьте адрес.",
+  },
+  {
+    id: "c9002",
+    level: 4,
+    kind: "legit",
+    fromName: "Электронный дневник",
+    fromEmail: "no-reply@edu.gov.ru",
+    subject: "Расписание обновлено",
+    body: "В расписании появились изменения на завтра. Проверьте обновление в дневнике.",
+    link: "https://edu.gov.ru/diary",
+    explain: "Признаки легитимности: официальный домен, нет просьбы вводить пароль «прямо сейчас», сообщение информирует, а не пугает.",
+  },
+  {
+    id: "c9003",
+    level: 4,
+    kind: "phish",
+    fromName: "Магазин OzonKids",
+    fromEmail: "promo@0zon-kids.ru",
+    subject: "Подарок 3000₽ за отзыв",
+    body: "Вы выиграли 3000₽! Нажмите «Получить» и введите данные карты для зачисления.",
+    link: "https://0zon-kids.ru/get",
+    explain: "Фишинг: подмена буквы (0 вместо o), требуют данные карты ради «подарка». Настоящие сервисы не просят карту для получения приза.",
+  },
+  {
+    id: "c9004",
+    level: 4,
+    kind: "legit",
+    fromName: "Сервис безопасности устройства",
+    fromEmail: "security@device.example",
+    subject: "Совет дня: обновления",
+    body: "Сегодня рекомендуется установить обновление системы через Wi‑Fi. Это помогает закрывать уязвимости.",
+    link: "",
+    explain: "Легитимно: нет ссылки на «вход», нет просьбы о паролях/кодах. Это совет по безопасности.",
+  },
+  {
+    id: "c9005",
+    level: 4,
+    kind: "phish",
+    fromName: "Администрация чата",
+    fromEmail: "admin@chat-helpdesk.support",
+    subject: "Ваш аккаунт заблокируют",
+    body: "Мы получили жалобу. Чтобы не потерять аккаунт, подтвердите номер и пароль по ссылке.",
+    link: "https://chat-helpdesk.support/unlock",
+    explain: "Фишинг: требуют пароль, пугают блокировкой, домен не похож на официальный. Пароли нельзя сообщать никому.",
+  },
+  {
+    id: "c9011",
+    level: 5,
+    kind: "phish",
+    fromName: "Кошелёк PayWave",
+    fromEmail: "alerts@paywave-ver1fy.com",
+    subject: "Добавлено новое устройство",
+    body: "Мы добавили новое устройство. Если это не вы — войдите и отмените действие.",
+    link: "https://paywave-ver1fy.com/device",
+    explain: "Фишинг: домен с подменой (ver1fy), вынуждают «войти по ссылке». Откройте официальный сайт/приложение сами и проверьте уведомления там.",
+  },
+  {
+    id: "c9012",
+    level: 5,
+    kind: "legit",
+    fromName: "Игровая платформа",
+    fromEmail: "no-reply@store.example",
+    subject: "Вход с нового устройства",
+    body: "Если вход был не вами — смените пароль в настройках. Никому не сообщайте коды подтверждения.",
+    link: "",
+    explain: "Легитимно: нет странной ссылки и просьбы вводить пароль. Сообщение даёт инструкции, а не требует срочно перейти.",
+  },
+  {
+    id: "c9013",
+    level: 5,
+    kind: "phish",
+    fromName: "«Техподдержка»",
+    fromEmail: "help@support-mail.ru",
+    subject: "Проверка возраста для бонуса",
+    body: "Для получения бонуса укажите дату рождения, адрес и фото документа в ответ на письмо.",
+    link: "",
+    explain: "Фишинг: просят слишком много личных данных и документы. Нельзя отправлять документы и адреса в ответ на письмо.",
+  },
+  {
+    id: "c9014",
+    level: 5,
+    kind: "legit",
+    fromName: "Облачное хранилище",
+    fromEmail: "no-reply@cloud.example",
+    subject: "Резервная копия завершена",
+    body: "Резервное копирование файлов выполнено успешно. Вы можете проверить список в приложении.",
+    link: "",
+    explain: "Легитимно: информирует о событии, не просит пароли/коды и не заставляет переходить по подозрительным ссылкам.",
+  },
+  {
+    id: "c9015",
+    level: 5,
+    kind: "phish",
+    fromName: "Супер‑конкурс",
+    fromEmail: "prize@super-win.click",
+    subject: "Вы выиграли телефон!",
+    body: "Поздравляем! Чтобы получить телефон, оплатите «доставку» 199₽ и введите данные карты.",
+    link: "https://super-win.click/delivery",
+    explain: "Фишинг: «оплатите доставку для приза» и требуют карту. Призы от мошенников часто устроены именно так.",
+  },
     ];
 
     /* ============================================================
@@ -17872,8 +18470,8 @@ padding:0;
     }
 
     function pickCardsForLevel(lvl, count) {
-      const minL = clamp(lvl - 2, 1, 10);
-      const maxL = clamp(lvl + 1, 1, 10);
+      const minL = clamp(lvl - 2, 1, 5);
+      const maxL = clamp(lvl + 1, 1, 5);
       const pool = CARD_BANK.filter(c => c.level >= minL && c.level <= maxL);
       shuffle(pool);
       return pool.slice(0, count);
@@ -17909,7 +18507,9 @@ padding:0;
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return defaultPlayer();
         const p = JSON.parse(raw);
-        return { ...defaultPlayer(), ...p };
+        const merged = { ...defaultPlayer(), ...p };
+        merged.lvl = clamp(merged.lvl || 1, 1, 5);
+        return merged;
       } catch {
         return defaultPlayer();
       }
@@ -17929,7 +18529,7 @@ padding:0;
 
       while (player.xp >= xpToNext(player.lvl)) {
         player.xp -= xpToNext(player.lvl);
-        player.lvl = clamp(player.lvl + 1, 1, 10);
+        player.lvl = clamp(player.lvl + 1, 1, 5);
       }
 
       savePlayer(player);
@@ -18154,10 +18754,12 @@ padding:0;
         const bonus = 2 + Math.floor(card.level / 2);
         applyXp(player, bonus);
         setExplain("bad", card.explain + ` (+${bonus} XP)`);
+        window.__tkHpDamage && window.__tkHpDamage("phish", 20);
       }
 
       updateHud();
       nextBtn.disabled = false;
+      if (window.__tkHpIsDead && window.__tkHpIsDead("phish")) nextBtn.disabled = true;
     }
 
     /* ============================================================
@@ -18390,14 +18992,14 @@ padding:0;
 </div>
 </div>
 <!-- ============================================================
-     ✅ МЕНЮ: «КОМИКС» (рыба — наполнение добавишь позже)
+     ✅ МЕНЮ: «КОМИКС» (рыба — наполнение .)
 ============================================================ -->
 <div aria-hidden="true" class="mg-backdrop" id="comicMenu">
   <section aria-labelledby="cmTitle" aria-modal="true" class="mg-modal mg-modal--comic" role="dialog">
     <div class="mg-top">
       <div class="mg-title">
         <div class="mg-h1" id="cmTitle">Комикс</div>
-        <div class="mg-sub" id="cmSub">Выбери главу</div>
+        <div class="mg-sub" id="cmSub">Выбери главу - описание и наполнение В РАЗРАБОТКЕ .</div>
       </div>
       <button aria-label="Закрыть меню комикса" class="mg-close" id="closeComicMenu" type="button">
         <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -18416,7 +19018,7 @@ padding:0;
             <span class="comic-ch__n">Глава 1</span>
             <span class="comic-ch__tag">скоро</span>
           </div>
-          <div class="comic-ch__desc">Короткое описание главы ..</div>
+          <div class="comic-ch__desc">Короткое описание главы (.).</div>
         </button>
 
         <button class="comic-ch" type="button" role="listitem" data-ch="2">
@@ -18424,7 +19026,7 @@ padding:0;
             <span class="comic-ch__n">Глава 2</span>
             <span class="comic-ch__tag">скоро</span>
           </div>
-          <div class="comic-ch__desc">Короткое описание главы ..</div>
+          <div class="comic-ch__desc">Короткое описание главы (.).</div>
         </button>
 
         <button class="comic-ch" type="button" role="listitem" data-ch="3">
@@ -18432,7 +19034,7 @@ padding:0;
             <span class="comic-ch__n">Глава 3</span>
             <span class="comic-ch__tag">скоро</span>
           </div>
-          <div class="comic-ch__desc">Короткое описание главы ..</div>
+          <div class="comic-ch__desc">Короткое описание главы (.).</div>
         </button>
 
         <button class="comic-ch" type="button" role="listitem" data-ch="4">
@@ -18440,7 +19042,7 @@ padding:0;
             <span class="comic-ch__n">Глава 4</span>
             <span class="comic-ch__tag">скоро</span>
           </div>
-          <div class="comic-ch__desc">Короткое описание главы ..</div>
+          <div class="comic-ch__desc">Короткое описание главы (.).</div>
         </button>
 
         <button class="comic-ch" type="button" role="listitem" data-ch="5">
@@ -18448,7 +19050,7 @@ padding:0;
             <span class="comic-ch__n">Глава 5</span>
             <span class="comic-ch__tag">скоро</span>
           </div>
-          <div class="comic-ch__desc">Короткое описание главы ..</div>
+          <div class="comic-ch__desc">Короткое описание главы (.).</div>
         </button>
 
         <button class="comic-ch" type="button" role="listitem" data-ch="6">
@@ -18456,11 +19058,11 @@ padding:0;
             <span class="comic-ch__n">Глава 6</span>
             <span class="comic-ch__tag">скоро</span>
           </div>
-          <div class="comic-ch__desc">Короткое описание главы ..</div>
+          <div class="comic-ch__desc">Короткое описание главы (.).</div>
         </button>
       </div>
 
-      <div class="comic-hint">Подсказка: сейчас это меню-«в разработке».</div>
+      <div class="comic-hint">Подсказка: сейчас это меню-«рыба».</div>
       </div>
 
       <div class="comic-screen comic-screen--viewer" data-comic-screen="viewer" hidden>
@@ -18494,7 +19096,7 @@ padding:0;
         <div class="comic-strip" id="comicThumbs" aria-label="Страницы главы" role="list"></div>
 
         <div class="comic-hint" style="opacity:.7; padding-top:6px;">
-          Сейчас используются заглушки. <b></b> с именами <b>page01.jpg ... page10.jpg</b>.
+          Сейчас используются заглушки<b></b>  <b></b>.
         </div>
       </div>
 
@@ -20744,6 +21346,21 @@ ${currentItem.text}`;
     {lvl:3, from:'Файл', email:'file@download', subject:'Скачанный архив', body:'Открыть файл “Homework.zip.exe”, который прислали в чате?', link:'', ans:'risk', why:'Двойное расширение (zip.exe) — опасный признак. Это может быть программа-вирус.'},
     {lvl:3, from:'Настройки', email:'share@system', subject:'Доступ по ссылке', body:'Открыть документ “по ссылке всем”, чтобы каждый мог редактировать?', link:'', ans:'risk', why:'Публичный доступ на редактирование может привести к порче файла. Лучше “только просмотр” и только нужным людям.'},
     {lvl:3, from:'Браузер', email:'https@system', subject:'Проверка сайта', body:'Перед вводом пароля проверяю адрес и замочек HTTPS. Это правильно?', link:'', ans:'safe', why:'Да. Нужно проверять адрес сайта и соединение. Это снижает риск попасть на поддельную страницу.'},
+
+
+    // LVL 4 — социнженерия и ловушки
+    {lvl:4, from:'Школа', email:'diary@school.example', subject:'Код подтверждения', body:'Мне написали: «Пришли код из SMS, чтобы привязать дневник». Отправлять код?', link:'', ans:'risk', why:'Коды из SMS — это ключи для входа. Их нельзя никому сообщать. Настоящий сервис никогда не просит код в чате.'},
+    {lvl:4, from:'Сайт', email:'video@popup.example', subject:'Разрешение уведомлений', body:'Сайт просит включить уведомления «чтобы посмотреть видео». Это безопасно?', link:'', ans:'risk', why:'Это часто уловка: уведомления будут слать рекламу и фейковые предупреждения. Лучше нажать «Запретить».'},
+    {lvl:4, from:'Видеозвонок', email:'camera@permissions', subject:'Доступ к камере', body:'Приложение видеозвонков просит камеру только во время звонка. Разрешить?', link:'', ans:'safe', why:'Да, если это известное приложение. Разрешайте доступ только когда нужно и проверяйте настройки.'},
+    {lvl:4, from:'Афиша', email:'qr@street', subject:'QR‑код на стенде', body:'На стенде QR‑код «Скачай игру бесплатно». Нет названия сайта. Сканировать?', link:'', ans:'risk', why:'Неизвестные QR‑коды могут вести на вредные сайты. Лучше не сканировать или проверить взрослым.'},
+    {lvl:4, from:'Совет', email:'helper@tips', subject:'Проверка ссылки', body:'Если ссылка кажется странной — я сначала показываю её взрослому. Это правильно?', link:'', ans:'safe', why:'Да. Лучше спросить взрослого/учителя, чем рискнуть и открыть фишинговую ссылку.'},
+
+    // LVL 5 — продвинутые привычки
+    {lvl:5, from:'Планшет', email:'profiles@system', subject:'Гостевой профиль', body:'Сделать гостевой профиль для друзей, чтобы они не видели мои файлы?', link:'', ans:'safe', why:'Да. Гостевой профиль защищает личные фото и документы, если кто-то берёт устройство поиграть.'},
+    {lvl:5, from:'Форум', email:'mods@forum.example', subject:'Чит/мод', body:'Скачать чит для игры и дать ему «права администратора» на компьютере?', link:'', ans:'risk', why:'Это опасно: читы часто содержат вирусы. Права администратора дают полный доступ к системе.'},
+    {lvl:5, from:'Пароли', email:'manager@security', subject:'Менеджер паролей', body:'Использовать менеджер паролей и делать уникальные пароли для сайтов — это безопаснее?', link:'', ans:'safe', why:'Да. Уникальные пароли снижают риск, а менеджер помогает хранить их безопасно (с мастер‑паролем).'},
+    {lvl:5, from:'Чат', email:'share@chat.example', subject:'Скрин экрана', body:'Отправить скриншот, где видно мой логин/почту и часть личного кабинета. Можно?', link:'', ans:'risk', why:'Лучше не отправлять. На скрине могут быть личные данные, которые помогут мошенникам.'},
+    {lvl:5, from:'Безопасность', email:'lost@system', subject:'Потерял телефон', body:'Если телефон потерялся — включить «Найти устройство», выйти из аккаунтов и сменить пароли. Так надо?', link:'', ans:'safe', why:'Да. Это помогает защитить аккаунты и данные, даже если телефон попадёт к чужим людям.'},
   ];
 
   const total = deck.length;
@@ -20780,11 +21397,11 @@ ${currentItem.text}`;
 
   function levelFromXP(xp){
     // 0-49 => 1, 50-99 => 2, 100+ => 3 (макс 3)
-    return Math.min(3, 1 + Math.floor(xp / 50));
+    return Math.min(5, 1 + Math.floor(xp / 50));
   }
   function nextThreshold(xp){
     const lvl = levelFromXP(xp);
-    return lvl === 1 ? 50 : (lvl === 2 ? 100 : 150);
+    return (lvl===1)?50: (lvl===2)?100: (lvl===3)?150: (lvl===4)?200: 250;
   }
 
   function setAvatarUI(){
@@ -20801,7 +21418,7 @@ ${currentItem.text}`;
     const lvl = levelFromXP(state.xp);
     const next = nextThreshold(state.xp);
     const remaining = Math.max(0, next - state.xp);
-    const fill = Math.max(0, Math.min(1, state.xp / 150));
+    const fill = Math.max(0, Math.min(1, state.xp / 250));
 
     if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/3';
     if(xpBadge) xpBadge.textContent = 'XP ' + state.xp;
@@ -20915,6 +21532,7 @@ if(fioInput){
       state.correct += 1;
       state.xp += 10;
     }else{
+      window.__tkHpDamage && window.__tkHpDamage("info", 20);
       // маленькая мотивация: не штрафуем XP
     }
 
@@ -20929,6 +21547,10 @@ if(fioInput){
       }else{
         nextBtn.textContent = 'Далее';
       }
+
+    if(window.__tkHpIsDead && window.__tkHpIsDead("info")){
+      nextBtn && (nextBtn.disabled = true);
+    }
     }
   }
 
@@ -21263,7 +21885,7 @@ if(fioInput){
     }
     function placeholderSrc(ch, idx){
       const line1 = `Глава ${ch} • Стр ${idx+1}`;
-      const line2 = `(комикс будет добавлен позже)`;
+      const line2 = `(картинку .)`;
       const svg =
         `<svg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'>`+
           `<defs>`+
@@ -21589,6 +22211,21 @@ if(fioInput){
     {level:3, topic:'логика', text:'"И" в логике означает: верно, только если верно всё сразу.', correct:true, explain:'Верно. Для И нужно, чтобы оба условия были истинны.'},
     {level:3, topic:'логика', text:'"ИЛИ" означает: верно, только если верно оба условия.', correct:false, explain:'Неверно. Для ИЛИ достаточно, чтобы истинно хотя бы одно условие.'},
     {level:3, topic:'алгоритмы', text:'Сортировка — это алгоритм, который упорядочивает элементы.', correct:true, explain:'Верно. Например, по возрастанию чисел или по алфавиту.'},
+
+
+    // Level 4 (5)
+    {level:4, topic:'память', text:'Оперативная память (RAM) хранит данные даже после выключения компьютера.', correct:false, explain:'Неверно. RAM — «временная» память: после выключения питание пропадает и данные стираются.'},
+    {level:4, topic:'функции', text:'Функция — это часть программы, которую можно вызывать много раз.', correct:true, explain:'Верно. Функции помогают не повторять один и тот же код и делают программу понятнее.'},
+    {level:4, topic:'циклы', text:'Если условие цикла всегда истинно, цикл может стать бесконечным.', correct:true, explain:'Верно. Такой цикл будет повторяться снова и снова, пока условие не станет ложным.'},
+    {level:4, topic:'комментарии', text:'Комментарий в коде выполняется компьютером как команда.', correct:false, explain:'Неверно. Комментарии нужны людям: объясняют код и не выполняются программой.'},
+    {level:4, topic:'отладка', text:'Отладчик помогает искать ошибки, показывая выполнение программы шаг за шагом.', correct:true, explain:'Верно. В отладчике можно смотреть значения переменных и понимать, где возникла ошибка.'},
+
+    // Level 5 (5)
+    {level:5, topic:'алгоритмы', text:'Любой поиск в списке обязательно должен проверить все элементы по одному.', correct:false, explain:'Неверно. Например, в отсортированном списке можно использовать двоичный поиск и проверять не все элементы.'},
+    {level:5, topic:'сети', text:'IP‑адрес — это «номер» устройства в сети.', correct:true, explain:'Верно. IP‑адрес помогает сети понять, куда отправлять данные.'},
+    {level:5, topic:'безопасность', text:'Шифрование делает данные понятными любому, кто их увидит.', correct:false, explain:'Неверно. Шифрование наоборот скрывает смысл данных: прочитать их сможет только тот, у кого есть ключ.'},
+    {level:5, topic:'структуры данных', text:'Список (массив) может хранить много значений под одним именем.', correct:true, explain:'Верно. Например, список оценок или список задач — это несколько значений в одной структуре.'},
+    {level:5, topic:'логика', text:'Оператор «НЕ» меняет истину на ложь и наоборот.', correct:true, explain:'Верно. НЕ(истина)=ложь, НЕ(ложь)=истина.'},
   ];
 
   // runtime state
@@ -21600,10 +22237,12 @@ if(fioInput){
   let skipped = [];
 
   function computeLevelFromIndex(i){
-    // 0-4 -> 1, 5-9 ->2, 10-14 ->3
+    // 0-4 -> 1, 5-9 ->2, 10-14 ->3, 15-19 ->4, 20-24 ->5
     if(i<5) return 1;
     if(i<10) return 2;
-    return 3;
+    if(i<15) return 3;
+    if(i<20) return 4;
+    return 5;
   }
 
   function openModal(){
@@ -21626,7 +22265,7 @@ if(fioInput){
       selectedAvatar = state.avatar;
       idx = clamp(state.idx||0,0,14);
       skipped = Array.isArray(state.skipped)?state.skipped:[];
-      order = state.order && state.order.length===15 ? state.order : Array.from({length:15},(_,i)=>i);
+      order = state.order && state.order.length===25 ? state.order : Array.from({length:25},(_,i)=>i);
       updateProfileUI();
       updateKpi();
       renderQuestion();
@@ -21681,9 +22320,10 @@ if(fioInput){
     if(playerRoleEl) playerRoleEl.textContent = avatar==='girl' ? 'Логическая исследовательница' : 'Юный программист';
 
     const xp = (state && typeof state.xp==='number') ? state.xp : 0;
-    const lvl = 1 + Math.floor(xp/50);
-    const nextAt = (lvl)*50;
-    const inLvl = xp - (lvl-1)*50;
+    const xpC = Math.max(0, Math.min(249, xp));
+    const lvl = Math.min(5, 1 + Math.floor(xpC/50));
+    const nextAt = (lvl>=5) ? 250 : (lvl)*50;
+    const inLvl = xpC - (lvl-1)*50;
     const pct = clamp(inLvl/50,0,1);
 
     if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl;
@@ -21700,7 +22340,7 @@ if(fioInput){
 
   function ensureNewRun(){
     // shuffle order
-    order = Array.from({length:15},(_,i)=>i);
+    order = Array.from({length:25},(_,i)=>i);
     for(let i=order.length-1;i>0;i--){
       const j=Math.floor(Math.random()*(i+1));
       [order[i],order[j]]=[order[j],order[i]];
@@ -21734,7 +22374,7 @@ if(fioInput){
       // show completion
       qTitle.textContent = 'Готово!';
       qLevel.textContent = 'Финал';
-      qCount.textContent = '15/15';
+      qCount.textContent = '25/25';
       qTopic.textContent = 'Миссия выполнена';
       qBody.innerHTML = '<b>Отлично!</b> Вы прошли все вопросы по информатике. Можно начать заново или сменить героя.';
       qHint.textContent = '';
@@ -21750,7 +22390,7 @@ if(fioInput){
     const lvl = computeLevelFromIndex(idx);
     if(qTitle) qTitle.textContent = 'Вопрос';
     if(qLevel) qLevel.textContent = 'Уровень ' + lvl;
-    if(qCount) qCount.textContent = (idx+1) + '/15';
+    if(qCount) qCount.textContent = (idx+1) + '/25';
     if(qTopic) qTopic.textContent = 'Тема: ' + card.topic;
     if(qBody) qBody.textContent = card.text;
     if(qHint) qHint.textContent = '';
@@ -21776,6 +22416,7 @@ if(fioInput){
       state.xp = (state.xp||0) + 10;
     }else{
       state.xp = (state.xp||0) + 2; // чуть XP даже за попытку
+      window.__tkHpDamage && window.__tkHpDamage("it", 20);
     }
 
     // reveal
@@ -21995,5 +22636,732 @@ if(fioInput){
   });
 })();
 </script>
-</body>
+
+<script>
+/* ============================================================
+   ✅ Подсветка активной мини-игры (фикс: Фишинг не "вечный")
+   ============================================================ */
+(function(){
+  const chips = {
+    it: document.querySelector('.side-chip--it-min'),
+    info: document.querySelector('.side-chip--infosec-min'),
+    phish: document.querySelector('.side-chip--phish-min'),
+  };
+
+  const modals = {
+    it: document.getElementById('itGame'),
+    info: document.getElementById('infoSecGame'),
+    phish: document.getElementById('phishGame'),
+  };
+
+  function setActive(key){
+    Object.values(chips).forEach(c=> c && c.classList.remove('is-active'));
+    if(key && chips[key]) chips[key].classList.add('is-active');
+  }
+
+
+  // ✅ Фикс для Фишинга:
+  // открытие часто идёт через FAILSAFE (capture), поэтому click на кнопке может не дойти до обработчика.
+  // Перехватываем глобальный tkOpenPhishGame и включаем подсветку до открытия.
+  try{
+    if(!window.__tkChipPatchPhish){
+      window.__tkChipPatchPhish = true;
+      const _origOpenPhish = window.tkOpenPhishGame;
+      if(typeof _origOpenPhish === 'function'){
+        window.tkOpenPhishGame = function(...args){
+          try{ setActive('phish'); }catch(_){}
+          return _origOpenPhish.apply(this, args);
+        };
+      }
+    }
+  }catch(e){}
+
+
+  function isOpen(el){
+    if(!el) return false;
+    return el.classList.contains('is-open') || el.getAttribute('aria-hidden') === 'false';
+  }
+
+  function sync(){
+    // приоритет — какая модалка реально открыта
+    if(isOpen(modals.it))   return setActive('it');
+    if(isOpen(modals.info)) return setActive('info');
+    if(isOpen(modals.phish))return setActive('phish');
+    setActive(null);
+  }
+
+  // нажатия на кнопки запуска (capture — на случай stopPropagation в старом коде)
+  const openIt = document.getElementById('openItGame');
+  const openInfo = document.getElementById('openInfoSecGame');
+  const openPhish = document.getElementById('openPhishGame');
+
+  if(openIt) openIt.addEventListener('click', ()=>setActive('it'), true);
+  if(openInfo) openInfo.addEventListener('click', ()=>setActive('info'), true);
+  if(openPhish) openPhish.addEventListener('click', ()=>setActive('phish'), true);
+
+  // закрытия — обновляем после того, как отработали текущие close-хендлеры
+  ['closeItGame','closeInfoSecGame','closePhishGame'].forEach(id=>{
+    const b = document.getElementById(id);
+    if(b) b.addEventListener('click', ()=>setTimeout(sync, 0), true);
+  });
+
+  // наблюдаем изменения классов/aria
+  Object.values(modals).forEach(el=>{
+    if(!el) return;
+    const mo = new MutationObserver(()=>sync());
+    mo.observe(el, { attributes:true, attributeFilter:['class','aria-hidden'] });
+  });
+
+  window.addEventListener('load', sync);
+  setTimeout(sync, 80);
+})();
+</script>
+
+
+<style id="tkAvatarBoostV3">
+/* ============================================================
+   ✅ BIG AVATARS v3 — смелее, особенно на выборе персонажа
+   ТОЛЬКО размеры/сетка. Логику мини-игр не трогаем.
+   ============================================================ */
+:root{
+  --tk-pickAvatar: 138px;     /* размер кружка/плашки аватара в выборе */
+  --tk-pickCol: 160px;        /* ширина колонки под аватар */
+  --tk-profileAvatar: 128px;  /* аватар в профиле игрока */
+}
+@media (max-width: 520px){
+  :root{
+    --tk-pickAvatar: 112px;
+    --tk-pickCol: 132px;
+    --tk-profileAvatar: 112px;
+  }
+}
+
+/* Выбор персонажа: делаем карточки “сочнее” */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-grid{
+  gap: 14px;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+  grid-template-columns: var(--tk-pickCol) 1fr !important;
+  gap: 14px !important;
+  padding: 14px 14px !important;
+  border-radius: 26px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
+  width: var(--tk-pickAvatar) !important;
+  height: var(--tk-pickAvatar) !important;
+  border-radius: 26px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble img.avatar-img{
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  object-fit: contain !important;
+  padding: 10px !important;
+}
+
+/* Чуть увеличим типографику рядом, чтобы баланс не потерялся */
+@media (min-width: 521px){
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile strong{
+    font-size: 16px;
+    line-height: 1.05;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile span{
+    font-size: 12px;
+    opacity: .88;
+  }
+}
+
+/* Профиль игрока (внутри игры): подстраиваем сетку под увеличенный аватар */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big{
+  width: var(--tk-profileAvatar) !important;
+  height: var(--tk-profileAvatar) !important;
+  border-radius: 28px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .profile-top{
+  grid-template-columns: var(--tk-profileAvatar) 1fr !important;
+  gap: 14px !important;
+}
+</style>
+
+<style id="tkAvatarBoostV4">
+/* ============================================================
+   ✅ MINI-ИГРЫ — ЕЩЁ БОЛЬШЕ АВАТАРЫ + БОЛЬШЕ “БЛОК ВЫБОРА”
+   Только CSS. Логику мини-игр НЕ трогаем.
+   ============================================================ */
+:root{
+  --tk-pickAvatar: 176px;     /* выбор персонажа: размер аватара */
+  --tk-pickCol: 212px;        /* выбор персонажа: ширина колонки под аватар */
+  --tk-pickRadius: 34px;      /* скругление аватара */
+  --tk-profileAvatar: 148px;  /* профиль игрока: аватар */
+}
+@media (max-width: 520px){
+  :root{
+    --tk-pickAvatar: 140px;
+    --tk-pickCol: 164px;
+    --tk-pickRadius: 30px;
+    --tk-profileAvatar: 120px;
+  }
+}
+
+/* блок выбора персонажа (все 3 игры) */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-grid{
+  gap: 16px !important;
+  margin-top: 14px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+  grid-template-columns: var(--tk-pickCol) 1fr !important;
+  gap: 16px !important;
+  padding: 16px 16px !important;
+  border-radius: 30px !important;
+  min-height: 182px;
+  align-items: center;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
+  width: var(--tk-pickAvatar) !important;
+  height: var(--tk-pickAvatar) !important;
+  border-radius: var(--tk-pickRadius) !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble img.avatar-img{
+  padding: 6px !important; /* меньше паддинг — персонаж крупнее */
+}
+
+/* баланс текста рядом с большим аватаром */
+@media (min-width: 521px){
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile strong{
+    font-size: 18px !important;
+    letter-spacing: .02em;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile span{
+    font-size: 13px !important;
+    opacity: .90;
+  }
+}
+
+/* профиль игрока (внутри игры) — подстраиваем под крупный аватар */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big{
+  width: var(--tk-profileAvatar) !important;
+  height: var(--tk-profileAvatar) !important;
+  border-radius: 34px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .profile-top{
+  grid-template-columns: var(--tk-profileAvatar) 1fr !important;
+  gap: 16px !important;
+}
+</style>
+
+
+<style id="tkAvatarBoostV5">
+/* ============================================================
+   ✅ MINI-ИГРЫ — ЕЩЁ БОЛЬШЕ + ПОЛНЫЙ РОСТ (НЕ РЕЖЕМ НОГИ)
+   Только CSS-overrides поверх v4. Логику НЕ трогаем.
+   ============================================================ */
+:root{
+  --tk-pickAvatar: 240px;     /* выбор персонажа: размер аватара */
+  --tk-pickCol: 290px;        /* выбор персонажа: ширина колонки под аватар */
+  --tk-pickRadius: 44px;      /* скругление аватара */
+  --tk-profileAvatar: 184px;  /* профиль игрока: аватар */
+}
+@media (max-width: 520px){
+  :root{
+    --tk-pickAvatar: 188px;
+    --tk-pickCol: 220px;
+    --tk-pickRadius: 38px;
+    --tk-profileAvatar: 148px;
+  }
+}
+
+/* выбор персонажа — просторнее карточки */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-grid{
+  gap: 18px !important;
+  margin-top: 16px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+  grid-template-columns: var(--tk-pickCol) 1fr !important;
+  gap: 18px !important;
+  padding: 18px 18px !important;
+  border-radius: 34px !important;
+  min-height: 252px !important;
+  align-items: center !important;
+}
+
+/* аватар — крупнее */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
+  width: var(--tk-pickAvatar) !important;
+  height: var(--tk-pickAvatar) !important;
+  border-radius: var(--tk-pickRadius) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  /* внутренний отступ: ноги/подол не упираются в рамку */
+  padding: 10px 10px 14px !important;
+}
+
+/* главное: “полный рост” — не режем низ, якорим к низу и добавляем дыхание снизу */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble img.avatar-img{
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: contain !important;
+  object-position: 50% 100% !important; /* вниз — чтобы ноги всегда влезали */
+  box-sizing: border-box !important;
+  padding: 0 !important;               /* важно: без доп. высоты (не режем низ) */
+}
+
+/* профиль игрока — тоже больше */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big{
+  width: var(--tk-profileAvatar) !important;
+  height: var(--tk-profileAvatar) !important;
+  border-radius: 36px !important;
+}
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .profile-top{
+  grid-template-columns: var(--tk-profileAvatar) 1fr !important;
+  gap: 18px !important;
+}
+</style>
+
+
+<style id="tkAvatarBoostV7_FullBodyFix">
+/* ============================================================
+   ✅ BIG AVATARS v7 — полный рост без обрезки (FIX)
+   Причина обрезки: img width/height:100% + padding => переполнение при overflow:hidden.
+   Решение: padding переносим в .bubble, img делаем border-box и без padding, object-position:bottom.
+   ============================================================ */
+
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+  /* чуть выше карточка, чтобы подросший аватар “дышал” */
+  min-height: 320px;
+}
+
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
+  /* делаем окно чуть “портретным”, чтобы персонаж был в полный рост */
+  width: clamp(210px, 24vw, 280px) !important;
+  height: clamp(260px, 30vw, 330px) !important;
+  border-radius: 34px !important;
+  padding: 12px !important;
+  box-sizing: border-box !important;
+
+  display: flex !important;
+  align-items: flex-end !important; /* ноги к низу */
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble img.avatar-img{
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+
+  object-fit: contain !important;
+  object-position: bottom center !important; /* гарантируем полный рост “к полу” */
+  display: block !important;
+}
+
+/* Подстраиваем ширину колонки под портретный аватар */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+  grid-template-columns: clamp(230px, 26vw, 300px) 1fr !important;
+}
+
+/* Мобилки: меньше, но тоже “портрет” */
+@media (max-width: 520px){
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile{
+    min-height: 260px;
+    grid-template-columns: 200px 1fr !important;
+  }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
+    width: 180px !important;
+    height: 220px !important;
+    border-radius: 28px !important;
+    padding: 10px !important;
+  }
+}
+</style>
+
+
+<style id="tkAvatarBoostV8_InGameFullBody">
+/* ============================================================
+   ✅ BIG AVATARS v8 — полный рост в САМОЙ ИГРЕ (профиль/карточка)
+   Цель: чтобы в левой карточке игрока персонаж был целиком,
+   без обрезки ног (object-fit: contain + bottom, padding на контейнер).
+   ============================================================ */
+
+:root{
+  /* чуть шире колонка профиля под портретный аватар */
+  --tk-profileAvatar: 150px;
+}
+
+/* Портретный аватар в профиле (левый блок игры) */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big{
+  width: var(--tk-profileAvatar) !important;
+  height: 210px !important; /* выше, чтобы влез полный рост */
+  border-radius: 40px !important;
+
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+
+  padding: 12px !important;         /* отступ переносим сюда */
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Картинка: без padding, не режем, прижимаем к низу */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big img.avatar-img-big{
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  display: block !important;
+}
+
+/* Немного корректируем выравнивание строки профиля под увеличенную высоту */
+:is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .profile-top{
+  align-items: flex-start !important;
+}
+
+/* Мобилки/узкие: чуть меньше, но всё равно портрет */
+@media (max-width: 520px){
+  :root{ --tk-profileAvatar: 122px; }
+  :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-big{
+    height: 170px !important;
+    border-radius: 34px !important;
+    padding: 10px !important;
+  }
+}
+
+
+/* New close button styles */
+.hp-go-btn {
+  font-family: 'Ruslan Display', sans-serif;
+  font-size: 18px;
+  color: #ff4141;
+  background: transparent;
+  border: 2px solid #ff4141;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.hp-go-btn:hover {
+  background-color: #ff4141;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+
+/* New close button styles specifically for replacing the "X" cross */
+.hp-close-btn {
+  font-family: 'Ruslan Display', sans-serif;
+  font-size: 18px;
+  color: #ff4141;
+  background: transparent;
+  border: 2px solid #ff4141;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.hp-close-btn:hover {
+  background-color: #ff4141;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+
+/* New close button styles specifically for replacing the "X" cross */
+.hp-close-btn {
+  font-family: 'Ruslan Display', sans-serif;
+  font-size: 18px;
+  color: #ff4141;
+  background: transparent;
+  border: 2px solid #ff4141;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.hp-close-btn:hover {
+  background-color: #ff4141;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+
+/* New close button styles specifically for replacing the "X" cross */
+.hp-close-btn {
+  font-family: 'Ruslan Display', sans-serif;
+  font-size: 18px;
+  color: #ff4141;
+  background: transparent;
+  border: 2px solid #ff4141;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.hp-close-btn:hover {
+  background-color: #ff4141;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+
+/* New close button styles specifically for replacing the "X" cross */
+.hp-close-btn {
+  font-family: 'Ruslan Display', sans-serif;
+  font-size: 18px;
+  color: #ff4141;
+  background: transparent;
+  border: 2px solid #ff4141;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.hp-close-btn:hover {
+  background-color: #ff4141;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+
+/* New close button styles for replacing the cross (X) with a text button */
+.hp-close-btn {
+  font-family: 'Ruslan Display', sans-serif;
+  font-size: 18px;
+  color: #ff4141;
+  background: transparent;
+  border: 2px solid #ff4141;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.hp-close-btn:hover {
+  background-color: #ff4141;
+  color: white;
+  transform: scale(1.05);
+}
+
+</style>
+
+
+
+<script>
+(()=>{"use strict";
+  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+  const hp = { phish:100, info:100, it:100 };
+  const dead = { phish:false, info:false, it:false };
+
+  const CFG = {
+    phish: {
+      rootId: "phishGame",
+      hpValId: "phishHpVal",
+      hpFillId: "phishHpFill",
+      disableBtnIds: ["btnPhish","btnLegit","nextBtn"],
+      restartBtnId: "restartBtn",
+      startBtnIds: ["toPlayBtn","trailerStartBtn"]
+    },
+    info: {
+      rootId: "infoSecGame",
+      hpValId: "infoHpVal",
+      hpFillId: "infoHpFill",
+      disableBtnIds: ["infoBtnRisk","infoBtnSafe","infoBtnSkip","infoNextBtn"],
+      restartBtnId: "infoRestartBtn",
+      startBtnIds: ["infoToPlayBtn","infoTrailerStartBtn"]
+    },
+    it: {
+      rootId: "itGame",
+      hpValId: "itHpVal",
+      hpFillId: "itHpFill",
+      disableBtnIds: ["itBtnTrue","itBtnFalse","itBtnSkip","itNextBtn"],
+      restartBtnId: "itRestartBtn",
+      startBtnIds: ["itGoPlayBtn","itTrailerStartBtn"]
+    }
+  };
+
+  function setHpUI(prefix){
+    const c = CFG[prefix];
+    const hpInt = clamp(Math.round(hp[prefix]||0), 0, 100);
+    const valEl = document.getElementById(c.hpValId);
+    const fillEl = document.getElementById(c.hpFillId);
+    if(valEl) valEl.textContent = String(hpInt);
+    if(fillEl) fillEl.style.width = hpInt + "%";
+    if(fillEl && fillEl.parentElement){
+      fillEl.parentElement.setAttribute("aria-valuenow", String(hpInt));
+    }
+  }
+
+  function setButtonsDisabled(prefix, isDisabled){
+    const c = CFG[prefix];
+    (c.disableBtnIds||[]).forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.disabled = !!isDisabled;
+    });
+  }
+
+    function ensureGameOver(prefix){
+    const c = CFG[prefix];
+    const backdrop = document.getElementById(c.rootId);
+    if(!backdrop) return null;
+
+    const stage = backdrop.querySelector(".cool-phish-root") || backdrop;
+
+    let box = stage.querySelector('.hp-gameover[data-prefix="'+prefix+'"]');
+    if(box) return box;
+
+    box = document.createElement("div");
+    box.className = "hp-gameover";
+    box.dataset.prefix = prefix;
+    box.hidden = true;
+    box.setAttribute("role","alert");
+
+    box.innerHTML = `
+      <div class="hp-go-card">
+        <div class="hp-go-title">Игра окончена</div>
+        <img class="hp-go-img" src="GAME_OVER.JPG" alt="Game Over">
+        <button type="button" class="hp-go-btn">Закрыть игру</button>
+      </div>
+    `.trim();
+
+    stage.appendChild(box);
+
+    const btn = box.querySelector("button.hp-go-btn");
+    if(btn){
+      btn.addEventListener("click", ()=>{
+        const restart = document.getElementById(c.restartBtnId);
+        if(restart) restart.click();
+        reset(prefix);
+      });
+    }
+    return box;
+  }
+
+  function reset(prefix){
+    dead[prefix] = false;
+    hp[prefix] = 100;
+    setHpUI(prefix);
+    const box = ensureGameOver(prefix);
+    if(box) box.hidden = true;
+    const backdrop = document.getElementById(CFG[prefix].rootId);
+    const stage = backdrop ? (backdrop.querySelector(".cool-phish-root") || backdrop) : null;
+    if(stage) stage.classList.remove("hp-dead");
+    // вернуть управление (не ломаем ваш flow — просто снимаем блокировки, которые мы могли поставить)
+    setButtonsDisabled(prefix, false);
+  }
+
+  function damage(prefix, amount){
+    if(!CFG[prefix]) return false;
+    if(dead[prefix]) return true;
+
+    const dmg = Math.abs(Number(amount)||0);
+    hp[prefix] = clamp((hp[prefix]||0) - dmg, 0, 100);
+    setHpUI(prefix);
+
+    if(hp[prefix] <= 0){
+      dead[prefix] = true;
+      const box = ensureGameOver(prefix);
+      if(box) box.hidden = false;
+
+      const backdrop = document.getElementById(CFG[prefix].rootId);
+      const stage = backdrop ? (backdrop.querySelector(".cool-phish-root") || backdrop) : null;
+      if(stage) stage.classList.add("hp-dead");
+
+      // блокируем игровые кнопки (чтобы нельзя было отвечать дальше)
+      setButtonsDisabled(prefix, true);
+
+      // но оставляем возможность рестарта
+      const r = document.getElementById(CFG[prefix].restartBtnId);
+      if(r) r.disabled = false;
+
+      return true;
+    }
+    return false;
+  }
+
+  function isDead(prefix){
+    return !!dead[prefix];
+  }
+
+  // Expose tiny API for existing IIFEs
+  window.__tkHpDamage = damage;
+  window.__tkHpIsDead = isDead;
+  window.__tkHpReset = reset;
+
+  // Init
+  ["phish","info","it"].forEach(p=>{ try{ reset(p); }catch(e){} });
+
+  // Reset HP on start/restart
+  Object.keys(CFG).forEach(prefix=>{
+    const c = CFG[prefix];
+    const binds = []
+      .concat(c.startBtnIds||[])
+      .concat([c.restartBtnId]);
+    binds.forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("click", ()=>reset(prefix), {passive:true});
+    });
+  });
+
+})();
+</script>
+
+<script>
+(()=>{"use strict";
+  function resetGame(prefix){
+    const c = CFG[prefix];
+    const backdrop = document.getElementById(c.rootId);
+    if(!backdrop) return;
+
+    // reset HP, clear progress, and move back to character select
+    window.__tkHpReset && window.__tkHpReset(prefix);
+    backdrop.classList.remove("hp-dead");
+
+    // Reset game state: clear any game progress states
+    const gameState = document.getElementById(c.rootId);
+    if(gameState) {
+      gameState.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+    }
+
+    // Return to character selection screen
+    const characterSelection = document.getElementById("characterSelection");
+    if (characterSelection) {
+      characterSelection.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // Ensure buttons are re-enabled for a new start
+    const startBtn = document.getElementById(c.startBtnIds[0]);
+    if (startBtn) startBtn.disabled = false;
+  }
+
+  // Hook up to retry button on game over
+  const retryBtns = document.querySelectorAll('.hp-go-btn');
+  retryBtns.forEach(btn => {
+    btn.addEventListener("click", function() {
+      const prefix = btn.closest('.hp-gameover').dataset.prefix;
+      resetGame(prefix);
+    });
+  });
+})();
+</script></body>
 </html>
