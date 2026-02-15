@@ -6278,7 +6278,8 @@ padding:0;
       border: 1px solid rgba(255,255,255,.22);
       box-shadow: var(--shadow);
       overflow: hidden;
-      padding: 16px 18px 14px;}
+      padding: 16px 18px 14px;
+      min-height: 760px;}
 #pcPartsGame .cool-phish-root .menu-card::before{content: "";
       position: absolute;
       inset: -2px;
@@ -6903,6 +6904,40 @@ padding:0;
   object-fit: contain;
   display:block;
 }
+#pcPartsGame .pc-end-top{
+  flex-wrap: wrap;
+}
+
+#pcPartsGame .pc-end-art.is-pec{
+  width: min(530px, 92vw);
+  height: min(530px, 92vw);
+  border-radius: 28px;
+  margin-inline: auto;
+}
+
+#pcPartsGame .pc-end-art.is-pec img{
+  width: min(420px, calc(92vw - 40px));
+  height: min(420px, calc(92vw - 40px));
+  object-fit: contain;
+  display:block;
+  margin: 0 auto;
+}
+
+#pcPartsGame .pc-end.is-pec .pc-end-top{
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+#pcPartsGame .pc-end.is-pec .pc-end-top > div{
+  width: 100%;
+}
+#pcPartsGame .pc-end.is-pec .pc-end-sub{
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 58ch;
+}
+
 #pcPartsGame .pc-end-title{
   margin:0;
   font-size: clamp(20px, 2.5vw, 28px);
@@ -24637,14 +24672,19 @@ if(explainBox){
     if(!endLayer) return;
     const found = doneCount();
     const total = PART_IDS.length;
+    const art = endImg && endImg.closest('.pc-end-art');
     if(kind === 'win'){
       if(endImg){ endImg.src = SVG_WIN; endImg.alt = 'Победа'; }
+      if(art) art.classList.remove('is-pec');
+      endLayer.classList.remove('is-pec');
       if(endTitle) endTitle.textContent = 'Поздравляю! Ты прошёл игру';
       if(endText) endText.innerHTML = `Найдено: <b>${found}/${total}</b> • Верно: <b>${state.correct}</b>.`;
     }else{
+      if(art) art.classList.add('is-pec');
+      endLayer.classList.add('is-pec');
             if(endImg){
         endImg.alt = 'GAME OVER';
-        const candidates = ['GAME_OVER.jpg','GAME_OVER.JPG', SVG_LOSE];
+        const candidates = ['GAME_OVER_PEC.jpg','GAME_OVER.JPG', SVG_LOSE];
         let idx = 0;
         endImg.onerror = ()=>{
           idx += 1;
