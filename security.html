@@ -18546,7 +18546,7 @@ body.menu-collapsed .side-nav__panel{
     function applyXp(player, delta) {
       player.xp += delta;
 
-      while (player.xp >= xpToNext(player.lvl)) {
+      while (player.lvl < 5 && player.xp >= xpToNext(player.lvl)) {
         player.xp -= xpToNext(player.lvl);
         player.lvl = clamp(player.lvl + 1, 1, 5);
       }
@@ -18732,13 +18732,18 @@ function setExplain(kind, text) {
       playerRole.textContent = avatarLabel(player.avatar || "boy");
       avatarBig.innerHTML = avatarSvg(player.avatar || "boy");
 
-      lvlBadge.textContent = `LVL ${player.lvl}`;
+      lvlBadge.textContent = `LVL ${player.lvl}/5`;
       xpBadge.textContent = `XP ${player.xp}`;
 
-      const need = xpToNext(player.lvl);
-      const pct = clamp((player.xp / need) * 100, 0, 100);
-      xpFill.style.width = pct.toFixed(1) + "%";
-      xpText.textContent = `До следующего уровня: ${Math.max(0, need - player.xp)} XP`;
+      if (player.lvl >= 5) {
+        xpFill.style.width = "100%";
+        xpText.textContent = "Максимальный уровень! 🎉";
+      } else {
+        const need = xpToNext(player.lvl);
+        const pct = clamp((player.xp / need) * 100, 0, 100);
+        xpFill.style.width = pct.toFixed(1) + "%";
+        xpText.textContent = `До следующего уровня: ${Math.max(0, need - player.xp)} XP`;
+      }
 
       kpiCorrect.textContent = String(player.correct);
       kpiTotal.textContent = String(player.total);
@@ -21424,7 +21429,7 @@ ${currentItem.text}`;
   load();
 
   function levelFromXP(xp){
-    // 0-49 => 1, 50-99 => 2, 100+ => 3 (макс 3)
+    // 0-49 => 1, 50-99 => 2, 100-149 => 3, 150-199 => 4, 200-250 => 5 (макс 5)
     return Math.min(5, 1 + Math.floor(xp / 50));
   }
   function nextThreshold(xp){
@@ -21448,10 +21453,10 @@ ${currentItem.text}`;
     const remaining = Math.max(0, next - state.xp);
     const fill = Math.max(0, Math.min(1, state.xp / 250));
 
-    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/3';
+    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/5';
     if(xpBadge) xpBadge.textContent = 'XP ' + state.xp;
     if(xpFill) xpFill.style.width = (fill * 100).toFixed(1) + '%';
-    if(xpText) xpText.textContent = (lvl >= 3) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + remaining + ' XP');
+    if(xpText) xpText.textContent = (lvl >= 5) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + remaining + ' XP');
 
     if(kpiCorrect) kpiCorrect.textContent = String(state.correct);
   }
@@ -21526,7 +21531,7 @@ save();
 
     if(explainBox){
       explainBox.textContent = '';
-      explainBox.classList.remove('ok','bad');
+      explainBox.classList.remove('ok','bad','is-on');
     }
     nextBtn && (nextBtn.disabled = true);
 
@@ -21565,6 +21570,7 @@ save();
       explainBox.textContent = (correct ? '✅ Верно. ' : '❌ Не совсем. ') + card.why;
       explainBox.classList.toggle('ok', correct);
       explainBox.classList.toggle('bad', !correct);
+    explainBox.classList.add('is-on');
     }
 
     if(correct){
@@ -21577,6 +21583,29 @@ save();
 
     updateHud();
     save();
+
+    // ---- финал / уведомление ----
+    const isDeadInfo = !!(window.__tkHpIsDead && window.__tkHpIsDead("info"));
+    if(explainBox){
+      if(isDeadInfo){
+        explainBox.appendChild(document.createElement('br'));
+        explainBox.appendChild(document.createElement('br'));
+        const fin = document.createElement('div');
+        fin.className = 'finish-msg';
+        fin.textContent = '💔 Игра окончена: здоровье закончилось. Нажмите «Сбросить профиль» или начните заново.';
+        explainBox.appendChild(fin);
+        explainBox.classList.add('is-on');
+      }else if(state.idx >= total-1){
+        explainBox.appendChild(document.createElement('br'));
+        explainBox.appendChild(document.createElement('br'));
+        const fin = document.createElement('div');
+        fin.className = 'finish-msg';
+        const lvlNow = levelFromXP(state.xp);
+        fin.textContent = `🎉 Поздравляю! Вы прошли игру «Инфобез». Верно: ${state.correct}/${total}. Уровень: LVL ${lvlNow}/5. Нажмите «Заново», чтобы сыграть ещё раз.`;
+        explainBox.appendChild(fin);
+        explainBox.classList.add('is-on');
+      }
+    }
 
     // enable next
     if(nextBtn){
@@ -21607,7 +21636,7 @@ save();
       }
 if(explainBox){
         explainBox.textContent = '🚫 Пропусков больше нет (3/3). Попробуйте выбрать ответ.';
-        explainBox.classList.remove('ok','bad');
+        explainBox.classList.remove('ok','bad','is-on');
       }
       return;
     }
@@ -21626,7 +21655,7 @@ if(explainBox){
     // no xp, no score
     if(explainBox){
       explainBox.textContent = '⏭️ Пропуск. Важно: лучше всегда думать, прежде чем нажимать.';
-      explainBox.classList.remove('ok','bad');
+      explainBox.classList.remove('ok','bad','is-on');
     }
     btnRisk && (btnRisk.disabled = true);
     btnSafe && (btnSafe.disabled = true);
@@ -22392,16 +22421,17 @@ if(explainBox){
     const inLvl = xpC - (lvl-1)*50;
     const pct = clamp(inLvl/50,0,1);
 
-    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl;
+    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/5';
     if(xpBadge) xpBadge.textContent = 'XP ' + xp;
     if(xpFill) xpFill.style.width = (pct*100).toFixed(1)+'%';
-    if(xpText) xpText.textContent = 'До следующего уровня: ' + Math.max(0, nextAt - xp) + ' XP';
+    if(xpText) xpText.textContent = (lvl >= 5) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + Math.max(0, nextAt - xp) + ' XP');
   }
 
   function updateKpi(){
     if(!state) return;
     if(kpiCorrect) kpiCorrect.textContent = String(state.correct||0);
-    if(kpiTotal) kpiTotal.textContent = String((state.answered||0) + (state.skippedAnswered||0 || 0));
+    const skippedN = (state.skipped && Array.isArray(state.skipped)) ? state.skipped.length : 0;
+    if(kpiTotal) kpiTotal.textContent = String((state.answered||0) + skippedN);
   }
 
   function ensureNewRun(){
@@ -22455,8 +22485,8 @@ if(explainBox){
       qHint.textContent = '';
       btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
       resultBox.hidden = false;
-      resultPill.textContent = '🏁 Завершено';
-      explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат.';
+      resultPill.textContent = '🎉 Пройдено';
+      explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
       nextBtn.disabled = true;
       return;
     }
@@ -22492,6 +22522,23 @@ if(explainBox){
     }else{
       state.xp = (state.xp||0) + 2; // чуть XP даже за попытку
       window.__tkHpDamage && window.__tkHpDamage("it", 20);
+      if(window.__tkHpIsDead && window.__tkHpIsDead("it")){
+        // здоровье закончилось — останавливаем игру
+        state.done = true;
+        saveState(state);
+        qTitle.textContent = 'Игра окончена';
+        qLevel.textContent = 'Финал';
+        qCount.textContent = (idx+1) + '/25';
+        qTopic.textContent = 'Здоровье закончилось';
+        qBody.innerHTML = '<b>💔 Здоровье закончилось.</b> Попробуйте ещё раз и отвечайте внимательнее!';
+        qHint.textContent = '';
+        btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+        resultBox.hidden = false;
+        resultPill.textContent = '💔 Конец игры';
+        explainEl.textContent = 'Нажмите «Сначала», чтобы начать заново.';
+        nextBtn.disabled = true;
+        return;
+      }
     }
 
     // reveal
@@ -22506,6 +22553,27 @@ if(explainBox){
     saveState(state);
     updateProfileUI();
     updateKpi();
+
+    // Если это был последний вопрос — показываем финиш сразу, без ожидания кнопки «Дальше»
+    if(idx >= (order.length - 1)){
+      state.done = true;
+      saveState(state);
+      qTitle.textContent = 'Готово!';
+      qLevel.textContent = 'Финал';
+      qCount.textContent = '25/25';
+      qTopic.textContent = 'Миссия выполнена';
+      const xp = (state && typeof state.xp==='number') ? state.xp : 0;
+      const xpC = Math.max(0, Math.min(249, xp));
+      const lvl = Math.min(5, 1 + Math.floor(xpC/50));
+      const score = (state.correct||0);
+      qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/25 • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
+      qHint.textContent = '';
+      btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+      resultBox.hidden = false;
+      resultPill.textContent = '🎉 Пройдено';
+      explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
+      nextBtn.disabled = true;
+    }
   }
 
   function doSkip(){
