@@ -18670,10 +18670,15 @@ body.menu-collapsed .side-nav__panel{
     let currentIndex = 0;
     let answered = false;
 
-    function resetSession() {
+    
+    const SKIP_MAX = 3;
+    let skipUsed = 0;
+function resetSession() {
       sessionCards = pickCardsForLevel(player.lvl, 15);
       currentIndex = 0;
       answered = false;
+      skipUsed = 0;
+      updateSkipLabel();
       cardCountEl.textContent = String(sessionCards.length);
       renderCard();
       updateHud();
@@ -18684,10 +18689,25 @@ body.menu-collapsed .side-nav__panel{
     function enableAnswering(on) {
       btnPhish.disabled = !on;
       btnLegit.disabled = !on;
-      btnSkip.disabled = !on;
+      btnSkip.disabled = !on || (skipUsed >= SKIP_MAX);
+      updateSkipLabel();
     }
 
-    function setExplain(kind, text) {
+
+    // --- skip counter label (per session) ---
+    function updateSkipLabel(){
+      if(!btnSkip) return;
+      if(!btnSkip.dataset.baseLabel){
+        const t = (btnSkip.textContent || 'Пропустить')
+          .replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'')
+          .trim();
+        btnSkip.dataset.baseLabel = t || 'Пропустить';
+      }
+      const base = btnSkip.dataset.baseLabel || 'Пропустить';
+      btnSkip.textContent = `${base} (${Math.min(skipUsed, SKIP_MAX)}/${SKIP_MAX})`;
+    }
+
+function setExplain(kind, text) {
       if (!text) {
         explainBox.classList.remove("is-on");
         explainBox.innerHTML = "";
@@ -18904,9 +18924,13 @@ body.menu-collapsed .side-nav__panel{
     btnLegit.addEventListener("click", () => answer("legit"));
 
     btnSkip.addEventListener("click", () => {
+      if (skipUsed >= SKIP_MAX) { btnSkip.disabled = true; return; }
       if (answered) return;
       answered = true;
       enableAnswering(false);
+
+      skipUsed += 1;
+      updateSkipLabel();
 
       player.total += 1;
       applyXp(player, 0);
@@ -21375,13 +21399,14 @@ ${currentItem.text}`;
     idx: 0,
     correct: 0,
     xp: 0,
+    skipsUsed: 0,
     done: false
   };
 
   function save(){
     try{
       localStorage.setItem(STORAGE_PROFILE, JSON.stringify({avatar: state.avatar, name: state.name}));
-      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp}));
+      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp, skipsUsed: state.skipsUsed}));
     }catch(e){}
   }
   function load(){
@@ -21393,7 +21418,8 @@ ${currentItem.text}`;
       if(typeof pr.idx === 'number') state.idx = Math.max(0, Math.min(total-1, pr.idx));
       if(typeof pr.correct === 'number') state.correct = Math.max(0, pr.correct);
       if(typeof pr.xp === 'number') state.xp = Math.max(0, pr.xp);
-    }catch(e){}
+          if(typeof pr.skipsUsed === 'number') state.skipsUsed = Math.max(0, pr.skipsUsed);
+}catch(e){}
   }
   load();
 
@@ -21471,7 +21497,9 @@ if(fioInput){
     state.idx = 0;
     state.correct = 0;
     state.xp = 0;
-    save();
+    
+    state.skipsUsed = 0;
+save();
     updateHud();
   }
 
@@ -21504,7 +21532,16 @@ if(fioInput){
 
     btnRisk && (btnRisk.disabled = false);
     btnSafe && (btnSafe.disabled = false);
-    btnSkip && (btnSkip.disabled = false);
+    btnSkip && (btnSkip.disabled = (state.skipsUsed >= 3));
+    if(btnSkip){
+      if(!btnSkip.dataset.baseLabel){
+        const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
+        btnSkip.dataset.baseLabel = t || 'Пропустить';
+      }
+      const base = btnSkip.dataset.baseLabel || 'Пропустить';
+      const used = Math.min((state.skipsUsed|0), 3);
+      btnSkip.textContent = `${base} (${used}/3)`;
+    }
   }
 
   function finishIfNeeded(){
@@ -21557,6 +21594,35 @@ if(fioInput){
   }
 
   function skip(){
+    if(state.skipsUsed >= 3){
+      btnSkip && (btnSkip.disabled = true);
+      
+      if(btnSkip){
+        if(!btnSkip.dataset.baseLabel){
+          const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
+          btnSkip.dataset.baseLabel = t || 'Пропустить';
+        }
+        const base = btnSkip.dataset.baseLabel || 'Пропустить';
+        btnSkip.textContent = `${base} (3/3)`;
+      }
+if(explainBox){
+        explainBox.textContent = '🚫 Пропусков больше нет (3/3). Попробуйте выбрать ответ.';
+        explainBox.classList.remove('ok','bad');
+      }
+      return;
+    }
+    state.skipsUsed = (state.skipsUsed|0) + 1;
+
+    if(btnSkip){
+      if(!btnSkip.dataset.baseLabel){
+        const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
+        btnSkip.dataset.baseLabel = t || 'Пропустить';
+      }
+      const base = btnSkip.dataset.baseLabel || 'Пропустить';
+      const used = Math.min((state.skipsUsed|0), 3);
+      btnSkip.textContent = `${base} (${used}/3)`;
+    }
+
     // no xp, no score
     if(explainBox){
       explainBox.textContent = '⏭️ Пропуск. Важно: лучше всегда думать, прежде чем нажимать.';
@@ -22365,7 +22431,16 @@ if(fioInput){
     if(!state) return;
     locked = false;
     resultBox.hidden = true;
-    btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = false;
+    btnTrue.disabled = btnFalse.disabled = false;
+    btnSkip.disabled = (skipped.length >= 3);
+    if(btnSkip){
+      if(!btnSkip.dataset.baseLabel){
+        const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
+        btnSkip.dataset.baseLabel = t || 'Пропустить';
+      }
+      const base = btnSkip.dataset.baseLabel || 'Пропустить';
+      btnSkip.textContent = `${base} (${Math.min(skipped.length,3)}/3)`;
+    }
 
     // if finished
     if(idx>=order.length){
@@ -22435,6 +22510,19 @@ if(fioInput){
 
   function doSkip(){
     if(locked || !state) return;
+    if(skipped.length >= 3){
+      btnSkip && (btnSkip.disabled = true);
+      if(btnSkip){
+        if(!btnSkip.dataset.baseLabel){
+          const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
+          btnSkip.dataset.baseLabel = t || 'Пропустить';
+        }
+        const base = btnSkip.dataset.baseLabel || 'Пропустить';
+        btnSkip.textContent = `${base} (3/3)`;
+      }
+      if(qHint) qHint.textContent = '🚫 Пропусков больше нет (3/3).';
+      return;
+    }
     skipped.push(order[idx]);
     state.skipped = skipped.slice();
     // move on without counting as answered
