@@ -4353,6 +4353,42 @@
   }
 }
 
+
+  /* ✅ Экран победы (используется в мини-играх) */
+  .tk-win{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    padding:14px 12px;
+    text-align:center;
+  }
+  .tk-win__img{
+    width:min(320px, 82vw);
+    max-width:320px;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 26px rgba(0,0,0,.28);
+  }
+  .tk-win__img img{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+  .tk-win__title{
+    font-weight:900;
+    letter-spacing:.2px;
+  }
+  .tk-win__subtitle{
+    opacity:.92;
+    font-weight:700;
+  }
+  .tk-win__btn{
+    margin-top:6px;
+    min-width:200px;
+  }
+
 </style>
 <style id="coolPhishStyles">
 
@@ -19703,18 +19739,23 @@ body.menu-collapsed .side-nav__panel{
     let sessionCards = [];
     let currentIndex = 0;
     let answered = false;
-
-    
+    // счётчики текущего раунда (для победы 25/25)
+    let runTotal = 0;
+    let runCorrect = 0;
+    let hasWon = false;
     const SKIP_MAX = 3;
     let skipUsed = 0;
 function resetSession() {
-      sessionCards = pickCardsForLevel(player.lvl, 15);
+      if (hasWon) return;
+      sessionCards = pickCardsForLevel(player.lvl, 25);
       currentIndex = 0;
       answered = false;
       skipUsed = 0;
       updateSkipLabel();
       cardCountEl.textContent = String(sessionCards.length);
-      renderCard();
+            runTotal = 0;
+      runCorrect = 0;
+renderCard();
       updateHud();
       setExplain("", "");
       enableAnswering(true);
@@ -19769,9 +19810,13 @@ function setExplain(kind, text) {
       lvlBadge.textContent = `LVL ${player.lvl}/5`;
       xpBadge.textContent = `XP ${player.xp}`;
 
+      const finalNeed = xpToNext(5);
       if (player.lvl >= 5) {
-        xpFill.style.width = "100%";
-        xpText.textContent = "Максимальный уровень! 🎉";
+        const pct = clamp((player.xp / finalNeed) * 100, 0, 100);
+        xpFill.style.width = pct.toFixed(1) + "%";
+        xpText.textContent = (player.xp >= finalNeed)
+          ? "Финальный XP заполнен! 🎉"
+          : `До финала: ${Math.max(0, finalNeed - player.xp)} XP`;
       } else {
         const need = xpToNext(player.lvl);
         const pct = clamp((player.xp / need) * 100, 0, 100);
@@ -19779,13 +19824,77 @@ function setExplain(kind, text) {
         xpText.textContent = `До следующего уровня: ${Math.max(0, need - player.xp)} XP`;
       }
 
-      kpiCorrect.textContent = String(player.correct);
-      kpiTotal.textContent = String(player.total);
+      kpiCorrect.textContent = String(runCorrect);
+      kpiTotal.textContent = String(runTotal);
     }
 
-    function renderCard() {
+    function phishIsPerfect25(){
+      const goal = 25;
+      return (runTotal >= goal) && (runCorrect >= goal) && (runTotal === runCorrect);
+    }
+
+    function phishHasWon(){
+      // Финал, когда раунд закончился (после 25 карточек). Супер‑победа = 25/25.
+      return (currentIndex >= (sessionCards ? sessionCards.length : 25));
+    }
+
+    function phishShowWin(){
+      if(hasWon) return;
+      hasWon = true;
+
+      // Lock controls
+      enableAnswering(false);
+      nextBtn && (nextBtn.disabled = true);
+
+      if(explainBox){
+        explainBox.classList.add("is-on");
+        explainBox.innerHTML = `
+          <div class="tk-win">
+            <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
+            ${phishIsPerfect25() ? '<div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>' : '<div class="tk-win__title">🏁 Финиш! Ты дошёл до конца тренировки!</div>'}
+            <div class="tk-win__subtitle">Верно: ${runCorrect}/25 • LVL ${player.lvl}/5 • XP: ${player.xp}</div>
+            ${phishIsPerfect25() ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно 25/25 ✅</div>'}
+            <button type="button" class="btn tk-win__btn" id="phishWinCloseBtn">Закрыть игру</button>
+          </div>
+        `;
+        const b = document.getElementById("phishWinCloseBtn");
+        if(b){
+          b.addEventListener("click", () => {
+            // Reset HP + player progress and return to avatar selection
+            try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+            player = defaultPlayer();
+            savePlayer(player);
+            hasWon = false;
+            skipUsed = 0;
+            sessionCards = [];
+            currentIndex = 0;
+            answered = false;
+
+            try{ window.__tkHpReset && window.__tkHpReset("phish"); }catch(e){}
+            setExplain("", "");
+            setStep(1);
+            reflectAvatarSelection();
+            fioInput.value = "";
+            reflectFio();
+            closeModal();
+          }, { once:true });
+        }
+      }
+    }
+
+    function phishCheckWin(){
+      if(hasWon) return true;
+      if(phishHasWon()){
+        phishShowWin();
+        return true;
+      }
+      return false;
+    }
+function renderCard() {
       const card = sessionCards[currentIndex];
       if (!card) {
+        // If the player has completed all trials, show win screen instead of looping forever
+        if (phishCheckWin()) return;
         setExplain("good", "Тренировка завершена! Карточки обновлены — можно продолжать.");
         resetSession();
         return;
@@ -19821,10 +19930,10 @@ function setExplain(kind, text) {
         (kind === "phish" && card.kind === "phish") ||
         (kind === "legit" && card.kind === "legit");
 
-      player.total += 1;
+      runTotal += 1;
 
       if (isCorrect) {
-        player.correct += 1;
+        runCorrect += 1;
         const bonus = 8 + card.level * 2;
         applyXp(player, bonus);
         setExplain("good", card.explain + ` (+${bonus} XP)`);
@@ -19836,6 +19945,7 @@ function setExplain(kind, text) {
       }
 
       updateHud();
+      if (phishCheckWin()) return;
       nextBtn.disabled = false;
       if (window.__tkHpIsDead && window.__tkHpIsDead("phish")) nextBtn.disabled = true;
     }
@@ -19886,6 +19996,7 @@ function setExplain(kind, text) {
 
     resetBtn.addEventListener("click", () => {
       player = defaultPlayer();
+      hasWon = false;
       savePlayer(player);
 
       setStep(1);
@@ -19971,7 +20082,7 @@ function setExplain(kind, text) {
       skipUsed += 1;
       updateSkipLabel();
 
-      player.total += 1;
+      runTotal += 1;
       applyXp(player, 0);
 
       setExplain("", "Пропущено. Если сомневаетесь — проверьте через официальный сайт/приложение.");
@@ -19980,6 +20091,7 @@ function setExplain(kind, text) {
     });
 
     nextBtn.addEventListener("click", () => {
+      if (hasWon) return;
       currentIndex += 1;
       renderCard();
     });
@@ -22462,6 +22574,8 @@ ${currentItem.text}`;
   }
   load();
 
+  let hasWon = false;
+
   function levelFromXP(xp){
     // 0-49 => 1, 50-99 => 2, 100-149 => 3, 150-199 => 4, 200-250 => 5 (макс 5)
     return Math.min(5, 1 + Math.floor(xp / 50));
@@ -22493,6 +22607,68 @@ ${currentItem.text}`;
     if(xpText) xpText.textContent = (lvl >= 5) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + remaining + ' XP');
 
     if(kpiCorrect) kpiCorrect.textContent = String(state.correct);
+  }
+
+
+  function infoIsPerfect25(){
+    return (state.correct >= total) && (state.correct === total);
+  }
+
+  function infoHasWon(){
+    // Финал на последней карточке. Супер‑победа = 25/25.
+    return (state.idx >= total-1);
+  }
+
+  function infoShowWin(){
+    if(hasWon) return;
+    hasWon = true;
+
+    const perfect = infoIsPerfect25();
+
+    // lock controls
+    btnRisk && (btnRisk.disabled = true);
+    btnSafe && (btnSafe.disabled = true);
+    btnSkip && (btnSkip.disabled = true);
+    nextBtn && (nextBtn.disabled = true);
+
+    if(explainBox){
+      explainBox.classList.add('is-on');
+      explainBox.innerHTML = `
+        <div class="tk-win">
+          <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
+          <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
+          <div class="tk-win__subtitle">Верно: ${state.correct}/25 • LVL ${levelFromXP(state.xp)}/5 • XP: ${state.xp}</div>
+          ${perfect ? "" : '<div class="tk-win__subtitle">До супер‑победы осталось: ' + (25 - Math.min(25, state.correct)) + '/25 ✅</div>'}
+          <button type="button" class="btn tk-win__btn" id="infoWinCloseBtn">Закрыть игру</button>
+        </div>
+      `;
+      const b = document.getElementById('infoWinCloseBtn');
+      if(b){
+        b.addEventListener('click', () => {
+          // Clear progress so next launch starts with avatar selection
+          try{ localStorage.removeItem(STORAGE_PROFILE); }catch(e){}
+          try{ localStorage.removeItem(STORAGE_PROGRESS); }catch(e){}
+          state.avatar = '';
+          state.name = '';
+          state.idx = 0;
+          state.correct = 0;
+          state.xp = 0;
+          state.skipsUsed = 0;
+          try{ window.__tkHpReset && window.__tkHpReset("info"); }catch(e){}
+          hasWon = false;
+          closeInner();
+        }, { once:true });
+      }
+    }
+  }
+
+  function infoCheckWin(){
+    if(hasWon) return true;
+    if(infoHasWon()){
+      infoShowWin();
+      return true;
+    }
+    return false;
   }
 
   function showStep(step){
@@ -22630,6 +22806,7 @@ save();
         explainBox.appendChild(fin);
         explainBox.classList.add('is-on');
       }else if(state.idx >= total-1){
+        if(infoCheckWin()) return;
         explainBox.appendChild(document.createElement('br'));
         explainBox.appendChild(document.createElement('br'));
         const fin = document.createElement('div');
@@ -22770,6 +22947,7 @@ if(explainBox){
   if(btnSkip) btnSkip.addEventListener('click', skip);
 
   if(nextBtn) nextBtn.addEventListener('click', ()=>{
+    if(hasWon) return;
     if(state.idx >= total-1){
       resetProgress();
       renderCard();
@@ -23449,7 +23627,7 @@ if(explainBox){
     if(playerRoleEl) playerRoleEl.textContent = avatar==='girl' ? 'Логическая исследовательница' : 'Юный программист';
 
     const xp = (state && typeof state.xp==='number') ? state.xp : 0;
-    const xpC = Math.max(0, Math.min(249, xp));
+    const xpC = Math.max(0, Math.min(250, xp));
     const lvl = Math.min(5, 1 + Math.floor(xpC/50));
     const nextAt = (lvl>=5) ? 250 : (lvl)*50;
     const inLvl = xpC - (lvl-1)*50;
@@ -23597,16 +23775,55 @@ if(explainBox){
       qCount.textContent = '25/25';
       qTopic.textContent = 'Миссия выполнена';
       const xp = (state && typeof state.xp==='number') ? state.xp : 0;
-      const xpC = Math.max(0, Math.min(249, xp));
+      const xpC = Math.max(0, Math.min(250, xp));
       const lvl = Math.min(5, 1 + Math.floor(xpC/50));
       const score = (state.correct||0);
-      qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/25 • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
-      qHint.textContent = '';
-      btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-      resultBox.hidden = false;
-      resultPill.textContent = '🎉 Пройдено';
-      explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
-      nextBtn.disabled = true;
+
+      const isPerfect = (score === 25);
+      const isWin = true;
+
+      if(isWin){
+        qBody.innerHTML = `
+          <div class="tk-win">
+            <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
+            <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
+            <div class="tk-win__subtitle">Верно: ${score}/25 • LVL ${lvl}/5 • XP: ${xp}</div>
+            ${isPerfect ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно 25/25 ✅</div>'}
+            <button type="button" class="btn tk-win__btn" id="itWinCloseBtn">Закрыть игру</button>
+          </div>
+        `;
+        qHint.textContent = '';
+        btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+        resultBox.hidden = false;
+        resultPill.textContent = '🏆 Победа';
+        explainEl.textContent = 'Нажмите «Закрыть игру».';
+        nextBtn.disabled = true;
+
+        // bind close once
+        setTimeout(()=>{
+          const b = document.getElementById('itWinCloseBtn');
+          if(b){
+            b.addEventListener('click', ()=>{
+              clearState();
+              state = null;
+              selectedAvatar = null;
+              idx = 0;
+              skipped = [];
+              order = [];
+              try{ window.__tkHpReset && window.__tkHpReset("it"); }catch(e){}
+              closeModal();
+            }, { once:true });
+          }
+        }, 0);
+      }else{
+        qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/25 • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
+        qHint.textContent = '';
+        btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+        resultBox.hidden = false;
+        resultPill.textContent = '🎉 Пройдено';
+        explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
+        nextBtn.disabled = true;
+      }
     }
   }
 
