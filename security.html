@@ -8537,8 +8537,9 @@ body.menu-collapsed .side-nav__panel{
 <!-- 🎬 КИНОТЕАТР (redesign v2) -->
 <section class="cinema-slider cinema-v2" id="cinema">
 <div class="cinema-head">
-<div class="cinema-kicker">КИНОТЕАТР</div>
+<div class="cinema-kicker"><span class="kino-sr">Кинотеатр</span></div>
 <div aria-label="Мультфильмы о цифровой безопасности" class="cinema-banner">
+<img src="kinoteatr.png" alt="Кинотеатр" class="kino-badge" decoding="async" aria-hidden="true">
 <div class="cinema-banner-title">Мультфильмы о цифровой безопасности</div>
 <div class="cinema-banner-sub">для детей • родителей • школ</div>
 </div>
@@ -25831,6 +25832,62 @@ if(explainBox){
   }
 }
 /* === /PATCH === */
+
+
+/* === PATCH: "КИНОТЕАТР" как картинка — ПРЯМО НАД БАННЕРОМ === */
+.cinema-slider.cinema-v2 .cinema-head{ overflow: visible; }
+.cinema-slider.cinema-v2 .cinema-kicker{ display:none !important; }
+
+.cinema-slider.cinema-v2 .kino-sr{
+  position:absolute;
+  left:-9999px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+.cinema-slider.cinema-v2 .cinema-banner{
+  position: relative;
+  overflow: visible;
+}
+
+/* Большой бейдж "Кинотеатр" — всегда ровно над баннером */
+.cinema-slider.cinema-v2 .kino-badge{
+  position: absolute;
+  left: 50%;
+  top: 0;
+  /* Опускаем бейдж ближе к баннеру (компенсация прозрачных полей в PNG) */
+  --kino-badge-drop: 170px;
+  transform: translate(-50%, calc(-100% + var(--kino-badge-drop)));
+  height: clamp(260px, 18vw, 420px);
+  width: auto;
+  max-width: min(1100px, 96vw);
+  filter: drop-shadow(0 18px 30px rgba(0,0,0,.25));
+  pointer-events: none;
+  user-select: none;
+  z-index: 5;
+}
+@media (max-width: 520px){
+  .kino-badge{
+    --kino-badge-drop: 150px;
+    height: clamp(180px, 30vw, 260px);
+    max-width: min(820px, 94vw);
+  }
+}
+@media (min-width: 521px) and (max-height: 860px){
+  .kino-badge{ --kino-badge-drop: 160px; }
+}
+
+
+/* На мобильных — меньше, чтобы не съедало весь экран */
+@media (max-width: 520px){
+  .cinema-slider.cinema-v2 .kino-badge{
+    height: clamp(160px, 40vw, 260px);
+    max-width: 92vw;
+    transform: translate(-50%, calc(-100% + 6px));
+  }
+}
 </style>
 </body>
 </html>
