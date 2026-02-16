@@ -1582,7 +1582,7 @@
     }
 
     .chip-card{
-      min-width: 240px;
+      min-width: 220px;
       padding: 12px 14px;
       border-radius: 22px;
       position:relative;
@@ -1875,8 +1875,8 @@
 
     .wheel-center{
       position:absolute;
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 999px;
       display:grid;
       place-items:center;
@@ -1889,8 +1889,9 @@
         inset 0 1px 0 rgba(255,255,255,.18);
       color: rgba(20,20,20,.92);
       font-weight: 900;
-      letter-spacing: .08em;
-      font-size: 11px;
+      letter-spacing: 0;
+      font-size: 18px;
+      line-height: 1;
       text-transform: uppercase;
       pointer-events:none;
     }
@@ -3248,7 +3249,7 @@
       .menu-pill{
         padding: 7px 10px !important;
         border-radius: 14px !important;
-        font-size: 11px !important;
+        font-size: 14px !important;
       }
 
       .back-btn{
@@ -3282,7 +3283,7 @@
 
       .title-card{ border-radius: 20px !important; }
       .ui-h1{ font-size: 24px !important; }
-      .ui-h2{ font-size: 12px !important; letter-spacing:.16em !important; }
+      .ui-h2{ font-size: 14px !important; letter-spacing:.16em !important; }
 
       .cta{
         min-width: calc(100vw - 32px) !important;
@@ -3308,7 +3309,7 @@
       .movie-btn{
         min-width: 160px !important;
         padding: 10px 16px !important;
-        font-size: 11px !important;
+        font-size: 14px !important;
       }
 
       .side-chip{
@@ -4199,6 +4200,77 @@
   }
 }
 
+/* ============================================================
+   ✅ РУЛЕТКА — HALF SIZE (убрать “колбасу”)
+   Вставлено автоматически: уменьшение дока примерно в 2 раза
+   (только desktop/tablet, мобильную колонку НЕ трогаем)
+   ============================================================ */
+@media (min-width: 521px){
+  :root{
+    /* было ~940px → делаем примерно “в половину” */
+    --roulette-w: min(520px, calc(100vw - 24px));
+
+    /* колесо меньше */
+    --roulette-wheel: clamp(110px, 10vw, 130px);
+
+    /* лёгкое общее ужатие (можешь поставить 1, если текст станет мелким) */
+    --roulette-scale: .92;
+  }
+
+  .roulette-dock{ gap: 8px; }
+
+  .roulette-card{ padding: 8px; gap: 8px; border-radius: 18px; }
+  .roulette-controls{ min-width: 140px; gap: 6px; }
+
+  .roulette-title{ font-size: 13px; }
+  .roulette-sub{ font-size: 9px; }
+
+  .wheel-center{ width: 34px; height: 34px; font-size: 9px; }
+
+  .roulette-btn{
+    padding: 8px 9px;
+    border-radius: 14px;
+    font-size: 10px;
+  }
+
+  .roulette-info{
+    padding: 8px 10px;
+    gap: 6px;
+    min-width: 200px;   /* было 260 → из-за этого и тянулось */
+    border-radius: 18px;
+    justify-content: flex-start;
+  }
+
+  .roulette-infoBadge{ padding: 4px 7px; font-size: 8px; }
+
+  .roulette-infoTitle{
+    font-size: 14px;
+    line-height: 1.06;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .roulette-infoText{
+    font-size: 12px;
+    line-height: 1.16;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .roulette-link,
+  .roulette-miniBtn{
+    padding: 7px 8px;
+    border-radius: 14px;
+    font-size: 9px;
+  }
+
+  .roulette-history .hist{ padding: 4px 6px; font-size: 8px; }
+}
+
+
 /* На “низких” экранах — мягкое уменьшение общего масштаба + колеса */
 @media (min-width: 521px) and (max-height: 900px){
   :root{
@@ -4389,6 +4461,55 @@
     min-width:200px;
   }
 
+
+
+/* ============================================================
+   ✅ РУЛЕТКА — CROP LEFT (как на “красной линии”)
+   Решение проблемы “уехало влево”:
+   - НЕ уменьшаем док ниже минимально необходимого
+   - поджимаем левую часть; колесо делаем компактным (не “колбаса”)
+   - оставляем кнопку/подсказку/настройки + правый результат
+   ============================================================ */
+@media (min-width: 521px){
+  :root{
+    /* безопасная ширина: не ломаем центрирование и не выталкиваем за край */
+    --roulette-w: min(520px, calc(100vw - 24px));
+  }
+
+  /* реально “отрезаем” левый блок */
+  .roulette-dock .wheel-wrap{
+    display:grid !important;   /* вернуть колесо */
+    width: clamp(96px, 9vw, 120px);
+    height: clamp(96px, 9vw, 120px);
+  }
+  .roulette-dock .roulette-head{ display:none !important; }
+
+  /* поджимаем левую карточку с кнопкой */
+  .roulette-dock .roulette-card{
+    padding: 10px;
+    gap: 10px;
+  }
+  .roulette-dock .roulette-controls{
+    /* узкий блок: больше НЕ растягиваем кнопку “Крутить” */
+    width: clamp(150px, 16vw, 180px);
+    min-width: 150px;
+    gap: 8px;
+  }
+  .roulette-dock .roulette-btn{ width: 100%; }
+
+  /* чтобы не было лишней высоты/переносов */
+  .roulette-dock .roulette-mini{
+    margin-top: 0;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  /* кнопки настроек компактнее */
+  .roulette-dock .roulette-ghostBtn{
+    width: 34px;
+    height: 34px;
+  }
+}
 </style>
 <style id="coolPhishStyles">
 
@@ -8038,6 +8159,245 @@ body.menu-collapsed .side-nav__panel{
 }
 
 </style>
+
+<style id="tk-roulette-wheel-bigger">
+/* ============================================================
+   ✅ РУЛЕТКА — Bigger wheel only (не менять размеры блока)
+   Добавлено автоматически: увеличивает только кругляшок
+   ============================================================ */
+@media (min-width: 521px){
+  :root{
+    /* Было ~110–130px. Увеличиваем круг, не трогая ширину дока */
+    --roulette-wheel: clamp(150px, 13.5vw, 185px);
+  }
+  /* Подправим центр, чтобы не выглядел крошечным */
+  .wheel-center{
+    width: 40px;
+    height: 40px;
+    font-size: 10px;
+  }
+  /* Чуть уменьшим внутренние отступы у колеса, чтобы оно “влезло” визуально */
+  .wheel-wrap{ padding: 6px; }
+}
+</style>
+
+<style id="rouletteWheelVisualScale">
+/* ============================================================
+   ✅ РУЛЕТКА — BEAUTY WHEEL v1
+   Увеличиваем ТОЛЬКО крутящийся круг (внутри маски), не расширяя блок.
+   Важно: не трогаем transform у .wheel-rot (его крутит JS).
+   ============================================================ */
+@media (min-width: 521px){
+  /* фиксируем layout-габариты как в “узком” варианте */
+  .roulette-dock .wheel-wrap{
+    width: clamp(96px, 9vw, 120px) !important;
+    height: clamp(96px, 9vw, 120px) !important;
+    transform: none !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 999px !important;
+
+    /* чуть аккуратнее “обод” */
+    border: 1px solid rgba(255,255,255,.22) !important;
+    box-shadow:
+      0 14px 28px rgba(0,0,0,.18),
+      inset 0 1px 0 rgba(255,255,255,.12) !important;
+  }
+
+  /* “зум” колеса внутри круга — визуально больше, но блок тот же */
+  .roulette-dock canvas#wheel{
+    width: 100% !important;
+    height: 100% !important;
+    transform: scale(1.18);
+    transform-origin: center;
+  }
+
+  /* центр чуть выразительнее (не влияет на размеры блока) */
+  .roulette-dock .wheel-center{
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 10px !important;
+    box-shadow:
+      0 10px 20px rgba(0,0,0,.18),
+      inset 0 1px 0 rgba(255,255,255,.18) !important;
+  }
+
+  /* контролы не даём “съедаться” колесом */
+  .roulette-dock .roulette-controls{
+    width: clamp(150px, 16vw, 180px) !important;
+    min-width: 150px !important;
+    position: relative;
+    z-index: 3;
+  }
+
+  .roulette-dock .roulette-btn{
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  /* подсказку делаем компактнее, чтобы не “кашей” */
+  .roulette-dock .roulette-sub{
+    opacity: .92;
+    line-height: 1.18;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
+</style>
+
+<style id="tk-roulette-slightly-bigger">
+/* ============================================================
+   ✅ РУЛЕТКА — Slightly bigger dock (не сильно), сохраняем “красивый” вид
+   Увеличивает блок немного + даёт колесу больше воздуха.
+   ВАЖНО: не ломает JS и не раздувает до “колбасы”.
+   ============================================================ */
+@media (min-width: 521px){
+  :root{
+    /* было 520px → чуть больше */
+    --roulette-w: min(600px, calc(100vw - 24px));
+    /* было .92 → чуть крупнее интерфейс */
+    --roulette-scale: .96;
+  }
+
+  /* колесо: сам контейнер чуть больше, но остаётся компактным */
+  .roulette-dock .wheel-wrap{
+    width: clamp(132px, 12vw, 162px) !important;
+    height: clamp(132px, 12vw, 162px) !important;
+  }
+
+  /* “зум” внутри маски чуть мягче, чтобы не выглядело страшно */
+  .roulette-dock canvas#wheel{ transform: scale(1.08) !important; }
+
+  /* левую колонку (кнопка/подсказка) делаем чуть просторнее */
+  .roulette-dock .roulette-controls{
+    width: clamp(158px, 17vw, 190px) !important;
+    min-width: 158px !important;
+  }
+
+  .roulette-dock .roulette-btn{ max-width: 260px; }
+
+  /* правый результат — слегка шире для читабельности */
+  .roulette-info{ min-width: 220px !important; }
+}
+</style>
+
+<style id="tk-roulette-wheel-bigger-more-v3">
+/* ============================================================
+   ✅ РУЛЕТКА — Wheel bigger v3 (увеличить колесо, блок почти не растёт)
+   - Увеличиваем маску колеса
+   - Поджимаем контролы, чтобы не раздувать ширину
+   ============================================================ */
+@media (min-width: 521px){
+  /* ширину дока НЕ увеличиваем (остаётся как было в slightly-bigger) */
+  .roulette-dock .wheel-wrap{
+    width: clamp(160px, 15vw, 205px) !important;
+    height: clamp(160px, 15vw, 205px) !important;
+  }
+  /* “зум” внутри маски — небольшой, чтобы сектора не обрезались */
+  .roulette-dock canvas#wheel{ transform: scale(1.04) !important; }
+
+  /* контролы чуть уже, чтобы колесо получило место */
+  .roulette-dock .roulette-controls{
+    width: clamp(146px, 15vw, 170px) !important;
+    min-width: 146px !important;
+  }
+  .roulette-dock .roulette-btn{ max-width: 235px !important; }
+}
+</style>
+<style id="tk-roulette-result-wider">
+/* ============================================================
+   ✅ РУЛЕТКА — Result panel a bit wider (слегка расширить результат)
+   - Чуть шире правую панель
+   - Чуть поджать центральные контролы, чтобы док не рос
+   ============================================================ */
+@media (min-width: 521px){
+  .roulette-info{ min-width: 240px !important; }
+
+  .roulette-dock .roulette-controls{
+    width: clamp(140px, 14vw, 160px) !important;
+    min-width: 140px !important;
+  }
+  .roulette-dock .roulette-btn{ max-width: 225px !important; }
+}
+</style>
+
+
+
+<style id="tk-roulette-resulttitle-wider-v1">
+/* ============================================================
+   ✅ РУЛЕТКА — расширить блок "КРУТИ РУЛЕТКУ..." по ширине (без роста по высоте)
+   ============================================================ */
+@media (min-width: 521px){
+  :root{
+    /* чуть шире док, чтобы правый блок реально расширился */
+    --roulette-w: min(660px, calc(100vw - 24px));
+  }
+
+  /* правый блок результата шире */
+  .roulette-info{
+    width: clamp(320px, 34vw, 380px);
+    min-width: 320px;
+    flex: 0 0 auto;
+  }
+
+  /* заголовок в одну строку (не увеличивает высоту) */
+  .roulette-infoTitle{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: unset !important;
+    display: block !important;
+  }
+
+  /* текст-описание максимум 2 строки, но без лишней высоты */
+  .roulette-infoText{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    line-height: 1.14;
+  }
+}
+</style>
+<style id="tk-roulette-dock-nudge-v2">
+/* ============================================================
+   ✅ РУЛЕТКА — сдвиг всего дока вправо (фикс обрезки слева)
+   Меняет ТОЛЬКО позицию дока, размеры не трогает.
+   ============================================================ */
+:root{
+  /* держим якорь по центру */
+  --roulette-dock-left: 50%;
+  /* +18px вправо (и учитываем safe-area слева на мобилках) */
+  --roulette-dock-tx: calc(-50% + 18px + env(safe-area-inset-left, 0px));
+}
+</style>
+
+
+
+<!-- ✅ PATCH: Pin roulette dock to LEFT on desktop (override centering) -->
+<style id="tk-roulette-pin-left-v3">
+@media (min-width: 521px){
+  #rouletteDock.roulette-dock{
+    left: 18px !important;
+    right: auto !important;
+
+    /* kill centering translate */
+    --roulette-dock-left: 18px !important;
+    --roulette-dock-tx: 0% !important;
+
+    transform: translateX(0) translateZ(0) scale(var(--roulette-scale)) !important;
+    transform-origin: left bottom !important;
+
+    justify-content: flex-start !important;
+    width: min(var(--roulette-w), calc(100vw - 36px)) !important;
+    max-width: calc(100vw - 36px) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -8556,7 +8916,7 @@ body.menu-collapsed .side-nav__panel{
 <div aria-label="Колесо" class="wheel-rot" id="wheelRot">
 <canvas aria-hidden="true" height="420" id="wheel" width="420"></canvas>
 </div>
-<div aria-label="Крутить рулетку" class="wheel-center">GO</div>
+<div aria-label="Старт" title="Старт" class="wheel-center">&gt;</div>
 <div aria-hidden="true" class="wheel-glow"></div>
 </div>
 <div class="roulette-controls">
@@ -21381,7 +21741,7 @@ function renderCard() {
         const w = canvas.width;
         const h = canvas.height;
         const cx = w/2, cy = h/2;
-        const radius = Math.min(w,h) * 0.48;
+        const radius = Math.min(w,h) * 0.505;
 
         ctx.clearRect(0,0,w,h);
 
@@ -21421,7 +21781,7 @@ function renderCard() {
             ctx.restore();
 
             ctx.strokeStyle = "rgba(255,242,205,.85)";
-            ctx.lineWidth = Math.max(3.2, 3.6*dpr);
+            ctx.lineWidth  = Math.max(2.8, 3.0*dpr);
             ctx.stroke();
           }else{
             ctx.strokeStyle = "rgba(255,255,255,.22)";
@@ -21434,18 +21794,34 @@ function renderCard() {
           ctx.translate(cx,cy);
           ctx.rotate(mid);
 
-          ctx.textAlign = "center";
+                    ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "rgba(10,20,30,.92)";
-          ctx.shadowColor = "rgba(255,255,255,.45)";
-          ctx.shadowBlur = 12 * dpr;
 
-          const fontSize = Math.max(12, cssSize*0.072);
+          // ✅ ЧИТАЕМЫЕ НАДПИСИ: белый текст + тёмная обводка + мягкая тень
+          const label = ROULETTE_ITEMS[i].label;
+          // размер текста: кап по максимуму + лёгкая авто-подгонка по длине
+          let fontSize = Math.max(11, cssSize*0.065);
+          fontSize = Math.min(fontSize, 16);
+          const L = (label || "").length;
+          if(L >= 9) fontSize *= 0.82;
+          else if(L >= 7) fontSize *= 0.88;
+          else if(L >= 6) fontSize *= 0.93;
           ctx.font = `900 ${Math.round(fontSize*dpr)}px Ruslan Display, cursive`;
 
-          ctx.fillText(ROULETTE_ITEMS[i].label, radius*0.62, 0);
 
-          ctx.restore();
+          ctx.shadowColor = "rgba(0,0,0,.55)";
+          ctx.shadowBlur  = 6 * dpr;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+
+          ctx.lineWidth  = Math.max(3.2, 3.6*dpr);
+          ctx.strokeStyle = "rgba(0,0,0,.72)";
+          ctx.fillStyle   = "rgba(255,255,255,.97)";
+
+          // сначала обводка, затем заливка — так текст читается на любых секторах
+          ctx.strokeText(label, radius*0.60, 0);
+          ctx.fillText(label,  radius*0.60, 0);
+ctx.restore();
         }
 
         ctx.beginPath();
@@ -24231,7 +24607,7 @@ if(explainBox){
 /* баланс текста рядом с большим аватаром */
 @media (min-width: 521px){
   :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile strong{
-    font-size: 18px !important;
+    font-size: 14px !important;
     letter-spacing: .02em;
   }
   :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile span{
@@ -25255,5 +25631,110 @@ if(explainBox){
     });
   });
 })();
-</script></body>
+</script>
+<style id="rouletteWheelBeautyV2_more">
+/* ============================================================
+   ✅ РУЛЕТКА — WHEEL BIGGER v2 (красиво, без сильного расширения блока)
+   Увеличиваем ВИДИМЫЙ размер колеса: чуть больше маска + лёгкий зум.
+   Блок/док не раздуваем (ширина/компоновка остаются как была).
+   ============================================================ */
+@media (min-width: 521px){
+    /* чуть поджимаем правую часть слева, чтобы колесо могло быть больше без расширения */
+  .roulette-dock .roulette-controls{
+    width: clamp(140px, 15vw, 170px) !important;
+    min-width: 140px !important;
+  }
+
+/* Сам круг (маска) чуть больше */
+  .roulette-dock .wheel-wrap{
+    width: clamp(150px, 14vw, 180px) !important;
+    height: clamp(150px, 14vw, 180px) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 999px !important;
+  }
+
+  /* Лёгкий “зум внутри”, чтобы сектора читались крупнее, но без уродства */
+  .roulette-dock canvas#wheel{
+    transform: scale(1.03) !important;
+    transform-origin: center !important;
+  }
+
+  /* Центр чуть крупнее, чтобы пропорции были приятные */
+  .roulette-dock .wheel-center{
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 14px !important;
+  }
+
+  /* Немного поджимаем отступы, чтобы колесо не давило на контролы */
+  .roulette-dock .roulette-card{
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  .roulette-dock .roulette-controls{
+    width: clamp(140px, 15vw, 170px) !important;
+    min-width: 140px !important;
+  }
+}
+</style>
+
+<style id="roulette-center-start-patch">
+  /* ✅ Center button: GO -> Start (>) */
+  .wheel-center{
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+  }
+</style>
+
+<style id="roulette-gap-10px">
+  /* ✅ Add ~10px separation so result block doesn't ride over the roulette */
+  @media (min-width: 521px){
+    .roulette-info{ transform: translateX(10px) !important; }
+  }
+</style>
+
+
+<style id="rouletteDockShiftRight">
+/* ============================================================
+   ✅ FIX: сдвиг ВСЕГО дока рулетки вправо, чтобы не резало слева
+   (не влияет на высоту/контент, только позиция)
+   ============================================================ */
+@media (min-width: 521px){
+  .roulette-dock{
+    --roulette-dock-left: calc(50% + 10px);
+    --roulette-dock-tx: -50%;
+  }
+}
+</style>
+
+
+
+<style>
+/* ============================================================
+   ✅ FIX: dock слева (над мини-игрой «Информатика»)
+   - на мобилке оставляем центрирование
+   - на десктопе закрепляем у левого края с небольшим отступом
+   - ширину ограничиваем, чтобы не вылезать за экран
+   ============================================================ */
+:root{
+  --roulette-dock-left: 50%;
+  --roulette-dock-tx: -50%;
+}
+@media (min-width: 521px){
+  :root{
+    --roulette-dock-left: calc(18px + env(safe-area-inset-left, 0px));
+    --roulette-dock-tx: 0px;
+  }
+  .roulette-dock{
+    margin-left: 0 !important;
+    justify-content: flex-start;
+    transform-origin: left bottom;
+    width: min(var(--roulette-w), calc(100vw - 24px - env(safe-area-inset-left, 0px)));
+  }
+}
+</style>
+</body>
 </html>
