@@ -25889,5 +25889,137 @@ if(explainBox){
   }
 }
 </style>
+
+<script>
+/* ============================================================
+   ✅ FIX: «Фишинг» и «Инфобез» НЕ закрываются по клику на фон.
+   Esc закрывает по очереди, как в «Информатике»
+   Клик по фону отключён. Закрытие: кнопками или Esc (по очереди).
+   ============================================================ */
+(function lockMiniGamesClose(){
+  "use strict";
+
+  function isOpen(el){
+    if(!el) return false;
+    return el.classList.contains("is-open") || el.getAttribute("aria-hidden")==="false";
+  }
+
+  const phishOuter = document.getElementById("phishGame");
+  const infoOuter  = document.getElementById("infoSecGame");
+
+  function blockOuterBg(outer){
+    if(!outer || outer.__tkNoBgClose) return;
+    outer.__tkNoBgClose = true;
+
+    function stopper(e){
+      if(e.target !== outer) return;
+      try{ e.preventDefault(); }catch(_){}
+      try{ e.stopPropagation(); }catch(_){}
+      try{ e.stopImmediatePropagation(); }catch(_){}
+      return false;
+    }
+
+    // capture: перебиваем старые bubble-listeners "клик по фону закрывает"
+    outer.addEventListener("click", stopper, true);
+    outer.addEventListener("mousedown", stopper, true);
+    outer.addEventListener("pointerdown", stopper, true);
+  }
+
+  blockOuterBg(phishOuter);
+  blockOuterBg(infoOuter);
+
+  // inner backdrops (тренажёры внутри внешних модалок)
+  const phishInner = phishOuter ? phishOuter.querySelector("#backdrop") : null;
+  const infoInner  = infoOuter  ? infoOuter.querySelector("#infoBackdrop") : null;
+
+  function blockInnerBg(inner){
+    if(!inner || inner.__tkNoBgClose) return;
+    inner.__tkNoBgClose = true;
+
+    function stopper(e){
+      if(e.target !== inner) return;
+      try{ e.preventDefault(); }catch(_){}
+      try{ e.stopPropagation(); }catch(_){}
+      try{ e.stopImmediatePropagation(); }catch(_){}
+      return false;
+    }
+
+    inner.addEventListener("click", stopper, true);
+    inner.addEventListener("mousedown", stopper, true);
+    inner.addEventListener("pointerdown", stopper, true);
+  }
+
+  blockInnerBg(phishInner);
+  blockInnerBg(infoInner);
+
+  function clickById(id){
+    const el = document.getElementById(id);
+    if(el && el.click){
+      el.click();
+      return true;
+    }
+    return false;
+  }
+
+  // ✅ Esc: закрывает по очереди, как в «Информатике»:
+  // 1) если открыт внутренний тренажёр — закрываем его;
+  // 2) иначе закрываем внешнюю оболочку.
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Escape") return;
+
+    const phishOuterOpen = isOpen(phishOuter);
+    const infoOuterOpen  = isOpen(infoOuter);
+    const phishInnerOpen = !!(phishInner && phishInner.classList && phishInner.classList.contains("is-open"));
+    const infoInnerOpen  = !!(infoInner  && infoInner.classList  && infoInner.classList.contains("is-open"));
+
+    if(!(phishOuterOpen || phishInnerOpen || infoOuterOpen || infoInnerOpen)) return;
+
+    // приоритет: если открыт «Фишинг», обрабатываем его; иначе — «Инфобез»
+    const handlePhish = phishOuterOpen || phishInnerOpen;
+    const handleInfo  = (!handlePhish) && (infoOuterOpen || infoInnerOpen);
+    if(!handlePhish && !handleInfo) return;
+
+    try{ e.preventDefault(); }catch(_){}
+    try{ e.stopPropagation(); }catch(_){}
+    try{ e.stopImmediatePropagation(); }catch(_){}
+
+    if(handlePhish){
+      if(phishInnerOpen){
+        if(clickById("closeBtn")) return; // закрываем внутреннюю игру
+        try{
+          phishInner.classList.remove("is-open");
+          phishInner.setAttribute("aria-hidden","true");
+        }catch(_){}
+        return;
+      }
+      if(clickById("closePhishGame")) return; // закрываем внешнюю оболочку
+      try{
+        phishOuter.classList.remove("is-open");
+        phishOuter.setAttribute("aria-hidden","true");
+      }catch(_){}
+      return;
+    }
+
+    if(handleInfo){
+      if(infoInnerOpen){
+        if(clickById("infoCloseBtn")) return; // закрываем внутреннюю игру
+        try{
+          infoInner.classList.remove("is-open");
+          infoInner.setAttribute("aria-hidden","true");
+        }catch(_){}
+        return;
+      }
+      if(clickById("closeInfoSecGame")) return; // закрываем внешнюю оболочку
+      try{
+        infoOuter.classList.remove("is-open");
+        infoOuter.setAttribute("aria-hidden","true");
+        document.body.style.overflow = "";
+      }catch(_){}
+      return;
+    }
+  }, true);
+
+})();</script>
+
 </body>
 </html>
