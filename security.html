@@ -26879,81 +26879,142 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
 </script>
 
 
-<style id="tk-kino-badge-10px-fix">
+<style id="tk-kino-badge-gap10-final-v2">
+  /* FINAL v2: kinoteatr.png всегда на 10px выше баннера (по ВИДИМОЙ кромке, с учётом прозрачного низа PNG).
+     Без теней, перекрывает предыдущие патчи. */
+  :root{
+    /* fallback, если canvas-сканирование недоступно */
+    --tk-kino-fallback-transparent-bottom: 92px;
+  }
 
-/* tk patch v3: kino badge is visually "tight" to the banner across all screens.
-   We align the IMAGE box to the banner, then compensate transparent padding via --kino-badge-visual-comp. */
-:root{
-  /* how many px of transparent padding (approx) the PNG has at the bottom.
-     bigger value => badge will sit closer / overlap more into the banner visually. */
-  --kino-badge-visual-comp: 56px;
-}
-@media (max-width: 1920px) and (min-width: 521px){
-  :root{ --kino-badge-visual-comp: 56px; } /* Full HD */
-}
-@media (min-width: 1921px){
-  :root{ --kino-badge-visual-comp: 62px; } /* 4K */
-}
-@media (max-width: 520px){
-  :root{ --kino-badge-visual-comp: 44px; } /* mobile */
-}
+  #cinema .cinema-banner{
+    position: relative !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+  #cinema .cinema-banner::before,
+  #cinema .cinema-banner::after,
+  #cinema .cinema-head::before,
+  #cinema .cinema-head::after,
+  #cinema.cinema-slider::before,
+  #cinema.cinema-slider::after{
+    box-shadow: none !important;
+    filter: none !important;
+    background: transparent !important;
+    opacity: 1 !important;
+  }
 
-.cinema-slider.cinema-v2 .cinema-banner{ overflow: visible; }
+  #cinema .kino-badge{
+    --tk-kino-nudge: 0px;
+    position: absolute !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translate(-50%, calc(-100% + var(--tk-kino-nudge))) !important;
 
-/* Base: badge sits directly on banner top (box-aligned), JS then nudges it for exact gap */
-.cinema-slider.cinema-v2 .kino-badge{
-  --kino-badge-nudge: 0px; /* set by JS */
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, calc(-100% + var(--kino-badge-nudge)));
-}
-
+    margin: 0 !important;
+    padding: 0 !important;
+    filter: none !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    user-select: none;
+    z-index: 20;
+    will-change: transform;
+  }
 </style>
 
-
-<script id="tk-kino-badge-10px-fix-js">
-
-/* tk patch v3: auto-nudge kinoteatr.png so its VISIBLE bottom is very close to the banner.
-   We align by box, then subtract a "visual compensation" for transparent padding. */
+<script id="tk-kino-badge-gap10-final-v2-js">
 (function(){
-  var banner = document.querySelector('#cinema .cinema-banner');
-  if(!banner) return;
+  "use strict";
+  if(window.__tkKinoGap10V2) return;
+  window.__tkKinoGap10V2 = true;
 
-  // badge may be inside banner (current markup) or as sibling; support both.
-  var badge = banner.querySelector('.kino-badge') || document.querySelector('#cinema .cinema-head .kino-badge');
-  if(!badge) return;
+  var DESIRED_GAP = 10; // px между видимым низом kinoteatr.png и верхом баннера
+  var CLAMP = 4000;
 
-  // Desired *visual* gap between badge and banner (in px).
-  // We compensate PNG transparent bottom padding via --kino-badge-visual-comp.
-  var VISUAL_GAP = -70; // почти вплотную (сильнее перекрытие)
-  var CLAMP = 3000;   // allow large nudges safely
+  function qs(sel, root){ return (root||document).querySelector(sel); }
 
-  function numCSS(el, name){
-    var v = getComputedStyle(el).getPropertyValue(name);
-    var n = parseFloat(v);
-    return isFinite(n) ? n : 0;
+  var banner = null, badge = null;
+  var cachedTransparentBottomNatural = null;
+
+  function getTargets(){
+    banner = qs('#cinema .cinema-banner');
+    if(!banner) return false;
+    badge = qs('#cinema .cinema-banner .kino-badge') || qs('#cinema .kino-badge');
+    return !!badge;
+  }
+
+  function cssNum(el, name){
+    try{
+      var v = getComputedStyle(el).getPropertyValue(name);
+      var n = parseFloat(v);
+      return isFinite(n) ? n : 0;
+    }catch(e){ return 0; }
+  }
+
+  function measureTransparentBottomNatural(img){
+    try{
+      var w = img.naturalWidth|0, h = img.naturalHeight|0;
+      if(!w || !h) return null;
+
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      var ctx = c.getContext('2d');
+      if(!ctx) return null;
+
+      ctx.clearRect(0,0,w,h);
+      ctx.drawImage(img, 0, 0);
+
+      var data = ctx.getImageData(0,0,w,h).data;
+      var threshold = 6;
+      var step = Math.max(1, Math.floor(w / 380));
+
+      for(var y = h-1; y >= 0; y--){
+        var row = y*w*4;
+        for(var x=0; x<w; x+=step){
+          if(data[row + x*4 + 3] > threshold){
+            return (h-1) - y;
+          }
+        }
+      }
+      return h;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function computeTransparentBottomScaled(){
+    if(cachedTransparentBottomNatural == null){
+      cachedTransparentBottomNatural = measureTransparentBottomNatural(badge);
+    }
+    if(cachedTransparentBottomNatural != null && badge.naturalHeight){
+      var r = badge.getBoundingClientRect();
+      if(r.height > 0){
+        return cachedTransparentBottomNatural * (r.height / badge.naturalHeight);
+      }
+    }
+    return cssNum(document.documentElement, '--tk-kino-fallback-transparent-bottom');
   }
 
   function apply(){
-    // if hidden, skip
-    if(!badge.offsetParent && getComputedStyle(badge).position !== 'fixed') return;
+    if(!getTargets()) return;
+
+    badge.style.setProperty('--tk-kino-nudge', '0px');
 
     var br = banner.getBoundingClientRect();
     var ir = badge.getBoundingClientRect();
     if(!isFinite(br.top) || !isFinite(ir.bottom)) return;
 
-    var visualComp = numCSS(document.documentElement, '--kino-badge-visual-comp');
+    var tb = computeTransparentBottomScaled();
 
-    // We want the badge BOX to be closer than the visual gap by visualComp pixels,
-    // so that the visible artwork ends up ~VISUAL_GAP above the banner.
-    var targetBoxGap = VISUAL_GAP - visualComp; // usually negative => overlap into banner
-    var gap = br.top - ir.bottom;               // >0 means badge box above banner top
-    var nudge = gap - targetBoxGap;             // + => move badge DOWN
+    var desiredBoxGap = DESIRED_GAP - tb;
+    var boxGap = br.top - ir.bottom;
+    var nudge = boxGap - desiredBoxGap;
 
     if(nudge > CLAMP) nudge = CLAMP;
     if(nudge < -CLAMP) nudge = -CLAMP;
 
-    badge.style.setProperty('--kino-badge-nudge', nudge.toFixed(2) + 'px');
+    badge.style.setProperty('--tk-kino-nudge', nudge.toFixed(2) + 'px');
   }
 
   function schedule(){
@@ -26962,34 +27023,41 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
     });
   }
 
-  try{
-    if(badge.decode){
-      badge.decode().then(schedule).catch(function(){
-        if(badge.complete) schedule();
-      });
+  function init(){
+    if(!getTargets()) return;
+    cachedTransparentBottomNatural = null;
+
+    if(badge.complete){
+      schedule();
     }else{
-      if(badge.complete) schedule();
+      badge.onload = function(){
+        cachedTransparentBottomNatural = null;
+        schedule();
+      };
     }
-  }catch(e){}
 
-  badge.addEventListener('load', schedule, { once:true });
+    window.addEventListener('resize', schedule);
+    window.addEventListener('orientationchange', function(){ setTimeout(schedule, 80); });
 
-  window.addEventListener('resize', schedule, { passive:true });
-  if(window.visualViewport){
-    visualViewport.addEventListener('resize', schedule, { passive:true });
+    if(window.visualViewport && window.visualViewport.addEventListener){
+      window.visualViewport.addEventListener('resize', function(){ setTimeout(schedule, 60); });
+    }
+
+    setTimeout(schedule, 120);
+    setTimeout(schedule, 360);
+    setTimeout(schedule, 720);
+    setTimeout(schedule, 1200);
+    setTimeout(schedule, 2000);
   }
 
-  try{
-    var mo = new MutationObserver(schedule);
-    mo.observe(document.body, { attributes:true, attributeFilter:['class'] });
-  }catch(e){}
-
-  setTimeout(schedule, 120);
-  setTimeout(schedule, 450);
-  setTimeout(schedule, 900);
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{
+    init();
+  }
 })();
-
 </script>
+
 
 </body>
 </html>
