@@ -8584,28 +8584,44 @@ body.menu-collapsed .side-nav__panel{
 </style>
 
 <!-- ✅ Cinema head lower patch v13 (forces margin-top + bigger shift) -->
-<style id="cinemaLowerPatchV13">
-  /* Опускаем блок «Мультфильмы о цифровой безопасности» ещё ниже */
-  :root{ --cinema-head-shift: 260px; }
+<style id="cinemaLowerPatchV15">
+  /* FIX: опускаем баннер «Мультфильмы о цифровой безопасности», но не даём ему уходить за нижнюю грань экрана.
+     В предыдущей версии сдвиг был слишком большой и баннер «улетал» вниз. */
 
-  /* Full HD и десктопы */
+  :root{
+    --cinema-head-shift: 220px;                 /* базовый сдвиг */
+    --cinema-head-max: calc(55svh - 240px);     /* ограничение по высоте экрана */
+  }
+
+  /* Full HD (и все десктопы до 1920) */
   @media (max-width: 1920px) and (min-width: 521px){
-    :root{ --cinema-head-shift: clamp(700px, 18vh, 1200px); }
+    :root{
+      --cinema-head-shift: clamp(360px, 12vh, 820px);
+      --cinema-head-max: calc(52svh - 260px);
+    }
   }
 
   /* 4K */
   @media (min-width: 1921px){
-    :root{ --cinema-head-shift: clamp(780px, 16vh, 1400px); }
+    :root{
+      --cinema-head-shift: clamp(420px, 11vh, 940px);
+      --cinema-head-max: calc(50svh - 300px);
+    }
   }
 
   /* Компактный десктоп (низкая высота окна) */
   @media (max-height: 980px) and (min-width: 521px){
-    :root{ --cinema-head-shift: clamp(520px, 22vh, 900px); }
+    :root{
+      --cinema-head-shift: clamp(300px, 16vh, 720px);
+      --cinema-head-max: calc(48svh - 260px);
+    }
   }
 
   /* Важно: в исходных стилях есть поздний margin-шортхенд, он сбрасывал margin-top.
-     Поэтому фиксируем margin-top принудительно. */
-  .cinema-head{ margin-top: var(--cinema-head-shift, 0px) !important; }
+     Поэтому фиксируем margin-top принудительно и добавляем «потолок», чтобы не уходило за экран. */
+  .cinema-head{
+    margin-top: max(0px, min(var(--cinema-head-shift, 0px), var(--cinema-head-max, 0px))) !important;
+  }
 </style>
 </head>
 <body>
