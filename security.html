@@ -26628,14 +26628,18 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   overflow: visible;
 }
 
-/* Большой бейдж "Кинотеатр" — всегда ровно над баннером */
+/* Большой бейдж "Кинотеатр" — ВСЕГДА выше баннера (во всех форматах) */
 .cinema-slider.cinema-v2 .kino-badge{
   position: absolute;
   left: 50%;
   top: 0;
-  /* Опускаем бейдж ближе к баннеру (компенсация прозрачных полей в PNG) */
+
+  /* gap гарантирует, что картинка не заедет в баннер с текстом */
+  --kino-badge-gap: clamp(26px, 2.8vh, 46px);
+  /* drop — мягкая компенсация прозрачных полей PNG (всегда МЕНЬШЕ gap) */
   --kino-badge-drop: 14px;
-  transform: translate(-50%, calc(-100% + var(--kino-badge-drop)));
+
+  transform: translate(-50%, calc(-100% - var(--kino-badge-gap) + var(--kino-badge-drop)));
   height: clamp(260px, 18vw, 420px);
   width: auto;
   max-width: min(1100px, 96vw);
@@ -26644,34 +26648,38 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   user-select: none;
   z-index: 5;
 }
-/* ✅ Full HD: держим бейдж ВЫШЕ текста (не заезжает в баннер) */
+
+/* ✅ Full HD: чуть меньше "drop", чтобы точно не касался баннера */
 @media (max-width: 1920px) and (min-width: 521px){
-  .cinema-slider.cinema-v2 .kino-badge{ --kino-badge-drop: 10px; }
-}
-
-/* ✅ 4K: чуть ближе (но всё равно выше текста) */
-@media (min-width: 1921px){
-  .cinema-slider.cinema-v2 .kino-badge{ --kino-badge-drop: 14px; }
-}
-
-@media (max-width: 520px){
-  .kino-badge{
-    --kino-badge-drop: 150px;
-    height: clamp(180px, 30vw, 260px);
-    max-width: min(820px, 94vw);
+  .cinema-slider.cinema-v2 .kino-badge{
+    --kino-badge-drop: 10px;
+    --kino-badge-gap: clamp(28px, 3vh, 52px);
   }
 }
-@media (min-width: 521px) and (max-height: 860px){
-  .kino-badge{ --kino-badge-drop: 160px; }
+
+/* ✅ 4K: можно чуть больше, но всё равно выше баннера */
+@media (min-width: 1921px){
+  .cinema-slider.cinema-v2 .kino-badge{
+    --kino-badge-drop: 14px;
+    --kino-badge-gap: clamp(30px, 2.6vh, 58px);
+  }
 }
 
-
-/* На мобильных — меньше, чтобы не съедало весь экран */
+/* ✅ Mobile: компактнее и тоже строго выше */
 @media (max-width: 520px){
   .cinema-slider.cinema-v2 .kino-badge{
+    --kino-badge-drop: 6px;
+    --kino-badge-gap: 14px;
     height: clamp(160px, 40vw, 260px);
     max-width: 92vw;
-    transform: translate(-50%, calc(-100% + 6px));
+  }
+}
+
+/* ✅ Низкая высота окна: уменьшаем бейдж, чтобы он не давил на контент */
+@media (min-width: 521px) and (max-height: 860px){
+  .cinema-slider.cinema-v2 .kino-badge{
+    height: clamp(220px, 16vw, 340px);
+    --kino-badge-gap: clamp(18px, 2.2vh, 34px);
   }
 }
 </style>
@@ -26820,6 +26828,119 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
     });
   }catch(_){}
 })();
+</script>
+
+
+<style id="tk-kino-badge-10px-fix">
+
+/* tk patch v3: kino badge is visually "tight" to the banner across all screens.
+   We align the IMAGE box to the banner, then compensate transparent padding via --kino-badge-visual-comp. */
+:root{
+  /* how many px of transparent padding (approx) the PNG has at the bottom.
+     bigger value => badge will sit closer / overlap more into the banner visually. */
+  --kino-badge-visual-comp: 56px;
+}
+@media (max-width: 1920px) and (min-width: 521px){
+  :root{ --kino-badge-visual-comp: 56px; } /* Full HD */
+}
+@media (min-width: 1921px){
+  :root{ --kino-badge-visual-comp: 62px; } /* 4K */
+}
+@media (max-width: 520px){
+  :root{ --kino-badge-visual-comp: 44px; } /* mobile */
+}
+
+.cinema-slider.cinema-v2 .cinema-banner{ overflow: visible; }
+
+/* Base: badge sits directly on banner top (box-aligned), JS then nudges it for exact gap */
+.cinema-slider.cinema-v2 .kino-badge{
+  --kino-badge-nudge: 0px; /* set by JS */
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(-100% + var(--kino-badge-nudge)));
+}
+
+</style>
+
+
+<script id="tk-kino-badge-10px-fix-js">
+
+/* tk patch v3: auto-nudge kinoteatr.png so its VISIBLE bottom is very close to the banner.
+   We align by box, then subtract a "visual compensation" for transparent padding. */
+(function(){
+  var banner = document.querySelector('#cinema .cinema-banner');
+  if(!banner) return;
+
+  // badge may be inside banner (current markup) or as sibling; support both.
+  var badge = banner.querySelector('.kino-badge') || document.querySelector('#cinema .cinema-head .kino-badge');
+  if(!badge) return;
+
+  // Desired *visual* gap between badge and banner (in px).
+  // We compensate PNG transparent bottom padding via --kino-badge-visual-comp.
+  var VISUAL_GAP = -12; // "вплотную" визуально (может слегка перекрывать баннер)
+  var CLAMP = 3000;   // allow large nudges safely
+
+  function numCSS(el, name){
+    var v = getComputedStyle(el).getPropertyValue(name);
+    var n = parseFloat(v);
+    return isFinite(n) ? n : 0;
+  }
+
+  function apply(){
+    // if hidden, skip
+    if(!badge.offsetParent && getComputedStyle(badge).position !== 'fixed') return;
+
+    var br = banner.getBoundingClientRect();
+    var ir = badge.getBoundingClientRect();
+    if(!isFinite(br.top) || !isFinite(ir.bottom)) return;
+
+    var visualComp = numCSS(document.documentElement, '--kino-badge-visual-comp');
+
+    // We want the badge BOX to be closer than the visual gap by visualComp pixels,
+    // so that the visible artwork ends up ~VISUAL_GAP above the banner.
+    var targetBoxGap = VISUAL_GAP - visualComp; // usually negative => overlap into banner
+    var gap = br.top - ir.bottom;               // >0 means badge box above banner top
+    var nudge = gap - targetBoxGap;             // + => move badge DOWN
+
+    if(nudge > CLAMP) nudge = CLAMP;
+    if(nudge < -CLAMP) nudge = -CLAMP;
+
+    badge.style.setProperty('--kino-badge-nudge', nudge.toFixed(2) + 'px');
+  }
+
+  function schedule(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(apply);
+    });
+  }
+
+  try{
+    if(badge.decode){
+      badge.decode().then(schedule).catch(function(){
+        if(badge.complete) schedule();
+      });
+    }else{
+      if(badge.complete) schedule();
+    }
+  }catch(e){}
+
+  badge.addEventListener('load', schedule, { once:true });
+
+  window.addEventListener('resize', schedule, { passive:true });
+  if(window.visualViewport){
+    visualViewport.addEventListener('resize', schedule, { passive:true });
+  }
+
+  try{
+    var mo = new MutationObserver(schedule);
+    mo.observe(document.body, { attributes:true, attributeFilter:['class'] });
+  }catch(e){}
+
+  setTimeout(schedule, 120);
+  setTimeout(schedule, 450);
+  setTimeout(schedule, 900);
+})();
+
 </script>
 
 </body>
