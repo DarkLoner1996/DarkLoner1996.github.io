@@ -8584,45 +8584,123 @@ body.menu-collapsed .side-nav__panel{
 </style>
 
 <!-- ✅ Cinema head lower patch v13 (forces margin-top + bigger shift) -->
-<style id="cinemaLowerPatchV15">
-  /* FIX: опускаем баннер «Мультфильмы о цифровой безопасности», но не даём ему уходить за нижнюю грань экрана.
-     В предыдущей версии сдвиг был слишком большой и баннер «улетал» вниз. */
+<style id="cinemaLowerPatchV16">
+  /* v16: опускаем «Мультфильмы о цифровой безопасности» НИЖЕ,
+     но гарантируем, что баннер не уедет за нижнюю грань экрана
+     и что под ним останется видимой часть карточек (cinemaStage). */
 
   :root{
-    --cinema-head-shift: 220px;                 /* базовый сдвиг */
-    --cinema-head-max: calc(55svh - 240px);     /* ограничение по высоте экрана */
+    /* хотим заметно ниже */
+    --cinema-head-shift: 360px;
+
+    /* минимально видимая часть карточек под баннером (JS будет учитывать) */
+    --cinema-stage-min-visible: 280px;
+
+    /* запас снизу, чтобы не «липло» к краю */
+    --cinema-safe-bottom: 16px;
+
+    /* CSS-страховка: даже без JS не даём совсем улететь */
+    --cinema-head-max: calc(100svh - 560px);
   }
 
   /* Full HD (и все десктопы до 1920) */
   @media (max-width: 1920px) and (min-width: 521px){
     :root{
-      --cinema-head-shift: clamp(360px, 12vh, 820px);
-      --cinema-head-max: calc(52svh - 260px);
+      --cinema-head-shift: clamp(520px, 18vh, 1200px);
+      --cinema-stage-min-visible: 300px;
+      --cinema-head-max: calc(100svh - 600px);
     }
   }
 
   /* 4K */
   @media (min-width: 1921px){
     :root{
-      --cinema-head-shift: clamp(420px, 11vh, 940px);
-      --cinema-head-max: calc(50svh - 300px);
+      --cinema-head-shift: clamp(620px, 16vh, 1400px);
+      --cinema-stage-min-visible: 340px;
+      --cinema-head-max: calc(100svh - 680px);
     }
   }
 
   /* Компактный десктоп (низкая высота окна) */
   @media (max-height: 980px) and (min-width: 521px){
     :root{
-      --cinema-head-shift: clamp(300px, 16vh, 720px);
-      --cinema-head-max: calc(48svh - 260px);
+      --cinema-head-shift: clamp(420px, 22vh, 980px);
+      --cinema-stage-min-visible: 260px;
+      --cinema-head-max: calc(100svh - 620px);
     }
   }
 
-  /* Важно: в исходных стилях есть поздний margin-шортхенд, он сбрасывал margin-top.
-     Поэтому фиксируем margin-top принудительно и добавляем «потолок», чтобы не уходило за экран. */
-  .cinema-head{
+  /* Фиксируем именно margin-top (у тебя поздний margin-шортхенд мог его сбрасывать) */
+  .cinema-slider.cinema-v2 .cinema-head{
     margin-top: max(0px, min(var(--cinema-head-shift, 0px), var(--cinema-head-max, 0px))) !important;
   }
 </style>
+
+<script id="cinemaHeadClampV16">
+/* v16: JS-точность — делаем «как можно ниже», но:
+   1) баннер не выходит за низ экрана
+   2) под баннером остаётся видимой часть карточек (cinemaStage) */
+(function(){
+  const root = document.documentElement;
+
+  function px(v){
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function getVh(){
+    const vv = window.visualViewport;
+    return (vv && vv.height) ? vv.height : window.innerHeight;
+  }
+
+  function clampCinema(){
+    const head = document.querySelector('.cinema-slider.cinema-v2 .cinema-head');
+    const stage = document.getElementById('cinemaStage');
+    if(!head || !stage) return;
+
+    // Делаем сдвиг максимально возможным: временно снимаем потолок
+    root.style.setProperty('--cinema-head-max', '99999px');
+
+    // Force reflow
+    void head.offsetHeight;
+
+    const vh = getVh();
+    const safeBottom = Math.max(8, px(getComputedStyle(root).getPropertyValue('--cinema-safe-bottom')));
+    const minStage = Math.max(180, px(getComputedStyle(root).getPropertyValue('--cinema-stage-min-visible')));
+
+    const headRect = head.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+
+    // Ограничение: низ шапки должен быть выше низа экрана
+    const overHead = headRect.bottom - (vh - safeBottom);
+
+    // Ограничение: начало карточек не должно уходить слишком низко (чтобы часть карточек оставалась видимой)
+    const overStage = stageRect.top - (vh - minStage);
+
+    const over = Math.max(overHead, overStage, 0);
+
+    const currentMt = px(getComputedStyle(head).marginTop);
+    const maxAllowed = Math.max(0, currentMt - over);
+
+    root.style.setProperty('--cinema-head-max', maxAllowed + 'px');
+  }
+
+  const rafClamp = () => requestAnimationFrame(clampCinema);
+
+  window.addEventListener('load', rafClamp, {once:true});
+  window.addEventListener('resize', rafClamp, {passive:true});
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', rafClamp, {passive:true});
+    window.visualViewport.addEventListener('scroll', rafClamp, {passive:true});
+  }
+
+  // На случай, если шрифты/картинки подгружаются позже
+  setTimeout(clampCinema, 80);
+  setTimeout(clampCinema, 220);
+})();
+</script>
+
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
