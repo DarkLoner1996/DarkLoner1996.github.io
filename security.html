@@ -38,8 +38,9 @@
          ============================================================ */
       --bear-top-frac: 0.65139;
       --ui-bear-gap: 16px;
-      --ui-bottom-extra: clamp(170px, 12.8vh, 380px); /* ⬇️ опустили кинотеатр + баннер ещё ниже */
-      --cinema-head-shift: 34px; /* ⬇️ смещаем баннер «Мультфильмы...» вниз */
+      --ui-bottom-extra: clamp(260px, 18vh, 620px); /* ⬇️ опустили кинотеатр + баннер ещё ниже */
+            --ui-bottom-max-extra: 280px;
+--cinema-head-shift: 120px; /* ⬇️ смещаем баннер «Мультфильмы...» вниз */
       --ui-safe-top: 14px;
       --ui-target-frac: 0.72;
 
@@ -102,8 +103,9 @@
       :root{
         --bear-top-frac: 0.635;
         --ui-bear-gap: 14px;
-        --ui-bottom-extra: clamp(190px, 13.2vh, 420px); /* ⬇️ опустили кинотеатр (FHD ещё ниже) */
-        --cinema-head-shift: 60px; /* ⬇️ баннер «Мультфильмы...» ниже на FHD */
+        --ui-bottom-extra: clamp(320px, 18.5vh, 720px); /* ⬇️ опустили кинотеатр (FHD ещё ниже) */
+              --ui-bottom-max-extra: 360px;
+--cinema-head-shift: clamp(220px, 10vh, 520px); /* ⬇️ баннер «Мультфильмы...» ниже на FHD */
       }
     }
 
@@ -112,8 +114,9 @@
       :root{
         --bear-top-frac: 0.665;
         --ui-bear-gap: 12px;
-        --ui-bottom-extra: clamp(150px, 10.6vh, 360px); /* ⬇️ опустили кинотеатр (4K ещё ниже) */
-        --cinema-head-shift: 50px;
+        --ui-bottom-extra: clamp(300px, 16vh, 680px); /* ⬇️ опустили кинотеатр (4K ещё ниже) */
+              --ui-bottom-max-extra: 420px;
+--cinema-head-shift: clamp(260px, 9vh, 600px);
       }
     }
 
@@ -3020,9 +3023,9 @@
 
         --ui-bottom-scale: .86;
 
-        --ui-bottom-extra: clamp(150px, 10.4vh, 320px); /* ⬇️ опустили кинотеатр (компакт ещё ниже) */
+        --ui-bottom-extra: clamp(260px, 16vh, 560px); /* ⬇️ опустили кинотеатр (компакт ещё ниже) */
 
-        --cinema-head-shift: 56px;
+        --cinema-head-shift: 120px;
 
         --movie-card-minh: 92px;
         --movie-card-pad: 9px;
@@ -21474,7 +21477,8 @@ function renderCard() {
         let top = aY - uiH - gap + extra;
 
         const safeTop = clamp(cssVar('--ui-safe-top', 12), 0, 160);
-        const maxTop = (imgTop + imgH) - uiH - gap;
+        const maxPush = clamp(cssVar('--ui-bottom-max-extra', 0), 0, 1600);
+        const maxTop = (imgTop + imgH) - uiH - gap + maxPush;
 
         top = clamp(top, safeTop, maxTop);
         document.documentElement.style.setProperty('--ui-bottom-top', `${Math.round(top)}px`);
