@@ -8584,52 +8584,52 @@ body.menu-collapsed .side-nav__panel{
 </style>
 
 <!-- ✅ Cinema head lower patch v13 (forces margin-top + bigger shift) -->
-<style id="cinemaLowerPatchV17">
-  /* v17: «Мультфильмы о цифровой безопасности» — ниже и заметнее,
-     но НЕ до самого низа: держим безопасный отступ снизу (safe-bottom)
-     и оставляем видимой часть карточек (cinemaStage). */
+<style id="cinemaLowerPatchV18">
+  /* v18: поднимаем баннер «Мультфильмы о цифровой безопасности» ЧУТЬ ВЫШЕ,
+     но всё ещё ниже исходного положения. Основной рычаг — больше видимой зоны карточек снизу,
+     поэтому баннер не «проваливается» вниз. */
 
   :root{
-    /* просим «сильно вниз» — JS сам ограничит по экрану */
-    --cinema-head-shift: 2400px;
+    /* «хочу вниз» — JS ограничит по экрану */
+    --cinema-head-shift: 1800px;
 
     /* сколько карточек должно оставаться видимым снизу */
-    --cinema-stage-min-visible: 180px;
+    --cinema-stage-min-visible: 320px;
 
     /* не липнуть к нижней грани */
-    --cinema-safe-bottom: 120px;
+    --cinema-safe-bottom: 140px;
 
     /* CSS-страховка (если JS не успел) */
-    --cinema-head-max: calc(100svh - 420px);
+    --cinema-head-max: calc(100svh - 640px);
   }
 
   /* Full HD (и все десктопы до 1920) */
   @media (max-width: 1920px) and (min-width: 521px){
     :root{
-      --cinema-head-shift: 3000px;
-      --cinema-stage-min-visible: 200px;
-      --cinema-safe-bottom: 130px;
-      --cinema-head-max: calc(100svh - 460px);
+      --cinema-head-shift: 2200px;
+      --cinema-stage-min-visible: 360px;
+      --cinema-safe-bottom: 160px;
+      --cinema-head-max: calc(100svh - 720px);
     }
   }
 
   /* 4K */
   @media (min-width: 1921px){
     :root{
-      --cinema-head-shift: 3400px;
-      --cinema-stage-min-visible: 240px;
-      --cinema-safe-bottom: 150px;
-      --cinema-head-max: calc(100svh - 540px);
+      --cinema-head-shift: 2400px;
+      --cinema-stage-min-visible: 420px;
+      --cinema-safe-bottom: 180px;
+      --cinema-head-max: calc(100svh - 860px);
     }
   }
 
   /* Компактный десктоп (низкая высота окна) */
   @media (max-height: 980px) and (min-width: 521px){
     :root{
-      --cinema-head-shift: 2600px;
-      --cinema-stage-min-visible: 160px;
-      --cinema-safe-bottom: 110px;
-      --cinema-head-max: calc(100svh - 520px);
+      --cinema-head-shift: 2000px;
+      --cinema-stage-min-visible: 300px;
+      --cinema-safe-bottom: 150px;
+      --cinema-head-max: calc(100svh - 780px);
     }
   }
 
@@ -8639,10 +8639,12 @@ body.menu-collapsed .side-nav__panel{
   }
 </style>
 
-<script id="cinemaHeadClampV17">
-/* v17: делаем «ниже, но не до самого низа».
-   1) нижняя граница: cinema-safe-bottom
-   2) часть карточек видима: cinema-stage-min-visible */
+<script id="cinemaHeadClampV18">
+/* v18: «ниже, но НЕ слишком низко».
+   Держим:
+   1) нижний отступ (cinema-safe-bottom)
+   2) видимую часть карточек снизу (cinema-stage-min-visible)
+   В этой версии мы увеличили min-visible, чтобы баннер не «проваливался» вниз. */
 (function(){
   const root = document.documentElement;
 
@@ -8676,8 +8678,9 @@ body.menu-collapsed .side-nav__panel{
 
     const vh = getVh();
     const cs = getComputedStyle(root);
-    const safeBottom = Math.max(40, px(cs.getPropertyValue('--cinema-safe-bottom')));
-    const minStage = Math.max(120, px(cs.getPropertyValue('--cinema-stage-min-visible')));
+
+    const safeBottom = Math.max(60, px(cs.getPropertyValue('--cinema-safe-bottom')));
+    const minStage = Math.max(180, px(cs.getPropertyValue('--cinema-stage-min-visible')));
 
     const headRect = head.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
