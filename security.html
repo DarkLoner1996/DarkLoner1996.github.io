@@ -105,7 +105,7 @@
         --ui-bear-gap: 14px;
         --ui-bottom-extra: clamp(1100px, 52vh, 2800px); /* ⬇️ опустили кинотеатр (FHD ещё ниже) */
               --ui-bottom-max-extra: 6500px;
---cinema-head-shift: clamp(2300px, 80vh, 6200px); /* ⬇️ баннер «Мультфильмы...» ниже на FHD */
+--cinema-head-shift: clamp(2600px, 80vh, 6200px); /* ⬇️ баннер «Мультфильмы...» ниже на FHD */
       }
     }
 
@@ -8610,8 +8610,7 @@ body.menu-collapsed .side-nav__panel{
   @media (max-width: 1920px) and (min-width: 521px){
     :root{
       --cinema-head-shift: 2200px;
-            --cinema-head-lift: 1000px; /* FHD: поднять кинотеатр ещё выше (+400px) */
---cinema-stage-min-visible: 620px;
+      --cinema-stage-min-visible: 620px;
       --cinema-safe-bottom: 310px;
       --cinema-head-max: calc(100svh - 860px);
     }
@@ -27229,22 +27228,21 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
 </script>
 
 
-<style id="fhdCinemaLiftHotfix_v1">
-/* Hotfix: поднимаем «Кинотеатр» только на Full HD (1920×1080 и близко), 4K не трогаем */
+
+<!-- ✅ FHD cinema FORCE raise v1: lift whole cinema block by 400px (4K untouched) -->
+<style id="cinemaFhdForceRaise400">
 @media (max-width: 1920px) and (min-width: 521px) and (min-height: 981px){
-  :root{ --cinema-head-lift: 1000px; }
-}
-</style>
-<style id="fhdCinemaLiftNudge">
-/* FHD-only: поднимаем ВЕСЬ блок кинотеатра ещё выше.
-   Не трогаем 4K и не вмешиваемся в режим "compact" (низкая высота). */
-@media (max-width: 1920px) and (min-width: 521px) and (min-height: 981px){
-  #cinema{
+  /* Lift the whole cinema block (banner + cards) */
+  section#cinema.cinema-slider.cinema-v2{
     position: relative !important;
-    top: -400px !important; /* ещё +400px вверх */
+    top: -400px !important;
+  }
+
+  /* Also lift the head a bit more defensively (in case only head is visible) */
+  :root{
+    --cinema-head-lift: 700px;
   }
 }
 </style>
-
 </body>
 </html>
