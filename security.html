@@ -8878,6 +8878,11 @@ body.menu-collapsed .side-nav__panel{
   justify-content: space-between;
 }
 
+/* ✅ IT: скрыть кнопку «Сначала» (не нужна) */
+#itGame #itRestartBtn{ display:none !important; }
+/* ✅ IT: если остаётся только «Дальше», выравниваем вправо */
+#itGame .cool-phish-root #itResult .row{ justify-content:flex-end !important; }
+
 /* Чуть стабильнее ширина, чтобы визуально не слипалось */
 #itGame .cool-phish-root #itResult .row .btn{
   min-width: 150px;
@@ -8896,6 +8901,83 @@ body.menu-collapsed .side-nav__panel{
 }
 </style>
 
+<style id="tk-explain-images-v1">
+/* ============================================================
+   🖼️ Картинки пояснения (на каждый вопрос 2 картинки)
+   verno{N}_1.png и neverno{N}_1.png (N = номер вопроса 1..25)
+   Показываются внутри блока объяснения после ответа.
+   ============================================================ */
+.tk-explain-images{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:12px;
+  align-items:flex-start;
+}
+.tk-explain-images img{
+  display:block;
+  width:min(220px, 46vw);
+  height:auto;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 10px 26px rgba(0,0,0,.26);
+}
+</style>
+
+<style id="tk-answer-img-support-v1">
+/* ============================================================
+   ✅ Картинки рядом с «Верно/Неверно» (ответ)
+   Информатика: otvet_inf_verno.png / otvet_inf_neverno.png
+   Инфобез:     otvet_ib_verno.png  / otvet_ib_neverno.png
+   Фишинг:      otvet_ph_verno.png  / otvet_ph_neverno.png
+   (файлы положить рядом с HTML)
+   ============================================================ */
+
+.tk-ans-badge-img{
+  display:inline-block;
+  width:72px;
+  max-width:28vw;
+  height:auto;
+  border-radius:14px;
+  vertical-align:middle;
+  box-shadow: 0 8px 22px rgba(0,0,0,.28);
+  opacity:.98;
+}
+
+/* IT: pill с текстом + картинка */
+#itResultPill{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+#itResultPill .tk-ans-badge-img{ margin-left:0; }
+
+/* Phish badge (и будем использовать в Инфобез тоже) */
+.result-badge{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.result-badge .tk-ans-badge-img{ margin-left:0; }
+
+@media (max-width:520px){
+  .tk-ans-badge-img{ width:62px; border-radius:12px; }
+}
+</style>
+
+
+
+
+<style id="tk-it-hide-warn-pill-v1">
+/* ============================================================
+   ✅ Информатика: убираем отдельный индикатор «Неверно» со значком
+   Остаётся только объяснение (почему верно/неверно) и картинка ответа.
+   ============================================================ */
+#itResultPill{display:none!important;}
+</style>
 <style id="tk-training-close-x-big-v1">
 /* ============================================================
    ✅ Увеличенный крестик закрытия на экране «Тренировка»
@@ -8927,6 +9009,14 @@ body.menu-collapsed .side-nav__panel{
 
 
 </style>
+
+<style id="tk-it-footer-actions-v1">
+  /* IT game: place Next button on the same row as "Карточка/Без спешки" pills */
+  #itFooterCards .it-footer-actions{display:flex; align-items:center; gap:12px;}
+  /* Ensure the button doesn't wrap awkwardly on wide screens */
+  #itFooterCards .btn.primary{white-space:nowrap;}
+</style>
+
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -9816,7 +9906,7 @@ body.menu-collapsed .side-nav__panel{
 <div class="msg-head">
 <div class="from">
 <b id="itQLevel">Уровень 1</b>
-<span id="itQCount">1/15</span>
+<span id="itQCount">1/25</span>
 </div>
 <div class="subject" id="itQTopic">Тема: основы</div>
 </div>
@@ -9831,11 +9921,17 @@ body.menu-collapsed .side-nav__panel{
 </div>
 <div class="result" hidden="" id="itResult">
 <div class="pill" id="itResultPill">—</div>
-<div class="explain" id="itExplain">—</div>
-<div class="row" style="margin-top:12px">
-<button class="btn primary" id="itNextBtn" type="button">Дальше</button>
-<button class="btn" id="itRestartBtn" type="button">Сначала</button>
+<div class="explain" id="itExplain"><div id="itExplainText">—</div><div class="tk-explain-images" id="itExplainImgs" hidden><img id="itExplainImg" alt="${kind==='good'?'Картинка: почему верно':'Картинка: почему неверно'}" loading="lazy" decoding="async" hidden></div></div>
 </div>
+<div class="footer-controls" id="itFooterCards">
+  <div class="kpi">
+<span class="pill">📄 Карточка <span id="itCardIndex">1</span>/<span id="itCardCount">25</span></span>
+    <span class="pill">⏱️ Без спешки</span>
+  </div>
+  <div class="it-footer-actions">
+    <button class="btn primary" id="itNextBtn" type="button">Дальше</button>
+    <button class="btn" id="itRestartBtn" type="button" hidden aria-hidden="true" tabindex="-1">Сначала</button>
+  </div>
 </div>
 </div>
 </div>
@@ -20610,6 +20706,7 @@ renderCard();
     }
 
 function setExplain(kind, text) {
+      if (!explainBox) return;
       if (!text) {
         explainBox.classList.remove("is-on");
         explainBox.innerHTML = "";
@@ -20617,8 +20714,22 @@ function setExplain(kind, text) {
       }
 
       explainBox.classList.add("is-on");
-      const badgeClass = kind === "good" ? "good" : (kind === "bad" ? "bad" : "");
-      const badgeText = kind === "good" ? "Верно!" : (kind === "bad" ? "Неверно" : "Подсказка");
+      const badgeClass = (kind === "good" ? "good" : (kind === "bad" ? "bad" : ""));
+      const badgeText  = (kind === "good" ? "Верно!" : (kind === "bad" ? "Неверно" : "Подсказка"));
+
+      const isAnswer = (kind === "good" || kind === "bad");
+      if (isAnswer) phishHideQImg();
+
+      let imgHtml = "";
+      if (isAnswer) {
+        const n = (currentIndex|0) + 1;
+        const src = (kind === "good") ? ("verno_ph" + n + "_1.png") : ("neverno_ph" + n + "_1.png");
+        imgHtml = `
+          <div class="tk-explain-images">
+            <img class="tk-ansimg" src="${src}" alt="${kind==='good'?'Картинка: почему верно':'Картинка: почему неверно'}" loading="lazy" decoding="async">
+          </div>
+        `;
+      }
 
       explainBox.innerHTML = `
         <div class="result-badge ${badgeClass}">
@@ -20626,6 +20737,7 @@ function setExplain(kind, text) {
           ${badgeText}
         </div>
         <div>${escapeHtml(text)}</div>
+        ${imgHtml}
       `;
     }
 
@@ -20912,11 +21024,15 @@ function renderCard() {
       skipUsed += 1;
       updateSkipLabel();
 
+      // ✅ Пропуск засчитываем как «верно» (без XP), чтобы не портить итог 25/25
       runTotal += 1;
+      runCorrect += 1;
       applyXp(player, 0);
 
-      setExplain("", "Пропущено. Если сомневаетесь — проверьте через официальный сайт/приложение.");
+      setExplain("", "⏭️ Пропущено (засчитано как верно, без XP).");
       updateHud();
+
+      if (phishCheckWin()) return;
       nextBtn.disabled = false;
     });
 
@@ -23644,10 +23760,40 @@ save();
     btnSkip && (btnSkip.disabled = true);
 
     if(explainBox){
-      explainBox.textContent = (correct ? '✅ Верно. ' : '❌ Не совсем. ') + card.why;
-      explainBox.classList.toggle('ok', correct);
+      infoHideQImg();
+      explainBox.innerHTML = "";
+
+      const badge = document.createElement("div");
+      badge.className = "result-badge " + (correct ? "good" : "bad");
+
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.setAttribute("aria-hidden","true");
+      badge.appendChild(chip);
+
+      badge.appendChild(document.createTextNode(correct ? "Верно!" : "Неверно"));
+
+      const why = document.createElement("div");
+      why.textContent = card.why;
+
+      explainBox.appendChild(badge);
+      explainBox.appendChild(why);
+
+      
+      // картинка пояснения (на каждый вопрос: verno_ib{N}_1.png или neverno_ib{N}_1.png)
+      const n = (state.idx|0) + 1;
+      const imgs = document.createElement("div");
+      imgs.className = "tk-explain-images";
+
+      const img = document.createElement("img");
+      img.loading = "lazy"; img.decoding = "async";
+      img.alt = correct ? "Картинка: почему верно" : "Картинка: почему неверно";
+      img.src = correct ? ("verno_ib" + n + "_1.png") : ("neverno_ib" + n + "_1.png");
+      imgs.appendChild(img);
+      explainBox.appendChild(imgs);
+explainBox.classList.toggle('ok', correct);
       explainBox.classList.toggle('bad', !correct);
-    explainBox.classList.add('is-on');
+      explainBox.classList.add('is-on');
     }
 
     if(correct){
@@ -23704,7 +23850,7 @@ save();
   function skip(){
     if(state.skipsUsed >= 3){
       btnSkip && (btnSkip.disabled = true);
-      
+
       if(btnSkip){
         if(!btnSkip.dataset.baseLabel){
           const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
@@ -23713,12 +23859,15 @@ save();
         const base = btnSkip.dataset.baseLabel || 'Пропустить';
         btnSkip.textContent = `${base} (3/3)`;
       }
-if(explainBox){
+
+      if(explainBox){
         explainBox.textContent = '🚫 Пропусков больше нет (3/3). Попробуйте выбрать ответ.';
-        explainBox.classList.remove('ok','bad','is-on');
+        explainBox.classList.remove('ok','bad');
+        explainBox.classList.add('is-on');
       }
       return;
     }
+
     state.skipsUsed = (state.skipsUsed|0) + 1;
 
     if(btnSkip){
@@ -23731,19 +23880,31 @@ if(explainBox){
       btnSkip.textContent = `${base} (${used}/3)`;
     }
 
-    // no xp, no score
+    // ✅ Пропуск засчитываем как «верно» (без XP), чтобы карточка уходила и не портила итог
+    state.correct = (state.correct|0) + 1;
+
     if(explainBox){
-      explainBox.textContent = '⏭️ Пропуск. Важно: лучше всегда думать, прежде чем нажимать.';
-      explainBox.classList.remove('ok','bad','is-on');
+      explainBox.textContent = '⏭️ Пропуск засчитан как верный (без XP).';
+      explainBox.classList.remove('ok','bad');
+      explainBox.classList.add('is-on');
     }
+
     btnRisk && (btnRisk.disabled = true);
     btnSafe && (btnSafe.disabled = true);
     btnSkip && (btnSkip.disabled = true);
+
+    updateHud();
+    save();
+
+    // если это была последняя карточка — показываем победу сразу
+    if(state.idx >= total-1){
+      if(infoCheckWin && infoCheckWin()) return;
+    }
+
     if(nextBtn){
       nextBtn.disabled = false;
       nextBtn.textContent = (state.idx >= total-1) ? 'Заново' : 'Далее';
     }
-    save();
   }
 
   // Events
@@ -24352,6 +24513,8 @@ if(explainBox){
   const qBody = document.getElementById('itQBody');
   const qHint = document.getElementById('itQHint');
   const qImg = document.getElementById('itQImg');
+  const itCardIndexEl = document.getElementById('itCardIndex');
+  const itCardCountEl = document.getElementById('itCardCount');
 
   function itSetQImg(n){
     if(!qImg) return;
@@ -24367,6 +24530,36 @@ if(explainBox){
     qImg.onerror = null;
     qImg.removeAttribute('src');
   }
+  function itSetExplainImgs(n, ok){
+    if(!explainImgsEl || !itExplainImg) return;
+    explainImgsEl.hidden = false;
+
+    // Показываем ОДНУ картинку: верно ИЛИ неверно (по правильности ответа)
+    itExplainImg.hidden = false;
+    itExplainImg.onerror = null;
+    itExplainImg.removeAttribute('src');
+
+    const isOk = !!ok;
+    itExplainImg.alt = isOk ? 'Картинка: почему верно' : 'Картинка: почему неверно';
+    itExplainImg.src = isOk ? ('verno_inf' + n + '_1.png') : ('neverno_inf' + n + '_1.png');
+
+    itExplainImg.onerror = () => {
+      itExplainImg.hidden = true;
+      itExplainImg.removeAttribute('src');
+      explainImgsEl.hidden = true;
+    };
+  }
+
+  function itHideExplainImgs(){
+    if(!explainImgsEl) return;
+    explainImgsEl.hidden = true;
+    if(itExplainImg){
+      itExplainImg.hidden = true;
+      itExplainImg.onerror = null;
+      itExplainImg.removeAttribute('src');
+    }
+  }
+
 
 
   const btnTrue = document.getElementById('itBtnTrue');
@@ -24376,6 +24569,9 @@ if(explainBox){
   const resultBox = document.getElementById('itResult');
   const resultPill = document.getElementById('itResultPill');
   const explainEl = document.getElementById('itExplain');
+  const explainTextEl = document.getElementById('itExplainText');
+  const explainImgsEl = document.getElementById('itExplainImgs');
+  const itExplainImg = document.getElementById('itExplainImg');
   const nextBtn = document.getElementById('itNextBtn');
   const restartBtn = document.getElementById('itRestartBtn');
   const innerCloseBtn = document.getElementById('itCloseBtn');
@@ -24455,7 +24651,7 @@ if(explainBox){
     if(state && state.avatar && state.name){
       // allow resume: go straight to play
       selectedAvatar = state.avatar;
-      idx = clamp(state.idx||0,0,14);
+      idx = clamp(state.idx||0,0,24);
       skipped = Array.isArray(state.skipped)?state.skipped:[];
       order = state.order && state.order.length===25 ? state.order : Array.from({length:25},(_,i)=>i);
       updateProfileUI();
@@ -24560,7 +24756,9 @@ if(explainBox){
     resultBox.hidden = true;
     if(explainEl){
       explainEl.classList.remove('is-on');
-      explainEl.textContent = '';
+      if(explainTextEl){ explainTextEl.textContent = ''; } else { itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = ''; } else { explainEl.textContent = ''; }; }
+      itHideExplainImgs();
     }
     btnTrue.disabled = btnFalse.disabled = false;
     btnSkip.disabled = (skipped.length >= 3);
@@ -24581,6 +24779,8 @@ if(explainBox){
       qTitle.textContent = 'Готово!';
       qLevel.textContent = 'Финал';
       qCount.textContent = '25/25';
+      if(itCardIndexEl) itCardIndexEl.textContent = '25';
+      if(itCardCountEl) itCardCountEl.textContent = '25';
       qTopic.textContent = 'Миссия выполнена';
       itHideQImg();
       qBody.innerHTML = '<b>Отлично!</b> Вы прошли все вопросы по информатике. Можно начать заново или сменить героя.';
@@ -24589,7 +24789,8 @@ if(explainBox){
       resultBox.hidden = false;
       resultPill.textContent = '🎉 Пройдено';
       explainEl.classList.add('is-on');
-      explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
+      itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; } else { explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; };
       nextBtn.disabled = true;
       return;
     }
@@ -24599,6 +24800,8 @@ if(explainBox){
     if(qTitle) qTitle.textContent = 'Вопрос';
     if(qLevel) qLevel.textContent = 'Уровень ' + lvl;
     if(qCount) qCount.textContent = (idx+1) + '/25';
+    if(itCardIndexEl) itCardIndexEl.textContent = String(Math.min(idx+1,25));
+    if(itCardCountEl) itCardCountEl.textContent = '25';
     if(qTopic) qTopic.textContent = 'Тема: ' + card.topic;
     if(qBody) qBody.textContent = card.text;
     itSetQImg(order[idx] + 1);
@@ -24641,22 +24844,26 @@ if(explainBox){
         resultBox.hidden = false;
         resultPill.textContent = '💔 Конец игры';
         explainEl.classList.add('is-on');
-        explainEl.textContent = 'Нажмите «Сначала», чтобы начать заново.';
+        itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Сначала», чтобы начать заново.'; } else { explainEl.textContent = 'Нажмите «Сначала», чтобы начать заново.'; };
         nextBtn.disabled = true;
         return;
       }
     }
-
     // reveal
+    itHideQImg();
     resultBox.hidden = false;
     resultPill.textContent = ok ? '✅ Верно!' : '⚠️ Неверно';
     explainEl.classList.add('is-on');
-    explainEl.textContent = card.explain;
+    itHideExplainImgs();
+    if(explainTextEl){ explainTextEl.textContent = card.explain; } else { itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = card.explain; } else { explainEl.textContent = card.explain; }; }
+    itSetExplainImgs(idx+1, ok);
 
     btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
 
     // save
-    state.idx = idx;
+    state.idx = idx + 1;
     saveState(state);
     updateProfileUI();
     updateKpi();
@@ -24693,7 +24900,8 @@ if(explainBox){
         resultBox.hidden = false;
         resultPill.textContent = '🏆 Победа';
         explainEl.classList.add('is-on');
-        explainEl.textContent = 'Нажмите «Закрыть игру».';
+        itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Закрыть игру».'; } else { explainEl.textContent = 'Нажмите «Закрыть игру».'; };
         nextBtn.disabled = true;
 
         // bind close once
@@ -24720,7 +24928,8 @@ if(explainBox){
         resultBox.hidden = false;
         resultPill.textContent = '🎉 Пройдено';
         explainEl.classList.add('is-on');
-        explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
+        itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; } else { explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; };
         nextBtn.disabled = true;
       }
     }
@@ -24728,6 +24937,8 @@ if(explainBox){
 
   function doSkip(){
     if(locked || !state) return;
+
+    // лимит 3/3
     if(skipped.length >= 3){
       btnSkip && (btnSkip.disabled = true);
       if(btnSkip){
@@ -24741,13 +24952,34 @@ if(explainBox){
       if(qHint) qHint.textContent = '🚫 Пропусков больше нет (3/3).';
       return;
     }
+
+    locked = true;
+
+    // ✅ Пропуск засчитываем как «верно» (без XP) — как в Инфобез/Фишинг
     skipped.push(order[idx]);
     state.skipped = skipped.slice();
-    // move on without counting as answered
-    idx += 1;
-    state.idx = idx;
+
+    state.answered = (state.answered||0) + 1;
+    state.correct = (state.correct||0) + 1;
+    // XP не добавляем: пропуск «без очков»
+
+    // показать результат-уведомление и ждать «Дальше»
+    itHideQImg();
+    resultBox.hidden = false;
+    resultPill.textContent = '⏭️ Пропуск';
+    explainEl.classList.add('is-on');
+    itHideExplainImgs();
+    if(explainTextEl){ explainTextEl.textContent = '⏭️ Пропуск засчитан как верный (без XP).'; }
+    else { explainEl.textContent = '⏭️ Пропуск засчитан как верный (без XP).'; }
+
+    btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+    nextBtn.disabled = false;
+
+    // сохранить и обновить UI
+    state.idx = idx + 1;
     saveState(state);
-    renderQuestion();
+    updateProfileUI();
+    updateKpi();
   }
 
   function next(){
