@@ -8835,6 +8835,98 @@ body.menu-collapsed .side-nav__panel{
 }
 </style>
 
+
+<style id="tk-qimg-support-v1">
+/* ============================================================
+   ✅ Вопрос + картинка (плейсхолдеры для мини-игр)
+   Информатика: vopros_inf1..25.png
+   Инфобез:     vopros_ib1..25.png
+   Фишинг:      vopros_ph1..25.png
+   ============================================================ */
+.tk-qimg-wrap{ margin-top: 12px; }
+.tk-qimg{ 
+  display:block;
+  width:100%;
+  max-width:min(520px, 100%);
+  margin: 0 auto;
+  border-radius: 16px;
+  object-fit: contain;
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.22);
+}
+@media (max-width: 520px){
+  .tk-qimg{ border-radius: 14px; }
+}
+
+
+<style id="tk-minigame-button-gap-v1">
+/* ============================================================
+   ✅ Раздвигаем кнопки в мини-играх (Информатика/Инфобез/Фишинг)
+   Задача: чтобы кнопки не “слипались”, особенно после ответа.
+   ============================================================ */
+
+/* Кнопки ответов (верхний ряд) — чуть больше расстояние */
+#itGame .cool-phish-root .actions,
+#infoSecGame .cool-phish-root .actions,
+#phishGame .cool-phish-root .actions{
+  gap: 16px !important;
+}
+
+/* Информатика: ряд кнопок «Дальше / Сначала» после ответа */
+#itGame .cool-phish-root #itResult .row{
+  gap: 24px !important;
+  justify-content: space-between;
+}
+
+/* Чуть стабильнее ширина, чтобы визуально не слипалось */
+#itGame .cool-phish-root #itResult .row .btn{
+  min-width: 150px;
+}
+
+/* На узких экранах пусть кнопки нормально переносятся */
+@media (max-width: 520px){
+  #itGame .cool-phish-root #itResult .row{
+    gap: 14px !important;
+    justify-content: stretch;
+  }
+  #itGame .cool-phish-root #itResult .row .btn{
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+}
+</style>
+
+<style id="tk-training-close-x-big-v1">
+/* ============================================================
+   ✅ Увеличенный крестик закрытия на экране «Тренировка»
+   (Информатика / Инфобез / Фишинг) — только размер/кликабельность
+   ============================================================ */
+.menu-top .tk-close-x{
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+}
+@media (max-width: 520px){
+  .menu-top .tk-close-x{
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 26px;
+  }
+}
+</style>
+
+
+
+</style>
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -9580,7 +9672,7 @@ body.menu-collapsed .side-nav__panel{
 <span class="pill"><b>Информатика</b></span>
 <span class="tag">игра</span>
 </div>
-<span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+<button class="pill tk-close-x" type="button" aria-label="Закрыть игру" title="Закрыть игру" onclick="document.getElementById('closeItGame')?.click();" style="cursor:pointer;appearance:none;-webkit-appearance:none;justify-content:center;font-weight:900;line-height:1;">✕</button>
 </div>
 <div class="menu-body">
 <div aria-hidden="true" class="mascot">
@@ -9730,6 +9822,7 @@ body.menu-collapsed .side-nav__panel{
 </div>
 <div class="msg-body" id="itQBody">—</div>
 <div class="msg-link" id="itQHint"></div>
+<div class="tk-qimg-wrap"><img id="itQImg" class="tk-qimg" alt="Иллюстрация к вопросу" loading="lazy" decoding="async" hidden></div>
 </div>
 <div class="actions">
 <button class="btn good" id="itBtnTrue" type="button">Верно</button>
@@ -9781,7 +9874,7 @@ body.menu-collapsed .side-nav__panel{
 <span class="pill"><b>Инфобез</b></span>
 <span class="tag">игра</span>
 </div>
-<span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+<button class="pill tk-close-x" type="button" aria-label="Закрыть игру" title="Закрыть игру" onclick="document.getElementById('closeInfoSecGame')?.click();" style="cursor:pointer;appearance:none;-webkit-appearance:none;justify-content:center;font-weight:900;line-height:1;">✕</button>
 </div>
 <div class="menu-body">
 <div aria-hidden="true" class="mascot">
@@ -9934,6 +10027,7 @@ body.menu-collapsed .side-nav__panel{
 </div>
 <div class="msg-body" id="infoMsgBody">—</div>
 <div class="msg-link" id="infoMsgLink"></div>
+<div class="tk-qimg-wrap"><img id="infoQImg" class="tk-qimg" alt="Иллюстрация к вопросу" loading="lazy" decoding="async" hidden></div>
 </div>
 <div class="actions">
 <button class="btn bad" id="infoBtnRisk" type="button">Опасно</button>
@@ -10020,7 +10114,7 @@ body.menu-collapsed .side-nav__panel{
 <span class="pill"><b>Фишинг</b></span>
 <span class="tag">игра</span>
 </div>
-<span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+<button class="pill tk-close-x" type="button" aria-label="Закрыть игру" title="Закрыть игру" onclick="document.getElementById('closePhishGame')?.click();" style="cursor:pointer;appearance:none;-webkit-appearance:none;justify-content:center;font-weight:900;line-height:1;">✕</button>
 </div>
 <div class="menu-body">
 <div aria-hidden="true" class="mascot">
@@ -10176,6 +10270,7 @@ body.menu-collapsed .side-nav__panel{
 </div>
 <div class="msg-body" id="msgBody">—</div>
 <div class="msg-link" id="msgLink"></div>
+<div class="tk-qimg-wrap"><img id="phishQImg" class="tk-qimg" alt="Иллюстрация к вопросу" loading="lazy" decoding="async" hidden></div>
 </div>
 <div class="actions">
 <button class="btn bad" id="btnPhish" type="button">Фишинг</button>
@@ -20250,6 +20345,9 @@ body.menu-collapsed .side-nav__panel{
   },
     ];
 
+    // ✅ Индекс для картинок вопросов (Фишинг): vopros_ph1..N.png
+    CARD_BANK.forEach((c,i)=>{ c.__imgIdx = i + 1; });
+
     /* ============================================================
        Utilities
        ============================================================ */
@@ -20378,6 +20476,23 @@ body.menu-collapsed .side-nav__panel{
     const msgSubject = document.getElementById("msgSubject");
     const msgBody = document.getElementById("msgBody");
     const msgLink = document.getElementById("msgLink");
+
+    const qImg = document.getElementById("phishQImg");
+
+    function phishSetQImg(n){
+      if(!qImg) return;
+      qImg.hidden = false;
+      qImg.src = "vopros_ph" + n + ".png";
+      qImg.alt = "Иллюстрация к вопросу " + n;
+      qImg.onerror = () => { qImg.hidden = true; qImg.removeAttribute("src"); };
+    }
+    function phishHideQImg(){
+      if(!qImg) return;
+      qImg.hidden = true;
+      qImg.onerror = null;
+      qImg.removeAttribute("src");
+    }
+
 
     const btnPhish = document.getElementById("btnPhish");
     const btnLegit = document.getElementById("btnLegit");
@@ -20553,6 +20668,7 @@ function setExplain(kind, text) {
     function phishShowWin(){
       if(hasWon) return;
       hasWon = true;
+      phishHideQImg();
 
       // Lock controls
       enableAnswering(false);
@@ -20625,6 +20741,8 @@ function renderCard() {
         msgLink.classList.remove("is-on");
         msgLink.textContent = "";
       }
+
+      phishSetQImg(card.__imgIdx || (currentIndex + 1));
 
       cardIndexEl.textContent = String(currentIndex + 1);
       nextBtn.disabled = true;
@@ -23216,6 +23334,24 @@ ${currentItem.text}`;
   const msgBody = qs('#infoMsgBody', backdrop);
   const msgLink = qs('#infoMsgLink', backdrop);
 
+  const qImg = qs('#infoQImg', backdrop);
+
+  function infoSetQImg(n){
+    if(!qImg) return;
+    qImg.hidden = false;
+    qImg.src = 'vopros_ib' + n + '.png';
+    qImg.alt = 'Иллюстрация к вопросу ' + n;
+    qImg.onerror = () => { qImg.hidden = true; qImg.removeAttribute('src'); };
+  }
+
+  function infoHideQImg(){
+    if(!qImg) return;
+    qImg.hidden = true;
+    qImg.onerror = null;
+    qImg.removeAttribute('src');
+  }
+
+
   const btnRisk = qs('#infoBtnRisk', backdrop);
   const btnSafe = qs('#infoBtnSafe', backdrop);
   const btnSkip = qs('#infoBtnSkip', backdrop);
@@ -23351,6 +23487,7 @@ ${currentItem.text}`;
   function infoShowWin(){
     if(hasWon) return;
     hasWon = true;
+    infoHideQImg();
 
     const perfect = infoIsPerfect25();
 
@@ -23459,6 +23596,7 @@ save();
     if(msgFromEmail) msgFromEmail.textContent = card.email;
     if(msgSubject) msgSubject.textContent = 'LVL ' + card.lvl + ' • ' + card.subject;
     if(msgBody) msgBody.textContent = card.body;
+    infoSetQImg(state.idx + 1);
 
     if(msgLink){
       if(card.link){
@@ -23527,6 +23665,7 @@ save();
     const isDeadInfo = !!(window.__tkHpIsDead && window.__tkHpIsDead("info"));
     if(explainBox){
       if(isDeadInfo){
+        infoHideQImg();
         explainBox.appendChild(document.createElement('br'));
         explainBox.appendChild(document.createElement('br'));
         const fin = document.createElement('div');
@@ -24212,6 +24351,23 @@ if(explainBox){
   const qTopic = document.getElementById('itQTopic');
   const qBody = document.getElementById('itQBody');
   const qHint = document.getElementById('itQHint');
+  const qImg = document.getElementById('itQImg');
+
+  function itSetQImg(n){
+    if(!qImg) return;
+    qImg.hidden = false;
+    qImg.src = 'vopros_inf' + n + '.png';
+    qImg.alt = 'Иллюстрация к вопросу ' + n;
+    qImg.onerror = () => { qImg.hidden = true; qImg.removeAttribute('src'); };
+  }
+
+  function itHideQImg(){
+    if(!qImg) return;
+    qImg.hidden = true;
+    qImg.onerror = null;
+    qImg.removeAttribute('src');
+  }
+
 
   const btnTrue = document.getElementById('itBtnTrue');
   const btnFalse = document.getElementById('itBtnFalse');
@@ -24402,6 +24558,10 @@ if(explainBox){
     if(!state) return;
     locked = false;
     resultBox.hidden = true;
+    if(explainEl){
+      explainEl.classList.remove('is-on');
+      explainEl.textContent = '';
+    }
     btnTrue.disabled = btnFalse.disabled = false;
     btnSkip.disabled = (skipped.length >= 3);
     if(btnSkip){
@@ -24422,11 +24582,13 @@ if(explainBox){
       qLevel.textContent = 'Финал';
       qCount.textContent = '25/25';
       qTopic.textContent = 'Миссия выполнена';
+      itHideQImg();
       qBody.innerHTML = '<b>Отлично!</b> Вы прошли все вопросы по информатике. Можно начать заново или сменить героя.';
       qHint.textContent = '';
       btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
       resultBox.hidden = false;
       resultPill.textContent = '🎉 Пройдено';
+      explainEl.classList.add('is-on');
       explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
       nextBtn.disabled = true;
       return;
@@ -24439,6 +24601,7 @@ if(explainBox){
     if(qCount) qCount.textContent = (idx+1) + '/25';
     if(qTopic) qTopic.textContent = 'Тема: ' + card.topic;
     if(qBody) qBody.textContent = card.text;
+    itSetQImg(order[idx] + 1);
     if(qHint) qHint.textContent = '';
 
     nextBtn.disabled = false;
@@ -24471,11 +24634,13 @@ if(explainBox){
         qLevel.textContent = 'Финал';
         qCount.textContent = (idx+1) + '/25';
         qTopic.textContent = 'Здоровье закончилось';
-        qBody.innerHTML = '<b>💔 Здоровье закончилось.</b> Попробуйте ещё раз и отвечайте внимательнее!';
+        itHideQImg();
+      qBody.innerHTML = '<b>💔 Здоровье закончилось.</b> Попробуйте ещё раз и отвечайте внимательнее!';
         qHint.textContent = '';
         btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
         resultBox.hidden = false;
         resultPill.textContent = '💔 Конец игры';
+        explainEl.classList.add('is-on');
         explainEl.textContent = 'Нажмите «Сначала», чтобы начать заново.';
         nextBtn.disabled = true;
         return;
@@ -24485,6 +24650,7 @@ if(explainBox){
     // reveal
     resultBox.hidden = false;
     resultPill.textContent = ok ? '✅ Верно!' : '⚠️ Неверно';
+    explainEl.classList.add('is-on');
     explainEl.textContent = card.explain;
 
     btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
@@ -24512,7 +24678,8 @@ if(explainBox){
       const isWin = true;
 
       if(isWin){
-        qBody.innerHTML = `
+        itHideQImg();
+      qBody.innerHTML = `
           <div class="tk-win">
             <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
             <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
@@ -24525,6 +24692,7 @@ if(explainBox){
         btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
         resultBox.hidden = false;
         resultPill.textContent = '🏆 Победа';
+        explainEl.classList.add('is-on');
         explainEl.textContent = 'Нажмите «Закрыть игру».';
         nextBtn.disabled = true;
 
@@ -24545,11 +24713,13 @@ if(explainBox){
           }
         }, 0);
       }else{
-        qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/25 • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
+        itHideQImg();
+      qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/25 • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
         qHint.textContent = '';
         btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
         resultBox.hidden = false;
         resultPill.textContent = '🎉 Пройдено';
+        explainEl.classList.add('is-on');
         explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.';
         nextBtn.disabled = true;
       }
@@ -27307,4 +27477,3 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
 </style>
 </body>
 </html>
-
