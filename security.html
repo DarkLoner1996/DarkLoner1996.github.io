@@ -8814,14 +8814,23 @@ body.menu-collapsed .side-nav__panel{
 }
 </style>
 
-<style id="tk-fhd-chip-gap-fix-v1">
-/* ✅ FIX (FHD only): убираем лишний вертикальный отступ между чипами мини‑игр
-   (Информатика / Инфобез / Фишинг). 4K не трогаем. */
+<style id="tk-fhd-chip-gap-fix-v2">
+/* ✅ FIX (FHD only): убираем лишний отступ МЕЖДУ чипами мини-игр,
+   но не допускаем наезда (перекрытия). 4K (>=1921px) не трогаем. */
 @media (max-width: 1920px) and (min-width: 521px){
   :root{
-    /* было: calc(clamp(72px, 10vh, 98px) + 14px) ≈ 112px
-       стало: ближе к реальной высоте чипа на FHD, чтобы не было “дыры” */
-    --chip-step: clamp(96px, 9vh, 108px);
+    /* Возвращаем безопасный шаг как в базе (на случай, если в прошлой версии был занижен) */
+    --chip-step: calc(clamp(72px, 10vh, 98px) + 14px);
+    /* Насколько “сжать” расстояние между уровнями (Фишинг→Инфобез→Информатика) */
+    --tk-chip-tight: 8px;
+  }
+  /* Чуть поднимаем Инфобез ближе к Фишингу */
+  .side-chip--infosec-min{
+    bottom: calc(14px + var(--chip-step) - var(--tk-chip-tight));
+  }
+  /* И Информатику — на два шага, но тоже сжатие x2 */
+  .side-chip--it-min{
+    bottom: calc(14px + (2 * var(--chip-step)) - (2 * var(--tk-chip-tight)));
   }
 }
 </style>
