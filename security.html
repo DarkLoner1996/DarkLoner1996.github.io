@@ -8903,25 +8903,33 @@ body.menu-collapsed .side-nav__panel{
 
 <style id="tk-explain-images-v1">
 /* ============================================================
-   🖼️ Картинки пояснения (на каждый вопрос 2 картинки)
-   verno{N}_1.png и neverno{N}_1.png (N = номер вопроса 1..25)
-   Показываются внутри блока объяснения после ответа.
+   🖼️ Картинки пояснения (ветки ответа)
+   verno_* / neverno_* (N = номер вопроса)
+   ✅ Должны быть по центру и по размеру как картинка вопроса.
    ============================================================ */
 .tk-explain-images{
   display:flex;
-  flex-wrap:wrap;
-  gap:14px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
   margin-top:12px;
-  align-items:flex-start;
+  width:100%;
 }
 .tk-explain-images img{
   display:block;
-  width:min(220px, 46vw);
+  width:100%;
+  max-width:min(520px, 100%);
   height:auto;
+  margin: 0 auto;
   border-radius:16px;
   border:1px solid rgba(255,255,255,.14);
   background: rgba(255,255,255,.06);
   box-shadow: 0 10px 26px rgba(0,0,0,.26);
+  object-fit: contain;
+}
+@media (max-width: 520px){
+  .tk-explain-images img{ border-radius:14px; }
 }
 </style>
 
@@ -10106,8 +10114,8 @@ body.menu-collapsed .side-nav__panel{
 <div class="panel">
 <h3>Как отвечать</h3>
 <p>
-                    Нажмите <b>«Опасно»</b>, если торопят, просят пароль/код или ссылка выглядит странно.
-                    Нажмите <b>«Безопасно»</b>, если всё спокойно, без угроз, и не просят секретные данные.
+                    Нажмите <b>«Неверно»</b>, если утверждение неверное.
+                    Нажмите <b>«Верно»</b>, если утверждение верное.
                   </p>
 </div>
 </aside>
@@ -10126,8 +10134,8 @@ body.menu-collapsed .side-nav__panel{
 <div class="tk-qimg-wrap"><img id="infoQImg" class="tk-qimg" alt="Иллюстрация к вопросу" loading="lazy" decoding="async" hidden></div>
 </div>
 <div class="actions">
-<button class="btn bad" id="infoBtnRisk" type="button">Опасно</button>
-<button class="btn good" id="infoBtnSafe" type="button">Безопасно</button>
+<button class="btn bad" id="infoBtnRisk" type="button">Неверно</button>
+<button class="btn good" id="infoBtnSafe" type="button">Верно</button>
 <button class="btn" id="infoBtnSkip" title="Пропустить без очков" type="button">Пропустить</button>
 </div>
 <div class="explain" id="infoExplainBox"></div>
@@ -20574,19 +20582,52 @@ body.menu-collapsed .side-nav__panel{
     const msgLink = document.getElementById("msgLink");
 
     const qImg = document.getElementById("phishQImg");
+    const qImgWrap = qImg ? qImg.closest(".tk-qimg-wrap") : null;
 
     function phishSetQImg(n){
       if(!qImg) return;
+
+      const fname = "vopros_ph" + n + ".png";
+
+      // Всегда показываем картинку вопроса (прячем её ТОЛЬКО при показе ответа).
+      if(qImgWrap){ qImgWrap.hidden = false; qImgWrap.removeAttribute("hidden"); }
       qImg.hidden = false;
-      qImg.src = "vopros_ph" + n + ".png";
+      qImg.removeAttribute("hidden");
       qImg.alt = "Иллюстрация к вопросу " + n;
-      qImg.onerror = () => { qImg.hidden = true; qImg.removeAttribute("src"); };
+
+      // Если файл не найден — показываем плейсхолдер, но не скрываем блок.
+      qImg.onerror = () => {
+        try{
+          const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(94,231,255,0.22)"/>
+      <stop offset="1" stop-color="rgba(155,107,255,0.22)"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="900" height="520" rx="28" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.20)" stroke-width="2"/>
+  <rect x="18" y="18" width="864" height="484" rx="22" fill="url(#g)" opacity="0.65"/>
+  <text x="50%" y="45%" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="28" font-weight="800" fill="rgba(245,250,255,0.92)">
+    Картинка вопроса не найдена
+  </text>
+  <text x="50%" y="58%" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="20" fill="rgba(245,250,255,0.78)">
+    ${fname}
+  </text>
+</svg>`.trim();
+
+          qImg.onerror = null;
+          qImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+        }catch(_){}
+      };
+
+      qImg.src = fname;
     }
     function phishHideQImg(){
+      // Прячем картинку вопроса ТОЛЬКО когда показываем результат (Верно/Неверно/Пропуск).
       if(!qImg) return;
       qImg.hidden = true;
-      qImg.onerror = null;
-      qImg.removeAttribute("src");
+      if(qImgWrap) qImgWrap.hidden = true;
     }
 
 
@@ -20715,13 +20756,15 @@ function setExplain(kind, text) {
 
       explainBox.classList.add("is-on");
       const badgeClass = (kind === "good" ? "good" : (kind === "bad" ? "bad" : ""));
-      const badgeText  = (kind === "good" ? "Верно!" : (kind === "bad" ? "Неверно" : "Подсказка"));
 
-      const isAnswer = (kind === "good" || kind === "bad");
+      const badgeText  = (kind === "good" ? "Верно!" : (kind === "bad" ? "Неверно" : (kind === "skip" ? "Пропуск" : "Подсказка")));
+
+      const isAnswer = (kind === "good" || kind === "bad" || kind === "skip");
       if (isAnswer) phishHideQImg();
 
       let imgHtml = "";
-      if (isAnswer) {
+      // Картинку объяснения показываем только для ответов (Верно/Неверно), не для Пропуска.
+      if (kind === "good" || kind === "bad") {
         const n = (currentIndex|0) + 1;
         const src = (kind === "good") ? ("verno_ph" + n + "_1.png") : ("neverno_ph" + n + "_1.png");
         imgHtml = `
@@ -21029,7 +21072,7 @@ function renderCard() {
       runCorrect += 1;
       applyXp(player, 0);
 
-      setExplain("", "⏭️ Пропущено (засчитано как верно, без XP).");
+      setExplain("skip", "⏭️ Пропущено (засчитано как верно, без XP).");
       updateHud();
 
       if (phishCheckWin()) return;
@@ -23451,20 +23494,54 @@ ${currentItem.text}`;
   const msgLink = qs('#infoMsgLink', backdrop);
 
   const qImg = qs('#infoQImg', backdrop);
+  const qImgWrap = qImg ? qImg.closest('.tk-qimg-wrap') : null;
 
-  function infoSetQImg(n){
+
+    function infoSetQImg(n){
     if(!qImg) return;
-    qImg.hidden = false;
-    qImg.src = 'vopros_ib' + n + '.png';
+
+    const fname = 'vopros_ib' + n + '.png';
+
+    // Всегда показываем картинку вопроса (прячем её ТОЛЬКО при показе результата).
+    if(qImgWrap){ qImgWrap.hidden = false; qImgWrap.removeAttribute('hidden'); }
+    qImg.hidden = false; qImg.removeAttribute('hidden');
+
     qImg.alt = 'Иллюстрация к вопросу ' + n;
-    qImg.onerror = () => { qImg.hidden = true; qImg.removeAttribute('src'); };
+
+    // Если файл не найден — показываем аккуратный плейсхолдер (но НЕ прячем блок).
+    qImg.onerror = () => {
+      try{
+        const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(94,231,255,0.22)"/>
+      <stop offset="1" stop-color="rgba(155,107,255,0.22)"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="900" height="520" rx="28" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.20)" stroke-width="2"/>
+  <rect x="18" y="18" width="864" height="484" rx="22" fill="url(#g)" opacity="0.65"/>
+  <text x="50%" y="45%" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="28" font-weight="800" fill="rgba(245,250,255,0.92)">
+    Картинка вопроса не найдена
+  </text>
+  <text x="50%" y="58%" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="20" fill="rgba(245,250,255,0.78)">
+    ${fname}
+  </text>
+</svg>`.trim();
+
+        qImg.onerror = null; // избегаем зацикливания
+        qImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      }catch(_){}
+    };
+
+    qImg.src = fname;
   }
 
   function infoHideQImg(){
+    // Прячем картинку вопроса ТОЛЬКО когда показываем результат (Верно/Неверно).
     if(!qImg) return;
     qImg.hidden = true;
-    qImg.onerror = null;
-    qImg.removeAttribute('src');
+    if(qImgWrap) qImgWrap.hidden = true;
   }
 
 
@@ -23481,44 +23558,32 @@ ${currentItem.text}`;
   const backFromTrailerBtn = qs('#infoBackFromTrailerBtn', backdrop);
 
   const STORAGE_PROFILE = 'tk_infosec_profile_v1';
-  const STORAGE_PROGRESS = 'tk_infosec_progress_v1';
-
-  const deck = [
-    // LVL 1 — личные данные и пароли
-    {lvl:1, from:'Сайт игры', email:'support@game.example', subject:'Новый пароль', body:'Выбираю пароль: 12345. Нормально?', link:'', ans:'risk', why:'Короткие и простые пароли легко угадываются. Лучше длинный пароль (12+ символов) и разные пароли для разных сервисов.'},
-    {lvl:1, from:'Мессенджер', email:'chat@friends', subject:'Поделись аккаунтом', body:'Дай логин и пароль — я на минутку зайду, потом выйду.', link:'', ans:'risk', why:'Пароль — это секрет. Нельзя передавать его даже друзьям. Лучше показать на своём устройстве или использовать семейный доступ, если он есть.'},
-    {lvl:1, from:'Настройки', email:'device@system', subject:'Двухфакторная защита', body:'Включить 2FA (подтверждение входа кодом)?', link:'', ans:'safe', why:'2FA добавляет второй “ключ”. Даже если пароль узнают — без кода войти сложнее.'},
-    {lvl:1, from:'Соцсеть', email:'privacy@social.example', subject:'Профиль открыт всем', body:'Сделать дату рождения и телефон видимыми только друзьям?', link:'', ans:'safe', why:'Личные данные лучше показывать ограниченному кругу людей. Это снижает риск мошенничества.'},
-    {lvl:1, from:'Браузер', email:'browser@system', subject:'Сохранить пароль?', body:'Сохранить пароль на общем компьютере в школе?', link:'', ans:'risk', why:'На чужих/общих устройствах не сохраняют пароли. Лучше “гостевой режим” и выход из аккаунта.'},
-
-    // LVL 2 — устройства и приложения
-    {lvl:2, from:'Телефон', email:'os@system', subject:'Обновление', body:'Доступно обновление системы. Установить сегодня вечером (Wi‑Fi)?', link:'', ans:'safe', why:'Обновления закрывают уязвимости. Лучше ставить их с официальных обновлений системы.'},
-    {lvl:2, from:'Неизвестный сайт', email:'download@unknown', subject:'Скачай “ускоритель”', body:'Скачай приложение-ускоритель с этого сайта, будет быстрее!', link:'http://unknown.example/app', ans:'risk', why:'Скачивания с непроверенных сайтов опасны: могут быть вирусы. Безопаснее магазин приложений или официальный сайт.'},
-    {lvl:2, from:'Приложение', email:'app@permissions', subject:'Разрешения', body:'Игра просит доступ к контактам и микрофону. Это нужно?', link:'', ans:'risk', why:'Разрешения дают доступ к данным. Если игре не нужен микрофон/контакты — лучше запретить.'},
-    {lvl:2, from:'Компьютер', email:'usb@system', subject:'Найдена флешка', body:'Подключить найденную на улице флешку “посмотреть что внутри”?', link:'', ans:'risk', why:'Неизвестные флешки могут содержать вредоносные файлы. Их не подключают к своему устройству.'},
-    {lvl:2, from:'Экран', email:'lock@system', subject:'Блокировка', body:'Поставить PIN/пароль и авто-блокировку через 1 минуту?', link:'', ans:'safe', why:'Блокировка защищает данные, если устройство потеряется или кто-то возьмёт его без спроса.'},
-
-    // LVL 3 — сеть, файлы, резервные копии
-    {lvl:3, from:'Wi‑Fi', email:'network@cafe', subject:'Публичная сеть', body:'Подключиться к Wi‑Fi “FREE_CAFE” без пароля и войти в банк?', link:'', ans:'risk', why:'В публичных сетях могут перехватывать данные. Для важных входов лучше мобильный интернет или VPN (если есть).'},
-    {lvl:3, from:'Письмо', email:'backup@system', subject:'Резервная копия', body:'Сделать резервную копию фото и документов в облако?', link:'', ans:'safe', why:'Резервные копии помогают восстановить данные после поломки/вируса/удаления.'},
-    {lvl:3, from:'Файл', email:'file@download', subject:'Скачанный архив', body:'Открыть файл “Homework.zip.exe”, который прислали в чате?', link:'', ans:'risk', why:'Двойное расширение (zip.exe) — опасный признак. Это может быть программа-вирус.'},
-    {lvl:3, from:'Настройки', email:'share@system', subject:'Доступ по ссылке', body:'Открыть документ “по ссылке всем”, чтобы каждый мог редактировать?', link:'', ans:'risk', why:'Публичный доступ на редактирование может привести к порче файла. Лучше “только просмотр” и только нужным людям.'},
-    {lvl:3, from:'Браузер', email:'https@system', subject:'Проверка сайта', body:'Перед вводом пароля проверяю адрес и замочек HTTPS. Это правильно?', link:'', ans:'safe', why:'Да. Нужно проверять адрес сайта и соединение. Это снижает риск попасть на поддельную страницу.'},
-
-
-    // LVL 4 — социнженерия и ловушки
-    {lvl:4, from:'Школа', email:'diary@school.example', subject:'Код подтверждения', body:'Мне написали: «Пришли код из SMS, чтобы привязать дневник». Отправлять код?', link:'', ans:'risk', why:'Коды из SMS — это ключи для входа. Их нельзя никому сообщать. Настоящий сервис никогда не просит код в чате.'},
-    {lvl:4, from:'Сайт', email:'video@popup.example', subject:'Разрешение уведомлений', body:'Сайт просит включить уведомления «чтобы посмотреть видео». Это безопасно?', link:'', ans:'risk', why:'Это часто уловка: уведомления будут слать рекламу и фейковые предупреждения. Лучше нажать «Запретить».'},
-    {lvl:4, from:'Видеозвонок', email:'camera@permissions', subject:'Доступ к камере', body:'Приложение видеозвонков просит камеру только во время звонка. Разрешить?', link:'', ans:'safe', why:'Да, если это известное приложение. Разрешайте доступ только когда нужно и проверяйте настройки.'},
-    {lvl:4, from:'Афиша', email:'qr@street', subject:'QR‑код на стенде', body:'На стенде QR‑код «Скачай игру бесплатно». Нет названия сайта. Сканировать?', link:'', ans:'risk', why:'Неизвестные QR‑коды могут вести на вредные сайты. Лучше не сканировать или проверить взрослым.'},
-    {lvl:4, from:'Совет', email:'helper@tips', subject:'Проверка ссылки', body:'Если ссылка кажется странной — я сначала показываю её взрослому. Это правильно?', link:'', ans:'safe', why:'Да. Лучше спросить взрослого/учителя, чем рискнуть и открыть фишинговую ссылку.'},
-
-    // LVL 5 — продвинутые привычки
-    {lvl:5, from:'Планшет', email:'profiles@system', subject:'Гостевой профиль', body:'Сделать гостевой профиль для друзей, чтобы они не видели мои файлы?', link:'', ans:'safe', why:'Да. Гостевой профиль защищает личные фото и документы, если кто-то берёт устройство поиграть.'},
-    {lvl:5, from:'Форум', email:'mods@forum.example', subject:'Чит/мод', body:'Скачать чит для игры и дать ему «права администратора» на компьютере?', link:'', ans:'risk', why:'Это опасно: читы часто содержат вирусы. Права администратора дают полный доступ к системе.'},
-    {lvl:5, from:'Пароли', email:'manager@security', subject:'Менеджер паролей', body:'Использовать менеджер паролей и делать уникальные пароли для сайтов — это безопаснее?', link:'', ans:'safe', why:'Да. Уникальные пароли снижают риск, а менеджер помогает хранить их безопасно (с мастер‑паролем).'},
-    {lvl:5, from:'Чат', email:'share@chat.example', subject:'Скрин экрана', body:'Отправить скриншот, где видно мой логин/почту и часть личного кабинета. Можно?', link:'', ans:'risk', why:'Лучше не отправлять. На скрине могут быть личные данные, которые помогут мошенникам.'},
-    {lvl:5, from:'Безопасность', email:'lost@system', subject:'Потерял телефон', body:'Если телефон потерялся — включить «Найти устройство», выйти из аккаунтов и сменить пароли. Так надо?', link:'', ans:'safe', why:'Да. Это помогает защитить аккаунты и данные, даже если телефон попадёт к чужим людям.'},
+  const STORAGE_PROGRESS = 'tk_infosec_progress_v1';  const deck = [
+    {lvl:1, from:"КиберКот", email:"cybercat@tk", subject:"Пароль‑фраза длиннее и надёжнее", body:"КиберКот (на экране его аватарка в чате):\n«Герой, если пароль — длинная фраза (“Я_Ем_Борщ_И_Не_Боюсь_Хакеров_2026”), его сложнее взломать, чем короткий “qwerty” или “12345”. Верно?»", link:"", ans:"safe", verno:"КиберКот: «Мур-одец! Лови Шлем Длинной Фразы (+10 защита)».\n(Сорока-воровка на картинке “Loading…” зависает и уходит в закат.)", neverno:"Ты ставишь “12345”. На картинке появляется злодей Сорока-воровка:\n«О, мой любимый пароль!» — и заходит быстрее, чем ты моргнёшь.\nКиберКот: «Это был пароль уровня “обучение для хомяков”…»"},
+    {lvl:1, from:"КиберКот", email:"cybercat@tk", subject:"Один пароль везде", body:"КиберКот (аватарка улыбается):\n«Если я везде поставлю один пароль, ворам будет лень — им тоже нужен отдых. Это безопасно? Верно?»", link:"", ans:"risk", verno:"Один сайт взломан — и на картинке домино падает: почта → игры → соцсети.\nКиберКот: «Ты запустил “режим домино”.»", neverno:"Разные пароли = взломали один сервис, остальные стоят как крепость.\nКиберКот выдаёт бейдж: «Не клади все яйца в одну корзину»."},
+    {lvl:1, from:"Кибер‑Медведь", email:"shield@tk", subject:"Двухфакторка спасает", body:"Кибер‑медведь (иконка щита рядом с сообщением):\n«Если включить вход по коду (2FA), то даже украденный пароль не всегда поможет злодею. Верно?»", link:"", ans:"safe", verno:"На картинке злодей упирается во вторую дверь: «Введите код».\nМедведь с цифровым щитом: «Только безопасность.»", neverno:"Ты выключаешь 2FA — и остаётся один замок.\nКиберКот: «Одна отмычка — и свободный вечер у злодея.»"},
+    {lvl:1, from:"КиберКот", email:"cybercat@tk", subject:"Коды из SMS/приложения — никому", body:"КиберКот (показывает табличку «КОД для входа»):\n«Коды из SMS/приложения — секретная руна. Их нельзя никому сообщать. Верно?»", link:"", ans:"safe", verno:"Сорока‑воровка (“срочно это необходимо что бы помочь тебе!!!”) давит, а ты: «Нет».\nПерсонажи мальчик и девочка: «НЕ ВЕДУСЬ».", neverno:"Ты диктуешь код — и появляется картинка «Вход выполнен».\nКиберКот: «Ты подарил ключ с бантиком. Без возврата.»"},
+    {lvl:1, from:"Сорока‑воровка", email:"sparkle@fake", subject:"«Это ты на фото?!» + ссылка", body:"Сорока‑воровка (аватарка с блёстками):\n«Сообщение: “ПРИВЕТ! Это ты на фото?!!” и ссылка. Часто это ловушка. Верно?»", link:"https://photo.example/this-is-you", ans:"safe", verno:"Ты блокируешь подозрительный контакт даже если это твой друг.\nСорока на картинке улетает: «КАР-Р! Нечестно!»", neverno:"Ты кликаешь — картинка: «Введите пароль, чтобы посмотреть фото».\nСпойлер: фото нет.\nСорока‑воровка: «Попался! И ворую твои данные!»"},
+    {lvl:2, from:"Сорока‑воровка", email:"prize@fake", subject:"«free-robux-super-prize» значит честно", body:"Сорока‑воровка (картинка мешка с «призами»):\n«Если в ссылке “free-robux-super-prize”, значит честно. Там же слово “prize”! Верно?»", link:"https://free-robux-super-prize.example", ans:"risk", verno:"Страница запускает квест «логин‑пароль‑код‑ещё‑код».\nСорока: «А теперь подпиши “Отдай аккаунт”… Ха‑Ха… Ну ты и доверчивый. Попался. Спасибо за твои данные — КАР.»", neverno:"Ты включаешь кнопку «Антихалява»:\n«Слишком сладко — жди подвох».\nСорока ворчит: «КАР-ьеру портят!»"},
+    {lvl:2, from:"Фея Доменов", email:"domains@fairy", subject:"Подмена одной буквы в адресе", body:"Фея Доменов (картинка лупы):\n«Сайты могут отличаться одной буквой (латинская/кириллическая), и это может быть подделка. Верно?»", link:"", ans:"safe", verno:"Ты замечаешь подмену.\nФея дарит Лупу Доменов (+мудрость).", neverno:"Ты вводишь данные на фейке.\nФея: «Это их любимый трюк: “почти одинаково”. Теперь тебя обманет Сорока‑воровка!»"},
+    {lvl:2, from:"КиберКот", email:"updates@tk", subject:"Обновления как патчи", body:"КиберКот (картинка «Обновления»):\n«Обновления закрывают дыры и чинят уязвимости. Верно?»", link:"", ans:"safe", verno:"Баг «враг сквозь стену» исчезает.\nКот: «Минус дырка — плюс спокойный сон!»", neverno:"Дыра остаётся открытой.\nСорока‑воровка на картинке: «О, вход без очереди!»"},
+    {lvl:2, from:"КиберКот", email:"call@tk", subject:"Звонок с аватаркой и требование кода", body:"КиберКот (показывает скрин звонка: только аватарка):\n«Тебе звонят или пишут. Видео/картинка профиля “директор/родственник/в форме”. Голос уверенный: “СРОЧНО диктуй код!”. Раз картинка знакомый человек или сотрудник — можно диктовать. Верно?»", link:"", ans:"risk", verno:"Ты диктуешь код — и появляется «Вход выполнен на новом устройстве».\nКиберКот: «Аватарку украсть легко. Срочность — их заклинание.»", neverno:"Ты: «Коды не диктую! Только личная встреча по официальному адресу / скажу взрослым».\nКот: «Победа над боссом “Паника”!»"},
+    {lvl:2, from:"Шпион‑Фонарик", email:"flash@spy", subject:"Фонарик просит микрофон/контакты/камеру", body:"Шпион‑Фонарик (иконка фонарика с усами):\n«Я фонарик. Дай микрофон, контакты и камеру… Это нормально. Верно?»", link:"", ans:"risk", verno:"Фонарик: «Спасибо, теперь я фонарик‑шпион».\nЭкран: «Минус приватность. Спасибо за фото и личные данные».", neverno:"Ты даёшь минимум прав.\nБейдж: «Разрешения с умом»."},
+    {lvl:3, from:"Сорока‑воровка", email:"cheat@fake", subject:"Читы/взломы = риск вируса", body:"Сорока‑воровка (картинка «CHEAT.zip»):\n«Скачивать читы с сайтов рискованно: вместо читерской силы — вирус. Верно?»", link:"", ans:"safe", verno:"Ты: «Лучше качать скилл честно, чем вирус».\nСорока‑воровка: «Невыгодно с вами!»", neverno:"Устанавливаешь «чит» — появляется босс‑вирус:\n«Спасибо за установку, герой. Теперь заплати мне миллион рублей — экран заблокирован!»"},
+    {lvl:3, from:"Кибер‑Медведь", email:"shield@tk", subject:"«СУПЕР_ПРИЗ.exe» и антивирус", body:"Кибер‑Медведь (картинка щита):\n«Я щит, но не спасу, если ты сам запускаешь “СУПЕР_ПРИЗ.exe”. Верно?»", link:"", ans:"safe", verno:"Ты удаляешь файл.\nМедведь: «Самоконтроль прокачан!»", neverno:"Запускаешь — вылезает Сорока‑воровка.\nМедведь: «Я щит, а не волшебник…»"},
+    {lvl:3, from:"Кибер‑Медведь", email:"wifi@tk", subject:"Открытый Wi‑Fi и важные пароли", body:"Кибер‑Медведь:\n«В открытом Wi‑Fi лучше не вводить пароли от важных аккаунтов и не подключаться к такой сети без необходимости. Верно?»", link:"", ans:"safe", verno:"Вы ждёте защищённую сеть.\nМедведь: «В таверне много ушей — лучше не говорить о тайнах».", neverno:"Вы вводите всё подряд — риск перехвата и подмены трафика.\nЭкран Сороки‑воровки: «Данные перехвачены. Спасибо, глупый герой!»"},
+    {lvl:3, from:"КиберКот", email:"smarthome@tk", subject:"Умный дом: пылесос‑шпион и колонка‑подслушиватель", body:"КиберКот (картинка: робот‑пылесос с «глазками», рядом умная колонка с «ушами»):\n«Герой! Раз умные устройства “просто помогают”, значит, можно не переживать: давать им любые права, подключать куда попало и рассказывать всё подряд (пароли, адрес, планы). Ведь робот‑пылесос только за пылью охотится, а колонка просто любит музыку! Верно?»", link:"", ans:"risk", verno:"Умные устройства тоже можно взломать.\nНа картинке пылесос «катается» по дому и будто бы «подглядывает», колонка «слушает».\nСорока хлопает крыльями и улетает с данными героя: «КАР!»", neverno:"Ты включаешь режим «Умный дом — умный герой»:\n• даёшь устройствам только нужные права;\n• не сообщаешь лишнего (пароли/коды/адрес/планы);\n• следишь за безопасностью аккаунта/домашней сети и обновлениями.\nСорока шипит: «КАР… опять герой с мозгами. Неинтересно!»\nНавык: «Осторожно, умный дом» (+защита от подглядывания)."},
+    {lvl:3, from:"Сэр Замочек", email:"https@lock", subject:"HTTPS‑замочек помогает, но не гарантирует", body:"Сэр Замочек (картинка замка):\n«HTTPS защищает соединение, но не делает сайт честным на 100%. Верно?»", link:"", ans:"safe", verno:"Сэр: «Я шифрую дорогу, но не выбираю, куда она ведёт.»", neverno:"Ты видишь замок и расслабляешься — а сайт может быть мошенническим.\n«Замок есть, а хозяин — Сорока‑воровка.»"},
+    {lvl:4, from:"Кибер‑Медведь", email:"qr@tk", subject:"QR‑код — ссылка в маске", body:"Кибер‑Медведь (картинка QR):\n«QR‑код — просто ссылка. Она может вести на вредный сайт. Верно?»", link:"", ans:"safe", verno:"Ты проверяешь адрес перед открытием.\nМедведь: «Не каждый QR — портал к сокровищам.»", neverno:"Переходишь не глядя — попадаешь на фишинг.\nЛовушка: «Спасибо, что пришёл сам!» — Сорока‑воровка смеётся."},
+    {lvl:4, from:"Леди КороткаяСсылка", email:"short@link", subject:"Сокращённые ссылки скрывают адрес", body:"Леди КороткаяСсылка (картинка «bit.ly/…»):\n«Сокращённые ссылки могут скрывать настоящий адрес, поэтому с ними осторожно. Верно?»", link:"", ans:"safe", verno:"Ты просишь нормальную ссылку / проверяешь.\nЛеди: «Ссылка в плаще бывает и рыцарем, и карманником.»", neverno:"Жмёшь «скачайигру…» — получаешь «скачайвирус…».\nЛеди: «Плащ оказался маскировкой. Сорока‑воровка тебя обманула!»"},
+    {lvl:4, from:"Принцесса Конфиденциальность", email:"privacy@princess", subject:"Публиковать адрес/школу/расписание — плохая идея", body:"Принцесса Конфиденциальность (картинка плаща):\n«Адрес, школа, расписание, “когда дома никого нет” — публиковать плохо. Верно?»", link:"", ans:"safe", verno:"Принцесса: «Меньше карты твоей жизни — крепче замок.»", neverno:"Ты раздаёшь “карту сокровищ”.\nПринцесса: «Это не смелость, это подсказка Сороке‑воровке!»"},
+    {lvl:4, from:"Принцесса Приватность", email:"geo@princess", subject:"Сторис «я сейчас здесь» для всех — всегда безопасно", body:"Принцесса Приватность (картинка геометки):\n«Если я всем показываю “я сейчас здесь”, это всегда безопасно, я же главная героиня. Верно?»", link:"", ans:"risk", verno:"Ты включаешь маяк “я тут!”.\nПринцесса: «Даже герои прячут базу!»", neverno:"Ограничиваешь аудиторию / публикуешь позже.\nПринцесса: «Тактика 100 уровня! Сорока‑воровка не поймает тебя в ловушки!»"},
+    {lvl:4, from:"Кибер‑Медведь", email:"recovery@tk", subject:"Скрин с кодами/QR для входа нельзя отправлять", body:"Кибер‑Медведь (картинка «Recovery codes»):\n«Скрин с кодами восстановления / QR для входа нельзя отправлять и выкладывать. Верно?»", link:"", ans:"safe", verno:"Медведь: «Запасной ключ не кидают в общий чат: “зацените!” Ты молодец — держи всё в тайне.»", neverno:"Отправляешь “просто посмотреть” — ловишь гостя в аккаунте.\nМедведь: «Гость пришёл без тапочек и теперь хулиганит в замке.»"},
+    {lvl:5, from:"Друг‑клон", email:"friend@clone", subject:"Друг пишет странно и кидает ссылку", body:"Друг‑клон (аватарка друга в чате):\n«“Срочно проголосуй по ссылке!!!” — возможно, это взлом, и ссылка опасна. Верно?»", link:"", ans:"safe", verno:"Ты проверяешь другим способом / кодовым словом.\nСорока‑воровка: «Проклятые умные герои!»", neverno:"Жмёшь — и сам превращаешься в «бота‑рассыльщика».\nГрустный квест."},
+    {lvl:5, from:"Дубликатор Дипфейк", email:"deepfake@mask", subject:"Картинка профиля и голос могут быть подделаны", body:"Дубликатор Дипфейк (картинка маски):\n«Я могу сделать аватарку “как у знакомого” и голос “почти как настоящий”. Поэтому надо проверять источник. Верно?»", link:"", ans:"safe", verno:"Ты: «Факты важнее — проверяю, прошу личную встречу / официальный канал».", neverno:"Ты веришь “картинке” — и попадаешь в ловушку срочности.\nСорока‑воровка: «Спасибо за доверие к моему скину!»"},
+    {lvl:5, from:"Дракон Бэкап", email:"backup@dragon", subject:"Бэкапы как сохранение игры", body:"Дракон Бэкап (картинка кристалла‑сейва):\n«Резервные копии — как сохранение игры: помогают вернуть файлы после поломки или вируса‑вымогателя. Верно?»", link:"", ans:"safe", verno:"Устройство ломается — ты “загружаешь сейв”.\nДракон: «Магия без магии!»", neverno:"Сейвов нет — и квест “верни фотки” превращается в драму.\nДракон протягивает платочек."},
+    {lvl:5, from:"Страж Телефона", email:"lock@guard", subject:"Блокировка экрана нужна даже дома", body:"Страж Телефона (картинка замка телефона):\n«Блокировка экрана нужна даже дома: иначе любой может открыть чаты и “прокачать” аккаунт без тебя. Верно?»", link:"", ans:"safe", verno:"Страж: «Телефон — твой инвентарь. Он не общий сундук.»", neverno:"Кто-то берёт “на секундочку” — и внезапно “случайные” сообщения улетают всем.\nТы: «Никому не доверяй!»"},
+    {lvl:5, from:"Кибер‑Медведь", email:"gos@tk", subject:"Просит код/пароль для входа в Госуслуги", body:"Кибер‑Медведь (серьёзная табличка «Важно»):\n«Если кто-то просит логин/пароль или код из SMS для входа в Госуслуги, это почти наверняка мошенник. Такие данные нельзя сообщать никому; вход — только официально и лучше с взрослыми рядом. Верно?»", link:"", ans:"safe", verno:"Ты не отдаёшь код.\nМедведь: «Это не уровень со скинами. Это важные данные. Молодец.»", neverno:"Ты сообщаешь — и запускаешь Сороку‑воровку “Последствия”.\nМедведь: «Этого босса не победить. Его обходят. Он не победим — ты его сам создал. Ты убил свою кибер‑вселенную.»"}
   ];
 
   const total = deck.length;
@@ -23760,7 +23825,6 @@ save();
     btnSkip && (btnSkip.disabled = true);
 
     if(explainBox){
-      infoHideQImg();
       explainBox.innerHTML = "";
 
       const badge = document.createElement("div");
@@ -23771,10 +23835,14 @@ save();
       chip.setAttribute("aria-hidden","true");
       badge.appendChild(chip);
 
-      badge.appendChild(document.createTextNode(correct ? "Верно!" : "Неверно"));
+      const label = (choice === "safe") ? "Верно" : "Неверно";
+      badge.appendChild(document.createTextNode(label + (correct ? " ✓" : " ✗")));
 
       const why = document.createElement("div");
-      why.textContent = card.why;
+      const txt = (choice === "safe")
+        ? (card.verno ?? card.ok ?? card.whyOk ?? card.why ?? "")
+        : (card.neverno ?? card.bad ?? card.whyBad ?? card.why ?? "");
+      why.textContent = txt;
 
       explainBox.appendChild(badge);
       explainBox.appendChild(why);
@@ -23787,10 +23855,11 @@ save();
 
       const img = document.createElement("img");
       img.loading = "lazy"; img.decoding = "async";
-      img.alt = correct ? "Картинка: почему верно" : "Картинка: почему неверно";
-      img.src = correct ? ("verno_ib" + n + "_1.png") : ("neverno_ib" + n + "_1.png");
+      img.alt = (choice === "safe") ? "Картинка: если ответ Верно" : "Картинка: если ответ Неверно";
+      img.src = (choice === "safe") ? ("verno_ib" + n + "_1.png") : ("neverno_ib" + n + "_1.png");
       imgs.appendChild(img);
       explainBox.appendChild(imgs);
+      infoHideQImg();
 explainBox.classList.toggle('ok', correct);
       explainBox.classList.toggle('bad', !correct);
       explainBox.classList.add('is-on');
@@ -23800,7 +23869,8 @@ explainBox.classList.toggle('ok', correct);
       state.correct += 1;
       state.xp += 10;
     }else{
-      window.__tkHpDamage && window.__tkHpDamage("info", 20);
+      const dmg = (((state.idx|0) === 24) ? 80 : 20);
+      window.__tkHpDamage && window.__tkHpDamage("info", dmg);
       // маленькая мотивация: не штрафуем XP
     }
 
@@ -24513,15 +24583,48 @@ explainBox.classList.toggle('ok', correct);
   const qBody = document.getElementById('itQBody');
   const qHint = document.getElementById('itQHint');
   const qImg = document.getElementById('itQImg');
+  const qImgWrap = qImg ? qImg.closest('.tk-qimg-wrap') : null;
   const itCardIndexEl = document.getElementById('itCardIndex');
   const itCardCountEl = document.getElementById('itCardCount');
 
   function itSetQImg(n){
     if(!qImg) return;
-    qImg.hidden = false;
-    qImg.src = 'vopros_inf' + n + '.png';
+
+    const fname = 'vopros_inf' + n + '.png';
+
+    // Всегда показываем картинку вопроса (прячем её ТОЛЬКО при показе результата).
+    if(qImgWrap){ qImgWrap.hidden = false; qImgWrap.removeAttribute('hidden'); }
+    qImg.hidden = false; qImg.removeAttribute('hidden');
+
     qImg.alt = 'Иллюстрация к вопросу ' + n;
-    qImg.onerror = () => { qImg.hidden = true; qImg.removeAttribute('src'); };
+
+    // Если файл не найден — показываем аккуратный плейсхолдер (но НЕ прячем блок).
+    qImg.onerror = () => {
+      try{
+        const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(94,231,255,0.22)"/>
+      <stop offset="1" stop-color="rgba(155,107,255,0.22)"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="900" height="520" rx="28" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.20)" stroke-width="2"/>
+  <rect x="18" y="18" width="864" height="484" rx="22" fill="url(#g)" opacity="0.65"/>
+  <text x="50%" y="45%" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="28" font-weight="800" fill="rgba(245,250,255,0.92)">
+    Картинка вопроса не найдена
+  </text>
+  <text x="50%" y="58%" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="20" fill="rgba(245,250,255,0.78)">
+    ${fname}
+  </text>
+</svg>`.trim();
+
+        qImg.onerror = null; // избегаем зацикливания
+        qImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      }catch(_){}
+    };
+
+    qImg.src = fname;
   }
 
   function itHideQImg(){
@@ -24529,6 +24632,7 @@ explainBox.classList.toggle('ok', correct);
     qImg.hidden = true;
     qImg.onerror = null;
     qImg.removeAttribute('src');
+    if(qImgWrap) qImgWrap.hidden = true;
   }
   function itSetExplainImgs(n, ok){
     if(!explainImgsEl || !itExplainImg) return;
