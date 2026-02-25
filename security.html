@@ -9247,18 +9247,20 @@ body.menu-collapsed .side-nav__panel{
 
             <div class="menu-body">
               <div class="menu-copy">
-                <h1>Найди детали на картинке</h1>
+                <h1 id="pcTitle">Найди детали на картинке</h1>
                 <p>
-                  Нажми на деталь, затем выбери правильный вариант. Нужно найти <span id="pcGoalCount">7</span> деталей:
-                  <span id="pcGoalList"><b>SSD M2</b>, <b>корпус</b>, <b>видеокарта</b>, <b>блок питания</b>, <b>кулер процессора</b>, <b>процессор</b>, <b>оперативная память</b></span>.
-                </p>
+  <span id="pcDescPrefix">Нажми на деталь, затем выбери правильный вариант. Нужно найти</span>
+  <span id="pcGoalCount">7</span>
+  <span id="pcDescMid">деталей:</span>
+  <span id="pcGoalList"><b>SSD M2</b>, <b>корпус</b>, <b>видеокарта</b>, <b>блок питания</b>, <b>кулер процессора</b>, <b>процессор</b>, <b>оперативная память</b></span><span id="pcDescSuffix">.</span>
+</p>
                 <div class="kpi" style="margin-top:10px">
                   <span class="pill">✅ Найдено <span id="pcFound">0</span>/<span id="pcTotal">7</span></span>
                   <span class="pill">🎯 Верно <span id="pcCorrect">0</span></span>
                 </div>
 
                 <div class="pc-levelbar" id="pcLevelBar">
-                  <span class="pill">🎮 Уровень <span id="pcLevelNum">1</span>/4</span>
+                  <span class="pill">🎮 Уровень <span id="pcLevelNum">1</span>/<span id="pcLevelTotal">4</span></span>
                   <div class="pc-level-tabs" id="pcLevelTabs" role="tablist" aria-label="Уровни"></div>
                 </div>
               </div>
@@ -25324,6 +25326,13 @@ explainBox.classList.toggle('ok', correct);
   const startBtn = modal.querySelector('#pcStartBtn');
   const startImg = modal.querySelector('#pcStartImg');
 
+  const titleEl = modal.querySelector('#pcTitle');
+  const descPrefixEl = modal.querySelector('#pcDescPrefix');
+  const descMidEl = modal.querySelector('#pcDescMid');
+  const descSuffixEl = modal.querySelector('#pcDescSuffix');
+  const lvlTotalEl = modal.querySelector('#pcLevelTotal');
+
+
 
   const SVG_WIN = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
     <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#5ee7ff"/><stop offset="1" stop-color="#9b6bff"/></linearGradient></defs>
@@ -25432,6 +25441,26 @@ explainBox.classList.toggle('ok', correct);
       ],
       hint: 'Моноблок похож на ноутбук: экран — отдельно, а “железо” на плате снизу. RAM — планки, SSD M2 — длинный модуль.',
     },
+    {
+      id: 5,
+      name: 'Включи компьютеры',
+      img: 'vkl_pk_nootebook_mini_mon.png',
+      mode: 'power',
+      answers: {
+        desktop: 'Стационарный ПК',
+        mini: 'Мини‑ПК',
+        laptop: 'Ноутбук',
+        aio: 'Моноблок',
+      },
+      spots: [
+        { part:'desktop', css:'left:3.374%;top:1.839%;width:10.742%;height:17.067%;' },
+        { part:'mini',    css:'left:30.439%;top:28.410%;width:8.301%;height:13.189%;' },
+        { part:'laptop',  css:'left:90.894%;top:37.541%;width:8.301%;height:13.189%;' },
+        { part:'aio',     css:'left:49.619%;top:69.061%;width:9.277%;height:14.740%;' },
+      ],
+      hint: 'Нажми на кнопки питания на каждом устройстве, чтобы включить все 4 компьютера.',
+    },
+
   ];
 
   const fx = modal.querySelector('#fxPc');
@@ -25606,6 +25635,34 @@ function blankLevelState(){
   function updateTexts(){
     const { lvl, PART_IDS, LABELS } = currentParts();
 
+    // общий апдейт UI
+    if(lvlTotalEl) lvlTotalEl.textContent = String(LEVELS.length);
+    modal.classList.toggle('pc-mode-power', !!(lvl && lvl.mode === 'power'));
+
+    if(titleEl){
+      titleEl.textContent = (lvl && lvl.mode === 'power')
+        ? 'Включи компьютеры'
+        : 'Найди детали на картинке';
+    }
+    if(descPrefixEl && descMidEl){
+      if(lvl && lvl.mode === 'power'){
+        descPrefixEl.textContent = 'Нажми на кнопки питания. Нужно включить';
+        descMidEl.textContent = 'компьютера:';
+      }else{
+        descPrefixEl.textContent = 'Нажми на деталь, затем выбери правильный вариант. Нужно найти';
+        descMidEl.textContent = 'деталей:';
+      }
+    }
+
+
+    if(selectedEl && !(state && (state.won || state.lost))){
+      selectedEl.textContent = (lvl && lvl.mode === 'power')
+        ? 'Нажми на кнопки питания на картинке слева.'
+        : 'Выбери деталь на картинке слева.';
+    }
+
+
+
     if(lvlNumEl) lvlNumEl.textContent = String(levelId);
     if(totalEl) totalEl.textContent = String(PART_IDS.length);
     if(goalCountEl) goalCountEl.textContent = String(PART_IDS.length);
@@ -25697,6 +25754,23 @@ function blankLevelState(){
           return;
         }
         setExplain('', '');
+        const { lvl } = currentParts();
+        if(lvl && lvl.mode === 'power'){
+          // режим «включи компьютеры»: просто кликаем по кнопкам питания
+          state.attempts += 1;
+          state.correct += 1;
+          state.done[id] = true;
+          try{ b.classList.add('is-on'); }catch(_){ }
+          setExplain('good', 'Включено ✅');
+          selected = null;
+          markDoneUI();
+          renderOptions();
+          allState.levels[String(levelId)] = state;
+          allState.v = 2;
+          saveAll();
+          updateHUD();
+          return;
+        }
         setSelected(id);
       }, true);
       (spotsWrap.id === 'pcSpots' ? spotsWrap : stage).appendChild(b);
@@ -25929,7 +26003,15 @@ function blankLevelState(){
 
     if(state.won || state.lost) return;
 
-    const { LABELS } = currentParts();
+    const { lvl, LABELS } = currentParts();
+    if(lvl && lvl.mode === 'power'){
+      const tip = document.createElement('div');
+      tip.className = 'small';
+      tip.style.opacity = '.85';
+      tip.textContent = 'Жми по кнопкам питания на картинке. Ничего выбирать не нужно.';
+      optionsEl.appendChild(tip);
+      return;
+    }
 
     if(!selected){
       const tip = document.createElement('div');
@@ -27058,5 +27140,20 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   }
 }
 </style>
+
+<style id="tkPcPowerLevel5Style">
+  /* Уровень 5 «Включи компьютеры» */
+  #pcPartsGame.pc-mode-power .pc-spot{
+    border-color: rgba(94,231,255,.85) !important;
+    background: rgba(94,231,255,.06);
+  }
+  #pcPartsGame.pc-mode-power .pc-spot.is-done,
+  #pcPartsGame.pc-mode-power .pc-spot.is-on{
+    border-color: rgba(120,255,170,.95) !important;
+    box-shadow: 0 0 0 2px rgba(120,255,170,.65), 0 0 18px rgba(120,255,170,.35);
+    background: rgba(120,255,170,.10);
+  }
+</style>
+
 </body>
 </html>
