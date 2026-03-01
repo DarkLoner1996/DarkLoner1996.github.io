@@ -19285,6 +19285,66 @@ html.tk-non4k-balanced-v19 .cinema-slider.cinema-v2 .slider-next{
 </style>
 <script id="tk-non4k-v40-badge">(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v40 non4k';})();</script>
 
+
+<style id="tk-non4k-v41-kino-bottom-fix">
+/* v41: enlarge kinoteatr.png on non-4K and restore initial open-at-bottom */
+html.tk-non4k-balanced-v19 .cinema-slider.cinema-v2 .kino-badge{
+  height: clamp(320px, 21vw, 500px) !important;
+  max-width: min(1260px, 96vw) !important;
+}
+@media (min-width: 521px) and (max-height: 860px){
+  html.tk-non4k-balanced-v19 .cinema-slider.cinema-v2 .kino-badge{
+    height: clamp(280px, 18vw, 420px) !important;
+  }
+}
+</style>
+<script id="tk-non4k-v41-bottom-init">
+(function(){
+  var badge = document.querySelector('.debug-tk19-badge');
+  if(badge) badge.textContent = 'v41 non4k';
+
+  function isScrollable(el){
+    if(!el) return false;
+    var st = getComputedStyle(el);
+    var oy = st.overflowY;
+    return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2;
+  }
+
+  function getTarget(){
+    var header = document.getElementById('hero') || document.querySelector('.header');
+    if(isScrollable(header)) return header;
+    return document.scrollingElement || document.documentElement;
+  }
+
+  function toBottom(){
+    var t = getTarget();
+    if(!t) return;
+    if(t === document.documentElement || t === document.body || t === document.scrollingElement){
+      window.scrollTo(0, t.scrollHeight + 999999);
+    }else{
+      t.scrollTop = t.scrollHeight + 999999;
+    }
+  }
+
+  function runBottomPack(){
+    toBottom();
+    requestAnimationFrame(toBottom);
+    setTimeout(toBottom, 80);
+    setTimeout(toBottom, 240);
+    setTimeout(toBottom, 520);
+    setTimeout(toBottom, 980);
+    setTimeout(toBottom, 1480);
+    setTimeout(toBottom, 2100);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', runBottomPack, {once:true});
+  } else {
+    runBottomPack();
+  }
+  window.addEventListener('load', function(){ setTimeout(runBottomPack, 40); }, {once:true});
+})();
+</script>
 </body>
 </html>
 
@@ -19347,3 +19407,17 @@ html.tk-non4k-balanced-v19 #tk23RightRail .rule-pill__badge{
 }
 </style>
 <script id="tk-non4k-v38-badge">(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v38 non4k';})();</script>
+<style id="tk-non4k-v41-kino-bottom-fix-tail">
+html.tk-non4k-balanced-v19 .cinema-slider.cinema-v2 .kino-badge{
+  height: clamp(320px, 21vw, 500px) !important;
+  max-width: min(1260px, 96vw) !important;
+}
+@media (min-width: 521px) and (max-height: 860px){
+  html.tk-non4k-balanced-v19 .cinema-slider.cinema-v2 .kino-badge{
+    height: clamp(280px, 18vw, 420px) !important;
+  }
+}
+</style>
+<script id="tk-non4k-v41-badge-tail">
+(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v41 non4k';})();
+</script>
