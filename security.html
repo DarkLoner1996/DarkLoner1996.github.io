@@ -18974,5 +18974,55 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-m
 </style>
 <script id="tk-non4k-v30-badge">(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v30 non4k';})();</script>
 
+
+<style id="tk-non4k-v31-right-rail-overflow-fix">
+/* v31: keep roulette fully inside viewport, restore rules width */
+html.tk-non4k-balanced-v19 #tk23RightRail{
+  right: 22px !important;
+  max-width: calc(100vw - 44px) !important;
+  width: auto !important;
+  transform: translateX(var(--tk31-right-shift, 0px)) !important;
+  transition: none !important;
+}
+html.tk-non4k-balanced-v19 #tk23RightRail .rules{
+  min-width: 266px !important;
+  max-width: 266px !important;
+  width: 266px !important;
+}
+html.tk-non4k-balanced-v19 #tk23RightRail .rule-pill{
+  min-width: 266px !important;
+  max-width: 266px !important;
+  width: 266px !important;
+  height: 76px !important;
+  padding: 10px 16px !important;
+}
+html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-merged-v20{
+  width: 214px !important;
+  max-width: 214px !important;
+  min-width: 214px !important;
+  margin-right: 0 !important;
+  align-self: flex-end !important;
+}
+</style>
+<script id="tk-non4k-v31-right-rail-overflow-script">(function(){
+  function apply(){
+    var html = document.documentElement;
+    var rail = document.getElementById('tk23RightRail');
+    if(!rail || !html.classList.contains('tk-non4k-balanced-v19')) return;
+    rail.style.setProperty('--tk31-right-shift','0px');
+    var rr = rail.getBoundingClientRect();
+    var overRight = rr.right - window.innerWidth;
+    var shift = 0;
+    if(overRight > 0) shift -= Math.ceil(overRight + 12);
+    var leftGap = rr.left + shift;
+    if(leftGap < 8) shift += Math.ceil(8 - leftGap);
+    rail.style.setProperty('--tk31-right-shift', shift + 'px');
+  }
+  ['load','resize'].forEach(function(ev){ window.addEventListener(ev, apply, {passive:true}); });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
+  setTimeout(apply, 80); setTimeout(apply, 260); setTimeout(apply, 700);
+})();</script>
+<script id="tk-non4k-v31-badge">(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v31 non4k';})();</script>
+
 </body>
 </html>
