@@ -20227,3 +20227,181 @@ html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .hud-sub{
   schedule();
 })();
 </script>
+
+
+<style id="tk-non4k-v53-fhd-menu-stronger">
+/* v53: stronger FHD laptop menu reduction; disable oversized non-4K menu patch on FHD, keep 4K untouched */
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .side-nav{
+  zoom: var(--tk53-nav-scale, .58) !important;
+  transform-origin: left top !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .side-nav__tab{
+  padding: 7px 9px !important;
+  border-radius: 17px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .menu-pill{
+  font-size: 10px !important;
+  padding: 6px 9px !important;
+  border-radius: 14px !important;
+  letter-spacing: .095em !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .menu-pill svg{
+  width: 15px !important;
+  height: 15px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .back-btn{
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 11px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .back-btn svg{
+  width: 17px !important;
+  height: 17px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .side-nav__panel{
+  min-width: 0 !important;
+  width: min(274px, calc(100vw - 32px)) !important;
+  max-width: min(274px, calc(100vw - 32px)) !important;
+  padding: 8px 9px 10px !important;
+  border-radius: 19px !important;
+  max-height: calc(100vh - 68px) !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .side-nav__list{
+  gap: 7px !important;
+  margin-top: 4px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-item{
+  min-height: 56px !important;
+  height: 56px !important;
+  padding: 8px 10px !important;
+  border-radius: 16px !important;
+  gap: 9px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-ico{
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 13px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-ico svg{
+  width: 18px !important;
+  height: 18px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-title{
+  font-size: 13px !important;
+  letter-spacing: .04em !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-sub{
+  font-size: 8.4px !important;
+  letter-spacing: .075em !important;
+  opacity: .78 !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-arrow{
+  width: 26px !important;
+  height: 26px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v53 .hud-arrow svg{
+  width: 13px !important;
+  height: 13px !important;
+}
+</style>
+<script id="tk-non4k-v53-fhd-menu-stronger-script">
+(function(){
+  const root = document.documentElement;
+  const CLASS = 'tk-fhd-menu-safe-v53';
+  const prevClass = 'tk-fhd-menu-safe-v52';
+  let raf = 0;
+
+  function q(s){ return document.querySelector(s); }
+  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
+  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
+  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(v,b)); }
+
+  function disableStyle(id, off){
+    const el = document.getElementById(id);
+    if(!el) return;
+    try{ el.media = off ? 'not all' : ''; }catch(_e){}
+  }
+
+  function isTarget(){
+    const W = vw(), H = vh(), effW = Math.round(W * dpr()), effH = Math.round(H * dpr());
+    if(!root.classList.contains('tk-non4k-balanced-v19')) return false;
+    const looks4k = effW >= 3200 || effH >= 1800 || W >= 2200;
+    const looksFhdLaptop = W >= 1080 && W <= 1800 && H >= 650 && H <= 1100;
+    return looksFhdLaptop && !looks4k;
+  }
+
+  function setScale(varName, value){
+    root.style.setProperty(varName, Number(value).toFixed(4));
+  }
+
+  function apply(){
+    raf = 0;
+    const active = isTarget();
+    root.classList.toggle(CLASS, active);
+    root.classList.remove(prevClass);
+    disableStyle('tk-non4k-v44-menu-bigger', active);
+    disableStyle('tk-non4k-v52-fhd-menu-safe', active);
+
+    if(!active){
+      disableStyle('tk-non4k-v44-menu-bigger', false);
+      disableStyle('tk-non4k-v52-fhd-menu-safe', false);
+      return;
+    }
+
+    const nav = q('.side-nav');
+    const it = q('.side-chip--it-min');
+    const info = q('.side-chip--infosec-min');
+    const phish = q('.side-chip--phish-min');
+    if(!nav || !it || !info || !phish) return;
+
+    const W = vw(), H = vh();
+
+    let navScale = 0.60;
+    if(H <= 760) navScale = 0.54;
+    else if(H <= 820) navScale = 0.56;
+    else if(H <= 900) navScale = 0.58;
+    else navScale = 0.61;
+    if(W <= 1366) navScale -= 0.02;
+    navScale = clamp(navScale, 0.50, 0.63);
+
+    setScale('--tk53-nav-scale', navScale);
+    setScale('--tk19-nav-scale', navScale);
+
+    let chipScale = parseFloat(getComputedStyle(root).getPropertyValue('--tk19-chip-scale')) || 0.78;
+    let rouletteScale = parseFloat(getComputedStyle(root).getPropertyValue('--tk19-roulette-scale')) || 0.78;
+    chipScale = Math.min(chipScale, H < 900 ? 0.76 : 0.78);
+    rouletteScale = Math.min(rouletteScale, H < 900 ? 0.75 : 0.77);
+    setScale('--tk19-chip-scale', chipScale);
+    setScale('--tk19-roulette-scale', rouletteScale);
+
+    requestAnimationFrame(function(){
+      const navRect = nav.getBoundingClientRect();
+      const itRect = it.getBoundingClientRect();
+      const safeGap = H < 860 ? 16 : 20;
+      const gap = itRect.top - navRect.bottom;
+      if(gap < safeGap){
+        const naturalNavH = nav.offsetHeight || (navRect.height / Math.max(navScale, 0.01)) || 1;
+        let next = (itRect.top - navRect.top - safeGap) / Math.max(naturalNavH, 1);
+        next = clamp(next, 0.48, navScale);
+        setScale('--tk53-nav-scale', next);
+        setScale('--tk19-nav-scale', next);
+      }
+      const badge = q('.debug-tk19-badge');
+      if(badge && getComputedStyle(badge).display !== 'none') badge.textContent = 'v53 non4k';
+    });
+  }
+
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule,140); setTimeout(schedule,600); }, {once:true});
+  document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  schedule();
+})();
+</script>
