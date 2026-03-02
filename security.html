@@ -19755,6 +19755,121 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-card{
 })();
 </script>
 
+
+<style id="tk-fhd15-menu-gap-guard-v58">
+/* v58: real FHD/non-4K gap guard. Inserted before </body>. */
+@media (min-width: 900px) and (max-width: 1800px), (min-height: 650px) and (max-height: 950px){
+  html.tk-non4k-balanced-v19 .side-nav{
+    zoom: .66 !important;
+    transform: none !important;
+    transform-origin: left top !important;
+  }
+  html.tk-non4k-balanced-v19 .side-nav__tab{
+    width: 266px !important;
+    padding: 7px 9px !important;
+    border-radius: 18px !important;
+  }
+  html.tk-non4k-balanced-v19 .side-nav__panel{
+    width: 266px !important;
+    min-width: 266px !important;
+    padding: 8px !important;
+    border-radius: 20px !important;
+  }
+  html.tk-non4k-balanced-v19 .side-nav__list{ gap: 8px !important; }
+  html.tk-non4k-balanced-v19 .hud-item{
+    min-height: 62px !important;
+    height: 62px !important;
+    padding: 9px 10px !important;
+    gap: 9px !important;
+    border-radius: 16px !important;
+  }
+  html.tk-non4k-balanced-v19 .hud-ico{
+    width: 38px !important; height: 38px !important; border-radius: 13px !important;
+  }
+  html.tk-non4k-balanced-v19 .hud-ico svg{ width: 18px !important; height: 18px !important; }
+  html.tk-non4k-balanced-v19 .hud-title{ font-size: 14px !important; letter-spacing: .03em !important; }
+  html.tk-non4k-balanced-v19 .hud-sub{ font-size: 9px !important; letter-spacing: .06em !important; }
+  html.tk-non4k-balanced-v19 .hud-arrow{ width: 30px !important; height: 30px !important; flex: 0 0 30px !important; }
+}
+</style>
+<script id="tk-fhd15-menu-gap-guard-v58-script">
+(function(){
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function num(v, fallback){ var n = parseFloat(v); return isFinite(n) ? n : fallback; }
+  function apply(){
+    var root = document.documentElement;
+    if(!root.classList.contains('tk-non4k-balanced-v19')) return;
+    var w = window.innerWidth || document.documentElement.clientWidth || 0;
+    var h = window.innerHeight || document.documentElement.clientHeight || 0;
+    if(!(w <= 1800 || h <= 950)) return;
+
+    var nav = document.querySelector('.side-nav');
+    var tab = document.querySelector('.side-nav__tab');
+    var panel = document.querySelector('.side-nav__panel');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.side-nav .hud-item'));
+    var icons = Array.prototype.slice.call(document.querySelectorAll('.side-nav .hud-ico'));
+    var iconSvgs = Array.prototype.slice.call(document.querySelectorAll('.side-nav .hud-ico svg'));
+    var titles = Array.prototype.slice.call(document.querySelectorAll('.side-nav .hud-title'));
+    var subs = Array.prototype.slice.call(document.querySelectorAll('.side-nav .hud-sub'));
+    var arrows = Array.prototype.slice.call(document.querySelectorAll('.side-nav .hud-arrow'));
+    var roulette = document.querySelector('#tk19LeftRail #rouletteDock') || document.querySelector('#rouletteDock');
+    var chips = Array.prototype.slice.call(document.querySelectorAll('#tk19LeftRail .side-chip, .side-chip--it-min, .side-chip--infosec-min, .side-chip--phish-min'));
+    var it = document.querySelector('#tk19LeftRail .side-chip--it-min') || document.querySelector('.side-chip--it-min');
+    if(!nav || !panel || !it) return;
+
+    setImp(nav, 'transform', 'none');
+    setImp(nav, 'transform-origin', 'left top');
+    setImp(tab, 'width', (h <= 840 || w <= 1500) ? '254px' : '266px');
+    setImp(panel, 'width', (h <= 840 || w <= 1500) ? '254px' : '266px');
+    setImp(panel, 'min-width', (h <= 840 || w <= 1500) ? '254px' : '266px');
+    setImp(panel, 'padding', '8px');
+    items.forEach(function(el){ setImp(el,'min-height', h <= 840 || w <= 1500 ? '58px' : '62px'); setImp(el,'height', h <= 840 || w <= 1500 ? '58px' : '62px'); setImp(el,'padding','8px 10px'); setImp(el,'gap','9px'); });
+    icons.forEach(function(el){ setImp(el,'width','38px'); setImp(el,'height','38px'); setImp(el,'border-radius','13px'); });
+    iconSvgs.forEach(function(el){ setImp(el,'width','18px'); setImp(el,'height','18px'); });
+    titles.forEach(function(el){ setImp(el,'font-size', h <= 840 || w <= 1500 ? '13px' : '14px'); });
+    subs.forEach(function(el){ setImp(el,'font-size', h <= 840 || w <= 1500 ? '8.5px' : '9px'); });
+    arrows.forEach(function(el){ setImp(el,'width','30px'); setImp(el,'height','30px'); setImp(el,'flex','0 0 30px'); });
+
+    var navZoom = h <= 840 || w <= 1500 ? 0.62 : 0.66;
+    var chipZoom = h <= 840 || w <= 1500 ? 0.72 : 0.76;
+    var rouletteZoom = h <= 840 || w <= 1500 ? 0.70 : 0.74;
+    setImp(nav, 'zoom', String(navZoom));
+    if(roulette) setImp(roulette, 'zoom', String(rouletteZoom));
+    chips.forEach(function(el){ setImp(el, 'zoom', String(chipZoom)); });
+
+    // Gap guard: keep at least 18px between menu bottom and IT card top.
+    for(var i=0;i<12;i++){
+      var navRect = nav.getBoundingClientRect();
+      var itRect = it.getBoundingClientRect();
+      var gap = itRect.top - navRect.bottom;
+      if(gap >= 18) break;
+      if(navZoom > 0.54){
+        navZoom = Math.max(0.54, navZoom - 0.02);
+        setImp(nav, 'zoom', navZoom.toFixed(2));
+        continue;
+      }
+      if(chipZoom > 0.62){
+        chipZoom = Math.max(0.62, chipZoom - 0.02);
+        rouletteZoom = Math.max(0.60, rouletteZoom - 0.02);
+        chips.forEach(function(el){ setImp(el, 'zoom', chipZoom.toFixed(2)); });
+        if(roulette) setImp(roulette, 'zoom', rouletteZoom.toFixed(2));
+        continue;
+      }
+      break;
+    }
+
+    var badge = document.querySelector('.debug-tk19-badge');
+    if(badge) badge.textContent = 'v58 fhd-gap';
+  }
+  function later(){ apply(); setTimeout(apply, 120); setTimeout(apply, 500); setTimeout(apply, 1200); }
+  document.addEventListener('DOMContentLoaded', later, {once:true});
+  window.addEventListener('load', later, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+  apply();
+})();
+</script>
+
 </body>
 </html>
 
@@ -20088,184 +20203,5 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
   document.addEventListener('DOMContentLoaded', apply, {once:true});
   apply();
-})();
-</script>
-
-
-<style id="tk-fhd15-menu-real-fix-v56">
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .side-nav{
-  zoom: var(--tk56-nav-zoom, .60) !important;
-  left: var(--tk56-left, 10px) !important;
-  top: var(--tk56-top, 10px) !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .side-nav__tab{
-  padding: 7px 9px !important;
-  border-radius: 18px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .side-nav__panel{
-  min-width: 250px !important;
-  width: 250px !important;
-  border-radius: 22px !important;
-  padding: 10px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .side-nav__list{
-  gap: 8px !important;
-  margin-top: 4px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-item{
-  min-height: 60px !important;
-  height: 60px !important;
-  padding: 8px 10px !important;
-  gap: 9px !important;
-  border-radius: 16px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-ico{
-  width: 38px !important;
-  height: 38px !important;
-  min-width: 38px !important;
-  border-radius: 14px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-ico svg{
-  width: 18px !important;
-  height: 18px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-copy{
-  min-width: 0 !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-title{
-  font-size: 13px !important;
-  letter-spacing: .04em !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-sub{
-  font-size: 8.5px !important;
-  letter-spacing: .07em !important;
-  opacity: .82 !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-item .arr,
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-item .hud-arr,
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-item .chev,
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-item .arrow,
-html.tk-non4k-balanced-v19.tk-fhd15-menu-fix-v56 .hud-item [class*="arr"]{
-  transform: scale(.88) !important;
-}
-</style>
-<script id="tk-fhd15-menu-real-fix-v56-script">
-(function(){
-  const root = document.documentElement;
-  const q = (s) => document.querySelector(s);
-  let raf = 0;
-
-  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
-  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
-  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
-  function effW(){ return Math.round(vw() * dpr()); }
-  function effH(){ return Math.round(vh() * dpr()); }
-  function clamp(v,a,b){ return Math.max(a, Math.min(v,b)); }
-
-  function isTarget(){
-    const W = vw(), H = vh(), EW = effW(), EH = effH();
-    return root.classList.contains('tk-non4k-balanced-v19')
-      && EW < 3000
-      && W >= 1180 && W <= 2100
-      && H >= 680 && H <= 1220
-      && EH <= 1700;
-  }
-
-  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-
-  function tuneMenu(){
-    const nav = q('.side-nav');
-    const panel = q('.side-nav__panel');
-    const tab = q('.side-nav__tab');
-    const rail = q('#tk19LeftRail') || q('#tk18LeftRail');
-    const firstChip = q('#tk19LeftRail .side-chip--it-min') || q('#tk18LeftRail .side-chip--it-min') || q('.side-chip--it-min');
-    if(!nav || !panel || !tab || !rail || !firstChip) return;
-
-    const old = document.getElementById('tk-non4k-v44-menu-bigger');
-    if(old) old.disabled = true;
-
-    root.classList.add('tk-fhd15-menu-fix-v56');
-
-    const W = vw(), H = vh();
-    const left = clamp(Math.round(Math.min(W,H) * 0.008), 8, 12);
-    const top = clamp(Math.round(H * 0.008), 8, 12);
-    root.style.setProperty('--tk56-left', left + 'px');
-    root.style.setProperty('--tk56-top', top + 'px');
-
-    setImp(panel, 'min-width', '250px');
-    setImp(panel, 'width', '250px');
-    setImp(panel, 'padding', '10px');
-    setImp(tab, 'padding', '7px 9px');
-
-    nav.querySelectorAll('.hud-item').forEach(el => {
-      setImp(el, 'min-height', '60px');
-      setImp(el, 'height', '60px');
-      setImp(el, 'padding', '8px 10px');
-      setImp(el, 'gap', '9px');
-      setImp(el, 'border-radius', '16px');
-    });
-    nav.querySelectorAll('.hud-ico').forEach(el => {
-      setImp(el, 'width', '38px');
-      setImp(el, 'height', '38px');
-      setImp(el, 'min-width', '38px');
-      setImp(el, 'border-radius', '14px');
-    });
-    nav.querySelectorAll('.hud-ico svg').forEach(el => {
-      setImp(el, 'width', '18px');
-      setImp(el, 'height', '18px');
-    });
-    nav.querySelectorAll('.hud-title').forEach(el => setImp(el, 'font-size', '13px'));
-    nav.querySelectorAll('.hud-sub').forEach(el => setImp(el, 'font-size', '8.5px'));
-
-    let zoom = W >= 1700 ? 0.60 : (W >= 1450 ? 0.57 : 0.54);
-    setImp(nav, 'zoom', String(zoom));
-
-    const desiredGap = clamp(Math.round(H * 0.018), 16, 26);
-    let navRect = nav.getBoundingClientRect();
-    let chipRect = firstChip.getBoundingClientRect();
-
-    let safety = 0;
-    while(navRect.bottom > chipRect.top - desiredGap && zoom > 0.42 && safety < 16){
-      zoom = Math.max(0.42, +(zoom - 0.02).toFixed(2));
-      setImp(nav, 'zoom', String(zoom));
-      navRect = nav.getBoundingClientRect();
-      chipRect = firstChip.getBoundingClientRect();
-      safety += 1;
-    }
-
-    // If viewport is especially short, shrink one more step.
-    if(H < 900 && zoom > 0.50){
-      zoom = 0.50;
-      setImp(nav, 'zoom', String(zoom));
-    }
-
-    root.style.setProperty('--tk56-nav-zoom', String(zoom));
-    const badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v56 fhd menu';
-  }
-
-  function clearIfNeeded(){
-    if(isTarget()) return;
-    root.classList.remove('tk-fhd15-menu-fix-v56');
-    root.style.removeProperty('--tk56-nav-zoom');
-    root.style.removeProperty('--tk56-left');
-    root.style.removeProperty('--tk56-top');
-  }
-
-  function apply(){
-    raf = 0;
-    if(isTarget()) tuneMenu();
-    else clearIfNeeded();
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule,120); setTimeout(schedule,500); setTimeout(schedule,1200); }, {once:true});
-  document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule,300); }, {once:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
-  const mo = new MutationObserver(schedule);
-  mo.observe(document.documentElement, {attributes:true, attributeFilter:['class']});
-  schedule();
 })();
 </script>
