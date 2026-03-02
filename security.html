@@ -19846,43 +19846,14 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
 </script>
 
 
-<style id="tk-v67-fhd15-menu-v59-base-readable">
-/* v67: start from working v59 footprint; make only the menu itself a bit more readable, without enlarging mini-game chips */
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .side-nav__panel{
-  min-width: 312px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .side-nav__tab{
-  padding: 8px 10px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-item{
-  min-height: 70px !important;
-  padding: 11px 12px !important;
-  gap: 11px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-ico{
-  width: 43px !important;
-  height: 43px !important;
-  border-radius: 15px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-ico svg{
-  width: 20px !important;
-  height: 20px !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-title{
-  font-size: 15px !important;
-  letter-spacing: .042em !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-sub{
-  font-size: 10px !important;
-  letter-spacing: .075em !important;
-  opacity: .84 !important;
-}
-html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-arrow{
-  width: 31px !important;
-  height: 31px !important;
+<style id="tk-v68a-fhd15-menu-smaller-clear-step">
+@media (min-width:1180px) and (max-width:2200px) and (min-height:700px) and (max-height:1300px){
+  html.tk-non4k-balanced-v19.tk-fhd15-menu-v68a .side-nav{
+    transform-origin: left top !important;
+  }
 }
 </style>
-<script id="tk-v67-fhd15-menu-v59-base-readable-script">
+<script id="tk-v68a-fhd15-menu-smaller-clear-step-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
@@ -19891,23 +19862,38 @@ html.tk-non4k-balanced-v19.tk-fhd15-menu-v67 .hud-arrow{
   function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
   function isTarget(){
     const W = vw(), H = vh(), effW = Math.round(W * dpr());
-    return root.classList.contains('tk-non4k-balanced-v19') && W >= 1180 && W <= 2200 && H >= 700 && H <= 1300 && effW < 3000;
+    return W >= 1180 && W <= 2200 && H >= 700 && H <= 1300 && effW < 3000;
   }
+  function set(name, value){ root.style.setProperty(name, value); }
   function apply(){
     raf = 0;
-    root.classList.toggle('tk-fhd15-menu-v67', isTarget());
-    if(!isTarget()) return;
+    const bigger = document.getElementById('tk-non4k-v44-menu-bigger');
+    if (bigger) bigger.media = isTarget() ? 'not all' : 'all';
+    if (!root.classList.contains('tk-non4k-balanced-v19') || !isTarget()){
+      root.style.removeProperty('--tk19-nav-scale');
+      root.classList.remove('tk-fhd15-menu-v68a');
+      return;
+    }
+    const W = vw(), H = vh();
+    const laptop15 = W <= 1600 || H <= 920;
+    root.classList.toggle('tk-fhd15-menu-v68a', laptop15);
+    set('--tk19-left-m', '10px');
+    set('--tk19-top-m', '10px');
+    set('--tk19-nav-scale', laptop15 ? '0.60' : '0.68');
+    set('--tk19-chip-scale', laptop15 ? '0.84' : '0.88');
+    set('--tk19-rail-gap', '6px');
     const badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v67 non4k';
+    if (badge) badge.textContent = 'v68a non4k';
   }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 120); setTimeout(schedule, 550); }, {once:true});
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 150); setTimeout(schedule, 900); }, {once:true});
+  function schedule(){ if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 150); setTimeout(schedule, 600); }, {once:true});
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 180); setTimeout(schedule, 900); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
   schedule();
 })();
 </script>
+
 </body>
 </html>
 
