@@ -20090,3 +20090,140 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   apply();
 })();
 </script>
+
+
+<style id="tk-non4k-v52-fhd-menu-safe">
+/* v52: make left menu smaller on FHD / 15-inch laptop layouts, keep 4K untouched */
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .side-nav{
+  zoom: var(--tk19-nav-scale) !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .side-nav__tab{
+  padding: 8px 10px !important;
+  border-radius: 18px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .menu-pill{
+  font-size: 10.5px !important;
+  padding: 6px 9px !important;
+  border-radius: 14px !important;
+  letter-spacing: .10em !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .menu-pill svg{
+  width: 16px !important;
+  height: 16px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .back-btn{
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 12px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .back-btn svg{
+  width: 18px !important;
+  height: 18px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .side-nav__panel{
+  min-width: 0 !important;
+  width: min(292px, calc(100vw - 32px)) !important;
+  max-width: min(292px, calc(100vw - 32px)) !important;
+  padding: 9px 10px 11px !important;
+  border-radius: 20px !important;
+  max-height: calc(100vh - 70px) !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .side-nav__list{
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .hud-item{
+  min-height: 62px !important;
+  height: 62px !important;
+  padding: 9px 11px !important;
+  border-radius: 17px !important;
+  gap: 10px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .hud-ico{
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 14px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .hud-ico svg{
+  width: 20px !important;
+  height: 20px !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .hud-title{
+  font-size: 14px !important;
+  letter-spacing: .045em !important;
+}
+html.tk-non4k-balanced-v19.tk-fhd-menu-safe-v52 .hud-sub{
+  font-size: 9px !important;
+  letter-spacing: .08em !important;
+  opacity: .80 !important;
+}
+</style>
+<script id="tk-non4k-v52-fhd-menu-safe-script">
+(function(){
+  const root = document.documentElement;
+  const CLASS = 'tk-fhd-menu-safe-v52';
+  let raf = 0;
+
+  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
+  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
+  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(v,b)); }
+
+  function isTarget(){
+    const W = vw(), H = vh(), effW = Math.round(W * dpr());
+    if(!root.classList.contains('tk-non4k-balanced-v19')) return false;
+    return W >= 1100 && W <= 1800 && H >= 680 && H <= 1100 && effW <= 2500;
+  }
+
+  function apply(){
+    raf = 0;
+    const active = isTarget();
+    root.classList.toggle(CLASS, active);
+
+    if(!active){ return; }
+
+    const nav = document.querySelector('.side-nav');
+    const rail = document.getElementById('tk19LeftRail') || document.getElementById('tk18LeftRail');
+    if(!nav || !rail) return;
+
+    const W = vw(), H = vh();
+    const style = getComputedStyle(root);
+    let current = parseFloat(style.getPropertyValue('--tk19-nav-scale')) || 0.70;
+
+    const softMax = (W < 1500 || H < 900) ? 0.66 : 0.69;
+    if(current > softMax){
+      current = softMax;
+      root.style.setProperty('--tk19-nav-scale', current.toFixed(4));
+    }
+
+    const navRect = nav.getBoundingClientRect();
+    const railRect = rail.getBoundingClientRect();
+    const safeGap = H < 860 ? 18 : 22;
+    const room = railRect.top - navRect.top - safeGap;
+
+    if(room > 0 && navRect.height > room + 0.5){
+      const naturalH = navRect.height / Math.max(current, 0.01);
+      let next = room / Math.max(naturalH, 1);
+      next = clamp(next, H < 860 ? 0.56 : 0.58, current);
+      root.style.setProperty('--tk19-nav-scale', next.toFixed(4));
+    }
+
+    const badge = document.querySelector('.debug-tk19-badge');
+    if(badge && getComputedStyle(badge).display !== 'none'){
+      badge.textContent = 'v52 non4k';
+    }
+  }
+
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule,120); setTimeout(schedule,480); }, {once:true});
+  document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  schedule();
+})();
+</script>
