@@ -22845,3 +22845,92 @@ html.tk-v92-menu-laptop-gentle-up .side-nav{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
 })();
 </script>
+
+
+<style id="tk-v97-menu-font-readable-plus">
+/* v97: slightly larger readable menu fonts, preserving v96 style */
+.side-nav .menu-pill,
+.side-nav .hud-title,
+.side-nav .hud-sub{
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+.side-nav .menu-pill{
+  text-shadow:
+    0 1px 0 rgba(88,60,18,.60),
+    0 2px 6px rgba(0,0,0,.24),
+    0 0 10px rgba(0,0,0,.18) !important;
+}
+.side-nav .hud-title{
+  text-shadow:
+    0 1px 0 rgba(88,60,18,.62),
+    0 2px 6px rgba(0,0,0,.24),
+    0 0 12px rgba(0,0,0,.16),
+    0 0 14px rgba(108,198,255,.07) !important;
+}
+.side-nav .hud-sub{
+  text-shadow:
+    0 1px 0 rgba(74,50,16,.58),
+    0 1px 4px rgba(0,0,0,.22),
+    0 0 8px rgba(0,0,0,.12) !important;
+}
+</style>
+<script id="tk-v97-menu-font-readable-plus-script">
+(function(){
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function bucket(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var mobile = w <= 520;
+    var highRes = effW >= 2300 || effH >= 1450;
+    var laptop15 = !mobile && !highRes && w >= 1200 && w <= 1800 && h <= 980;
+    var fhdish = !mobile && !highRes && w > 1800;
+    if (mobile) return {pill:11.9, title:15.9, sub:9.9, pillLS:'.065em', titleLS:'.03em', subLS:'.05em'};
+    if (highRes) return {pill:13.8, title:18.0, sub:11.5, pillLS:'.065em', titleLS:'.03em', subLS:'.05em'};
+    if (laptop15) return {pill:13.0, title:16.9, sub:10.7, pillLS:'.065em', titleLS:'.03em', subLS:'.05em'};
+    if (fhdish) return {pill:13.3, title:17.3, sub:10.95, pillLS:'.065em', titleLS:'.03em', subLS:'.05em'};
+    return {pill:12.9, title:16.8, sub:10.55, pillLS:'.065em', titleLS:'.03em', subLS:'.05em'};
+  }
+  function apply(){
+    var nav = document.querySelector('.side-nav');
+    if(!nav) return;
+    var s = bucket();
+    var pill = nav.querySelector('.menu-pill');
+    if (pill){
+      imp(pill, 'font-size', s.pill.toFixed(2) + 'px');
+      imp(pill, 'font-weight', '800');
+      imp(pill, 'line-height', '1.05');
+      imp(pill, 'letter-spacing', s.pillLS);
+    }
+    nav.querySelectorAll('.hud-item').forEach(function(item){
+      var ttl = item.querySelector('.hud-title');
+      var sub = item.querySelector('.hud-sub');
+      if (ttl){
+        imp(ttl, 'font-size', s.title.toFixed(2) + 'px');
+        imp(ttl, 'line-height', '1.06');
+        imp(ttl, 'letter-spacing', s.titleLS);
+      }
+      if (sub){
+        imp(sub, 'font-size', s.sub.toFixed(2) + 'px');
+        imp(sub, 'line-height', '1.12');
+        imp(sub, 'letter-spacing', s.subLS);
+        imp(sub, 'font-weight', '800');
+      }
+    });
+  }
+  var schedule = [60, 180, 420, 900, 1600, 2600, 4200, 6200];
+  function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(apply, 50); setTimeout(apply, 220); }); }
+})();
+</script>
