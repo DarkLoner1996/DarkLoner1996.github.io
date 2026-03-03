@@ -20695,77 +20695,339 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </script>
 
 
-<style id="tk-v111-roulette-4k-above-comic-style">
+<style id="tk-v113-roulette-4k-left-5px-style">
 @media (min-width: 521px){
-  html.tk-roulette-4k-comic-fix #rouletteDock.roulette-dock{
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock.roulette-dock{
     left: auto !important;
-    right: var(--tk-r4k-right, 18px) !important;
-    bottom: var(--tk-r4k-bottom, 18px) !important;
-    transform: translateX(0) translateZ(0) scale(var(--roulette-scale)) !important;
+    top: auto !important;
+    margin-left: 0 !important;
     transform-origin: right bottom !important;
-    z-index: 12620 !important;
+    z-index: 99999 !important;
   }
 }
 </style>
-<script id="tk-v111-roulette-4k-above-comic-script">
+<script id="tk-v113-roulette-4k-left-5px-script">
 (function(){
+  'use strict';
   var root = document.documentElement;
-  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
-  function vw(){ return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0); }
-  function vh(){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
-  function is4kTarget(){ return vw() > 1400 && vh() > 700 && Math.round(vw() * dpr()) >= 3000; }
-  function clearFix(){
-    root.classList.remove('tk-roulette-4k-comic-fix');
-    root.style.removeProperty('--tk-r4k-right');
-    root.style.removeProperty('--tk-r4k-bottom');
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
   }
+  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
   function apply(){
     var dock = document.getElementById('rouletteDock');
-    var comic = document.getElementById('openComicMenu');
-    var rules = document.querySelector('.rules');
-    if(!dock || !comic || !rules){ clearFix(); return; }
-    if(!is4kTarget()){ clearFix(); return; }
-
-    var rulesRect = rules.getBoundingClientRect();
-    var comicRect = comic.getBoundingClientRect();
-    if(!rulesRect.width || !rulesRect.height || !comicRect.width || !comicRect.height) return;
-
-    var right = Math.max(10, Math.round(window.innerWidth - rulesRect.right));
-    var bottom = Math.max(24, Math.round(window.innerHeight - rulesRect.top + 14));
-
-    root.classList.add('tk-roulette-4k-comic-fix');
-    root.style.setProperty('--tk-r4k-right', right + 'px');
-    root.style.setProperty('--tk-r4k-bottom', bottom + 'px');
-
-    dock.style.setProperty('left', 'auto', 'important');
-    dock.style.setProperty('right', right + 'px', 'important');
-    dock.style.setProperty('bottom', bottom + 'px', 'important');
-    dock.style.setProperty('transform', 'translateX(0) translateZ(0) scale(var(--roulette-scale))', 'important');
-    dock.style.setProperty('transform-origin', 'right bottom', 'important');
-    dock.style.setProperty('z-index', '12620', 'important');
+    var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
+    if(!dock || !comic) return;
+    if(!is4kLike()){
+      root.classList.remove('tk-v113-roulette-4k-comic-ready');
+      return;
+    }
+    var rect = comic.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height) return;
+    var gap = 14;
+    var right = Math.max(8, Math.round(window.innerWidth - rect.right) + 5);
+    var bottom = Math.max(8, Math.round(window.innerHeight - rect.top + gap));
+    root.classList.add('tk-v113-roulette-4k-comic-ready');
+    setImp(dock, 'position', 'fixed');
+    setImp(dock, 'left', 'auto');
+    setImp(dock, 'right', right + 'px');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', bottom + 'px');
+    setImp(dock, 'margin-left', '0');
+    setImp(dock, 'transform', 'translateZ(0) scale(var(--roulette-scale))');
+    setImp(dock, 'transform-origin', 'right bottom');
+    setImp(dock, 'z-index', '99999');
+    setImp(dock, '--roulette-dock-left', 'auto');
+    setImp(dock, '--roulette-dock-tx', '0px');
+    setImp(dock, '--roulette-dock-bottom', bottom + 'px');
+    setImp(root, '--roulette-dock-left', 'auto');
+    setImp(root, '--roulette-dock-tx', '0px');
+    setImp(root, '--roulette-dock-bottom', bottom + 'px');
   }
   var raf = 0;
-  function queue(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      apply();
-      setTimeout(apply, 80);
-      setTimeout(apply, 260);
-      setTimeout(apply, 700);
-    });
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
   }
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', queue, {once:true});
+    document.addEventListener('DOMContentLoaded', schedule, {once:true});
   } else {
-    queue();
+    schedule();
   }
-  window.addEventListener('load', queue);
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', queue, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  document.addEventListener('click', function(e){
-    var t = e.target && e.target.closest ? e.target.closest('#menuToggle,.rule-pill,.side-chip,#openComicMenu') : null;
-    if(t) queue();
-  }, true);
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+  }
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 80); }, true);
+  setTimeout(schedule, 60);
+  setTimeout(schedule, 240);
+  setTimeout(schedule, 800);
+  setTimeout(schedule, 1600);
+  try{
+    var mo = new MutationObserver(schedule);
+    mo.observe(document.body || document.documentElement, {attributes:true, childList:true, subtree:true});
+  }catch(_){ }
 })();
 </script>
+
+
+<style id="tk-v114-roulette-4k-readable-bigger">
+@media (min-width: 521px){
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock.roulette-dock{
+    width: min(392px, calc(100vw - 46px)) !important;
+    max-width: min(392px, calc(100vw - 46px)) !important;
+    min-width: 0 !important;
+    gap: 0 !important;
+    padding: 18px 18px 16px !important;
+    border-radius: 30px !important;
+    background:
+      radial-gradient(150% 125% at 12% 10%, rgba(255,255,255,.18), transparent 56%),
+      radial-gradient(130% 125% at 88% 14%, rgba(90,220,255,.18), transparent 58%),
+      linear-gradient(180deg, rgba(14,62,102,.90), rgba(7,31,53,.88)) !important;
+    border: 1px solid rgba(235,246,255,.34) !important;
+    box-shadow:
+      0 28px 56px rgba(0,0,0,.34),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -1px 0 rgba(120,220,255,.12) !important;
+    backdrop-filter: blur(18px) saturate(1.08) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-card,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-info{
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-card::before,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-info::before{
+    display: none !important;
+    content: none !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-card{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .wheel-wrap{
+    width: 156px !important;
+    height: 156px !important;
+    margin: 0 auto 4px !important;
+    border-radius: 999px !important;
+    background:
+      radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+      linear-gradient(180deg, rgba(22,92,148,.70), rgba(10,43,74,.66)) !important;
+    border: 1px solid rgba(255,255,255,.24) !important;
+    box-shadow:
+      0 18px 36px rgba(0,0,0,.24),
+      inset 0 1px 0 rgba(255,255,255,.18) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock canvas#wheel{
+    transform: scale(1.12) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .wheel-pointer{
+    top: -9px !important;
+    border-left-width: 12px !important;
+    border-right-width: 12px !important;
+    border-bottom-width: 20px !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .wheel-center{
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 17px !important;
+    box-shadow:
+      0 14px 28px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.24) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-controls{
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-head,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteMini,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-ghostRow,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-history{
+    display: none !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-info{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 10px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid rgba(255,255,255,.14) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-infoHead{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    margin-top: 0 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-infoBadge{
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+    letter-spacing: .08em !important;
+    color: rgba(255,246,224,.96) !important;
+    background: rgba(8,31,58,.46) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-streak{
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    color: rgba(255,247,225,.97) !important;
+    background: rgba(8,31,58,.46) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-infoTitle{
+    font-size: 22px !important;
+    line-height: 1.18 !important;
+    letter-spacing: 0 !important;
+    font-weight: 800 !important;
+    color: rgba(250,252,255,.99) !important;
+    text-shadow: 0 10px 22px rgba(0,0,0,.28) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-infoText{
+    font-size: 16px !important;
+    line-height: 1.48 !important;
+    letter-spacing: 0 !important;
+    color: rgba(244,249,255,.98) !important;
+    text-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+    max-width: 32ch !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-infoActions,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock .roulette-infoActions.tk-v104-inline{
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.14fr) minmax(0, 1fr) 48px 48px !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rLink{
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #spinBtn{
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteSound{
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteReset{
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rLink,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #spinBtn{
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 50px !important;
+    padding: 12px 16px !important;
+    border-radius: 18px !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #spinBtn{
+    background:
+      radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
+      linear-gradient(180deg, rgba(47,176,250,.96), rgba(18,112,208,.92)) !important;
+    box-shadow:
+      0 16px 32px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.18) !important;
+    gap: 8px !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rLink{
+    background:
+      radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
+      linear-gradient(180deg, rgba(72,212,143,.96), rgba(32,157,98,.92)) !important;
+    box-shadow:
+      0 16px 32px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.18) !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #spinBtn svg,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rLink svg{
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteSound,
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteReset{
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 50px !important;
+    padding: 0 !important;
+    border-radius: 16px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: rgba(8,31,58,.50) !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    box-shadow:
+      0 14px 28px rgba(0,0,0,.20),
+      inset 0 1px 0 rgba(255,255,255,.14) !important;
+  }
+
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteSound span[aria-hidden],
+  html.tk-v113-roulette-4k-comic-ready #rouletteDock #rouletteReset span[aria-hidden]{
+    font-size: 21px !important;
+    line-height: 1 !important;
+  }
+}
+</style>
