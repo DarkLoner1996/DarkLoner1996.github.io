@@ -20693,3 +20693,85 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   });
 })();
 </script>
+
+
+<style id="tk-v105-roulette-4k-above-comic">
+@media (min-width: 1921px){
+  #rouletteDock.roulette-dock{
+    z-index: 9501 !important;
+  }
+}
+</style>
+<script id="tk-v105-roulette-4k-above-comic-script">
+(function(){
+  var root = document.documentElement;
+
+  function vw(){
+    return Math.max(window.innerWidth || 0, (window.visualViewport && window.visualViewport.width) || 0);
+  }
+
+  function vh(){
+    return Math.max(window.innerHeight || 0, (window.visualViewport && window.visualViewport.height) || 0);
+  }
+
+  function effW(){
+    return Math.round(vw() * (window.devicePixelRatio || 1));
+  }
+
+  function is4kDesktop(){
+    return vw() >= 1921 && vh() >= 900 && effW() >= 3000 && !root.classList.contains('tk-non4k-balanced-v19');
+  }
+
+  function apply(){
+    var dock = document.getElementById('rouletteDock');
+    var comicBtn = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
+    if(!dock || !comicBtn) return;
+
+    if(!is4kDesktop()) return;
+
+    var comicRect = comicBtn.getBoundingClientRect();
+    var dockRect = dock.getBoundingClientRect();
+    if(!comicRect || !dockRect || !comicRect.width || !comicRect.height || !dockRect.width || !dockRect.height) return;
+
+    var gapY = 12;
+    var padX = 24;
+    var leftPx = Math.round(comicRect.left + (comicRect.width - dockRect.width) / 2);
+    leftPx = Math.max(padX, Math.min(vw() - dockRect.width - padX, leftPx));
+
+    var desiredBottom = Math.round((vh() - comicRect.top) + gapY);
+
+    root.style.setProperty('--roulette-dock-left', leftPx + 'px');
+    root.style.setProperty('--roulette-dock-tx', '0px');
+    root.style.setProperty('--roulette-dock-bottom', desiredBottom + 'px');
+    root.style.setProperty('--roulette-over-chips', '0px');
+    dock.style.setProperty('z-index', '9501', 'important');
+  }
+
+  function schedule(){
+    apply();
+    setTimeout(apply, 80);
+    setTimeout(apply, 260);
+    setTimeout(apply, 640);
+    setTimeout(apply, 1200);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  } else {
+    schedule();
+  }
+
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  window.addEventListener('orientationchange', apply, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
+
+  document.addEventListener('click', function(e){
+    var t = e && e.target;
+    if(!t) return;
+    if(t.id === 'menuToggle' || (t.closest && t.closest('#menuToggle'))){
+      setTimeout(apply, 60);
+    }
+  }, true);
+})();
+</script>
