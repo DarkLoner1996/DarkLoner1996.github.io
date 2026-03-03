@@ -20695,107 +20695,77 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </script>
 
 
-<style id="tk-v106-roulette-4k-above-comic-real-fix">
-@media (min-width: 1921px){
-  html:not(.tk-non4k-balanced-v19) #rouletteDock.roulette-dock{
-    z-index: 9605 !important;
+<style id="tk-v111-roulette-4k-above-comic-style">
+@media (min-width: 521px){
+  html.tk-roulette-4k-comic-fix #rouletteDock.roulette-dock{
+    left: auto !important;
+    right: var(--tk-r4k-right, 18px) !important;
+    bottom: var(--tk-r4k-bottom, 18px) !important;
+    transform: translateX(0) translateZ(0) scale(var(--roulette-scale)) !important;
+    transform-origin: right bottom !important;
+    z-index: 12620 !important;
   }
 }
 </style>
-<script id="tk-v106-roulette-4k-above-comic-real-fix-script">
+<script id="tk-v111-roulette-4k-above-comic-script">
 (function(){
   var root = document.documentElement;
-  var applied = false;
-
-  function vw(){
-    return (window.visualViewport && window.visualViewport.width) || window.innerWidth || 0;
+  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
+  function vw(){ return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0); }
+  function vh(){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
+  function is4kTarget(){ return vw() > 1400 && vh() > 700 && Math.round(vw() * dpr()) >= 3000; }
+  function clearFix(){
+    root.classList.remove('tk-roulette-4k-comic-fix');
+    root.style.removeProperty('--tk-r4k-right');
+    root.style.removeProperty('--tk-r4k-bottom');
   }
-
-  function vh(){
-    return (window.visualViewport && window.visualViewport.height) || window.innerHeight || 0;
-  }
-
-  function effW(){
-    return Math.round(vw() * (window.devicePixelRatio || 1));
-  }
-
-  function is4kDesktop(){
-    return vw() >= 1921 && vh() >= 900 && effW() >= 3000 && !root.classList.contains('tk-non4k-balanced-v19');
-  }
-
-  function clearDockOverrides(){
+  function apply(){
     var dock = document.getElementById('rouletteDock');
-    if(!dock || !applied) return;
-    dock.style.removeProperty('left');
-    dock.style.removeProperty('right');
-    dock.style.removeProperty('bottom');
-    dock.style.removeProperty('transform');
-    dock.style.removeProperty('transform-origin');
-    dock.style.removeProperty('z-index');
-    applied = false;
-  }
+    var comic = document.getElementById('openComicMenu');
+    var rules = document.querySelector('.rules');
+    if(!dock || !comic || !rules){ clearFix(); return; }
+    if(!is4kTarget()){ clearFix(); return; }
 
-  function placeAboveComic(){
-    var dock = document.getElementById('rouletteDock');
-    var comicBtn = document.getElementById('openComicMenu');
-    if(!dock || !comicBtn) return;
+    var rulesRect = rules.getBoundingClientRect();
+    var comicRect = comic.getBoundingClientRect();
+    if(!rulesRect.width || !rulesRect.height || !comicRect.width || !comicRect.height) return;
 
-    if(!is4kDesktop()){
-      clearDockOverrides();
-      return;
-    }
+    var right = Math.max(10, Math.round(window.innerWidth - rulesRect.right));
+    var bottom = Math.max(24, Math.round(window.innerHeight - rulesRect.top + 14));
 
-    var comicRect = comicBtn.getBoundingClientRect();
-    var dockRect = dock.getBoundingClientRect();
-    if(!comicRect || !dockRect || !comicRect.width || !comicRect.height || !dockRect.width || !dockRect.height) return;
-
-    var gapY = 14;
-    var padX = 18;
-    var rightPx = Math.max(padX, Math.round(vw() - comicRect.right));
-    var bottomPx = Math.max(18, Math.round(vh() - comicRect.top + gapY));
+    root.classList.add('tk-roulette-4k-comic-fix');
+    root.style.setProperty('--tk-r4k-right', right + 'px');
+    root.style.setProperty('--tk-r4k-bottom', bottom + 'px');
 
     dock.style.setProperty('left', 'auto', 'important');
-    dock.style.setProperty('right', rightPx + 'px', 'important');
-    dock.style.setProperty('bottom', bottomPx + 'px', 'important');
-    dock.style.setProperty('transform', 'translateZ(0) scale(var(--roulette-scale))', 'important');
+    dock.style.setProperty('right', right + 'px', 'important');
+    dock.style.setProperty('bottom', bottom + 'px', 'important');
+    dock.style.setProperty('transform', 'translateX(0) translateZ(0) scale(var(--roulette-scale))', 'important');
     dock.style.setProperty('transform-origin', 'right bottom', 'important');
-    dock.style.setProperty('z-index', '9605', 'important');
-
-    root.style.setProperty('--roulette-dock-bottom', bottomPx + 'px');
-    root.style.setProperty('--roulette-dock-tx', '0px');
-    root.style.setProperty('--roulette-over-chips', '0px');
-
-    applied = true;
+    dock.style.setProperty('z-index', '12620', 'important');
   }
-
-  function schedule(){
-    placeAboveComic();
-    requestAnimationFrame(placeAboveComic);
-    setTimeout(placeAboveComic, 80);
-    setTimeout(placeAboveComic, 220);
-    setTimeout(placeAboveComic, 700);
-    setTimeout(placeAboveComic, 1400);
+  var raf = 0;
+  function queue(){
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){
+      apply();
+      setTimeout(apply, 80);
+      setTimeout(apply, 260);
+      setTimeout(apply, 700);
+    });
   }
-
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
+    document.addEventListener('DOMContentLoaded', queue, {once:true});
   } else {
-    schedule();
+    queue();
   }
-
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', placeAboveComic, {passive:true});
-  window.addEventListener('orientationchange', placeAboveComic, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', placeAboveComic, {passive:true});
-
+  window.addEventListener('load', queue);
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
   document.addEventListener('click', function(e){
-    var t = e && e.target;
-    if(!t) return;
-    if(t.id === 'menuToggle' || (t.closest && t.closest('#menuToggle'))){
-      setTimeout(placeAboveComic, 60);
-      setTimeout(placeAboveComic, 240);
-      setTimeout(placeAboveComic, 520);
-    }
+    var t = e.target && e.target.closest ? e.target.closest('#menuToggle,.rule-pill,.side-chip,#openComicMenu') : null;
+    if(t) queue();
   }, true);
 })();
 </script>
