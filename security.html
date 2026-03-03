@@ -21053,3 +21053,212 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
 })();
 </script>
+
+
+<style id="tk-v86-menu-laptop-fix">
+/* v86: real fix for 15-inch / common non-2K screens.
+   Neutralizes old v44 enlargement and applies a controlled smaller scale. */
+@media (min-width:521px){
+  html.tk-v86-menu-laptop .side-nav{
+    zoom: var(--tk86-scale, .70) !important;
+    left: var(--tk86-left, 10px) !important;
+    top: var(--tk86-top, 10px) !important;
+    gap: var(--tk86-nav-gap, 8px) !important;
+  }
+  html.tk-v86-menu-laptop .side-nav__tab{
+    width: min(var(--tk86-panel-w, 332px), calc(100vw - 18px)) !important;
+    padding: var(--tk86-tab-pad-y, 9px) var(--tk86-tab-pad-x, 11px) !important;
+    border-radius: var(--tk86-tab-radius, 18px) !important;
+  }
+  html.tk-v86-menu-laptop .menu-pill{
+    gap: 8px !important;
+    padding: var(--tk86-pill-pad-y, 6px) var(--tk86-pill-pad-x, 9px) !important;
+    font-size: var(--tk86-pill-font, 11.8px) !important;
+    letter-spacing: .12em !important;
+  }
+  html.tk-v86-menu-laptop .menu-pill svg{
+    width: var(--tk86-pill-ico, 17px) !important;
+    height: var(--tk86-pill-ico, 17px) !important;
+  }
+  html.tk-v86-menu-laptop .back-btn{
+    width: var(--tk86-back, 33px) !important;
+    height: var(--tk86-back, 33px) !important;
+  }
+  html.tk-v86-menu-laptop .side-nav__panel{
+    width: min(var(--tk86-panel-w, 332px), calc(100vw - 18px)) !important;
+    min-width: 0 !important;
+    padding: var(--tk86-panel-pad, 9px) !important;
+    border-radius: var(--tk86-panel-radius, 18px) !important;
+    max-height: calc(100vh - var(--tk86-top, 10px) - 18px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  html.tk-v86-menu-laptop .side-nav__list{
+    gap: var(--tk86-list-gap, 9px) !important;
+  }
+  html.tk-v86-menu-laptop .hud-item{
+    height: var(--tk86-row-h, 63px) !important;
+    min-height: var(--tk86-row-h, 63px) !important;
+    padding: var(--tk86-row-pad-y, 9px) var(--tk86-row-pad-x, 11px) !important;
+    gap: var(--tk86-row-gap, 9px) !important;
+    border-radius: var(--tk86-row-radius, 17px) !important;
+  }
+  html.tk-v86-menu-laptop .hud-ico{
+    width: var(--tk86-ico, 41px) !important;
+    height: var(--tk86-ico, 41px) !important;
+    min-width: var(--tk86-ico, 41px) !important;
+    border-radius: var(--tk86-ico-radius, 14px) !important;
+  }
+  html.tk-v86-menu-laptop .hud-ico svg{
+    width: calc(var(--tk86-ico, 41px) - 20px) !important;
+    height: calc(var(--tk86-ico, 41px) - 20px) !important;
+  }
+  html.tk-v86-menu-laptop .hud-title{
+    font-size: var(--tk86-title, 14.9px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: .055em !important;
+  }
+  html.tk-v86-menu-laptop .hud-sub{
+    font-size: var(--tk86-sub, 8.95px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: .085em !important;
+  }
+  html.tk-v86-menu-laptop .hud-arrow{
+    width: var(--tk86-arrow, 29px) !important;
+    height: var(--tk86-arrow, 29px) !important;
+    min-width: var(--tk86-arrow, 29px) !important;
+  }
+}
+</style>
+<script id="tk-v86-menu-laptop-fix-script">
+(function(){
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function apply(){
+    var root = document.documentElement;
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+
+    var v44 = document.getElementById('tk-non4k-v44-menu-bigger');
+    if (v44 && !('origMedia' in v44.dataset)) v44.dataset.origMedia = v44.media || '';
+
+    root.classList.remove('tk-v80-menu-compact','tk-v83-menu-boost','tk-v84-menu-balance','tk-v85-menu-trim');
+
+    if (w <= 520) {
+      root.classList.remove('tk-v86-menu-laptop');
+      root.classList.add('tk-v82-menu-normal');
+      if (v44) v44.media = v44.dataset.origMedia || '';
+      return;
+    }
+
+    var highResOK = (effW >= 2300) || (effH >= 1450);
+    if (highResOK) {
+      root.classList.remove('tk-v86-menu-laptop');
+      root.classList.add('tk-v82-menu-normal');
+      if (v44) v44.media = v44.dataset.origMedia || '';
+      return;
+    }
+
+    var wt = clamp((w - 1280) / 640, 0, 1);
+    var ht = clamp((h - 760) / 320, 0, 1);
+    var shortH = h < 860;
+    var ultraShort = h < 740;
+    var tight = w <= 1440;
+    var mid = w <= 1680;
+
+    var scale = 0.675 + wt * 0.030 + ht * 0.020;
+    var panel = 326 + wt * 12 + ht * 8;
+    var row = 64 + wt * 2 + ht * 1.5;
+    var ico = 41 + wt * 1 + ht * 1;
+    var arrow = 29 + wt * 1 + ht * 1;
+    var title = 14.85 + wt * 0.20 + ht * 0.18;
+    var sub = 8.92 + wt * 0.10 + ht * 0.10;
+    var pill = 11.65 + wt * 0.16 + ht * 0.12;
+    var pad = 9 + ht * 0.8;
+    var gap = 9 + ht * 0.5;
+    var left = tight ? 9 : 10;
+    var top = shortH ? 9 : 10;
+
+    if (mid) {
+      scale -= 0.010;
+      panel -= 2;
+    }
+    if (tight) {
+      scale -= 0.008;
+      panel -= 4;
+      row -= 1;
+      title -= 0.04;
+    }
+    if (shortH) {
+      scale -= 0.012;
+      panel -= 4;
+      row -= 1;
+      ico -= 1;
+      pad -= 0.5;
+      gap -= 0.5;
+    }
+    if (ultraShort) {
+      scale -= 0.012;
+      panel -= 6;
+      row -= 1;
+      ico -= 1;
+      title -= 0.06;
+      sub -= 0.04;
+    }
+
+    scale = clamp(scale, 0.655, 0.725);
+    panel = clamp(Math.round(panel), 316, Math.max(316, w - 18));
+    row = clamp(Math.round(row), 61, 67);
+    ico = clamp(Math.round(ico), 40, 43);
+    arrow = clamp(Math.round(arrow), 28, 30);
+    title = clamp(title, 14.65, 15.15);
+    sub = clamp(sub, 8.82, 9.10);
+    pill = clamp(pill, 11.55, 11.95);
+    pad = clamp(Math.round(pad), 8, 10);
+    gap = clamp(Math.round(gap), 8, 10);
+
+    root.classList.remove('tk-v82-menu-normal');
+    root.classList.add('tk-v86-menu-laptop');
+    if (v44) v44.media = 'not all';
+
+    root.style.setProperty('--tk86-scale', scale.toFixed(3));
+    root.style.setProperty('--tk86-left', left + 'px');
+    root.style.setProperty('--tk86-top', top + 'px');
+    root.style.setProperty('--tk86-nav-gap', (shortH ? 7 : 8) + 'px');
+    root.style.setProperty('--tk86-panel-w', panel + 'px');
+    root.style.setProperty('--tk86-tab-pad-y', pad + 'px');
+    root.style.setProperty('--tk86-tab-pad-x', (tight ? 10 : 11) + 'px');
+    root.style.setProperty('--tk86-tab-radius', (shortH ? 17 : 18) + 'px');
+    root.style.setProperty('--tk86-pill-pad-y', (shortH ? 5 : 6) + 'px');
+    root.style.setProperty('--tk86-pill-pad-x', (tight ? 8 : 9) + 'px');
+    root.style.setProperty('--tk86-pill-font', pill.toFixed(2) + 'px');
+    root.style.setProperty('--tk86-pill-ico', (shortH ? 16 : 17) + 'px');
+    root.style.setProperty('--tk86-back', (shortH ? 32 : 33) + 'px');
+    root.style.setProperty('--tk86-panel-pad', pad + 'px');
+    root.style.setProperty('--tk86-panel-radius', (shortH ? 17 : 18) + 'px');
+    root.style.setProperty('--tk86-list-gap', gap + 'px');
+    root.style.setProperty('--tk86-row-h', row + 'px');
+    root.style.setProperty('--tk86-row-pad-y', pad + 'px');
+    root.style.setProperty('--tk86-row-pad-x', (tight ? 10 : 11) + 'px');
+    root.style.setProperty('--tk86-row-gap', (shortH ? 8 : 9) + 'px');
+    root.style.setProperty('--tk86-row-radius', (shortH ? 16 : 17) + 'px');
+    root.style.setProperty('--tk86-ico', ico + 'px');
+    root.style.setProperty('--tk86-ico-radius', (shortH ? 13 : 14) + 'px');
+    root.style.setProperty('--tk86-title', title.toFixed(2) + 'px');
+    root.style.setProperty('--tk86-sub', sub.toFixed(2) + 'px');
+    root.style.setProperty('--tk86-arrow', arrow + 'px');
+  }
+
+  var run = function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 360); setTimeout(apply, 900); };
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+})();
+</script>
