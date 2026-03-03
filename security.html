@@ -20695,23 +20695,24 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </script>
 
 
-<style id="tk-v105-roulette-4k-above-comic">
+<style id="tk-v106-roulette-4k-above-comic-real-fix">
 @media (min-width: 1921px){
-  #rouletteDock.roulette-dock{
-    z-index: 9501 !important;
+  html:not(.tk-non4k-balanced-v19) #rouletteDock.roulette-dock{
+    z-index: 9605 !important;
   }
 }
 </style>
-<script id="tk-v105-roulette-4k-above-comic-script">
+<script id="tk-v106-roulette-4k-above-comic-real-fix-script">
 (function(){
   var root = document.documentElement;
+  var applied = false;
 
   function vw(){
-    return Math.max(window.innerWidth || 0, (window.visualViewport && window.visualViewport.width) || 0);
+    return (window.visualViewport && window.visualViewport.width) || window.innerWidth || 0;
   }
 
   function vh(){
-    return Math.max(window.innerHeight || 0, (window.visualViewport && window.visualViewport.height) || 0);
+    return (window.visualViewport && window.visualViewport.height) || window.innerHeight || 0;
   }
 
   function effW(){
@@ -20722,37 +20723,58 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
     return vw() >= 1921 && vh() >= 900 && effW() >= 3000 && !root.classList.contains('tk-non4k-balanced-v19');
   }
 
-  function apply(){
+  function clearDockOverrides(){
     var dock = document.getElementById('rouletteDock');
-    var comicBtn = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
+    if(!dock || !applied) return;
+    dock.style.removeProperty('left');
+    dock.style.removeProperty('right');
+    dock.style.removeProperty('bottom');
+    dock.style.removeProperty('transform');
+    dock.style.removeProperty('transform-origin');
+    dock.style.removeProperty('z-index');
+    applied = false;
+  }
+
+  function placeAboveComic(){
+    var dock = document.getElementById('rouletteDock');
+    var comicBtn = document.getElementById('openComicMenu');
     if(!dock || !comicBtn) return;
 
-    if(!is4kDesktop()) return;
+    if(!is4kDesktop()){
+      clearDockOverrides();
+      return;
+    }
 
     var comicRect = comicBtn.getBoundingClientRect();
     var dockRect = dock.getBoundingClientRect();
     if(!comicRect || !dockRect || !comicRect.width || !comicRect.height || !dockRect.width || !dockRect.height) return;
 
-    var gapY = 12;
-    var padX = 24;
-    var leftPx = Math.round(comicRect.left + (comicRect.width - dockRect.width) / 2);
-    leftPx = Math.max(padX, Math.min(vw() - dockRect.width - padX, leftPx));
+    var gapY = 14;
+    var padX = 18;
+    var rightPx = Math.max(padX, Math.round(vw() - comicRect.right));
+    var bottomPx = Math.max(18, Math.round(vh() - comicRect.top + gapY));
 
-    var desiredBottom = Math.round((vh() - comicRect.top) + gapY);
+    dock.style.setProperty('left', 'auto', 'important');
+    dock.style.setProperty('right', rightPx + 'px', 'important');
+    dock.style.setProperty('bottom', bottomPx + 'px', 'important');
+    dock.style.setProperty('transform', 'translateZ(0) scale(var(--roulette-scale))', 'important');
+    dock.style.setProperty('transform-origin', 'right bottom', 'important');
+    dock.style.setProperty('z-index', '9605', 'important');
 
-    root.style.setProperty('--roulette-dock-left', leftPx + 'px');
+    root.style.setProperty('--roulette-dock-bottom', bottomPx + 'px');
     root.style.setProperty('--roulette-dock-tx', '0px');
-    root.style.setProperty('--roulette-dock-bottom', desiredBottom + 'px');
     root.style.setProperty('--roulette-over-chips', '0px');
-    dock.style.setProperty('z-index', '9501', 'important');
+
+    applied = true;
   }
 
   function schedule(){
-    apply();
-    setTimeout(apply, 80);
-    setTimeout(apply, 260);
-    setTimeout(apply, 640);
-    setTimeout(apply, 1200);
+    placeAboveComic();
+    requestAnimationFrame(placeAboveComic);
+    setTimeout(placeAboveComic, 80);
+    setTimeout(placeAboveComic, 220);
+    setTimeout(placeAboveComic, 700);
+    setTimeout(placeAboveComic, 1400);
   }
 
   if(document.readyState === 'loading'){
@@ -20762,17 +20784,18 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  window.addEventListener('orientationchange', apply, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
+  window.addEventListener('resize', placeAboveComic, {passive:true});
+  window.addEventListener('orientationchange', placeAboveComic, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', placeAboveComic, {passive:true});
 
   document.addEventListener('click', function(e){
     var t = e && e.target;
     if(!t) return;
     if(t.id === 'menuToggle' || (t.closest && t.closest('#menuToggle'))){
-      setTimeout(apply, 60);
+      setTimeout(placeAboveComic, 60);
+      setTimeout(placeAboveComic, 240);
+      setTimeout(placeAboveComic, 520);
     }
   }, true);
 })();
 </script>
-
