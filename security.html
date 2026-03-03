@@ -20481,3 +20481,192 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
 })();
 </script>
+
+<style id="tk-v83-menu-adaptive-boost">
+/* v83: enlarge HUD menu on all non-2K / non-4K desktop screens; keep high-res screens on v82 sizing */
+@media (min-width:521px){
+  html.tk-v83-menu-boost .side-nav{
+    left: var(--tk83-left, 12px) !important;
+    top: var(--tk83-top, 10px) !important;
+    gap: var(--tk83-nav-gap, 8px) !important;
+  }
+  html.tk-v83-menu-boost .side-nav__tab{
+    width: min(var(--tk83-panel-w, 352px), calc(100vw - 20px)) !important;
+    padding: var(--tk83-tab-pad-y, 10px) var(--tk83-tab-pad-x, 12px) !important;
+    border-radius: var(--tk83-tab-radius, 20px) !important;
+  }
+  html.tk-v83-menu-boost .menu-pill{
+    gap: 8px !important;
+    padding: var(--tk83-pill-pad-y, 7px) var(--tk83-pill-pad-x, 10px) !important;
+    font-size: var(--tk83-pill-font, 12.4px) !important;
+    letter-spacing: .12em !important;
+  }
+  html.tk-v83-menu-boost .menu-pill svg{
+    width: var(--tk83-pill-ico, 18px) !important;
+    height: var(--tk83-pill-ico, 18px) !important;
+  }
+  html.tk-v83-menu-boost .back-btn{
+    width: var(--tk83-back, 34px) !important;
+    height: var(--tk83-back, 34px) !important;
+  }
+  html.tk-v83-menu-boost .side-nav__panel{
+    width: min(var(--tk83-panel-w, 352px), calc(100vw - 20px)) !important;
+    padding: var(--tk83-panel-pad, 10px) !important;
+    border-radius: var(--tk83-panel-radius, 20px) !important;
+    max-height: calc(100vh - var(--tk83-top, 10px) - 18px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  html.tk-v83-menu-boost .side-nav__list{
+    gap: var(--tk83-list-gap, 10px) !important;
+  }
+  html.tk-v83-menu-boost .hud-item{
+    height: var(--tk83-row-h, 66px) !important;
+    min-height: var(--tk83-row-h, 66px) !important;
+    padding: var(--tk83-row-pad-y, 10px) var(--tk83-row-pad-x, 12px) !important;
+    gap: var(--tk83-row-gap, 10px) !important;
+    border-radius: var(--tk83-row-radius, 18px) !important;
+  }
+  html.tk-v83-menu-boost .hud-ico{
+    width: var(--tk83-ico, 43px) !important;
+    height: var(--tk83-ico, 43px) !important;
+    min-width: var(--tk83-ico, 43px) !important;
+    border-radius: var(--tk83-ico-radius, 15px) !important;
+  }
+  html.tk-v83-menu-boost .hud-ico svg{
+    width: calc(var(--tk83-ico, 43px) - 20px) !important;
+    height: calc(var(--tk83-ico, 43px) - 20px) !important;
+  }
+  html.tk-v83-menu-boost .hud-title{
+    font-size: var(--tk83-title, 15.6px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: .055em !important;
+  }
+  html.tk-v83-menu-boost .hud-sub{
+    font-size: var(--tk83-sub, 9.2px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: .085em !important;
+  }
+  html.tk-v83-menu-boost .hud-arrow{
+    width: var(--tk83-arrow, 30px) !important;
+    height: var(--tk83-arrow, 30px) !important;
+    min-width: var(--tk83-arrow, 30px) !important;
+  }
+}
+</style>
+<script id="tk-v83-menu-adaptive-boost-script">
+(function(){
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function apply(){
+    var root = document.documentElement;
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+
+    if (w <= 520) {
+      root.classList.remove('tk-v83-menu-boost');
+      return;
+    }
+
+    var highResOK = (effW >= 2300) || (effH >= 1450);
+    if (highResOK) {
+      root.classList.remove('tk-v83-menu-boost');
+      return;
+    }
+
+    var wt = clamp((w - 1280) / 720, 0, 1);
+    var ht = clamp((h - 760) / 340, 0, 1);
+
+    var shortH = h < 860;
+    var ultraShort = h < 730;
+    var commonLaptop = w <= 1680;
+    var tightWidth = w <= 1440;
+
+    var panel = Math.round(344 + wt * 22 + ht * 16);
+    var row = Math.round(64 + wt * 3 + ht * 4);
+    var ico = Math.round(42 + wt * 2 + ht * 3);
+    var arrow = Math.round(29 + wt * 2 + ht * 2);
+    var title = 15.2 + wt * 0.9 + ht * 0.8;
+    var sub = 9.15 + wt * 0.45 + ht * 0.45;
+    var pill = 12.0 + wt * 0.35 + ht * 0.35;
+    var pad = Math.round(10 + ht * 1.5);
+    var gap = Math.round(10 + ht * 1.2);
+    var left = 12;
+    var top = shortH ? 10 : 12;
+
+    if (commonLaptop) {
+      panel += 10;
+      row += 2;
+      ico += 1;
+      title += 0.28;
+      sub += 0.12;
+    }
+    if (tightWidth) {
+      panel += 8;
+      row += 1;
+      title += 0.14;
+    }
+    if (shortH) {
+      panel -= 6;
+      row -= 1;
+      pad = Math.max(9, pad - 1);
+      gap = Math.max(9, gap - 1);
+    }
+    if (ultraShort) {
+      panel -= 8;
+      row -= 2;
+      ico = Math.max(41, ico - 1);
+      title -= 0.12;
+      sub -= 0.08;
+      gap = Math.max(8, gap - 1);
+    }
+
+    panel = clamp(panel, 334, Math.max(334, w - 18));
+    row = clamp(row, 62, 72);
+    ico = clamp(ico, 41, 48);
+    arrow = clamp(arrow, 29, 34);
+    title = clamp(title, 15.1, 17.0);
+    sub = clamp(sub, 9.0, 10.2);
+    pill = clamp(pill, 11.9, 13.0);
+
+    root.classList.add('tk-v83-menu-boost');
+    root.style.setProperty('--tk83-left', left + 'px');
+    root.style.setProperty('--tk83-top', top + 'px');
+    root.style.setProperty('--tk83-nav-gap', (shortH ? 7 : 8) + 'px');
+    root.style.setProperty('--tk83-panel-w', panel + 'px');
+    root.style.setProperty('--tk83-tab-pad-y', pad + 'px');
+    root.style.setProperty('--tk83-tab-pad-x', (tightWidth ? 11 : 12) + 'px');
+    root.style.setProperty('--tk83-tab-radius', (shortH ? 18 : 20) + 'px');
+    root.style.setProperty('--tk83-pill-pad-y', (shortH ? 6 : 7) + 'px');
+    root.style.setProperty('--tk83-pill-pad-x', (tightWidth ? 9 : 10) + 'px');
+    root.style.setProperty('--tk83-pill-font', pill.toFixed(2) + 'px');
+    root.style.setProperty('--tk83-pill-ico', (shortH ? 17 : 18) + 'px');
+    root.style.setProperty('--tk83-back', (shortH ? 33 : 34) + 'px');
+    root.style.setProperty('--tk83-panel-pad', pad + 'px');
+    root.style.setProperty('--tk83-panel-radius', (shortH ? 18 : 20) + 'px');
+    root.style.setProperty('--tk83-list-gap', gap + 'px');
+    root.style.setProperty('--tk83-row-h', row + 'px');
+    root.style.setProperty('--tk83-row-pad-y', (pad + 1) + 'px');
+    root.style.setProperty('--tk83-row-pad-x', (tightWidth ? 11 : 12) + 'px');
+    root.style.setProperty('--tk83-row-gap', (shortH ? 9 : 10) + 'px');
+    root.style.setProperty('--tk83-row-radius', (shortH ? 16 : 18) + 'px');
+    root.style.setProperty('--tk83-ico', ico + 'px');
+    root.style.setProperty('--tk83-ico-radius', (shortH ? 14 : 15) + 'px');
+    root.style.setProperty('--tk83-title', title.toFixed(2) + 'px');
+    root.style.setProperty('--tk83-sub', sub.toFixed(2) + 'px');
+    root.style.setProperty('--tk83-arrow', arrow + 'px');
+  }
+
+  var run = function(){ apply(); setTimeout(apply, 90); setTimeout(apply, 260); setTimeout(apply, 700); };
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+})();
+</script>
