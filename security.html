@@ -19802,7 +19802,7 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
   }
 }
 </style>
-<script id="tk-v59-fhd15-left-rail-menu-fix-script">
+<script id="tk-v75-v59-real-inline-menu-tune-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
@@ -19811,30 +19811,88 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
   function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
   function isTarget(){
     const W = vw(), H = vh(), effW = Math.round(W * dpr());
-    return W >= 1180 && W <= 2200 && H >= 700 && H <= 1300 && effW < 3000;
+    return root.classList.contains('tk-non4k-balanced-v19') && W >= 1180 && W <= 2200 && H >= 700 && H <= 1300 && effW < 3000;
   }
   function set(name, value){ root.style.setProperty(name, value); }
+  function sp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function clearInline(){
+    const nav = document.querySelector('.side-nav');
+    const panel = document.querySelector('.side-nav__panel');
+    const tab = document.querySelector('.side-nav__tab');
+    const pill = document.querySelector('.menu-pill');
+    const back = document.getElementById('menuToggle');
+    const items = document.querySelectorAll('.side-nav .hud-item');
+    const icons = document.querySelectorAll('.side-nav .hud-ico');
+    const titles = document.querySelectorAll('.side-nav .hud-title');
+    const subs = document.querySelectorAll('.side-nav .hud-sub');
+    const arrows = document.querySelectorAll('.side-nav .hud-arrow');
+    [nav,panel,tab,pill,back,...items,...icons,...titles,...subs,...arrows].forEach(function(el){ if(el) el.removeAttribute('style'); });
+  }
   function apply(){
     raf = 0;
     const bigger = document.getElementById('tk-non4k-v44-menu-bigger');
     if(bigger) bigger.media = isTarget() ? 'not all' : 'all';
-    if(!root.classList.contains('tk-non4k-balanced-v19') || !isTarget()){
+
+    if(!isTarget()){
       root.style.removeProperty('--tk19-nav-scale');
       root.style.removeProperty('--tk19-left-m');
       root.style.removeProperty('--tk19-top-m');
       root.style.removeProperty('--tk19-chip-scale');
       root.style.removeProperty('--tk19-rail-gap');
+      clearInline();
       return;
     }
+
+    const nav = document.querySelector('.side-nav');
+    const panel = document.querySelector('.side-nav__panel');
+    const tab = document.querySelector('.side-nav__tab');
+    const pill = document.querySelector('.menu-pill');
+    const back = document.getElementById('menuToggle');
+    const items = document.querySelectorAll('.side-nav .hud-item');
+    const icons = document.querySelectorAll('.side-nav .hud-ico');
+    const titles = document.querySelectorAll('.side-nav .hud-title');
+    const subs = document.querySelectorAll('.side-nav .hud-sub');
+    const arrows = document.querySelectorAll('.side-nav .hud-arrow');
+
     const W = vw(), H = vh();
     const laptop15 = W <= 1600 || H <= 920;
+
     set('--tk19-left-m', '10px');
     set('--tk19-top-m', '10px');
     set('--tk19-nav-scale', laptop15 ? '0.64' : '0.68');
     set('--tk19-chip-scale', laptop15 ? '0.84' : '0.88');
     set('--tk19-rail-gap', '6px');
+
+    // Real visible tuning on top of the working v59 branch:
+    // keep the outer menu close to v59, but make it a bit easier to read.
+    sp(nav, 'zoom', laptop15 ? '0.64' : '0.68');
+    sp(tab, 'width', '378px');
+    sp(tab, 'padding', '8px 10px');
+    sp(panel, 'width', '378px');
+    sp(panel, 'min-width', '378px');
+    sp(panel, 'padding', '10px');
+    sp(pill, 'font-size', '12.8px');
+    sp(pill, 'padding', '8px 11px');
+    sp(back, 'width', '36px');
+    sp(back, 'height', '36px');
+
+    items.forEach(function(el){
+      sp(el, 'height', '62px');
+      sp(el, 'min-height', '62px');
+      sp(el, 'padding', '10px 12px');
+      sp(el, 'gap', '10px');
+    });
+    icons.forEach(function(el){
+      sp(el, 'width', '42px');
+      sp(el, 'height', '42px');
+      sp(el, 'border-radius', '15px');
+    });
+    titles.forEach(function(el){ sp(el, 'font-size', '15px'); sp(el, 'letter-spacing', '.07em'); });
+    subs.forEach(function(el){ sp(el, 'font-size', '10px'); sp(el, 'letter-spacing', '.09em'); });
+    arrows.forEach(function(el){ sp(el, 'width', '30px'); sp(el, 'height', '30px'); });
+
     const badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v59 non4k';
+    if(badge) badge.textContent = 'v75 non4k';
   }
   function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
   document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 150); setTimeout(schedule, 600); }, {once:true});
@@ -19845,80 +19903,6 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
 })();
 </script>
 
-
-<style id="tk-v74-v59-outer-same-text-readability">
-/* v74: keep v59 outer menu geometry, improve only internal readability on FHD/non-4K */
-html.tk-non4k-balanced-v19 .side-nav__tab{
-  padding: 10px 12px !important;
-}
-html.tk-non4k-balanced-v19 .menu-pill{
-  font-size: 12.5px !important;
-  padding: 8px 12px !important;
-  letter-spacing: .12em !important;
-}
-html.tk-non4k-balanced-v19 .menu-pill svg{
-  width: 18px !important;
-  height: 18px !important;
-}
-html.tk-non4k-balanced-v19 .back-btn{
-  width: 40px !important;
-  height: 40px !important;
-}
-html.tk-non4k-balanced-v19 .back-btn svg{
-  width: 19px !important;
-  height: 19px !important;
-}
-html.tk-non4k-balanced-v19 .side-nav__panel{
-  padding: 12px 12px 13px !important;
-}
-html.tk-non4k-balanced-v19 .side-nav__list{
-  gap: 10px !important;
-  margin-top: 7px !important;
-}
-html.tk-non4k-balanced-v19 .hud-item{
-  padding: 11px 13px !important;
-}
-html.tk-non4k-balanced-v19 .hud-ico{
-  width: 45px !important;
-  height: 45px !important;
-  border-radius: 16px !important;
-}
-html.tk-non4k-balanced-v19 .hud-ico svg{
-  width: 23px !important;
-  height: 23px !important;
-}
-html.tk-non4k-balanced-v19 .hud-txt{
-  gap: 4px !important;
-}
-html.tk-non4k-balanced-v19 .hud-title{
-  font-size: 15px !important;
-  letter-spacing: .055em !important;
-  line-height: 1.02 !important;
-}
-html.tk-non4k-balanced-v19 .hud-sub{
-  font-size: 9.6px !important;
-  letter-spacing: .10em !important;
-}
-html.tk-non4k-balanced-v19 .hud-arrow{
-  width: 32px !important;
-  height: 32px !important;
-}
-html.tk-non4k-balanced-v19 .hud-arrow svg{
-  width: 16px !important;
-  height: 16px !important;
-}
-</style>
-<script id="tk-v74-v59-badge">
-(function(){
-  function mark(){
-    var b=document.querySelector('.debug-tk19-badge');
-    if(b) b.textContent='v74 non4k';
-  }
-  document.addEventListener('DOMContentLoaded', mark, {once:true});
-  window.addEventListener('load', mark, {once:true});
-  setTimeout(mark, 500);
-})();
-</script>
 </body>
 </html>
 
