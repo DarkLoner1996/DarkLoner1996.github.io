@@ -19756,8 +19756,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-card{
 </script>
 
 
-<style id="tk-v59-fhd15-left-rail-menu-fix">
-/* v59: fix tk18/tk19 left-rail selector mismatch + make FHD left menu smaller */
+<style id="tk-v76-fullhd15-real-branch">
+/* v61: keep tk19 left-rail fix, set FHD menu between v59 and v60, keep mini-game chips unchanged */
 html.tk-non4k-balanced-v19 #tk19LeftRail{
   position: fixed !important;
   left: var(--tk19-left-m) !important;
@@ -19802,7 +19802,7 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
   }
 }
 </style>
-<script id="tk-v75-v59-real-inline-menu-tune-script">
+<script id="tk-v76-fullhd15-real-branch-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
@@ -19811,88 +19811,31 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
   function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
   function isTarget(){
     const W = vw(), H = vh(), effW = Math.round(W * dpr());
-    return root.classList.contains('tk-non4k-balanced-v19') && W >= 1180 && W <= 2200 && H >= 700 && H <= 1300 && effW < 3000;
+    return W >= 1180 && W <= 2200 && H >= 700 && H <= 1300 && effW < 3000;
   }
   function set(name, value){ root.style.setProperty(name, value); }
-  function sp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function clearInline(){
-    const nav = document.querySelector('.side-nav');
-    const panel = document.querySelector('.side-nav__panel');
-    const tab = document.querySelector('.side-nav__tab');
-    const pill = document.querySelector('.menu-pill');
-    const back = document.getElementById('menuToggle');
-    const items = document.querySelectorAll('.side-nav .hud-item');
-    const icons = document.querySelectorAll('.side-nav .hud-ico');
-    const titles = document.querySelectorAll('.side-nav .hud-title');
-    const subs = document.querySelectorAll('.side-nav .hud-sub');
-    const arrows = document.querySelectorAll('.side-nav .hud-arrow');
-    [nav,panel,tab,pill,back,...items,...icons,...titles,...subs,...arrows].forEach(function(el){ if(el) el.removeAttribute('style'); });
-  }
   function apply(){
     raf = 0;
     const bigger = document.getElementById('tk-non4k-v44-menu-bigger');
     if(bigger) bigger.media = isTarget() ? 'not all' : 'all';
-
-    if(!isTarget()){
+    if(!root.classList.contains('tk-non4k-balanced-v19') || !isTarget()){
       root.style.removeProperty('--tk19-nav-scale');
       root.style.removeProperty('--tk19-left-m');
       root.style.removeProperty('--tk19-top-m');
       root.style.removeProperty('--tk19-chip-scale');
       root.style.removeProperty('--tk19-rail-gap');
-      clearInline();
       return;
     }
-
-    const nav = document.querySelector('.side-nav');
-    const panel = document.querySelector('.side-nav__panel');
-    const tab = document.querySelector('.side-nav__tab');
-    const pill = document.querySelector('.menu-pill');
-    const back = document.getElementById('menuToggle');
-    const items = document.querySelectorAll('.side-nav .hud-item');
-    const icons = document.querySelectorAll('.side-nav .hud-ico');
-    const titles = document.querySelectorAll('.side-nav .hud-title');
-    const subs = document.querySelectorAll('.side-nav .hud-sub');
-    const arrows = document.querySelectorAll('.side-nav .hud-arrow');
-
-    const W = vw(), H = vh();
+    const W = vw(), H = vh(), effW = Math.round(W * dpr());
     const laptop15 = W <= 1600 || H <= 920;
-
+    const fullhd15 = effW >= 1700 && effW <= 2400 && W >= 1500 && W <= 2050 && H >= 820 && H <= 1100;
     set('--tk19-left-m', '10px');
     set('--tk19-top-m', '10px');
-    set('--tk19-nav-scale', laptop15 ? '0.64' : '0.68');
-    set('--tk19-chip-scale', laptop15 ? '0.84' : '0.88');
+    set('--tk19-nav-scale', fullhd15 ? '0.68' : (laptop15 ? '0.665' : '0.70'));
+    set('--tk19-chip-scale', fullhd15 ? '0.88' : (laptop15 ? '0.84' : '0.88'));
     set('--tk19-rail-gap', '6px');
-
-    // Real visible tuning on top of the working v59 branch:
-    // keep the outer menu close to v59, but make it a bit easier to read.
-    sp(nav, 'zoom', laptop15 ? '0.64' : '0.68');
-    sp(tab, 'width', '378px');
-    sp(tab, 'padding', '8px 10px');
-    sp(panel, 'width', '378px');
-    sp(panel, 'min-width', '378px');
-    sp(panel, 'padding', '10px');
-    sp(pill, 'font-size', '12.8px');
-    sp(pill, 'padding', '8px 11px');
-    sp(back, 'width', '36px');
-    sp(back, 'height', '36px');
-
-    items.forEach(function(el){
-      sp(el, 'height', '62px');
-      sp(el, 'min-height', '62px');
-      sp(el, 'padding', '10px 12px');
-      sp(el, 'gap', '10px');
-    });
-    icons.forEach(function(el){
-      sp(el, 'width', '42px');
-      sp(el, 'height', '42px');
-      sp(el, 'border-radius', '15px');
-    });
-    titles.forEach(function(el){ sp(el, 'font-size', '15px'); sp(el, 'letter-spacing', '.07em'); });
-    subs.forEach(function(el){ sp(el, 'font-size', '10px'); sp(el, 'letter-spacing', '.09em'); });
-    arrows.forEach(function(el){ sp(el, 'width', '30px'); sp(el, 'height', '30px'); });
-
     const badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v75 non4k';
+    if(badge) badge.textContent = 'v76 non4k';
   }
   function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
   document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 150); setTimeout(schedule, 600); }, {once:true});
