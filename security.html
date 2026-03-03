@@ -22744,3 +22744,78 @@ html.tk-v92-menu-laptop-gentle-up .side-nav{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
 })();
 </script>
+
+<style id="tk-v94-menu-font-readability">
+.side-nav .menu-pill,
+.side-nav .hud-title,
+.side-nav .hud-sub{
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+</style>
+<script id="tk-v94-menu-font-readability-script">
+(function(){
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function getBase(el, key){
+    if(!el) return 0;
+    var attr = 'data-' + key;
+    var saved = parseFloat(el.getAttribute(attr) || '');
+    if(saved) return saved;
+    var size = parseFloat(getComputedStyle(el).fontSize) || 0;
+    if(size) el.setAttribute(attr, size.toFixed(2));
+    return size;
+  }
+  function px(v){ return (Math.round(v * 100) / 100) + 'px'; }
+
+  function grow(value, add, mult, maxAdd){
+    if(!value) return 0;
+    var next = Math.max(value + add, value * mult);
+    if(maxAdd != null) next = Math.min(next, value + maxAdd);
+    return next;
+  }
+
+  function apply(){
+    var nav = document.querySelector('.side-nav');
+    if(!nav) return;
+
+    var pill = nav.querySelector('.menu-pill');
+    if(pill){
+      var pillBase = getBase(pill, 'tk94BaseFont');
+      var pillSize = grow(pillBase, 1.4, 1.14, 2.4);
+      imp(pill, 'font-size', px(pillSize));
+      imp(pill, 'letter-spacing', '0.11em');
+    }
+
+    nav.querySelectorAll('.hud-item').forEach(function(item){
+      var ttl = item.querySelector('.hud-title');
+      var sub = item.querySelector('.hud-sub');
+
+      if(ttl){
+        var ttlBase = getBase(ttl, 'tk94BaseFont');
+        var ttlSize = grow(ttlBase, 1.6, 1.16, 3.0);
+        imp(ttl, 'font-size', px(ttlSize));
+        imp(ttl, 'line-height', '1.08');
+      }
+      if(sub){
+        var subBase = getBase(sub, 'tk94BaseFont');
+        var subSize = grow(subBase, 0.95, 1.16, 2.0);
+        imp(sub, 'font-size', px(subSize));
+        imp(sub, 'line-height', '1.1');
+        imp(sub, 'opacity', '0.9');
+      }
+    });
+  }
+
+  var schedule = [0, 120, 360, 900, 1600, 2600, 4200, 6200];
+  function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+})();
+</script>
