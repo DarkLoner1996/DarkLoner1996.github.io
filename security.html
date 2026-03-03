@@ -21901,3 +21901,215 @@ html.tk-v89-menu-laptop-balanced .side-nav{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
 })();
 </script>
+
+
+<style id="tk-v90-menu-laptop-medium-up">
+html.tk-v90-menu-laptop-medium-up .side-nav{
+  transform-origin: top left !important;
+}
+</style>
+<script id="tk-v90-menu-laptop-medium-up-script">
+(function(){
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, props){ if(!el) return; props.forEach(function(p){ el.style.removeProperty(p); }); }
+  function clearAll(){
+    var root = document.documentElement;
+    root.classList.remove('tk-v90-menu-laptop-medium-up');
+    var nav = document.querySelector('.side-nav');
+    var tab = document.querySelector('.side-nav__tab');
+    var pill = tab ? tab.querySelector('.menu-pill') : null;
+    var pillSvg = pill ? pill.querySelector('svg') : null;
+    var back = tab ? tab.querySelector('.back-btn') : null;
+    var backSvg = back ? back.querySelector('svg') : null;
+    var panel = document.querySelector('.side-nav__panel');
+    var list = panel ? panel.querySelector('.side-nav__list') : null;
+    var items = panel ? panel.querySelectorAll('.hud-item') : [];
+    clearImp(nav, ['left','top','gap','zoom','transform-origin','max-height']);
+    clearImp(tab, ['padding','border-radius']);
+    clearImp(pill, ['padding','font-size','gap']);
+    clearImp(pillSvg, ['width','height']);
+    clearImp(back, ['width','height']);
+    clearImp(backSvg, ['width','height']);
+    clearImp(panel, ['min-width','width','max-width','padding','border-radius','max-height','overflow-y']);
+    clearImp(list, ['gap']);
+    items.forEach(function(item){
+      clearImp(item, ['min-height','padding','gap','border-radius']);
+      clearImp(item.querySelector('.hud-ico'), ['width','height','border-radius','min-width','min-height']);
+      clearImp(item.querySelector('.hud-ico svg'), ['width','height']);
+      clearImp(item.querySelector('.hud-title'), ['font-size']);
+      clearImp(item.querySelector('.hud-sub'), ['font-size']);
+      clearImp(item.querySelector('.hud-arrow'), ['width','height','min-width','min-height']);
+    });
+  }
+  function apply(){
+    var root = document.documentElement;
+    var nav = document.querySelector('.side-nav');
+    var tab = document.querySelector('.side-nav__tab');
+    var pill = tab ? tab.querySelector('.menu-pill') : null;
+    var pillSvg = pill ? pill.querySelector('svg') : null;
+    var back = tab ? tab.querySelector('.back-btn') : null;
+    var backSvg = back ? back.querySelector('svg') : null;
+    var panel = document.querySelector('.side-nav__panel');
+    var list = panel ? panel.querySelector('.side-nav__list') : null;
+    if(!nav || !tab || !panel || !list) return;
+
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+
+    var isMobile = w <= 520;
+    var highRes = effW >= 2300 || effH >= 1450;
+    var laptop15 = !isMobile && !highRes && w >= 1200 && w <= 1780 && h <= 980;
+
+    var v44 = document.getElementById('tk-non4k-v44-menu-bigger');
+    if(v44 && !('origMedia' in v44.dataset)) v44.dataset.origMedia = v44.media || '';
+
+    if(!laptop15){
+      if(v44 && v44.media === 'not all') v44.media = v44.dataset.origMedia || '';
+      clearAll();
+      return;
+    }
+
+    root.classList.add('tk-v90-menu-laptop-medium-up');
+    root.classList.remove('tk-v80-menu-compact','tk-v83-menu-boost','tk-v84-menu-balance','tk-v85-menu-trim','tk-v86-menu-laptop','tk-v88-menu-laptop-medium','tk-v89-menu-laptop-balanced');
+    if(v44) v44.media = 'not all';
+
+    var wt = clamp((w - 1280) / 520, 0, 1);
+    var ht = clamp((h - 720) / 260, 0, 1);
+    var shortH = h < 820;
+    var ultraShort = h < 760;
+    var wideLaptop = w >= 1500;
+
+    /* v90: bigger than v89, but still safely below the oversized v86 */
+    var scale = 0.664 + wt * 0.028 + ht * 0.020;
+    var panelW = 316 + wt * 18 + ht * 10;
+    var rowH = 61 + wt * 2.4 + ht * 2.0;
+    var icon = 40.2 + wt * 1.8 + ht * 1.2;
+    var arrow = 28.5 + wt * 1.2 + ht * 0.8;
+    var title = 14.58 + wt * 0.28 + ht * 0.22;
+    var sub = 8.74 + wt * 0.12 + ht * 0.10;
+    var tabPy = 8.8 + ht * 0.7;
+    var tabPx = 10.5;
+    var panelPad = 8.8 + ht * 0.8;
+    var listGap = 8.5 + ht * 0.6;
+    var rowGap = 8.4;
+
+    if(shortH){
+      scale -= 0.005;
+      panelW -= 2;
+      rowH -= 1;
+      icon -= 0.7;
+      title -= 0.03;
+      sub -= 0.02;
+    }
+    if(ultraShort){
+      scale -= 0.007;
+      panelW -= 3;
+      rowH -= 1;
+      icon -= 0.8;
+      title -= 0.04;
+      sub -= 0.03;
+      panelPad -= 0.4;
+    }
+    if(wideLaptop){
+      scale += 0.004;
+      panelW += 2;
+    }
+
+    scale = clamp(scale, 0.660, 0.716);
+    panelW = clamp(Math.round(panelW), 312, 344);
+    rowH = clamp(Math.round(rowH), 60, 66);
+    icon = clamp(Math.round(icon), 39, 43);
+    arrow = clamp(Math.round(arrow), 28, 31);
+    title = clamp(title, 14.48, 15.08);
+    sub = clamp(sub, 8.68, 9.04);
+    tabPy = clamp(Math.round(tabPy), 8, 10);
+    panelPad = clamp(Math.round(panelPad), 8, 10);
+    listGap = clamp(Math.round(listGap), 8, 10);
+
+    imp(nav, 'left', '8px');
+    imp(nav, 'top', (shortH ? '8px' : '9px'));
+    imp(nav, 'gap', (shortH ? '6px' : '7px'));
+    imp(nav, 'zoom', scale.toFixed(3));
+    imp(nav, 'transform-origin', 'top left');
+    imp(nav, 'max-height', 'calc(100vh - 16px)');
+
+    imp(tab, 'padding', tabPy + 'px ' + tabPx + 'px');
+    imp(tab, 'border-radius', (shortH ? 17 : 18) + 'px');
+
+    if(pill){
+      imp(pill, 'padding', (shortH ? '5px 8px' : '6px 9px'));
+      imp(pill, 'font-size', '11.75px');
+      imp(pill, 'gap', '7px');
+    }
+    if(pillSvg){
+      imp(pillSvg, 'width', (shortH ? '15px' : '16px'));
+      imp(pillSvg, 'height', (shortH ? '15px' : '16px'));
+    }
+    if(back){
+      imp(back, 'width', (shortH ? '31px' : '33px'));
+      imp(back, 'height', (shortH ? '31px' : '33px'));
+    }
+    if(backSvg){
+      imp(backSvg, 'width', '14px');
+      imp(backSvg, 'height', '14px');
+    }
+
+    imp(panel, 'min-width', panelW + 'px');
+    imp(panel, 'width', panelW + 'px');
+    imp(panel, 'max-width', panelW + 'px');
+    imp(panel, 'padding', panelPad + 'px');
+    imp(panel, 'border-radius', (shortH ? 16 : 17) + 'px');
+    imp(panel, 'max-height', 'calc(100vh - 74px)');
+    imp(panel, 'overflow-y', 'auto');
+
+    imp(list, 'gap', listGap + 'px');
+
+    panel.querySelectorAll('.hud-item').forEach(function(item){
+      imp(item, 'min-height', rowH + 'px');
+      imp(item, 'padding', (panelPad + 1) + 'px 10px');
+      imp(item, 'gap', rowGap + 'px');
+      imp(item, 'border-radius', (shortH ? 15 : 16) + 'px');
+
+      var ico = item.querySelector('.hud-ico');
+      var icoSvg = item.querySelector('.hud-ico svg');
+      var ttl = item.querySelector('.hud-title');
+      var subEl = item.querySelector('.hud-sub');
+      var arr = item.querySelector('.hud-arrow');
+
+      if(ico){
+        imp(ico, 'width', icon + 'px');
+        imp(ico, 'height', icon + 'px');
+        imp(ico, 'min-width', icon + 'px');
+        imp(ico, 'min-height', icon + 'px');
+        imp(ico, 'border-radius', (shortH ? 12 : 13) + 'px');
+      }
+      if(icoSvg){
+        imp(icoSvg, 'width', (icon - 15) + 'px');
+        imp(icoSvg, 'height', (icon - 15) + 'px');
+      }
+      if(ttl) imp(ttl, 'font-size', title.toFixed(2) + 'px');
+      if(subEl) imp(subEl, 'font-size', sub.toFixed(2) + 'px');
+      if(arr){
+        imp(arr, 'width', arrow + 'px');
+        imp(arr, 'height', arrow + 'px');
+        imp(arr, 'min-width', arrow + 'px');
+        imp(arr, 'min-height', arrow + 'px');
+      }
+    });
+  }
+
+  var run = function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 360); setTimeout(apply, 900); setTimeout(apply, 1600); };
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+})();
+</script>
