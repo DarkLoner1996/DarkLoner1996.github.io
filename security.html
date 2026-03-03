@@ -19846,113 +19846,58 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
 </script>
 
 
-<style id="tk-v77-fhd15-menu-force-direct-from-v59">
-/* v77: force only the left HUD menu smaller on non-4K desktop, keep mini-game chips untouched */
+<style id="tk-v79-fhd15-diagnostic-style">
 html.tk-non4k-balanced-v19 .side-nav{
-  transform-origin: left top !important;
+  zoom: 0.52 !important;
+  left: 8px !important;
+  top: 8px !important;
+  outline: 4px solid rgba(255,60,60,.95) !important;
+  outline-offset: 6px !important;
+  border-radius: 24px !important;
+}
+html.tk-non4k-balanced-v19 .side-nav__tab{ width: 250px !important; }
+html.tk-non4k-balanced-v19 .side-nav__panel{ width: 250px !important; padding: 8px !important; }
+html.tk-non4k-balanced-v19 .side-nav__list{ gap: 7px !important; }
+html.tk-non4k-balanced-v19 .hud-item{ height: 54px !important; min-height: 54px !important; padding: 7px 9px !important; gap: 9px !important; border-radius: 14px !important; }
+html.tk-non4k-balanced-v19 .hud-ico{ width: 32px !important; height: 32px !important; min-width: 32px !important; }
+html.tk-non4k-balanced-v19 .hud-title{ font-size: 11px !important; line-height: 1.05 !important; }
+html.tk-non4k-balanced-v19 .hud-sub{ font-size: 7px !important; line-height: 1.05 !important; }
+html.tk-non4k-balanced-v19 .hud-arrow{ width: 24px !important; height: 24px !important; min-width: 24px !important; }
+#tkV79DiagBadge{
+  position: fixed !important;
+  left: 8px !important;
+  bottom: 8px !important;
+  z-index: 999999 !important;
+  background: #ff2a2a !important;
+  color: #fff !important;
+  font: 900 16px/1 Arial, sans-serif !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35) !important;
 }
 </style>
-<script id="tk-v77-fhd15-menu-force-direct-from-v59-script">
+<script id="tk-v79-fhd15-diagnostic-script">
 (function(){
-  const root = document.documentElement;
-  let raf = 0;
-  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
-  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
-  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
-  function isTarget(){
-    const W = vw(), H = vh(), effW = Math.round(W * dpr());
-    return root.classList.contains('tk-non4k-balanced-v19') && W >= 1100 && H >= 680 && effW < 3000;
+  function ensureBadge(){
+    let b=document.getElementById('tkV79DiagBadge');
+    if(!b){ b=document.createElement('div'); b.id='tkV79DiagBadge'; document.body.appendChild(b); }
+    const W=Math.round(window.innerWidth||0), H=Math.round(window.innerHeight||0), DPR=(window.devicePixelRatio||1);
+    b.textContent='V79 DIAG '+W+'×'+H+' dpr:'+DPR;
   }
-  function setImp(el, prop, value){
-    if(!el) return;
-    el.style.setProperty(prop, value, 'important');
+  function kick(){
+    const root=document.documentElement;
+    const bigger=document.getElementById('tk-non4k-v44-menu-bigger');
+    if(bigger) bigger.media='not all';
+    root.classList.add('tk-non4k-balanced-v19');
+    root.style.setProperty('--tk19-nav-scale','0.52');
+    root.style.setProperty('--tk19-left-m','8px');
+    root.style.setProperty('--tk19-top-m','8px');
+    ensureBadge();
   }
-  function apply(){
-    raf = 0;
-    const bigger = document.getElementById('tk-non4k-v44-menu-bigger');
-    if(bigger) bigger.media = isTarget() ? 'not all' : 'all';
-
-    const nav = document.querySelector('.side-nav');
-    const tab = document.querySelector('.side-nav__tab');
-    const panel = document.querySelector('.side-nav__panel');
-    const items = Array.from(document.querySelectorAll('.hud-item'));
-    const icons = Array.from(document.querySelectorAll('.hud-ico'));
-    const iconSvgs = Array.from(document.querySelectorAll('.hud-ico svg'));
-    const titles = Array.from(document.querySelectorAll('.hud-title'));
-    const subs = Array.from(document.querySelectorAll('.hud-sub'));
-    const arrows = Array.from(document.querySelectorAll('.hud-arrow'));
-    const arrowSvgs = Array.from(document.querySelectorAll('.hud-arrow svg'));
-
-    if(!isTarget()){
-      [nav, tab, panel, ...items, ...icons, ...iconSvgs, ...titles, ...subs, ...arrows, ...arrowSvgs].forEach(el=>{
-        if(!el) return;
-        el.style.removeProperty('zoom');
-        el.style.removeProperty('left');
-        el.style.removeProperty('top');
-        el.style.removeProperty('transform');
-        el.style.removeProperty('transform-origin');
-        el.style.removeProperty('padding');
-        el.style.removeProperty('min-width');
-        el.style.removeProperty('min-height');
-        el.style.removeProperty('height');
-        el.style.removeProperty('gap');
-        el.style.removeProperty('width');
-        el.style.removeProperty('font-size');
-        el.style.removeProperty('letter-spacing');
-        el.style.removeProperty('border-radius');
-      });
-      return;
-    }
-
-    setImp(nav, 'left', '10px');
-    setImp(nav, 'top', '10px');
-    setImp(nav, 'transform', 'none');
-    setImp(nav, 'transform-origin', 'left top');
-    setImp(nav, 'zoom', '0.65');
-
-    setImp(tab, 'padding', '8px 10px');
-    setImp(panel, 'min-width', '300px');
-
-    items.forEach(el=>{
-      setImp(el, 'min-height', '74px');
-      setImp(el, 'padding', '11px 13px');
-      setImp(el, 'gap', '11px');
-    });
-    icons.forEach(el=>{
-      setImp(el, 'width', '45px');
-      setImp(el, 'height', '45px');
-      setImp(el, 'border-radius', '15px');
-    });
-    iconSvgs.forEach(el=>{
-      setImp(el, 'width', '21px');
-      setImp(el, 'height', '21px');
-    });
-    titles.forEach(el=>{
-      setImp(el, 'font-size', '15px');
-      setImp(el, 'letter-spacing', '.045em');
-    });
-    subs.forEach(el=>{
-      setImp(el, 'font-size', '10px');
-      setImp(el, 'letter-spacing', '.08em');
-    });
-    arrows.forEach(el=>{
-      setImp(el, 'width', '30px');
-      setImp(el, 'height', '30px');
-    });
-    arrowSvgs.forEach(el=>{
-      setImp(el, 'width', '15px');
-      setImp(el, 'height', '15px');
-    });
-
-    const badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v77 non4k';
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 120); setTimeout(schedule, 600); }, {once:true});
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 180); setTimeout(schedule, 900); }, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
-  schedule();
+  document.addEventListener('DOMContentLoaded', kick, {once:true});
+  window.addEventListener('load', kick, {once:true});
+  setTimeout(kick, 120);
+  setTimeout(kick, 700);
 })();
 </script>
 
