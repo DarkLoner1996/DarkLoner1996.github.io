@@ -19843,6 +19843,198 @@ html.tk-games-scroll-compact .mg-body{
 <!-- removed tk-v96-menu-font-readable-stable -->
 
 <!-- removed tk-v96-menu-font-readable-stable-script -->
+
+
+<style id="tk-v100-menu-crisp-fix">
+.side-nav .menu-pill,
+.side-nav .hud-title,
+.side-nav .hud-sub{
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+  filter: none !important;
+}
+.side-nav .menu-pill{
+  color:#fff6df !important;
+  text-shadow:
+    0 1px 0 rgba(92,62,18,.46),
+    0 1px 2px rgba(0,0,0,.18) !important;
+  -webkit-text-stroke: 0 !important;
+}
+.side-nav .hud-title{
+  color:#fff7e3 !important;
+  text-shadow:
+    0 1px 0 rgba(92,62,18,.50),
+    0 1px 2px rgba(0,0,0,.18) !important;
+  -webkit-text-stroke: 0 !important;
+}
+.side-nav .hud-sub{
+  color: rgba(255,248,229,.98) !important;
+  text-shadow:
+    0 1px 0 rgba(84,56,18,.42),
+    0 1px 1px rgba(0,0,0,.14) !important;
+  -webkit-text-stroke: 0 !important;
+}
+html.tk-v100-menu-nozoom .side-nav{
+  zoom: 1 !important;
+  transform: none !important;
+  transform-origin: top left !important;
+}
+</style>
+<script id="tk-v100-menu-crisp-fix-script">
+(function(){
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clr(el, props){ if(!el) return; props.forEach(function(p){ el.style.removeProperty(p); }); }
+  function q(sel, root){ return (root||document).querySelector(sel); }
+  function qa(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+  function getNodes(){
+    var nav = q('.side-nav');
+    var tab = q('.side-nav__tab');
+    var pill = q('.menu-pill', tab);
+    var pillSvg = q('svg', pill);
+    var back = q('.back-btn', tab);
+    var backSvg = q('svg', back);
+    var panel = q('.side-nav__panel');
+    var list = q('.side-nav__list', panel);
+    return {nav:nav,tab:tab,pill:pill,pillSvg:pillSvg,back:back,backSvg:backSvg,panel:panel,list:list};
+  }
+  function setVars(root, o){
+    root.style.setProperty('--tk99-pill-font', o.pill + 'px');
+    root.style.setProperty('--tk99-title-font', o.title + 'px');
+    root.style.setProperty('--tk99-sub-font', o.sub + 'px');
+    root.style.setProperty('--tk99-pill-ls', o.pillLS);
+    root.style.setProperty('--tk99-title-ls', o.titleLS);
+    root.style.setProperty('--tk99-sub-ls', o.subLS);
+  }
+  function applyNoZoomLaptop(n, w, h){
+    var wt = clamp((w - 1280) / 520, 0, 1);
+    var ht = clamp((h - 720) / 260, 0, 1);
+    var shortH = h < 820;
+    var ultraShort = h < 760;
+    var panelW = 248 + wt * 8 + ht * 4;
+    var rowH = 50 + wt * 1.2 + ht * 1.0;
+    var icon = 31 + wt * 0.8 + ht * 0.6;
+    var arrow = 23 + wt * 0.8 + ht * 0.4;
+    var tabPy = 7 + ht * 0.4;
+    var panelPad = 8 + ht * 0.4;
+    var listGap = 8 + ht * 0.4;
+    if(shortH){ panelW -= 1; rowH -= 0.5; icon -= 0.3; }
+    if(ultraShort){ rowH -= 0.5; panelPad -= 0.2; }
+    panelW = clamp(Math.round(panelW), 247, 260);
+    rowH = clamp(Math.round(rowH), 49, 52);
+    icon = clamp(Math.round(icon), 31, 33);
+    arrow = clamp(Math.round(arrow), 23, 24);
+    tabPy = clamp(Math.round(tabPy), 7, 8);
+    panelPad = clamp(Math.round(panelPad), 8, 9);
+    listGap = clamp(Math.round(listGap), 8, 9);
+
+    document.documentElement.classList.add('tk-v100-menu-nozoom');
+    imp(n.nav, 'left', '8px');
+    imp(n.nav, 'top', shortH ? '8px' : '9px');
+    imp(n.nav, 'gap', '7px');
+    imp(n.nav, 'zoom', '1');
+    imp(n.nav, 'transform', 'none');
+    imp(n.nav, 'transform-origin', 'top left');
+    imp(n.nav, 'max-height', 'calc(100vh - 16px)');
+
+    imp(n.tab, 'padding', tabPy + 'px 9px');
+    imp(n.tab, 'border-radius', '18px');
+    if(n.pill){ imp(n.pill, 'padding', '5px 9px'); imp(n.pill, 'gap', '7px'); }
+    if(n.pillSvg){ imp(n.pillSvg, 'width', '15px'); imp(n.pillSvg, 'height', '15px'); }
+    if(n.back){ imp(n.back, 'width', '32px'); imp(n.back, 'height', '32px'); }
+    if(n.backSvg){ imp(n.backSvg, 'width', '14px'); imp(n.backSvg, 'height', '14px'); }
+
+    imp(n.panel, 'min-width', panelW + 'px');
+    imp(n.panel, 'width', panelW + 'px');
+    imp(n.panel, 'max-width', panelW + 'px');
+    imp(n.panel, 'padding', panelPad + 'px');
+    imp(n.panel, 'border-radius', '18px');
+    imp(n.panel, 'max-height', 'calc(100vh - 74px)');
+    imp(n.panel, 'overflow-y', 'auto');
+    imp(n.list, 'gap', listGap + 'px');
+
+    qa('.hud-item', n.panel).forEach(function(item){
+      imp(item, 'height', rowH + 'px');
+      imp(item, 'min-height', rowH + 'px');
+      imp(item, 'padding', '9px 11px');
+      imp(item, 'gap', '9px');
+      imp(item, 'border-radius', '16px');
+      var ico = q('.hud-ico', item);
+      var icoSvg = q('.hud-ico svg', item);
+      var arr = q('.hud-arrow', item);
+      if(ico){
+        imp(ico, 'width', icon + 'px'); imp(ico, 'height', icon + 'px');
+        imp(ico, 'min-width', icon + 'px'); imp(ico, 'min-height', icon + 'px');
+        imp(ico, 'border-radius', '12px');
+      }
+      if(icoSvg){ imp(icoSvg, 'width', (icon - 12) + 'px'); imp(icoSvg, 'height', (icon - 12) + 'px'); }
+      if(arr){
+        imp(arr, 'width', arrow + 'px'); imp(arr, 'height', arrow + 'px');
+        imp(arr, 'min-width', arrow + 'px'); imp(arr, 'min-height', arrow + 'px');
+      }
+    });
+  }
+  function clearNoZoom(n){
+    document.documentElement.classList.remove('tk-v100-menu-nozoom');
+    if(!n.nav) return;
+    [n.nav,n.tab,n.pill,n.pillSvg,n.back,n.backSvg,n.panel,n.list].forEach(function(){});
+    clr(n.nav, ['left','top','gap','zoom','transform','transform-origin','max-height']);
+    clr(n.tab, ['padding','border-radius']);
+    clr(n.pill, ['padding','gap']);
+    clr(n.pillSvg, ['width','height']);
+    clr(n.back, ['width','height']);
+    clr(n.backSvg, ['width','height']);
+    clr(n.panel, ['min-width','width','max-width','padding','border-radius','max-height','overflow-y']);
+    clr(n.list, ['gap']);
+    qa('.hud-item', n.panel || document).forEach(function(item){
+      clr(item, ['height','min-height','padding','gap','border-radius']);
+      clr(q('.hud-ico', item), ['width','height','min-width','min-height','border-radius']);
+      clr(q('.hud-ico svg', item), ['width','height']);
+      clr(q('.hud-arrow', item), ['width','height','min-width','min-height']);
+    });
+  }
+  function applyTypography(root, bucket){
+    if(bucket === 'laptop15'){
+      setVars(root, {pill:14.4, title:19.4, sub:12.8, pillLS:'.040em', titleLS:'.010em', subLS:'.018em'});
+    } else if(bucket === 'highRes'){
+      setVars(root, {pill:15.2, title:20.0, sub:13.1, pillLS:'.046em', titleLS:'.012em', subLS:'.020em'});
+    } else if(bucket === 'desktopFhd'){
+      setVars(root, {pill:14.8, title:19.6, sub:12.8, pillLS:'.044em', titleLS:'.012em', subLS:'.019em'});
+    } else if(bucket === 'mobile'){
+      setVars(root, {pill:12.8, title:17.3, sub:11.2, pillLS:'.050em', titleLS:'.016em', subLS:'.024em'});
+    } else {
+      setVars(root, {pill:14.4, title:19.0, sub:12.5, pillLS:'.043em', titleLS:'.012em', subLS:'.020em'});
+    }
+  }
+  function apply(){
+    var root = document.documentElement;
+    var n = getNodes();
+    if(!n.nav || !n.tab || !n.panel || !n.list) return;
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var mobile = w <= 520;
+    var highRes = effW >= 2300 || effH >= 1450;
+    var laptop15 = !mobile && !highRes && w >= 1200 && w <= 1800 && h <= 980;
+    var desktopFhd = !mobile && !highRes && w > 1800;
+    applyTypography(root, mobile ? 'mobile' : highRes ? 'highRes' : laptop15 ? 'laptop15' : desktopFhd ? 'desktopFhd' : 'default');
+    if(laptop15) applyNoZoomLaptop(n, w, h);
+    else clearNoZoom(n);
+  }
+  var raf = 0;
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ raf = 0; apply(); }); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('resize', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  setTimeout(queue, 80);
+  setTimeout(queue, 260);
+})();
+</script>
+
 </body>
 </html>
 
