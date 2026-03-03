@@ -22934,3 +22934,75 @@ html.tk-v92-menu-laptop-gentle-up .side-nav{
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(apply, 50); setTimeout(apply, 220); }); }
 })();
 </script>
+
+<style id="tk-v98-menu-font-bump-final">
+/* v98: one more clear font bump without changing overall menu size */
+.side-nav .menu-pill,
+.side-nav .hud-title,
+.side-nav .hud-sub{
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+.side-nav .hud-title,
+.side-nav .hud-sub{ white-space: nowrap; }
+</style>
+<script id="tk-v98-menu-font-bump-final-script">
+(function(){
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function bucket(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var mobile = w <= 520;
+    var highRes = effW >= 2300 || effH >= 1450;
+    var laptop15 = !mobile && !highRes && w >= 1200 && w <= 1800 && h <= 980;
+    var fhdish = !mobile && !highRes && w > 1800;
+    if (mobile) return {pill:12.5, title:16.7, sub:10.45, pillLS:'.058em', titleLS:'.026em', subLS:'.036em'};
+    if (highRes) return {pill:14.9, title:19.3, sub:12.35, pillLS:'.058em', titleLS:'.026em', subLS:'.036em'};
+    if (laptop15) return {pill:13.9, title:18.15, sub:11.55, pillLS:'.058em', titleLS:'.026em', subLS:'.036em'};
+    if (fhdish) return {pill:14.25, title:18.55, sub:11.85, pillLS:'.058em', titleLS:'.026em', subLS:'.036em'};
+    return {pill:13.8, title:17.95, sub:11.35, pillLS:'.058em', titleLS:'.026em', subLS:'.036em'};
+  }
+  function apply(){
+    var nav = document.querySelector('.side-nav');
+    if(!nav) return;
+    var s = bucket();
+    var pill = nav.querySelector('.menu-pill');
+    if (pill){
+      imp(pill, 'font-size', s.pill.toFixed(2) + 'px');
+      imp(pill, 'font-weight', '800');
+      imp(pill, 'line-height', '1.06');
+      imp(pill, 'letter-spacing', s.pillLS);
+    }
+    nav.querySelectorAll('.hud-item').forEach(function(item){
+      var ttl = item.querySelector('.hud-title');
+      var sub = item.querySelector('.hud-sub');
+      if (ttl){
+        imp(ttl, 'font-size', s.title.toFixed(2) + 'px');
+        imp(ttl, 'line-height', '1.08');
+        imp(ttl, 'letter-spacing', s.titleLS);
+        imp(ttl, 'font-weight', '800');
+      }
+      if (sub){
+        imp(sub, 'font-size', s.sub.toFixed(2) + 'px');
+        imp(sub, 'line-height', '1.14');
+        imp(sub, 'letter-spacing', s.subLS);
+        imp(sub, 'font-weight', '800');
+      }
+    });
+  }
+  var schedule = [0,80,220,480,900,1600,2600,4200,6200];
+  function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(apply, 50); setTimeout(apply, 220); }); }
+})();
+</script>
