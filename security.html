@@ -19756,8 +19756,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-card{
 </script>
 
 
-<style id="tk-v76-fullhd15-real-branch">
-/* v61: keep tk19 left-rail fix, set FHD menu between v59 and v60, keep mini-game chips unchanged */
+<style id="tk-v59-fhd15-left-rail-menu-fix">
+/* v59: fix tk18/tk19 left-rail selector mismatch + make FHD left menu smaller */
 html.tk-non4k-balanced-v19 #tk19LeftRail{
   position: fixed !important;
   left: var(--tk19-left-m) !important;
@@ -19802,7 +19802,7 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
   }
 }
 </style>
-<script id="tk-v76-fullhd15-real-branch-script">
+<script id="tk-v59-fhd15-left-rail-menu-fix-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
@@ -19826,19 +19826,129 @@ html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{
       root.style.removeProperty('--tk19-rail-gap');
       return;
     }
-    const W = vw(), H = vh(), effW = Math.round(W * dpr());
+    const W = vw(), H = vh();
     const laptop15 = W <= 1600 || H <= 920;
-    const fullhd15 = effW >= 1700 && effW <= 2400 && W >= 1500 && W <= 2050 && H >= 820 && H <= 1100;
     set('--tk19-left-m', '10px');
     set('--tk19-top-m', '10px');
-    set('--tk19-nav-scale', fullhd15 ? '0.68' : (laptop15 ? '0.665' : '0.70'));
-    set('--tk19-chip-scale', fullhd15 ? '0.88' : (laptop15 ? '0.84' : '0.88'));
+    set('--tk19-nav-scale', laptop15 ? '0.64' : '0.68');
+    set('--tk19-chip-scale', laptop15 ? '0.84' : '0.88');
     set('--tk19-rail-gap', '6px');
     const badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v76 non4k';
+    if(badge) badge.textContent = 'v59 non4k';
   }
   function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
   document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 150); setTimeout(schedule, 600); }, {once:true});
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 180); setTimeout(schedule, 900); }, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  schedule();
+})();
+</script>
+
+
+<style id="tk-v77-fhd15-menu-force-direct-from-v59">
+/* v77: force only the left HUD menu smaller on non-4K desktop, keep mini-game chips untouched */
+html.tk-non4k-balanced-v19 .side-nav{
+  transform-origin: left top !important;
+}
+</style>
+<script id="tk-v77-fhd15-menu-force-direct-from-v59-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
+  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
+  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
+  function isTarget(){
+    const W = vw(), H = vh(), effW = Math.round(W * dpr());
+    return root.classList.contains('tk-non4k-balanced-v19') && W >= 1100 && H >= 680 && effW < 3000;
+  }
+  function setImp(el, prop, value){
+    if(!el) return;
+    el.style.setProperty(prop, value, 'important');
+  }
+  function apply(){
+    raf = 0;
+    const bigger = document.getElementById('tk-non4k-v44-menu-bigger');
+    if(bigger) bigger.media = isTarget() ? 'not all' : 'all';
+
+    const nav = document.querySelector('.side-nav');
+    const tab = document.querySelector('.side-nav__tab');
+    const panel = document.querySelector('.side-nav__panel');
+    const items = Array.from(document.querySelectorAll('.hud-item'));
+    const icons = Array.from(document.querySelectorAll('.hud-ico'));
+    const iconSvgs = Array.from(document.querySelectorAll('.hud-ico svg'));
+    const titles = Array.from(document.querySelectorAll('.hud-title'));
+    const subs = Array.from(document.querySelectorAll('.hud-sub'));
+    const arrows = Array.from(document.querySelectorAll('.hud-arrow'));
+    const arrowSvgs = Array.from(document.querySelectorAll('.hud-arrow svg'));
+
+    if(!isTarget()){
+      [nav, tab, panel, ...items, ...icons, ...iconSvgs, ...titles, ...subs, ...arrows, ...arrowSvgs].forEach(el=>{
+        if(!el) return;
+        el.style.removeProperty('zoom');
+        el.style.removeProperty('left');
+        el.style.removeProperty('top');
+        el.style.removeProperty('transform');
+        el.style.removeProperty('transform-origin');
+        el.style.removeProperty('padding');
+        el.style.removeProperty('min-width');
+        el.style.removeProperty('min-height');
+        el.style.removeProperty('height');
+        el.style.removeProperty('gap');
+        el.style.removeProperty('width');
+        el.style.removeProperty('font-size');
+        el.style.removeProperty('letter-spacing');
+        el.style.removeProperty('border-radius');
+      });
+      return;
+    }
+
+    setImp(nav, 'left', '10px');
+    setImp(nav, 'top', '10px');
+    setImp(nav, 'transform', 'none');
+    setImp(nav, 'transform-origin', 'left top');
+    setImp(nav, 'zoom', '0.65');
+
+    setImp(tab, 'padding', '8px 10px');
+    setImp(panel, 'min-width', '300px');
+
+    items.forEach(el=>{
+      setImp(el, 'min-height', '74px');
+      setImp(el, 'padding', '11px 13px');
+      setImp(el, 'gap', '11px');
+    });
+    icons.forEach(el=>{
+      setImp(el, 'width', '45px');
+      setImp(el, 'height', '45px');
+      setImp(el, 'border-radius', '15px');
+    });
+    iconSvgs.forEach(el=>{
+      setImp(el, 'width', '21px');
+      setImp(el, 'height', '21px');
+    });
+    titles.forEach(el=>{
+      setImp(el, 'font-size', '15px');
+      setImp(el, 'letter-spacing', '.045em');
+    });
+    subs.forEach(el=>{
+      setImp(el, 'font-size', '10px');
+      setImp(el, 'letter-spacing', '.08em');
+    });
+    arrows.forEach(el=>{
+      setImp(el, 'width', '30px');
+      setImp(el, 'height', '30px');
+    });
+    arrowSvgs.forEach(el=>{
+      setImp(el, 'width', '15px');
+      setImp(el, 'height', '15px');
+    });
+
+    const badge = document.querySelector('.debug-tk19-badge');
+    if(badge) badge.textContent = 'v77 non4k';
+  }
+  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  document.addEventListener('DOMContentLoaded', function(){ schedule(); setTimeout(schedule, 120); setTimeout(schedule, 600); }, {once:true});
   window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 180); setTimeout(schedule, 900); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
