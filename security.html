@@ -20792,6 +20792,107 @@ html.tk-v93-menu-laptop-soft-up .side-nav{
 })();
 </script>
 
+
+<style id="tk-v96-menu-font-readable-stable">
+/* v96: stable readable menu typography without font-size oscillation */
+.side-nav .menu-pill,
+.side-nav .hud-title,
+.side-nav .hud-sub{
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+.side-nav .menu-pill{
+  color:#fff5de !important;
+  letter-spacing:.07em !important;
+  text-shadow:
+    0 1px 0 rgba(88,60,18,.58),
+    0 2px 6px rgba(0,0,0,.24),
+    0 0 10px rgba(0,0,0,.18) !important;
+  -webkit-text-stroke:.16px rgba(20,24,38,.42);
+}
+.side-nav .hud-title{
+  color:#fff5df !important;
+  letter-spacing:.035em !important;
+  text-shadow:
+    0 1px 0 rgba(88,60,18,.60),
+    0 2px 6px rgba(0,0,0,.24),
+    0 0 12px rgba(0,0,0,.16),
+    0 0 14px rgba(108,198,255,.07) !important;
+  -webkit-text-stroke:.20px rgba(20,24,38,.46);
+}
+.side-nav .hud-sub{
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", sans-serif !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: .06em !important;
+  color: rgba(255,247,224,.97) !important;
+  text-shadow:
+    0 1px 0 rgba(74,50,16,.56),
+    0 1px 4px rgba(0,0,0,.22),
+    0 0 8px rgba(0,0,0,.12) !important;
+  -webkit-text-stroke: 0 !important;
+}
+</style>
+<script id="tk-v96-menu-font-readable-stable-script">
+(function(){
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function bucket(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var mobile = w <= 520;
+    var highRes = effW >= 2300 || effH >= 1450;
+    var laptop15 = !mobile && !highRes && w >= 1200 && w <= 1800 && h <= 980;
+    var fhdish = !mobile && !highRes && w > 1800;
+    if (mobile) return {pill:11.3, title:14.9, sub:9.15, pillLS:'.07em', titleLS:'.035em', subLS:'.06em'};
+    if (highRes) return {pill:12.8, title:16.7, sub:10.5, pillLS:'.07em', titleLS:'.035em', subLS:'.06em'};
+    if (laptop15) return {pill:12.1, title:15.85, sub:9.95, pillLS:'.07em', titleLS:'.035em', subLS:'.06em'};
+    if (fhdish) return {pill:12.4, title:16.15, sub:10.1, pillLS:'.07em', titleLS:'.035em', subLS:'.06em'};
+    return {pill:12.0, title:15.75, sub:9.85, pillLS:'.07em', titleLS:'.035em', subLS:'.06em'};
+  }
+  function apply(){
+    var nav = document.querySelector('.side-nav');
+    if(!nav) return;
+    var s = bucket();
+    var pill = nav.querySelector('.menu-pill');
+    if (pill){
+      imp(pill, 'font-size', s.pill.toFixed(2) + 'px');
+      imp(pill, 'font-weight', '800');
+      imp(pill, 'line-height', '1.05');
+      imp(pill, 'letter-spacing', s.pillLS);
+    }
+    nav.querySelectorAll('.hud-item').forEach(function(item){
+      var ttl = item.querySelector('.hud-title');
+      var sub = item.querySelector('.hud-sub');
+      if (ttl){
+        imp(ttl, 'font-size', s.title.toFixed(2) + 'px');
+        imp(ttl, 'line-height', '1.06');
+        imp(ttl, 'letter-spacing', s.titleLS);
+      }
+      if (sub){
+        imp(sub, 'font-size', s.sub.toFixed(2) + 'px');
+        imp(sub, 'line-height', '1.12');
+        imp(sub, 'letter-spacing', s.subLS);
+        imp(sub, 'font-weight', '800');
+      }
+    });
+  }
+  var schedule = [80, 220, 520, 1100, 2000, 3200, 5000, 6900, 7800];
+  function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(apply, 60); setTimeout(apply, 260); }); }
+})();
+</script>
+
 </body>
 </html>
 
@@ -22734,187 +22835,6 @@ html.tk-v92-menu-laptop-gentle-up .side-nav{
 
   var schedule = [0,120,360,900,1600,2600,4200,6200];
   function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', run, {once:true});
-  } else {
-    run();
-  }
-  window.addEventListener('load', run, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
-})();
-</script>
-
-<style id="tk-v94-menu-font-readability">
-.side-nav .menu-pill,
-.side-nav .hud-title,
-.side-nav .hud-sub{
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-</style>
-<script id="tk-v94-menu-font-readability-script">
-(function(){
-  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-  function getBase(el, key){
-    if(!el) return 0;
-    var attr = 'data-' + key;
-    var saved = parseFloat(el.getAttribute(attr) || '');
-    if(saved) return saved;
-    var size = parseFloat(getComputedStyle(el).fontSize) || 0;
-    if(size) el.setAttribute(attr, size.toFixed(2));
-    return size;
-  }
-  function px(v){ return (Math.round(v * 100) / 100) + 'px'; }
-
-  function grow(value, add, mult, maxAdd){
-    if(!value) return 0;
-    var next = Math.max(value + add, value * mult);
-    if(maxAdd != null) next = Math.min(next, value + maxAdd);
-    return next;
-  }
-
-  function apply(){
-    var nav = document.querySelector('.side-nav');
-    if(!nav) return;
-
-    var pill = nav.querySelector('.menu-pill');
-    if(pill){
-      var pillBase = getBase(pill, 'tk94BaseFont');
-      var pillSize = grow(pillBase, 1.4, 1.14, 2.4);
-      imp(pill, 'font-size', px(pillSize));
-      imp(pill, 'letter-spacing', '0.11em');
-    }
-
-    nav.querySelectorAll('.hud-item').forEach(function(item){
-      var ttl = item.querySelector('.hud-title');
-      var sub = item.querySelector('.hud-sub');
-
-      if(ttl){
-        var ttlBase = getBase(ttl, 'tk94BaseFont');
-        var ttlSize = grow(ttlBase, 1.6, 1.16, 3.0);
-        imp(ttl, 'font-size', px(ttlSize));
-        imp(ttl, 'line-height', '1.08');
-      }
-      if(sub){
-        var subBase = getBase(sub, 'tk94BaseFont');
-        var subSize = grow(subBase, 0.95, 1.16, 2.0);
-        imp(sub, 'font-size', px(subSize));
-        imp(sub, 'line-height', '1.1');
-        imp(sub, 'opacity', '0.9');
-      }
-    });
-  }
-
-  var schedule = [0, 120, 360, 900, 1600, 2600, 4200, 6200];
-  function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', run, {once:true});
-  } else {
-    run();
-  }
-  window.addEventListener('load', run, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
-})();
-</script>
-
-
-<style id="tk-v95-menu-font-legibility-plus">
-.side-nav .menu-pill,
-.side-nav .hud-title,
-.side-nav .hud-sub{
-  -webkit-font-smoothing: antialiased;
-  text-rendering: geometricPrecision;
-}
-.side-nav .menu-pill{
-  color:#fff5de;
-  text-shadow:
-    0 1px 0 rgba(76,52,18,.56),
-    0 0 1px rgba(0,0,0,.42),
-    0 2px 10px rgba(0,0,0,.26);
-  -webkit-text-stroke: .18px rgba(24,27,44,.50);
-}
-.side-nav .hud-title{
-  color:#fff4dc;
-  text-shadow:
-    0 1px 0 rgba(76,52,18,.58),
-    0 0 1px rgba(0,0,0,.46),
-    0 2px 10px rgba(0,0,0,.28),
-    0 0 16px rgba(108,198,255,.10);
-  -webkit-text-stroke: .22px rgba(24,27,44,.54);
-}
-.side-nav .hud-sub{
-  color:rgba(255,244,214,.98);
-  text-shadow:
-    0 1px 0 rgba(65,44,14,.52),
-    0 0 1px rgba(0,0,0,.40),
-    0 2px 8px rgba(0,0,0,.24);
-  -webkit-text-stroke: .16px rgba(24,27,44,.40);
-}
-</style>
-<script id="tk-v95-menu-font-legibility-plus-script">
-(function(){
-  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-  function getBase(el, key){
-    if(!el) return 0;
-    var attr = 'data-' + key;
-    var saved = parseFloat(el.getAttribute(attr) || '');
-    if(saved) return saved;
-    var size = parseFloat(getComputedStyle(el).fontSize) || 0;
-    if(size) el.setAttribute(attr, size.toFixed(2));
-    return size;
-  }
-  function px(v){ return (Math.round(v * 100) / 100) + 'px'; }
-  function grow(value, add, mult, maxAdd){
-    if(!value) return 0;
-    var next = Math.max(value + add, value * mult);
-    if(maxAdd != null) next = Math.min(next, value + maxAdd);
-    return next;
-  }
-
-  function apply(){
-    var nav = document.querySelector('.side-nav');
-    if(!nav) return;
-
-    var pill = nav.querySelector('.menu-pill');
-    if(pill){
-      var pillBase = getBase(pill, 'tk95BaseFont');
-      var pillSize = grow(pillBase, 1.4, 1.16, 2.4);
-      imp(pill, 'font-size', px(pillSize));
-      imp(pill, 'letter-spacing', '0.07em');
-      imp(pill, 'font-weight', '800');
-      imp(pill, 'line-height', '1.05');
-    }
-
-    nav.querySelectorAll('.hud-item').forEach(function(item){
-      var ttl = item.querySelector('.hud-title');
-      var sub = item.querySelector('.hud-sub');
-
-      if(ttl){
-        var ttlBase = getBase(ttl, 'tk95BaseFont');
-        var ttlSize = grow(ttlBase, 2.1, 1.18, 3.8);
-        imp(ttl, 'font-size', px(ttlSize));
-        imp(ttl, 'line-height', '1.06');
-        imp(ttl, 'letter-spacing', '0.035em');
-        imp(ttl, 'font-weight', '800');
-      }
-      if(sub){
-        var subBase = getBase(sub, 'tk95BaseFont');
-        var subSize = grow(subBase, 1.4, 1.22, 2.8);
-        imp(sub, 'font-size', px(subSize));
-        imp(sub, 'line-height', '1.12');
-        imp(sub, 'letter-spacing', '0.065em');
-        imp(sub, 'font-weight', '700');
-        imp(sub, 'opacity', '0.98');
-      }
-    });
-  }
-
-  var schedule = [0, 120, 360, 900, 1600, 2600, 4200, 6200];
-  function run(){ schedule.forEach(function(t){ setTimeout(apply, t); }); }
-
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', run, {once:true});
   } else {
