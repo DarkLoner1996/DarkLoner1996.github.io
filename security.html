@@ -21689,3 +21689,215 @@ html.tk-v88-menu-laptop-medium .side-nav{
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
 })();
 </script>
+
+
+<style id="tk-v89-menu-laptop-balanced-plus">
+html.tk-v89-menu-laptop-balanced .side-nav{
+  transform-origin: top left !important;
+}
+</style>
+<script id="tk-v89-menu-laptop-balanced-plus-script">
+(function(){
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, props){ if(!el) return; props.forEach(function(p){ el.style.removeProperty(p); }); }
+  function clearAll(){
+    var root = document.documentElement;
+    root.classList.remove('tk-v89-menu-laptop-balanced');
+    var nav = document.querySelector('.side-nav');
+    var tab = document.querySelector('.side-nav__tab');
+    var pill = tab ? tab.querySelector('.menu-pill') : null;
+    var pillSvg = pill ? pill.querySelector('svg') : null;
+    var back = tab ? tab.querySelector('.back-btn') : null;
+    var backSvg = back ? back.querySelector('svg') : null;
+    var panel = document.querySelector('.side-nav__panel');
+    var list = panel ? panel.querySelector('.side-nav__list') : null;
+    var items = panel ? panel.querySelectorAll('.hud-item') : [];
+    clearImp(nav, ['left','top','gap','zoom','transform-origin','max-height']);
+    clearImp(tab, ['padding','border-radius']);
+    clearImp(pill, ['padding','font-size','gap']);
+    clearImp(pillSvg, ['width','height']);
+    clearImp(back, ['width','height']);
+    clearImp(backSvg, ['width','height']);
+    clearImp(panel, ['min-width','width','max-width','padding','border-radius','max-height','overflow-y']);
+    clearImp(list, ['gap']);
+    items.forEach(function(item){
+      clearImp(item, ['min-height','padding','gap','border-radius']);
+      clearImp(item.querySelector('.hud-ico'), ['width','height','border-radius','min-width','min-height']);
+      clearImp(item.querySelector('.hud-ico svg'), ['width','height']);
+      clearImp(item.querySelector('.hud-title'), ['font-size']);
+      clearImp(item.querySelector('.hud-sub'), ['font-size']);
+      clearImp(item.querySelector('.hud-arrow'), ['width','height','min-width','min-height']);
+    });
+  }
+  function apply(){
+    var root = document.documentElement;
+    var nav = document.querySelector('.side-nav');
+    var tab = document.querySelector('.side-nav__tab');
+    var pill = tab ? tab.querySelector('.menu-pill') : null;
+    var pillSvg = pill ? pill.querySelector('svg') : null;
+    var back = tab ? tab.querySelector('.back-btn') : null;
+    var backSvg = back ? back.querySelector('svg') : null;
+    var panel = document.querySelector('.side-nav__panel');
+    var list = panel ? panel.querySelector('.side-nav__list') : null;
+    if(!nav || !tab || !panel || !list) return;
+
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+
+    var isMobile = w <= 520;
+    var highRes = effW >= 2300 || effH >= 1450;
+    var laptop15 = !isMobile && !highRes && w >= 1200 && w <= 1780 && h <= 980;
+
+    var v44 = document.getElementById('tk-non4k-v44-menu-bigger');
+    if(v44 && !('origMedia' in v44.dataset)) v44.dataset.origMedia = v44.media || '';
+
+    if(!laptop15){
+      if(v44 && v44.media === 'not all') v44.media = v44.dataset.origMedia || '';
+      clearAll();
+      return;
+    }
+
+    root.classList.add('tk-v89-menu-laptop-balanced');
+    root.classList.remove('tk-v80-menu-compact','tk-v83-menu-boost','tk-v84-menu-balance','tk-v85-menu-trim','tk-v86-menu-laptop','tk-v88-menu-laptop-medium');
+    if(v44) v44.media = 'not all';
+
+    var wt = clamp((w - 1280) / 520, 0, 1);
+    var ht = clamp((h - 720) / 260, 0, 1);
+    var shortH = h < 820;
+    var ultraShort = h < 760;
+    var wideLaptop = w >= 1500;
+
+    /* v89: bigger than v88, but clearly smaller than v86 */
+    var scale = 0.634 + wt * 0.026 + ht * 0.018;
+    var panelW = 302 + wt * 16 + ht * 10;
+    var rowH = 58 + wt * 2 + ht * 1.5;
+    var icon = 37.5 + wt * 1.6 + ht * 1.0;
+    var arrow = 27.5 + wt * 1.0 + ht * 0.6;
+    var title = 14.18 + wt * 0.25 + ht * 0.18;
+    var sub = 8.48 + wt * 0.10 + ht * 0.08;
+    var tabPy = 8.4 + ht * 0.6;
+    var tabPx = 10;
+    var panelPad = 8.4 + ht * 0.7;
+    var listGap = 8.2 + ht * 0.55;
+    var rowGap = 8;
+
+    if(shortH){
+      scale -= 0.006;
+      panelW -= 3;
+      rowH -= 1;
+      icon -= 0.8;
+      title -= 0.03;
+      sub -= 0.02;
+    }
+    if(ultraShort){
+      scale -= 0.008;
+      panelW -= 4;
+      rowH -= 1;
+      icon -= 0.8;
+      title -= 0.04;
+      sub -= 0.03;
+      panelPad -= 0.4;
+    }
+    if(wideLaptop){
+      scale += 0.005;
+      panelW += 2;
+    }
+
+    scale = clamp(scale, 0.630, 0.684);
+    panelW = clamp(Math.round(panelW), 298, 326);
+    rowH = clamp(Math.round(rowH), 57, 62);
+    icon = clamp(Math.round(icon), 37, 40);
+    arrow = clamp(Math.round(arrow), 27, 29);
+    title = clamp(title, 14.10, 14.72);
+    sub = clamp(sub, 8.42, 8.86);
+    tabPy = clamp(Math.round(tabPy), 8, 9);
+    panelPad = clamp(Math.round(panelPad), 8, 9);
+    listGap = clamp(Math.round(listGap), 8, 9);
+
+    imp(nav, 'left', '8px');
+    imp(nav, 'top', (shortH ? '8px' : '9px'));
+    imp(nav, 'gap', (shortH ? '6px' : '7px'));
+    imp(nav, 'zoom', scale.toFixed(3));
+    imp(nav, 'transform-origin', 'top left');
+    imp(nav, 'max-height', 'calc(100vh - 16px)');
+
+    imp(tab, 'padding', tabPy + 'px ' + tabPx + 'px');
+    imp(tab, 'border-radius', (shortH ? 17 : 18) + 'px');
+
+    if(pill){
+      imp(pill, 'padding', (shortH ? '5px 8px' : '6px 9px'));
+      imp(pill, 'font-size', '11.45px');
+      imp(pill, 'gap', '7px');
+    }
+    if(pillSvg){
+      imp(pillSvg, 'width', (shortH ? '15px' : '16px'));
+      imp(pillSvg, 'height', (shortH ? '15px' : '16px'));
+    }
+    if(back){
+      imp(back, 'width', (shortH ? '31px' : '32px'));
+      imp(back, 'height', (shortH ? '31px' : '32px'));
+    }
+    if(backSvg){
+      imp(backSvg, 'width', '14px');
+      imp(backSvg, 'height', '14px');
+    }
+
+    imp(panel, 'min-width', panelW + 'px');
+    imp(panel, 'width', panelW + 'px');
+    imp(panel, 'max-width', panelW + 'px');
+    imp(panel, 'padding', panelPad + 'px');
+    imp(panel, 'border-radius', (shortH ? 16 : 17) + 'px');
+    imp(panel, 'max-height', 'calc(100vh - 74px)');
+    imp(panel, 'overflow-y', 'auto');
+
+    imp(list, 'gap', listGap + 'px');
+
+    panel.querySelectorAll('.hud-item').forEach(function(item){
+      imp(item, 'min-height', rowH + 'px');
+      imp(item, 'padding', (panelPad + 1) + 'px 10px');
+      imp(item, 'gap', rowGap + 'px');
+      imp(item, 'border-radius', (shortH ? 15 : 16) + 'px');
+
+      var ico = item.querySelector('.hud-ico');
+      var icoSvg = item.querySelector('.hud-ico svg');
+      var ttl = item.querySelector('.hud-title');
+      var subEl = item.querySelector('.hud-sub');
+      var arr = item.querySelector('.hud-arrow');
+
+      if(ico){
+        imp(ico, 'width', icon + 'px');
+        imp(ico, 'height', icon + 'px');
+        imp(ico, 'min-width', icon + 'px');
+        imp(ico, 'min-height', icon + 'px');
+        imp(ico, 'border-radius', (shortH ? 12 : 13) + 'px');
+      }
+      if(icoSvg){
+        imp(icoSvg, 'width', (icon - 15) + 'px');
+        imp(icoSvg, 'height', (icon - 15) + 'px');
+      }
+      if(ttl) imp(ttl, 'font-size', title.toFixed(2) + 'px');
+      if(subEl) imp(subEl, 'font-size', sub.toFixed(2) + 'px');
+      if(arr){
+        imp(arr, 'width', arrow + 'px');
+        imp(arr, 'height', arrow + 'px');
+        imp(arr, 'min-width', arrow + 'px');
+        imp(arr, 'min-height', arrow + 'px');
+      }
+    });
+  }
+
+  var run = function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 360); setTimeout(apply, 900); setTimeout(apply, 1600); };
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {once:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
+})();
+</script>
