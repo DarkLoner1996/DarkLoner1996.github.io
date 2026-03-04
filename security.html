@@ -23368,3 +23368,110 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 })();
 </script>
+
+
+<style id="tk-v145-fhd-exact-right-gap-style">
+@media (min-width: 980px){
+  html.tk-v145-fhd-exact-right-gap #tk23RightRail{
+    right: 5px !important;
+  }
+  html.tk-v145-fhd-exact-right-gap #tk23RightRail #rouletteDock.roulette-dock{
+    margin-right: 0 !important;
+  }
+}
+</style>
+<script id="tk-v145-fhd-exact-right-gap-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var raf = 0;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function isFhdLaptopLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(is4kLike()) return false;
+    if(w < 980 || h < 620) return false;
+    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
+  }
+  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function apply(){
+    raf = 0;
+    if(!isFhdLaptopLike()){
+      root.classList.remove('tk-v145-fhd-exact-right-gap');
+      return;
+    }
+    var rail = document.getElementById('tk23RightRail');
+    var dock = document.getElementById('rouletteDock');
+    var rules = document.querySelector('.rules');
+    var comic = document.getElementById('openComicMenu');
+    if(!rail || !dock || !rules || !comic) return;
+
+    root.classList.add('tk-v145-fhd-exact-right-gap');
+
+    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
+    if(rules.parentNode !== rail) rail.appendChild(rules);
+    if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
+    if(dock.nextElementSibling !== rules) rail.appendChild(rules);
+
+    setImp(rail, 'position', 'fixed');
+    setImp(rail, 'left', 'auto');
+    setImp(rail, 'right', '5px');
+    setImp(rail, 'bottom', '14px');
+    setImp(rail, 'transform', 'none');
+    setImp(rail, 'align-items', 'flex-end');
+
+    setImp(dock, 'position', 'static');
+    setImp(dock, 'left', 'auto');
+    setImp(dock, 'right', 'auto');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', 'auto');
+    setImp(dock, 'transform', 'none');
+    setImp(dock, 'z-index', 'auto');
+    setImp(dock, 'margin-right', '0px');
+
+    // Measure current gap and correct it so roulette ends 5px from viewport right edge.
+    var rect = dock.getBoundingClientRect();
+    var gap = Math.round((window.innerWidth || document.documentElement.clientWidth || 0) - rect.right);
+    var target = 5;
+    var delta = gap - target;
+    // positive delta means current gap is too big -> move dock right by delta using negative margin-right.
+    var mr = 0 - delta;
+    // keep inside viewport with tiny safety.
+    var maxRightShift = 0;
+    var minRightShift = -80;
+    if(mr > maxRightShift) mr = maxRightShift;
+    if(mr < minRightShift) mr = minRightShift;
+    setImp(dock, 'margin-right', mr + 'px');
+
+    // One more pass after layout settles.
+    requestAnimationFrame(function(){
+      var rect2 = dock.getBoundingClientRect();
+      var gap2 = Math.round((window.innerWidth || document.documentElement.clientWidth || 0) - rect2.right);
+      var delta2 = gap2 - target;
+      var mr2 = mr - delta2;
+      if(mr2 > maxRightShift) mr2 = maxRightShift;
+      if(mr2 < minRightShift) mr2 = minRightShift;
+      setImp(dock, 'margin-right', mr2 + 'px');
+    });
+  }
+  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 400); }, true);
+  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
+})();
+</script>
