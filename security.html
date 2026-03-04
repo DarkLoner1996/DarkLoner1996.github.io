@@ -12182,17 +12182,33 @@ function renderCard() {
         const w = canvas.width;
         const h = canvas.height;
         const cx = w/2, cy = h/2;
-        const radius = Math.min(w,h) * 0.505;
+        const radius = Math.min(w,h) * 0.48;
 
         ctx.clearRect(0,0,w,h);
 
         const step = (Math.PI * 2) / n;
         const start0 = -Math.PI/2 - step/2;
+        const outerGlow = ctx.createRadialGradient(cx, cy, radius*0.25, cx, cy, radius*1.1);
+        outerGlow.addColorStop(0, 'rgba(255,255,255,.04)');
+        outerGlow.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = outerGlow;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius*1.05, 0, Math.PI*2);
+        ctx.fill();
+
+        function getLabelLayout(mid){
+          const absSin = Math.abs(Math.sin(mid));
+          const absCos = Math.abs(Math.cos(mid));
+          const textRadius = radius * (absSin > 0.9 ? 0.70 : (absCos > 0.9 ? 0.63 : 0.665));
+          const maxWidth  = radius * (absSin > 0.9 ? 0.84 : (absCos > 0.9 ? 0.54 : 0.66));
+          let fontSize = clamp(cssSize * 0.102, 13, 21) * dpr;
+          return { textRadius, maxWidth, fontSize };
+        }
 
         for(let i=0;i<n;i++){
           const a0 = start0 + i*step;
           const a1 = a0 + step;
-
+          const mid = (a0+a1)/2;
           const isEven = (i % 2 === 0);
 
           ctx.beginPath();
@@ -12200,75 +12216,90 @@ function renderCard() {
           ctx.arc(cx,cy,radius,a0,a1,false);
           ctx.closePath();
 
-          const grad = ctx.createRadialGradient(cx, cy, radius*0.1, cx, cy, radius);
+          const grad = ctx.createRadialGradient(cx, cy, radius*0.06, cx, cy, radius);
           if(isEven){
-            grad.addColorStop(0, "rgba(255,244,201,.92)");
-            grad.addColorStop(.55,"rgba(255,210,122,.78)");
-            grad.addColorStop(1, "rgba(195,120,40,.70)");
+            grad.addColorStop(0.00, 'rgba(255,248,214,.98)');
+            grad.addColorStop(0.50, 'rgba(255,213,122,.84)');
+            grad.addColorStop(1.00, 'rgba(193,119,41,.76)');
           }else{
-            grad.addColorStop(0, "rgba(120,230,255,.88)");
-            grad.addColorStop(.55,"rgba(45,170,245,.78)");
-            grad.addColorStop(1, "rgba(18,110,200,.70)");
+            grad.addColorStop(0.00, 'rgba(134,232,255,.96)');
+            grad.addColorStop(0.52, 'rgba(49,175,245,.84)');
+            grad.addColorStop(1.00, 'rgba(18,109,200,.74)');
           }
           ctx.fillStyle = grad;
           ctx.fill();
 
-          if(typeof highlightIndex === "number" && highlightIndex === i){
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(cx,cy);
+          ctx.arc(cx,cy,radius,a0,a1,false);
+          ctx.closePath();
+          ctx.clip();
+          const gloss = ctx.createLinearGradient(cx, cy - radius, cx, cy + radius);
+          gloss.addColorStop(0, 'rgba(255,255,255,.18)');
+          gloss.addColorStop(.38, 'rgba(255,255,255,.04)');
+          gloss.addColorStop(1, 'rgba(0,0,0,.05)');
+          ctx.fillStyle = gloss;
+          ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
+          ctx.restore();
+
+          if(typeof highlightIndex === 'number' && highlightIndex === i){
             ctx.save();
-            ctx.globalCompositeOperation = "screen";
-            ctx.fillStyle = "rgba(255,255,255,.22)";
+            ctx.globalCompositeOperation = 'screen';
+            ctx.fillStyle = 'rgba(255,255,255,.22)';
             ctx.fill();
             ctx.restore();
 
-            ctx.strokeStyle = "rgba(255,242,205,.85)";
-            ctx.lineWidth  = Math.max(2.8, 3.0*dpr);
+            ctx.strokeStyle = 'rgba(255,242,205,.88)';
+            ctx.lineWidth  = Math.max(2.4, 2.8*dpr);
             ctx.stroke();
           }else{
-            ctx.strokeStyle = "rgba(255,255,255,.22)";
-            ctx.lineWidth = Math.max(2, 2.2*dpr);
+            ctx.strokeStyle = 'rgba(255,255,255,.24)';
+            ctx.lineWidth = Math.max(1.8, 2.1*dpr);
             ctx.stroke();
           }
 
-          const mid = (a0+a1)/2;
-          ctx.save();
-          ctx.translate(cx,cy);
-          ctx.rotate(mid);
+          const label = String(ROULETTE_ITEMS[i].label || '').trim();
+          const layout = getLabelLayout(mid);
+          const tx = cx + Math.cos(mid) * layout.textRadius;
+          const ty = cy + Math.sin(mid) * layout.textRadius;
+          let fontSize = layout.fontSize;
+          const family = 'Inter, "Arial Black", "Segoe UI", Arial, sans-serif';
 
-                    ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
 
-          const label = ROULETTE_ITEMS[i].label;
+          while(fontSize > 11*dpr && ctx.measureText(label).width > layout.maxWidth){
+            fontSize -= 1;
+            ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
+          }
 
-          let fontSize = Math.max(11, cssSize*0.065);
-          fontSize = Math.min(fontSize, 16);
-          const L = (label || "").length;
-          if(L >= 9) fontSize *= 0.82;
-          else if(L >= 7) fontSize *= 0.88;
-          else if(L >= 6) fontSize *= 0.93;
-          ctx.font = `900 ${Math.round(fontSize*dpr)}px Ruslan Display, cursive`;
-
-
-          ctx.shadowColor = "rgba(0,0,0,.55)";
-          ctx.shadowBlur  = 6 * dpr;
+          ctx.shadowColor = 'rgba(0,0,0,.34)';
+          ctx.shadowBlur  = 3.2 * dpr;
           ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 0;
+          ctx.shadowOffsetY = 1.2 * dpr;
 
-          ctx.lineWidth  = Math.max(3.2, 3.6*dpr);
-          ctx.strokeStyle = "rgba(0,0,0,.72)";
-          ctx.fillStyle   = "rgba(255,255,255,.97)";
-            
-          ctx.strokeText(label, radius*0.60, 0);
-          ctx.fillText(label,  radius*0.60, 0);
-ctx.restore();
+          ctx.lineWidth  = Math.max(2, 2.2*dpr);
+          ctx.strokeStyle = 'rgba(8,18,38,.58)';
+          ctx.fillStyle   = 'rgba(255,255,255,.985)';
+
+          ctx.strokeText(label, tx, ty, layout.maxWidth);
+          ctx.fillText(label,  tx, ty, layout.maxWidth);
         }
 
         ctx.beginPath();
         ctx.arc(cx,cy,radius,0,Math.PI*2);
-        ctx.strokeStyle = "rgba(255,242,205,.55)";
+        ctx.strokeStyle = 'rgba(255,242,205,.62)';
         ctx.lineWidth = Math.max(3, 3.2*dpr);
-        ctx.shadowColor = "rgba(0,0,0,.28)";
-        ctx.shadowBlur = 18 * dpr;
+        ctx.shadowColor = 'rgba(0,0,0,.24)';
+        ctx.shadowBlur = 16 * dpr;
         ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius*0.16, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,.08)';
+        ctx.fill();
       }
 
       function pickIndex(finalAngle){
@@ -23976,8 +24007,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
@@ -24127,8 +24158,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
@@ -24273,8 +24304,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
@@ -24429,6 +24460,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
     return w >= 900 && h >= 600;
   }
   function setImp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(e){} }
+  var nudging = false;
+  var lastWheelSig = '';
   function apply(){
     var dock = document.getElementById('rouletteDock');
     var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
@@ -24475,8 +24508,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
@@ -24772,8 +24805,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
@@ -25083,9 +25116,366 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
   window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   [100, 300, 700, 1200, 1800].forEach(function(t){ setTimeout(schedule, t); });
+})();
+</script>
+
+
+<style id="tk-v160-fhd-roulette-readable-style">
+@media (min-width: 1180px){
+  html.tk-v160-fhd-roulette-readable #tk23RightRail{
+    right: 10px !important;
+    gap: 10px !important;
+    transform: none !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock{
+    position: relative !important;
+    width: 348px !important;
+    min-width: 348px !important;
+    max-width: 348px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 16px 16px 14px !important;
+    border-radius: 28px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(137,221,255,.15) 0%, rgba(137,221,255,0) 30%),
+      linear-gradient(180deg, rgba(49,145,212,.97) 0%, rgba(13,73,128,.985) 58%, rgba(8,40,79,.995) 100%) !important;
+    border: 1px solid rgba(255,255,255,.15) !important;
+    box-shadow:
+      0 16px 34px rgba(6,16,42,.30),
+      inset 0 1px 0 rgba(255,255,255,.14) !important;
+    backdrop-filter: blur(10px) saturate(1.06) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(1.06) !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock::before{
+    content: none !important;
+    display: none !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-card{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-card::before,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-info::before{
+    content: none !important;
+    display: none !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .wheel-wrap{
+    width: 204px !important;
+    height: 204px !important;
+    margin: 4px auto 12px !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 10px 18px rgba(4,18,38,.24)) !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock canvas#wheel{
+    transform: none !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .wheel-center{
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 15px !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.24) !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .wheel-pointer{
+    top: -6px !important;
+    filter: drop-shadow(0 4px 9px rgba(4,18,38,.28)) !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-controls,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-head,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-mini,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-ghostRow,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-history,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rouletteReset{
+    display: none !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-info{
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 14px 0 0 !important;
+    min-width: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-top: 1px solid rgba(255,255,255,.14) !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoHead{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    margin: 0 !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoBadge,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-streak,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoTitle,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoText,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rLink,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #spinBtn,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rouletteSound{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    text-shadow: none !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoBadge,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-streak{
+    font-size: 11px !important;
+    line-height: 1.05 !important;
+    font-weight: 800 !important;
+    color: rgba(255,255,255,.95) !important;
+    padding: 7px 11px !important;
+    border-radius: 999px !important;
+    background: rgba(7,31,61,.28) !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+    white-space: nowrap !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoTitle{
+    margin: 0 !important;
+    font-size: 16px !important;
+    line-height: 1.24 !important;
+    font-weight: 800 !important;
+    color: #fff !important;
+    display: block !important;
+    overflow: visible !important;
+    max-height: none !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
+    text-wrap: balance !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoText{
+    margin: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.38 !important;
+    font-weight: 600 !important;
+    color: rgba(255,255,255,.93) !important;
+    display: block !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
+    text-wrap: pretty !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoActions,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoActions.tk-v150-inline-hard,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoActions.tk-v104-inline{
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) 42px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rLink,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #spinBtn{
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 11px !important;
+    border-radius: 14px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border: 1px solid rgba(255,255,255,.13) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 16px rgba(7,20,44,.14) !important;
+    white-space: nowrap !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rLink{
+    background: linear-gradient(180deg,#58e096 0%, #1fb66b 100%) !important;
+    color: #fff !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #spinBtn{
+    background: linear-gradient(180deg,#78c8ff 0%, #3c95ff 100%) !important;
+    color: #fff !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rouletteSound{
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+    background: rgba(7,31,61,.28) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rLink svg,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #spinBtn svg{
+    width: 12px !important;
+    height: 12px !important;
+    flex: 0 0 auto !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rouletteSound span[aria-hidden]{
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+}
+@media (min-width: 1180px) and (max-width: 1536px), (min-width: 1180px) and (max-height: 860px){
+  html.tk-v160-fhd-roulette-readable html,
+  html.tk-v160-fhd-roulette-readable body{
+    --tk-v160-compact: 1;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock{
+    width: 334px !important;
+    min-width: 334px !important;
+    max-width: 334px !important;
+    padding: 15px 15px 13px !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .wheel-wrap{
+    width: 190px !important;
+    height: 190px !important;
+    margin: 2px auto 10px !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoTitle{
+    font-size: 15px !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock .roulette-infoText{
+    font-size: 12.5px !important;
+    line-height: 1.34 !important;
+  }
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rLink,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #spinBtn,
+  html.tk-v160-fhd-roulette-readable #tk23RightRail #rouletteDock #rouletteSound{
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+}
+</style>
+<script id="tk-v160-fhd-roulette-readable-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if (w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function shouldApply(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    if (is4kLike()) return false;
+    return w >= 1180 && h >= 680;
+  }
+  function setImp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(e){} }
+  function apply(){
+    var dock = document.getElementById('rouletteDock');
+    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
+    var link = document.getElementById('rLink');
+    var spin = document.getElementById('spinBtn');
+    var sound = document.getElementById('rouletteSound');
+    var reset = document.getElementById('rouletteReset');
+    var rail = document.getElementById('tk23RightRail');
+    var title = document.getElementById('rTitle');
+    var text = document.getElementById('rText');
+    var wheelWrap = dock ? dock.querySelector('.wheel-wrap') : null;
+    if (!dock || !actions || !link || !spin || !sound || !rail) return;
+    if (!shouldApply()){
+      root.classList.remove('tk-v160-fhd-roulette-readable');
+      return;
+    }
+    var compact = (window.innerWidth || 0) <= 1536 || (window.innerHeight || 0) <= 860;
+    var dockW = compact ? '334px' : '348px';
+    var wheelSize = compact ? '190px' : '204px';
+    var btnH = compact ? '36px' : '38px';
+    root.classList.remove('tk-v152-fhd-roulette-polish','tk-v154-fhd-roulette-refine','tk-v156-fhd-roulette-taller-more');
+    root.classList.add('tk-v160-fhd-roulette-readable');
+    if (reset) setImp(reset, 'display', 'none');
+    try { actions.appendChild(link); actions.appendChild(spin); actions.appendChild(sound); } catch(e){}
+    setImp(rail, 'right', '10px');
+    setImp(dock, 'width', dockW);
+    setImp(dock, 'min-width', dockW);
+    setImp(dock, 'max-width', dockW);
+    setImp(dock, 'min-height', '0');
+    setImp(dock, 'height', 'auto');
+    setImp(dock, 'padding', compact ? '15px 15px 13px' : '16px 16px 14px');
+    setImp(dock, 'border-radius', compact ? '26px' : '28px');
+    setImp(link, 'height', btnH);
+    setImp(spin, 'height', btnH);
+    setImp(sound, 'height', btnH);
+    setImp(link, 'min-height', btnH);
+    setImp(spin, 'min-height', btnH);
+    setImp(sound, 'min-height', btnH);
+    setImp(link, 'font-size', compact ? '12px' : '13px');
+    setImp(spin, 'font-size', compact ? '12px' : '13px');
+    setImp(sound, 'font-size', '18px');
+    if (wheelWrap){
+      setImp(wheelWrap, 'width', wheelSize);
+      setImp(wheelWrap, 'height', wheelSize);
+    }
+    if (title) {
+      setImp(title, 'font-size', compact ? '15px' : '16px');
+      setImp(title, 'line-height', '1.24');
+      setImp(title, 'max-height', 'none');
+      setImp(title, 'overflow', 'visible');
+      setImp(title, '-webkit-line-clamp', 'unset');
+      setImp(title, 'text-wrap', 'balance');
+    }
+    if (text) {
+      setImp(text, 'font-size', compact ? '12.5px' : '13px');
+      setImp(text, 'line-height', compact ? '1.34' : '1.38');
+      setImp(text, 'max-height', 'none');
+      setImp(text, 'overflow', 'visible');
+      setImp(text, '-webkit-line-clamp', 'unset');
+      setImp(text, 'text-wrap', 'pretty');
+    }
+    var sig = dockW + '|' + wheelSize;
+    if (sig !== lastWheelSig){
+      lastWheelSig = sig;
+      nudging = true;
+      setTimeout(function(){
+        try{ window.dispatchEvent(new Event('resize')); }catch(e){}
+        setTimeout(function(){ nudging = false; }, 0);
+      }, 0);
+    }
+  }
+  function schedule(){ requestAnimationFrame(apply); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
+  [120, 420, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
 </script>
