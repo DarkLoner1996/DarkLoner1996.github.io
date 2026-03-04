@@ -26641,3 +26641,224 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   #rouletteDock .wheel-pointer{ top:-14px !important; width:22px !important; height:18px !important; box-shadow: 0 6px 10px rgba(0,0,0,.16) !important; }
 }
 </style>
+
+
+<style id="tk-v184-fhd-static-right-rail-lock">
+/* v184: hard lock roulette + rules into one static right rail on non-4K/FHD.
+   Purpose: stop dock jumping and stop Comic/Rules/PC buttons from breathing on scroll. */
+@media (min-width:980px){
+  html.tk-non4k-balanced-v19 #tkV165RightRail{
+    display:none !important;
+    pointer-events:none !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail{
+    position:fixed !important;
+    left:auto !important;
+    right:12px !important;
+    top:auto !important;
+    bottom:14px !important;
+    transform:none !important;
+    width:auto !important;
+    max-width:none !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-end !important;
+    gap:10px !important;
+    z-index:100120 !important;
+    pointer-events:none !important;
+    contain:layout style !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail > *{
+    pointer-events:auto !important;
+    flex:0 0 auto !important;
+    align-self:flex-end !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock,
+  html.tk-non4k-balanced-v19 #tk23RightRail .rules{
+    width:clamp(318px, 23.8vw, 352px) !important;
+    min-width:clamp(318px, 23.8vw, 352px) !important;
+    max-width:clamp(318px, 23.8vw, 352px) !important;
+    box-sizing:border-box !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock{
+    position:static !important;
+    inset:auto !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    margin:0 !important;
+    margin-right:0 !important;
+    transform:none !important;
+    translate:none !important;
+    scale:1 !important;
+    zoom:1 !important;
+    z-index:auto !important;
+    flex:0 0 auto !important;
+    contain:layout paint style !important;
+    --roulette-dock-left:auto !important;
+    --roulette-dock-tx:0px !important;
+    --roulette-dock-bottom:auto !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail .rules{
+    position:static !important;
+    inset:auto !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    margin:0 !important;
+    transform:none !important;
+    zoom:1 !important;
+    gap:10px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail .rule-pill{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    flex:0 0 auto !important;
+  }
+}
+</style>
+
+<script id="tk-v184-fhd-static-right-rail-lock-script">
+(function(){
+  'use strict';
+  const root = document.documentElement;
+  let raf = 0;
+  let timers = [];
+
+  function q(sel, scope=document){ return scope.querySelector(sel); }
+  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function clearProps(el, props){
+    if(!el) return;
+    props.forEach(function(p){ el.style.removeProperty(p); });
+  }
+  function isNon4kFhdRail(){
+    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
+    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const effW = Math.round(w * dpr);
+    return root.classList.contains('tk-non4k-balanced-v19') && w >= 980 && h >= 620 && effW < 3000;
+  }
+  function ensureRail(){
+    let rail = document.getElementById('tk23RightRail');
+    if(!rail){
+      rail = document.createElement('div');
+      rail.id = 'tk23RightRail';
+      document.body.appendChild(rail);
+    }
+    return rail;
+  }
+  function ensure(){
+    raf = 0;
+    const dock = document.getElementById('rouletteDock');
+    const rules = q('.rules');
+    const oldRail = document.getElementById('tkV165RightRail');
+    if(!dock || !rules) return;
+
+    if(!isNon4kFhdRail()) return;
+
+    root.classList.remove('tk-v165-roulette-rail');
+    root.classList.remove('tk-v145-fhd-exact-right-gap');
+
+    const rail = ensureRail();
+
+    if(oldRail && oldRail !== rail){
+      if(dock.parentNode === oldRail) rail.insertBefore(dock, rail.firstChild || null);
+      if(rules.parentNode === oldRail) rail.appendChild(rules);
+      setImp(oldRail, 'display', 'none');
+      setImp(oldRail, 'pointer-events', 'none');
+      setImp(oldRail, 'opacity', '0');
+      setImp(oldRail, 'visibility', 'hidden');
+    }
+
+    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
+    if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
+    if(rules.parentNode !== rail) rail.appendChild(rules);
+    if(dock.nextElementSibling !== rules) rail.appendChild(rules);
+
+    clearProps(dock, [
+      'position','left','right','top','bottom','inset',
+      'width','min-width','max-width',
+      'margin','margin-left','margin-right','margin-top','margin-bottom',
+      'padding-top','padding-right','padding-bottom','padding-left',
+      'transform','transform-origin','translate','scale','zoom','z-index',
+      '--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom',
+      '--roulette-over-chips'
+    ]);
+    clearProps(rules, [
+      'position','left','right','top','bottom','inset',
+      'width','min-width','max-width',
+      'margin','margin-left','margin-right','margin-top','margin-bottom',
+      'transform','transform-origin','translate','scale','zoom'
+    ]);
+
+    setImp(rail, 'position', 'fixed');
+    setImp(rail, 'right', '12px');
+    setImp(rail, 'bottom', '14px');
+    setImp(rail, 'left', 'auto');
+    setImp(rail, 'top', 'auto');
+    setImp(rail, 'transform', 'none');
+    setImp(rail, 'display', 'flex');
+    setImp(rail, 'flex-direction', 'column');
+    setImp(rail, 'align-items', 'flex-end');
+    setImp(rail, 'gap', '10px');
+
+    setImp(dock, 'position', 'static');
+    setImp(dock, 'left', 'auto');
+    setImp(dock, 'right', 'auto');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', 'auto');
+    setImp(dock, 'margin', '0');
+    setImp(dock, 'transform', 'none');
+    setImp(dock, 'z-index', 'auto');
+
+    setImp(rules, 'position', 'static');
+    setImp(rules, 'left', 'auto');
+    setImp(rules, 'right', 'auto');
+    setImp(rules, 'top', 'auto');
+    setImp(rules, 'bottom', 'auto');
+    setImp(rules, 'margin', '0');
+    setImp(rules, 'transform', 'none');
+  }
+  function schedule(){
+    timers.forEach(clearTimeout);
+    timers = [];
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ requestAnimationFrame(ensure); });
+    [80, 220, 700].forEach(function(ms){
+      timers.push(setTimeout(function(){
+        if(raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(ensure);
+      }, ms));
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  } else {
+    schedule();
+  }
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 120); }, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  window.addEventListener('scroll', schedule, true);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  }
+  document.addEventListener('click', function(e){
+    const t = e.target;
+    if(!t) return;
+    if(t.id === 'spinBtn' || t.id === 'menuToggle' || (t.closest && (t.closest('#spinBtn') || t.closest('#menuToggle')))){
+      schedule();
+    }
+  }, true);
+})();
+</script>
