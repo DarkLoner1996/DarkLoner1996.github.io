@@ -8379,7 +8379,8 @@ body.menu-collapsed .side-nav__panel{
 
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+    // v183: removed visualViewport scroll listener (caused jitter on some FHD setups)
+    // window.visualViewport.addEventListener('scroll', schedule, {passive:true});
   }
 
   setTimeout(schedule, 80);
@@ -8665,6 +8666,15 @@ body.menu-collapsed .side-nav__panel{
   }
 </style>
 
+
+<style id="tk-v183-fhd-stability">
+/* v183: stabilize FHD/non-4K layout (prevent width jitter when internal scroller shows/hides scrollbars) */
+@media (min-width: 900px) and (max-width: 1920px){
+  .header{
+    scrollbar-gutter: stable both-edges;
+  }
+}
+</style>
 </head>
 <body>
 <div aria-hidden="true" class="intro" id="intro"></div>
@@ -11207,6 +11217,14 @@ function renderCard() {
         const dock = document.getElementById('rouletteDock');
         const itChip = document.querySelector('.side-chip--it-min');
 
+        // v183: disable legacy snap in non4k right-rail mode (causes drift/jitter)
+        if(root.classList.contains('tk-non4k-balanced-v19') || (dock && dock.closest && dock.closest('#tk23RightRail'))){
+          root.style.removeProperty('--roulette-dock-left');
+          root.style.removeProperty('--roulette-dock-tx');
+          root.style.removeProperty('--roulette-dock-bottom');
+          root.style.setProperty('--roulette-over-chips','0px');
+          return;
+        }
         if(!dock || !itChip){
           root.style.removeProperty('--roulette-dock-left');
           root.style.removeProperty('--roulette-dock-tx');
@@ -20607,6 +20625,63 @@ html.tk-v102-menu-ready .side-nav{
 })();
 </script>
 
+
+<script id="tk-v183-non4k-roulette-hard-lock">
+(function(){
+  const root = document.documentElement;
+  const q = (s, scope=document) => scope.querySelector(s);
+  let raf = 0;
+
+  function isNon4kRail(){
+    return root.classList.contains('tk-non4k-balanced-v19') && !!document.getElementById('tk23RightRail');
+  }
+
+  function clearLegacyFixed(dock){
+    if(!dock) return;
+    const pos = (dock.style.getPropertyValue('position') || '').trim();
+    const hasRight = (dock.style.getPropertyValue('right') || '').trim();
+    const hasTop = (dock.style.getPropertyValue('top') || '').trim();
+    const hasWidth = (dock.style.getPropertyValue('width') || '').trim();
+    // If any legacy script forced fixed positioning, wipe it so the dock stays in the rail flow.
+    if(pos === 'fixed' || hasRight || hasTop || hasWidth){
+      [
+        'position','left','right','top','bottom',
+        'width','min-width','max-width',
+        'padding-top','padding-right','padding-bottom','padding-left',
+        'margin-left','transform','transform-origin','z-index',
+        '--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom'
+      ].forEach(p => dock.style.removeProperty(p));
+    }
+  }
+
+  function ensure(){
+    if(!isNon4kRail()) return;
+    const rail = document.getElementById('tk23RightRail');
+    const dock = q('#rouletteDock.roulette-dock');
+    const rules = q('.rules');
+    if(!rail || !dock || !rules) return;
+
+    clearLegacyFixed(dock);
+
+    // Keep order: roulette above rules (always).
+    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild);
+    if(rules.parentNode !== rail) rail.appendChild(rules);
+  }
+
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(()=>{ raf = 0; ensure(); });
+  }
+
+  // Capture scroll from internal scrollers (FHD mode scrolls .header, not window)
+  window.addEventListener('scroll', schedule, true);
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 80); }, {once:true});
+})();
+</script>
 </body>
 </html>
 
@@ -23195,6 +23270,19 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
     var dock = document.getElementById('rouletteDock');
     var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
     if(!dock) return;
+    // v183: disable legacy FHD "like-4k" roulette positioning when non4k rails are active
+    if(root.classList.contains('tk-non4k-balanced-v19') || document.getElementById('tk23RightRail')){
+      root.classList.remove('tk-v133-fhd-roulette-ready');
+      try{
+        var props = ['position','left','right','top','bottom','margin-left','transform','transform-origin','z-index','width','max-width','min-width','padding-top','padding-right','padding-bottom','padding-left','--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom'];
+        props.forEach(function(p){ dock.style.removeProperty(p); });
+        // Also clear wheel/canvas tweaks if they were applied
+        var wheel = dock.querySelector('.wheel-wrap'); if(wheel){ ['width','height','margin'].forEach(function(p){ wheel.style.removeProperty(p); }); }
+        var canvas = dock.querySelector('canvas#wheel'); if(canvas){ ['transform','transform-origin'].forEach(function(p){ canvas.style.removeProperty(p); }); }
+        var info = dock.querySelector('.roulette-info'); if(info){ ['margin-top','padding-top'].forEach(function(p){ info.style.removeProperty(p); }); }
+      }catch(_e){}
+      return;
+    }
     if(!isFullHdLike() || !comic){
       root.classList.remove('tk-v133-fhd-roulette-ready');
       return;
@@ -23308,7 +23396,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   window.addEventListener('orientationchange', schedule, {passive:true});
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+    // v183: removed visualViewport scroll listener (caused jitter on some FHD setups)
+    // window.visualViewport.addEventListener('scroll', schedule, {passive:true});
   }
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 80); }, true);
   setTimeout(schedule, 60);
@@ -23581,7 +23670,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   window.addEventListener('orientationchange', schedule, {passive:true});
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+    // v183: removed visualViewport scroll listener (caused jitter on some FHD setups)
+    // window.visualViewport.addEventListener('scroll', schedule, {passive:true});
   }
   document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
   setTimeout(schedule, 60);
@@ -26551,5 +26641,3 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   #rouletteDock .wheel-pointer{ top:-14px !important; width:22px !important; height:18px !important; box-shadow: 0 6px 10px rgba(0,0,0,.16) !important; }
 }
 </style>
-
-    
