@@ -23266,3 +23266,111 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   setTimeout(schedule, 1800);
 })();
 </script>
+
+
+<style id="tk-v138-fhd-force-exact-left-style">
+@media (min-width: 900px){
+  html.tk-v138-fhd-force-exact-left #rouletteDock.roulette-dock{
+    position: fixed !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    transform-origin: right bottom !important;
+    margin: 0 !important;
+    z-index: 999999 !important;
+  }
+}
+</style>
+<script id="tk-v138-fhd-force-exact-left-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var originalParent = null;
+  var originalNext = null;
+  var intervalId = 0;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function isFhdLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    if(is4kLike()) return false;
+    if(w < 1100 || h < 650) return false;
+    return effW >= 1400 || w >= 1280;
+  }
+  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function restoreIfNeeded(dock){
+    if(!dock || !originalParent) return;
+    if(dock.parentNode === originalParent) return;
+    try{
+      if(originalNext && originalNext.parentNode === originalParent) originalParent.insertBefore(dock, originalNext);
+      else originalParent.appendChild(dock);
+    }catch(_e){}
+  }
+  function apply(){
+    var dock = document.getElementById('rouletteDock');
+    var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
+    if(!dock) return;
+    if(!originalParent){ originalParent = dock.parentNode; originalNext = dock.nextSibling; }
+    if(!isFhdLike() || !comic){
+      root.classList.remove('tk-v138-fhd-force-exact-left');
+      restoreIfNeeded(dock);
+      return;
+    }
+    root.classList.add('tk-v138-fhd-force-exact-left');
+    if(dock.parentNode !== document.body){
+      try{ document.body.appendChild(dock); }catch(_e){}
+    }
+    var rect = comic.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height) return;
+    var bottom = Math.max(10, Math.round(window.innerHeight - rect.top + 18));
+    var dockWidth = Math.round(dock.getBoundingClientRect().width || dock.offsetWidth || 0);
+    if(dockWidth < 300) dockWidth = 420;
+    var left = Math.max(0, Math.round(window.innerWidth - dockWidth - 5));
+    setImp(dock, 'position', 'fixed');
+    setImp(dock, 'left', left + 'px');
+    setImp(dock, 'right', 'auto');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', bottom + 'px');
+    setImp(dock, 'transform', 'none');
+    setImp(dock, 'transform-origin', 'right bottom');
+    setImp(dock, 'margin', '0');
+    setImp(dock, 'z-index', '999999');
+    setImp(dock, '--roulette-dock-left', left + 'px');
+    setImp(dock, '--roulette-dock-tx', '0px');
+    setImp(dock, '--roulette-dock-bottom', bottom + 'px');
+  }
+  var raf = 0;
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
+  }
+  function startInterval(){
+    if(intervalId) clearInterval(intervalId);
+    intervalId = setInterval(apply, 250);
+    setTimeout(function(){ if(intervalId){ clearInterval(intervalId); intervalId = 0; } }, 8000);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ schedule(); startInterval(); }, {once:true});
+  else { schedule(); startInterval(); }
+  window.addEventListener('load', function(){ schedule(); startInterval(); }, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+  }
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
+  setTimeout(schedule, 80);
+  setTimeout(schedule, 300);
+  setTimeout(schedule, 900);
+  setTimeout(schedule, 1800);
+})();
+</script>
