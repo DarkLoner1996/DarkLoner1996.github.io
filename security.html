@@ -23642,3 +23642,100 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 })();
 </script>
+
+
+<style id="tk-v147-fhd-roulette-nudge-right-style">
+@media (min-width: 760px){
+  html.tk-v147-fhd-roulette-nudge-right #tk23RightRail #rouletteDock.roulette-dock{
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    z-index: auto !important;
+    will-change: transform !important;
+  }
+}
+</style>
+<script id="tk-v147-fhd-roulette-nudge-right-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var raf = 0;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var sw = Math.round(((window.screen && screen.width) ? screen.width : w) * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900) || (sw >= 3000);
+  }
+  function isFhdLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(is4kLike()) return false;
+    if(w < 760 || h < 560) return false;
+    return (w >= 1100) || (effW >= 1300) || (effH >= 760);
+  }
+  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function apply(){
+    raf = 0;
+    var rail = document.getElementById('tk23RightRail');
+    var dock = document.getElementById('rouletteDock');
+    var rules = document.querySelector('.rules');
+    if(!rail || !dock || !rules || !isFhdLike()){
+      root.classList.remove('tk-v147-fhd-roulette-nudge-right');
+      if(dock){ dock.style.removeProperty('transform'); dock.style.removeProperty('margin-right'); }
+      return;
+    }
+    root.classList.add('tk-v147-fhd-roulette-nudge-right');
+    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
+    else if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
+    if(rules.parentNode !== rail) rail.appendChild(rules);
+
+    setImp(rail, 'position', 'fixed');
+    setImp(rail, 'right', '5px');
+    setImp(rail, 'left', 'auto');
+    setImp(rail, 'bottom', '14px');
+    setImp(rail, 'transform', 'none');
+    setImp(rail, 'align-items', 'flex-end');
+
+    setImp(dock, 'position', 'static');
+    setImp(dock, 'margin', '0');
+    setImp(dock, 'margin-right', '0');
+    setImp(dock, 'left', 'auto');
+    setImp(dock, 'right', 'auto');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', 'auto');
+
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var rect = dock.getBoundingClientRect();
+    var desiredGap = 5;
+    var currentGap = Math.round(vw - rect.right);
+    var delta = currentGap - desiredGap; // >0 means too far left; move right by delta
+    var shift = Math.max(-20, Math.min(80, delta));
+    setImp(dock, 'transform', 'translateX(' + shift + 'px)');
+
+    requestAnimationFrame(function(){
+      var rect2 = dock.getBoundingClientRect();
+      var gap2 = Math.round(vw - rect2.right);
+      var shift2 = Math.max(-20, Math.min(80, gap2 - desiredGap + shift));
+      setImp(dock, 'transform', 'translateX(' + shift2 + 'px)');
+    });
+  }
+  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  document.addEventListener('click', function(){ setTimeout(schedule,0); setTimeout(schedule,120); setTimeout(schedule,400); }, true);
+  [100, 300, 700, 1400, 2400].forEach(function(t){ setTimeout(schedule, t); });
+})();
+</script>
