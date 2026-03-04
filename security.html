@@ -23475,3 +23475,170 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
 </script>
+
+
+<style id="tk-v146-fhd-roulette-right-edge-lock-style">
+@media (min-width: 760px){
+  html.tk-v146-fhd-roulette-right-edge-lock #tk23RightRail{
+    position: fixed !important;
+    right: 5px !important;
+    left: auto !important;
+    bottom: 14px !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 8px !important;
+    z-index: 9509 !important;
+    pointer-events: none !important;
+  }
+  html.tk-v146-fhd-roulette-right-edge-lock #tk23RightRail > *{
+    pointer-events: auto !important;
+  }
+  html.tk-v146-fhd-roulette-right-edge-lock #tk23RightRail #rouletteDock.roulette-dock{
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    transform-origin: right bottom !important;
+    z-index: auto !important;
+    margin: 0 !important;
+  }
+}
+</style>
+<script id="tk-v146-fhd-roulette-right-edge-lock-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var raf = 0;
+  var mo = null;
+
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var sw = Math.round((screen && screen.width ? screen.width : w) * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900) || (sw >= 3000);
+  }
+
+  function isFhdLaptopDesktop(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    var sw = Math.round((screen && screen.width ? screen.width : w) * dpr);
+    var sh = Math.round((screen && screen.height ? screen.height : h) * dpr);
+    if(is4kLike()) return false;
+    if(w < 760 || h < 560) return false;
+    return (effW >= 1100) || (effH >= 700) || (sw >= 1400) || (sh >= 800);
+  }
+
+  function setImp(el, prop, value){
+    if(el) el.style.setProperty(prop, value, 'important');
+  }
+
+  function apply(){
+    raf = 0;
+    var rail = document.getElementById('tk23RightRail');
+    var dock = document.getElementById('rouletteDock');
+    var rules = document.querySelector('.rules');
+    var comic = document.getElementById('openComicMenu');
+    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
+    var sound = document.getElementById('rouletteSound');
+    var reset = document.getElementById('rouletteReset');
+
+    if(reset && reset.parentNode) reset.parentNode.removeChild(reset);
+    if(actions && sound && sound.parentElement !== actions) actions.appendChild(sound);
+
+    if(!rail || !dock || !rules || !comic){
+      root.classList.remove('tk-v146-fhd-roulette-right-edge-lock');
+      return;
+    }
+    if(!isFhdLaptopDesktop()){
+      root.classList.remove('tk-v146-fhd-roulette-right-edge-lock');
+      return;
+    }
+
+    root.classList.add('tk-v146-fhd-roulette-right-edge-lock');
+
+    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
+    else if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
+
+    if(rules.parentNode !== rail) rail.appendChild(rules);
+    else if(dock.nextElementSibling !== rules) rail.appendChild(rules);
+
+    setImp(rail, 'right', '5px');
+    setImp(rail, 'left', 'auto');
+    setImp(rail, 'bottom', '14px');
+    setImp(rail, 'transform', 'none');
+    setImp(rail, 'align-items', 'flex-end');
+    setImp(rail, 'gap', '8px');
+
+    setImp(dock, 'position', 'static');
+    setImp(dock, 'left', 'auto');
+    setImp(dock, 'right', 'auto');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', 'auto');
+    setImp(dock, 'transform', 'none');
+    setImp(dock, 'transform-origin', 'right bottom');
+    setImp(dock, 'z-index', 'auto');
+    setImp(dock, 'margin', '0');
+    setImp(dock, '--roulette-dock-left', 'auto');
+    setImp(dock, '--roulette-dock-tx', '0px');
+    setImp(dock, '--roulette-dock-bottom', 'auto');
+
+    // Align the roulette RIGHT edge to the comic button RIGHT edge,
+    // then nudge rail itself to 5px from viewport right.
+    var comicRect = comic.getBoundingClientRect();
+    var dockRect = dock.getBoundingClientRect();
+    var deltaToComicRight = Math.round(comicRect.right - dockRect.right);
+    // negative margin-right moves the dock to the RIGHT inside the right-aligned rail.
+    var mr = -deltaToComicRight;
+    if(mr > 40) mr = 40;
+    if(mr < -120) mr = -120;
+    setImp(dock, 'margin-right', mr + 'px');
+
+    requestAnimationFrame(function(){
+      var dockRect2 = dock.getBoundingClientRect();
+      var comicRect2 = comic.getBoundingClientRect();
+      var delta2 = Math.round(comicRect2.right - dockRect2.right);
+      var mr2 = mr - delta2;
+      if(mr2 > 40) mr2 = 40;
+      if(mr2 < -120) mr2 = -120;
+      setImp(dock, 'margin-right', mr2 + 'px');
+    });
+  }
+
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+  }
+  document.addEventListener('click', function(){
+    setTimeout(schedule, 0);
+    setTimeout(schedule, 120);
+    setTimeout(schedule, 400);
+  }, true);
+  [100, 350, 800, 1500, 2500].forEach(function(t){ setTimeout(schedule, t); });
+
+  if(window.MutationObserver){
+    mo = new MutationObserver(function(){ schedule(); });
+    mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true});
+  }
+})();
+</script>
