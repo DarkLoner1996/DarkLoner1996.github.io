@@ -9161,7 +9161,7 @@ body.menu-collapsed .side-nav__panel{
 <div aria-label="Колесо" class="wheel-rot" id="wheelRot">
 <canvas aria-hidden="true" height="420" id="wheel" width="420"></canvas>
 </div>
-<div aria-label="Старт" title="Старт" class="wheel-center">&gt;</div>
+<div aria-label="Центр рулетки" title="Рулетка" class="wheel-center"><span aria-hidden="true" class="wheel-center__glyph"></span></div>
 <div aria-hidden="true" class="wheel-glow"></div>
 </div>
 <div class="roulette-controls">
@@ -12182,50 +12182,77 @@ function renderCard() {
         const w = canvas.width;
         const h = canvas.height;
         const cx = w/2, cy = h/2;
-        const radius = Math.min(w,h) * 0.48;
+        const radius = Math.min(w,h) * 0.472;
 
         ctx.clearRect(0,0,w,h);
 
         const step = (Math.PI * 2) / n;
         const start0 = -Math.PI/2 - step/2;
-        const outerGlow = ctx.createRadialGradient(cx, cy, radius*0.25, cx, cy, radius*1.1);
-        outerGlow.addColorStop(0, 'rgba(255,255,255,.04)');
-        outerGlow.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = outerGlow;
+
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, radius*1.05, 0, Math.PI*2);
+        ctx.arc(cx, cy + radius*0.045, radius*1.01, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(5,12,24,.12)';
+        ctx.shadowColor = 'rgba(0,0,0,.18)';
+        ctx.shadowBlur = 18 * dpr;
+        ctx.fill();
+        ctx.restore();
+
+        const halo = ctx.createRadialGradient(cx, cy, radius*0.20, cx, cy, radius*1.12);
+        halo.addColorStop(0, 'rgba(255,255,255,.10)');
+        halo.addColorStop(.72, 'rgba(255,255,255,.02)');
+        halo.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius*1.07, 0, Math.PI*2);
         ctx.fill();
 
-        function getLabelLayout(mid){
-          const absSin = Math.abs(Math.sin(mid));
-          const absCos = Math.abs(Math.cos(mid));
-          const textRadius = radius * (absSin > 0.9 ? 0.70 : (absCos > 0.9 ? 0.63 : 0.665));
-          const maxWidth  = radius * (absSin > 0.9 ? 0.84 : (absCos > 0.9 ? 0.54 : 0.66));
-          let fontSize = clamp(cssSize * 0.102, 13, 21) * dpr;
-          return { textRadius, maxWidth, fontSize };
+        function labelMetrics(label){
+          const len = (label || '').length || 1;
+          let textRadius = radius * 0.67;
+          if(len >= 7) textRadius = radius * 0.64;
+          if(len >= 8) textRadius = radius * 0.615;
+          if(label === '2FA') textRadius = radius * 0.64;
+
+          let fontSize = clamp(cssSize * 0.108, 16, 31) * dpr;
+          if(len >= 8) fontSize *= 0.78;
+          else if(len >= 7) fontSize *= 0.84;
+          else if(len >= 6) fontSize *= 0.90;
+          if(label === '2FA') fontSize *= 1.16;
+
+          const maxWidth = Math.max(radius * 0.28, textRadius * step * 0.90);
+          return { textRadius, fontSize, maxWidth };
         }
 
         for(let i=0;i<n;i++){
           const a0 = start0 + i*step;
           const a1 = a0 + step;
           const mid = (a0+a1)/2;
-          const isEven = (i % 2 === 0);
+          const isGold = (i % 2 === 0);
 
           ctx.beginPath();
           ctx.moveTo(cx,cy);
           ctx.arc(cx,cy,radius,a0,a1,false);
           ctx.closePath();
 
-          const grad = ctx.createRadialGradient(cx, cy, radius*0.06, cx, cy, radius);
-          if(isEven){
-            grad.addColorStop(0.00, 'rgba(255,248,214,.98)');
-            grad.addColorStop(0.50, 'rgba(255,213,122,.84)');
-            grad.addColorStop(1.00, 'rgba(193,119,41,.76)');
+          const x0 = cx + Math.cos(mid) * radius * 0.08;
+          const y0 = cy + Math.sin(mid) * radius * 0.08;
+          const x1 = cx + Math.cos(mid) * radius;
+          const y1 = cy + Math.sin(mid) * radius;
+          const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+
+          if(isGold){
+            grad.addColorStop(0.00, 'rgba(252,243,211,.99)');
+            grad.addColorStop(0.42, 'rgba(234,205,132,.97)');
+            grad.addColorStop(0.78, 'rgba(204,156,79,.94)');
+            grad.addColorStop(1.00, 'rgba(139,100,46,.95)');
           }else{
-            grad.addColorStop(0.00, 'rgba(134,232,255,.96)');
-            grad.addColorStop(0.52, 'rgba(49,175,245,.84)');
-            grad.addColorStop(1.00, 'rgba(18,109,200,.74)');
+            grad.addColorStop(0.00, 'rgba(163,227,255,.99)');
+            grad.addColorStop(0.44, 'rgba(91,184,246,.98)');
+            grad.addColorStop(0.78, 'rgba(44,111,213,.96)');
+            grad.addColorStop(1.00, 'rgba(27,66,154,.96)');
           }
+
           ctx.fillStyle = grad;
           ctx.fill();
 
@@ -12235,71 +12262,123 @@ function renderCard() {
           ctx.arc(cx,cy,radius,a0,a1,false);
           ctx.closePath();
           ctx.clip();
+
           const gloss = ctx.createLinearGradient(cx, cy - radius, cx, cy + radius);
-          gloss.addColorStop(0, 'rgba(255,255,255,.18)');
-          gloss.addColorStop(.38, 'rgba(255,255,255,.04)');
-          gloss.addColorStop(1, 'rgba(0,0,0,.05)');
+          gloss.addColorStop(0, 'rgba(255,255,255,.26)');
+          gloss.addColorStop(.28, 'rgba(255,255,255,.08)');
+          gloss.addColorStop(.65, 'rgba(255,255,255,.02)');
+          gloss.addColorStop(1, 'rgba(8,16,30,.08)');
           ctx.fillStyle = gloss;
           ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
+
+          const rimFade = ctx.createRadialGradient(cx, cy, radius*0.28, cx, cy, radius);
+          rimFade.addColorStop(0, 'rgba(255,255,255,0)');
+          rimFade.addColorStop(.76, 'rgba(255,255,255,0)');
+          rimFade.addColorStop(1, 'rgba(9,16,28,.18)');
+          ctx.fillStyle = rimFade;
+          ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
+          ctx.restore();
+
+          ctx.strokeStyle = isGold ? 'rgba(255,247,225,.54)' : 'rgba(226,246,255,.40)';
+          ctx.lineWidth = Math.max(1.5, 1.7*dpr);
+          ctx.stroke();
+
+          const label = String(ROULETTE_ITEMS[i].label || '').trim();
+          const m = labelMetrics(label);
+          let fontSize = m.fontSize;
+          const family = 'Inter, "Segoe UI", "Arial Narrow", Arial, sans-serif';
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(mid);
+          ctx.translate(m.textRadius, 0);
+          if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
+          ctx.rotate(Math.PI/2);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.lineJoin = 'round';
+          ctx.miterLimit = 2;
+          ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
+
+          while(fontSize > 11*dpr && ctx.measureText(label).width > m.maxWidth){
+            fontSize -= 0.5;
+            ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
+          }
+
+          if(isGold){
+            ctx.fillStyle = 'rgba(63,38,13,.96)';
+            ctx.strokeStyle = 'rgba(255,248,231,.68)';
+            ctx.lineWidth = Math.max(1.6, 1.85*dpr);
+            ctx.shadowColor = 'rgba(255,255,255,.08)';
+            ctx.shadowBlur = 1.6 * dpr;
+            ctx.shadowOffsetY = 0;
+          }else{
+            ctx.fillStyle = 'rgba(252,252,255,.99)';
+            ctx.strokeStyle = 'rgba(18,35,68,.86)';
+            ctx.lineWidth = Math.max(2.2, 2.45*dpr);
+            ctx.shadowColor = 'rgba(7,16,32,.26)';
+            ctx.shadowBlur = 2.6 * dpr;
+            ctx.shadowOffsetY = 1.0 * dpr;
+          }
+
+          ctx.strokeText(label, 0, 0, m.maxWidth);
+          ctx.fillText(label, 0, 0, m.maxWidth);
           ctx.restore();
 
           if(typeof highlightIndex === 'number' && highlightIndex === i){
             ctx.save();
-            ctx.globalCompositeOperation = 'screen';
-            ctx.fillStyle = 'rgba(255,255,255,.22)';
+            ctx.beginPath();
+            ctx.moveTo(cx,cy);
+            ctx.arc(cx,cy,radius,a0,a1,false);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(255,255,255,.18)';
             ctx.fill();
+            ctx.strokeStyle = 'rgba(255,245,210,.94)';
+            ctx.lineWidth = Math.max(2.8, 3.2*dpr);
+            ctx.stroke();
             ctx.restore();
-
-            ctx.strokeStyle = 'rgba(255,242,205,.88)';
-            ctx.lineWidth  = Math.max(2.4, 2.8*dpr);
-            ctx.stroke();
-          }else{
-            ctx.strokeStyle = 'rgba(255,255,255,.24)';
-            ctx.lineWidth = Math.max(1.8, 2.1*dpr);
-            ctx.stroke();
           }
-
-          const label = String(ROULETTE_ITEMS[i].label || '').trim();
-          const layout = getLabelLayout(mid);
-          const tx = cx + Math.cos(mid) * layout.textRadius;
-          const ty = cy + Math.sin(mid) * layout.textRadius;
-          let fontSize = layout.fontSize;
-          const family = 'Inter, "Arial Black", "Segoe UI", Arial, sans-serif';
-
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
-
-          while(fontSize > 11*dpr && ctx.measureText(label).width > layout.maxWidth){
-            fontSize -= 1;
-            ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
-          }
-
-          ctx.shadowColor = 'rgba(0,0,0,.34)';
-          ctx.shadowBlur  = 3.2 * dpr;
-          ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 1.2 * dpr;
-
-          ctx.lineWidth  = Math.max(2, 2.2*dpr);
-          ctx.strokeStyle = 'rgba(8,18,38,.58)';
-          ctx.fillStyle   = 'rgba(255,255,255,.985)';
-
-          ctx.strokeText(label, tx, ty, layout.maxWidth);
-          ctx.fillText(label,  tx, ty, layout.maxWidth);
         }
 
         ctx.beginPath();
-        ctx.arc(cx,cy,radius,0,Math.PI*2);
-        ctx.strokeStyle = 'rgba(255,242,205,.62)';
-        ctx.lineWidth = Math.max(3, 3.2*dpr);
-        ctx.shadowColor = 'rgba(0,0,0,.24)';
-        ctx.shadowBlur = 16 * dpr;
+        ctx.arc(cx,cy,radius*0.83,0,Math.PI*2);
+        const innerRing = ctx.createLinearGradient(cx-radius, cy-radius, cx+radius, cy+radius);
+        innerRing.addColorStop(0, 'rgba(255,255,255,.18)');
+        innerRing.addColorStop(1, 'rgba(17,33,59,.22)');
+        ctx.strokeStyle = innerRing;
+        ctx.lineWidth = Math.max(1.0, 1.15*dpr);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(cx, cy, radius*0.16, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(255,255,255,.08)';
+        ctx.arc(cx,cy,radius*0.995,0,Math.PI*2);
+        const rim = ctx.createLinearGradient(cx-radius, cy-radius, cx+radius, cy+radius);
+        rim.addColorStop(0, 'rgba(255,252,238,.96)');
+        rim.addColorStop(.32, 'rgba(226,219,198,.94)');
+        rim.addColorStop(.68, 'rgba(121,140,164,.90)');
+        rim.addColorStop(1, 'rgba(255,255,255,.82)');
+        ctx.strokeStyle = rim;
+        ctx.lineWidth = Math.max(4.2, 4.8*dpr);
+        ctx.shadowColor = 'rgba(0,0,0,.20)';
+        ctx.shadowBlur = 10 * dpr;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx,cy,radius*0.955,0,Math.PI*2);
+        ctx.strokeStyle = 'rgba(255,255,255,.34)';
+        ctx.lineWidth = Math.max(1.2, 1.4*dpr);
+        ctx.stroke();
+
+        const hubGrad = ctx.createRadialGradient(cx, cy, radius*0.02, cx, cy, radius*0.17);
+        hubGrad.addColorStop(0, 'rgba(255,239,187,.98)');
+        hubGrad.addColorStop(.62, 'rgba(225,176,86,.96)');
+        hubGrad.addColorStop(1, 'rgba(172,112,42,.96)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius*0.145, 0, Math.PI*2);
+        ctx.fillStyle = hubGrad;
         ctx.fill();
+        ctx.strokeStyle = 'rgba(255,248,220,.45)';
+        ctx.lineWidth = Math.max(1.3, 1.5*dpr);
+        ctx.stroke();
       }
 
       function pickIndex(finalAngle){
@@ -20160,6 +20239,120 @@ html.tk-v102-menu-ready .side-nav{
 })();
 </script>
 
+
+
+
+
+
+
+<style id="tk-v164-roulette-no-wobble-no-squish">
+/* v164: keep roulette layout stable during spin; avoid flex reflow surprises */
+#rouletteDock.roulette-dock{
+  box-sizing: border-box !important;
+  contain: layout paint style !important;
+}
+#rouletteDock.roulette-dock, 
+#rouletteDock.roulette-dock *{
+  box-sizing: border-box !important;
+}
+#rouletteDock.roulette-dock .wheel-wrap,
+#rouletteDock.roulette-dock .roulette-info,
+#rouletteDock.roulette-dock .roulette-card{
+  flex: 0 0 auto !important;
+}
+</style>
+
+
+<style id="tk-v168-roulette-pointer-beautified">
+/* v168: более понятный и красивый указатель рулетки */
+#rouletteDock .wheel-center{
+  color: transparent !important;
+  font-size: 0 !important;
+  letter-spacing: 0 !important;
+}
+#rouletteDock .wheel-center .wheel-center__glyph{
+  display:grid;
+  place-items:center;
+  width: 100%;
+  height: 100%;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1;
+  color: rgba(88,44,8,.92);
+  text-shadow: 0 1px 0 rgba(255,244,210,.55);
+  transform: translateY(-1px);
+}
+#rouletteDock .wheel-pointer{
+  top: -20px !important;
+  width: 34px !important;
+  height: 46px !important;
+  border: 0 !important;
+  background: transparent !important;
+  filter: drop-shadow(0 12px 22px rgba(0,0,0,.30)) !important;
+  z-index: 7 !important;
+}
+#rouletteDock .wheel-pointer::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 30px;
+  height: 40px;
+  transform: translateX(-50%);
+  clip-path: polygon(50% 0%, 92% 28%, 68% 100%, 50% 84%, 32% 100%, 8% 28%);
+  background:
+    radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.62), rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, rgba(255,228,164,.98), rgba(223,168,78,.98) 52%, rgba(177,118,40,.98));
+  border: 1px solid rgba(255,244,206,.58);
+  box-shadow:
+    0 3px 10px rgba(113,63,17,.28),
+    inset 0 1px 0 rgba(255,255,255,.46),
+    inset 0 -6px 10px rgba(121,68,13,.18);
+}
+#rouletteDock .wheel-pointer::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 11px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(255,249,234,.98), rgba(255,232,178,.96));
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.18),
+    0 0 16px rgba(255,219,137,.24);
+}
+#rouletteDock .wheel-wrap{
+  overflow: visible !important;
+}
+@media (min-width: 2300px){
+  #rouletteDock .wheel-pointer{
+    top: -22px !important;
+    width: 38px !important;
+    height: 50px !important;
+  }
+  #rouletteDock .wheel-pointer::before{
+    width: 34px;
+    height: 44px;
+  }
+}
+@media (max-width: 520px){
+  #rouletteDock .wheel-pointer{
+    top: -16px !important;
+    width: 30px !important;
+    height: 40px !important;
+  }
+  #rouletteDock .wheel-pointer::before{
+    width: 26px;
+    height: 34px;
+  }
+  #rouletteDock .wheel-pointer::after{
+    top: 10px;
+    width: 8px;
+    height: 8px;
+  }
+}
+</style>
 </body>
 </html>
 
@@ -20741,73 +20934,95 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 (function(){
   'use strict';
   var root = document.documentElement;
+
   function is4kLike(){
+    // IMPORTANT: never run in non-4K rail mode (FHD / 15" laptops) to avoid layout conflicts.
+    if(root.classList.contains('tk-non4k-balanced-v19')) return false;
+
     var w = Math.round(window.innerWidth || 0);
     var h = Math.round(window.innerHeight || 0);
     var dpr = Math.max(1, window.devicePixelRatio || 1);
+
     var effW = Math.round(w * dpr);
     var effH = Math.round(h * dpr);
+
+    // Try to estimate physical pixels; this avoids false 4K-detection on FHD with browser zoom.
+    var sw = Math.round(((window.screen && window.screen.width)  ? window.screen.width  : w) * dpr);
+    var sh = Math.round(((window.screen && window.screen.height) ? window.screen.height : h) * dpr);
+
     if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+
+    // 4K-ish threshold (3840×2160) with some tolerance
+    return (sw >= 3700) || (effW >= 3700) || (sh >= 2100) || (effH >= 2100);
   }
+
   function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
   function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
+
+  function clearDock(dock){
+    if(!dock) return;
+    [
+      'position','left','right','top','bottom','margin',
+      'width','min-width','max-width','height','min-height','max-height',
+      'transform'
+    ].forEach(function(p){ clearImp(dock, p); });
+  }
+
   function apply(){
     var dock = document.getElementById('rouletteDock');
     var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
     if(!dock || !comic) return;
+
+    // Never re-position during spin animation (prevents "left-right shaking").
+    if(dock.classList.contains('is-spinning')) return;
+
     if(!is4kLike()){
       root.classList.remove('tk-v113-roulette-4k-comic-ready');
+      clearDock(dock);
       return;
     }
+
     var rect = comic.getBoundingClientRect();
     if(!rect || !rect.width || !rect.height) return;
+
     var gap = 14;
     var right = Math.max(8, Math.round(window.innerWidth - rect.right) + 5);
     var bottom = Math.max(8, Math.round(window.innerHeight - rect.top + gap));
+
     root.classList.add('tk-v113-roulette-4k-comic-ready');
     setImp(dock, 'position', 'fixed');
     setImp(dock, 'left', 'auto');
     setImp(dock, 'right', right + 'px');
     setImp(dock, 'top', 'auto');
     setImp(dock, 'bottom', bottom + 'px');
-    setImp(dock, 'margin-left', '0');
-    setImp(dock, 'transform', 'translateZ(0) scale(var(--roulette-scale))');
-    setImp(dock, 'transform-origin', 'right bottom');
-    setImp(dock, 'z-index', '99999');
-    setImp(dock, '--roulette-dock-left', 'auto');
-    setImp(dock, '--roulette-dock-tx', '0px');
-    setImp(dock, '--roulette-dock-bottom', bottom + 'px');
-    setImp(root, '--roulette-dock-left', 'auto');
-    setImp(root, '--roulette-dock-tx', '0px');
-    setImp(root, '--roulette-dock-bottom', bottom + 'px');
+    setImp(dock, 'margin', '0');
+    setImp(dock, 'transform', 'none');
   }
+
   var raf = 0;
   function schedule(){
     if(raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(function(){ raf = 0; apply(); });
   }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  } else {
-    schedule();
-  }
-  window.addEventListener('load', schedule, {once:true});
+
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
-  }
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 80); }, true);
+  window.addEventListener('load', schedule, {once:true});
+  document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+
+  // Initial passes
   setTimeout(schedule, 60);
   setTimeout(schedule, 240);
   setTimeout(schedule, 800);
-  setTimeout(schedule, 1600);
+
+  // Observe only class changes (no subtree/childList spam during roulette animations).
   try{
     var mo = new MutationObserver(schedule);
-    mo.observe(document.body || document.documentElement, {attributes:true, childList:true, subtree:true});
-  }catch(_){ }
+    mo.observe(document.documentElement, {attributes:true, attributeFilter:['class']});
+  }catch(_){}
+
+  schedule();
 })();
 </script>
 
@@ -23293,110 +23508,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </style>
 <script id="tk-v143-fhd-roulette-over-comic-rail-script">
 (function(){
-  'use strict';
-  var root = document.documentElement;
-  var raf = 0;
-  var mo = null;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function isFhdLaptopLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(is4kLike()) return false;
-    if(w < 980 || h < 620) return false;
-    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
-  }
-  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function clearProp(el, prop){ if(el) el.style.removeProperty(prop); }
-  function apply(){
-    raf = 0;
-    var dock = document.getElementById('rouletteDock');
-    var rules = document.querySelector('.rules');
-    var rail = document.getElementById('tk23RightRail');
-    var sound = document.getElementById('rouletteSound');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var reset = document.getElementById('rouletteReset');
-    if(reset && reset.parentNode) reset.parentNode.removeChild(reset);
-    if(actions && sound && sound.parentElement !== actions) actions.appendChild(sound);
-    if(!dock || !rules || !rail){
-      root.classList.remove('tk-v143-fhd-roulette-over-comic');
-      return;
-    }
-    if(!isFhdLaptopLike()){
-      root.classList.remove('tk-v143-fhd-roulette-over-comic');
-      return;
-    }
-    root.classList.remove('tk-v133-fhd-roulette-ready');
-    root.classList.remove('tk-v135-fhd-roulette-ready');
-    root.classList.add('tk-v143-fhd-roulette-over-comic');
-
-    if(dock.parentNode !== rail){
-      rail.insertBefore(dock, rail.firstChild || null);
-    } else if(rail.firstElementChild !== dock){
-      rail.insertBefore(dock, rail.firstChild || null);
-    }
-    if(rules.parentNode !== rail){
-      rail.appendChild(rules);
-    } else if(dock.nextElementSibling !== rules){
-      rail.appendChild(rules);
-    }
-
-    setImp(rail, 'right', '5px');
-    setImp(rail, 'left', 'auto');
-    setImp(rail, 'bottom', '14px');
-    setImp(rail, 'transform', 'none');
-    setImp(rail, 'align-items', 'flex-end');
-    setImp(rail, 'gap', '8px');
-
-    setImp(dock, 'position', 'static');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', 'auto');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', 'auto');
-    setImp(dock, 'margin', '0 -12px 0 0');
-    setImp(dock, 'transform', 'none');
-    setImp(dock, 'transform-origin', 'right bottom');
-    setImp(dock, 'z-index', 'auto');
-    setImp(dock, 'width', '430px');
-    setImp(dock, 'min-width', '430px');
-    setImp(dock, 'max-width', '430px');
-    setImp(dock, 'padding', '0');
-    setImp(dock, '--roulette-dock-left', 'auto');
-    setImp(dock, '--roulette-dock-tx', '0px');
-    setImp(dock, '--roulette-dock-bottom', 'auto');
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
-  }
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 360); }, true);
-  [80, 220, 600, 1200, 2200].forEach(function(t){ setTimeout(schedule, t); });
-  var target = document.documentElement;
-  if(window.MutationObserver){
-    mo = new MutationObserver(function(muts){
-      for(var i=0;i<muts.length;i++){
-        var m = muts[i];
-        if(m.type === 'attributes' || m.type === 'childList'){ schedule(); break; }
-      }
-    });
-    mo.observe(target, {subtree:true, childList:true});
-  }
+  // v164: disabled (caused roulette wobble / reflow during spin)
+  return;
 })();
 </script>
 
@@ -23541,136 +23654,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </style>
 <script id="tk-v146-fhd-roulette-right-edge-lock-script">
 (function(){
-  'use strict';
-  var root = document.documentElement;
-  var raf = 0;
-  var mo = null;
-
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    var sw = Math.round((screen && screen.width ? screen.width : w) * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900) || (sw >= 3000);
-  }
-
-  function isFhdLaptopDesktop(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    var sw = Math.round((screen && screen.width ? screen.width : w) * dpr);
-    var sh = Math.round((screen && screen.height ? screen.height : h) * dpr);
-    if(is4kLike()) return false;
-    if(w < 760 || h < 560) return false;
-    return (effW >= 1100) || (effH >= 700) || (sw >= 1400) || (sh >= 800);
-  }
-
-  function setImp(el, prop, value){
-    if(el) el.style.setProperty(prop, value, 'important');
-  }
-
-  function apply(){
-    raf = 0;
-    var rail = document.getElementById('tk23RightRail');
-    var dock = document.getElementById('rouletteDock');
-    var rules = document.querySelector('.rules');
-    var comic = document.getElementById('openComicMenu');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-
-    if(reset && reset.parentNode) reset.parentNode.removeChild(reset);
-    if(actions && sound && sound.parentElement !== actions) actions.appendChild(sound);
-
-    if(!rail || !dock || !rules || !comic){
-      root.classList.remove('tk-v146-fhd-roulette-right-edge-lock');
-      return;
-    }
-    if(!isFhdLaptopDesktop()){
-      root.classList.remove('tk-v146-fhd-roulette-right-edge-lock');
-      return;
-    }
-
-    root.classList.add('tk-v146-fhd-roulette-right-edge-lock');
-
-    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
-    else if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
-
-    if(rules.parentNode !== rail) rail.appendChild(rules);
-    else if(dock.nextElementSibling !== rules) rail.appendChild(rules);
-
-    setImp(rail, 'right', '5px');
-    setImp(rail, 'left', 'auto');
-    setImp(rail, 'bottom', '14px');
-    setImp(rail, 'transform', 'none');
-    setImp(rail, 'align-items', 'flex-end');
-    setImp(rail, 'gap', '8px');
-
-    setImp(dock, 'position', 'static');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', 'auto');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', 'auto');
-    setImp(dock, 'transform', 'none');
-    setImp(dock, 'transform-origin', 'right bottom');
-    setImp(dock, 'z-index', 'auto');
-    setImp(dock, 'margin', '0');
-    setImp(dock, '--roulette-dock-left', 'auto');
-    setImp(dock, '--roulette-dock-tx', '0px');
-    setImp(dock, '--roulette-dock-bottom', 'auto');
-
-    // Align the roulette RIGHT edge to the comic button RIGHT edge,
-    // then nudge rail itself to 5px from viewport right.
-    var comicRect = comic.getBoundingClientRect();
-    var dockRect = dock.getBoundingClientRect();
-    var deltaToComicRight = Math.round(comicRect.right - dockRect.right);
-    // negative margin-right moves the dock to the RIGHT inside the right-aligned rail.
-    var mr = -deltaToComicRight;
-    if(mr > 40) mr = 40;
-    if(mr < -120) mr = -120;
-    setImp(dock, 'margin-right', mr + 'px');
-
-    requestAnimationFrame(function(){
-      var dockRect2 = dock.getBoundingClientRect();
-      var comicRect2 = comic.getBoundingClientRect();
-      var delta2 = Math.round(comicRect2.right - dockRect2.right);
-      var mr2 = mr - delta2;
-      if(mr2 > 40) mr2 = 40;
-      if(mr2 < -120) mr2 = -120;
-      setImp(dock, 'margin-right', mr2 + 'px');
-    });
-  }
-
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
-  }
-  document.addEventListener('click', function(){
-    setTimeout(schedule, 0);
-    setTimeout(schedule, 120);
-    setTimeout(schedule, 400);
-  }, true);
-  [100, 350, 800, 1500, 2500].forEach(function(t){ setTimeout(schedule, t); });
-
-  if(window.MutationObserver){
-    mo = new MutationObserver(function(){ schedule(); });
-    mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true});
-  }
+  // v164: disabled (caused roulette wobble / shifting)
+  return;
 })();
 </script>
 
@@ -23691,83 +23676,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </style>
 <script id="tk-v147-fhd-roulette-nudge-right-script">
 (function(){
-  'use strict';
-  var root = document.documentElement;
-  var raf = 0;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    var sw = Math.round(((window.screen && screen.width) ? screen.width : w) * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900) || (sw >= 3000);
-  }
-  function isFhdLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(is4kLike()) return false;
-    if(w < 760 || h < 560) return false;
-    return (w >= 1100) || (effW >= 1300) || (effH >= 760);
-  }
-  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function apply(){
-    raf = 0;
-    var rail = document.getElementById('tk23RightRail');
-    var dock = document.getElementById('rouletteDock');
-    var rules = document.querySelector('.rules');
-    if(!rail || !dock || !rules || !isFhdLike()){
-      root.classList.remove('tk-v147-fhd-roulette-nudge-right');
-      if(dock){ dock.style.removeProperty('transform'); dock.style.removeProperty('margin-right'); }
-      return;
-    }
-    root.classList.add('tk-v147-fhd-roulette-nudge-right');
-    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
-    else if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
-    if(rules.parentNode !== rail) rail.appendChild(rules);
-
-    setImp(rail, 'position', 'fixed');
-    setImp(rail, 'right', '5px');
-    setImp(rail, 'left', 'auto');
-    setImp(rail, 'bottom', '14px');
-    setImp(rail, 'transform', 'none');
-    setImp(rail, 'align-items', 'flex-end');
-
-    setImp(dock, 'position', 'static');
-    setImp(dock, 'margin', '0');
-    setImp(dock, 'margin-right', '0');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', 'auto');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', 'auto');
-
-    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    var rect = dock.getBoundingClientRect();
-    var desiredGap = 5;
-    var currentGap = Math.round(vw - rect.right);
-    var delta = currentGap - desiredGap; // >0 means too far left; move right by delta
-    var shift = Math.max(-20, Math.min(80, delta));
-    setImp(dock, 'transform', 'translateX(' + shift + 'px)');
-
-    requestAnimationFrame(function(){
-      var rect2 = dock.getBoundingClientRect();
-      var gap2 = Math.round(vw - rect2.right);
-      var shift2 = Math.max(-20, Math.min(80, gap2 - desiredGap + shift));
-      setImp(dock, 'transform', 'translateX(' + shift2 + 'px)');
-    });
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
-  document.addEventListener('click', function(){ setTimeout(schedule,0); setTimeout(schedule,120); setTimeout(schedule,400); }, true);
-  [100, 300, 700, 1400, 2400].forEach(function(t){ setTimeout(schedule, t); });
+  // v164: disabled (caused roulette wobble / shifting)
+  return;
 })();
 </script>
 
@@ -25527,3 +25437,722 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 })();
 </script>
 
+
+
+<style id="tk-v165-roulette-stable-right-rail">
+/* v165: final stable right rail for desktop/FHD/4K.
+   Goal: roulette stays visually fixed above the rules/comic block and does not wobble during spin. */
+@media (min-width:521px){
+  html.tk-v165-roulette-rail #tkV165RightRail{
+    position: fixed !important;
+    right: max(12px, calc(env(safe-area-inset-right, 0px) + 12px)) !important;
+    bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 14px)) !important;
+    z-index: 100050 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 12px !important;
+    pointer-events: none !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail > *{
+    pointer-events: auto !important;
+  }
+
+  /* Keep roulette completely static inside the custom rail. */
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock.roulette-merged-v20,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock.is-spinning,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock.is-win{
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: none !important;
+    translate: none !important;
+    scale: 1 !important;
+    zoom: 1 !important;
+    width: clamp(286px, 22vw, 352px) !important;
+    min-width: min(286px, calc(100vw - 24px)) !important;
+    max-width: min(352px, calc(100vw - 24px)) !important;
+    box-sizing: border-box !important;
+    contain: layout paint style !important;
+    will-change: auto !important;
+    flex: 0 0 auto !important;
+    align-self: flex-end !important;
+    --roulette-dock-left: auto !important;
+    --roulette-dock-tx: 0px !important;
+    --roulette-dock-bottom: auto !important;
+    --roulette-over-chips: 0px !important;
+    --roulette-scale: 1 !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock{
+    padding: 14px 14px 13px !important;
+    gap: 0 !important;
+    border-radius: 28px !important;
+    background:
+      radial-gradient(140% 118% at 14% 10%, rgba(255,255,255,.16), transparent 58%),
+      radial-gradient(120% 115% at 86% 14%, rgba(83,207,255,.16), transparent 60%),
+      linear-gradient(180deg, rgba(12,65,106,.88), rgba(7,34,58,.86)) !important;
+    border: 1px solid rgba(232,245,255,.30) !important;
+    box-shadow:
+      0 24px 48px rgba(0,0,0,.28),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -1px 0 rgba(120,220,255,.12) !important;
+    backdrop-filter: blur(14px) saturate(1.05) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.05) !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-card,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-info{
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-card::before,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-info::before{
+    display: none !important;
+    content: none !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-card{
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: clamp(128px, 10vw, 154px) !important;
+    height: clamp(128px, 10vw, 154px) !important;
+    margin: 0 auto 2px !important;
+    align-self: center !important;
+    flex: 0 0 auto !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock canvas#wheel{
+    transform: none !important;
+    image-rendering: -webkit-optimize-contrast;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-center{
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 15px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-pointer{
+    top: -7px !important;
+    border-left-width: 11px !important;
+    border-right-width: 11px !important;
+    border-bottom-width: 17px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-head,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rouletteMini,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-history,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rouletteReset{
+    display: none !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-controls{
+    min-width: 0 !important;
+    width: 100% !important;
+    gap: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-info{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    margin-top: 8px !important;
+    padding: 10px 0 0 !important;
+    border-top: 1px solid rgba(255,255,255,.12) !important;
+    flex: 0 0 auto !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoHead{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    margin-top: 0 !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoBadge{
+    padding: 5px 9px !important;
+    font-size: 9px !important;
+    letter-spacing: .07em !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-streak{
+    padding: 5px 9px !important;
+    font-size: 11px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoTitle{
+    font-size: clamp(15px, 1.15vw, 18px) !important;
+    line-height: 1.16 !important;
+    letter-spacing: .01em !important;
+    font-weight: 900 !important;
+    color: rgba(250,252,255,.99) !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoText{
+    font-size: clamp(12px, .88vw, 14px) !important;
+    line-height: 1.34 !important;
+    color: rgba(243,248,255,.97) !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoActions,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoActions.tk-v104-inline{
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 3px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rLink,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #spinBtn{
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 42px !important;
+    padding: 10px 12px !important;
+    border-radius: 15px !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    letter-spacing: .05em !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    gap: 7px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rLink{
+    grid-column: 1 !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #spinBtn{
+    grid-column: 2 !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rouletteSound{
+    grid-column: 3 !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  /* rules block under roulette */
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    position: static !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    width: clamp(286px, 22vw, 352px) !important;
+    min-width: min(286px, calc(100vw - 24px)) !important;
+    max-width: min(352px, calc(100vw - 24px)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail .rule-pill{
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* do not let legacy rail styles offset the roulette anymore */
+  html.tk-v165-roulette-rail #tk23RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tk23RightRail #rouletteDock.roulette-dock.roulette-merged-v20{
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+}
+
+@media (min-width:2300px){
+  html.tk-v165-roulette-rail #tkV165RightRail{ gap: 14px !important; }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    width: 372px !important;
+    min-width: 372px !important;
+    max-width: 372px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: 162px !important;
+    height: 162px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoTitle{
+    font-size: 19px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoText{
+    font-size: 14px !important;
+  }
+}
+</style>
+
+
+<style id="tk-v166-roulette-bigger-readable">
+/* v166: make roulette visually larger and improve text readability inside the wheel. */
+@media (min-width:521px){
+  html.tk-v165-roulette-rail #tkV165RightRail{ gap: 14px !important; }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    width: clamp(320px, 24vw, 408px) !important;
+    min-width: min(320px, calc(100vw - 22px)) !important;
+    max-width: min(408px, calc(100vw - 22px)) !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock{
+    padding: 16px 16px 15px !important;
+    border-radius: 30px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: clamp(182px, 13.5vw, 220px) !important;
+    height: clamp(182px, 13.5vw, 220px) !important;
+    margin: 0 auto 4px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-center{
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 16px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-pointer{
+    top: -8px !important;
+    border-left-width: 12px !important;
+    border-right-width: 12px !important;
+    border-bottom-width: 18px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-info{
+    margin-top: 10px !important;
+    padding-top: 12px !important;
+    gap: 10px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoTitle{
+    font-size: clamp(16px, 1.2vw, 20px) !important;
+    line-height: 1.14 !important;
+    font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+    font-weight: 900 !important;
+    letter-spacing: .005em !important;
+    text-wrap: balance !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoText{
+    font-size: clamp(13px, .95vw, 15px) !important;
+    line-height: 1.38 !important;
+    font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoActions,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoActions.tk-v104-inline{
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+    gap: 9px !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rLink,
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #spinBtn{
+    min-height: 46px !important;
+    padding: 11px 13px !important;
+    border-radius: 16px !important;
+    font-size: 13px !important;
+    font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+  }
+
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock #rouletteSound{
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 46px !important;
+    border-radius: 15px !important;
+  }
+}
+
+@media (min-width:521px) and (max-width:1600px){
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    width: clamp(316px, 25.5vw, 384px) !important;
+    min-width: min(316px, calc(100vw - 20px)) !important;
+    max-width: min(384px, calc(100vw - 20px)) !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: clamp(176px, 14vw, 206px) !important;
+    height: clamp(176px, 14vw, 206px) !important;
+  }
+}
+
+@media (min-width:2300px){
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    width: 430px !important;
+    min-width: 430px !important;
+    max-width: 430px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: 236px !important;
+    height: 236px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoTitle{
+    font-size: 20px !important;
+  }
+}
+</style>
+<script id="tk-v165-roulette-stable-right-rail-script">
+(function(){
+  const root = document.documentElement;
+  const anchors = new WeakMap();
+  let rail = null;
+  let raf = 0;
+  let timers = [];
+
+  function q(sel, scope=document){ return scope.querySelector(sel); }
+  function ensureAnchor(el){
+    if(!el || anchors.has(el) || !el.parentNode) return;
+    const ph = document.createComment('tk-v165-anchor');
+    el.parentNode.insertBefore(ph, el);
+    anchors.set(el, ph);
+  }
+  function restore(el){
+    const ph = anchors.get(el);
+    if(!ph || !ph.parentNode || !el) return;
+    if(el.parentNode !== ph.parentNode){
+      ph.parentNode.insertBefore(el, ph.nextSibling);
+    }
+  }
+  function ensureRail(){
+    if(rail && rail.isConnected) return rail;
+    rail = document.getElementById('tkV165RightRail');
+    if(!rail){
+      rail = document.createElement('div');
+      rail.id = 'tkV165RightRail';
+      document.body.appendChild(rail);
+    }
+    return rail;
+  }
+  function removeRail(){
+    if(rail && rail.parentNode) rail.parentNode.removeChild(rail);
+    rail = null;
+  }
+  function isTarget(){
+    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
+    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
+    return w > 520 && h > 520;
+  }
+  function sync(){
+    raf = 0;
+    const roulette = document.getElementById('rouletteDock');
+    const rules = q('.rules');
+    if(!roulette || !rules || !document.body) return;
+
+    ensureAnchor(roulette);
+    ensureAnchor(rules);
+
+    if(!isTarget()){
+      root.classList.remove('tk-v165-roulette-rail');
+      restore(roulette);
+      restore(rules);
+      removeRail();
+      return;
+    }
+
+    root.classList.add('tk-v165-roulette-rail');
+
+    const box = ensureRail();
+    if(box.firstChild !== roulette){
+      box.insertBefore(roulette, box.firstChild);
+    }
+    if(rules.parentNode !== box || roulette.nextSibling !== rules){
+      box.appendChild(rules);
+    }
+
+    roulette.classList.remove('roulette-merged-v20');
+
+    roulette.style.setProperty('position', 'relative', 'important');
+    roulette.style.setProperty('left', 'auto', 'important');
+    roulette.style.setProperty('right', 'auto', 'important');
+    roulette.style.setProperty('top', 'auto', 'important');
+    roulette.style.setProperty('bottom', 'auto', 'important');
+    roulette.style.setProperty('transform', 'none', 'important');
+    roulette.style.setProperty('margin', '0', 'important');
+
+    root.style.removeProperty('--roulette-dock-left');
+    root.style.removeProperty('--roulette-dock-tx');
+    root.style.removeProperty('--roulette-dock-bottom');
+    root.style.setProperty('--roulette-over-chips', '0px');
+
+    // empty legacy right rail should not affect layout if it still exists
+    const legacy = document.getElementById('tk23RightRail');
+    if(legacy && legacy !== box && !legacy.children.length){
+      legacy.style.display = 'none';
+    }
+  }
+
+  function reassert(delays){
+    delays.forEach(ms => {
+      const t = setTimeout(() => {
+        if(raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(sync);
+      }, ms);
+      timers.push(t);
+    });
+  }
+
+  function schedule(){
+    timers.forEach(clearTimeout);
+    timers = [];
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(sync);
+    reassert([60, 220, 700]);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  } else {
+    schedule();
+  }
+
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  }
+
+  document.addEventListener('click', function(e){
+    const t = e.target;
+    if(!t) return;
+    if(t.id === 'spinBtn' || t.id === 'menuToggle' || (t.closest && (t.closest('#spinBtn') || t.closest('#menuToggle')))){
+      reassert([0, 100, 450, 1100]);
+    }
+  }, true);
+})();
+</script>
+
+<style id="tk-v167-roulette-beauty">
+/* v167: calmer premium wheel styling + larger readable disc */
+#rouletteDock .wheel-wrap{
+  background:
+    radial-gradient(140% 140% at 30% 22%, rgba(255,255,255,.18), rgba(255,255,255,0) 46%),
+    radial-gradient(120% 120% at 72% 78%, rgba(80,148,210,.12), rgba(80,148,210,0) 52%),
+    linear-gradient(180deg, rgba(8,34,58,.46), rgba(5,21,39,.34)) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    0 20px 38px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -12px 24px rgba(3,9,18,.10) !important;
+}
+#rouletteDock .wheel-center{
+  background:
+    radial-gradient(120% 120% at 32% 28%, rgba(255,255,255,.30), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, rgba(247,210,121,.98), rgba(201,138,55,.96)) !important;
+  border: 1px solid rgba(255,243,210,.45) !important;
+  box-shadow:
+    0 12px 24px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 -4px 10px rgba(121,67,11,.10) !important;
+  color: rgba(54,28,7,.95) !important;
+}
+#rouletteDock .wheel-pointer{
+  border-bottom-color: rgba(252,224,150,.98) !important;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,.24)) !important;
+}
+#rouletteDock .wheel-pointer::after{
+  border-bottom-color: rgba(91,182,246,.38) !important;
+  opacity: .72 !important;
+}
+@media (min-width:521px){
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    width: clamp(340px, 25vw, 432px) !important;
+    min-width: min(340px, calc(100vw - 22px)) !important;
+    max-width: min(432px, calc(100vw - 22px)) !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: clamp(206px, 15vw, 246px) !important;
+    height: clamp(206px, 15vw, 246px) !important;
+    margin: 2px auto 6px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .roulette-infoTitle{
+    font-size: clamp(17px, 1.22vw, 21px) !important;
+    line-height: 1.10 !important;
+    text-wrap: balance !important;
+  }
+}
+@media (min-width:2300px){
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock.roulette-dock,
+  html.tk-v165-roulette-rail #tkV165RightRail .rules{
+    width: 446px !important;
+    min-width: 446px !important;
+    max-width: 446px !important;
+  }
+  html.tk-v165-roulette-rail #tkV165RightRail #rouletteDock .wheel-wrap{
+    width: 258px !important;
+    height: 258px !important;
+  }
+}
+@media (max-width:520px){
+  #rouletteDock .wheel-wrap{
+    width: min(238px, calc(100vw - 96px)) !important;
+    height: min(238px, calc(100vw - 96px)) !important;
+  }
+}
+</style>
+<script id="tk-v167-wheel-redraw-after-fonts">
+(function(){
+  try{
+    document.documentElement.classList.add('tk-v167-roulette-beauty');
+    var wheel = document.getElementById('wheel');
+    if(!wheel) return;
+    var ping = function(){
+      window.dispatchEvent(new Event('resize'));
+    };
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){ setTimeout(ping, 0); setTimeout(ping, 120); }).catch(function(){});
+    }
+    setTimeout(ping, 0);
+    setTimeout(ping, 180);
+  }catch(_){ }
+})();
+</script>
+
+<style id="tk-v170-roulette-pointer-clean-balanced">
+/* v170: restore clean label geometry and use a slimmer top compass pointer */
+#rouletteDock .wheel-wrap{
+  overflow: visible !important;
+  padding-top: 12px !important;
+}
+#rouletteDock .wheel-pointer{
+  top: -14px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border: 0 !important;
+  background: transparent !important;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,.20)) !important;
+  z-index: 9 !important;
+}
+#rouletteDock .wheel-pointer::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(255,246,220,.98), rgba(238,198,116,.98) 46%, rgba(196,138,57,.98));
+  border: 1px solid rgba(255,245,215,.82);
+  box-shadow:
+    0 3px 10px rgba(91,60,22,.18),
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -4px 7px rgba(134,85,22,.16);
+}
+#rouletteDock .wheel-pointer::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  width: 14px;
+  height: 18px;
+  transform: translateX(-50%);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  background:
+    linear-gradient(180deg, rgba(255,242,198,.98) 0%, rgba(231,188,101,.98) 55%, rgba(178,118,44,.98) 100%);
+  border: 1px solid rgba(255,243,213,.78);
+  box-shadow:
+    0 2px 8px rgba(60,36,10,.16),
+    inset 0 1px 0 rgba(255,255,255,.30);
+}
+#rouletteDock .wheel-center{
+  color: transparent !important;
+  font-size: 0 !important;
+  letter-spacing: 0 !important;
+}
+#rouletteDock .wheel-center .wheel-center__glyph{
+  display: none !important;
+}
+#rouletteDock .wheel-center::before{
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 999px;
+  background:
+    radial-gradient(120% 120% at 34% 28%, rgba(255,255,255,.30), rgba(255,255,255,0) 58%),
+    linear-gradient(180deg, rgba(246,210,123,.98), rgba(194,134,54,.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 -5px 10px rgba(120,70,16,.12);
+}
+#rouletteDock .wheel-center::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, rgba(112,63,18,.96), rgba(78,42,11,.98));
+  box-shadow: 0 0 0 2px rgba(255,241,206,.50);
+}
+@media (min-width:2300px){
+  #rouletteDock .wheel-wrap{ padding-top: 14px !important; }
+  #rouletteDock .wheel-pointer{
+    top: -16px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+  #rouletteDock .wheel-pointer::before{
+    width: 20px;
+    height: 20px;
+  }
+  #rouletteDock .wheel-pointer::after{
+    top: 16px;
+    width: 15px;
+    height: 19px;
+  }
+}
+@media (max-width:520px){
+  #rouletteDock .wheel-wrap{ padding-top: 10px !important; }
+  #rouletteDock .wheel-pointer{
+    top: -11px !important;
+    width: 30px !important;
+    height: 30px !important;
+  }
+  #rouletteDock .wheel-pointer::before{
+    width: 15px;
+    height: 15px;
+  }
+  #rouletteDock .wheel-pointer::after{
+    top: 12px;
+    width: 12px;
+    height: 15px;
+  }
+}
+</style>
+<script id="tk-v170-wheel-redraw-after-pointer-cleanup">
+(function(){
+  try{
+    var ping = function(){ window.dispatchEvent(new Event('resize')); };
+    setTimeout(ping, 0);
+    setTimeout(ping, 140);
+  }catch(_){ }
+})();
+</script>
