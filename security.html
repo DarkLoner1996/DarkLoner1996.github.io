@@ -18313,8 +18313,9 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .rou
   height: 11px !important;
 }
 </style>
-<script id="tk-non4k-v23-right-roulette-script">
+<script id="tk-non4k-v23-right-roulette-script" data-disabled="v193">
 (function(){
+  return; // v193 disable legacy conflicting rail mover
   const root = document.documentElement;
   const q = (s, scope=document) => scope.querySelector(s);
   const anchors = new WeakMap();
@@ -20674,7 +20675,7 @@ html.tk-v102-menu-ready .side-nav{
   }
 
   // Capture scroll from internal scrollers (FHD mode scrolls .header, not window)
-  window.addEventListener('scroll', schedule, true);
+  // v193: removed capture scroll listener; it caused right-rail jitter/disappear on FHD
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('orientationchange', schedule, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
@@ -20682,171 +20683,76 @@ html.tk-v102-menu-ready .side-nav{
   window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 80); }, {once:true});
 })();
 </script>
+<style id="tk-v193-fhd-right-left-final">
+@media (min-width:980px) and (min-height:620px){
+  html.tk-non4k-balanced-v19 #tkV165RightRail{ display:none !important; opacity:0 !important; visibility:hidden !important; pointer-events:none !important; }
+  html.tk-non4k-balanced-v19 #tk23RightRail{
+    position:fixed !important; right:12px !important; bottom:14px !important; left:auto !important; top:auto !important;
+    display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:10px !important;
+    z-index:100120 !important; pointer-events:none !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important;
+  }
+  html.tk-non4k-balanced-v19 #tk23RightRail > *{ pointer-events:auto !important; }
+  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock,
+  html.tk-non4k-balanced-v19 #tk23RightRail .rules{ width:clamp(318px, 23.8vw, 352px) !important; min-width:clamp(318px, 23.8vw, 352px) !important; max-width:clamp(318px, 23.8vw, 352px) !important; }
+  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock{ position:static !important; inset:auto !important; margin:0 !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important; opacity:1 !important; visibility:visible !important; display:block !important; --roulette-dock-left:auto !important; --roulette-dock-tx:0px !important; --roulette-dock-bottom:auto !important; }
+  html.tk-non4k-balanced-v19 #tk23RightRail .rules{ position:static !important; inset:auto !important; margin:0 !important; display:flex !important; flex-direction:column !important; gap:10px !important; transform:none !important; opacity:1 !important; visibility:visible !important; }
+  html.tk-non4k-balanced-v19 #tk23RightRail .rule-pill{ width:100% !important; min-width:0 !important; max-width:100% !important; }
 
-<style id="tk-v188-fhd-rails-guard">
-html.tk-v188-fhd-rails-guard #tk23RightRail{
-  position: fixed !important;
-  right: max(18px, env(safe-area-inset-right)) !important;
-  bottom: max(18px, env(safe-area-inset-bottom)) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-end !important;
-  gap: 12px !important;
-  z-index: 32050 !important;
-  pointer-events: none !important;
-}
-html.tk-v188-fhd-rails-guard #tk23RightRail > *{
-  pointer-events: auto !important;
-  flex: 0 0 auto !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-html.tk-v188-fhd-rails-guard #tk23RightRail #rouletteDock.roulette-dock,
-html.tk-v188-fhd-rails-guard #tk23RightRail #rouletteDock.roulette-dock.roulette-merged-v20{
-  position: relative !important;
-  inset: auto !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-}
-html.tk-v188-fhd-rails-guard #tk23RightRail .rules{
-  position: relative !important;
-  inset: auto !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-  display: grid !important;
-  gap: 10px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-html.tk-v188-fhd-rails-guard #tkV165RightRail,
-html.tk-v188-fhd-rails-guard #tkFinalRightRail{
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-html.tk-v188-fhd-rails-guard #tk19LeftRail{
-  position: fixed !important;
-  left: max(18px, env(safe-area-inset-left)) !important;
-  bottom: max(18px, env(safe-area-inset-bottom)) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 5px !important;
-  z-index: 32040 !important;
-  pointer-events: none !important;
-}
-html.tk-v188-fhd-rails-guard #tk19LeftRail > *{
-  pointer-events: auto !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-html.tk-v188-fhd-rails-guard #tk19LeftRail .side-chip,
-html.tk-v188-fhd-rails-guard #tk19LeftRail .side-chip + .side-chip{
-  position: relative !important;
-  inset: auto !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  margin: 0 !important;
+  html.tk-non4k-balanced-v19 #tk19LeftRail{
+    position:fixed !important; left:14px !important; bottom:14px !important; right:auto !important; top:auto !important;
+    display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:12px !important;
+    z-index:100118 !important; pointer-events:none !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important;
+  }
+  html.tk-non4k-balanced-v19 #tk19LeftRail > *{ pointer-events:auto !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip{ display:flex !important; align-items:center !important; gap:12px !important; margin:0 !important; padding:0 !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{ margin-top:0 !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .avatar{ width:86px !important; height:86px !important; min-width:86px !important; flex:0 0 86px !important; border-radius:28px !important; font-size:34px !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-card{ width:274px !important; min-width:274px !important; max-width:274px !important; min-height:86px !important; padding:12px 15px !important; border-radius:24px !important; box-sizing:border-box !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-name{ font-size:18px !important; line-height:1.05 !important; margin-bottom:10px !important; gap:10px !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-badge{ font-size:10px !important; padding:4px 8px !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-actions{ gap:10px !important; }
+  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-btn{ min-width:112px !important; min-height:42px !important; padding:10px 14px !important; border-radius:18px !important; font-size:12px !important; letter-spacing:.09em !important; }
 }
 </style>
-<script id="tk-v188-fhd-rails-guard-script">
+<script id="tk-v193-fhd-watch">
 (function(){
+  'use strict';
   const root = document.documentElement;
-  const q = (s, r=document) => r.querySelector(s);
-  let raf = 0;
-
-  function target(){
-    const effW = Math.round((window.innerWidth || 0) * (window.devicePixelRatio || 1));
-    return root.classList.contains('tk-non4k-balanced-v19') && window.innerWidth >= 1200 && effW < 3000;
-  }
-
-  function clearInline(el){
-    if(!el || !el.style) return;
-    ['display','opacity','visibility','position','left','right','top','bottom','inset','margin','marginRight','marginLeft','marginTop','marginBottom','transform','width','maxWidth','minWidth','height','maxHeight','minHeight','zoom','filter'].forEach(function(k){
-      try{ el.style.removeProperty(k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())); }catch(_){ }
-      try{ el.style[k] = ''; }catch(_){ }
-    });
-  }
-
-  function ensureRail(id){
-    let rail = document.getElementById(id);
-    if(!rail){ rail = document.createElement('div'); rail.id = id; document.body.appendChild(rail); }
-    return rail;
-  }
-
-  function show(el){
-    if(!el) return;
-    clearInline(el);
-    el.hidden = false;
-    el.removeAttribute('hidden');
-    el.setAttribute('aria-hidden', 'false');
-  }
-
+  let raf = 0, spinTick = 0;
+  function q(s,scope=document){ return scope.querySelector(s); }
+  function setImp(el,p,v){ if(el) el.style.setProperty(p,v,'important'); }
+  function clearProps(el,arr){ if(!el) return; arr.forEach(p=>el.style.removeProperty(p)); }
+  function isTarget(){ const w=Math.round(window.innerWidth||document.documentElement.clientWidth||0); const h=Math.round(window.innerHeight||document.documentElement.clientHeight||0); const dpr=Math.max(1,window.devicePixelRatio||1); return root.classList.contains('tk-non4k-balanced-v19') && w>=980 && h>=620 && Math.round(w*dpr)<3000; }
+  function ensureRail(id){ let el=document.getElementById(id); if(!el){ el=document.createElement('div'); el.id=id; document.body.appendChild(el);} return el; }
   function apply(){
-    if(!target()){
-      root.classList.remove('tk-v188-fhd-rails-guard');
-      return;
-    }
-    root.classList.add('tk-v188-fhd-rails-guard');
-
-    const rightRail = ensureRail('tk23RightRail');
-    const leftRail = ensureRail('tk19LeftRail');
-    const dock = document.getElementById('rouletteDock');
-    const rules = q('.rules');
-    const chips = [q('.side-chip--it-min'), q('.side-chip--infosec-min'), q('.side-chip--phish-min')].filter(Boolean);
-
-    [document.getElementById('tkV165RightRail'), document.getElementById('tkFinalRightRail')].forEach(function(extra){ if(extra){ extra.setAttribute('aria-hidden','true'); } });
-
-    show(rightRail); show(leftRail); show(dock); show(rules);
-    chips.forEach(show);
-
-    if(dock && dock.parentNode !== rightRail) rightRail.insertBefore(dock, rightRail.firstChild || null);
-    if(rules && rules.parentNode !== rightRail) rightRail.appendChild(rules);
-
-    chips.forEach(function(chip){ if(chip.parentNode !== leftRail) leftRail.appendChild(chip); });
-
-    if(dock){
-      dock.classList.remove('is-spinning-lock');
-      clearInline(dock);
-      ['--roulette-dock-left','--roulette-dock-bottom','--roulette-dock-tx','--roulette-over-chips'].forEach(function(v){ root.style.removeProperty(v); });
-    }
-    if(rules) clearInline(rules);
-    chips.forEach(clearInline);
+    raf = 0;
+    if(!isTarget()) return;
+    const dock=document.getElementById('rouletteDock');
+    const rules=q('.rules');
+    const leftRail=ensureRail('tk19LeftRail');
+    const rightRail=ensureRail('tk23RightRail');
+    const oldRail=document.getElementById('tkV165RightRail');
+    if(!dock || !rules) return;
+    if(oldRail && oldRail!==rightRail){ setImp(oldRail,'display','none'); setImp(oldRail,'opacity','0'); setImp(oldRail,'visibility','hidden'); setImp(oldRail,'pointer-events','none'); }
+    if(dock.parentNode!==rightRail) rightRail.insertBefore(dock,rightRail.firstChild||null);
+    if(rightRail.firstElementChild!==dock) rightRail.insertBefore(dock,rightRail.firstChild||null);
+    if(rules.parentNode!==rightRail) rightRail.appendChild(rules);
+    if(dock.nextElementSibling!==rules) rightRail.insertBefore(rules,dock.nextSibling);
+    clearProps(dock,['left','right','top','bottom','inset','margin-left','margin-right','margin-top','margin-bottom','transform','translate','scale','zoom','width','min-width','max-width','--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom','--roulette-over-chips']);
+    clearProps(rules,['left','right','top','bottom','inset','margin-left','margin-right','margin-top','margin-bottom','transform','translate','scale','zoom']);
+    setImp(rightRail,'display','flex'); setImp(rightRail,'opacity','1'); setImp(rightRail,'visibility','visible');
+    setImp(dock,'display','block'); setImp(dock,'opacity','1'); setImp(dock,'visibility','visible');
+    setImp(rules,'display','flex'); setImp(rules,'opacity','1'); setImp(rules,'visibility','visible');
+    setImp(leftRail,'display','flex'); setImp(leftRail,'opacity','1'); setImp(leftRail,'visibility','visible');
   }
-
-  function schedule(){
-    if(raf) return;
-    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
-  }
-
-  window.addEventListener('load', function(){ apply(); setTimeout(apply, 80); setTimeout(apply, 320); }, {passive:true});
+  function schedule(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(apply); }
+  function startSpinGuard(){ clearInterval(spinTick); let n=0; spinTick=setInterval(function(){ n++; apply(); const dock=document.getElementById('rouletteDock'); if(!dock || !dock.classList.contains('is-spinning') || n>80){ clearInterval(spinTick); spinTick=0; apply(); } },120); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule,120); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('orientationchange', schedule, {passive:true});
-  window.addEventListener('pageshow', schedule, {passive:true});
-  document.addEventListener('click', function(ev){
-    if(ev.target.closest('#openItGame,#openInfoSecGame,#openPhishGame,#spinBtn,.rules .rule-pill')) setTimeout(apply, 60);
-  }, true);
-
-  if(document.body){
-    const mo = new MutationObserver(schedule);
-    mo.observe(document.body, {childList:true, subtree:false});
-  }else{
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  }
-  setInterval(function(){ if(target()) apply(); }, 1200);
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  document.addEventListener('click', function(e){ const t=e.target; if(!t) return; if(t.id==='spinBtn' || (t.closest && t.closest('#spinBtn'))){ schedule(); setTimeout(schedule,80); setTimeout(schedule,260); setTimeout(schedule,700); startSpinGuard(); } }, true);
 })();
 </script>
 </body>
@@ -24035,8 +23941,9 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 }
 </style>
-<script id="tk-v145-fhd-exact-right-gap-script">
+<script id="tk-v145-fhd-exact-right-gap-script" data-disabled="v193">
 (function(){
+  return; // v193 disable legacy conflicting rail mover
   'use strict';
   var root = document.documentElement;
   var raf = 0;
@@ -26325,8 +26232,9 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 }
 </style>
-<script id="tk-v165-roulette-stable-right-rail-script">
+<script id="tk-v165-roulette-stable-right-rail-script" data-disabled="v193">
 (function(){
+  return; // v193 disable legacy conflicting rail mover
   const root = document.documentElement;
   const anchors = new WeakMap();
   let rail = null;
@@ -27016,15 +26924,36 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 120); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('orientationchange', schedule, {passive:true});
-  window.addEventListener('scroll', schedule, true);
+  // v193: removed capture scroll listener; it caused right-rail jitter/disappear on FHD
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  }
+  let spinGuard = 0;
+  function startSpinGuard(){
+    clearInterval(spinGuard);
+    let n = 0;
+    spinGuard = setInterval(function(){
+      n++;
+      schedule();
+      const dock = document.getElementById('rouletteDock');
+      if(!dock || !dock.classList.contains('is-spinning') || n > 80){
+        clearInterval(spinGuard);
+        spinGuard = 0;
+        schedule();
+      }
+    }, 120);
   }
   document.addEventListener('click', function(e){
     const t = e.target;
     if(!t) return;
     if(t.id === 'spinBtn' || t.id === 'menuToggle' || (t.closest && (t.closest('#spinBtn') || t.closest('#menuToggle')))){
       schedule();
+      setTimeout(schedule, 80);
+      setTimeout(schedule, 260);
+      setTimeout(schedule, 700);
+      if(t.id === 'spinBtn' || (t.closest && t.closest('#spinBtn'))){
+        startSpinGuard();
+      }
     }
   }, true);
 })();
