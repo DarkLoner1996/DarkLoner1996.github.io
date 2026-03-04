@@ -23982,3 +23982,154 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
 })();
 </script>
+
+
+<style id="tk-v150-fhd-buttons-inline-hard-style">
+@media (min-width: 900px){
+  html.tk-v150-fhd-inline-hard #rouletteDock .roulette-infoActions,
+  html.tk-v150-fhd-inline-hard #rouletteDock .roulette-infoActions.tk-v150-inline-hard{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    gap:10px !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+  html.tk-v150-fhd-inline-hard #rouletteDock #rLink,
+  html.tk-v150-fhd-inline-hard #rouletteDock #spinBtn,
+  html.tk-v150-fhd-inline-hard #rouletteDock #rouletteSound{
+    margin:0 !important;
+    transform:none !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>
+<script id="tk-v150-fhd-buttons-inline-hard-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if (w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function shouldApply(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    if (is4kLike()) return false;
+    return w >= 900 && h >= 600;
+  }
+  function setImp(el, prop, value){
+    if (!el) return;
+    try { el.style.setProperty(prop, value, 'important'); } catch(e) {}
+  }
+  function apply(){
+    var dock = document.getElementById('rouletteDock');
+    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
+    var link = document.getElementById('rLink');
+    var spin = document.getElementById('spinBtn');
+    var sound = document.getElementById('rouletteSound');
+    var reset = document.getElementById('rouletteReset');
+    if (!dock || !actions || !link || !spin || !sound) return;
+
+    if (!shouldApply()){
+      root.classList.remove('tk-v150-fhd-inline-hard');
+      return;
+    }
+    root.classList.add('tk-v150-fhd-inline-hard');
+
+    if (reset) setImp(reset, 'display', 'none');
+
+    // Force row order
+    if (link.parentElement !== actions) actions.appendChild(link);
+    if (spin.parentElement !== actions) actions.appendChild(spin);
+    if (sound.parentElement !== actions) actions.appendChild(sound);
+    try {
+      actions.appendChild(link);
+      actions.appendChild(spin);
+      actions.appendChild(sound);
+    } catch(e) {}
+    actions.classList.add('tk-v150-inline-hard');
+
+    // Container
+    setImp(actions, 'display', 'flex');
+    setImp(actions, 'flex-wrap', 'nowrap');
+    setImp(actions, 'align-items', 'stretch');
+    setImp(actions, 'justify-content', 'flex-start');
+    setImp(actions, 'gap', '10px');
+    setImp(actions, 'width', '100%');
+    setImp(actions, 'margin-top', '12px');
+
+    // Use button row widths that fit FHD block
+    setImp(link, 'flex', '1 1 0');
+    setImp(spin, 'flex', '1 1 0');
+    setImp(sound, 'flex', '0 0 52px');
+
+    setImp(link, 'width', 'auto');
+    setImp(spin, 'width', 'auto');
+    setImp(sound, 'width', '52px');
+    setImp(sound, 'min-width', '52px');
+    setImp(sound, 'max-width', '52px');
+
+    setImp(link, 'height', '48px');
+    setImp(spin, 'height', '48px');
+    setImp(sound, 'height', '48px');
+    setImp(link, 'min-height', '48px');
+    setImp(spin, 'min-height', '48px');
+    setImp(sound, 'min-height', '48px');
+
+    // Make "Перейти" look like "Крутить"
+    var spinBg = getComputedStyle(spin).backgroundImage;
+    var spinBorder = getComputedStyle(spin).border;
+    var spinShadow = getComputedStyle(spin).boxShadow;
+    var spinColor = getComputedStyle(spin).color || '#fff';
+    setImp(link, 'background', spinBg && spinBg != 'none' ? spinBg : 'linear-gradient(180deg,#66b7ff 0%,#2d8fff 100%)');
+    setImp(link, 'border', spinBorder && spinBorder != '0px none rgb(255, 255, 255)' ? spinBorder : '1px solid rgba(255,255,255,.18)');
+    setImp(link, 'box-shadow', spinShadow && spinShadow != 'none' ? spinShadow : 'inset 0 1px 0 rgba(255,255,255,.22), 0 10px 22px rgba(47,142,255,.22)');
+    setImp(link, 'color', spinColor);
+
+    for (const el of [link, spin]) {
+      setImp(el, 'padding', '0 14px');
+      setImp(el, 'border-radius', '16px');
+      setImp(el, 'display', 'inline-flex');
+      setImp(el, 'align-items', 'center');
+      setImp(el, 'justify-content', 'center');
+      setImp(el, 'font-size', '17px');
+      setImp(el, 'font-weight', '900');
+      setImp(el, 'line-height', '1');
+      setImp(el, 'letter-spacing', '.02em');
+      setImp(el, 'white-space', 'nowrap');
+      setImp(el, 'text-align', 'center');
+      setImp(el, 'text-decoration', 'none');
+      setImp(el, 'grid-column', 'auto');
+    }
+    setImp(sound, 'padding', '0');
+    setImp(sound, 'border-radius', '14px');
+    setImp(sound, 'display', 'inline-flex');
+    setImp(sound, 'align-items', 'center');
+    setImp(sound, 'justify-content', 'center');
+    setImp(sound, 'grid-column', 'auto');
+
+    // Tighten icons
+    var linkSvg = link.querySelector('svg');
+    var spinSvg = spin.querySelector('svg');
+    if (linkSvg){ setImp(linkSvg, 'width', '15px'); setImp(linkSvg, 'height', '15px'); setImp(linkSvg, 'margin-left', '8px'); }
+    if (spinSvg){ setImp(spinSvg, 'width', '15px'); setImp(spinSvg, 'height', '15px'); setImp(spinSvg, 'margin-right', '8px'); }
+    var soundSpan = sound.querySelector('span[aria-hidden]');
+    if (soundSpan) setImp(soundSpan, 'font-size', '20px');
+  }
+  function schedule(){ requestAnimationFrame(apply); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
+  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
+})();
+</script>
