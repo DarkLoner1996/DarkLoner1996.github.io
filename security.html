@@ -23739,3 +23739,117 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   [100, 300, 700, 1400, 2400].forEach(function(t){ setTimeout(schedule, t); });
 })();
 </script>
+
+
+<style id="tk-v148-fhd-inline-actions-style">
+@media (min-width: 980px){
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock .roulette-infoActions,
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock .roulette-infoActions.tk-v104-inline{
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) 52px !important;
+    grid-auto-flow: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock #rLink,
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock #spinBtn{
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 14px !important;
+    border-radius: 16px !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    display: inline-flex !important;
+  }
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock #rLink{
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock #spinBtn{
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock #rouletteSound{
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 14px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    display: inline-flex !important;
+  }
+  html.tk-v148-fhd-inline-actions #tk23RightRail #rouletteDock #rouletteReset{
+    display: none !important;
+  }
+}
+</style>
+<script id="tk-v148-fhd-inline-actions-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function isFhdLaptopLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(is4kLike()) return false;
+    if(w < 980 || h < 620) return false;
+    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
+  }
+  function apply(){
+    var dock = document.getElementById('rouletteDock');
+    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
+    var link = document.getElementById('rLink');
+    var spin = document.getElementById('spinBtn');
+    var sound = document.getElementById('rouletteSound');
+    var reset = document.getElementById('rouletteReset');
+    if(!dock || !actions || !link || !spin || !sound) return;
+    if(reset && reset.parentNode) reset.parentNode.removeChild(reset);
+    if(!isFhdLaptopLike()){
+      root.classList.remove('tk-v148-fhd-inline-actions');
+      return;
+    }
+    root.classList.add('tk-v148-fhd-inline-actions');
+    actions.classList.add('tk-v104-inline');
+    if(link.parentElement !== actions) actions.appendChild(link);
+    if(spin.parentElement !== actions) actions.appendChild(spin);
+    if(sound.parentElement !== actions) actions.appendChild(sound);
+    try{
+      actions.insertBefore(link, actions.firstChild || null);
+      actions.insertBefore(spin, sound || null);
+      actions.appendChild(sound);
+    }catch(e){}
+  }
+  function schedule(){ requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
+  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
+})();
+</script>
