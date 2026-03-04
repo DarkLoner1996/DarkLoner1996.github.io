@@ -23190,3 +23190,99 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 })();
 </script>
 
+
+<style id="tk-v140-fhd-over-comic-style">
+@media (min-width: 860px){
+  html.tk-v140-fhd-over-comic #rouletteDock.roulette-dock{
+    position: fixed !important;
+    left: auto !important;
+    right: 5px !important;
+    top: auto !important;
+    transform: translateZ(0) scale(1) !important;
+    transform-origin: right bottom !important;
+    margin: 0 !important;
+    z-index: 1000000 !important;
+  }
+}
+</style>
+<script id="tk-v140-fhd-over-comic-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var lastBottom = null;
+  function is4kLike(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(w * dpr);
+    var effH = Math.round(h * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function shouldApply(){
+    var w = Math.round(window.innerWidth || 0);
+    var h = Math.round(window.innerHeight || 0);
+    if(is4kLike()) return false;
+    if(w < 860 || h < 620) return false;
+    var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
+    if(!comic) return false;
+    var rect = comic.getBoundingClientRect();
+    if(!rect || rect.width < 80 || rect.height < 32) return false;
+    return rect.right > (w * 0.55);
+  }
+  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function apply(){
+    var dock = document.getElementById('rouletteDock');
+    var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
+    if(!dock || !comic) return;
+    if(!shouldApply()){
+      root.classList.remove('tk-v140-fhd-over-comic');
+      return;
+    }
+    root.classList.add('tk-v140-fhd-over-comic');
+    try{
+      if(dock.parentNode !== document.body) document.body.appendChild(dock);
+    }catch(_e){}
+    var rect = comic.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height) return;
+    var bottom = Math.max(10, Math.round((window.innerHeight - rect.top) + 12));
+    lastBottom = bottom;
+    setImp(dock, 'position', 'fixed');
+    setImp(dock, 'left', 'auto');
+    setImp(dock, 'right', '5px');
+    setImp(dock, 'top', 'auto');
+    setImp(dock, 'bottom', bottom + 'px');
+    setImp(dock, 'transform', 'translateZ(0) scale(1)');
+    setImp(dock, 'transform-origin', 'right bottom');
+    setImp(dock, 'z-index', '1000000');
+    setImp(dock, 'margin', '0');
+    setImp(dock, '--roulette-dock-left', 'auto');
+    setImp(dock, '--roulette-dock-tx', '0px');
+    setImp(dock, '--roulette-dock-bottom', bottom + 'px');
+  }
+  var raf = 0;
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', schedule, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+  }
+  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 100); setTimeout(schedule, 400); }, true);
+  var mo = new MutationObserver(function(){ schedule(); });
+  if(document.documentElement){
+    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style']});
+  }
+  setInterval(function(){ if(lastBottom !== null || shouldApply()) apply(); }, 500);
+  setTimeout(schedule, 80);
+  setTimeout(schedule, 250);
+  setTimeout(schedule, 800);
+  setTimeout(schedule, 1800);
+})();
+</script>
