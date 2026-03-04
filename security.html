@@ -20627,6 +20627,86 @@ html.tk-v102-menu-ready .side-nav{
 
 
 
+
+<style id="tk-v187-restore-left-games-rail">
+@media (min-width: 980px){
+  html.tk-v186-right-rail-lock.tk-non4k-balanced-v19 #tk19LeftRail{
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    position: fixed !important;
+    left: var(--tk19-left-m, 12px) !important;
+    bottom: 12px !important;
+    z-index: 9600 !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0 !important;
+  }
+  html.tk-v186-right-rail-lock.tk-non4k-balanced-v19 #tk19LeftRail > *{
+    pointer-events: auto !important;
+  }
+  html.tk-v186-right-rail-lock.tk-non4k-balanced-v19 #tk18LeftRail{
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+</style>
+<script id="tk-v187-restore-left-games-rail-script">
+(function(){
+  'use strict';
+  const root = document.documentElement;
+  function isTarget(){
+    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
+    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    return w >= 980 && h >= 620 && Math.round(w * dpr) < 3000;
+  }
+  function q(sel, scope=document){ return scope.querySelector(sel); }
+  function ensureLeftRail(){
+    let rail = document.getElementById('tk19LeftRail');
+    if(!rail){
+      rail = document.createElement('div');
+      rail.id = 'tk19LeftRail';
+      document.body.appendChild(rail);
+    }
+    return rail;
+  }
+  function clearHide(el){
+    if(!el) return;
+    el.style.removeProperty('display');
+    el.style.removeProperty('visibility');
+    el.style.removeProperty('opacity');
+    el.style.removeProperty('pointer-events');
+  }
+  function restore(){
+    if(!isTarget() || !root.classList.contains('tk-v186-right-rail-lock')) return;
+    const rail = ensureLeftRail();
+    const chips = [q('.side-chip--it-min'), q('.side-chip--infosec-min'), q('.side-chip--phish-min')].filter(Boolean);
+    if(!chips.length) return;
+    clearHide(rail);
+    chips.forEach(function(chip){
+      clearHide(chip);
+      if(chip.parentNode !== rail) rail.appendChild(chip);
+    });
+  }
+  function burst(){
+    restore();
+    [120, 360, 800].forEach(ms => setTimeout(restore, ms));
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', burst, {once:true});
+  else burst();
+  window.addEventListener('load', burst, {once:true});
+  window.addEventListener('resize', burst, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', burst, {passive:true});
+  }
+  document.addEventListener('scroll', burst, true);
+})();
+</script>
+
 </body>
 </html>
 
