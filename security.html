@@ -17768,119 +17768,7 @@ html.tk-non4k-balanced-v19 .debug-tk19-badge{
 </style>
 <div class="debug-tk19-badge" style="display:none">v26 non4k</div>
 <script id="tk-non4k-balanced-v19-script">
-(function(){
-  const root = document.documentElement;
-  const badge = document.querySelector('.debug-tk19-badge');
-  const CLASS = 'tk-non4k-balanced-v19';
-  const q = s => document.querySelector(s);
-  const clamp = (v,a,b)=>Math.max(a, Math.min(v,b));
-  const vars = ['--tk19-left-m','--tk19-top-m','--tk19-nav-scale','--tk19-chip-scale','--tk19-roulette-scale','--tk19-rules-scale','--tk19-ui-scale','--tk19-rail-gap','--ui-bottom-scale'];
-  let raf = 0;
-  let key = '';
-  let rail = null;
-  const anchors = new WeakMap();
-
-  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
-  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
-  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
-  function isTarget(){ const W=vw(), H=vh(), effW=Math.round(W*dpr()); return W > 700 && H > 520 && effW < 3000; }
-  function set(name, value){ root.style.setProperty(name, value); }
-  function ensureAnchor(el){ if(!el || anchors.has(el)) return; const ph = document.createComment('tk19-anchor'); el.parentNode.insertBefore(ph, el); anchors.set(el, ph); }
-  function restore(el){ const ph = anchors.get(el); if(!ph || !ph.parentNode || !el) return; ph.parentNode.insertBefore(el, ph.nextSibling); }
-  function ensureRail(){ if(rail && rail.isConnected) return rail; rail = document.getElementById('tk19LeftRail'); if(!rail){ rail = document.createElement('div'); rail.id = 'tk19LeftRail'; document.body.appendChild(rail);} return rail; }
-  function removeRail(){ if(rail && rail.parentNode) rail.parentNode.removeChild(rail); rail = null; }
-  function natBox(el){
-    if(!el) return {w:0,h:0};
-    if(!el.dataset.tk18w || !el.dataset.tk18h){
-      const r = {w: el.offsetWidth || 0, h: el.offsetHeight || 0};
-      el.dataset.tk18w = String(r.w || 0); el.dataset.tk18h = String(r.h || 0);
-    }
-    return {w: parseFloat(el.dataset.tk18w) || 0, h: parseFloat(el.dataset.tk18h) || 0};
-  }
-  function clear(){
-    root.classList.remove(CLASS);
-    vars.forEach(v=>root.style.removeProperty(v));
-    const roulette = q('#rouletteDock.roulette-dock');
-    const it = q('.side-chip--it-min');
-    const info = q('.side-chip--infosec-min');
-    const phish = q('.side-chip--phish-min');
-    [it,info,phish].forEach(restore);
-    removeRail();
-    if(badge) badge.style.display = 'none';
-    key = '';
-  }
-  function apply(){
-    raf = 0;
-    if(!isTarget()){ clear(); return; }
-    const nav = q('.side-nav');
-    const roulette = q('#rouletteDock.roulette-dock');
-    const it = q('.side-chip--it-min');
-    const info = q('.side-chip--infosec-min');
-    const phish = q('.side-chip--phish-min');
-    const rules = q('.rules');
-    if(!nav || !roulette || !it || !info || !phish || !rules || !document.body){ clear(); return; }
-
-    [roulette,it,info,phish,nav,rules].forEach(ensureAnchor);
-
-    const W = vw(), H = vh(), effW = Math.round(W * dpr());
-    const leftM = Math.round(clamp(Math.min(W,H) * 0.010, 8, 14));
-    const topM = Math.round(clamp(H * 0.010, 8, 14));
-    const compact = W < 1320 || H < 760 || effW < 1750;
-    const laptop15 = W < 1460 || H < 860 || effW < 1900;
-
-    const nav0 = natBox(nav), roulette0 = natBox(roulette), it0 = natBox(it), info0 = natBox(info), phish0 = natBox(phish), rules0 = natBox(rules);
-
-    let navScale = clamp(Math.min((W * 0.19) / Math.max(nav0.w,1), (H * 0.36) / Math.max(nav0.h,1)), compact ? 0.67 : (laptop15 ? 0.70 : 0.72), 0.76);
-    let chipScale = clamp(laptop15 ? 0.78 : 0.83, compact ? 0.74 : 0.78, 0.86);
-    let rouletteScale = clamp(laptop15 ? 0.78 : 0.82, compact ? 0.72 : 0.78, 0.86);
-    let rulesScale = clamp(laptop15 ? 0.82 : 0.86, compact ? 0.78 : 0.82, 0.88);
-    let gap = 5;
-
-    const availLeftH = H - topM - nav0.h * navScale - 24;
-    let totalRailH = roulette0.h * rouletteScale + (it0.h + info0.h + phish0.h) * chipScale + gap * 3;
-    if(totalRailH > availLeftH){
-      const k = clamp(availLeftH / Math.max(totalRailH,1), 0.88, 1);
-      chipScale = clamp(chipScale * k, 0.76, 0.88);
-      rouletteScale = clamp(rouletteScale * (0.94 + (k-0.88)*0.3), 0.70, 0.82);
-      gap = Math.round(clamp(gap * k, 8, 16));
-    }
-
-    const leftUsed = Math.max(nav0.w * navScale, roulette0.w * rouletteScale, it0.w * chipScale);
-    const centerAvailW = W - leftUsed - rules0.w * rulesScale - leftM * 4;
-    let uiScale = clamp(centerAvailW / 1120, compact ? 0.76 : (laptop15 ? 0.79 : 0.82), 0.92);
-
-    const vals = {
-      '--tk19-left-m': leftM + 'px',
-      '--tk19-top-m': topM + 'px',
-      '--tk19-nav-scale': navScale.toFixed(4),
-      '--tk19-chip-scale': chipScale.toFixed(4),
-      '--tk19-roulette-scale': rouletteScale.toFixed(4),
-      '--tk19-rules-scale': rulesScale.toFixed(4),
-      '--tk19-ui-scale': uiScale.toFixed(4),
-      '--tk19-rail-gap': gap + 'px',
-      '--ui-bottom-scale': uiScale.toFixed(4)
-    };
-    const nextKey = JSON.stringify(vals);
-    if(nextKey === key && root.classList.contains(CLASS) && rail && rail.isConnected) return;
-
-    key = nextKey;
-    root.classList.add(CLASS);
-    Object.entries(vals).forEach(([k,v]) => set(k, v));
-    const box = ensureRail();
-    /* tk-v161: roulette moved by tk23 right-rail script to avoid conflicts */
-    box.appendChild(it);
-    box.appendChild(info);
-    box.appendChild(phish);
-    if(badge) badge.style.display = 'block';
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 260); }, {once:true});
-  document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
-  schedule();
-})();
+(function(){ /* tk-non4k-balanced-v19-script disabled in v201 */ return; })();
 </script>
 
 
@@ -18006,75 +17894,7 @@ html.tk-non4k-balanced-v19 #tk19LeftRail #rouletteDock.roulette-merged-v20 #roul
 }
 </style>
 <script id="tk-roulette-compact-v20-script">
-(function(){
-  const root = document.documentElement;
-  const q = (s, scope=document) => scope.querySelector(s);
-  let infoAnchor = null;
-  let changed = false;
-  let raf = 0;
-
-  function isTarget(){
-    const W = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
-    const H = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
-    const effW = Math.round(W * Math.max(window.devicePixelRatio || 1, 1));
-    return root.classList.contains('tk-non4k-balanced-v19') && W > 700 && H > 520 && effW < 3000;
-  }
-  function ensureAnchor(el){
-    if(!el || infoAnchor) return;
-    infoAnchor = document.createComment('tk20-roulette-info-anchor');
-    el.parentNode.insertBefore(infoAnchor, el);
-  }
-  function bumpLayout(){
-    const dock = q('#rouletteDock.roulette-dock');
-    if(dock){
-      delete dock.dataset.tk18w;
-      delete dock.dataset.tk18h;
-    }
-    window.dispatchEvent(new Event('resize'));
-  }
-  function apply(){
-    raf = 0;
-    const dock = q('#rouletteDock.roulette-dock');
-    const card = dock && q('.roulette-card', dock);
-    const controls = dock && q('.roulette-controls', dock);
-    const info = dock && q('.roulette-info', dock);
-    const mini = q('#rouletteMini', dock || document);
-    if(!dock || !card || !controls || !info) return;
-
-    ensureAnchor(info);
-
-    if(isTarget()){
-      dock.classList.add('roulette-merged-v20');
-      if(info.parentNode !== card){
-        card.appendChild(info);
-        changed = true;
-      }
-      if(mini) mini.style.display = 'none';
-    } else {
-      dock.classList.remove('roulette-merged-v20');
-      if(infoAnchor && infoAnchor.parentNode && info.parentNode !== infoAnchor.parentNode){
-        infoAnchor.parentNode.insertBefore(info, infoAnchor.nextSibling);
-        changed = true;
-      }
-      if(mini) mini.style.display = '';
-    }
-
-    if(changed){
-      changed = false;
-      bumpLayout();
-    }
-  }
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
-  }
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  window.addEventListener('load', schedule, {once:true});
-  document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  schedule();
-})();
+(function(){ /* tk-roulette-compact-v20-script disabled in v201 */ return; })();
 </script>
 
 
@@ -18313,46 +18133,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .rou
   height: 11px !important;
 }
 </style>
-<script id="tk-non4k-v23-right-roulette-script" data-disabled="v193">
-(function(){
-  return; // v193 disable legacy conflicting rail mover
-  const root = document.documentElement;
-  const q = (s, scope=document) => scope.querySelector(s);
-  const anchors = new WeakMap();
-  let rightRail = null;
-  let raf = 0;
-  function vw(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
-  function vh(){ return Math.round(window.innerHeight || document.documentElement.clientHeight || 0); }
-  function dpr(){ return Math.max(window.devicePixelRatio || 1, 1); }
-  function isTarget(){ return root.classList.contains('tk-non4k-balanced-v19') && vw() > 700 && vh() > 520 && Math.round(vw()*dpr()) < 3000; }
-  function ensureAnchor(el){ if(!el || anchors.has(el)) return; const ph=document.createComment('tk23-anchor'); el.parentNode.insertBefore(ph, el); anchors.set(el, ph); }
-  function restore(el){ const ph=anchors.get(el); if(ph && ph.parentNode && el && el.parentNode !== ph.parentNode) ph.parentNode.insertBefore(el, ph.nextSibling); }
-  function ensureRail(){ if(rightRail && rightRail.isConnected) return rightRail; rightRail = document.getElementById('tk23RightRail'); if(!rightRail){ rightRail = document.createElement('div'); rightRail.id = 'tk23RightRail'; document.body.appendChild(rightRail);} return rightRail; }
-  function removeRail(){ if(rightRail && rightRail.parentNode) rightRail.parentNode.removeChild(rightRail); rightRail = null; }
-  function sync(){
-    raf = 0;
-    const roulette = q('#rouletteDock.roulette-dock');
-    const rules = q('.rules');
-    if(!roulette || !rules) return;
-    ensureAnchor(roulette); ensureAnchor(rules);
-    if(isTarget()){
-      const rail = ensureRail();
-      rail.appendChild(roulette);
-      rail.appendChild(rules);
-    } else {
-      restore(roulette);
-      restore(rules);
-      removeRail();
-    }
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(()=>requestAnimationFrame(sync)); }
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  window.addEventListener('load', schedule, {once:true});
-  document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  schedule();
-})();
+<script id="tk-non4k-v23-right-roulette-script">
+(function(){ /* tk-non4k-v23-right-roulette-script disabled in v201 */ return; })();
 </script>
 
 
@@ -19169,24 +18951,9 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-m
   align-self: flex-end !important;
 }
 </style>
-<script id="tk-non4k-v31-right-rail-overflow-script">(function(){
-  function apply(){
-    var html = document.documentElement;
-    var rail = document.getElementById('tk23RightRail');
-    if(!rail || !html.classList.contains('tk-non4k-balanced-v19')) return;
-    rail.style.setProperty('--tk31-right-shift','0px');
-    var rr = rail.getBoundingClientRect();
-    var overRight = rr.right - window.innerWidth;
-    var shift = 0;
-    if(overRight > 0) shift -= Math.ceil(overRight + 12);
-    var leftGap = rr.left + shift;
-    if(leftGap < 8) shift += Math.ceil(8 - leftGap);
-    rail.style.setProperty('--tk31-right-shift', shift + 'px');
-  }
-  ['load','resize'].forEach(function(ev){ window.addEventListener(ev, apply, {passive:true}); });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
-  setTimeout(apply, 80); setTimeout(apply, 260); setTimeout(apply, 700);
-})();</script>
+<script id="tk-non4k-v31-right-rail-overflow-script">
+(function(){ /* tk-non4k-v31-right-rail-overflow-script disabled in v201 */ return; })();
+</script>
 <script id="tk-non4k-v31-badge">(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v31 non4k';})();</script>
 
 
@@ -19827,27 +19594,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .rou
 }
 </style>
 <script id="tk-roulette-v49-hard-left-shift-script">
-(function(){
-  function apply(){
-    var dock = document.querySelector('#tk23RightRail #rouletteDock') || document.querySelector('#rouletteDock');
-    if(!dock) return;
-    dock.style.setProperty('transform', 'translateX(-48px)', 'important');
-    dock.style.setProperty('margin-right', '0px', 'important');
-    dock.style.setProperty('align-self', 'flex-end', 'important');
-    var card = dock.querySelector('.roulette-card');
-    if(card){
-      card.style.setProperty('transform', 'none', 'important');
-      card.style.setProperty('margin-right', '0px', 'important');
-    }
-    var badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v49 non4k';
-  }
-  window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 600); }, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
-  document.addEventListener('DOMContentLoaded', apply, {once:true});
-  apply();
-})();
+(function(){ /* tk-roulette-v49-hard-left-shift-script disabled in v201 */ return; })();
 </script>
 
 
@@ -19866,23 +19613,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-card{
 }
 </style>
 <script id="tk-non4k-v50-roulette-left-only-script">
-(function(){
-  function apply(){
-    var dock = document.querySelector('#tk23RightRail #rouletteDock') || document.querySelector('#rouletteDock');
-    if(!dock) return;
-    dock.style.setProperty('position','relative','important');
-    dock.style.setProperty('left','-64px','important');
-    dock.style.setProperty('margin-right','0px','important');
-    dock.style.setProperty('transform','none','important');
-    var badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v50 non4k';
-  }
-  window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 800); }, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
-  document.addEventListener('DOMContentLoaded', apply, {once:true});
-  apply();
-})();
+(function(){ /* tk-non4k-v50-roulette-left-only-script disabled in v201 */ return; })();
 </script>
 
 
@@ -20628,133 +20359,170 @@ html.tk-v102-menu-ready .side-nav{
 
 
 <script id="tk-v183-non4k-roulette-hard-lock">
-(function(){
-  const root = document.documentElement;
-  const q = (s, scope=document) => scope.querySelector(s);
-  let raf = 0;
-
-  function isNon4kRail(){
-    return root.classList.contains('tk-non4k-balanced-v19') && !!document.getElementById('tk23RightRail');
-  }
-
-  function clearLegacyFixed(dock){
-    if(!dock) return;
-    const pos = (dock.style.getPropertyValue('position') || '').trim();
-    const hasRight = (dock.style.getPropertyValue('right') || '').trim();
-    const hasTop = (dock.style.getPropertyValue('top') || '').trim();
-    const hasWidth = (dock.style.getPropertyValue('width') || '').trim();
-    // If any legacy script forced fixed positioning, wipe it so the dock stays in the rail flow.
-    if(pos === 'fixed' || hasRight || hasTop || hasWidth){
-      [
-        'position','left','right','top','bottom',
-        'width','min-width','max-width',
-        'padding-top','padding-right','padding-bottom','padding-left',
-        'margin-left','transform','transform-origin','z-index',
-        '--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom'
-      ].forEach(p => dock.style.removeProperty(p));
-    }
-  }
-
-  function ensure(){
-    if(!isNon4kRail()) return;
-    const rail = document.getElementById('tk23RightRail');
-    const dock = q('#rouletteDock.roulette-dock');
-    const rules = q('.rules');
-    if(!rail || !dock || !rules) return;
-
-    clearLegacyFixed(dock);
-
-    // Keep order: roulette above rules (always).
-    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild);
-    if(rules.parentNode !== rail) rail.appendChild(rules);
-  }
-
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(()=>{ raf = 0; ensure(); });
-  }
-
-  // Capture scroll from internal scrollers (FHD mode scrolls .header, not window)
-  // v193: removed capture scroll listener; it caused right-rail jitter/disappear on FHD
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 80); }, {once:true});
-})();
+(function(){ /* tk-v183-non4k-roulette-hard-lock disabled in v201 */ return; })();
 </script>
-<style id="tk-v193-fhd-right-left-final">
-@media (min-width:980px) and (min-height:620px){
-  html.tk-non4k-balanced-v19 #tkV165RightRail{ display:none !important; opacity:0 !important; visibility:hidden !important; pointer-events:none !important; }
-  html.tk-non4k-balanced-v19 #tk23RightRail{
-    position:fixed !important; right:12px !important; bottom:14px !important; left:auto !important; top:auto !important;
-    display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:10px !important;
-    z-index:100120 !important; pointer-events:none !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important;
-  }
-  html.tk-non4k-balanced-v19 #tk23RightRail > *{ pointer-events:auto !important; }
-  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock,
-  html.tk-non4k-balanced-v19 #tk23RightRail .rules{ width:clamp(318px, 23.8vw, 352px) !important; min-width:clamp(318px, 23.8vw, 352px) !important; max-width:clamp(318px, 23.8vw, 352px) !important; }
-  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock{ position:static !important; inset:auto !important; margin:0 !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important; opacity:1 !important; visibility:visible !important; display:block !important; --roulette-dock-left:auto !important; --roulette-dock-tx:0px !important; --roulette-dock-bottom:auto !important; }
-  html.tk-non4k-balanced-v19 #tk23RightRail .rules{ position:static !important; inset:auto !important; margin:0 !important; display:flex !important; flex-direction:column !important; gap:10px !important; transform:none !important; opacity:1 !important; visibility:visible !important; }
-  html.tk-non4k-balanced-v19 #tk23RightRail .rule-pill{ width:100% !important; min-width:0 !important; max-width:100% !important; }
 
-  html.tk-non4k-balanced-v19 #tk19LeftRail{
-    position:fixed !important; left:14px !important; bottom:14px !important; right:auto !important; top:auto !important;
-    display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:12px !important;
-    z-index:100118 !important; pointer-events:none !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important;
-  }
-  html.tk-non4k-balanced-v19 #tk19LeftRail > *{ pointer-events:auto !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip{ display:flex !important; align-items:center !important; gap:12px !important; margin:0 !important; padding:0 !important; transform:none !important; translate:none !important; scale:1 !important; zoom:1 !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip + .side-chip{ margin-top:0 !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .avatar{ width:86px !important; height:86px !important; min-width:86px !important; flex:0 0 86px !important; border-radius:28px !important; font-size:34px !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-card{ width:274px !important; min-width:274px !important; max-width:274px !important; min-height:86px !important; padding:12px 15px !important; border-radius:24px !important; box-sizing:border-box !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-name{ font-size:18px !important; line-height:1.05 !important; margin-bottom:10px !important; gap:10px !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-badge{ font-size:10px !important; padding:4px 8px !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-actions{ gap:10px !important; }
-  html.tk-non4k-balanced-v19 #tk19LeftRail .side-chip .chip-btn{ min-width:112px !important; min-height:42px !important; padding:10px 14px !important; border-radius:18px !important; font-size:12px !important; letter-spacing:.09em !important; }
-}
+<style id="tk-v201-fhd-clean-rails-style">
+html.tk-fhd-clean-fixedrails #tkFhdRightRailFinal{position:fixed;right:12px;bottom:12px;z-index:9700;display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none;overflow:visible;}
+html.tk-fhd-clean-fixedrails #tkFhdLeftRailFinal{position:fixed;left:12px;bottom:12px;z-index:9700;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none;overflow:visible;}
+html.tk-fhd-clean-fixedrails #tkFhdRightRailFinal > *,
+html.tk-fhd-clean-fixedrails #tkFhdLeftRailFinal > *{pointer-events:auto;}
+html.tk-fhd-clean-fixedrails #tk18LeftRail,
+html.tk-fhd-clean-fixedrails #tk19LeftRail,
+html.tk-fhd-clean-fixedrails #tk23RightRail,
+html.tk-fhd-clean-fixedrails #tkV165RightRail{display:none !important;pointer-events:none !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock.roulette-dock{position:relative !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;inset:auto !important;transform:none !important;transform-origin:center top !important;translate:none !important;scale:none !important;zoom:1 !important;width:340px !important;min-width:340px !important;max-width:340px !important;margin:0 !important;gap:12px !important;align-items:stretch !important;justify-content:flex-start !important;flex-direction:column !important;z-index:auto !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.roulette-dock{width:324px !important;min-width:324px !important;max-width:324px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-card{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:flex-start !important;padding:16px 16px 12px !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;overflow:visible !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .roulette-card{padding:14px 14px 10px !important;gap:10px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-controls,
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-head,
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-mini,
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-ghostRow,
+html.tk-fhd-clean-fixedrails #rouletteDock #rouletteReset,
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-history{display:none !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .wheel-wrap,
+html.tk-fhd-clean-fixedrails #rouletteDock .wheel-rot{width:194px !important;height:194px !important;min-width:194px !important;min-height:194px !important;flex:0 0 194px !important;margin:0 auto !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .wheel-wrap,
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .wheel-rot{width:182px !important;height:182px !important;min-width:182px !important;min-height:182px !important;flex-basis:182px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock canvas#wheel{width:100% !important;height:100% !important;display:block !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-info{width:100% !important;min-width:0 !important;box-sizing:border-box !important;padding:12px 14px 14px !important;gap:10px !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .roulette-info{padding:11px 12px 12px !important;gap:9px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoHead{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:10px !important;flex-wrap:nowrap !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoBadge{font-size:9px !important;padding:5px 8px !important;letter-spacing:.10em !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-streak{font-size:11px !important;padding:5px 9px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoTitle{font-size:15px !important;line-height:1.10 !important;letter-spacing:.01em !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .roulette-infoTitle{font-size:14px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoText{font-size:12.5px !important;line-height:1.24 !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .roulette-infoText{font-size:11.8px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoActions{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;width:100% !important;margin-top:2px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock #rLink,
+html.tk-fhd-clean-fixedrails #rouletteDock #spinBtn{flex:1 1 0 !important;min-width:0 !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock #rouletteSound{flex:0 0 46px !important;width:46px !important;height:46px !important;min-width:46px !important;padding:0 !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-link,
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-btn{min-height:44px !important;padding:10px 12px !important;border-radius:16px !important;font-size:12px !important;letter-spacing:.05em !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .roulette-link,
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .roulette-btn{min-height:42px !important;padding:9px 11px !important;font-size:11.5px !important;}
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-link svg,
+html.tk-fhd-clean-fixedrails #rouletteDock .roulette-btn svg{width:15px !important;height:15px !important;}
+html.tk-fhd-clean-fixedrails .rules{position:relative !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;transform:none !important;zoom:1 !important;translate:none !important;scale:none !important;width:340px !important;min-width:340px !important;max-width:340px !important;gap:10px !important;margin:0 !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] .rules{width:324px !important;min-width:324px !important;max-width:324px !important;}
+html.tk-fhd-clean-fixedrails .rule-pill{width:340px !important;min-width:340px !important;max-width:340px !important;height:70px !important;padding:10px 12px !important;gap:10px !important;box-sizing:border-box !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] .rule-pill{width:324px !important;min-width:324px !important;max-width:324px !important;height:66px !important;padding:9px 11px !important;}
+html.tk-fhd-clean-fixedrails .rule-pill__icon{width:48px !important;height:48px !important;border-radius:18px !important;}
+html.tk-fhd-clean-fixedrails .rule-pill__title{font-size:16px !important;white-space:nowrap !important;}
+html.tk-fhd-clean-fixedrails .rule-pill__badge{width:42px !important;height:42px !important;border-radius:14px !important;}
+html.tk-fhd-clean-fixedrails .side-chip{position:relative !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;transform:none !important;zoom:1 !important;translate:none !important;scale:none !important;margin:0 !important;display:flex !important;align-items:center !important;gap:10px !important;}
+html.tk-fhd-clean-fixedrails #tkFhdLeftRailFinal .side-chip + .side-chip{margin-top:0 !important;}
+html.tk-fhd-clean-fixedrails .side-chip .avatar{width:82px !important;height:82px !important;border-radius:24px !important;flex:0 0 82px !important;}
+html.tk-fhd-clean-fixedrails .side-chip .avatar img,
+html.tk-fhd-clean-fixedrails .side-chip .avatar .avatar-img{width:100% !important;height:100% !important;object-fit:cover !important;}
+html.tk-fhd-clean-fixedrails .side-chip .chip-card{min-width:274px !important;max-width:274px !important;padding:11px 13px !important;border-radius:24px !important;box-sizing:border-box !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] .side-chip .chip-card{min-width:258px !important;max-width:258px !important;padding:10px 12px !important;}
+html.tk-fhd-clean-fixedrails .side-chip .chip-name{font-size:15px !important;line-height:1.05 !important;margin-bottom:6px !important;}
+html.tk-fhd-clean-fixedrails .side-chip .chip-badge{font-size:9px !important;padding:3px 6px !important;}
+html.tk-fhd-clean-fixedrails .side-chip .chip-btn{padding:9px 12px !important;font-size:10px !important;border-radius:16px !important;}
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] .side-chip .chip-btn{padding:8px 10px !important;font-size:9.5px !important;}
+html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
 </style>
-<script id="tk-v193-fhd-watch">
+<script id="tk-v201-fhd-clean-rails-script">
 (function(){
-  'use strict';
   const root = document.documentElement;
-  let raf = 0, spinTick = 0;
-  function q(s,scope=document){ return scope.querySelector(s); }
-  function setImp(el,p,v){ if(el) el.style.setProperty(p,v,'important'); }
-  function clearProps(el,arr){ if(!el) return; arr.forEach(p=>el.style.removeProperty(p)); }
-  function isTarget(){ const w=Math.round(window.innerWidth||document.documentElement.clientWidth||0); const h=Math.round(window.innerHeight||document.documentElement.clientHeight||0); const dpr=Math.max(1,window.devicePixelRatio||1); return root.classList.contains('tk-non4k-balanced-v19') && w>=980 && h>=620 && Math.round(w*dpr)<3000; }
-  function ensureRail(id){ let el=document.getElementById(id); if(!el){ el=document.createElement('div'); el.id=id; document.body.appendChild(el);} return el; }
+  const anchors = new WeakMap();
+  let raf = 0;
+  function is4kLike(){
+    const w = Math.round(window.innerWidth || 0);
+    const h = Math.round(window.innerHeight || 0);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const effW = Math.round(w * dpr);
+    const effH = Math.round(h * dpr);
+    if(w <= 520) return false;
+    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+  }
+  function isTarget(){
+    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
+    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
+    const effW = Math.round(w * Math.max(window.devicePixelRatio || 1, 1));
+    if(is4kLike()) return false;
+    return w >= 980 && h >= 620 && effW < 3000;
+  }
+  function remember(el){
+    if(!el || anchors.has(el) || !el.parentNode) return;
+    const ph = document.createComment('tk-v201-anchor');
+    el.parentNode.insertBefore(ph, el);
+    anchors.set(el, ph);
+  }
+  function restore(el){
+    const ph = anchors.get(el);
+    if(!ph || !ph.parentNode || !el) return;
+    if(el.parentNode !== ph.parentNode) ph.parentNode.insertBefore(el, ph.nextSibling);
+  }
+  function ensureRail(id){
+    let el = document.getElementById(id);
+    if(!el){ el = document.createElement('div'); el.id = id; document.body.appendChild(el); }
+    return el;
+  }
+  function removeRail(id){ const el = document.getElementById(id); if(el && el.parentNode) el.parentNode.removeChild(el); }
+  function orderActions(){
+    const dock = document.getElementById('rouletteDock');
+    const actions = dock && dock.querySelector('.roulette-infoActions');
+    const link = document.getElementById('rLink');
+    const spin = document.getElementById('spinBtn');
+    const sound = document.getElementById('rouletteSound');
+    if(!actions || !link || !spin || !sound) return;
+    if(link.parentNode !== actions) actions.appendChild(link);
+    if(spin.parentNode !== actions) actions.appendChild(spin);
+    if(sound.parentNode !== actions) actions.appendChild(sound);
+    if(actions.firstElementChild !== link) actions.insertBefore(link, actions.firstChild || null);
+    if(link.nextElementSibling !== spin) actions.insertBefore(spin, link.nextSibling);
+    if(spin.nextElementSibling !== sound) actions.insertBefore(sound, spin.nextSibling);
+  }
+  function redraw(){
+    try{ if(typeof window.__tkRouletteRedraw === 'function') window.__tkRouletteRedraw(); }catch(_e){}
+  }
   function apply(){
     raf = 0;
-    if(!isTarget()) return;
-    const dock=document.getElementById('rouletteDock');
-    const rules=q('.rules');
-    const leftRail=ensureRail('tk19LeftRail');
-    const rightRail=ensureRail('tk23RightRail');
-    const oldRail=document.getElementById('tkV165RightRail');
-    if(!dock || !rules) return;
-    if(oldRail && oldRail!==rightRail){ setImp(oldRail,'display','none'); setImp(oldRail,'opacity','0'); setImp(oldRail,'visibility','hidden'); setImp(oldRail,'pointer-events','none'); }
-    if(dock.parentNode!==rightRail) rightRail.insertBefore(dock,rightRail.firstChild||null);
-    if(rightRail.firstElementChild!==dock) rightRail.insertBefore(dock,rightRail.firstChild||null);
-    if(rules.parentNode!==rightRail) rightRail.appendChild(rules);
-    if(dock.nextElementSibling!==rules) rightRail.insertBefore(rules,dock.nextSibling);
-    clearProps(dock,['left','right','top','bottom','inset','margin-left','margin-right','margin-top','margin-bottom','transform','translate','scale','zoom','width','min-width','max-width','--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom','--roulette-over-chips']);
-    clearProps(rules,['left','right','top','bottom','inset','margin-left','margin-right','margin-top','margin-bottom','transform','translate','scale','zoom']);
-    setImp(rightRail,'display','flex'); setImp(rightRail,'opacity','1'); setImp(rightRail,'visibility','visible');
-    setImp(dock,'display','block'); setImp(dock,'opacity','1'); setImp(dock,'visibility','visible');
-    setImp(rules,'display','flex'); setImp(rules,'opacity','1'); setImp(rules,'visibility','visible');
-    setImp(leftRail,'display','flex'); setImp(leftRail,'opacity','1'); setImp(leftRail,'visibility','visible');
+    const dock = document.getElementById('rouletteDock');
+    const rules = document.querySelector('.rules');
+    const it = document.querySelector('.side-chip--it-min');
+    const info = document.querySelector('.side-chip--infosec-min');
+    const phish = document.querySelector('.side-chip--phish-min');
+    const spin = document.getElementById('spinBtn');
+    const sound = document.getElementById('rouletteSound');
+    [dock,rules,it,info,phish,spin,sound].forEach(remember);
+    if(!dock || !rules || !it || !info || !phish) return;
+    if(!isTarget()){
+      root.classList.remove('tk-fhd-clean-fixedrails');
+      root.removeAttribute('data-fhd-size');
+      [dock,rules,it,info,phish,spin,sound].forEach(restore);
+      removeRail('tkFhdRightRailFinal');
+      removeRail('tkFhdLeftRailFinal');
+      redraw();
+      return;
+    }
+    root.classList.add('tk-fhd-clean-fixedrails');
+    root.setAttribute('data-fhd-size', (window.innerWidth < 1500 || window.innerHeight < 860) ? 'compact' : 'normal');
+    const left = ensureRail('tkFhdLeftRailFinal');
+    const right = ensureRail('tkFhdRightRailFinal');
+    if(dock.parentNode !== right) right.insertBefore(dock, right.firstChild || null);
+    if(right.firstElementChild !== dock) right.insertBefore(dock, right.firstChild || null);
+    if(rules.parentNode !== right) right.appendChild(rules);
+    if(dock.nextElementSibling !== rules) right.appendChild(rules);
+    [it, info, phish].forEach(function(el){ if(el.parentNode !== left) left.appendChild(el); });
+    orderActions();
+    ['tk18LeftRail','tk19LeftRail','tk23RightRail','tkV165RightRail'].forEach(function(id){ const el=document.getElementById(id); if(el){ el.style.setProperty('display','none','important'); el.style.setProperty('pointer-events','none','important'); } });
+    setTimeout(redraw, 0); setTimeout(redraw, 120); setTimeout(redraw, 500);
   }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(apply); }
-  function startSpinGuard(){ clearInterval(spinTick); let n=0; spinTick=setInterval(function(){ n++; apply(); const dock=document.getElementById('rouletteDock'); if(!dock || !dock.classList.contains('is-spinning') || n>80){ clearInterval(spinTick); spinTick=0; apply(); } },120); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule,120); }, {once:true});
+  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 200); setTimeout(schedule, 800); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  document.addEventListener('click', function(e){ const t=e.target; if(!t) return; if(t.id==='spinBtn' || (t.closest && t.closest('#spinBtn'))){ schedule(); setTimeout(schedule,80); setTimeout(schedule,260); setTimeout(schedule,700); startSpinGuard(); } }, true);
+  document.addEventListener('click', function(e){ if(e.target && (e.target.id === 'spinBtn' || (e.target.closest && e.target.closest('#spinBtn')))){ setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 1200); } }, true);
 })();
 </script>
+
 </body>
 </html>
 
@@ -21061,34 +20829,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-non4k-v51-roulette-fit-wheel-script">
-(function(){
-  function apply(){
-    var dock = document.querySelector('#tk23RightRail #rouletteDock') || document.querySelector('#rouletteDock');
-    if(!dock) return;
-    dock.style.setProperty('position','relative','important');
-    dock.style.setProperty('left','-42px','important');
-    dock.style.setProperty('width','min(298px, calc(100vw - 54px))','important');
-    dock.style.setProperty('max-width','min(298px, calc(100vw - 54px))','important');
-    dock.style.setProperty('min-width','0px','important');
-    dock.style.setProperty('transform','none','important');
-    var card = dock.querySelector('.roulette-card');
-    if(card){
-      card.style.setProperty('width','100%','important');
-      card.style.setProperty('max-width','100%','important');
-      card.style.setProperty('min-width','0px','important');
-      card.style.setProperty('box-sizing','border-box','important');
-      card.style.setProperty('padding','12px 12px 11px','important');
-      card.style.setProperty('gap','10px','important');
-    }
-    var badge = document.querySelector('.debug-tk19-badge');
-    if(badge) badge.textContent = 'v51 non4k';
-  }
-  window.addEventListener('load', function(){ apply(); setTimeout(apply,120); setTimeout(apply,600); }, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', apply, {passive:true}); }
-  document.addEventListener('DOMContentLoaded', apply, {once:true});
-  apply();
-})();
+(function(){ /* tk-non4k-v51-roulette-fit-wheel-script disabled in v201 */ return; })();
 </script>
 
 
@@ -23317,167 +23058,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </style>
 
 <script id="tk-v133-fhd-roulette-like-4k-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function isFullHdLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    if(w < 900 || h < 650) return false;
-    if(is4kLike()) return false;
-    return (w >= 1100) || (effW >= 1500);
-  }
-  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
-    if(!dock) return;
-    // v183: disable legacy FHD "like-4k" roulette positioning when non4k rails are active
-    if(root.classList.contains('tk-non4k-balanced-v19') || document.getElementById('tk23RightRail')){
-      root.classList.remove('tk-v133-fhd-roulette-ready');
-      try{
-        var props = ['position','left','right','top','bottom','margin-left','transform','transform-origin','z-index','width','max-width','min-width','padding-top','padding-right','padding-bottom','padding-left','--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom'];
-        props.forEach(function(p){ dock.style.removeProperty(p); });
-        // Also clear wheel/canvas tweaks if they were applied
-        var wheel = dock.querySelector('.wheel-wrap'); if(wheel){ ['width','height','margin'].forEach(function(p){ wheel.style.removeProperty(p); }); }
-        var canvas = dock.querySelector('canvas#wheel'); if(canvas){ ['transform','transform-origin'].forEach(function(p){ canvas.style.removeProperty(p); }); }
-        var info = dock.querySelector('.roulette-info'); if(info){ ['margin-top','padding-top'].forEach(function(p){ info.style.removeProperty(p); }); }
-      }catch(_e){}
-      return;
-    }
-    if(!isFullHdLike() || !comic){
-      root.classList.remove('tk-v133-fhd-roulette-ready');
-      return;
-    }
-    var rect = comic.getBoundingClientRect();
-    if(!rect || !rect.width || !rect.height) return;
-    var right = Math.max(10, Math.round(window.innerWidth - rect.right) + 4);
-    var bottom = Math.max(10, Math.round(window.innerHeight - rect.top + 18));
-    var width = Math.max(470, Math.min(520, Math.round((window.innerWidth || 0) - 72)));
-    root.classList.add('tk-v133-fhd-roulette-ready');
-    setImp(dock, 'position', 'fixed');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', right + 'px');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', bottom + 'px');
-    setImp(dock, 'margin-left', '0');
-    setImp(dock, 'transform', 'translateZ(0) scale(1)');
-    setImp(dock, 'transform-origin', 'right bottom');
-    setImp(dock, 'z-index', '99999');
-    setImp(dock, 'width', width + 'px');
-    setImp(dock, 'max-width', width + 'px');
-    setImp(dock, 'min-width', width + 'px');
-    setImp(dock, 'padding-top', '20px');
-    setImp(dock, 'padding-right', '22px');
-    setImp(dock, 'padding-bottom', '18px');
-    setImp(dock, 'padding-left', '22px');
-    setImp(dock, '--roulette-dock-left', 'auto');
-    setImp(dock, '--roulette-dock-tx', '0px');
-    setImp(dock, '--roulette-dock-bottom', bottom + 'px');
-
-    var wheel = dock.querySelector('.wheel-wrap');
-    if(wheel){
-      setImp(wheel, 'width', '188px');
-      setImp(wheel, 'height', '188px');
-      setImp(wheel, 'margin', '0 auto 14px');
-    }
-    var canvas = dock.querySelector('canvas#wheel');
-    if(canvas){
-      setImp(canvas, 'transform', 'scale(1.10)');
-      setImp(canvas, 'transform-origin', 'center center');
-    }
-    var info = dock.querySelector('.roulette-info');
-    if(info){
-      setImp(info, 'margin-top', '8px');
-      setImp(info, 'padding-top', '16px');
-    }
-    var head = dock.querySelector('.roulette-infoHead');
-    if(head){
-      setImp(head, 'gap', '12px');
-      setImp(head, 'margin-bottom', '14px');
-    }
-    var title = dock.querySelector('.roulette-infoTitle');
-    if(title){
-      setImp(title, 'font-size', '19px');
-      setImp(title, 'line-height', '1.12');
-      setImp(title, 'margin-bottom', '10px');
-    }
-    var text = dock.querySelector('.roulette-infoText');
-    if(text){
-      setImp(text, 'font-size', '14px');
-      setImp(text, 'line-height', '1.36');
-      setImp(text, '-webkit-line-clamp', '3');
-    }
-    var actions = dock.querySelector('.roulette-infoActions');
-    if(actions){
-      setImp(actions, 'display', 'grid');
-      setImp(actions, 'grid-template-columns', 'minmax(0,1fr) minmax(0,1fr) 54px');
-      setImp(actions, 'gap', '12px');
-      setImp(actions, 'margin-top', '16px');
-    }
-    var link = dock.querySelector('#rLink');
-    if(link){
-      setImp(link, 'width', '100%');
-      setImp(link, 'height', '50px');
-      setImp(link, 'padding-left', '18px');
-      setImp(link, 'padding-right', '18px');
-      setImp(link, 'font-size', '15px');
-    }
-    var spin = dock.querySelector('#spinBtn');
-    if(spin){
-      setImp(spin, 'width', '100%');
-      setImp(spin, 'height', '50px');
-      setImp(spin, 'padding-left', '18px');
-      setImp(spin, 'padding-right', '18px');
-      setImp(spin, 'font-size', '15px');
-    }
-    var sound = dock.querySelector('#rouletteSound');
-    if(sound){
-      setImp(sound, 'width', '54px');
-      setImp(sound, 'min-width', '54px');
-      setImp(sound, 'height', '50px');
-    }
-    var reset = dock.querySelector('#rouletteReset');
-    if(reset){
-      setImp(reset, 'display', 'none');
-      if(reset.parentNode) reset.parentNode.removeChild(reset);
-    }
-  }
-  var raf = 0;
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  } else {
-    schedule();
-  }
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    // v183: removed visualViewport scroll listener (caused jitter on some FHD setups)
-    // window.visualViewport.addEventListener('scroll', schedule, {passive:true});
-  }
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 80); }, true);
-  setTimeout(schedule, 60);
-  setTimeout(schedule, 240);
-  setTimeout(schedule, 800);
-  setTimeout(schedule, 1600);
-})();
+(function(){ /* tk-v133-fhd-roulette-like-4k-script disabled in v201 */ return; })();
 </script>
 
 
@@ -23625,133 +23206,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v135-fhd-roulette-match-4k-real-fix-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function isFhdLaptopLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(is4kLike()) return false;
-    if(w < 980 || h < 620) return false;
-    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
-  }
-  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
-    if(!dock) return;
-    var actions = dock.querySelector('.roulette-infoActions');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    if(reset && reset.parentNode) reset.parentNode.removeChild(reset);
-    if(actions && sound && sound.parentElement !== actions) actions.appendChild(sound);
-    if(!isFhdLaptopLike() || !comic){
-      root.classList.remove('tk-v135-fhd-roulette-ready');
-      return;
-    }
-    var rect = comic.getBoundingClientRect();
-    if(!rect || !rect.width || !rect.height) return;
-    root.classList.remove('tk-v133-fhd-roulette-ready');
-    root.classList.add('tk-v135-fhd-roulette-ready');
-
-    var right = Math.max(10, Math.round(window.innerWidth - rect.right) + 2);
-    var bottom = Math.max(10, Math.round(window.innerHeight - rect.top + 14));
-    var width = Math.max(420, Math.min(450, Math.round((window.innerWidth || 0) * 0.33)));
-
-    setImp(dock, 'position', 'fixed');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', right + 'px');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', bottom + 'px');
-    setImp(dock, 'transform', 'translateZ(0) scale(1)');
-    setImp(dock, 'transform-origin', 'right bottom');
-    setImp(dock, 'z-index', '99999');
-    setImp(dock, 'width', width + 'px');
-    setImp(dock, 'max-width', width + 'px');
-    setImp(dock, 'min-width', width + 'px');
-    setImp(dock, 'padding-top', '18px');
-    setImp(dock, 'padding-right', '18px');
-    setImp(dock, 'padding-bottom', '16px');
-    setImp(dock, 'padding-left', '18px');
-    setImp(dock, '--roulette-dock-left', 'auto');
-    setImp(dock, '--roulette-dock-tx', '0px');
-    setImp(dock, '--roulette-dock-bottom', bottom + 'px');
-
-    var wheel = dock.querySelector('.wheel-wrap');
-    if(wheel){
-      setImp(wheel, 'width', '184px');
-      setImp(wheel, 'height', '184px');
-      setImp(wheel, 'margin', '0 auto 14px');
-    }
-    var canvas = dock.querySelector('canvas#wheel');
-    if(canvas){
-      setImp(canvas, 'transform', 'scale(1.16)');
-      setImp(canvas, 'transform-origin', 'center center');
-    }
-    var title = dock.querySelector('.roulette-infoTitle');
-    if(title){
-      setImp(title, 'font-size', '16px');
-      setImp(title, 'line-height', '1.12');
-      setImp(title, 'margin-bottom', '8px');
-    }
-    var text = dock.querySelector('.roulette-infoText');
-    if(text){
-      setImp(text, 'font-size', '12px');
-      setImp(text, 'line-height', '1.34');
-      setImp(text, '-webkit-line-clamp', '3');
-    }
-    if(actions){
-      setImp(actions, 'display', 'grid');
-      setImp(actions, 'grid-template-columns', 'minmax(0,1fr) minmax(0,1fr) 52px');
-      setImp(actions, 'gap', '10px');
-      setImp(actions, 'margin-top', '14px');
-    }
-    var link = dock.querySelector('#rLink');
-    if(link){
-      setImp(link, 'width', '100%'); setImp(link, 'height', '48px'); setImp(link, 'font-size', '14px');
-    }
-    var spin = dock.querySelector('#spinBtn');
-    if(spin){
-      setImp(spin, 'width', '100%'); setImp(spin, 'height', '48px'); setImp(spin, 'font-size', '14px');
-    }
-    if(sound){
-      setImp(sound, 'width', '52px'); setImp(sound, 'height', '48px'); setImp(sound, 'min-width', '52px');
-    }
-  }
-  var raf = 0;
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-    // v183: removed visualViewport scroll listener (caused jitter on some FHD setups)
-    // window.visualViewport.addEventListener('scroll', schedule, {passive:true});
-  }
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  setTimeout(schedule, 60);
-  setTimeout(schedule, 240);
-  setTimeout(schedule, 900);
-  setTimeout(schedule, 1800);
-})();
+(function(){ /* tk-v135-fhd-roulette-match-4k-real-fix-script disabled in v201 */ return; })();
 </script>
 
 
@@ -23924,10 +23379,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v143-fhd-roulette-over-comic-rail-script">
-(function(){
-  // v164: disabled (caused roulette wobble / reflow during spin)
-  return;
-})();
+(function(){ /* tk-v143-fhd-roulette-over-comic-rail-script disabled in v201 */ return; })();
 </script>
 
 
@@ -23941,101 +23393,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 }
 </style>
-<script id="tk-v145-fhd-exact-right-gap-script" data-disabled="v193">
-(function(){
-  return; // v193 disable legacy conflicting rail mover
-  'use strict';
-  var root = document.documentElement;
-  var raf = 0;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function isFhdLaptopLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(is4kLike()) return false;
-    if(w < 980 || h < 620) return false;
-    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
-  }
-  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function apply(){
-    raf = 0;
-    if(!isFhdLaptopLike()){
-      root.classList.remove('tk-v145-fhd-exact-right-gap');
-      return;
-    }
-    var rail = document.getElementById('tk23RightRail');
-    var dock = document.getElementById('rouletteDock');
-    var rules = document.querySelector('.rules');
-    var comic = document.getElementById('openComicMenu');
-    if(!rail || !dock || !rules || !comic) return;
-
-    root.classList.add('tk-v145-fhd-exact-right-gap');
-
-    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
-    if(rules.parentNode !== rail) rail.appendChild(rules);
-    if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
-    if(dock.nextElementSibling !== rules) rail.appendChild(rules);
-
-    setImp(rail, 'position', 'fixed');
-    setImp(rail, 'left', 'auto');
-    setImp(rail, 'right', '5px');
-    setImp(rail, 'bottom', '14px');
-    setImp(rail, 'transform', 'none');
-    setImp(rail, 'align-items', 'flex-end');
-
-    setImp(dock, 'position', 'static');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', 'auto');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', 'auto');
-    setImp(dock, 'transform', 'none');
-    setImp(dock, 'z-index', 'auto');
-    setImp(dock, 'margin-right', '0px');
-
-    // Measure current gap and correct it so roulette ends 5px from viewport right edge.
-    var rect = dock.getBoundingClientRect();
-    var gap = Math.round((window.innerWidth || document.documentElement.clientWidth || 0) - rect.right);
-    var target = 5;
-    var delta = gap - target;
-    // positive delta means current gap is too big -> move dock right by delta using negative margin-right.
-    var mr = 0 - delta;
-    // keep inside viewport with tiny safety.
-    var maxRightShift = 0;
-    var minRightShift = -80;
-    if(mr > maxRightShift) mr = maxRightShift;
-    if(mr < minRightShift) mr = minRightShift;
-    setImp(dock, 'margin-right', mr + 'px');
-
-    // One more pass after layout settles.
-    requestAnimationFrame(function(){
-      var rect2 = dock.getBoundingClientRect();
-      var gap2 = Math.round((window.innerWidth || document.documentElement.clientWidth || 0) - rect2.right);
-      var delta2 = gap2 - target;
-      var mr2 = mr - delta2;
-      if(mr2 > maxRightShift) mr2 = maxRightShift;
-      if(mr2 < minRightShift) mr2 = minRightShift;
-      setImp(dock, 'margin-right', mr2 + 'px');
-    });
-  }
-  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 400); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+<script id="tk-v145-fhd-exact-right-gap-script">
+(function(){ /* tk-v145-fhd-exact-right-gap-script disabled in v201 */ return; })();
 </script>
 
 
@@ -24071,10 +23430,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v146-fhd-roulette-right-edge-lock-script">
-(function(){
-  // v164: disabled (caused roulette wobble / shifting)
-  return;
-})();
+(function(){ /* tk-v146-fhd-roulette-right-edge-lock-script disabled in v201 */ return; })();
 </script>
 
 
@@ -24093,10 +23449,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v147-fhd-roulette-nudge-right-script">
-(function(){
-  // v164: disabled (caused roulette wobble / shifting)
-  return;
-})();
+(function(){ /* tk-v147-fhd-roulette-nudge-right-script disabled in v201 */ return; })();
 </script>
 
 
@@ -24156,61 +23509,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v148-fhd-inline-actions-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function isFhdLaptopLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if(is4kLike()) return false;
-    if(w < 980 || h < 620) return false;
-    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
-  }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    if(!dock || !actions || !link || !spin || !sound) return;
-    if(reset && reset.parentNode) reset.parentNode.removeChild(reset);
-    if(!isFhdLaptopLike()){
-      root.classList.remove('tk-v148-fhd-inline-actions');
-      return;
-    }
-    root.classList.add('tk-v148-fhd-inline-actions');
-    actions.classList.add('tk-v104-inline');
-    if(link.parentElement !== actions) actions.appendChild(link);
-    if(spin.parentElement !== actions) actions.appendChild(spin);
-    if(sound.parentElement !== actions) actions.appendChild(sound);
-    try{
-      actions.insertBefore(link, actions.firstChild || null);
-      actions.insertBefore(spin, sound || null);
-      actions.appendChild(sound);
-    }catch(e){}
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v148-fhd-inline-actions-script disabled in v201 */ return; })();
 </script>
 
 
@@ -24284,62 +23583,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v149-fhd-inline-final-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function isFhdLaptopLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (is4kLike()) return false;
-    if (w < 980 || h < 620) return false;
-    return (w >= 1180) || (effW >= 1500) || (effH >= 900);
-  }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    if (!dock || !actions || !link || !spin || !sound) return;
-    if (reset && reset.parentNode) reset.parentNode.removeChild(reset);
-    if (!isFhdLaptopLike()){
-      root.classList.remove('tk-v149-fhd-inline-final');
-      return;
-    }
-    root.classList.add('tk-v149-fhd-inline-final');
-    actions.classList.add('tk-v104-inline');
-    if (link.parentElement !== actions) actions.appendChild(link);
-    if (spin.parentElement !== actions) actions.appendChild(spin);
-    if (sound.parentElement !== actions) actions.appendChild(sound);
-    try{
-      actions.innerHTML = '';
-      actions.appendChild(link);
-      actions.appendChild(spin);
-      actions.appendChild(sound);
-    }catch(e){}
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v149-fhd-inline-final-script disabled in v201 */ return; })();
 </script>
 
 
@@ -24365,132 +23609,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v150-fhd-buttons-inline-hard-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function shouldApply(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    if (is4kLike()) return false;
-    return w >= 900 && h >= 600;
-  }
-  function setImp(el, prop, value){
-    if (!el) return;
-    try { el.style.setProperty(prop, value, 'important'); } catch(e) {}
-  }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    if (!dock || !actions || !link || !spin || !sound) return;
-
-    if (!shouldApply()){
-      root.classList.remove('tk-v150-fhd-inline-hard');
-      return;
-    }
-    root.classList.add('tk-v150-fhd-inline-hard');
-
-    if (reset) setImp(reset, 'display', 'none');
-
-    // Force row order
-    if (link.parentElement !== actions) actions.appendChild(link);
-    if (spin.parentElement !== actions) actions.appendChild(spin);
-    if (sound.parentElement !== actions) actions.appendChild(sound);
-    try {
-      actions.appendChild(link);
-      actions.appendChild(spin);
-      actions.appendChild(sound);
-    } catch(e) {}
-    actions.classList.add('tk-v150-inline-hard');
-
-    // Container
-    setImp(actions, 'display', 'flex');
-    setImp(actions, 'flex-wrap', 'nowrap');
-    setImp(actions, 'align-items', 'stretch');
-    setImp(actions, 'justify-content', 'flex-start');
-    setImp(actions, 'gap', '10px');
-    setImp(actions, 'width', '100%');
-    setImp(actions, 'margin-top', '12px');
-
-    // Use button row widths that fit FHD block
-    setImp(link, 'flex', '1 1 0');
-    setImp(spin, 'flex', '1 1 0');
-    setImp(sound, 'flex', '0 0 52px');
-
-    setImp(link, 'width', 'auto');
-    setImp(spin, 'width', 'auto');
-    setImp(sound, 'width', '52px');
-    setImp(sound, 'min-width', '52px');
-    setImp(sound, 'max-width', '52px');
-
-    setImp(link, 'height', '48px');
-    setImp(spin, 'height', '48px');
-    setImp(sound, 'height', '48px');
-    setImp(link, 'min-height', '48px');
-    setImp(spin, 'min-height', '48px');
-    setImp(sound, 'min-height', '48px');
-
-    // Make "Перейти" look like "Крутить"
-    var spinBg = getComputedStyle(spin).backgroundImage;
-    var spinBorder = getComputedStyle(spin).border;
-    var spinShadow = getComputedStyle(spin).boxShadow;
-    var spinColor = getComputedStyle(spin).color || '#fff';
-    setImp(link, 'background', spinBg && spinBg != 'none' ? spinBg : 'linear-gradient(180deg,#66b7ff 0%,#2d8fff 100%)');
-    setImp(link, 'border', spinBorder && spinBorder != '0px none rgb(255, 255, 255)' ? spinBorder : '1px solid rgba(255,255,255,.18)');
-    setImp(link, 'box-shadow', spinShadow && spinShadow != 'none' ? spinShadow : 'inset 0 1px 0 rgba(255,255,255,.22), 0 10px 22px rgba(47,142,255,.22)');
-    setImp(link, 'color', spinColor);
-
-    for (const el of [link, spin]) {
-      setImp(el, 'padding', '0 14px');
-      setImp(el, 'border-radius', '16px');
-      setImp(el, 'display', 'inline-flex');
-      setImp(el, 'align-items', 'center');
-      setImp(el, 'justify-content', 'center');
-      setImp(el, 'font-size', '17px');
-      setImp(el, 'font-weight', '900');
-      setImp(el, 'line-height', '1');
-      setImp(el, 'letter-spacing', '.02em');
-      setImp(el, 'white-space', 'nowrap');
-      setImp(el, 'text-align', 'center');
-      setImp(el, 'text-decoration', 'none');
-      setImp(el, 'grid-column', 'auto');
-    }
-    setImp(sound, 'padding', '0');
-    setImp(sound, 'border-radius', '14px');
-    setImp(sound, 'display', 'inline-flex');
-    setImp(sound, 'align-items', 'center');
-    setImp(sound, 'justify-content', 'center');
-    setImp(sound, 'grid-column', 'auto');
-
-    // Tighten icons
-    var linkSvg = link.querySelector('svg');
-    var spinSvg = spin.querySelector('svg');
-    if (linkSvg){ setImp(linkSvg, 'width', '15px'); setImp(linkSvg, 'height', '15px'); setImp(linkSvg, 'margin-left', '8px'); }
-    if (spinSvg){ setImp(spinSvg, 'width', '15px'); setImp(spinSvg, 'height', '15px'); setImp(spinSvg, 'margin-right', '8px'); }
-    var soundSpan = sound.querySelector('span[aria-hidden]');
-    if (soundSpan) setImp(soundSpan, 'font-size', '20px');
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v150-fhd-buttons-inline-hard-script disabled in v201 */ return; })();
 </script>
 
 <style id="tk-v151-fhd-buttons-smaller-green-go-style">
@@ -24514,129 +23633,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v151-fhd-buttons-smaller-green-go-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function shouldApply(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    if (is4kLike()) return false;
-    return w >= 900 && h >= 600;
-  }
-  function setImp(el, prop, value){
-    if (!el) return;
-    try { el.style.setProperty(prop, value, 'important'); } catch(e) {}
-  }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    if (!dock || !actions || !link || !spin || !sound) return;
-
-    if (!shouldApply()){
-      root.classList.remove('tk-v151-fhd-green-go');
-      return;
-    }
-    root.classList.add('tk-v151-fhd-green-go');
-
-    if (reset) setImp(reset, 'display', 'none');
-
-    // keep strict one-line order
-    try {
-      actions.appendChild(link);
-      actions.appendChild(spin);
-      actions.appendChild(sound);
-    } catch(e) {}
-
-    setImp(actions, 'display', 'flex');
-    setImp(actions, 'flex-wrap', 'nowrap');
-    setImp(actions, 'align-items', 'center');
-    setImp(actions, 'justify-content', 'flex-start');
-    setImp(actions, 'gap', '8px');
-    setImp(actions, 'width', '100%');
-    setImp(actions, 'margin-top', '12px');
-
-    // slightly smaller buttons, still one row
-    setImp(link, 'flex', '1 1 0');
-    setImp(spin, 'flex', '1 1 0');
-    setImp(sound, 'flex', '0 0 46px');
-
-    setImp(link, 'width', 'auto');
-    setImp(spin, 'width', 'auto');
-    setImp(sound, 'width', '46px');
-    setImp(sound, 'min-width', '46px');
-    setImp(sound, 'max-width', '46px');
-
-    setImp(link, 'height', '42px');
-    setImp(spin, 'height', '42px');
-    setImp(sound, 'height', '42px');
-    setImp(link, 'min-height', '42px');
-    setImp(spin, 'min-height', '42px');
-    setImp(sound, 'min-height', '42px');
-
-    // green "Перейти"
-    setImp(link, 'background', 'linear-gradient(180deg,#63e1a0 0%, #2dc878 52%, #1ea866 100%)');
-    setImp(link, 'border', '1px solid rgba(255,255,255,.20)');
-    setImp(link, 'box-shadow', 'inset 0 1px 0 rgba(255,255,255,.18), 0 10px 22px rgba(34,196,112,.22)');
-    setImp(link, 'color', '#ffffff');
-
-    // keep blue spin
-    setImp(spin, 'background', 'linear-gradient(180deg,#72c2ff 0%, #3ea2ff 52%, #2b83f2 100%)');
-    setImp(spin, 'border', '1px solid rgba(255,255,255,.20)');
-    setImp(spin, 'box-shadow', 'inset 0 1px 0 rgba(255,255,255,.20), 0 10px 22px rgba(52,143,255,.22)');
-    setImp(spin, 'color', '#ffffff');
-
-    for (const el of [link, spin]) {
-      setImp(el, 'padding', '0 10px');
-      setImp(el, 'border-radius', '14px');
-      setImp(el, 'display', 'inline-flex');
-      setImp(el, 'align-items', 'center');
-      setImp(el, 'justify-content', 'center');
-      setImp(el, 'font-size', '14px');
-      setImp(el, 'font-weight', '900');
-      setImp(el, 'line-height', '1');
-      setImp(el, 'letter-spacing', '.01em');
-      setImp(el, 'white-space', 'nowrap');
-      setImp(el, 'text-align', 'center');
-      setImp(el, 'text-decoration', 'none');
-      setImp(el, 'grid-column', 'auto');
-    }
-
-    setImp(sound, 'padding', '0');
-    setImp(sound, 'border-radius', '13px');
-    setImp(sound, 'display', 'inline-flex');
-    setImp(sound, 'align-items', 'center');
-    setImp(sound, 'justify-content', 'center');
-    setImp(sound, 'grid-column', 'auto');
-
-    var linkSvg = link.querySelector('svg');
-    var spinSvg = spin.querySelector('svg');
-    if (linkSvg){ setImp(linkSvg, 'width', '13px'); setImp(linkSvg, 'height', '13px'); setImp(linkSvg, 'margin-left', '6px'); }
-    if (spinSvg){ setImp(spinSvg, 'width', '13px'); setImp(spinSvg, 'height', '13px'); setImp(spinSvg, 'margin-right', '6px'); }
-    var soundSpan = sound.querySelector('span[aria-hidden]');
-    if (soundSpan) setImp(soundSpan, 'font-size', '18px');
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v151-fhd-buttons-smaller-green-go-script disabled in v201 */ return; })();
 </script>
 
 <style id="tk-v152-fhd-roulette-polish-style">
@@ -24769,78 +23766,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v152-fhd-roulette-polish-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function shouldApply(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    if (is4kLike()) return false;
-    return w >= 900 && h >= 600;
-  }
-  function setImp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(e){} }
-  var nudging = false;
-  var lastWheelSig = '';
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    if (!dock || !actions || !link || !spin || !sound) return;
-    if (!shouldApply()){
-      root.classList.remove('tk-v152-fhd-roulette-polish');
-      return;
-    }
-    root.classList.add('tk-v152-fhd-roulette-polish');
-    if (reset) setImp(reset, 'display', 'none');
-    try { actions.appendChild(link); actions.appendChild(spin); actions.appendChild(sound); } catch(e){}
-    setImp(dock, 'width', '392px');
-    setImp(dock, 'min-width', '392px');
-    setImp(dock, 'max-width', '392px');
-    setImp(dock, 'min-height', '600px');
-    setImp(dock, 'padding', '24px 22px 22px');
-    setImp(dock, 'border-radius', '34px');
-    setImp(link, 'background', 'linear-gradient(180deg,#5fe39a 0%, #27b86f 100%)');
-    setImp(link, 'color', '#fff');
-    setImp(spin, 'background', 'linear-gradient(180deg,#78c8ff 0%, #3e96ff 100%)');
-    setImp(spin, 'color', '#fff');
-    setImp(link, 'flex', '0 0 118px');
-    setImp(spin, 'flex', '0 0 126px');
-    setImp(sound, 'flex', '0 0 46px');
-    setImp(link, 'width', '118px');
-    setImp(spin, 'width', '126px');
-    setImp(sound, 'width', '46px');
-    setImp(link, 'height', '44px');
-    setImp(spin, 'height', '44px');
-    setImp(sound, 'height', '44px');
-    setImp(link, 'min-height', '44px');
-    setImp(spin, 'min-height', '44px');
-    setImp(sound, 'min-height', '44px');
-    setImp(link, 'font-size', '13px');
-    setImp(spin, 'font-size', '13px');
-    setImp(link, 'font-family', 'Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif');
-    setImp(spin, 'font-family', 'Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif');
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v152-fhd-roulette-polish-script disabled in v201 */ return; })();
 </script>
 
 
@@ -25068,76 +23994,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v156-fhd-roulette-taller-more-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function shouldApply(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    if (is4kLike()) return false;
-    return w >= 900 && h >= 600;
-  }
-  function setImp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(e){} }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    var title = document.getElementById('rTitle');
-    var text = document.getElementById('rText');
-    if (!dock || !actions || !link || !spin || !sound) return;
-    if (!shouldApply()){
-      root.classList.remove('tk-v156-fhd-roulette-taller-more');
-      return;
-    }
-    root.classList.add('tk-v156-fhd-roulette-taller-more');
-    if (reset) setImp(reset, 'display', 'none');
-    try { actions.appendChild(link); actions.appendChild(spin); actions.appendChild(sound); } catch(e){}
-    setImp(dock, 'width', '352px');
-    setImp(dock, 'min-width', '352px');
-    setImp(dock, 'max-width', '352px');
-    setImp(dock, 'min-height', '452px');
-    setImp(dock, 'padding', '18px 18px 16px');
-    setImp(dock, 'border-radius', '30px');
-    setImp(link, 'background', 'linear-gradient(180deg,#58e096 0%, #1fb66b 100%)');
-    setImp(spin, 'background', 'linear-gradient(180deg,#78c8ff 0%, #3c95ff 100%)');
-    setImp(link, 'color', '#fff');
-    setImp(spin, 'color', '#fff');
-    setImp(link, 'height', '40px');
-    setImp(spin, 'height', '40px');
-    setImp(sound, 'height', '40px');
-    setImp(link, 'min-height', '40px');
-    setImp(spin, 'min-height', '40px');
-    setImp(sound, 'min-height', '40px');
-    setImp(link, 'font-size', '14px');
-    setImp(spin, 'font-size', '14px');
-    setImp(sound, 'font-size', '19px');
-    setImp(link, 'border-radius', '15px');
-    setImp(spin, 'border-radius', '15px');
-    setImp(sound, 'border-radius', '15px');
-    if (title) setImp(title, 'text-wrap', 'balance');
-    if (text) setImp(text, 'text-wrap', 'pretty');
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [120, 400, 900, 1600].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v156-fhd-roulette-taller-more-script disabled in v201 */ return; })();
 </script>
 
 
@@ -25362,93 +24219,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v154-fhd-roulette-refine-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-  function shouldApply(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    if (is4kLike()) return false;
-    return w >= 900 && h >= 600;
-  }
-  function setImp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(e){} }
-  function apply(){
-    var dock = document.getElementById('rouletteDock');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var link = document.getElementById('rLink');
-    var spin = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-    var title = document.getElementById('rTitle');
-    var text = document.getElementById('rText');
-    var rail = document.getElementById('tk23RightRail');
-    if (!dock || !actions || !link || !spin || !sound) return;
-    if (!shouldApply()){
-      root.classList.remove('tk-v154-fhd-roulette-refine');
-      return;
-    }
-    root.classList.add('tk-v154-fhd-roulette-refine');
-    root.classList.remove('tk-v152-fhd-roulette-polish');
-    if (reset) setImp(reset, 'display', 'none');
-    try { actions.appendChild(link); actions.appendChild(spin); actions.appendChild(sound); } catch(e){}
-    if (rail) setImp(rail, 'right', '5px');
-    setImp(dock, 'width', '334px');
-    setImp(dock, 'min-width', '334px');
-    setImp(dock, 'max-width', '334px');
-    setImp(dock, 'min-height', '0');
-    setImp(dock, 'height', 'auto');
-    setImp(dock, 'padding', '16px 16px 14px');
-    setImp(dock, 'border-radius', '28px');
-    setImp(dock, 'background', 'linear-gradient(180deg, rgba(52,147,214,.96) 0%, rgba(14,74,129,.98) 58%, rgba(8,40,79,.995) 100%)');
-    setImp(dock, 'box-shadow', '0 16px 34px rgba(6,16,42,.30), inset 0 1px 0 rgba(255,255,255,.14)');
-    setImp(link, 'background', 'linear-gradient(180deg,#58e096 0%, #1fb66b 100%)');
-    setImp(spin, 'background', 'linear-gradient(180deg,#78c8ff 0%, #3c95ff 100%)');
-    setImp(link, 'color', '#fff');
-    setImp(spin, 'color', '#fff');
-    setImp(link, 'height', '36px');
-    setImp(spin, 'height', '36px');
-    setImp(sound, 'height', '36px');
-    setImp(link, 'min-height', '36px');
-    setImp(spin, 'min-height', '36px');
-    setImp(sound, 'min-height', '36px');
-    setImp(link, 'font-size', '12px');
-    setImp(spin, 'font-size', '12px');
-    setImp(sound, 'font-size', '18px');
-    setImp(link, 'border-radius', '14px');
-    setImp(spin, 'border-radius', '14px');
-    setImp(sound, 'border-radius', '14px');
-    if (title) {
-      setImp(title, 'font-size', '14px');
-      setImp(title, 'line-height', '1.28');
-      setImp(title, 'text-wrap', 'balance');
-    }
-    if (text) {
-      setImp(text, 'font-size', '12px');
-      setImp(text, 'line-height', '1.42');
-      setImp(text, 'max-height', 'none');
-      setImp(text, 'overflow', 'visible');
-      setImp(text, '-webkit-line-clamp', 'unset');
-      setImp(text, 'text-wrap', 'pretty');
-    }
-  }
-  function schedule(){ requestAnimationFrame(apply); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if (nudging) return; schedule(); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); }, true);
-  [100, 300, 700, 1200, 1800].forEach(function(t){ setTimeout(schedule, t); });
-})();
+(function(){ /* tk-v154-fhd-roulette-refine-script disabled in v201 */ return; })();
 </script>
 
 
@@ -25707,152 +24478,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-v160-fhd-roulette-readable-script">
-(function(){
-  'use strict';
-  var root = document.documentElement;
-  var raf = 0;
-  var lastSig = '';
-  var nudging = false;
-
-  function is4kLike(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var effW = Math.round(w * dpr);
-    var effH = Math.round(h * dpr);
-    if (w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
-  }
-
-  function shouldApply(){
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    if (is4kLike()) return false;
-    // apply only in non-4k layout mode, where roulette is in right rail
-    if (!root.classList.contains('tk-non4k-balanced-v19')) return false;
-    return (w >= 1180 && h >= 680);
-  }
-
-  function setImp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(e){}
-  }
-
-  function apply(){
-    raf = 0;
-
-    var dock = document.getElementById('rouletteDock');
-    var rail = document.getElementById('tk23RightRail');
-    var actions = dock ? dock.querySelector('.roulette-infoActions') : null;
-    var wheelWrap = dock ? dock.querySelector('.wheel-wrap') : null;
-
-    var link  = document.getElementById('rLink');
-    var spin  = document.getElementById('spinBtn');
-    var sound = document.getElementById('rouletteSound');
-    var reset = document.getElementById('rouletteReset');
-
-    var title = document.getElementById('rTitle');
-    var text  = document.getElementById('rText');
-
-    if(!dock || !rail || !actions || !wheelWrap || !link || !spin || !sound){
-      return;
-    }
-
-    if(!shouldApply()){
-      root.classList.remove('tk-v160-fhd-roulette-readable');
-      return;
-    }
-
-    var w = Math.round(window.innerWidth || 0);
-    var h = Math.round(window.innerHeight || 0);
-    var compact = (w <= 1536) || (h <= 860);
-
-    var dockW = compact ? '334px' : '348px';
-    var wheelSize = compact ? '190px' : '204px';
-    var btnH = compact ? '36px' : '38px';
-
-    // disable older roulette patches for this zone
-    root.classList.remove('tk-v152-fhd-roulette-polish','tk-v154-fhd-roulette-refine','tk-v156-fhd-roulette-taller-more');
-    root.classList.add('tk-v160-fhd-roulette-readable');
-
-    if (reset) setImp(reset, 'display', 'none');
-
-    // normalize buttons order without fighting other scripts
-    try{
-      if (link.parentNode === actions) actions.appendChild(link);
-      if (spin.parentNode === actions) actions.appendChild(spin);
-      if (sound.parentNode === actions) actions.appendChild(sound);
-    }catch(e){}
-
-    setImp(rail, 'right', '10px');
-
-    setImp(dock, 'width', dockW);
-    setImp(dock, 'min-width', dockW);
-    setImp(dock, 'max-width', dockW);
-    setImp(dock, 'height', 'auto');
-    setImp(dock, 'min-height', '0');
-    setImp(dock, 'padding', compact ? '15px 15px 13px' : '16px 16px 14px');
-    setImp(dock, 'border-radius', compact ? '26px' : '28px');
-
-    setImp(link, 'height', btnH);
-    setImp(spin, 'height', btnH);
-    setImp(sound, 'height', btnH);
-    setImp(link, 'min-height', btnH);
-    setImp(spin, 'min-height', btnH);
-    setImp(sound, 'min-height', btnH);
-
-    setImp(link, 'font-size', compact ? '12px' : '13px');
-    setImp(spin, 'font-size', compact ? '12px' : '13px');
-    setImp(sound, 'font-size', '18px');
-
-    setImp(wheelWrap, 'width', wheelSize);
-    setImp(wheelWrap, 'height', wheelSize);
-
-    if (title){
-      setImp(title, 'font-size', compact ? '15px' : '16px');
-      setImp(title, 'line-height', '1.24');
-      setImp(title, 'max-height', 'none');
-      setImp(title, 'overflow', 'visible');
-      setImp(title, '-webkit-line-clamp', 'unset');
-    }
-    if (text){
-      setImp(text, 'font-size', compact ? '12.5px' : '13px');
-      setImp(text, 'line-height', compact ? '1.34' : '1.38');
-      setImp(text, 'max-height', 'none');
-      setImp(text, 'overflow', 'visible');
-      setImp(text, '-webkit-line-clamp', 'unset');
-    }
-
-    // one-time resize pulse when wheel size changes, to let roulette safeSetup() rebuild canvas
-    var sig = dockW + '|' + wheelSize + '|' + btnH;
-    if(sig !== lastSig){
-      lastSig = sig;
-      nudging = true;
-      setTimeout(function(){
-        try{ window.dispatchEvent(new Event('resize')); }catch(e){}
-        setTimeout(function(){ nudging = false; }, 80);
-      }, 0);
-    }
-  }
-
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  } else {
-    schedule();
-  }
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 220); }, {once:true});
-  window.addEventListener('resize', function(){ if(nudging) return; schedule(); }, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){ if(nudging) return; schedule(); }, {passive:true});
-  }
-  // late pass (fonts/layout)
-  setTimeout(schedule, 420);
-})();
+(function(){ /* tk-v160-fhd-roulette-readable-script disabled in v201 */ return; })();
 </script>
 
 
@@ -26232,136 +24858,8 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   }
 }
 </style>
-<script id="tk-v165-roulette-stable-right-rail-script" data-disabled="v193">
-(function(){
-  return; // v193 disable legacy conflicting rail mover
-  const root = document.documentElement;
-  const anchors = new WeakMap();
-  let rail = null;
-  let raf = 0;
-  let timers = [];
-
-  function q(sel, scope=document){ return scope.querySelector(sel); }
-  function ensureAnchor(el){
-    if(!el || anchors.has(el) || !el.parentNode) return;
-    const ph = document.createComment('tk-v165-anchor');
-    el.parentNode.insertBefore(ph, el);
-    anchors.set(el, ph);
-  }
-  function restore(el){
-    const ph = anchors.get(el);
-    if(!ph || !ph.parentNode || !el) return;
-    if(el.parentNode !== ph.parentNode){
-      ph.parentNode.insertBefore(el, ph.nextSibling);
-    }
-  }
-  function ensureRail(){
-    if(rail && rail.isConnected) return rail;
-    rail = document.getElementById('tkV165RightRail');
-    if(!rail){
-      rail = document.createElement('div');
-      rail.id = 'tkV165RightRail';
-      document.body.appendChild(rail);
-    }
-    return rail;
-  }
-  function removeRail(){
-    if(rail && rail.parentNode) rail.parentNode.removeChild(rail);
-    rail = null;
-  }
-  function isTarget(){
-    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
-    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
-    return w > 520 && h > 520;
-  }
-  function sync(){
-    raf = 0;
-    const roulette = document.getElementById('rouletteDock');
-    const rules = q('.rules');
-    if(!roulette || !rules || !document.body) return;
-
-    ensureAnchor(roulette);
-    ensureAnchor(rules);
-
-    if(!isTarget()){
-      root.classList.remove('tk-v165-roulette-rail');
-      restore(roulette);
-      restore(rules);
-      removeRail();
-      return;
-    }
-
-    root.classList.add('tk-v165-roulette-rail');
-
-    const box = ensureRail();
-    if(box.firstChild !== roulette){
-      box.insertBefore(roulette, box.firstChild);
-    }
-    if(rules.parentNode !== box || roulette.nextSibling !== rules){
-      box.appendChild(rules);
-    }
-
-    roulette.classList.remove('roulette-merged-v20');
-
-    roulette.style.setProperty('position', 'relative', 'important');
-    roulette.style.setProperty('left', 'auto', 'important');
-    roulette.style.setProperty('right', 'auto', 'important');
-    roulette.style.setProperty('top', 'auto', 'important');
-    roulette.style.setProperty('bottom', 'auto', 'important');
-    roulette.style.setProperty('transform', 'none', 'important');
-    roulette.style.setProperty('margin', '0', 'important');
-
-    root.style.removeProperty('--roulette-dock-left');
-    root.style.removeProperty('--roulette-dock-tx');
-    root.style.removeProperty('--roulette-dock-bottom');
-    root.style.setProperty('--roulette-over-chips', '0px');
-
-    // empty legacy right rail should not affect layout if it still exists
-    const legacy = document.getElementById('tk23RightRail');
-    if(legacy && legacy !== box && !legacy.children.length){
-      legacy.style.display = 'none';
-    }
-  }
-
-  function reassert(delays){
-    delays.forEach(ms => {
-      const t = setTimeout(() => {
-        if(raf) cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(sync);
-      }, ms);
-      timers.push(t);
-    });
-  }
-
-  function schedule(){
-    timers.forEach(clearTimeout);
-    timers = [];
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(sync);
-    reassert([60, 220, 700]);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  } else {
-    schedule();
-  }
-
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  }
-
-  document.addEventListener('click', function(e){
-    const t = e.target;
-    if(!t) return;
-    if(t.id === 'spinBtn' || t.id === 'menuToggle' || (t.closest && (t.closest('#spinBtn') || t.closest('#menuToggle')))){
-      reassert([0, 100, 450, 1100]);
-    }
-  }, true);
-})();
+<script id="tk-v165-roulette-stable-right-rail-script">
+(function(){ /* tk-v165-roulette-stable-right-rail-script disabled in v201 */ return; })();
 </script>
 
 <style id="tk-v167-roulette-beauty">
@@ -26803,158 +25301,5 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 </style>
 
 <script id="tk-v184-fhd-static-right-rail-lock-script">
-(function(){
-  'use strict';
-  const root = document.documentElement;
-  let raf = 0;
-  let timers = [];
-
-  function q(sel, scope=document){ return scope.querySelector(sel); }
-  function setImp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function clearProps(el, props){
-    if(!el) return;
-    props.forEach(function(p){ el.style.removeProperty(p); });
-  }
-  function isNon4kFhdRail(){
-    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
-    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-    const effW = Math.round(w * dpr);
-    return root.classList.contains('tk-non4k-balanced-v19') && w >= 980 && h >= 620 && effW < 3000;
-  }
-  function ensureRail(){
-    let rail = document.getElementById('tk23RightRail');
-    if(!rail){
-      rail = document.createElement('div');
-      rail.id = 'tk23RightRail';
-      document.body.appendChild(rail);
-    }
-    return rail;
-  }
-  function ensure(){
-    raf = 0;
-    const dock = document.getElementById('rouletteDock');
-    const rules = q('.rules');
-    const oldRail = document.getElementById('tkV165RightRail');
-    if(!dock || !rules) return;
-
-    if(!isNon4kFhdRail()) return;
-
-    root.classList.remove('tk-v165-roulette-rail');
-    root.classList.remove('tk-v145-fhd-exact-right-gap');
-
-    const rail = ensureRail();
-
-    if(oldRail && oldRail !== rail){
-      if(dock.parentNode === oldRail) rail.insertBefore(dock, rail.firstChild || null);
-      if(rules.parentNode === oldRail) rail.appendChild(rules);
-      setImp(oldRail, 'display', 'none');
-      setImp(oldRail, 'pointer-events', 'none');
-      setImp(oldRail, 'opacity', '0');
-      setImp(oldRail, 'visibility', 'hidden');
-    }
-
-    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
-    if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
-    if(rules.parentNode !== rail) rail.appendChild(rules);
-    if(dock.nextElementSibling !== rules) rail.appendChild(rules);
-
-    clearProps(dock, [
-      'position','left','right','top','bottom','inset',
-      'width','min-width','max-width',
-      'margin','margin-left','margin-right','margin-top','margin-bottom',
-      'padding-top','padding-right','padding-bottom','padding-left',
-      'transform','transform-origin','translate','scale','zoom','z-index',
-      '--roulette-dock-left','--roulette-dock-tx','--roulette-dock-bottom',
-      '--roulette-over-chips'
-    ]);
-    clearProps(rules, [
-      'position','left','right','top','bottom','inset',
-      'width','min-width','max-width',
-      'margin','margin-left','margin-right','margin-top','margin-bottom',
-      'transform','transform-origin','translate','scale','zoom'
-    ]);
-
-    setImp(rail, 'position', 'fixed');
-    setImp(rail, 'right', '12px');
-    setImp(rail, 'bottom', '14px');
-    setImp(rail, 'left', 'auto');
-    setImp(rail, 'top', 'auto');
-    setImp(rail, 'transform', 'none');
-    setImp(rail, 'display', 'flex');
-    setImp(rail, 'flex-direction', 'column');
-    setImp(rail, 'align-items', 'flex-end');
-    setImp(rail, 'gap', '10px');
-
-    setImp(dock, 'position', 'static');
-    setImp(dock, 'left', 'auto');
-    setImp(dock, 'right', 'auto');
-    setImp(dock, 'top', 'auto');
-    setImp(dock, 'bottom', 'auto');
-    setImp(dock, 'margin', '0');
-    setImp(dock, 'transform', 'none');
-    setImp(dock, 'z-index', 'auto');
-
-    setImp(rules, 'position', 'static');
-    setImp(rules, 'left', 'auto');
-    setImp(rules, 'right', 'auto');
-    setImp(rules, 'top', 'auto');
-    setImp(rules, 'bottom', 'auto');
-    setImp(rules, 'margin', '0');
-    setImp(rules, 'transform', 'none');
-  }
-  function schedule(){
-    timers.forEach(clearTimeout);
-    timers = [];
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ requestAnimationFrame(ensure); });
-    [80, 220, 700].forEach(function(ms){
-      timers.push(setTimeout(function(){
-        if(raf) cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(ensure);
-      }, ms));
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  } else {
-    schedule();
-  }
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 120); }, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  // v193: removed capture scroll listener; it caused right-rail jitter/disappear on FHD
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  }
-  let spinGuard = 0;
-  function startSpinGuard(){
-    clearInterval(spinGuard);
-    let n = 0;
-    spinGuard = setInterval(function(){
-      n++;
-      schedule();
-      const dock = document.getElementById('rouletteDock');
-      if(!dock || !dock.classList.contains('is-spinning') || n > 80){
-        clearInterval(spinGuard);
-        spinGuard = 0;
-        schedule();
-      }
-    }, 120);
-  }
-  document.addEventListener('click', function(e){
-    const t = e.target;
-    if(!t) return;
-    if(t.id === 'spinBtn' || t.id === 'menuToggle' || (t.closest && (t.closest('#spinBtn') || t.closest('#menuToggle')))){
-      schedule();
-      setTimeout(schedule, 80);
-      setTimeout(schedule, 260);
-      setTimeout(schedule, 700);
-      if(t.id === 'spinBtn' || (t.closest && t.closest('#spinBtn'))){
-        startSpinGuard();
-      }
-    }
-  }, true);
-})();
+(function(){ /* tk-v184-fhd-static-right-rail-lock-script disabled in v201 */ return; })();
 </script>
