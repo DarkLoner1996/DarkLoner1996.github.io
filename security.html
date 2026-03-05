@@ -27387,3 +27387,71 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 }
 </style>
 <!-- /tk-v272 -->
+
+
+<!-- tk-v276: safe 4K rollback + final kino lock (no bg/layout hacks) -->
+<style id="tk-v276-4k-safe-final-kino-lock">
+@media (min-width: 2560px){
+  html:not(.tk-fhd-v262) #cinema .cinema-banner{
+    width: min(1460px, 66vw) !important;
+    min-height: 132px !important;
+    padding: 18px 44px 16px !important;
+    border-radius: 28px !important;
+  }
+  html:not(.tk-fhd-v262) #cinema .cinema-banner-title{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    font-size: clamp(23px, 1.16vw, 29px) !important;
+    line-height: 1.02 !important;
+    letter-spacing: .03em !important;
+    text-align:center !important;
+    white-space: normal !important;
+    text-wrap: balance !important;
+  }
+  html:not(.tk-fhd-v262) #cinema .cinema-banner-sub{
+    margin-top: 6px !important;
+    font-size: 10px !important;
+    letter-spacing: .20em !important;
+  }
+  html:not(.tk-fhd-v262) #cinema .kino-badge{
+    top: 0 !important;
+    left: 50% !important;
+    height: clamp(82px, 4.15vw, 110px) !important;
+    max-width: min(430px, 20vw) !important;
+    transform: translate(-50%, calc(-100% - 2px)) !important;
+    z-index: 20 !important;
+    filter: drop-shadow(0 7px 14px rgba(0,0,0,.18)) !important;
+  }
+}
+</style>
+<script id="tk-v276-4k-safe-final-kino-lock-script">
+(function(){
+  function is4k(){ return window.innerWidth >= 2560 && !document.documentElement.classList.contains('tk-fhd-v262'); }
+  function apply(){
+    try{
+      if(!is4k()) return;
+      var title = document.querySelector('#cinema .cinema-banner-title');
+      if(title) title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
+      var badge = document.querySelector('#cinema .kino-badge');
+      if(badge){
+        badge.style.left = '50%';
+        badge.style.top = '0px';
+        badge.style.height = '98px';
+        badge.style.maxWidth = '430px';
+        badge.style.transform = 'translate(-50%, calc(-100% - 2px))';
+        badge.style.zIndex = '20';
+      }
+    }catch(e){}
+  }
+  function kick(){
+    requestAnimationFrame(function(){ requestAnimationFrame(apply); });
+  }
+  window.addEventListener('load', kick, {passive:true});
+  window.addEventListener('resize', kick, {passive:true});
+  document.addEventListener('DOMContentLoaded', kick);
+  [40,120,260,520,900,1400,2200].forEach(function(ms){ setTimeout(kick, ms); });
+  kick();
+})();
+</script>
+<!-- /tk-v276 -->
