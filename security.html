@@ -20563,14 +20563,14 @@ html.tk-4k-minigame-focus .side-chip{
   transition: opacity .16s ease, filter .16s ease, box-shadow .16s ease !important;
 }
 html.tk-4k-minigame-focus .side-chip:not(.is-active){
-  opacity: .12 !important;
-  filter: blur(1px) saturate(.65) brightness(.85) !important;
+  opacity: .52 !important;
+  filter: saturate(.72) brightness(.90) !important;
   pointer-events: none !important;
 }
 html.tk-4k-minigame-focus #rouletteDock,
 html.tk-4k-minigame-focus .rules{
-  opacity: .10 !important;
-  filter: blur(1.5px) saturate(.55) brightness(.82) !important;
+  opacity: .46 !important;
+  filter: saturate(.74) brightness(.88) !important;
   pointer-events: none !important;
 }
 html.tk-4k-minigame-focus #rouletteDock *,
@@ -20690,6 +20690,118 @@ html.tk-4k-minigame-focus.tk-4k-minigame-focus--comic .rules{
   if(window.visualViewport) window.visualViewport.addEventListener('resize', sync, {passive:true});
   window.addEventListener('load', () => { setTimeout(sync,80); setTimeout(sync,280); }, {once:true});
   setTimeout(sync, 120);
+})();
+</script>
+
+
+<style id="tk-v211-4k-minigame-focus-style-fix">
+html.tk-4k-minigame-focus #rouletteDock,
+html.tk-4k-minigame-focus .rules,
+html.tk-4k-minigame-focus .rules .rule-pill,
+html.tk-4k-minigame-focus .side-chip{
+  transition: opacity .16s ease, filter .16s ease, box-shadow .16s ease !important;
+}
+</style>
+<script id="tk-v211-4k-minigame-focus-script-fix">
+(function(){
+  const root = document.documentElement;
+  const chipMap = {
+    it: document.querySelector('.side-chip--it-min'),
+    info: document.querySelector('.side-chip--infosec-min'),
+    phish: document.querySelector('.side-chip--phish-min')
+  };
+  const ruleMap = {
+    comic: document.getElementById('openComicMenu'),
+    rule: document.getElementById('openRuleGame'),
+    pc: document.getElementById('openPcPartsGame')
+  };
+  const modalMap = {
+    it: document.getElementById('itGame'),
+    info: document.getElementById('infoSecGame'),
+    phish: document.getElementById('phishGame'),
+    pc: document.getElementById('pcPartsGame'),
+    comic: document.getElementById('comicMenu'),
+    rule: document.getElementById('ruleGame') || document.getElementById('ruleDayGame') || document.getElementById('ruleModal')
+  };
+  const openBtns = ['openItGame','openInfoSecGame','openPhishGame','openPcPartsGame','openComicMenu','openRuleGame'];
+  const closeBtns = ['closeItGame','closeInfoSecGame','closePhishGame','closePcPartsGame','closeComicMenu','closeRuleGame'];
+  let raf = 0;
+  let timers = [];
+
+  function is4k(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio)||1);
+    const effW = Math.round(window.innerWidth * dpr);
+    const effH = Math.round(window.innerHeight * dpr);
+    return effW >= 3000 || (effW >= 2500 && effH >= 1400);
+  }
+  function isOpen(el){
+    if(!el) return false;
+    return el.classList.contains('is-open') || el.getAttribute('aria-hidden') === 'false';
+  }
+  function clearStates(){
+    Object.values(chipMap).forEach(el => el && el.classList.remove('is-active'));
+    Object.values(ruleMap).forEach(el => el && el.classList.remove('tk-rule-active'));
+    root.classList.remove(
+      'tk-4k-minigame-focus',
+      'tk-4k-minigame-focus--it',
+      'tk-4k-minigame-focus--info',
+      'tk-4k-minigame-focus--phish',
+      'tk-4k-minigame-focus--pc',
+      'tk-4k-minigame-focus--comic',
+      'tk-4k-minigame-focus--rule'
+    );
+  }
+  function getOpened(){
+    if(isOpen(modalMap.it)) return 'it';
+    if(isOpen(modalMap.info)) return 'info';
+    if(isOpen(modalMap.phish)) return 'phish';
+    if(isOpen(modalMap.pc)) return 'pc';
+    if(isOpen(modalMap.comic)) return 'comic';
+    if(isOpen(modalMap.rule)) return 'rule';
+    return null;
+  }
+  function sync(){
+    clearStates();
+    if(!is4k()) return;
+    const opened = getOpened();
+    if(!opened) return;
+    root.classList.add('tk-4k-minigame-focus', 'tk-4k-minigame-focus--' + opened);
+    if(chipMap[opened]) chipMap[opened].classList.add('is-active');
+    if(ruleMap[opened]) ruleMap[opened].classList.add('tk-rule-active');
+    try{
+      const active = document.activeElement;
+      if(active && (active.closest('#rouletteDock') || active.closest('.rules')) && typeof active.blur === 'function') active.blur();
+    }catch(_e){}
+  }
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    timers.forEach(clearTimeout); timers = [];
+    raf = requestAnimationFrame(sync);
+    timers.push(setTimeout(sync, 40));
+    timers.push(setTimeout(sync, 180));
+    timers.push(setTimeout(sync, 420));
+  }
+  Object.values(modalMap).forEach(el => {
+    if(!el) return;
+    new MutationObserver(schedule).observe(el, {attributes:true, attributeFilter:['class','style','aria-hidden']});
+  });
+  openBtns.concat(closeBtns).forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('click', schedule, true);
+  });
+  ['tkOpenComicMenu','tkOpenRuleGame','tkOpenRuleDay','tkOpenPcPartsGame','tkOpenPhishGame'].forEach(name => {
+    const orig = window[name];
+    if(typeof orig === 'function' && !orig.__tkV211Wrapped){
+      const wrapped = function(){ const r = orig.apply(this, arguments); schedule(); return r; };
+      wrapped.__tkV211Wrapped = true;
+      window[name] = wrapped;
+    }
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') schedule(); }, true);
+  window.addEventListener('resize', schedule, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('load', schedule, {once:true});
+  schedule();
 })();
 </script>
 
