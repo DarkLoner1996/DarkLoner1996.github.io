@@ -20805,6 +20805,906 @@ html.tk-4k-minigame-focus .side-chip{
 })();
 </script>
 
+
+<style id="tk-v216-docked-kino-badge-visible">
+/* v216: in docked mode the kinoteatr.png (kino-badge) must NOT fly above viewport.
+   Force a stable pixel translate so the logo sits at the same visual height as the left "Игровое меню" header. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .cinema-banner{ overflow: visible !important; }
+  html.tk-cinema-docked #cinema .kino-badge{
+    /* stop the old %-based formula (it can push the badge far above the viewport when #cinema is fixed) */
+    transform: translate(-50%, -100px) !important;
+    top: 0 !important;
+
+    /* make it a bit more compact for a pinned header look */
+    height: clamp(170px, 10.5vw, 240px) !important;
+    max-width: min(900px, 70vw) !important;
+
+    /* remove gap vars influence (we override transform anyway) */
+    --kino-badge-gap: 0px !important;
+    --kino-badge-drop: 0px !important;
+
+    filter: drop-shadow(0 14px 22px rgba(0,0,0,.28)) !important;
+  }
+}
+
+/* 4K: slightly larger and a bit lower so it lines up nicely with the menu header */
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -90px) !important;
+    height: clamp(200px, 9vw, 280px) !important;
+  }
+}
+</style>
+
+
+<style id="tk-v218-docked-kino-badge-raise30">
+/* v218: lift the pinned kinoteatr.png ~30px higher than v217. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -210px) !important;
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -220px) !important;
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -238px) !important;
+  }
+}
+</style>
+
+
+<style id="tk-v225-docked-cinema-raise-more-keep-kino-gap">
+/* v225: raise the whole pinned cinema block a bit more so kinoteatr.png sits
+   higher, closer to the top line / menu header level, while keeping the same
+   tighter gap between the badge and the cinema banner. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 41px) !important;
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 44px) !important;
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 40px) !important;
+  }
+}
+</style>
+
+
+
+<style id="tk-v228-docked-cinema-raise-to-red-line-keep-gap">
+/* v228: lift the whole pinned cinema block higher so kinoteatr.png visually
+   reaches the same top line as the left fixed "Игровое меню" header,
+   while preserving the tight badge-to-banner gap from v223/v227. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 123px) !important; /* v227: -87px */
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 125px) !important; /* v227: -89px */
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 123px) !important; /* v227: -87px */
+  }
+}
+</style>
+
+
+
+<!-- ========================= -->
+<!-- tk-v231: FullHD kino-badge above banner -->
+<!-- ========================= -->
+<!-- ========================= -->
+<!-- tk-v232: FullHD kino-badge above banner, no overlap -->
+<!-- ========================= -->
+<!-- tk-v238: FullHD kino FINAL hard align + exact 5px visible gap (inside body) -->
+<!-- tk-v239: FULLHD hard override without DPR gating -->
+<!-- tk-v245: FullHD cinema final — restore slider, align kinoteatr.png to menu top, real visible gap≈5px, no jitter -->
+<!-- tk-v249: FullHD cinema — TOP CENTER kinoteatr.png + banner + slider (centered), real visible gap≈5px, slider stays horizontal, no jitter -->
+<style id="tk-v249-fullhd-cinema-top-center">
+@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
+  html.tk-fhd-kino-v249 #cinema{
+    position: fixed !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: var(--tk-fhd-cinema-top, 0px) !important;
+    width: var(--tk-fhd-cinema-w, 960px) !important;
+    max-width: calc(100vw - 64px) !important;
+    margin: 0 !important;
+    z-index: 20000 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Make sure nothing inside adds phantom padding/offsets */
+  html.tk-fhd-kino-v249 #cinema .cinema-head{
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+  }
+
+  /* Kinoteatr badge: centered, at top, with computed visible gap to banner */
+  html.tk-fhd-kino-v249 #cinema .kino-badge{
+    position: relative !important;
+    display: block !important;
+    margin: 0 auto var(--tk-fhd-kino-mb, 5px) auto !important;
+    padding: 0 !important;
+    width: clamp(260px, 18vw, 380px) !important;
+    height: auto !important;
+    transform: translateY(var(--tk-fhd-kino-dy, 0px)) !important;
+    z-index: 20002 !important;
+    pointer-events: none !important;
+  }
+  html.tk-fhd-kino-v249 #cinema .kino-badge img{
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  /* Banner centered */
+  html.tk-fhd-kino-v249 #cinema .cinema-banner{
+    margin: 0 auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* Gap between banner and slider must be 5px */
+  html.tk-fhd-kino-v249 #cinema .slider-container{
+    margin-top: 5px !important;
+    width: 100% !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  /* Restore horizontal slider (track) */
+  html.tk-fhd-kino-v249 #cinema .slider-wrapper{
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 6px 10px !important;
+    scroll-padding: 20px !important;
+  }
+  html.tk-fhd-kino-v249 #cinema .slider-wrapper > *{
+    flex: 0 0 auto !important;
+    scroll-snap-align: center !important;
+  }
+
+  /* Debug badge */
+  html.tk-fhd-kino-v249 #tkFhdKinoDebug{
+    position: fixed !important;
+    right: 10px !important;
+    top: 10px !important;
+    z-index: 30000 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    background: rgba(0,0,0,.55) !important;
+    color: #fff !important;
+    font: 700 12px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+    letter-spacing: .2px !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.25) !important;
+  }
+}
+</style>
+
+<div id="tkFhdKinoDebug" aria-hidden="true">v249 boot…</div>
+
+<script id="tk-v249-fullhd-cinema-top-center-script">
+(function(){
+  "use strict";
+  if(window.__tkFhdKinoV249) return;
+  window.__tkFhdKinoV249 = true;
+
+  const root = document.documentElement;
+  const dbg = document.getElementById('tkFhdKinoDebug');
+  const GAP = 5;
+
+  const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
+  const setVar = (k,v)=>{ try{ root.style.setProperty(k, v); }catch(_){ } };
+  const setImp = (el, prop, val)=>{ try{ el.style.setProperty(prop, val, 'important'); }catch(_){ } };
+
+  function isFHD(){
+    const w = window.innerWidth || 0;
+    const h = window.innerHeight || 0;
+    return (w>=1100 && w<=2559 && h>=560);
+  }
+
+  function measureTransparentBottom(img){
+    try{
+      const iw = img.naturalWidth|0, ih = img.naturalHeight|0;
+      if(!iw || !ih) return 0;
+      const w = clamp(iw, 64, 800);
+      const h = Math.round(ih * (w/iw));
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d', { willReadFrequently:true });
+      if(!ctx) return 0;
+      ctx.clearRect(0,0,w,h);
+      ctx.drawImage(img,0,0,w,h);
+      const data = ctx.getImageData(0,0,w,h).data;
+      let lastOpaque = -1;
+      // scan from bottom up: stop on first row having any alpha > 10
+      for(let y=h-1; y>=0; y--){
+        let rowOpaque = false;
+        const rowStart = y*w*4;
+        for(let x=0; x<w; x++){
+          if(data[rowStart + x*4 + 3] > 10){ rowOpaque = true; break; }
+        }
+        if(rowOpaque){ lastOpaque = y; break; }
+      }
+      if(lastOpaque < 0) return 0;
+      return (h-1 - lastOpaque);
+    }catch(_){
+      return 0;
+    }
+  }
+
+  function purgeOldClasses(){
+    for(const c of Array.from(root.classList)){
+      if(/^tk-fhd-kino-v\d+$/.test(c)) root.classList.remove(c);
+    }
+    root.classList.add('tk-fhd-kino-v249');
+    root.classList.add('tk-cinema-docked');
+  }
+
+  function apply(){
+    if(!isFHD()){
+      root.classList.remove('tk-fhd-kino-v249');
+      if(dbg) dbg.style.display = 'none';
+      return;
+    }
+    purgeOldClasses();
+
+    const cinema = document.getElementById('cinema');
+    const menu = document.getElementById('menuToggle');
+    if(!cinema) return;
+
+    // Make cinema truly centered and above everything
+    setImp(cinema, 'position', 'fixed');
+    setImp(cinema, 'left', '50%');
+    setImp(cinema, 'transform', 'translateX(-50%)');
+    setImp(cinema, 'z-index', '20000');
+
+    // Width: keep it centered and clean
+    const maxW = Math.max(640, Math.min(1100, window.innerWidth - 520));
+    const w = clamp(Math.round(window.innerWidth * 0.55), 720, maxW);
+    setVar('--tk-fhd-cinema-w', w + 'px');
+
+    // TOP alignment: kino-badge top == menuToggle top line
+    const menuTop = menu ? Math.round(menu.getBoundingClientRect().top) : 0;
+    setVar('--tk-fhd-cinema-top', menuTop + 'px');
+
+    // Real visible gap≈5px (compensate transparent bottom in PNG)
+    const badgeWrap = cinema.querySelector('.kino-badge');
+    const badgeImg = badgeWrap ? badgeWrap.querySelector('img') : null;
+    const banner = cinema.querySelector('.cinema-banner');
+
+    const doGap = ()=>{
+      let tb = 0;
+      if(badgeImg && badgeImg.complete && badgeImg.naturalWidth>0){
+        tb = measureTransparentBottom(badgeImg);
+      }
+      // margin-bottom = GAP - transparentBottom
+      const mb = clamp(GAP - tb, -40, 12);
+      setVar('--tk-fhd-kino-mb', mb + 'px');
+
+      // compute debug numbers
+      let gapNow = 0, dMenu = 0, topNow = 0;
+      try{
+        const br = badgeWrap ? badgeWrap.getBoundingClientRect() : null;
+        const bn = banner ? banner.getBoundingClientRect() : null;
+        if(br && bn){
+          const visibleBottom = br.bottom - tb;
+          gapNow = Math.round(bn.top - visibleBottom);
+        }
+        if(br && menu){
+          dMenu = Math.round(br.top - menu.getBoundingClientRect().top);
+          topNow = Math.round(parseFloat(getComputedStyle(cinema).top) || 0);
+        }
+      }catch(_){}
+      if(dbg){
+        dbg.textContent = `v249 FHD active | gap≈${gapNow}px | Δmenu=${dMenu}px | top=${topNow}px | mb=${mb}px`;
+        dbg.style.display = 'inline-flex';
+      }
+    };
+
+    if(badgeImg && (!badgeImg.complete || badgeImg.naturalWidth===0)){
+      badgeImg.addEventListener('load', ()=>{ requestAnimationFrame(doGap); }, {once:true});
+      badgeImg.addEventListener('error', ()=>{ requestAnimationFrame(doGap); }, {once:true});
+    }
+    requestAnimationFrame(doGap);
+  }
+
+  // Run once on ready, then on resize/menu toggle (no jitter loops)
+  const run = ()=>{ try{ apply(); }catch(_){} };
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  }else{
+    run();
+  }
+
+  let t=null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(t);
+    t=setTimeout(run, 90);
+  }, {passive:true});
+
+  const mt = document.getElementById('menuToggle');
+  if(mt){
+    mt.addEventListener('click', ()=>{ setTimeout(run, 70); }, {passive:true});
+  }
+})();
+</script>
+
+
+<!-- tk-v262: harmony merge — keep v249 4K, port v256 FullHD cinema from v261 -->
+<style id="tk-v262-fhd-kino-pin">
+  /* Active only when html has .tk-fhd-v262 */
+  html.tk-fhd-v262 #tkV262Dbg{
+    position: fixed; z-index: 2147483647;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,.65);
+    color: #fff; font: 600 12px/1.15 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    padding: 6px 8px; border-radius: 10px;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* Pinned KINO badge (NOT moved by hero/ui transforms) */
+  html.tk-fhd-v262 #tkKinoPinnedV262{
+    position: fixed;
+    z-index: 2147482000;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    pointer-events: none;
+    user-select: none;
+    width: clamp(260px, 20vw, 400px);
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.35));
+    will-change: top, left;
+  }
+
+  /* Hide the original kino-badge inside cinema on FullHD */
+  html.tk-fhd-v262 #cinema .kino-badge{ display:none !important; }
+
+  /* IMPORTANT: cinema must be OUTSIDE transformed .ui/.ui-bottom.
+     We move #cinema into this fixed wrapper, attached to <body>. */
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258{
+    position: fixed;
+    z-index: 2147481500;
+    left: 50%;
+    top: var(--tkV258CinemaTop, 220px);
+    transform: translateX(-50%);
+    width: min(980px, calc(100vw - 560px));
+    max-width: calc(100vw - 560px);
+    pointer-events: auto;
+    margin: 0;
+    padding: 0;
+  }
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema{
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Remove any legacy vertical spacing that can create a huge "air gap" */
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-head{
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0 !important;
+  }
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-kicker{
+    display: none !important; /* no empty spacer above banner */
+  }
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .slider-container,
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-slider-wrap{
+    margin-top: 5px !important; /* banner -> slider gap */
+  }
+
+  /* Restore horizontal slider behavior (do NOT turn into column) */
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .slider-wrapper{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 18px !important;
+  }
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .movie-slide{
+    flex: 0 0 auto !important;
+    scroll-snap-align: center !important;
+  }
+</style>
+
+<script id="tk-v262-fhd-kino-pin-script">
+(()=>{'use strict';
+  const VERSION = 'v258';
+  const WANT_GAP = 5;
+
+  const $ = (sel, root)=> (root||document).querySelector(sel);
+
+  function effW(){ return (window.innerWidth||0) * (window.devicePixelRatio||1); }
+  function isFHD(){
+    const w = window.innerWidth||0, h = window.innerHeight||0;
+    if (w < 1100 || w > 2559) return false;
+    if (h < 560) return false;
+    if (effW() >= 3000) return false; // protect 4K & scaled 4K
+    return true;
+  }
+
+  function ensureDbg(){
+    let el = document.getElementById('tkV262Dbg');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'tkV262Dbg';
+      el.textContent = VERSION + ' FHD active';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  function ensurePinnedKino(){
+    let img = document.getElementById('tkKinoPinnedV262');
+    if(!img){
+      img = document.createElement('img');
+      img.id = 'tkKinoPinnedV262';
+      img.alt = 'Кинотеатр';
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.src = 'kinoteatr.png';
+      document.body.appendChild(img);
+    }
+    return img;
+  }
+
+  function ensureCinemaWrap(){
+    let wrap = document.getElementById('tkCinemaPinnedWrapV258');
+    if(!wrap){
+      wrap = document.createElement('div');
+      wrap.id = 'tkCinemaPinnedWrapV258';
+      document.body.appendChild(wrap);
+    }
+    return wrap;
+  }
+
+  // Placeholder to restore #cinema back into original DOM on non-FHD
+  function ensureCinemaHome(cinema){
+    let home = document.getElementById('tkCinemaHomeV258');
+    if(!home && cinema && cinema.parentNode){
+      home = document.createElement('div');
+      home.id = 'tkCinemaHomeV258';
+      home.style.display = 'none';
+      cinema.parentNode.insertBefore(home, cinema);
+    }
+    return home;
+  }
+
+  function restoreCinema(){
+    const cinema = document.getElementById('cinema');
+    const home = document.getElementById('tkCinemaHomeV258');
+    const wrap = document.getElementById('tkCinemaPinnedWrapV258');
+    if(cinema && home && home.parentNode && cinema.parentNode === wrap){
+      home.parentNode.insertBefore(cinema, home.nextSibling);
+    }
+    if(wrap) wrap.remove();
+  }
+
+  function measureTransparentEdges(img){
+    try{
+      const w = img.naturalWidth|0, h = img.naturalHeight|0;
+      if(!w || !h) return {top:0,bottom:0};
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d', {willReadFrequently:true});
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0,0,w,h).data;
+
+      const ALPHA_THR = 160;
+      const MIN_FRAC  = 0.015;
+      const MIN_CNT   = Math.max(6, Math.round(w * MIN_FRAC));
+
+      let topPad = 0;
+      let foundTop = false;
+      for(let y=0; y<h; y++){
+        const row = y*w*4;
+        let cnt = 0;
+        for(let x=0; x<w; x++){
+          if (data[row + x*4 + 3] >= ALPHA_THR){
+            cnt++;
+            if(cnt >= MIN_CNT){ topPad = y; foundTop = true; break; }
+          }
+        }
+        if(foundTop) break;
+      }
+
+      let bottomPad = 0;
+      let foundBot = false;
+      for(let y=h-1; y>=0; y--){
+        const row = y*w*4;
+        let cnt = 0;
+        for(let x=0; x<w; x++){
+          if (data[row + x*4 + 3] >= ALPHA_THR){
+            cnt++;
+            if(cnt >= MIN_CNT){ bottomPad = (h-1-y); foundBot = true; break; }
+          }
+        }
+        if(foundBot) break;
+      }
+      return {top: topPad, bottom: bottomPad};
+    }catch(e){
+      return {top:0,bottom:0};
+    }
+  }
+
+  let edges = null;
+  let raf = 0;
+  function schedule(){
+    if(raf) return;
+    raf = requestAnimationFrame(()=>{ raf=0; apply(); });
+  }
+
+  function apply(){
+    if(!isFHD()){
+      document.documentElement.classList.remove('tk-fhd-v262');
+      const dbg = document.getElementById('tkV262Dbg'); if(dbg) dbg.remove();
+      const kino = document.getElementById('tkKinoPinnedV262'); if(kino) kino.remove();
+      restoreCinema();
+      return;
+    }
+
+    document.documentElement.classList.add('tk-fhd-v262');
+
+    // Keep legacy cinema shifts neutral in this mode
+    document.documentElement.classList.remove('tk-cinema-docked');
+    document.documentElement.style.setProperty('--cinema-head-shift', '0px');
+    document.documentElement.style.setProperty('--cinema-head-lift', '0px');
+    document.documentElement.style.setProperty('--cinema-head-max', '99999px');
+
+    const dbg = ensureDbg();
+    const kino = ensurePinnedKino();
+    const wrap = ensureCinemaWrap();
+
+    const cinema = document.getElementById('cinema');
+    if(cinema){
+      ensureCinemaHome(cinema);
+
+      // Move cinema OUT of transformed UI tree into our body-fixed wrapper
+      if(cinema.parentNode !== wrap){
+        wrap.appendChild(cinema);
+      }
+    }
+
+    // Measure transparent edges once when image is ready
+    if(!edges && kino.naturalWidth) edges = measureTransparentEdges(kino);
+    if(!edges) edges = {top:0,bottom:0};
+
+    // Center
+    const centerX = (window.innerWidth||0) / 2;
+    kino.style.left = Math.round(centerX) + 'px';
+
+    // Place at top=0, measure scale, then shift up by rendered transparent TOP
+    kino.style.top = '0px';
+    const r1 = kino.getBoundingClientRect();
+    const scale = (kino.naturalHeight ? (r1.height / kino.naturalHeight) : 1);
+    const topPadRender = edges.top * scale;
+    const bottomPadRender = edges.bottom * scale;
+
+    const kinoTop = -Math.round(topPadRender);
+    kino.style.top = kinoTop + 'px';
+
+    const r2 = kino.getBoundingClientRect();
+    const kinoVisibleBottom = r2.top + r2.height - bottomPadRender;
+
+    // Place wrapper right under visible kino bottom with exact gap
+    const usable = Math.max(360, (window.innerWidth||0) - 560);
+    const wpx = Math.round(Math.min(980, usable));
+    wrap.style.left = Math.round(centerX) + 'px';
+    wrap.style.width = wpx + 'px';
+    const topPx = Math.round(kinoVisibleBottom + WANT_GAP);
+    wrap.style.top = topPx + 'px';
+    document.documentElement.style.setProperty('--tkV258CinemaTop', topPx + 'px');
+
+    // Diagnostics: measure actual gap between pinned kino and banner
+    let gap = 0;
+    try{
+      const banner = $('#cinema .cinema-banner');
+      if(banner){
+        const b = banner.getBoundingClientRect();
+        gap = Math.round(b.top - kinoVisibleBottom);
+      }
+    }catch(e){ gap = 0; }
+
+    const menu = document.getElementById('menuToggle') || $('.side-nav__tab');
+    const menuRect = menu ? menu.getBoundingClientRect() : {top:0};
+    const dMenu = Math.round((kino.getBoundingClientRect().top) - menuRect.top);
+
+    dbg.textContent = `${VERSION} FHD active | gap≈${gap}px | Δmenu=${dMenu}px | padT≈${Math.round(topPadRender)}px | padB≈${Math.round(bottomPadRender)}px | topK=${kinoTop}px | topW=${topPx}px`;
+  }
+
+  function boot(){
+    if(!isFHD()) return;
+    ensureDbg();
+    const kino = ensurePinnedKino();
+    if(kino.complete) schedule();
+    else kino.addEventListener('load', schedule, {once:true});
+    schedule();
+  }
+
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('scroll', schedule, {passive:true, capture:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, {passive:true});
+    window.visualViewport.addEventListener('scroll', schedule, {passive:true});
+  }
+  const scroller = document.querySelector('.header') || document.getElementById('hero');
+  if(scroller) scroller.addEventListener('scroll', schedule, {passive:true});
+
+  try{
+    const ro = new ResizeObserver(()=>schedule());
+    const mt = document.getElementById('menuToggle'); if(mt) ro.observe(mt);
+    const sn = document.querySelector('.side-nav'); if(sn) ro.observe(sn);
+    const rd = document.getElementById('rouletteDock'); if(rd) ro.observe(rd);
+  }catch(e){}
+
+  document.addEventListener('click', (e)=>{
+    const t = e.target;
+    if(t && (t.id === 'menuToggle' || (t.closest && t.closest('#menuToggle')))) schedule();
+  }, true);
+
+  boot();
+})();
+</script>
+
+
+
+
+
+<!-- /tk-v262 -->
+
+
+<!-- tk-v263: FullHD cinema banner beauty pass -->
+<style id="tk-v263-fhd-cinema-banner-beauty">
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-head{
+    width: 100% !important;
+    align-items: center !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner{
+    width: min(760px, calc(100vw - 760px)) !important;
+    max-width: 100% !important;
+    min-height: 108px !important;
+    margin: 0 auto !important;
+    padding: 18px 34px 16px !important;
+    border-radius: 26px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 7px !important;
+    background:
+      linear-gradient(180deg, rgba(204,231,255,.16) 0%, rgba(100,145,191,.20) 100%),
+      radial-gradient(120% 130% at 50% 0%, rgba(255,255,255,.28) 0%, rgba(255,255,255,.10) 26%, rgba(255,255,255,0) 62%),
+      rgba(56, 93, 126, .72) !important;
+    backdrop-filter: blur(16px) saturate(118%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(118%) !important;
+    border: 1px solid rgba(210,235,255,.34) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.26),
+      0 10px 30px rgba(8,16,28,.24) !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-title{
+    max-width: 620px !important;
+    margin: 0 auto !important;
+    white-space: normal !important;
+    text-wrap: balance !important;
+    text-align: center !important;
+    line-height: .88 !important;
+    font-size: clamp(32px, 2.7vw, 48px) !important;
+    letter-spacing: .06em !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-sub{
+    margin: 0 auto !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    line-height: 1.05 !important;
+    font-size: clamp(10px, .74vw, 13px) !important;
+    letter-spacing: .24em !important;
+    opacity: .98 !important;
+  }
+
+  @media (min-width: 1400px) and (max-width: 1919px){
+    html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner{
+      width: min(780px, calc(100vw - 720px)) !important;
+      min-height: 112px !important;
+      padding: 19px 36px 17px !important;
+    }
+    html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-title{
+      max-width: 640px !important;
+      font-size: clamp(34px, 2.85vw, 50px) !important;
+    }
+  }
+
+  @media (min-width: 1600px) and (max-width: 1919px) and (max-height: 940px){
+    html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner{
+      min-height: 104px !important;
+      padding: 16px 34px 14px !important;
+    }
+    html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-title{
+      font-size: clamp(31px, 2.55vw, 45px) !important;
+    }
+  }
+</style>
+<!-- /tk-v263 -->
+
+
+<style id="tk-v264-fhd-banner-refine">
+  html.tk-fhd-v262 #tkV262Dbg,
+  html.tk-fhd-v262 #tkV249Dbg,
+  html.tk-fhd-v262 #tkV258Dbg,
+  #tkV262Dbg,
+  #tkV249Dbg,
+  #tkV258Dbg{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258{
+    width: min(920px, calc(100vw - 620px)) !important;
+    max-width: calc(100vw - 620px) !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner{
+    width: min(760px, calc(100vw - 760px)) !important;
+    min-height: 108px !important;
+    padding: 15px 34px 13px !important;
+    gap: 8px !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-title{
+    max-width: 700px !important;
+    font-size: clamp(24px, 2.15vw, 34px) !important;
+    line-height: 0.95 !important;
+    letter-spacing: 0.055em !important;
+  }
+
+  html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-sub{
+    font-size: clamp(9px, 0.62vw, 11px) !important;
+    letter-spacing: 0.22em !important;
+  }
+
+  @media (min-width: 1600px) and (max-width: 1919px){
+    html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner{
+      width: min(780px, calc(100vw - 760px)) !important;
+      min-height: 112px !important;
+    }
+    html.tk-fhd-v262 #tkCinemaPinnedWrapV258 #cinema .cinema-banner-title{
+      font-size: clamp(25px, 2.18vw, 35px) !important;
+    }
+  }
+</style>
+<script id="tk-v264-fhd-banner-refine-script">
+(()=>{'use strict';
+  function apply(){
+    if(!document.documentElement.classList.contains('tk-fhd-v262')) return;
+    var t = document.querySelector('#tkCinemaPinnedWrapV258 #cinema .cinema-banner-title');
+    if(t){
+      t.innerHTML = 'Мультфильмы о цифровой<br>безопасности';
+    }
+    ['tkV262Dbg','tkV249Dbg','tkV258Dbg'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.remove();
+    });
+  }
+  window.addEventListener('load', apply, {passive:true});
+  window.addEventListener('resize', apply, {passive:true});
+  document.addEventListener('DOMContentLoaded', apply);
+  setTimeout(apply, 60);
+  setTimeout(apply, 220);
+  setTimeout(apply, 700);
+})();
+</script>
+
+
+
+<!-- tk-v265: remove all debug stamps/badges -->
+<style id="tk-v265-hide-debug-stamps">
+  #tkV249Dbg,
+  #tkV262Dbg,
+  .debug-tk19-badge,
+  [id*="Dbg"],
+  [id*="dbg"]{
+    display:none !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+</style>
+<script id="tk-v265-remove-debug-stamps">
+(()=>{'use strict';
+  const RE = /(FHD active|non4k|gap≈|Δmenu=|padT|padB|topK=|topW=|v\d+)/i;
+  function kill(){
+    const selectors = [
+      '#tkV249Dbg', '#tkV262Dbg', '.debug-tk19-badge',
+      '[id*="Dbg"]', '[id*="dbg"]'
+    ];
+    selectors.forEach(sel=>{
+      document.querySelectorAll(sel).forEach(el=>{
+        try{ el.remove(); }catch(_){
+          el.style.display='none';
+          el.style.visibility='hidden';
+          el.style.opacity='0';
+        }
+      });
+    });
+    document.querySelectorAll('div,span').forEach(el=>{
+      const txt = (el.textContent||'').trim();
+      if(!txt) return;
+      if(txt.length > 220) return;
+      const st = getComputedStyle(el);
+      if((st.position === 'fixed' || st.position === 'absolute') && RE.test(txt)){
+        try{ el.remove(); }catch(_){
+          el.style.display='none';
+          el.style.visibility='hidden';
+          el.style.opacity='0';
+        }
+      }
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', kill, {once:true});
+  } else { kill(); }
+  window.addEventListener('load', kill, {once:true});
+  let t = null;
+  window.addEventListener('resize', ()=>{ clearTimeout(t); t=setTimeout(kill, 60); }, {passive:true});
+  try{
+    const mo = new MutationObserver(()=>kill());
+    mo.observe(document.documentElement, {childList:true, subtree:true});
+  }catch(_){ }
+})();
+</script>
+
 </body>
 </html>
 
@@ -25984,3 +26884,203 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }, true);
 })();
 </script>
+<style id="tk-v217-docked-kino-badge-menu-aligned-no-overlap">
+/* v217: final correction for the pinned kinoteatr.png.
+   Goal: align visually with the left "Игровое меню" header and NEVER overlap
+   the banner/slides block. Override v216 with a higher upward offset and a slightly
+   more compact size. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    top: 0 !important;
+    transform: translate(-50%, -150px) !important;
+    height: clamp(150px, 9vw, 205px) !important;
+    max-width: min(820px, 62vw) !important;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.24)) !important;
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -160px) !important;
+    height: clamp(160px, 8.4vw, 215px) !important;
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -178px) !important;
+    height: clamp(175px, 7.8vw, 235px) !important;
+    max-width: min(900px, 58vw) !important;
+  }
+}
+</style>
+
+<style id="tk-v220-docked-kino-badge-higher-bigger">
+/* v220: raise the pinned kinoteatr.png higher and make it larger.
+   Keeps banner/slider untouched; only badge size/vertical position. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    top: 0 !important;
+    transform: translate(-50%, -182px) !important;
+    height: clamp(176px, 10.2vw, 240px) !important;
+    max-width: min(920px, 68vw) !important;
+    filter: drop-shadow(0 12px 22px rgba(0,0,0,.25)) !important;
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -194px) !important;
+    height: clamp(188px, 9.5vw, 258px) !important;
+    max-width: min(980px, 66vw) !important;
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -214px) !important;
+    height: clamp(215px, 8.9vw, 290px) !important;
+    max-width: min(1120px, 62vw) !important;
+  }
+}
+</style>
+
+<style id="tk-v221-docked-kino-badge-higher-bigger-plus">
+/* v221: raise kinoteatr.png a bit more and enlarge it slightly.
+   Only affects the pinned desktop badge. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    top: 0 !important;
+    transform: translate(-50%, -205px) !important;
+    height: clamp(188px, 10.9vw, 255px) !important;
+    max-width: min(980px, 72vw) !important;
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -220px) !important;
+    height: clamp(205px, 10.1vw, 278px) !important;
+    max-width: min(1080px, 70vw) !important;
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -236px) !important;
+    height: clamp(232px, 9.4vw, 315px) !important;
+    max-width: min(1260px, 66vw) !important;
+  }
+}
+</style>
+
+
+<style id="tk-v222-docked-kino-badge-gap-smaller">
+/* v222: make the gap between kinoteatr.png (kino-badge) and the cinema banner smaller.
+   Only affects the pinned (html.tk-cinema-docked) desktop placement. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -194px) !important; /* was -205px */
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -207px) !important; /* was -220px */
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -225px) !important; /* was -236px */
+  }
+}
+</style>
+
+
+<style id="tk-v223-docked-kino-badge-gap-even-smaller">
+/* v223: reduce the gap even more between kinoteatr.png and the cinema banner
+   in pinned desktop mode, without moving the banner/slider itself. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -178px) !important; /* v222: -194px */
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -191px) !important; /* v222: -207px */
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema .kino-badge{
+    transform: translate(-50%, -209px) !important; /* v222: -225px */
+  }
+}
+</style>
+
+
+<style id="tk-v224-docked-cinema-raise-keep-kino-gap">
+/* v224: lift the whole pinned cinema block so kinoteatr.png aligns with the
+   left "Игровое меню" header again, while preserving the tighter v223 gap
+   between the badge and the cinema banner. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 27px) !important;
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 29px) !important;
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 27px) !important;
+  }
+}
+</style>
+
+
+<style id="tk-v226-docked-cinema-raise-plus30-keep-gap">
+/* v226: lift the whole pinned cinema block by at least 30px more than v224,
+   so kinoteatr.png sits noticeably higher while keeping the tighter badge-to-banner gap. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 57px) !important; /* v224: -27px */
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 59px) !important; /* v224: -29px */
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 57px) !important; /* v224: -27px */
+  }
+}
+</style>
+
+
+<style id="tk-v227-docked-cinema-raise-even-more-keep-gap">
+/* v227: lift the whole pinned cinema block even higher than v226,
+   while preserving the same tight gap between kinoteatr.png and the banner. */
+@media (min-width:1100px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 87px) !important; /* v226: -57px */
+  }
+}
+@media (min-width:1500px) and (max-width:2559px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 89px) !important; /* v226: -59px */
+  }
+}
+@media (min-width:2560px){
+  html.tk-cinema-docked #cinema{
+    top: calc(var(--tk-cinema-top, 110px) - 87px) !important; /* v226: -57px */
+  }
+}
+</style>
+
+<!-- ========================= -->
+<!-- v229: FullHD kino-badge fix -->
+<!-- ========================= -->
+<!-- ========================= -->
+<!-- tk-v230: FHD kino-badge hard-fix (no DPR gating) -->
+<!-- ========================= -->
+<!-- ========================= -->
+<!-- tk-v233: FullHD raise cinema to menu line -->
+<!-- ========================= -->
+<!-- tk-v237: FullHD kino exact top-line + 5px gap fix -->
