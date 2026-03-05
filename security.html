@@ -20430,25 +20430,42 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   const root = document.documentElement;
   const anchors = new WeakMap();
   let raf = 0;
-  function is4kLike(){
-    const w = Math.round(window.innerWidth || 0);
-    const h = Math.round(window.innerHeight || 0);
+  let active = false;
+
+  function px(n){ return Math.round(Number(n) || 0); }
+  function getMetrics(){
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-    const effW = Math.round(w * dpr);
-    const effH = Math.round(h * dpr);
-    if(w <= 520) return false;
-    return (w >= 2200) || (effW >= 3000) || (h >= 1300) || (effH >= 1900);
+    const iw = px(window.innerWidth || document.documentElement.clientWidth || 0);
+    const ih = px(window.innerHeight || document.documentElement.clientHeight || 0);
+    const ow = px(window.outerWidth || 0);
+    const oh = px(window.outerHeight || 0);
+    const sw = px((window.screen && (window.screen.availWidth || window.screen.width)) || 0);
+    const sh = px((window.screen && (window.screen.availHeight || window.screen.height)) || 0);
+    return {
+      dpr,
+      iw, ih, ow, oh, sw, sh,
+      effInnerW: px(iw * dpr),
+      effInnerH: px(ih * dpr),
+      effOuterW: px(ow * dpr),
+      effScreenW: px(sw * dpr),
+      effScreenH: px(sh * dpr)
+    };
+  }
+  function is4kLike(){
+    const m = getMetrics();
+    if(m.iw <= 520) return false;
+    const maxEffW = Math.max(m.effInnerW, m.effOuterW, m.effScreenW);
+    const maxEffH = Math.max(m.effInnerH, m.effScreenH);
+    return maxEffW >= 3000 || maxEffH >= 1900 || m.iw >= 2200 || m.ih >= 1300;
   }
   function isTarget(){
-    const w = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
-    const h = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
-    const effW = Math.round(w * Math.max(window.devicePixelRatio || 1, 1));
+    const m = getMetrics();
     if(is4kLike()) return false;
-    return w >= 980 && h >= 620 && effW < 3000;
+    return m.iw >= 980 && m.ih >= 620 && m.effInnerW < 3000;
   }
   function remember(el){
     if(!el || anchors.has(el) || !el.parentNode) return;
-    const ph = document.createComment('tk-v201-anchor');
+    const ph = document.createComment('tk-v202-anchor');
     el.parentNode.insertBefore(ph, el);
     anchors.set(el, ph);
   }
@@ -20480,6 +20497,15 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   function redraw(){
     try{ if(typeof window.__tkRouletteRedraw === 'function') window.__tkRouletteRedraw(); }catch(_e){}
   }
+  function teardown(dock,rules,it,info,phish,spin,sound){
+    root.classList.remove('tk-fhd-clean-fixedrails');
+    root.removeAttribute('data-fhd-size');
+    [dock,rules,it,info,phish,spin,sound].forEach(restore);
+    removeRail('tkFhdRightRailFinal');
+    removeRail('tkFhdLeftRailFinal');
+    active = false;
+    redraw();
+  }
   function apply(){
     raf = 0;
     const dock = document.getElementById('rouletteDock');
@@ -20489,16 +20515,14 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
     const phish = document.querySelector('.side-chip--phish-min');
     const spin = document.getElementById('spinBtn');
     const sound = document.getElementById('rouletteSound');
-    [dock,rules,it,info,phish,spin,sound].forEach(remember);
     if(!dock || !rules || !it || !info || !phish) return;
     if(!isTarget()){
-      root.classList.remove('tk-fhd-clean-fixedrails');
-      root.removeAttribute('data-fhd-size');
-      [dock,rules,it,info,phish,spin,sound].forEach(restore);
-      removeRail('tkFhdRightRailFinal');
-      removeRail('tkFhdLeftRailFinal');
-      redraw();
+      if(active) teardown(dock,rules,it,info,phish,spin,sound);
       return;
+    }
+    if(!active){
+      [dock,rules,it,info,phish,spin,sound].forEach(remember);
+      active = true;
     }
     root.classList.add('tk-fhd-clean-fixedrails');
     root.setAttribute('data-fhd-size', (window.innerWidth < 1500 || window.innerHeight < 860) ? 'compact' : 'normal');
@@ -20510,7 +20534,10 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
     if(dock.nextElementSibling !== rules) right.appendChild(rules);
     [it, info, phish].forEach(function(el){ if(el.parentNode !== left) left.appendChild(el); });
     orderActions();
-    ['tk18LeftRail','tk19LeftRail','tk23RightRail','tkV165RightRail'].forEach(function(id){ const el=document.getElementById(id); if(el){ el.style.setProperty('display','none','important'); el.style.setProperty('pointer-events','none','important'); } });
+    ['tk18LeftRail','tk19LeftRail','tk23RightRail','tkV165RightRail'].forEach(function(id){
+      const el=document.getElementById(id);
+      if(el){ el.style.setProperty('display','none','important'); el.style.setProperty('pointer-events','none','important'); }
+    });
     setTimeout(redraw, 0); setTimeout(redraw, 120); setTimeout(redraw, 500);
   }
   function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
@@ -20519,7 +20546,11 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 200); setTimeout(schedule, 800); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  document.addEventListener('click', function(e){ if(e.target && (e.target.id === 'spinBtn' || (e.target.closest && e.target.closest('#spinBtn')))){ setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 1200); } }, true);
+  document.addEventListener('click', function(e){
+    if(e.target && (e.target.id === 'spinBtn' || (e.target.closest && e.target.closest('#spinBtn')))){
+      setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 1200);
+    }
+  }, true);
 })();
 </script>
 
@@ -25302,4 +25333,185 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 
 <script id="tk-v184-fhd-static-right-rail-lock-script">
 (function(){ /* tk-v184-fhd-static-right-rail-lock-script disabled in v201 */ return; })();
+</script>
+
+
+<style id="tk-v205-4k-right-rail">
+html.tk-v205-4k-right-rail #tkV205RightRail4k{
+  position: fixed !important;
+  right: 22px !important;
+  bottom: 18px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 100180 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 12px !important;
+  pointer-events: none !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k > *{
+  pointer-events: auto !important;
+  flex: 0 0 auto !important;
+  align-self: flex-end !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock.roulette-dock,
+html.tk-v205-4k-right-rail #tkV205RightRail4k .rules{
+  width: 344px !important;
+  min-width: 344px !important;
+  max-width: 344px !important;
+  box-sizing: border-box !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock.roulette-dock{
+  position: static !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+  zoom: 1 !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k .rules{
+  position: static !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k .rule-pill{
+  width: 344px !important;
+  min-width: 344px !important;
+  max-width: 344px !important;
+  height: 70px !important;
+  box-sizing: border-box !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock .wheel-wrap,
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock .wheel-rot{
+  width: 250px !important;
+  height: 250px !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock canvas#wheel{
+  width: 250px !important;
+  height: 250px !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock .roulette-infoTitle{
+  font-size: 16px !important;
+  line-height: 1.08 !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock .roulette-infoText{
+  font-size: 12.5px !important;
+  line-height: 1.24 !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock .roulette-infoActions{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock #rLink,
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock #spinBtn{ flex: 1 1 0 !important; min-width: 0 !important; }
+html.tk-v205-4k-right-rail #tkV205RightRail4k #rouletteDock #rouletteSound{ flex: 0 0 46px !important; width: 46px !important; min-width: 46px !important; }
+</style>
+<script id="tk-v205-keep-fhd-fix-4k-right-rail">
+(function(){
+  const root = document.documentElement;
+  const anchors = new WeakMap();
+  let raf = 0;
+  let active = false;
+  function px(n){ return Math.round(Number(n)||0); }
+  function metrics(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const iw = px(window.innerWidth || document.documentElement.clientWidth || 0);
+    const ih = px(window.innerHeight || document.documentElement.clientHeight || 0);
+    const sw = px((window.screen && (window.screen.availWidth || window.screen.width)) || iw);
+    const sh = px((window.screen && (window.screen.availHeight || window.screen.height)) || ih);
+    return { dpr, iw, ih, sw, sh, effW: px(Math.max(iw, sw) * dpr), effH: px(Math.max(ih, sh) * dpr) };
+  }
+  function isTarget(){
+    const m = metrics();
+    if(m.iw <= 520) return false;
+    if(root.classList.contains('tk-fhd-clean-fixedrails')) return false;
+    return m.effW >= 3000 || m.effH >= 1900 || m.iw >= 2200 || m.ih >= 1300;
+  }
+  function remember(el){
+    if(!el || anchors.has(el) || !el.parentNode) return;
+    const ph = document.createComment('tk-v205-anchor');
+    el.parentNode.insertBefore(ph, el);
+    anchors.set(el, ph);
+  }
+  function restore(el){
+    const ph = anchors.get(el);
+    if(!ph || !ph.parentNode || !el) return;
+    if(el.parentNode !== ph.parentNode) ph.parentNode.insertBefore(el, ph.nextSibling);
+  }
+  function ensureRail(){
+    let el = document.getElementById('tkV205RightRail4k');
+    if(!el){ el = document.createElement('div'); el.id = 'tkV205RightRail4k'; document.body.appendChild(el); }
+    return el;
+  }
+  function clearInline(el){
+    if(!el) return;
+    ['position','left','right','top','bottom','margin','transform','translate','scale','zoom','width','min-width','max-width'].forEach(p => el.style.removeProperty(p));
+  }
+  function orderActions(dock){
+    const actions = dock && dock.querySelector('.roulette-infoActions');
+    const link = document.getElementById('rLink');
+    const spin = document.getElementById('spinBtn');
+    const sound = document.getElementById('rouletteSound');
+    if(!actions || !link || !spin || !sound) return;
+    if(link.parentNode !== actions) actions.appendChild(link);
+    if(spin.parentNode !== actions) actions.appendChild(spin);
+    if(sound.parentNode !== actions) actions.appendChild(sound);
+    if(actions.firstElementChild !== link) actions.insertBefore(link, actions.firstChild || null);
+    if(link.nextElementSibling !== spin) actions.insertBefore(spin, link.nextSibling);
+    if(spin.nextElementSibling !== sound) actions.insertBefore(sound, spin.nextSibling);
+  }
+  function redraw(){ try{ if(typeof window.__tkRouletteRedraw === 'function') window.__tkRouletteRedraw(); }catch(_e){} }
+  function teardown(dock, rules){
+    root.classList.remove('tk-v205-4k-right-rail');
+    [dock, rules].forEach(restore);
+    const rail = document.getElementById('tkV205RightRail4k');
+    if(rail && rail.parentNode) rail.parentNode.removeChild(rail);
+    active = false;
+    redraw();
+  }
+  function apply(){
+    raf = 0;
+    const dock = document.getElementById('rouletteDock');
+    const rules = document.querySelector('.rules');
+    if(!dock || !rules) return;
+    if(!isTarget()){
+      if(active) teardown(dock, rules);
+      return;
+    }
+    if(!active){ [dock, rules].forEach(remember); active = true; }
+    const rail = ensureRail();
+    root.classList.add('tk-v205-4k-right-rail');
+    clearInline(dock); clearInline(rules);
+    if(dock.parentNode !== rail) rail.insertBefore(dock, rail.firstChild || null);
+    if(rail.firstElementChild !== dock) rail.insertBefore(dock, rail.firstChild || null);
+    if(rules.parentNode !== rail) rail.appendChild(rules);
+    if(dock.nextElementSibling !== rules) rail.appendChild(rules);
+    orderActions(dock);
+    redraw();
+    setTimeout(redraw, 80);
+  }
+  function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 140); setTimeout(schedule, 700); }, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', schedule, {passive:true}); }
+  document.addEventListener('click', function(e){ if(e.target && (e.target.id === 'spinBtn' || (e.target.closest && e.target.closest('#spinBtn')))) { setTimeout(schedule, 0); setTimeout(schedule, 1200); } }, true);
+})();
 </script>
