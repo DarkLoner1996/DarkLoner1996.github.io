@@ -21253,6 +21253,70 @@ html.tk-4k-minigame-focus .side-chip{
 })();
 </script>
 
+
+<style id="tk-v298-fhd-kino-raise350-hardfix">
+@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
+  html.tk-v293-fhd-cinema #cinema.tk-v298-fhd-hardfix{
+    top: -532px !important;
+    z-index: 21050 !important;
+  }
+}
+</style>
+<script id="tk-v298-fhd-kino-raise350-hardfix-script">
+(function(){
+  "use strict";
+  var root = document.documentElement;
+
+  function isReal4k(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = Math.max(window.devicePixelRatio || 1, 1);
+    var effW = iw * dpr;
+    return (iw >= 2560 && ih >= 1200) || effW >= 3000;
+  }
+
+  function isTargetFhd(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return !isReal4k() && iw >= 1100 && iw <= 2559 && ih >= 560;
+  }
+
+  function apply(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    if(!(root.classList.contains('tk-v293-fhd-cinema') && isTargetFhd())){
+      cinema.classList.remove('tk-v298-fhd-hardfix');
+      if(cinema.style && cinema.style.getPropertyValue('top') === '-532px'){
+        cinema.style.removeProperty('top');
+      }
+      return;
+    }
+
+    cinema.classList.add('tk-v298-fhd-hardfix');
+    cinema.style.setProperty('top', '-532px', 'important');
+
+    var dbg = document.getElementById('tkFhdKinoDebug');
+    if(dbg){
+      dbg.textContent = 'v298 FHD raise +350px hardfix';
+      dbg.style.display = 'inline-flex';
+    }
+  }
+
+  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', kick, {once:true});
+  }else{
+    kick();
+  }
+  window.addEventListener('load', kick, {passive:true});
+  window.addEventListener('resize', kick, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', kick, {passive:true});
+  [120, 320, 700, 1400, 2200].forEach(function(ms){ setTimeout(kick, ms); });
+})();
+</script>
+
 </body>
 </html>
 
