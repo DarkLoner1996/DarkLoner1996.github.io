@@ -28343,41 +28343,75 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 </script>
 
 
-<style id="tk-roulette-menuglass-v10">
+
+
+<style id="tk-roulette-transparent-bg-v16-final">
 @media (min-width: 1180px){
+  /* Keep the original border and layout. Only lighten the panel fill. */
   #rouletteDock .roulette-card,
-  #rouletteDock .roulette-info{
-    background: linear-gradient(180deg, rgba(10, 22, 40, .86), rgba(8, 18, 34, .76)) !important;
-    border: 1px solid rgba(255,255,255,.18) !important;
+  #rouletteDock .roulette-info,
+  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .roulette-card,
+  html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .roulette-info,
+  html.tk-v206-laptop15 #rouletteDock .roulette-card,
+  html.tk-v206-laptop15 #rouletteDock .roulette-info,
+  html.tk-fhd-static-final-v8 #rouletteDock .roulette-card,
+  html.tk-fhd-static-final-v8 #rouletteDock .roulette-info,
+  html.tk-v205-4k-right-rail #rouletteDock .roulette-card,
+  html.tk-v205-4k-right-rail #rouletteDock .roulette-info{
+    background:
+      radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.04), transparent 62%),
+      radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,.04), transparent 60%),
+      linear-gradient(180deg, rgba(10,55,90,.16), rgba(8,35,60,.10)) !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
     box-shadow:
       0 26px 64px rgba(0,0,0,.26),
-      inset 0 1px 0 rgba(255,255,255,.08) !important;
+      inset 0 1px 0 rgba(255,255,255,.14) !important;
     backdrop-filter: blur(14px) saturate(1.06) !important;
     -webkit-backdrop-filter: blur(14px) saturate(1.06) !important;
   }
 
-  #rouletteDock .roulette-card::after,
-  #rouletteDock .roulette-info::after{
-    content: "";
-    position: absolute;
-    inset: -2px;
-    background:
-      radial-gradient(680px 240px at 60% 35%, rgba(255,255,255,.14), transparent 60%),
-      radial-gradient(520px 220px at 20% 30%, rgba(94,231,255,.22), transparent 55%),
-      radial-gradient(520px 260px at 80% 80%, rgba(155,107,255,.20), transparent 58%);
-    filter: blur(8px);
-    opacity: .7;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  #rouletteDock .roulette-card > *,
-  #rouletteDock .roulette-info > *{
-    position: relative;
-    z-index: 1;
+  /* Keep the decorative border exactly as before. */
+  #rouletteDock .roulette-card::before,
+  #rouletteDock .roulette-info::before{
+    opacity: .92 !important;
   }
 }
 </style>
+<script id="tk-roulette-transparent-bg-v16-final-script">
+(function(){
+  const CARD_BG =
+    'radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,0.04), transparent 62%), ' +
+    'radial-gradient(120% 120% at 86% 18%, rgba(120,230,255,0.04), transparent 60%), ' +
+    'linear-gradient(180deg, rgba(10,55,90,0.16), rgba(8,35,60,0.10))';
+
+  function apply(){
+    const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    if (w < 1180) return;
+    const dock = document.getElementById('rouletteDock');
+    if (!dock) return;
+
+    dock.querySelectorAll('.roulette-card, .roulette-info').forEach(el => {
+      el.style.setProperty('background', CARD_BG, 'important');
+      el.style.setProperty('border', '1px solid rgba(255,255,255,0.16)', 'important');
+      el.style.setProperty('box-shadow', '0 26px 64px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.14)', 'important');
+      el.style.setProperty('backdrop-filter', 'blur(14px) saturate(1.06)', 'important');
+      el.style.setProperty('-webkit-backdrop-filter', 'blur(14px) saturate(1.06)', 'important');
+    });
+  }
+
+  const run = () => requestAnimationFrame(apply);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('load', run, {passive:true});
+  window.addEventListener('resize', run, {passive:true});
+  setTimeout(run, 120);
+  setTimeout(run, 600);
+  setTimeout(run, 1400);
+})();
+</script>
 
 </body>
 </html>
