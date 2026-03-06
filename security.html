@@ -21160,6 +21160,99 @@ html.tk-4k-minigame-focus .side-chip{
 })();
 </script>
 
+
+
+<style id="tk-v294-fhd-kino-raise300">
+@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
+  html.tk-v293-fhd-cinema.tk-v294-fhd-raise #cinema{
+    transform: translate(-50%, -300px) !important;
+  }
+}
+</style>
+<script id="tk-v294-fhd-kino-raise300-script">
+(function(){
+  var root = document.documentElement;
+  function isV292Real4k(){
+    return root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
+  }
+  function isTargetFhd(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return !isV292Real4k() && iw >= 1100 && iw <= 2559 && ih >= 560;
+  }
+  function apply(){
+    if(isTargetFhd()){
+      root.classList.add('tk-v294-fhd-raise');
+      var dbg = document.getElementById('tkFhdKinoDebug');
+      if(dbg){
+        dbg.textContent = 'v294 FHD raise -300px';
+        dbg.style.display = 'inline-flex';
+      }
+    }else{
+      root.classList.remove('tk-v294-fhd-raise');
+    }
+  }
+  function kick(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(apply);
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', kick, {once:true});
+  }else{
+    kick();
+  }
+  window.addEventListener('load', kick, {passive:true});
+  window.addEventListener('resize', kick, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', kick, {passive:true});
+  }
+  [80,180,400,900,1500].forEach(function(ms){ setTimeout(kick, ms); });
+})();
+</script>
+
+
+<style id="tk-v296-fhd-kino-lower20-from-v295">
+@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
+  html.tk-v293-fhd-cinema.tk-v296-fhd-kino-tune #cinema{
+    top: calc(var(--tk-v293-fhd-top, 18px) - 280px) !important;
+    transform: translateX(-50%) !important;
+  }
+}
+</style>
+<script id="tk-v296-fhd-kino-lower20-from-v295-script">
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  function is4k(){
+    return root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
+  }
+  function isTargetFhd(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return !is4k() && iw >= 1100 && iw <= 2559 && ih >= 560;
+  }
+  function apply(){
+    if(isTargetFhd()){
+      root.classList.add('tk-v296-fhd-kino-tune');
+      var dbg = document.getElementById('tkFhdKinoDebug');
+      if(dbg){
+        dbg.textContent = 'v296 FHD top -280px (20px lower)';
+        dbg.style.display = 'inline-flex';
+      }
+    }else{
+      root.classList.remove('tk-v296-fhd-kino-tune');
+    }
+  }
+  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kick, {once:true});
+  else kick();
+  window.addEventListener('load', kick, {passive:true});
+  window.addEventListener('resize', kick, {passive:true});
+  if(window.visualViewport) visualViewport.addEventListener('resize', kick, {passive:true});
+})();
+</script>
+
 </body>
 </html>
 
@@ -26673,5 +26766,332 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
   window.addEventListener('load', apply, { passive:true });
   window.addEventListener('resize', apply, { passive:true });
+})();
+</script>
+
+
+<style id="tk-v292-4k-only-guard-fhd-restore">
+  /* v292: never let the stable 4K cinema patch stay active on Full HD / non-4K */
+  html:not(.tk-v292-4k-ok) #cinema .kino-badge-top-4k{
+    display:none !important;
+  }
+  html:not(.tk-v292-4k-ok) #cinema .cinema-banner > .kino-badge{
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+  html:not(.tk-v292-4k-ok) #cinema{
+    top:auto !important;
+  }
+  html.tk-v292-4k-ok.tk-stable-4k-kino #cinema{
+    position:relative !important;
+    top:100px !important;
+  }
+</style>
+<script id="tk-v292-4k-only-guard-fhd-restore-script">
+(function(){
+  function root(){ return document.documentElement; }
+
+  function hasAnyFhdClass(){
+    var r = root();
+    return r.classList.contains('tk-fhd-kino-v249') ||
+           r.classList.contains('tk-fhd-v262') ||
+           r.classList.contains('tk-non4k-balanced-v19') ||
+           r.classList.contains('tk-fhd-unified-v6') ||
+           r.classList.contains('tk-non4k-rails-v10');
+  }
+
+  function isReally4k(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = window.devicePixelRatio || 1;
+    var effW = iw * dpr;
+    var effH = ih * dpr;
+
+    if (hasAnyFhdClass() && iw < 2300) return false;
+
+    return (iw >= 2500 && ih >= 1200) ||
+           (iw >= 2300 && ih >= 1100 && effW >= 3000 && effH >= 1600);
+  }
+
+  function restoreFhd(){
+    var r = root();
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    r.classList.remove('tk-v292-4k-ok');
+    r.classList.remove('tk-stable-4k-kino');
+
+    var head = cinema.querySelector('.cinema-head');
+    if(head){
+      head.style.removeProperty('display');
+      head.style.removeProperty('flex-direction');
+      head.style.removeProperty('align-items');
+      head.style.removeProperty('justify-content');
+      head.style.removeProperty('padding-top');
+      head.style.removeProperty('margin-top');
+      head.style.removeProperty('margin-bottom');
+    }
+
+    cinema.style.removeProperty('position');
+    cinema.style.removeProperty('top');
+
+    var banner = cinema.querySelector('.cinema-banner');
+    if(banner){
+      banner.style.removeProperty('margin');
+      banner.style.removeProperty('position');
+      banner.style.removeProperty('overflow');
+    }
+
+    var slider = cinema.querySelector('.slider-container');
+    if(slider){
+      slider.style.removeProperty('margin');
+    }
+
+    var oldBadge = cinema.querySelector('.cinema-banner > .kino-badge');
+    if(oldBadge){
+      oldBadge.removeAttribute('aria-hidden');
+      oldBadge.style.removeProperty('opacity');
+      oldBadge.style.removeProperty('visibility');
+      oldBadge.style.removeProperty('pointer-events');
+      oldBadge.style.removeProperty('top');
+      oldBadge.style.removeProperty('left');
+      oldBadge.style.removeProperty('height');
+      oldBadge.style.removeProperty('max-width');
+      oldBadge.style.removeProperty('transform');
+      oldBadge.style.removeProperty('z-index');
+    }
+  }
+
+  function applyReal4k(){
+    var r = root();
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    if(!isReally4k()){
+      restoreFhd();
+      return;
+    }
+
+    r.classList.add('tk-v292-4k-ok');
+    r.classList.add('tk-stable-4k-kino');
+
+    var title = cinema.querySelector('.cinema-banner-title');
+    if(title) title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
+
+    var banner = cinema.querySelector('.cinema-banner');
+    if(banner){
+      banner.style.margin = '0 auto 0';
+      banner.style.position = 'relative';
+      banner.style.overflow = 'visible';
+    }
+
+    var oldBadge = cinema.querySelector('.cinema-banner > .kino-badge');
+    if(oldBadge){
+      oldBadge.setAttribute('aria-hidden', 'true');
+      oldBadge.style.opacity = '0';
+      oldBadge.style.visibility = 'hidden';
+      oldBadge.style.pointerEvents = 'none';
+    }
+
+    cinema.style.position = 'relative';
+    cinema.style.top = '100px';
+  }
+
+  function kick(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(applyReal4k);
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', kick, { once:true });
+  }else{
+    kick();
+  }
+  window.addEventListener('load', kick, { passive:true });
+  window.addEventListener('resize', kick, { passive:true });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', kick, { passive:true });
+  }
+  [120, 300, 700, 1400, 2400].forEach(function(ms){ setTimeout(kick, ms); });
+})();
+</script>
+
+
+
+<style id="tk-v293-fhd-logo-above-banner-match-second-shot">
+@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
+  html.tk-v293-fhd-cinema #cinema{
+    position: fixed !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: var(--tk-v293-fhd-top, 18px) !important;
+    width: var(--tk-v293-fhd-w, 820px) !important;
+    max-width: calc(100vw - 620px) !important;
+    margin: 0 !important;
+    z-index: 20000 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .cinema-head{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .kino-badge-top-4k{
+    display: block !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: auto !important;
+    height: var(--tk-v293-badge-h, 84px) !important;
+    max-width: var(--tk-v293-badge-w, 340px) !important;
+    margin: 0 auto 6px auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 20002 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,.22)) !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .cinema-banner > .kino-badge{
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .cinema-banner{
+    width: 100% !important;
+    min-height: var(--tk-v293-banner-h, 102px) !important;
+    padding: 14px 28px 12px !important;
+    border-radius: 26px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+    position: relative !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .cinema-banner-title{
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    font-size: clamp(22px, 1.55vw, 30px) !important;
+    line-height: .98 !important;
+    letter-spacing: .02em !important;
+    text-align: center !important;
+    white-space: normal !important;
+    text-wrap: balance !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .cinema-banner-sub{
+    margin-top: 6px !important;
+    font-size: 10px !important;
+    letter-spacing: .18em !important;
+    text-align: center !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .slider-container{
+    margin-top: 4px !important;
+    width: 100% !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  html.tk-v293-fhd-cinema #cinema .slider-wrapper{
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 6px 10px !important;
+  }
+}
+</style>
+
+<script id="tk-v293-fhd-logo-above-banner-match-second-shot-script">
+(function(){
+  "use strict";
+  var root = document.documentElement;
+
+  function isV292Real4k(){
+    return root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
+  }
+
+  function isTargetFhd(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return !isV292Real4k() && iw >= 1100 && iw <= 2559 && ih >= 560;
+  }
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
+
+  function apply(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    if(!isTargetFhd()){
+      root.classList.remove('tk-v293-fhd-cinema');
+      return;
+    }
+
+    root.classList.add('tk-v293-fhd-cinema');
+
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+
+    var w = clamp(Math.round(iw * 0.40), 760, 860);
+    var badgeH = clamp(Math.round(iw * 0.041), 74, 90);
+    var badgeW = clamp(Math.round(iw * 0.17), 290, 360);
+    var bannerH = clamp(Math.round(iw * 0.050), 98, 112);
+
+    root.style.setProperty('--tk-v293-fhd-w', w + 'px');
+    root.style.setProperty('--tk-v293-fhd-top', '18px');
+    root.style.setProperty('--tk-v293-badge-h', badgeH + 'px');
+    root.style.setProperty('--tk-v293-badge-w', badgeW + 'px');
+    root.style.setProperty('--tk-v293-banner-h', bannerH + 'px');
+
+    var title = cinema.querySelector('.cinema-banner-title');
+    if(title){
+      title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
+    }
+
+    var dbg = document.getElementById('tkFhdKinoDebug');
+    if(dbg){
+      dbg.textContent = 'v293 FHD fix active';
+      dbg.style.display = 'inline-flex';
+    }
+  }
+
+  function kick(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(apply);
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', kick, {once:true});
+  }else{
+    kick();
+  }
+  window.addEventListener('load', kick, {passive:true});
+  window.addEventListener('resize', kick, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', kick, {passive:true});
+  }
+  [80, 180, 400, 900, 1500].forEach(function(ms){ setTimeout(kick, ms); });
 })();
 </script>
