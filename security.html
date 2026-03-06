@@ -8810,6 +8810,7 @@ body.menu-collapsed .side-nav__panel{
 <section class="cinema-slider cinema-v2" id="cinema">
 <div class="cinema-head">
 <div class="cinema-kicker"><span class="kino-sr">Кинотеатр</span></div>
+<img src="kinoteatr.png" alt="Кинотеатр" class="kino-badge-top-4k" decoding="async" aria-hidden="true">
 <div aria-label="Мультфильмы о цифровой безопасности" class="cinema-banner">
 <img src="kinoteatr.png" alt="Кинотеатр" class="kino-badge" decoding="async" aria-hidden="true">
 <div class="cinema-banner-title">Мультфильмы о цифровой безопасности</div>
@@ -17291,144 +17292,6 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   }
 </style>
 
-<script id="tk-kino-badge-gap10-final-v2-js">
-(function(){
-  "use strict";
-  if(window.__tkKinoGap10V2) return;
-  window.__tkKinoGap10V2 = true;
-
-  var DESIRED_GAP = 10; 
-  var CLAMP = 4000;
-
-  function qs(sel, root){ return (root||document).querySelector(sel); }
-
-  var banner = null, badge = null;
-  var cachedTransparentBottomNatural = null;
-
-  function getTargets(){
-    banner = qs('#cinema .cinema-banner');
-    if(!banner) return false;
-    badge = qs('#cinema .cinema-banner .kino-badge') || qs('#cinema .kino-badge');
-    return !!badge;
-  }
-
-  function cssNum(el, name){
-    try{
-      var v = getComputedStyle(el).getPropertyValue(name);
-      var n = parseFloat(v);
-      return isFinite(n) ? n : 0;
-    }catch(e){ return 0; }
-  }
-
-  function measureTransparentBottomNatural(img){
-    try{
-      var w = img.naturalWidth|0, h = img.naturalHeight|0;
-      if(!w || !h) return null;
-
-      var c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      var ctx = c.getContext('2d');
-      if(!ctx) return null;
-
-      ctx.clearRect(0,0,w,h);
-      ctx.drawImage(img, 0, 0);
-
-      var data = ctx.getImageData(0,0,w,h).data;
-      var threshold = 6;
-      var step = Math.max(1, Math.floor(w / 380));
-
-      for(var y = h-1; y >= 0; y--){
-        var row = y*w*4;
-        for(var x=0; x<w; x+=step){
-          if(data[row + x*4 + 3] > threshold){
-            return (h-1) - y;
-          }
-        }
-      }
-      return h;
-    }catch(e){
-      return null;
-    }
-  }
-
-  function computeTransparentBottomScaled(){
-    if(cachedTransparentBottomNatural == null){
-      cachedTransparentBottomNatural = measureTransparentBottomNatural(badge);
-    }
-    if(cachedTransparentBottomNatural != null && badge.naturalHeight){
-      var r = badge.getBoundingClientRect();
-      if(r.height > 0){
-        return cachedTransparentBottomNatural * (r.height / badge.naturalHeight);
-      }
-    }
-    return cssNum(document.documentElement, '--tk-kino-fallback-transparent-bottom');
-  }
-
-  function apply(){
-    if(!getTargets()) return;
-
-    badge.style.setProperty('--tk-kino-nudge', '0px');
-
-    var br = banner.getBoundingClientRect();
-    var ir = badge.getBoundingClientRect();
-    if(!isFinite(br.top) || !isFinite(ir.bottom)) return;
-
-    var tb = computeTransparentBottomScaled();
-
-    var desiredBoxGap = DESIRED_GAP - tb;
-    var boxGap = br.top - ir.bottom;
-    var nudge = boxGap - desiredBoxGap;
-
-    if(nudge > CLAMP) nudge = CLAMP;
-    if(nudge < -CLAMP) nudge = -CLAMP;
-
-    badge.style.setProperty('--tk-kino-nudge', nudge.toFixed(2) + 'px');
-  }
-
-  function schedule(){
-    requestAnimationFrame(function(){
-      requestAnimationFrame(apply);
-    });
-  }
-
-  function init(){
-    if(!getTargets()) return;
-    cachedTransparentBottomNatural = null;
-
-    if(badge.complete){
-      schedule();
-    }else{
-      badge.onload = function(){
-        cachedTransparentBottomNatural = null;
-        schedule();
-      };
-    }
-
-    window.addEventListener('resize', schedule);
-    window.addEventListener('orientationchange', function(){ setTimeout(schedule, 80); });
-
-    if(window.visualViewport && window.visualViewport.addEventListener){
-      window.visualViewport.addEventListener('resize', function(){ setTimeout(schedule, 60); });
-    }
-
-    setTimeout(schedule, 120);
-    setTimeout(schedule, 360);
-    setTimeout(schedule, 720);
-    setTimeout(schedule, 1200);
-    setTimeout(schedule, 2000);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  }else{
-    init();
-  }
-})();
-</script>
-
-
-
-
 <style id="tk-fhd-scroll-no-bars">
 
 
@@ -21165,730 +21028,138 @@ html.tk-4k-minigame-focus .side-chip{
 
 
 <!-- tk-v277 recreated: 4K banner linebreak + kino down 400px + hide debug -->
-<style id="tk-v277-recreated-4k-fixes">
-  #tkV249Dbg, #tkV258Dbg, #tkV262Dbg, [id*="Dbg"], [id*="dbg"]{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-
-  @media (min-width: 2560px){
-    html:not(.tk-fhd-v262) #cinema .cinema-banner{
-      width: min(1460px, 66vw) !important;
-      min-height: 132px !important;
-      padding: 18px 44px 16px !important;
-      border-radius: 28px !important;
-    }
-    html:not(.tk-fhd-v262) #cinema .cinema-banner-title{
-      display:block !important;
-      width:100% !important;
-      max-width:none !important;
-      font-size: clamp(23px, 1.16vw, 29px) !important;
-      line-height: 1.02 !important;
-      letter-spacing: .03em !important;
-      text-align:center !important;
-      white-space: normal !important;
-      text-wrap: balance !important;
-    }
-    html:not(.tk-fhd-v262) #cinema .cinema-banner-sub{
-      margin-top: 6px !important;
-      font-size: 10px !important;
-      letter-spacing: .20em !important;
-    }
-    html:not(.tk-fhd-v262) #cinema .kino-badge{
-      top: 0 !important;
-      left: 50% !important;
-      height: clamp(82px, 4.15vw, 110px) !important;
-      max-width: min(430px, 20vw) !important;
-      transform: translate(-50%, calc(-100% + 400px)) !important;
-      z-index: 20 !important;
-      filter: drop-shadow(0 7px 14px rgba(0,0,0,.18)) !important;
-    }
-  }
-</style>
-<script id="tk-v277-recreated-4k-fixes-script">
-(function(){
-  function is4k(){ return window.innerWidth >= 2560 && !document.documentElement.classList.contains('tk-fhd-v262'); }
-  function apply(){
-    try{
-      ['tkV249Dbg','tkV258Dbg','tkV262Dbg'].forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
-      if(!is4k()) return;
-      var title = document.querySelector('#cinema .cinema-banner-title');
-      if(title) title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-      var badge = document.querySelector('#cinema .kino-badge');
-      if(badge){
-        badge.style.left = '50%';
-        badge.style.top = '0px';
-        badge.style.height = '98px';
-        badge.style.maxWidth = '430px';
-        badge.style.transform = 'translate(-50%, calc(-100% + 400px))';
-        badge.style.zIndex = '20';
-      }
-    }catch(e){}
-  }
-  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
-  window.addEventListener('load', kick, {passive:true});
-  window.addEventListener('resize', kick, {passive:true});
-  document.addEventListener('DOMContentLoaded', kick);
-  [60,180,360,720,1200,1800,2600].forEach(function(ms){ setTimeout(kick, ms); });
-  kick();
-})();
-</script>
 <!-- /tk-v277 recreated -->
 
 
 
 <!-- tk-v284: actual 4K fix - banner pushed down, logo above it -->
-<style id="tk-v284-4k-logo-above-banner-actual-fix">
-@media (min-width: 2560px){
-  html:not(.tk-fhd-v262) #cinema .cinema-head{
-    margin-top: 10px !important;
-    margin-bottom: 18px !important;
-    padding-top: 0 !important;
-  }
-  html:not(.tk-fhd-v262) #cinema .cinema-banner{
-    margin: 108px auto 0 !important;
-    width: min(1460px, 66vw) !important;
-    min-height: 132px !important;
-    padding: 18px 44px 16px !important;
-    border-radius: 28px !important;
-    overflow: visible !important;
-    position: relative !important;
-  }
-  html:not(.tk-fhd-v262) #cinema .kino-badge{
-    left: 50% !important;
-    top: 0 !important;
-    height: 98px !important;
-    max-width: 430px !important;
-    width: auto !important;
-    transform: translate(-50%, calc(-100% - 16px)) !important;
-    z-index: 30 !important;
-    filter: drop-shadow(0 8px 16px rgba(0,0,0,.20)) !important;
-  }
-  html:not(.tk-fhd-v262) #cinema .slider-container{
-    margin: 0 auto !important;
-  }
-}
-</style>
-<script id="tk-v284-4k-logo-above-banner-actual-fix-script">
-(function(){
-  function is4k(){ return window.innerWidth >= 2560 && !document.documentElement.classList.contains('tk-fhd-v262'); }
-  function apply(){
-    try{
-      if(!is4k()) return;
-      var cinema=document.getElementById('cinema');
-      if(!cinema) return;
-      var title=cinema.querySelector('.cinema-banner-title');
-      if(title) title.innerHTML='Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-      var head=cinema.querySelector('.cinema-head');
-      var banner=cinema.querySelector('.cinema-banner');
-      var badge=cinema.querySelector('.kino-badge');
-      if(head){
-        head.style.marginTop='10px';
-        head.style.marginBottom='18px';
-        head.style.paddingTop='0px';
-        head.style.display='flex';
-        head.style.flexDirection='column';
-        head.style.alignItems='center';
-      }
-      if(banner){
-        banner.style.margin='108px auto 0';
-        banner.style.overflow='visible';
-        banner.style.position='relative';
-      }
-      if(badge){
-        badge.style.left='50%';
-        badge.style.top='0px';
-        badge.style.height='98px';
-        badge.style.maxWidth='430px';
-        badge.style.transform='translate(-50%, calc(-100% - 16px))';
-        badge.style.zIndex='30';
-      }
-    }catch(e){}
-  }
-  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
-  window.addEventListener('load', kick, {passive:true});
-  window.addEventListener('resize', kick, {passive:true});
-  document.addEventListener('DOMContentLoaded', kick);
-  [60,180,360,720,1200,1800,2600].forEach(function(ms){ setTimeout(kick, ms); });
-  kick();
-})();
-</script>
 <!-- /tk-v284 -->
 
 
+<style id="tk-v289-4k-kino-stable-no-conflicts">
+  #cinema .kino-badge-top-4k{
+    display:none;
+    pointer-events:none;
+    user-select:none;
+  }
 
-<!-- tk-v285: true 4K/scaled-4K kino badge detached above banner -->
-<style id="tk-v285-true4k-kino-detach-above-banner">
-html.tk-true4k-v285 #cinema .cinema-head{
-  position: relative !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  width: 100% !important;
-  padding-top: 124px !important;
-  margin-top: 10px !important;
-  margin-bottom: 18px !important;
-  overflow: visible !important;
-}
-html.tk-true4k-v285 #cinema .cinema-head > .kino-badge{
-  position: absolute !important;
-  left: 50% !important;
-  top: 0 !important;
-  width: auto !important;
-  height: clamp(96px, 5.3vw, 132px) !important;
-  max-width: min(520px, 24vw) !important;
-  transform: translate(-50%, 0) !important;
-  z-index: 60 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  pointer-events: none !important;
-  user-select: none !important;
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,.22)) !important;
-}
-html.tk-true4k-v285 #cinema .cinema-banner{
-  position: relative !important;
-  overflow: visible !important;
-  margin: 0 auto !important;
-  width: min(1460px, 66vw) !important;
-  min-height: 132px !important;
-  padding: 18px 44px 16px !important;
-  border-radius: 28px !important;
-}
-html.tk-true4k-v285 #cinema .cinema-banner-title{
-  display: block !important;
-  width: 100% !important;
-  max-width: none !important;
-  font-size: clamp(23px, 1.16vw, 29px) !important;
-  line-height: 1.02 !important;
-  letter-spacing: .03em !important;
-  text-align: center !important;
-  white-space: normal !important;
-  text-wrap: balance !important;
-}
-html.tk-true4k-v285 #cinema .cinema-banner-sub{
-  margin-top: 6px !important;
-  font-size: 10px !important;
-  letter-spacing: .20em !important;
-  text-align: center !important;
-}
-html.tk-true4k-v285 #cinema .slider-container{
-  max-width: min(1380px, 62vw) !important;
-  margin: 0 auto !important;
-}
+  html.tk-stable-4k-kino #cinema,
+  html.tk-stable-4k-kino #cinema .cinema-head{
+    overflow:visible !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .cinema-head{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    margin-top:10px !important;
+    margin-bottom:18px !important;
+    padding-top:0 !important;
+    gap:0 !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .kino-badge-top-4k{
+    display:block !important;
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    transform:none !important;
+    width:auto !important;
+    height:98px !important;
+    max-width:min(430px, 20vw) !important;
+    margin:0 auto 10px auto !important;
+    z-index:40 !important;
+    filter:drop-shadow(0 8px 16px rgba(0,0,0,.20)) !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .cinema-banner > .kino-badge{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .cinema-banner{
+    margin:0 auto 0 !important;
+    width:min(1460px, 66vw) !important;
+    min-height:132px !important;
+    padding:18px 44px 16px !important;
+    border-radius:28px !important;
+    overflow:visible !important;
+    position:relative !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .cinema-banner-title{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    font-size:clamp(23px, 1.16vw, 29px) !important;
+    line-height:1.02 !important;
+    letter-spacing:.03em !important;
+    text-align:center !important;
+    white-space:normal !important;
+    text-wrap:balance !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .cinema-banner-sub{
+    margin-top:6px !important;
+    font-size:10px !important;
+    letter-spacing:.20em !important;
+  }
+
+  html.tk-stable-4k-kino #cinema .slider-container{
+    margin:0 auto !important;
+  }
 </style>
-<script id="tk-v285-true4k-kino-detach-above-banner-script">
+<script id="tk-v289-4k-kino-stable-no-conflicts-script">
 (function(){
-  "use strict";
-  var HTML = document.documentElement;
-  var TITLE_HTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-
-  function num(v){ v = Number(v); return isFinite(v) ? v : 0; }
-
-  function isTrue4k(){
-    if(HTML.classList.contains('tk-fhd-v262')) return false;
-    var dpr = Math.max(1, num(window.devicePixelRatio) || 1);
-    var cssW = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var cssH = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var scrW = 0, scrH = 0;
-    try{
-      scrW = Math.max(num(screen.width), num(screen.availWidth)) * dpr;
-      scrH = Math.max(num(screen.height), num(screen.availHeight)) * dpr;
-    }catch(e){}
-    var effW = cssW * dpr;
-    var effH = cssH * dpr;
-    var realW = Math.max(effW, scrW);
-    var realH = Math.max(effH, scrH);
-    return realW >= 3000 && realH >= 1600;
-  }
-
-  function setImp(el, prop, value){
-    if(!el) return;
-    el.style.setProperty(prop, value, 'important');
-  }
-
-  function clearProps(el, props){
-    if(!el) return;
-    props.forEach(function(p){ try{ el.style.removeProperty(p); }catch(e){} });
+  function is4kLike(){
+    var dpr = window.devicePixelRatio || 1;
+    var sw = Math.max(window.screen && window.screen.width || 0, window.screen && window.screen.height || 0);
+    var iw = Math.max(window.innerWidth || 0, window.innerHeight || 0);
+    var eff = iw * dpr;
+    return !document.documentElement.classList.contains('tk-fhd-v262') && (iw >= 2400 || sw >= 3000 || eff >= 3000);
   }
 
   function apply(){
+    var root = document.documentElement;
     var cinema = document.getElementById('cinema');
     if(!cinema) return;
 
-    var head = cinema.querySelector('.cinema-head');
-    var banner = cinema.querySelector('.cinema-banner');
-    var badge = cinema.querySelector('.kino-badge');
-    var title = cinema.querySelector('.cinema-banner-title');
-    var sub = cinema.querySelector('.cinema-banner-sub');
-    var slider = cinema.querySelector('.slider-container');
-    if(!head || !banner || !badge) return;
+    if(is4kLike()){
+      root.classList.add('tk-stable-4k-kino');
+      var title = cinema.querySelector('.cinema-banner-title');
+      if(title) title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
 
-    var on = isTrue4k();
-    HTML.classList.toggle('tk-true4k-v285', on);
-
-    if(on){
-      if(title) title.innerHTML = TITLE_HTML;
-
-      if(badge.parentElement !== head){
-        head.insertBefore(badge, banner);
+      var banner = cinema.querySelector('.cinema-banner');
+      if(banner){
+        banner.style.margin = '0 auto 0';
+        banner.style.position = 'relative';
+        banner.style.overflow = 'visible';
       }
 
-      setImp(head, 'position', 'relative');
-      setImp(head, 'display', 'flex');
-      setImp(head, 'flex-direction', 'column');
-      setImp(head, 'align-items', 'center');
-      setImp(head, 'justify-content', 'flex-start');
-      setImp(head, 'width', '100%');
-      setImp(head, 'padding-top', '124px');
-      setImp(head, 'margin-top', '10px');
-      setImp(head, 'margin-bottom', '18px');
-      setImp(head, 'overflow', 'visible');
-
-      setImp(badge, 'position', 'absolute');
-      setImp(badge, 'left', '50%');
-      setImp(badge, 'top', '0');
-      setImp(badge, 'width', 'auto');
-      setImp(badge, 'height', '110px');
-      setImp(badge, 'max-width', '520px');
-      setImp(badge, 'transform', 'translate(-50%, 0)');
-      setImp(badge, 'z-index', '60');
-      setImp(badge, 'margin', '0');
-      setImp(badge, 'padding', '0');
-      setImp(badge, 'pointer-events', 'none');
-      setImp(badge, 'user-select', 'none');
-      setImp(badge, 'filter', 'drop-shadow(0 10px 20px rgba(0,0,0,.22))');
-
-      setImp(banner, 'position', 'relative');
-      setImp(banner, 'overflow', 'visible');
-      setImp(banner, 'margin', '0 auto');
-      setImp(banner, 'width', 'min(1460px, 66vw)');
-      setImp(banner, 'min-height', '132px');
-      setImp(banner, 'padding', '18px 44px 16px');
-      setImp(banner, 'border-radius', '28px');
-
-      if(title){
-        setImp(title, 'display', 'block');
-        setImp(title, 'width', '100%');
-        setImp(title, 'max-width', 'none');
-        setImp(title, 'font-size', 'clamp(23px, 1.16vw, 29px)');
-        setImp(title, 'line-height', '1.02');
-        setImp(title, 'letter-spacing', '.03em');
-        setImp(title, 'text-align', 'center');
-        setImp(title, 'white-space', 'normal');
+      var oldBadge = cinema.querySelector('.cinema-banner > .kino-badge');
+      if(oldBadge){
+        oldBadge.setAttribute('aria-hidden', 'true');
+        oldBadge.style.opacity = '0';
+        oldBadge.style.visibility = 'hidden';
+        oldBadge.style.pointerEvents = 'none';
       }
-      if(sub){
-        setImp(sub, 'margin-top', '6px');
-        setImp(sub, 'font-size', '10px');
-        setImp(sub, 'letter-spacing', '.20em');
-        setImp(sub, 'text-align', 'center');
-      }
-      if(slider){
-        setImp(slider, 'max-width', 'min(1380px, 62vw)');
-        setImp(slider, 'margin', '0 auto');
-      }
-      return;
+    }else{
+      root.classList.remove('tk-stable-4k-kino');
     }
-
-    if(badge.parentElement !== banner){
-      banner.insertBefore(badge, banner.firstChild);
-    }
-
-    clearProps(head, ['position','display','flex-direction','align-items','justify-content','width','padding-top','margin-top','margin-bottom','overflow']);
-    clearProps(badge, ['position','left','top','width','height','max-width','transform','z-index','margin','padding','pointer-events','user-select','filter']);
-    clearProps(banner, ['position','overflow','margin','width','min-height','padding','border-radius']);
-    if(title) clearProps(title, ['display','width','max-width','font-size','line-height','letter-spacing','text-align','white-space']);
-    if(sub) clearProps(sub, ['margin-top','font-size','letter-spacing','text-align']);
-    if(slider) clearProps(slider, ['max-width','margin']);
-  }
-
-  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', kick, { once:false });
-  }
-  window.addEventListener('load', kick, { passive:true });
-  window.addEventListener('resize', kick, { passive:true });
-  window.addEventListener('orientationchange', function(){ setTimeout(kick, 60); }, { passive:true });
-  if(window.visualViewport && window.visualViewport.addEventListener){
-    window.visualViewport.addEventListener('resize', function(){ setTimeout(kick, 60); }, { passive:true });
-  }
-  var mt = document.getElementById('menuToggle');
-  if(mt){ mt.addEventListener('click', function(){ setTimeout(kick, 80); }, { passive:true }); }
-  [80,180,360,720,1200,1800,2600,3600].forEach(function(ms){ setTimeout(kick, ms); });
-  kick();
-})();
-</script>
-<!-- /tk-v285 -->
-
-
-
-<!-- tk-v287: FORCE RAISE kino-badge above cinema banner on 4K / scaled 4K -->
-<style id="tk-v287-force-raise-kino-above-banner">
-html.tk-force-kino-above-v287 #cinema .cinema-head{
-  position:relative !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  width:100% !important;
-  overflow:visible !important;
-  margin-top:0 !important;
-  margin-bottom:18px !important;
-}
-html.tk-force-kino-above-v287 #cinema .cinema-banner{
-  position:relative !important;
-  overflow:visible !important;
-  margin:0 auto !important;
-}
-html.tk-force-kino-above-v287 #cinema .kino-badge{
-  position:absolute !important;
-  left:50% !important;
-  right:auto !important;
-  bottom:auto !important;
-  margin:0 !important;
-  padding:0 !important;
-  width:auto !important;
-  z-index:999 !important;
-  pointer-events:none !important;
-  user-select:none !important;
-}
-</style>
-<script id="tk-v287-force-raise-kino-above-banner-script">
-(function(){
-  'use strict';
-  var HTML = document.documentElement;
-  var TITLE_HTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-
-  function n(v){ v = Number(v); return isFinite(v) ? v : 0; }
-  function screenRealW(){
-    var dpr = Math.max(1, n(window.devicePixelRatio) || 1);
-    var vals = [
-      n(window.innerWidth) * dpr,
-      n(window.outerWidth) * dpr,
-      n(screen && screen.width) * dpr,
-      n(screen && screen.availWidth) * dpr,
-      n(screen && screen.width),
-      n(screen && screen.availWidth)
-    ];
-    return Math.max.apply(Math, vals);
-  }
-  function shouldApply(){
-    var realW = screenRealW();
-    var cssW  = Math.max(n(window.innerWidth), n(document.documentElement.clientWidth));
-    var cssH  = Math.max(n(window.innerHeight), n(document.documentElement.clientHeight));
-    if(cssW < 1500 || cssH < 800) return false;
-    return realW >= 3000 || cssW >= 2200;
-  }
-  function imp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function clear(el, props){ if(!el) return; props.forEach(function(p){ try{ el.style.removeProperty(p); }catch(e){} }); }
-
-  function apply(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var head = cinema.querySelector('.cinema-head');
-    var banner = cinema.querySelector('.cinema-banner');
-    var badge = cinema.querySelector('.kino-badge');
-    var title = cinema.querySelector('.cinema-banner-title');
-    var sub = cinema.querySelector('.cinema-banner-sub');
-    if(!head || !banner || !badge) return;
-
-    var on = shouldApply();
-    HTML.classList.toggle('tk-force-kino-above-v287', on);
-    if(!on){
-      clear(head,['position','display','flex-direction','align-items','justify-content','width','overflow','margin-top','margin-bottom','padding-top']);
-      clear(banner,['position','overflow','margin']);
-      clear(badge,['position','left','right','top','bottom','margin','padding','width','height','max-width','transform','z-index','pointer-events','user-select']);
-      return;
-    }
-
-    // Measure current badge size after images have loaded.
-    var badgeRect = badge.getBoundingClientRect();
-    var badgeH = Math.round(badgeRect.height || badge.offsetHeight || 110);
-    // Keep a stable 12px visible gap between logo bottom and banner top.
-    var gap = 12;
-
-    if(title) title.innerHTML = TITLE_HTML;
-    if(sub){ imp(sub,'text-align','center'); }
-
-    imp(head,'position','relative');
-    imp(head,'display','flex');
-    imp(head,'flex-direction','column');
-    imp(head,'align-items','center');
-    imp(head,'justify-content','flex-start');
-    imp(head,'width','100%');
-    imp(head,'overflow','visible');
-    imp(head,'margin-top','0');
-    imp(head,'margin-bottom','18px');
-    imp(head,'padding-top', (badgeH + gap) + 'px');
-
-    imp(banner,'position','relative');
-    imp(banner,'overflow','visible');
-    imp(banner,'margin','0 auto');
-
-    imp(badge,'position','absolute');
-    imp(badge,'left','50%');
-    imp(badge,'right','auto');
-    imp(badge,'top','0');
-    imp(badge,'bottom','auto');
-    imp(badge,'margin','0');
-    imp(badge,'padding','0');
-    imp(badge,'width','auto');
-    imp(badge,'height', badgeH + 'px');
-    imp(badge,'max-width','560px');
-    imp(badge,'transform', 'translate(-50%, calc(-100% - ' + gap + 'px))');
-    imp(badge,'z-index','999');
-    imp(badge,'pointer-events','none');
-    imp(badge,'user-select','none');
-  }
-
-  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kick, {passive:true});
-  window.addEventListener('load', kick, {passive:true});
-  window.addEventListener('resize', kick, {passive:true});
-  if(window.visualViewport && window.visualViewport.addEventListener){
-    window.visualViewport.addEventListener('resize', function(){ setTimeout(kick, 30); }, {passive:true});
-  }
-  var mt = document.getElementById('menuToggle');
-  if(mt) mt.addEventListener('click', function(){ setTimeout(kick, 80); }, {passive:true});
-  [0,80,180,360,720,1200,1800,2600,3600,5200,7000].forEach(function(ms){ setTimeout(kick, ms); });
-  kick();
-})();
-</script>
-<!-- /tk-v287 -->
-
-
-
-<!-- tk-v288: hard 4K/scaled-4K fix — visible logo is a real sibling ABOVE the banner -->
-<style id="tk-v288-4k-logo-real-sibling-above-banner">
-html.tk-4kish-v288 #cinema .cinema-head{
-  position: relative !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 8px !important;
-  padding-top: 0 !important;
-  margin-top: 10px !important;
-  margin-bottom: 18px !important;
-  overflow: visible !important;
-}
-html.tk-4kish-v288 #cinema .cinema-kicker{
-  display: none !important;
-}
-html.tk-4kish-v288 #cinema .cinema-banner{
-  margin: 0 auto !important;
-  position: relative !important;
-  overflow: visible !important;
-  z-index: 2 !important;
-}
-html.tk-4kish-v288 #cinema .cinema-banner .kino-badge{
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-html.tk-4kish-v288 #cinema .tk-v288-kino-above{
-  display: block !important;
-  position: relative !important;
-  left: auto !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  margin: 0 auto 6px !important;
-  width: auto !important;
-  height: clamp(116px, 6.6vw, 168px) !important;
-  max-width: min(720px, 34vw) !important;
-  object-fit: contain !important;
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,.22)) !important;
-  z-index: 40 !important;
-  pointer-events: none !important;
-  user-select: none !important;
-}
-html.tk-4kish-v288 #cinema .slider-container{
-  margin: 0 auto !important;
-}
-</style>
-<script id="tk-v288-4k-logo-real-sibling-above-banner-script">
-(function(){
-  "use strict";
-  if(window.__tkV288LogoAboveBanner) return;
-  window.__tkV288LogoAboveBanner = true;
-
-  function px(v){ v = parseFloat(v); return isFinite(v) ? v : 0; }
-
-  function getPhysicalLikeSize(){
-    var dpr = Math.max(1, window.devicePixelRatio || 1);
-    var iw = Math.max(0, window.innerWidth || 0);
-    var ih = Math.max(0, window.innerHeight || 0);
-    var ow = Math.max(0, window.outerWidth || 0);
-    var oh = Math.max(0, window.outerHeight || 0);
-    var sw = Math.max(0, (window.screen && screen.width) || 0);
-    var sh = Math.max(0, (window.screen && screen.height) || 0);
-    var aw = Math.max(0, (window.screen && screen.availWidth) || 0);
-    var ah = Math.max(0, (window.screen && screen.availHeight) || 0);
-    return {
-      dpr: dpr,
-      physW: Math.max(iw, ow, sw, aw) * dpr,
-      physH: Math.max(ih, oh, sh, ah) * dpr,
-      cssW: iw,
-      cssH: ih
-    };
-  }
-
-  function is4kish(){
-    var s = getPhysicalLikeSize();
-    return s.cssW >= 1400 && s.physW >= 3200 && s.physH >= 1800;
-  }
-
-  function setImportant(el, styles){
-    if(!el) return;
-    Object.keys(styles).forEach(function(name){
-      el.style.setProperty(name, styles[name], 'important');
-    });
-  }
-
-  function ensureClone(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return null;
-    var head = cinema.querySelector('.cinema-head');
-    var banner = cinema.querySelector('.cinema-banner');
-    if(!head || !banner) return null;
-
-    var original = banner.querySelector('.kino-badge') || cinema.querySelector('.kino-badge');
-    if(original){
-      setImportant(original, {
-        'display': 'none',
-        'visibility': 'hidden',
-        'opacity': '0',
-        'pointer-events': 'none'
-      });
-    }
-
-    var clone = head.querySelector('.tk-v288-kino-above');
-    if(!clone){
-      clone = document.createElement('img');
-      clone.className = 'tk-v288-kino-above';
-      clone.alt = 'Кинотеатр';
-      clone.decoding = 'async';
-      clone.setAttribute('aria-hidden', 'true');
-      head.insertBefore(clone, banner);
-    }else if(clone.nextElementSibling !== banner){
-      head.insertBefore(clone, banner);
-    }
-
-    var src = '';
-    if(original){
-      src = original.getAttribute('src') || original.currentSrc || 'kinoteatr.png';
-    }
-    if(!src) src = 'kinoteatr.png';
-    if(clone.getAttribute('src') !== src) clone.setAttribute('src', src);
-
-    setImportant(clone, {
-      'display': 'block',
-      'position': 'relative',
-      'left': 'auto',
-      'top': 'auto',
-      'right': 'auto',
-      'bottom': 'auto',
-      'transform': 'none',
-      'margin': '0 auto 6px',
-      'width': 'auto',
-      'height': 'clamp(116px, 6.6vw, 168px)',
-      'max-width': 'min(720px, 34vw)',
-      'z-index': '40',
-      'pointer-events': 'none',
-      'user-select': 'none'
-    });
-
-    setImportant(head, {
-      'display': 'flex',
-      'flex-direction': 'column',
-      'align-items': 'center',
-      'justify-content': 'flex-start',
-      'gap': '8px',
-      'padding-top': '0',
-      'margin-top': '10px',
-      'margin-bottom': '18px',
-      'overflow': 'visible'
-    });
-
-    setImportant(banner, {
-      'margin': '0 auto',
-      'position': 'relative',
-      'overflow': 'visible',
-      'z-index': '2'
-    });
-
-    var title = banner.querySelector('.cinema-banner-title');
-    if(title){
-      title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-    }
-
-    return {cinema: cinema, head: head, banner: banner, original: original, clone: clone};
-  }
-
-  function cleanupIfNeeded(){
-    document.documentElement.classList.remove('tk-4kish-v288');
-    var clone = document.querySelector('#cinema .tk-v288-kino-above');
-    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
-    var original = document.querySelector('#cinema .cinema-banner .kino-badge') || document.querySelector('#cinema .kino-badge');
-    if(original){
-      original.style.removeProperty('display');
-      original.style.removeProperty('visibility');
-      original.style.removeProperty('opacity');
-      original.style.removeProperty('pointer-events');
-    }
-  }
-
-  var scheduled = false;
-  function apply(){
-    scheduled = false;
-    try{
-      if(!is4kish()){
-        cleanupIfNeeded();
-        return;
-      }
-      document.documentElement.classList.add('tk-4kish-v288');
-      ensureClone();
-    }catch(e){}
-  }
-
-  function schedule(){
-    if(scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(function(){ requestAnimationFrame(apply); });
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule, {passive:true});
-  } else {
-    schedule();
+    document.addEventListener('DOMContentLoaded', apply, { once:true });
+  }else{
+    apply();
   }
-  window.addEventListener('load', schedule, {passive:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', schedule, {passive:true});
-  if(window.visualViewport && window.visualViewport.addEventListener){
-    window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  }
-  [60, 180, 360, 720, 1200, 1800, 2600, 3600].forEach(function(ms){ setTimeout(schedule, ms); });
-
-  var mo = new MutationObserver(function(){ schedule(); });
-  function armObserver(){
-    var cinema = document.getElementById('cinema');
-    if(cinema) mo.observe(cinema, {subtree:true, childList:true, attributes:true, attributeFilter:['style','class']});
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', armObserver, {passive:true});
-  } else {
-    armObserver();
-  }
+  window.addEventListener('load', apply, { passive:true });
+  window.addEventListener('resize', apply, { passive:true });
 })();
 </script>
-<!-- /tk-v288 -->
+
 </body>
 </html>
 
@@ -27377,225 +26648,3 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 })();
 </script>
 <!-- /tk-v279 -->
-
-
-<!-- tk-v286: FINAL END PATCH — hard 4K logo row above cinema banner -->
-<style id="tk-v286-4k-kino-hardfix-end">
-html.tk-true4k-v286 #cinema .cinema-head{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  width:100% !important;
-  margin-top:0 !important;
-  margin-bottom:18px !important;
-  padding-top:0 !important;
-  overflow:visible !important;
-}
-html.tk-true4k-v286 #cinema .tk-v286-kino-row{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:100% !important;
-  margin:0 auto 10px !important;
-  padding:0 !important;
-  position:relative !important;
-  z-index:80 !important;
-  overflow:visible !important;
-}
-html.tk-true4k-v286 #cinema .tk-v286-kino-row .kino-badge{
-  position:relative !important;
-  inset:auto !important;
-  left:auto !important;
-  top:auto !important;
-  right:auto !important;
-  bottom:auto !important;
-  transform:none !important;
-  display:block !important;
-  margin:0 auto !important;
-  padding:0 !important;
-  width:auto !important;
-  height:clamp(104px,5.9vw,150px) !important;
-  max-width:min(560px,26vw) !important;
-  z-index:81 !important;
-  pointer-events:none !important;
-  user-select:none !important;
-  filter:drop-shadow(0 10px 20px rgba(0,0,0,.22)) !important;
-}
-html.tk-true4k-v286 #cinema .cinema-banner{
-  position:relative !important;
-  overflow:visible !important;
-  margin:0 auto !important;
-  width:min(1460px,66vw) !important;
-  min-height:132px !important;
-  padding:18px 44px 16px !important;
-  border-radius:28px !important;
-}
-html.tk-true4k-v286 #cinema .cinema-banner-title{
-  display:block !important;
-  width:100% !important;
-  max-width:none !important;
-  font-size:clamp(23px,1.16vw,29px) !important;
-  line-height:1.02 !important;
-  letter-spacing:.03em !important;
-  text-align:center !important;
-  white-space:normal !important;
-  text-wrap:balance !important;
-}
-html.tk-true4k-v286 #cinema .cinema-banner-sub{
-  margin-top:6px !important;
-  font-size:10px !important;
-  letter-spacing:.20em !important;
-  text-align:center !important;
-}
-html.tk-true4k-v286 #cinema .slider-container{
-  max-width:min(1380px,62vw) !important;
-  margin:0 auto !important;
-}
-</style>
-<script id="tk-v286-4k-kino-hardfix-end-script">
-(function(){
-  'use strict';
-  var HTML = document.documentElement;
-  var TITLE_HTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-
-  function num(v){ v = Number(v); return isFinite(v) ? v : 0; }
-  function is4kScreen(){
-    if(HTML.classList.contains('tk-fhd-v262')) return false;
-    var dpr = Math.max(1, num(window.devicePixelRatio) || 1);
-    var cssW = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var cssH = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var sw = 0, sh = 0, aw = 0, ah = 0;
-    try{ sw = num(screen.width); sh = num(screen.height); aw = num(screen.availWidth); ah = num(screen.availHeight); }catch(e){}
-    var realW = Math.max(cssW * dpr, sw * dpr, aw * dpr, sw, aw);
-    var realH = Math.max(cssH * dpr, sh * dpr, ah * dpr, sh, ah);
-    return realW >= 3000 && realH >= 1600;
-  }
-  function imp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function clear(el, props){ if(!el) return; props.forEach(function(p){ try{ el.style.removeProperty(p); }catch(e){} }); }
-  function ensureRow(head, badge){
-    var row = head.querySelector('.tk-v286-kino-row');
-    if(!row){
-      row = document.createElement('div');
-      row.className = 'tk-v286-kino-row';
-      head.insertBefore(row, head.firstChild);
-    }
-    if(badge.parentElement !== row) row.appendChild(badge);
-    return row;
-  }
-  function restoreBadge(banner, badge){
-    var row = document.querySelector('#cinema .tk-v286-kino-row');
-    if(banner && badge && badge.parentElement !== banner){
-      banner.insertBefore(badge, banner.firstChild);
-    }
-    if(row && !row.querySelector('.kino-badge')) row.remove();
-  }
-  function apply(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var head = cinema.querySelector('.cinema-head');
-    var banner = cinema.querySelector('.cinema-banner');
-    var badge = cinema.querySelector('.kino-badge');
-    var title = cinema.querySelector('.cinema-banner-title');
-    var sub = cinema.querySelector('.cinema-banner-sub');
-    var slider = cinema.querySelector('.slider-container');
-    if(!head || !banner || !badge) return;
-
-    var on = is4kScreen();
-    HTML.classList.toggle('tk-true4k-v286', on);
-
-    if(on){
-      if(title) title.innerHTML = TITLE_HTML;
-      var row = ensureRow(head, badge);
-
-      imp(head,'display','flex');
-      imp(head,'flex-direction','column');
-      imp(head,'align-items','center');
-      imp(head,'justify-content','flex-start');
-      imp(head,'width','100%');
-      imp(head,'margin-top','0');
-      imp(head,'margin-bottom','18px');
-      imp(head,'padding-top','0');
-      imp(head,'overflow','visible');
-
-      imp(row,'display','flex');
-      imp(row,'align-items','center');
-      imp(row,'justify-content','center');
-      imp(row,'width','100%');
-      imp(row,'margin','0 auto 10px');
-      imp(row,'padding','0');
-      imp(row,'position','relative');
-      imp(row,'z-index','80');
-      imp(row,'overflow','visible');
-
-      imp(badge,'position','relative');
-      imp(badge,'inset','auto');
-      imp(badge,'left','auto');
-      imp(badge,'top','auto');
-      imp(badge,'right','auto');
-      imp(badge,'bottom','auto');
-      imp(badge,'transform','none');
-      imp(badge,'display','block');
-      imp(badge,'margin','0 auto');
-      imp(badge,'padding','0');
-      imp(badge,'width','auto');
-      imp(badge,'height','124px');
-      imp(badge,'max-width','560px');
-      imp(badge,'z-index','81');
-      imp(badge,'pointer-events','none');
-      imp(badge,'user-select','none');
-      imp(badge,'filter','drop-shadow(0 10px 20px rgba(0,0,0,.22))');
-
-      imp(banner,'position','relative');
-      imp(banner,'overflow','visible');
-      imp(banner,'margin','0 auto');
-      imp(banner,'width','min(1460px, 66vw)');
-      imp(banner,'min-height','132px');
-      imp(banner,'padding','18px 44px 16px');
-      imp(banner,'border-radius','28px');
-
-      if(title){
-        imp(title,'display','block');
-        imp(title,'width','100%');
-        imp(title,'max-width','none');
-        imp(title,'font-size','clamp(23px, 1.16vw, 29px)');
-        imp(title,'line-height','1.02');
-        imp(title,'letter-spacing','.03em');
-        imp(title,'text-align','center');
-        imp(title,'white-space','normal');
-      }
-      if(sub){
-        imp(sub,'margin-top','6px');
-        imp(sub,'font-size','10px');
-        imp(sub,'letter-spacing','.20em');
-        imp(sub,'text-align','center');
-      }
-      if(slider){
-        imp(slider,'max-width','min(1380px, 62vw)');
-        imp(slider,'margin','0 auto');
-      }
-      return;
-    }
-
-    restoreBadge(banner, badge);
-    clear(head,['display','flex-direction','align-items','justify-content','width','margin-top','margin-bottom','padding-top','overflow']);
-    clear(badge,['position','inset','left','top','right','bottom','transform','display','margin','padding','width','height','max-width','z-index','pointer-events','user-select','filter']);
-    clear(banner,['position','overflow','margin','width','min-height','padding','border-radius']);
-    if(title) clear(title,['display','width','max-width','font-size','line-height','letter-spacing','text-align','white-space']);
-    if(sub) clear(sub,['margin-top','font-size','letter-spacing','text-align']);
-    if(slider) clear(slider,['max-width','margin']);
-  }
-  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kick, {passive:true});
-  window.addEventListener('load', kick, {passive:true});
-  window.addEventListener('resize', kick, {passive:true});
-  if(window.visualViewport && window.visualViewport.addEventListener){
-    window.visualViewport.addEventListener('resize', function(){ setTimeout(kick, 50); }, {passive:true});
-  }
-  var mt = document.getElementById('menuToggle');
-  if(mt) mt.addEventListener('click', function(){ setTimeout(kick, 80); }, {passive:true});
-  [60,180,360,720,1200,1800,2600,3600,5200].forEach(function(ms){ setTimeout(kick, ms); });
-  kick();
-})();
-</script>
-<!-- /tk-v286 -->
