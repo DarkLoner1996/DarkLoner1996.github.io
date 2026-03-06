@@ -21253,70 +21253,6 @@ html.tk-4k-minigame-focus .side-chip{
 })();
 </script>
 
-
-<style id="tk-v298-fhd-kino-raise350-hardfix">
-@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
-  html.tk-v293-fhd-cinema #cinema.tk-v298-fhd-hardfix{
-    top: -532px !important;
-    z-index: 21050 !important;
-  }
-}
-</style>
-<script id="tk-v298-fhd-kino-raise350-hardfix-script">
-(function(){
-  "use strict";
-  var root = document.documentElement;
-
-  function isReal4k(){
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var dpr = Math.max(window.devicePixelRatio || 1, 1);
-    var effW = iw * dpr;
-    return (iw >= 2560 && ih >= 1200) || effW >= 3000;
-  }
-
-  function isTargetFhd(){
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    return !isReal4k() && iw >= 1100 && iw <= 2559 && ih >= 560;
-  }
-
-  function apply(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-
-    if(!(root.classList.contains('tk-v293-fhd-cinema') && isTargetFhd())){
-      cinema.classList.remove('tk-v298-fhd-hardfix');
-      if(cinema.style && cinema.style.getPropertyValue('top') === '-532px'){
-        cinema.style.removeProperty('top');
-      }
-      return;
-    }
-
-    cinema.classList.add('tk-v298-fhd-hardfix');
-    cinema.style.setProperty('top', '-532px', 'important');
-
-    var dbg = document.getElementById('tkFhdKinoDebug');
-    if(dbg){
-      dbg.textContent = 'v298 FHD raise +350px hardfix';
-      dbg.style.display = 'inline-flex';
-    }
-  }
-
-  function kick(){ requestAnimationFrame(function(){ requestAnimationFrame(apply); }); }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', kick, {once:true});
-  }else{
-    kick();
-  }
-  window.addEventListener('load', kick, {passive:true});
-  window.addEventListener('resize', kick, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', kick, {passive:true});
-  [120, 320, 700, 1400, 2200].forEach(function(ms){ setTimeout(kick, ms); });
-})();
-</script>
-
 </body>
 </html>
 
@@ -27164,7 +27100,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 <style id="tk-v297-fhd-cinema-final-slider-polish">
 @media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
   html.tk-v293-fhd-cinema.tk-v297-fhd-cinema-final #cinema{
-    top: calc(var(--tk-v293-fhd-top, 18px) - 200px) !important;
+    top: -532px !important;
     width: min(var(--tk-v297-fhd-w, 900px), calc(100vw - 600px)) !important;
     z-index: 21000 !important;
   }
@@ -27333,7 +27269,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 
     var dbg = document.getElementById('tkFhdKinoDebug');
     if(dbg){
-      dbg.textContent = 'v297 FHD + slider polish';
+      dbg.textContent = 'v300 FHD static top=-532px';
       dbg.style.display = 'inline-flex';
     }
   }
@@ -27349,120 +27285,5 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   window.addEventListener('resize', kick, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', kick, {passive:true});
   [120, 320, 700, 1400].forEach(function(ms){ setTimeout(kick, ms); });
-})();
-</script>
-
-
-<style id="tk-v299-fhd-cinema-final-lock-after-all">
-@media (min-width:1100px) and (max-width:2559px) and (min-height:560px){
-  html.tk-v293-fhd-cinema.tk-v297-fhd-cinema-final.tk-v299-fhd-lock #cinema{
-    position: fixed !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    top: -532px !important;
-    z-index: 2147483000 !important;
-    will-change: top, transform !important;
-  }
-}
-</style>
-
-<script id="tk-v299-fhd-cinema-final-lock-after-all-script">
-(function(){
-  "use strict";
-  var root = document.documentElement;
-  var observers = [];
-  var timer = null;
-
-  function isReal4k(){
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var dpr = Math.max(window.devicePixelRatio || 1, 1);
-    var effW = iw * dpr;
-    return (iw >= 2560 && ih >= 1200) || effW >= 3000;
-  }
-
-  function isTargetFhd(){
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    return !isReal4k() && iw >= 1100 && iw <= 2559 && ih >= 560;
-  }
-
-  function cleanup(){
-    root.classList.remove('tk-v299-fhd-lock');
-    observers.forEach(function(o){ try{o.disconnect();}catch(e){} });
-    observers = [];
-    if(timer){ clearInterval(timer); timer = null; }
-  }
-
-  function forceApply(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-
-    if(!root.classList.contains('tk-v293-fhd-cinema') || !isTargetFhd()){
-      cleanup();
-      return;
-    }
-
-    root.classList.add('tk-v299-fhd-lock');
-
-    cinema.style.setProperty('position', 'fixed', 'important');
-    cinema.style.setProperty('left', '50%', 'important');
-    cinema.style.setProperty('transform', 'translateX(-50%)', 'important');
-    cinema.style.setProperty('top', '-532px', 'important');
-    cinema.style.setProperty('z-index', '2147483000', 'important');
-
-    var dbg = document.getElementById('tkFhdKinoDebug');
-    if(dbg){
-      dbg.textContent = 'v299 FHD final lock top=-532px';
-      dbg.style.display = 'inline-flex';
-    }
-  }
-
-  function lockForAWhile(){
-    forceApply();
-
-    if(timer){ clearInterval(timer); }
-    var started = Date.now();
-    timer = setInterval(function(){
-      forceApply();
-      if(Date.now() - started > 10000){
-        clearInterval(timer);
-        timer = null;
-      }
-    }, 80);
-
-    var cinema = document.getElementById('cinema');
-    if(cinema && !cinema.__tkV299Observed){
-      cinema.__tkV299Observed = true;
-      var mo1 = new MutationObserver(forceApply);
-      mo1.observe(cinema, { attributes:true, attributeFilter:['style','class'] });
-      observers.push(mo1);
-    }
-    if(!root.__tkV299Observed){
-      root.__tkV299Observed = true;
-      var mo2 = new MutationObserver(forceApply);
-      mo2.observe(root, { attributes:true, attributeFilter:['class','style'] });
-      observers.push(mo2);
-    }
-  }
-
-  function kick(){
-    requestAnimationFrame(function(){
-      requestAnimationFrame(lockForAWhile);
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', kick, { once:true });
-  }else{
-    kick();
-  }
-  window.addEventListener('load', kick, { passive:true });
-  window.addEventListener('resize', kick, { passive:true });
-  window.addEventListener('orientationchange', kick, { passive:true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', kick, { passive:true });
-  }
-  [120, 300, 700, 1400, 2400, 3600, 5200, 7600].forEach(function(ms){ setTimeout(kick, ms); });
 })();
 </script>
