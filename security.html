@@ -27396,7 +27396,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     height: 56px !important;
     max-width: 240px !important;
     width: auto !important;
-    margin: -8px auto 2px auto !important;
+    margin: -18px auto 2px auto !important;
     padding: 0 !important;
     opacity: 1 !important;
     visibility: visible !important;
@@ -27491,23 +27491,31 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   html.tk-l15-cinema-static-clean #cinema .slider-next{ right:-32px !important; }
 }
 </style>
-<script id="tk-l15-cinema-static-clean-v4-script">
+<script id="tk-l15-cinema-static-clean-v6-hardlock-script">
 (function(){
   const root = document.documentElement;
-  function vpW(){ return Math.round(window.innerWidth || document.documentElement.clientWidth || 0); }
-  function vpH(){ const vv = window.visualViewport; return Math.round((vv && vv.height) || window.innerHeight || document.documentElement.clientHeight || 0); }
+  const TARGET_TOP = '-52px';
+  const TARGET_BADGE_MARGIN = '-18px auto 2px auto';
+
+  function vpW(){ return Math.round(Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, window.screen && window.screen.width || 0)); }
   function isLaptop15(){
     const w = vpW();
-    const h = vpH();
     const is4k = root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
-    return !is4k && w >= 1180 && w <= 1599 && h >= 500 && h <= 950;
+    return !is4k && w >= 1180 && w <= 1599;
   }
   function imp(el, prop, val){ try{ if(el) el.style.setProperty(prop, val, 'important'); }catch(_){ } }
+  function nukeClasses(){
+    root.classList.remove(
+      'tk-cinema-docked','tk-fhd-kino-v249','tk-v293-fhd-cinema',
+      'tk-v312-laptop15-cinema','tk-v313-laptop15-cinema','tk-v314-laptop15-cinema',
+      'tk-v320-laptop15-final','tk-v326-laptop15'
+    );
+  }
   function apply(){
     const cinema = document.getElementById('cinema');
     if(!cinema) return;
     const on = isLaptop15();
-    root.classList.remove('tk-cinema-docked','tk-fhd-kino-v249','tk-v293-fhd-cinema','tk-v312-laptop15-cinema','tk-v313-laptop15-cinema','tk-v314-laptop15-cinema','tk-v320-laptop15-final','tk-v326-laptop15');
+    nukeClasses();
     root.classList.toggle('tk-l15-cinema-static-clean', on);
     if(!on) return;
 
@@ -27517,11 +27525,14 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     root.style.setProperty('--cinema-stage-min-visible','0px');
     root.style.setProperty('--cinema-safe-bottom','0px');
     root.style.setProperty('--tk-v293-fhd-top','0px');
+    root.style.setProperty('--tk-v314-top', TARGET_TOP);
+    root.style.setProperty('--tk-v313-top', TARGET_TOP);
+    root.style.setProperty('--tk-v312-top', TARGET_TOP);
 
     imp(cinema,'position','fixed');
     imp(cinema,'left','50%');
     imp(cinema,'transform','translateX(-50%)');
-    imp(cinema,'top','-6px');
+    imp(cinema,'top',TARGET_TOP);
     imp(cinema,'width','540px');
     imp(cinema,'max-width','min(540px, calc(100vw - 470px))');
     imp(cinema,'margin','0');
@@ -27542,26 +27553,47 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     imp(head,'padding','0');
     imp(head,'padding-top','0');
     imp(head,'min-height','0');
+    imp(head,'transform','none');
+
+    Array.from(head ? head.children : []).forEach(el=>{ imp(el,'margin-top','0'); });
+
     const kicker = cinema.querySelector('.cinema-kicker'); imp(kicker,'display','none');
     const topBadge = cinema.querySelector('.kino-badge-top-4k');
-    imp(topBadge,'display','block'); imp(topBadge,'position','relative'); imp(topBadge,'left','auto'); imp(topBadge,'right','auto'); imp(topBadge,'top','auto'); imp(topBadge,'bottom','auto'); imp(topBadge,'transform','none'); imp(topBadge,'height','56px'); imp(topBadge,'max-width','240px'); imp(topBadge,'width','auto'); imp(topBadge,'margin','-8px auto 2px auto'); imp(topBadge,'padding','0'); imp(topBadge,'opacity','1'); imp(topBadge,'visibility','visible');
+    imp(topBadge,'display','block');
+    imp(topBadge,'position','relative');
+    imp(topBadge,'left','auto'); imp(topBadge,'right','auto'); imp(topBadge,'top','auto'); imp(topBadge,'bottom','auto');
+    imp(topBadge,'transform','none'); imp(topBadge,'height','56px'); imp(topBadge,'max-width','240px'); imp(topBadge,'width','auto');
+    imp(topBadge,'margin',TARGET_BADGE_MARGIN); imp(topBadge,'padding','0'); imp(topBadge,'opacity','1'); imp(topBadge,'visibility','visible');
+
     const oldBadge = cinema.querySelector('.cinema-banner > .kino-badge'); imp(oldBadge,'display','none'); imp(oldBadge,'opacity','0'); imp(oldBadge,'visibility','hidden');
     const banner = cinema.querySelector('.cinema-banner');
     imp(banner,'width','100%'); imp(banner,'min-height','72px'); imp(banner,'padding','10px 18px'); imp(banner,'border-radius','22px'); imp(banner,'margin','0 auto'); imp(banner,'display','flex'); imp(banner,'flex-direction','column'); imp(banner,'align-items','center'); imp(banner,'justify-content','center'); imp(banner,'overflow','visible'); imp(banner,'position','relative');
     const title = cinema.querySelector('.cinema-banner-title');
-    if(title){ title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности'; imp(title,'display','block'); imp(title,'width','100%'); imp(title,'margin','0'); imp(title,'font-size','18px'); imp(title,'line-height','.96'); imp(title,'letter-spacing','.02em'); imp(title,'text-align','center'); }
-    const sub = cinema.querySelector('.cinema-banner-sub');
-    imp(sub,'margin-top','4px'); imp(sub,'font-size','7px'); imp(sub,'letter-spacing','.15em'); imp(sub,'text-align','center');
-    const sc = cinema.querySelector('.slider-container'); imp(sc,'margin','4px auto 0'); imp(sc,'width','100%'); imp(sc,'max-width','540px'); imp(sc,'overflow','visible'); imp(sc,'display','block');
-    const sw = cinema.querySelector('.slider-wrapper'); imp(sw,'display','flex'); imp(sw,'flex-wrap','nowrap'); imp(sw,'gap','8px'); imp(sw,'padding','6px 0 10px'); imp(sw,'overflow-x','auto'); imp(sw,'overflow-y','visible'); imp(sw,'scroll-padding-inline','0'); imp(sw,'align-items','stretch'); imp(sw,'min-height','0');
+    if(title){ imp(title,'display','block'); imp(title,'width','100%'); imp(title,'margin','0'); imp(title,'font-size','18px'); imp(title,'line-height','.96'); imp(title,'letter-spacing','.02em'); imp(title,'text-align','center'); }
+    const sub = cinema.querySelector('.cinema-banner-sub'); imp(sub,'margin-top','4px'); imp(sub,'font-size','7px'); imp(sub,'letter-spacing','.15em'); imp(sub,'text-align','center');
   }
+
   let raf = 0;
   function schedule(){ if(raf) return; raf = requestAnimationFrame(()=>{ raf = 0; apply(); }); }
+
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
   window.addEventListener('load', schedule, {passive:true});
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('orientationchange', schedule, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+
+  [0, 60, 140, 260, 420, 700, 1000, 1500, 2200, 3200, 4500].forEach(ms => setTimeout(schedule, ms));
+  let ticks = 0;
+  const interval = setInterval(function(){
+    schedule();
+    ticks += 1;
+    if(ticks > 40) clearInterval(interval);
+  }, 250);
+
+  try{
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.documentElement, { attributes:true, subtree:true, attributeFilter:['class','style'] });
+  }catch(_e){}
 })();
 </script>
 
