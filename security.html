@@ -33144,5 +33144,190 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 })();
 </script>
 
+
+
+<!-- tk-fhd-cinema-position-lock-v16 -->
+<style id="tk-fhd-cinema-position-lock-v16">
+@media (min-width:1600px) and (max-width:2559px) and (min-height:850px){
+  html.tk-fhd-cinema-position-lock-v16 #cinema,
+  html.tk-fhd-cinema-position-lock-v16 #cinema.cinema-slider.cinema-v2{
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: -8px !important;
+    transform: translateX(-50%) translateY(0) !important;
+    width: 790px !important;
+    max-width: min(790px, calc(100vw - 640px)) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 20120 !important;
+    overflow: visible !important;
+    contain: none !important;
+    isolation: isolate !important;
+    pointer-events: auto !important;
+  }
+
+  html.tk-fhd-cinema-position-lock-v16 #cinema .cinema-head{
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+    top: auto !important;
+    overflow: visible !important;
+  }
+
+  html.tk-fhd-cinema-position-lock-v16 #cinema .cinema-head > *{
+    margin-top: 0 !important;
+  }
+
+  html.tk-fhd-cinema-position-lock-v16 #cinema .slider-container{
+    margin-top: 8px !important;
+  }
+}
+</style>
+<script id="tk-fhd-cinema-position-lock-v16-script">
+(function(){
+  const root = document.documentElement;
+  const TARGET_TOP = '-8px';
+  const TARGET_WIDTH = '790px';
+  const TARGET_MAX_WIDTH = 'min(790px, calc(100vw - 640px))';
+  const LEGACY_CLASSES = [
+    'tk-cinema-docked',
+    'tk-fhd-kino-v249',
+    'tk-v293-fhd-cinema'
+  ];
+  const ROOT_VARS = {
+    '--cinema-head-shift':'0px',
+    '--cinema-head-lift':'0px',
+    '--cinema-head-max':'0px',
+    '--cinema-stage-min-visible':'0px',
+    '--cinema-safe-bottom':'0px',
+    '--tk-v293-fhd-top': TARGET_TOP
+  };
+  let raf = 0;
+  let pulse = 0;
+  let observer = null;
+  let intervalId = null;
+
+  function vpW(){ return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0); }
+  function vpH(){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
+  function isTarget(){
+    const is4k = root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
+    return !is4k && vpW() >= 1600 && vpW() <= 2559 && vpH() >= 850;
+  }
+  function imp(el, prop, value){
+    if(el) el.style.setProperty(prop, value, 'important');
+  }
+  function clearLegacyClasses(){
+    LEGACY_CLASSES.forEach(cls => root.classList.remove(cls));
+  }
+  function resetRootVars(){
+    Object.entries(ROOT_VARS).forEach(([k,v]) => root.style.setProperty(k, v));
+  }
+  function lockPosition(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    const active = isTarget();
+    root.classList.toggle('tk-fhd-cinema-position-lock-v16', active);
+    if(!active) return;
+
+    clearLegacyClasses();
+    resetRootVars();
+
+    imp(cinema, 'position', 'fixed');
+    imp(cinema, 'left', '50%');
+    imp(cinema, 'right', 'auto');
+    imp(cinema, 'bottom', 'auto');
+    imp(cinema, 'top', TARGET_TOP);
+    imp(cinema, 'transform', 'translateX(-50%) translateY(0)');
+    imp(cinema, 'width', TARGET_WIDTH);
+    imp(cinema, 'max-width', TARGET_MAX_WIDTH);
+    imp(cinema, 'margin', '0');
+    imp(cinema, 'padding', '0');
+    imp(cinema, 'z-index', '20120');
+    imp(cinema, 'overflow', 'visible');
+    imp(cinema, 'contain', 'none');
+    imp(cinema, 'isolation', 'isolate');
+
+    const head = cinema.querySelector('.cinema-head');
+    if(head){
+      imp(head, 'position', 'relative');
+      imp(head, 'display', 'flex');
+      imp(head, 'flex-direction', 'column');
+      imp(head, 'align-items', 'center');
+      imp(head, 'justify-content', 'flex-start');
+      imp(head, 'width', '100%');
+      imp(head, 'gap', '8px');
+      imp(head, 'margin', '0');
+      imp(head, 'margin-top', '0');
+      imp(head, 'margin-bottom', '0');
+      imp(head, 'padding', '0');
+      imp(head, 'padding-top', '0');
+      imp(head, 'min-height', '0');
+      imp(head, 'transform', 'none');
+      imp(head, 'top', 'auto');
+      Array.from(head.children).forEach(el => imp(el, 'margin-top', '0'));
+    }
+
+    const title = cinema.querySelector('.cinema-banner-title');
+    if(title){
+      title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
+    }
+  }
+
+  function schedule(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      lockPosition();
+    });
+  }
+
+  function startWatchers(){
+    if(intervalId) return;
+    intervalId = setInterval(function(){
+      pulse += 1;
+      schedule();
+      if(pulse > 240 && !isTarget()){
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    }, 500);
+
+    try{
+      if(observer) observer.disconnect();
+      observer = new MutationObserver(schedule);
+      observer.observe(document.documentElement, { attributes:true, attributeFilter:['class','style'] });
+      const cinema = document.getElementById('cinema');
+      if(cinema){
+        observer.observe(cinema, { attributes:true, subtree:true, attributeFilter:['class','style'] });
+      }
+    }catch(_e){}
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ schedule(); startWatchers(); }, { once:true });
+  else { schedule(); startWatchers(); }
+
+  window.addEventListener('load', schedule, { passive:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
+
+  [0, 60, 140, 260, 420, 700, 1000, 1500, 2200, 3200, 4500].forEach(ms => setTimeout(schedule, ms));
+})();
+</script>
+
 </body>
 </html>
