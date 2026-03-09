@@ -31866,5 +31866,128 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 })();
 </script>
 
+
+<style id="tk-fhd-cinema-topdock-v18-style">
+@media (min-width:1600px) and (max-width:2559px) and (min-height:850px){
+  html.tk-fhd-cinema-topdock-v18 #cinema{
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: 12px !important;
+    transform: translateX(-50%) !important;
+    width: 790px !important;
+    max-width: min(790px, calc(100vw - 640px)) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 20140 !important;
+    overflow: visible !important;
+    contain: none !important;
+    isolation: isolate !important;
+  }
+
+  html.tk-fhd-cinema-topdock-v18 #cinema .cinema-head{
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+</style>
+<script id="tk-fhd-cinema-topdock-v18-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+
+  function vpW(){ return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0); }
+  function vpH(){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
+  function isTarget(){ return vpW() >= 1600 && vpW() <= 2559 && vpH() >= 850; }
+  function imp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+
+  function mountCinemaTop(){
+    const cinema = document.getElementById('cinema');
+    const ui = document.querySelector('.ui');
+    if(!cinema || !ui) return;
+
+    if(!cinema.__tkOrigParent){
+      cinema.__tkOrigParent = cinema.parentNode;
+      cinema.__tkOrigNext = cinema.nextSibling;
+    }
+
+    if(!cinema.__tkPlaceholder){
+      cinema.__tkPlaceholder = document.createComment('tk-fhd-cinema-topdock-v18');
+    }
+
+    const ph = cinema.__tkPlaceholder;
+    if(cinema.__tkOrigParent && !ph.parentNode){
+      cinema.__tkOrigParent.insertBefore(ph, cinema.__tkOrigNext);
+    }
+
+    const beforeNode = ui.querySelector('.ui-bottom') || ui.firstChild;
+    if(cinema.parentNode !== ui){
+      ui.insertBefore(cinema, beforeNode);
+    }else if(beforeNode && cinema.nextSibling !== beforeNode){
+      ui.insertBefore(cinema, beforeNode);
+    }
+
+    root.classList.add('tk-fhd-cinema-topdock-v18');
+    imp(cinema, 'position', 'fixed');
+    imp(cinema, 'left', '50%');
+    imp(cinema, 'right', 'auto');
+    imp(cinema, 'bottom', 'auto');
+    imp(cinema, 'top', '12px');
+    imp(cinema, 'transform', 'translateX(-50%)');
+    imp(cinema, 'width', '790px');
+    imp(cinema, 'max-width', 'min(790px, calc(100vw - 640px))');
+    imp(cinema, 'margin', '0');
+    imp(cinema, 'padding', '0');
+    imp(cinema, 'z-index', '20140');
+    imp(cinema, 'overflow', 'visible');
+    imp(cinema, 'contain', 'none');
+    imp(cinema, 'isolation', 'isolate');
+    imp(cinema, 'pointer-events', 'auto');
+
+    const head = cinema.querySelector('.cinema-head');
+    if(head){
+      imp(head, 'margin', '0');
+      imp(head, 'margin-top', '0');
+      imp(head, 'padding', '0');
+      imp(head, 'padding-top', '0');
+      imp(head, 'transform', 'none');
+    }
+  }
+
+  function restoreCinema(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    root.classList.remove('tk-fhd-cinema-topdock-v18');
+
+    const ph = cinema.__tkPlaceholder;
+    if(ph && ph.parentNode){
+      ph.parentNode.insertBefore(cinema, ph);
+      ph.parentNode.removeChild(ph);
+    }
+  }
+
+  function run(){
+    if(isTarget()) mountCinemaTop();
+    else restoreCinema();
+  }
+
+  function schedule(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){ raf = 0; run(); });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true });
+  else schedule();
+
+  window.addEventListener('load', schedule, { passive:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(schedule).catch(function(){});
+  [80, 220, 600, 1200].forEach(function(ms){ setTimeout(schedule, ms); });
+})();
+</script>
+
 </body>
 </html>
