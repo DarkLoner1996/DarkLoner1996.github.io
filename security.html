@@ -32592,11 +32592,11 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 
 
 
-<!-- tk-v327: FullHD cinema final hard-lock to stop random top drift on refresh -->
-<style id="tk-v327-fhd-cinema-hardlock">
-@media (min-width:1600px) and (max-width:2559px){
-  html.tk-v327-fhd-cinema-hardlock #cinema,
-  html.tk-v327-fhd-cinema-hardlock #cinema.cinema-slider.cinema-v2{
+<!-- tk-v328: FullHD cinema permanent lock, kills FHD race conditions on refresh -->
+<style id="tk-v328-fhd-cinema-permalock">
+@media (min-width:1600px) and (max-width:2559px) and (min-height:850px){
+  html.tk-v328-fhd-cinema-permalock #cinema,
+  html.tk-v328-fhd-cinema-permalock section#cinema.cinema-slider.cinema-v2{
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
@@ -32606,12 +32606,41 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     width: 860px !important;
     max-width: min(860px, calc(100vw - 620px)) !important;
     margin: 0 !important;
-    z-index: 20070 !important;
+    padding: 0 !important;
+    z-index: 20090 !important;
+    overflow: visible !important;
+    contain: none !important;
+  }
+
+  html.tk-v328-fhd-cinema-permalock #cinema,
+  html.tk-v328-fhd-cinema-permalock #cinema .cinema-head,
+  html.tk-v328-fhd-cinema-permalock #cinema .kino-badge-top-4k,
+  html.tk-v328-fhd-cinema-permalock #cinema .cinema-banner,
+  html.tk-v328-fhd-cinema-permalock #cinema .slider-container,
+  html.tk-v328-fhd-cinema-permalock #cinema .slider-wrapper,
+  html.tk-v328-fhd-cinema-permalock #cinema .movie-slide,
+  html.tk-v328-fhd-cinema-permalock #cinema .movie-img{
+    transition: none !important;
+    animation: none !important;
+  }
+
+  html.tk-v328-fhd-cinema-permalock #cinema .cinema-head{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    margin: 0 0 4px 0 !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
     overflow: visible !important;
   }
 }
 </style>
-<script id="tk-v327-fhd-cinema-hardlock-script">
+<script id="tk-v328-fhd-cinema-permalock-script">
 (function(){
   "use strict";
 
@@ -32619,26 +32648,35 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   var TOP = '14px';
   var WIDTH = '860px';
   var MAX_WIDTH = 'min(860px, calc(100vw - 620px))';
+  var intervalId = 0;
   var raf = 0;
+  var conflictStyleIds = [
+    'tk-v302-fhd-clean-rollback-like-second-shot',
+    'tk-v307-fhd_raise10_from_v306_endpatch',
+    'tk-v315-compact-fhd-15inch-real-endpatch',
+    'tk-v322-fullhd-lower100-real-branch-fix',
+    'tk-v323-fullhd-stable-static-endfix',
+    'tk-v293-fhd-logo-above-banner-match-second-shot'
+  ];
 
   function vp(){
     var de = document.documentElement;
-    var iw = Math.max(window.innerWidth || 0, de.clientWidth || 0, window.screen && window.screen.width || 0);
-    var ih = Math.max(window.innerHeight || 0, de.clientHeight || 0, window.screen && window.screen.height || 0);
+    var iw = Math.max(window.innerWidth || 0, de.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, de.clientHeight || 0);
     var dpr = window.devicePixelRatio || 1;
-    return { iw: iw, ih: ih, dpr: dpr, effW: iw * dpr, effH: ih * dpr };
+    var sw = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
+    return { iw: iw, ih: ih, dpr: dpr, effW: iw * dpr, sw: sw };
   }
 
   function isReal4k(){
     var m = vp();
-    return (m.iw >= 2500 && m.ih >= 1200) ||
-           (m.iw >= 2300 && m.ih >= 1100 && m.effW >= 3000 && m.effH >= 1600);
+    return m.iw >= 2560 || m.sw >= 3000 || m.effW >= 3000 || root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
   }
 
   function isLaptop15(){
     var m = vp();
     if(isReal4k()) return false;
-    return m.iw >= 1180 && m.iw <= 1599 && m.ih >= 500 && m.ih <= 950;
+    return m.iw >= 1180 && m.iw <= 1599;
   }
 
   function isTarget(){
@@ -32646,50 +32684,48 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     return !isReal4k() && !isLaptop15() && m.iw >= 1600 && m.iw <= 2559 && m.ih >= 850;
   }
 
-  function imp(el, prop, val){
-    try{ if(el) el.style.setProperty(prop, val, 'important'); }catch(_e){}
+  function imp(el, prop, value){
+    try{ if(el) el.style.setProperty(prop, value, 'important'); }catch(_e){}
   }
 
-  function clearImp(el, props){
-    if(!el) return;
-    props.forEach(function(prop){
-      try{ el.style.removeProperty(prop); }catch(_e){}
+  function disableConflictStyles(){
+    conflictStyleIds.forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el || el.getAttribute('data-tk-v328-off') === '1') return;
+      el.setAttribute('data-tk-v328-off', '1');
+      if(el.tagName === 'STYLE'){
+        el.textContent = '';
+      }
     });
   }
 
   function neutralizeConflicts(){
-    root.classList.remove(
-      'tk-cinema-docked',
-      'tk-fhd-kino-v249',
-      'tk-v293-fhd-cinema'
-    );
-    if(!isReal4k()){
-      root.classList.remove('tk-v292-4k-ok', 'tk-stable-4k-kino');
-    }
+    root.classList.remove('tk-cinema-docked', 'tk-fhd-kino-v249', 'tk-v293-fhd-cinema');
   }
 
-  function apply(){
+  function enforce(){
     raf = 0;
     var cinema = document.getElementById('cinema');
     if(!cinema) return;
 
     var on = isTarget();
-    root.classList.toggle('tk-v327-fhd-cinema-hardlock', on);
+    root.classList.toggle('tk-v328-fhd-cinema-permalock', on);
     root.classList.toggle('tk-fhd-cinema-static-clean-v8', on);
 
     if(!on){
-      clearImp(cinema, ['position','left','right','top','bottom','transform','width','max-width','margin','z-index','overflow']);
+      if(intervalId){ clearInterval(intervalId); intervalId = 0; }
       return;
     }
 
+    disableConflictStyles();
     neutralizeConflicts();
 
-    root.style.setProperty('--tk-v293-fhd-top', TOP);
     root.style.setProperty('--cinema-head-shift', '0px');
     root.style.setProperty('--cinema-head-lift', '0px');
     root.style.setProperty('--cinema-head-max', '0px');
     root.style.setProperty('--cinema-stage-min-visible', '0px');
     root.style.setProperty('--cinema-safe-bottom', '0px');
+    root.style.setProperty('--tk-v293-fhd-top', TOP);
 
     imp(cinema, 'position', 'fixed');
     imp(cinema, 'left', '50%');
@@ -32700,19 +32736,58 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     imp(cinema, 'width', WIDTH);
     imp(cinema, 'max-width', MAX_WIDTH);
     imp(cinema, 'margin', '0');
-    imp(cinema, 'z-index', '20070');
+    imp(cinema, 'padding', '0');
+    imp(cinema, 'z-index', '20090');
     imp(cinema, 'overflow', 'visible');
+    imp(cinema, 'contain', 'none');
+
+    var head = cinema.querySelector('.cinema-head');
+    imp(head, 'display', 'flex');
+    imp(head, 'flex-direction', 'column');
+    imp(head, 'align-items', 'center');
+    imp(head, 'justify-content', 'flex-start');
+    imp(head, 'gap', '0');
+    imp(head, 'margin', '0 0 4px 0');
+    imp(head, 'margin-top', '0');
+    imp(head, 'padding', '0');
+    imp(head, 'padding-top', '0');
+    imp(head, 'min-height', '0');
+    imp(head, 'transform', 'none');
+
+    Array.prototype.forEach.call(head ? head.children : [], function(el){
+      imp(el, 'margin-top', '0');
+    });
 
     var title = cinema.querySelector('.cinema-banner-title');
     if(title){
       title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
+    }
+
+    if(!intervalId){
+      intervalId = window.setInterval(function(){
+        if(!isTarget()){
+          clearInterval(intervalId);
+          intervalId = 0;
+          return;
+        }
+        neutralizeConflicts();
+        imp(cinema, 'top', TOP);
+        imp(cinema, 'left', '50%');
+        imp(cinema, 'transform', 'translateX(-50%)');
+        imp(cinema, 'width', WIDTH);
+        imp(cinema, 'max-width', MAX_WIDTH);
+        imp(head, 'margin', '0 0 4px 0');
+        imp(head, 'margin-top', '0');
+        imp(head, 'padding', '0');
+        imp(head, 'padding-top', '0');
+      }, 120);
     }
   }
 
   function schedule(){
     if(raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(function(){
-      requestAnimationFrame(apply);
+      requestAnimationFrame(enforce);
     });
   }
 
@@ -32729,24 +32804,29 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     window.visualViewport.addEventListener('resize', schedule, { passive:true });
   }
 
-  [0, 80, 180, 320, 520, 900, 1400, 2200, 3200, 4500].forEach(function(ms){ setTimeout(schedule, ms); });
+  [0, 50, 120, 220, 420, 800, 1300, 2000, 3000, 4500, 6500, 9000].forEach(function(ms){
+    setTimeout(schedule, ms);
+  });
 
   try{
-    var mo = new MutationObserver(function(mutations){
-      for(var i = 0; i < mutations.length; i++){
-        var m = mutations[i];
-        if(m.type === 'attributes'){
-          schedule();
-          break;
-        }
-      }
-    });
-    mo.observe(root, { attributes:true, attributeFilter:['class','style'] });
-    mo.observe(document.body || document.documentElement, { attributes:true, subtree:true, attributeFilter:['class','style'] });
+    var rootObserver = new MutationObserver(schedule);
+    rootObserver.observe(root, { attributes:true, attributeFilter:['class', 'style'] });
+
+    var cinemaObserverStarter = function(){
+      var cinema = document.getElementById('cinema');
+      if(!cinema) return;
+      try{
+        var mo = new MutationObserver(schedule);
+        mo.observe(cinema, { attributes:true, attributeFilter:['class', 'style'] });
+        var head = cinema.querySelector('.cinema-head');
+        if(head) mo.observe(head, { attributes:true, attributeFilter:['class', 'style'] });
+      }catch(_e){}
+    };
+    setTimeout(cinemaObserverStarter, 0);
+    setTimeout(cinemaObserverStarter, 500);
   }catch(_e){}
 })();
 </script>
 
 </body>
 </html>
-
