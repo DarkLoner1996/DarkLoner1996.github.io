@@ -32592,203 +32592,126 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 
 
 
-<!-- tk-v328: FullHD cinema permanent lock, kills FHD race conditions on refresh -->
-<style id="tk-v328-fhd-cinema-permalock">
-@media (min-width:1600px) and (max-width:2559px) and (min-height:850px){
-  html.tk-v328-fhd-cinema-permalock #cinema,
-  html.tk-v328-fhd-cinema-permalock section#cinema.cinema-slider.cinema-v2{
+<style id="tk-fhd-cinema-viewport-lock-v3-style">
+@media (min-width:1600px) and (max-width:2559px) and (min-height:820px){
+  html.tk-fhd-cinema-viewport-lock-v3 .ui-bottom{
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    transform: none !important;
+    transform-origin: 50% 0 !important;
+    z-index: 20079 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    contain: none !important;
+  }
+  html.tk-fhd-cinema-viewport-lock-v3 #cinema{
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
-    top: 14px !important;
+    top: 10px !important;
     bottom: auto !important;
     transform: translateX(-50%) !important;
     width: 860px !important;
     max-width: min(860px, calc(100vw - 620px)) !important;
     margin: 0 !important;
     padding: 0 !important;
-    z-index: 20090 !important;
+    z-index: 20080 !important;
     overflow: visible !important;
+    pointer-events: auto !important;
     contain: none !important;
-  }
-
-  html.tk-v328-fhd-cinema-permalock #cinema,
-  html.tk-v328-fhd-cinema-permalock #cinema .cinema-head,
-  html.tk-v328-fhd-cinema-permalock #cinema .kino-badge-top-4k,
-  html.tk-v328-fhd-cinema-permalock #cinema .cinema-banner,
-  html.tk-v328-fhd-cinema-permalock #cinema .slider-container,
-  html.tk-v328-fhd-cinema-permalock #cinema .slider-wrapper,
-  html.tk-v328-fhd-cinema-permalock #cinema .movie-slide,
-  html.tk-v328-fhd-cinema-permalock #cinema .movie-img{
-    transition: none !important;
-    animation: none !important;
-  }
-
-  html.tk-v328-fhd-cinema-permalock #cinema .cinema-head{
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0 !important;
-    margin: 0 0 4px 0 !important;
-    margin-top: 0 !important;
-    padding: 0 !important;
-    padding-top: 0 !important;
-    min-height: 0 !important;
-    transform: none !important;
-    overflow: visible !important;
   }
 }
 </style>
-<script id="tk-v328-fhd-cinema-permalock-script">
+<script id="tk-fhd-cinema-viewport-lock-v3-script">
 (function(){
-  "use strict";
+  const root = document.documentElement;
+  const TARGET_TOP = '10px';
+  const TARGET_WIDTH = '860px';
+  const CLEAN_PROPS = ['position','left','right','top','bottom','width','height','max-width','max-height','margin','padding','transform','transform-origin','z-index','overflow','pointer-events','display','contain'];
 
-  var root = document.documentElement;
-  var TOP = '14px';
-  var WIDTH = '860px';
-  var MAX_WIDTH = 'min(860px, calc(100vw - 620px))';
-  var intervalId = 0;
-  var raf = 0;
-  var conflictStyleIds = [
-    'tk-v302-fhd-clean-rollback-like-second-shot',
-    'tk-v307-fhd_raise10_from_v306_endpatch',
-    'tk-v315-compact-fhd-15inch-real-endpatch',
-    'tk-v322-fullhd-lower100-real-branch-fix',
-    'tk-v323-fullhd-stable-static-endfix',
-    'tk-v293-fhd-logo-above-banner-match-second-shot'
-  ];
-
-  function vp(){
-    var de = document.documentElement;
-    var iw = Math.max(window.innerWidth || 0, de.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, de.clientHeight || 0);
-    var dpr = window.devicePixelRatio || 1;
-    var sw = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
-    return { iw: iw, ih: ih, dpr: dpr, effW: iw * dpr, sw: sw };
+  function vpW(){ return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0); }
+  function vpH(){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
+  function is4k(){
+    return root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino') || vpW() >= 2560;
   }
-
-  function isReal4k(){
-    var m = vp();
-    return m.iw >= 2560 || m.sw >= 3000 || m.effW >= 3000 || root.classList.contains('tk-v292-4k-ok') || root.classList.contains('tk-stable-4k-kino');
-  }
-
   function isLaptop15(){
-    var m = vp();
-    if(isReal4k()) return false;
-    return m.iw >= 1180 && m.iw <= 1599;
+    const w = vpW();
+    return !is4k() && w >= 1180 && w <= 1599;
   }
-
   function isTarget(){
-    var m = vp();
-    return !isReal4k() && !isLaptop15() && m.iw >= 1600 && m.iw <= 2559 && m.ih >= 850;
+    const w = vpW();
+    const h = vpH();
+    return !is4k() && !isLaptop15() && w >= 1600 && w <= 2559 && h >= 820;
   }
-
-  function imp(el, prop, value){
-    try{ if(el) el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  function imp(el, prop, val){ try{ if(el) el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function clean(el){ try{ if(el) CLEAN_PROPS.forEach(p => el.style.removeProperty(p)); }catch(_e){} }
+  function nukeCinemaClasses(){
+    root.classList.remove('tk-cinema-docked','tk-fhd-kino-v249','tk-v293-fhd-cinema');
   }
+  function apply(){
+    const wrap = document.querySelector('.ui-bottom');
+    const cinema = document.getElementById('cinema');
+    if(!wrap || !cinema) return;
 
-  function disableConflictStyles(){
-    conflictStyleIds.forEach(function(id){
-      var el = document.getElementById(id);
-      if(!el || el.getAttribute('data-tk-v328-off') === '1') return;
-      el.setAttribute('data-tk-v328-off', '1');
-      if(el.tagName === 'STYLE'){
-        el.textContent = '';
-      }
-    });
-  }
-
-  function neutralizeConflicts(){
-    root.classList.remove('tk-cinema-docked', 'tk-fhd-kino-v249', 'tk-v293-fhd-cinema');
-  }
-
-  function enforce(){
-    raf = 0;
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-
-    var on = isTarget();
-    root.classList.toggle('tk-v328-fhd-cinema-permalock', on);
+    const on = isTarget();
     root.classList.toggle('tk-fhd-cinema-static-clean-v8', on);
+    root.classList.toggle('tk-fhd-cinema-viewport-lock-v3', on);
 
     if(!on){
-      if(intervalId){ clearInterval(intervalId); intervalId = 0; }
+      clean(wrap);
+      clean(cinema);
       return;
     }
 
-    disableConflictStyles();
-    neutralizeConflicts();
+    nukeCinemaClasses();
+    root.style.setProperty('--ui-bottom-top', '0px');
+    root.style.setProperty('--ui-bottom-scale', '1');
 
-    root.style.setProperty('--cinema-head-shift', '0px');
-    root.style.setProperty('--cinema-head-lift', '0px');
-    root.style.setProperty('--cinema-head-max', '0px');
-    root.style.setProperty('--cinema-stage-min-visible', '0px');
-    root.style.setProperty('--cinema-safe-bottom', '0px');
-    root.style.setProperty('--tk-v293-fhd-top', TOP);
+    imp(wrap, 'position', 'fixed');
+    imp(wrap, 'left', '0');
+    imp(wrap, 'right', '0');
+    imp(wrap, 'top', '0');
+    imp(wrap, 'bottom', 'auto');
+    imp(wrap, 'width', '100%');
+    imp(wrap, 'height', '0');
+    imp(wrap, 'margin', '0');
+    imp(wrap, 'padding', '0');
+    imp(wrap, 'display', 'block');
+    imp(wrap, 'transform', 'none');
+    imp(wrap, 'transform-origin', '50% 0');
+    imp(wrap, 'z-index', '20079');
+    imp(wrap, 'overflow', 'visible');
+    imp(wrap, 'pointer-events', 'none');
+    imp(wrap, 'contain', 'none');
 
     imp(cinema, 'position', 'fixed');
     imp(cinema, 'left', '50%');
     imp(cinema, 'right', 'auto');
-    imp(cinema, 'top', TOP);
+    imp(cinema, 'top', TARGET_TOP);
     imp(cinema, 'bottom', 'auto');
     imp(cinema, 'transform', 'translateX(-50%)');
-    imp(cinema, 'width', WIDTH);
-    imp(cinema, 'max-width', MAX_WIDTH);
+    imp(cinema, 'width', TARGET_WIDTH);
+    imp(cinema, 'max-width', 'min(' + TARGET_WIDTH + ', calc(100vw - 620px))');
     imp(cinema, 'margin', '0');
     imp(cinema, 'padding', '0');
-    imp(cinema, 'z-index', '20090');
+    imp(cinema, 'z-index', '20080');
     imp(cinema, 'overflow', 'visible');
+    imp(cinema, 'pointer-events', 'auto');
     imp(cinema, 'contain', 'none');
-
-    var head = cinema.querySelector('.cinema-head');
-    imp(head, 'display', 'flex');
-    imp(head, 'flex-direction', 'column');
-    imp(head, 'align-items', 'center');
-    imp(head, 'justify-content', 'flex-start');
-    imp(head, 'gap', '0');
-    imp(head, 'margin', '0 0 4px 0');
-    imp(head, 'margin-top', '0');
-    imp(head, 'padding', '0');
-    imp(head, 'padding-top', '0');
-    imp(head, 'min-height', '0');
-    imp(head, 'transform', 'none');
-
-    Array.prototype.forEach.call(head ? head.children : [], function(el){
-      imp(el, 'margin-top', '0');
-    });
-
-    var title = cinema.querySelector('.cinema-banner-title');
-    if(title){
-      title.innerHTML = 'Мультфильмы&nbsp;о&nbsp;цифровой<br>Безопасности';
-    }
-
-    if(!intervalId){
-      intervalId = window.setInterval(function(){
-        if(!isTarget()){
-          clearInterval(intervalId);
-          intervalId = 0;
-          return;
-        }
-        neutralizeConflicts();
-        imp(cinema, 'top', TOP);
-        imp(cinema, 'left', '50%');
-        imp(cinema, 'transform', 'translateX(-50%)');
-        imp(cinema, 'width', WIDTH);
-        imp(cinema, 'max-width', MAX_WIDTH);
-        imp(head, 'margin', '0 0 4px 0');
-        imp(head, 'margin-top', '0');
-        imp(head, 'padding', '0');
-        imp(head, 'padding-top', '0');
-      }, 120);
-    }
   }
 
+  let raf = 0;
   function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      requestAnimationFrame(enforce);
-    });
+    if(raf) return;
+    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
   }
 
   if(document.readyState === 'loading'){
@@ -32796,34 +32719,22 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }else{
     schedule();
   }
-
   window.addEventListener('load', schedule, { passive:true });
   window.addEventListener('resize', schedule, { passive:true });
   window.addEventListener('orientationchange', schedule, { passive:true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, { passive:true });
-  }
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
 
-  [0, 50, 120, 220, 420, 800, 1300, 2000, 3000, 4500, 6500, 9000].forEach(function(ms){
-    setTimeout(schedule, ms);
-  });
+  [0, 60, 140, 260, 420, 700, 1000, 1500, 2200, 3200, 4500, 6500, 9000].forEach(function(ms){ setTimeout(schedule, ms); });
+  let ticks = 0;
+  const interval = setInterval(function(){
+    schedule();
+    ticks += 1;
+    if(ticks > 80) clearInterval(interval);
+  }, 250);
 
   try{
-    var rootObserver = new MutationObserver(schedule);
-    rootObserver.observe(root, { attributes:true, attributeFilter:['class', 'style'] });
-
-    var cinemaObserverStarter = function(){
-      var cinema = document.getElementById('cinema');
-      if(!cinema) return;
-      try{
-        var mo = new MutationObserver(schedule);
-        mo.observe(cinema, { attributes:true, attributeFilter:['class', 'style'] });
-        var head = cinema.querySelector('.cinema-head');
-        if(head) mo.observe(head, { attributes:true, attributeFilter:['class', 'style'] });
-      }catch(_e){}
-    };
-    setTimeout(cinemaObserverStarter, 0);
-    setTimeout(cinemaObserverStarter, 500);
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.documentElement, { attributes:true, subtree:true, attributeFilter:['class','style'] });
   }catch(_e){}
 })();
 </script>
