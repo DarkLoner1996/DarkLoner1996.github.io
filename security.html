@@ -4970,6 +4970,46 @@ padding:0;
 </style>
 <style id="coolInfoSecStyles">
 
+    #infoSecGame{
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#infoSecGame.is-open{
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#infoSecGame.mg-backdrop{
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+#infoSecGame .cool-phish-shell,
+#infoSecGame .cool-phish-root{
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+}
+
+html.tk-lock,
+body.tk-lock{
+  overflow: hidden !important;
+}
+
+
+
+
+
+
+
+    
 
 #infoSecGame.mg-backdrop{
   position: fixed;
@@ -8373,7 +8413,6 @@ body.menu-collapsed .side-nav__panel{
 
 
 <style id="tk-qimg-support-v1">
-
 .tk-qimg-wrap{ margin-top: 12px; }
 .tk-qimg{ 
   display:block;
@@ -8388,7 +8427,7 @@ body.menu-collapsed .side-nav__panel{
 @media (max-width: 520px){
   .tk-qimg{ border-radius: 14px; }
 }
-
+</style>
 
 <style id="tk-minigame-button-gap-v1">
 
@@ -13182,57 +13221,93 @@ ${currentItem.text}`;
 })();
 </script>
 <script>
-
 (function infoSecModalWrapper(){
   const openBtn = document.getElementById('openInfoSecGame');
   const outer = document.getElementById('infoSecGame');
   const closeBtn = document.getElementById('closeInfoSecGame');
   if(!openBtn || !outer || !closeBtn) return;
 
-  function lockBody(){
-    if(outer.classList.contains('is-open')) document.body.style.overflow = "hidden";
+  function lockScroll(){
+    document.documentElement.classList.add('tk-lock');
+    document.body.classList.add('tk-lock');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
   }
-  function unlockBody(){ document.body.style.overflow = ""; }
 
-  function openOuter(){
-    outer.classList.add('is-open');
-    outer.setAttribute('aria-hidden','false');
-    lockBody();
+  function unlockScroll(){
+    document.documentElement.classList.remove('tk-lock');
+    document.body.classList.remove('tk-lock');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
+
+  function focusFirst(){
     setTimeout(() => {
-      const first = outer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if(first && first.focus) first.focus({preventScroll:true});
+      try{
+        const first = outer.querySelector('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+        if(first && first.focus) first.focus({ preventScroll:true });
+      }catch(e){}
     }, 0);
   }
 
-  function closeOuter(){
+  function openOuter(e){
+    try{ e && e.preventDefault && e.preventDefault(); }catch(_){}
+    try{ e && e.stopPropagation && e.stopPropagation(); }catch(_){}
+
+    outer.classList.add('is-open');
+    outer.setAttribute('aria-hidden', 'false');
+    outer.style.display = 'flex';
+    outer.style.opacity = '1';
+    outer.style.pointerEvents = 'auto';
+
+    lockScroll();
+    focusFirst();
+    return false;
+  }
+
+  function closeOuter(e){
+    try{ e && e.preventDefault && e.preventDefault(); }catch(_){}
+
     const inner = outer.querySelector('#infoBackdrop');
-    const innerClose = outer.querySelector('#infoCloseBtn');
-    if(inner && inner.classList && inner.classList.contains('is-open')){
-      if(innerClose) innerClose.click();
+    if(inner){
       inner.classList.remove('is-open');
-      inner.setAttribute('aria-hidden','true');
+      inner.setAttribute('aria-hidden', 'true');
     }
 
     outer.classList.remove('is-open');
-    outer.setAttribute('aria-hidden','true');
-    unlockBody();
-    if(openBtn.focus) openBtn.focus({preventScroll:true});
+    outer.setAttribute('aria-hidden', 'true');
+    outer.style.opacity = '';
+    outer.style.pointerEvents = '';
+    outer.style.display = '';
+
+    unlockScroll();
+
+    try{
+      if(openBtn && openBtn.focus) openBtn.focus({ preventScroll:true });
+    }catch(_){}
+    return false;
   }
 
-  openBtn.addEventListener('click', (e)=>{ e.preventDefault(); openOuter(); });
-  closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); closeOuter(); });
+  openBtn.addEventListener('click', openOuter);
+  closeBtn.addEventListener('click', closeOuter);
 
-  outer.addEventListener('click', (e)=>{ if(e.target === outer) closeOuter(); });
-
-  document.addEventListener('keydown', (e)=>{
-    if(e.key !== 'Escape') return;
-    if(!outer.classList.contains('is-open')) return;
-    const inner = outer.querySelector('#infoBackdrop');
-    if(inner && inner.classList && inner.classList.contains('is-open')) return;
-    closeOuter();
+  outer.addEventListener('click', (e) => {
+    if(e.target === outer) closeOuter(e);
   });
 
-  window.addEventListener('focus', lockBody);
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    if(!outer.classList.contains('is-open')) return;
+
+    const inner = outer.querySelector('#infoBackdrop');
+    if(inner && inner.classList.contains('is-open')) return;
+
+    closeOuter(e);
+  });
+
+  window.addEventListener('focus', () => {
+    if(outer.classList.contains('is-open')) lockScroll();
+  });
 })();
 </script>
 <script>
