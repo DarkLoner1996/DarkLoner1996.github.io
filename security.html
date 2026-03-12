@@ -9542,7 +9542,7 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-card{
 <div class="footer-controls">
 <div class="kpi">
 <span class="pill">✅ <span id="itKpiCorrect">0</span> верно</span>
-<span class="pill">🧩 <span id="itKpiTotal">25</span> всего</span>
+<span class="pill">🧩 <span id="itKpiTotal">24</span> всего</span>
 </div>
 <button class="btn" id="itChangeAvatarBtn" type="button">Сменить героя</button>
 </div>
@@ -9561,7 +9561,7 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-card{
 <div class="msg-head">
 <div class="from">
 <b id="itQLevel">Уровень 1</b>
-<span id="itQCount">1/25</span>
+<span id="itQCount">1/24</span>
 </div>
 <div class="subject" id="itQTopic">Тема: основы</div>
 </div>
@@ -9580,7 +9580,7 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-card{
 </div>
 <div class="footer-controls" id="itFooterCards">
   <div class="kpi">
-<span class="pill">📄 Карточка <span id="itCardIndex">1</span>/<span id="itCardCount">25</span></span>
+<span class="pill">📄 Карточка <span id="itCardIndex">1</span>/<span id="itCardCount">24</span></span>
     <span class="pill">⏱️ Без спешки</span>
   </div>
   <div class="it-footer-actions">
@@ -10374,6 +10374,17 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-card{
 
 
     CARD_BANK.forEach((c,i)=>{ c.__imgIdx = i + 1; });
+    const TOTAL_CARDS = CARD_BANK.length;
+
+    function buildLevelDeck() {
+      const byLevel = [];
+      for (let lvl = 1; lvl <= 5; lvl++) {
+        const pack = CARD_BANK.filter(c => c.level === lvl).slice();
+        shuffle(pack);
+        byLevel.push(...pack);
+      }
+      return byLevel;
+    }
 
     const $ = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
@@ -10618,15 +10629,15 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-card{
     let skipUsed = 0;
 function resetSession() {
       if (hasWon) return;
-      sessionCards = CARD_BANK.slice(0, 25);
+      sessionCards = buildLevelDeck();
       currentIndex = 0;
       answered = false;
       skipUsed = 0;
       updateSkipLabel();
       cardCountEl.textContent = String(sessionCards.length);
-            runTotal = 0;
+      runTotal = 0;
       runCorrect = 0;
-renderCard();
+      renderCard();
       updateHud();
       setExplain("", "");
       enableAnswering(true);
@@ -10671,7 +10682,8 @@ function setExplain(kind, text) {
       let imgHtml = "";
 
       if (kind === "good" || kind === "bad") {
-        const n = (currentIndex|0) + 1;
+        const currentCard = sessionCards[currentIndex] || null;
+        const n = (currentCard && currentCard.__imgIdx) ? currentCard.__imgIdx : ((currentIndex|0) + 1);
         const src = (kind === "good") ? ("verno_ph" + n + "_1.png") : ("neverno_ph" + n + "_1.png");
         imgHtml = `
           <div class="tk-explain-images">
@@ -10713,16 +10725,17 @@ function setExplain(kind, text) {
       }
 
       kpiCorrect.textContent = String(runCorrect);
-      kpiTotal.textContent = "25";
+      kpiTotal.textContent = String(TOTAL_CARDS);
     }
 
     function phishIsPerfect25(){
-      const goal = 25;
+      const goal = sessionCards && sessionCards.length ? sessionCards.length : TOTAL_CARDS;
       return (runTotal >= goal) && (runCorrect >= goal) && (runTotal === runCorrect);
     }
 
     function phishHasWon(){
-      return (currentIndex >= (sessionCards ? sessionCards.length : 25));
+      const goal = sessionCards && sessionCards.length ? sessionCards.length : TOTAL_CARDS;
+      return (currentIndex >= goal);
     }
 
     function phishShowWin(){
@@ -10739,8 +10752,8 @@ function setExplain(kind, text) {
           <div class="tk-win">
             <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
             ${phishIsPerfect25() ? '<div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>' : '<div class="tk-win__title">🏁 Финиш! Ты дошёл до конца тренировки!</div>'}
-            <div class="tk-win__subtitle">Верно: ${runCorrect}/25 • LVL ${player.lvl}/5 • XP: ${player.xp}</div>
-            ${phishIsPerfect25() ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно 25/25 ✅</div>'}
+            <div class="tk-win__subtitle">Верно: ${runCorrect}/${TOTAL_CARDS} • LVL ${player.lvl}/5 • XP: ${player.xp}</div>
+            ${phishIsPerfect25() ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно ' + TOTAL_CARDS + '/' + TOTAL_CARDS + ' ✅</div>'}
             <button type="button" class="btn tk-win__btn" id="phishWinCloseBtn">Закрыть игру</button>
           </div>
         `;
@@ -10789,7 +10802,7 @@ function renderCard() {
       answered = false;
       msgFromName.textContent = card.fromName;
       msgFromEmail.textContent = card.fromEmail;
-      msgSubject.textContent = card.subject;
+      msgSubject.textContent = `LVL ${card.level} • ${card.subject}`;
       msgBody.textContent = card.body;
 
       if (card.link) {
@@ -13573,6 +13586,27 @@ ${currentItem.text}`;
     {lvl:5, from:"Кибер‑Медведь", email:"gos@tk", subject:"Просит код/пароль для входа в Госуслуги", body:"Кибер‑Медведь (серьёзная табличка «Важно»):\n«Если кто-то просит логин/пароль или код из SMS для входа в Госуслуги, это почти наверняка мошенник. Такие данные нельзя сообщать никому; вход — только официально и лучше с взрослыми рядом. Верно?»", link:"", ans:"safe", verno:"Ты не отдаёшь код.\nМедведь: «Это не уровень со скинами. Это важные данные. Молодец.»", neverno:"Ты сообщаешь — и запускаешь Сороку‑воровку “Последствия”.\nМедведь: «Этого босса не победить. Его обходят. Он не победим — ты его сам создал. Ты убил свою кибер‑вселенную.»"}
   ];
 
+  deck.forEach((card, i) => { card.__imgIdx = i + 1; });
+
+  function shuffleLevelIndices(items){
+    for(let i = items.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+  }
+
+  function buildInfoOrder(){
+    const result = [];
+    for(let lvl = 1; lvl <= 5; lvl++) {
+      const pack = [];
+      deck.forEach((card, index) => { if(card.lvl === lvl) pack.push(index); });
+      shuffleLevelIndices(pack);
+      result.push(...pack);
+    }
+    return result;
+  }
+
   const total = deck.length;
   if(kpiTotal) kpiTotal.textContent = String(total);
   if(cardCount) cardCount.textContent = String(total);
@@ -13584,13 +13618,14 @@ ${currentItem.text}`;
     correct: 0,
     xp: 0,
     skipsUsed: 0,
+    order: [],
     done: false
   };
 
   function save(){
     try{
       localStorage.setItem(STORAGE_PROFILE, JSON.stringify({avatar: state.avatar, name: state.name}));
-      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp, skipsUsed: state.skipsUsed}));
+      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp, skipsUsed: state.skipsUsed, order: state.order}));
     }catch(e){}
   }
   function load(){
@@ -13602,10 +13637,20 @@ ${currentItem.text}`;
       if(typeof pr.idx === 'number') state.idx = Math.max(0, Math.min(total-1, pr.idx));
       if(typeof pr.correct === 'number') state.correct = Math.max(0, pr.correct);
       if(typeof pr.xp === 'number') state.xp = Math.max(0, pr.xp);
-          if(typeof pr.skipsUsed === 'number') state.skipsUsed = Math.max(0, pr.skipsUsed);
-}catch(e){}
+      if(typeof pr.skipsUsed === 'number') state.skipsUsed = Math.max(0, pr.skipsUsed);
+      if(Array.isArray(pr.order) && pr.order.length === total) state.order = pr.order.slice();
+    }catch(e){}
   }
   load();
+
+  function ensureInfoOrder(forceNew){
+    if(forceNew || !Array.isArray(state.order) || state.order.length !== total){
+      state.order = buildInfoOrder();
+    }
+    return state.order;
+  }
+
+  ensureInfoOrder(false);
 
   let hasWon = false;
 
@@ -13738,14 +13783,17 @@ if(fioInput){
     state.idx = 0;
     state.correct = 0;
     state.xp = 0;
-    
     state.skipsUsed = 0;
-save();
+    state.order = buildInfoOrder();
+    hasWon = false;
+    save();
     updateHud();
   }
 
   function renderCard(){
-    const card = deck[state.idx];
+    ensureInfoOrder(false);
+    const cardIndexInDeck = state.order[state.idx];
+    const card = deck[cardIndexInDeck];
     if(!card) return;
 
     cardIndex && (cardIndex.textContent = String(state.idx + 1));
@@ -13755,7 +13803,7 @@ save();
     if(msgFromEmail) msgFromEmail.textContent = card.email;
     if(msgSubject) msgSubject.textContent = 'LVL ' + card.lvl + ' • ' + card.subject;
     if(msgBody) msgBody.textContent = card.body;
-    infoSetQImg(state.idx + 1);
+    infoSetQImg(card.__imgIdx || (cardIndexInDeck + 1));
 
     if(msgLink){
       if(card.link){
@@ -13792,7 +13840,9 @@ save();
   }
 
   function answer(choice){
-    const card = deck[state.idx];
+    ensureInfoOrder(false);
+    const cardIndexInDeck = state.order[state.idx];
+    const card = deck[cardIndexInDeck];
     if(!card) return;
     const correct = (choice === card.ans);
 
@@ -13823,7 +13873,7 @@ save();
       explainBox.appendChild(badge);
       explainBox.appendChild(why);
 
-      const n = (state.idx|0) + 1;
+      const n = card.__imgIdx || ((cardIndexInDeck|0) + 1);
       const imgs = document.createElement("div");
       imgs.className = "tk-explain-images";
 
@@ -13889,6 +13939,7 @@ explainBox.classList.toggle('ok', correct);
   }
 
   function skip(){
+    ensureInfoOrder(false);
     if(state.skipsUsed >= 3){
       btnSkip && (btnSkip.disabled = true);
 
@@ -14619,36 +14670,37 @@ explainBox.classList.toggle('ok', correct);
   const innerResetBtn = document.getElementById('itResetBtn');
 
   const CARDS = [
-    {level:1, topic:'данные', text:'"Бит" — это минимальная единица информации: 0 или 1.', correct:true, explain:'Верно. Бит хранит одно из двух значений — 0 или 1.'},
-    {level:1, topic:'алгоритмы', text:'Алгоритм — это случайный набор действий без порядка.', correct:false, explain:'Неверно. Алгоритм — это упорядоченные шаги, которые ведут к результату.'},
-    {level:1, topic:'папки', text:'Файл можно положить в папку, чтобы было проще найти.', correct:true, explain:'Верно. Папки помогают организовывать файлы по темам.'},
-    {level:1, topic:'устройства', text:'Монитор — устройство для ввода текста.', correct:false, explain:'Неверно. Монитор выводит изображение (устройство вывода). Текст вводят клавиатурой.'},
-    {level:1, topic:'интернет', text:'Браузер — это программа, чтобы открывать сайты.', correct:true, explain:'Верно. Браузер показывает веб‑страницы и помогает переходить по ссылкам.'},
+    {level:1, topic:'Курсор мыши', text:'Форма указателя мыши зависит от настроения пользователя. Верно?', correct:false, explainRight:'Киберкот: «Мур-точно! Форма курсора зависит от того, что делает программа, а не от настроения.»', explainWrong:'Сорока-воровка: «Ха! Тогда у грустного пользователя курсор был бы в слезах!»'},
+    {level:1, topic:'Компьютерная мышь', text:'Потерялась компьютерная мышь — компьютер не включится. Верно?', correct:false, explainRight:'Кибер-Медведь: «В-в-верно! Компьютер может включиться и без мыши.»', explainWrong:'Кибер-Сова: «Без мышки всё пропало? Хо-хо, ну уж нет!»'},
+    {level:1, topic:'Кто обрабатывает информацию', text:'Обработкой информации в компьютере занимается материнская плата. Верно?', correct:false, explainRight:'Кибер-Пёс: «Пи-правильно! Основную обработку данных выполняет процессор, а материнская плата соединяет устройства.»', explainWrong:'Сорока-Воровка: «Перепутал главное устройство? Бывает!»'},
+    {level:1, topic:'Сканер и принтер', text:'Сканер — это устройство для вывода информации на печать. Верно?', correct:false, explainRight:'Кибер-Кот: «Мур-отлично! Сканер вводит информацию, а печатает принтер.»', explainWrong:'Кибер-Сова: «Ох, как удобно — пусть сканер ещё и печатает! Но нет.»'},
+    {level:1, topic:'Внутренняя и внешняя память', text:'Жесткий диск расположен внутри системного блока, поэтому он относится к внутренней памяти компьютера. Верно?', correct:false, explainRight:'Кибер-Медведь: «Точно! Жесткий диск — это внешняя память, даже если он находится внутри корпуса.»', explainWrong:'Сорока-Воровка: «Внутри корпуса — значит, внутренняя? Хитроумная ловушка!»'},
 
-    {level:2, topic:'переменные', text:'Переменная — это «коробка», в которой хранится значение.', correct:true, explain:'Верно. В переменную можно положить число, текст, список и т.д.'},
-    {level:2, topic:'условия', text:'В программе "если" помогает выбрать действие в зависимости от условия.', correct:true, explain:'Верно. Условие решает, что делать: ветка A или ветка B.'},
-    {level:2, topic:'циклы', text:'Цикл нужен, чтобы повторять одно и то же действие несколько раз.', correct:true, explain:'Верно. Циклы экономят время и делают код короче.'},
-    {level:2, topic:'ошибки', text:'Если программа не запускается, значит ошибок быть не может.', correct:false, explain:'Неверно. Часто программа не запускается именно из‑за ошибок в коде.'},
-    {level:2, topic:'команды', text:'Команда "сохранить" обычно записывает изменения в файл.', correct:true, explain:'Верно. Сохранение фиксирует изменения на диске.'},
+    {level:2, topic:'Кнопка «Пуск»', text:'С помощью кнопки «Пуск» можно выключить компьютер. Верно?', correct:true, explainRight:'Киберкот: «Мур-верно! Через “Пуск” можно выбрать завершение работы.»', explainWrong:'Киберсова: «Хо-хо… а как же тогда его выключать?»'},
+    {level:2, topic:'Окно программы', text:'Прямоугольная область на рабочем столе, в которой работает программа, называется оконцем. Верно?', correct:false, explainRight:'Кибер-Пёс: «Пи-точно! Оно называется окном программы.»', explainWrong:'Сорока-Воровка: «Оконце, дверца, форточка… почти, но нет!»'},
+    {level:2, topic:'Пользовательский интерфейс', text:'Пользовательский интерфейс обеспечивает взаимодействие человека и компьютера. Верно?', correct:true, explainRight:'Киберкот: «Мур-логично! Интерфейс помогает человеку управлять компьютером.»', explainWrong:'Киберсова: «Тогда зачем нужны кнопки, меню и окна?»'},
+    {level:2, topic:'Аппаратный интерфейс', text:'Аппаратный интерфейс обеспечивает работу пользовательского интерфейса. Верно?', correct:false, explainRight:'Кибер-Медведь: «П-р-равильно! Аппаратный интерфейс нужен для взаимодействия устройств между собой.»', explainWrong:'Сорока-Воровка: «Запутал с интерфейсами? Обожаю это!»'},
+    {level:2, topic:'Имя файла', text:'Имя файла ЛЕТО.doc написано без ошибок и может быть сохранено. Верно?', correct:true, explainRight:'Кибер-Кот: «Мур-отлично! Есть имя файла и расширение — всё правильно.»', explainWrong:'Кибер-Сова: «Хо-хо… а файл-то вполне нормальный!»'},
 
-    {level:3, topic:'сети', text:'Wi‑Fi — способ подключиться к сети без провода.', correct:true, explain:'Верно. Wi‑Fi использует радиосигнал для связи.'},
-    {level:3, topic:'данные', text:'"Папка" и "файл" — это одно и то же.', correct:false, explain:'Неверно. Папка — контейнер, файл — содержимое (документ, фото, программа).'},
-    {level:3, topic:'логика', text:'"И" в логике означает: верно, только если верно всё сразу.', correct:true, explain:'Верно. Для И нужно, чтобы оба условия были истинны.'},
-    {level:3, topic:'логика', text:'"ИЛИ" означает: верно, только если верно оба условия.', correct:false, explain:'Неверно. Для ИЛИ достаточно, чтобы истинно хотя бы одно условие.'},
-    {level:3, topic:'алгоритмы', text:'Сортировка — это алгоритм, который упорядочивает элементы.', correct:true, explain:'Верно. Например, по возрастанию чисел или по алфавиту.'},
+    {level:3, topic:'Полное и сокращённое имя файла', text:'Полное и сокращённое имя файла — это одно и то же. Верно?', correct:false, explainRight:'Кибер-Пёс: «Пи-верно! Это не одно и то же.»', explainWrong:'Сорока-воровка: «Похожи — не значит одинаковы!»'},
+    {level:3, topic:'Редактирование текста', text:'Редактирование — это процесс оформления текста. Верно?', correct:false, explainRight:'Киберкот: «Точно! Редактирование — это исправление текста, а оформление — форматирование.»', explainWrong:'Киберсова: «Исправить и украсить — это разные вещи!»'},
+    {level:3, topic:'Альбомная ориентация', text:'Альбомная ориентация — это когда ширина листа больше его высоты. Верно?', correct:true, explainRight:'Кибер-Медведь: «В-в-верно! Лист лежит “широкой стороной”.»', explainWrong:'Сорока-Воровка: «Переверни лист — и сразу станет понятно!»'},
+    {level:3, topic:'Размер шрифта в текстовых документах', text:'Размер шрифта в текстовых документах измеряется в пунктах. Верно?', correct:true, explainRight:'Кибер-Пёс: «Пи-отлично! Кегль измеряется в пунктах.»', explainWrong:'Кибер-Сова: «Не в сантиметрах!»'},
+    {level:3, topic:'Интернет и Всемирная паутина', text:'Всемирная паутина и сеть Интернет — это одно и то же. Верно?', correct:false, explainRight:'Киберкот: «Мур-правильно! Интернет — это сеть, а Всемирная паутина — один из сервисов в ней.»', explainWrong:'Сорока-воровка: «Почти одно и то же, но не совсем!»'},
 
-    {level:4, topic:'память', text:'Оперативная память (RAM) хранит данные даже после выключения компьютера.', correct:false, explain:'Неверно. RAM — «временная» память: после выключения питание пропадает и данные стираются.'},
-    {level:4, topic:'функции', text:'Функция — это часть программы, которую можно вызывать много раз.', correct:true, explain:'Верно. Функции помогают не повторять один и тот же код и делают программу понятнее.'},
-    {level:4, topic:'циклы', text:'Если условие цикла всегда истинно, цикл может стать бесконечным.', correct:true, explain:'Верно. Такой цикл будет повторяться снова и снова, пока условие не станет ложным.'},
-    {level:4, topic:'комментарии', text:'Комментарий в коде выполняется компьютером как команда.', correct:false, explain:'Неверно. Комментарии нужны людям: объясняют код и не выполняются программой.'},
-    {level:4, topic:'отладка', text:'Отладчик помогает искать ошибки, показывая выполнение программы шаг за шагом.', correct:true, explain:'Верно. В отладчике можно смотреть значения переменных и понимать, где возникла ошибка.'},
+    {level:4, topic:'IP-адрес и доменное имя', text:'IP-адрес и доменное имя помогают идентифицировать компьютер в сети. Верно?', correct:true, explainRight:'Кибер-Медведь: «В-в-верно! Это адресация в сети.»', explainWrong:'Кибер-Сова: «Тогда как же найти компьютер в интернете?»'},
+    {level:4, topic:'TCP/IP', text:'Единый протокол передачи данных в сети Интернет называется TCP/IP. Верно?', correct:true, explainRight:'Кибер-Пёс: «Пи-точно! Это основной набор сетевых протоколов Интернета.»', explainWrong:'Сорока-Воровка: «А вот и нет — мимо пакетов!»'},
+    {level:4, topic:'Что делает TCP', text:'Протокол TCP отвечает за разбиение файлов на пакеты и их надёжную передачу. Верно?', correct:true, explainRight:'Киберкот: «Мур-верно! TCP следит за тем, чтобы данные доходили до адресата в целости и сохранности.»', explainWrong:'Киберсова: «Хо-хо… пакеты сами по себе не летают!»'},
+    {level:4, topic:'Браузер', text:'Браузер — это программа для просмотра страниц Интернета. Верно?', correct:true, explainRight:'Кибер-Медведь: «В-в-верно! Сайты открывают через браузер.»', explainWrong:'Сорока-Воровка: «А чем тогда сайты смотреть — через тостер?»'},
+    {level:4, topic:'Рунет', text:'Рунет — это русскоязычная часть сети Интернет. Верно?', correct:true, explainRight:'Кибер-Пёс: «Пи-правильно! Так называют русскоязычный сегмент Интернета.»', explainWrong:'Кибер-Сова: «Хо-хо… а звучит знакомо!»'},
 
-    {level:5, topic:'алгоритмы', text:'Любой поиск в списке обязательно должен проверить все элементы по одному.', correct:false, explain:'Неверно. Например, в отсортированном списке можно использовать двоичный поиск и проверять не все элементы.'},
-    {level:5, topic:'сети', text:'IP‑адрес — это «номер» устройства в сети.', correct:true, explain:'Верно. IP‑адрес помогает сети понять, куда отправлять данные.'},
-    {level:5, topic:'безопасность', text:'Шифрование делает данные понятными любому, кто их увидит.', correct:false, explain:'Неверно. Шифрование наоборот скрывает смысл данных: прочитать их сможет только тот, у кого есть ключ.'},
-    {level:5, topic:'структуры данных', text:'Список (массив) может хранить много значений под одним именем.', correct:true, explain:'Верно. Например, список оценок или список задач — это несколько значений в одной структуре.'},
-    {level:5, topic:'логика', text:'Оператор «НЕ» меняет истину на ложь и наоборот.', correct:true, explain:'Верно. НЕ(истина)=ложь, НЕ(ложь)=истина.'},
+    {level:5, topic:'Спам', text:'Спам — это массовая рассылка сообщений без согласия получателей. Верно?', correct:true, explainRight:'Киберкот: «Мур-р-р, точно! Спам никто не любит.»', explainWrong:'Сорока-воровка: «Тогда я завалю всех письмами “просто так”!»'},
+    {level:5, topic:'Хакерская атака', text:'Взлом сервера банка с целью кражи секретных сведений и денег — это преступная хакерская атака. Верно?', correct:true, explainRight:'Кибер-Медведь: «В-в-верно! Это серьёзное киберпреступление.»', explainWrong:'Кибер-Сова: «Хо-хо… преступление перестало быть преступлением? Нет!»'},
+    {level:5, topic:'Преследование в сети', text:'Слежка, преследование, домогательства, вымогательство и запугивание через Интернет — это примеры тайпсквоттинга. Верно?', correct:false, explainRight:'Кибер-Пёс: «Пи-правильно! Это кибербуллинг, киберсталкинг и другие формы сетевого насилия, а не тайпсквоттинг.»', explainWrong:'Сорока-Воровка: «Перепутал слова — попался в ловушку!»'},
+    {level:5, topic:'Законы о киберпреступлениях', text:'В Уголовном кодексе РФ нет статей о наказании за киберпреступления. Верно?', correct:false, explainRight:'Киберкот: «Мур-верно! Такие статьи есть, и за киберпреступления предусмотрено наказание.»', explainWrong:'Киберсова: «Думаешь, в сети можно всё? Очень плохая идея!»'},
   ];
+
+  const TOTAL_CARDS = CARDS.length;
 
  
   let state = null;
@@ -14659,10 +14711,10 @@ explainBox.classList.toggle('ok', correct);
   let skipped = [];
 
   function computeLevelFromIndex(i){
-    if(i<5) return 1;
-    if(i<10) return 2;
-    if(i<15) return 3;
-    if(i<20) return 4;
+    if(i < 5) return 1;
+    if(i < 10) return 2;
+    if(i < 15) return 3;
+    if(i < 20) return 4;
     return 5;
   }
 
@@ -14682,9 +14734,9 @@ explainBox.classList.toggle('ok', correct);
     state = loadState();
     if(state && state.avatar && state.name){
       selectedAvatar = state.avatar;
-      idx = clamp(state.idx||0,0,24);
+      idx = clamp(state.idx||0,0,Math.max(0, TOTAL_CARDS - 1));
       skipped = Array.isArray(state.skipped)?state.skipped:[];
-      order = state.order && state.order.length===25 ? state.order : Array.from({length:25},(_,i)=>i);
+      order = state.order && state.order.length===TOTAL_CARDS ? state.order : Array.from({length:TOTAL_CARDS},(_,i)=>i);
       updateProfileUI();
       updateKpi();
       renderQuestion();
@@ -14753,11 +14805,11 @@ explainBox.classList.toggle('ok', correct);
     if(!state) return;
     if(kpiCorrect) kpiCorrect.textContent = String(state.correct||0);
     const skippedN = (state.skipped && Array.isArray(state.skipped)) ? state.skipped.length : 0;
-    if(kpiTotal) kpiTotal.textContent = "25";
+    if(kpiTotal) kpiTotal.textContent = String(TOTAL_CARDS);
   }
 
   function ensureNewRun(){
-    order = Array.from({length:25},(_,i)=>i);
+    order = Array.from({length:TOTAL_CARDS},(_,i)=>i);
     for(let i=order.length-1;i>0;i--){
       const j=Math.floor(Math.random()*(i+1));
       [order[i],order[j]]=[order[j],order[i]];
@@ -14805,9 +14857,9 @@ explainBox.classList.toggle('ok', correct);
       saveState(state);
       qTitle.textContent = 'Готово!';
       qLevel.textContent = 'Финал';
-      qCount.textContent = '25/25';
-      if(itCardIndexEl) itCardIndexEl.textContent = '25';
-      if(itCardCountEl) itCardCountEl.textContent = '25';
+      qCount.textContent = TOTAL_CARDS + '/' + TOTAL_CARDS;
+      if(itCardIndexEl) itCardIndexEl.textContent = String(TOTAL_CARDS);
+      if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
       qTopic.textContent = 'Миссия выполнена';
       itHideQImg();
       qBody.innerHTML = '<b>Отлично!</b> Вы прошли все вопросы по информатике. Можно начать заново или сменить героя.';
@@ -14826,9 +14878,9 @@ explainBox.classList.toggle('ok', correct);
     const lvl = computeLevelFromIndex(idx);
     if(qTitle) qTitle.textContent = 'Вопрос';
     if(qLevel) qLevel.textContent = 'Уровень ' + lvl;
-    if(qCount) qCount.textContent = (idx+1) + '/25';
-    if(itCardIndexEl) itCardIndexEl.textContent = String(Math.min(idx+1,25));
-    if(itCardCountEl) itCardCountEl.textContent = '25';
+    if(qCount) qCount.textContent = (idx+1) + '/' + TOTAL_CARDS;
+    if(itCardIndexEl) itCardIndexEl.textContent = String(Math.min(idx+1, TOTAL_CARDS));
+    if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
     if(qTopic) qTopic.textContent = 'Тема: ' + card.topic;
     if(qBody) qBody.textContent = card.text;
     itSetQImg(order[idx] + 1);
@@ -14859,7 +14911,7 @@ explainBox.classList.toggle('ok', correct);
         saveState(state);
         qTitle.textContent = 'Игра окончена';
         qLevel.textContent = 'Финал';
-        qCount.textContent = (idx+1) + '/25';
+        qCount.textContent = (idx+1) + '/' + TOTAL_CARDS;
         qTopic.textContent = 'Здоровье закончилось';
         itHideQImg();
       qBody.innerHTML = '<b>💔 Здоровье закончилось.</b> Попробуйте ещё раз и отвечайте внимательнее!';
@@ -14881,9 +14933,10 @@ explainBox.classList.toggle('ok', correct);
     resultPill.textContent = ok ? '✅ Верно!' : '⚠️ Неверно';
     explainEl.classList.add('is-on');
     itHideExplainImgs();
-    if(explainTextEl){ explainTextEl.textContent = card.explain; } else { itHideExplainImgs();
-        if(explainTextEl){ explainTextEl.textContent = card.explain; } else { explainEl.textContent = card.explain; }; }
-    itSetExplainImgs(idx+1, ok);
+    const explainText = ok ? (card.explainRight || card.explain || '') : (card.explainWrong || card.explain || '');
+    if(explainTextEl){ explainTextEl.textContent = explainText; } else { itHideExplainImgs();
+        if(explainTextEl){ explainTextEl.textContent = explainText; } else { explainEl.textContent = explainText; }; }
+    itSetExplainImgs(order[idx] + 1, ok);
 
     btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
 
@@ -14897,14 +14950,14 @@ explainBox.classList.toggle('ok', correct);
       saveState(state);
       qTitle.textContent = 'Готово!';
       qLevel.textContent = 'Финал';
-      qCount.textContent = '25/25';
+      qCount.textContent = TOTAL_CARDS + '/' + TOTAL_CARDS;
       qTopic.textContent = 'Миссия выполнена';
       const xp = (state && typeof state.xp==='number') ? state.xp : 0;
       const xpC = Math.max(0, Math.min(250, xp));
       const lvl = Math.min(5, 1 + Math.floor(xpC/50));
       const score = (state.correct||0);
 
-      const isPerfect = (score === 25);
+      const isPerfect = (score === TOTAL_CARDS);
       const isWin = true;
 
       if(isWin){
@@ -14913,8 +14966,8 @@ explainBox.classList.toggle('ok', correct);
           <div class="tk-win">
             <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
             <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
-            <div class="tk-win__subtitle">Верно: ${score}/25 • LVL ${lvl}/5 • XP: ${xp}</div>
-            ${isPerfect ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно 25/25 ✅</div>'}
+            <div class="tk-win__subtitle">Верно: ${score}/${TOTAL_CARDS} • LVL ${lvl}/5 • XP: ${xp}</div>
+            ${isPerfect ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно ' + TOTAL_CARDS + '/' + TOTAL_CARDS + ' ✅</div>'}
             <button type="button" class="btn tk-win__btn" id="itWinCloseBtn">Закрыть игру</button>
           </div>
         `;
@@ -14945,7 +14998,7 @@ explainBox.classList.toggle('ok', correct);
         }, 0);
       }else{
         itHideQImg();
-      qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/25 • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
+      qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/${TOTAL_CARDS} • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
         qHint.textContent = '';
         btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
         resultBox.hidden = false;
