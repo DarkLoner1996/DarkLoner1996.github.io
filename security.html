@@ -32767,6 +32767,216 @@ html.tk-laptop-games-compact #phishGame.is-open .tip{
 })();
 </script>
 
+
+<style id="tk-v4-force-laptop-start-cards">
+/* Жёсткий фикс для 15" ноутбуков: Информатика + Фишинг по центру и компактнее.
+   Инфобез не трогаем. */
+html.tk-v4-laptop-force #itGame.is-open .cool-phish-close,
+html.tk-v4-laptop-force #phishGame.is-open .cool-phish-close{
+  z-index: 20060 !important;
+}
+</style>
+<script id="tk-v4-force-laptop-start-cards-script">
+(function(){
+  var IDS = {
+    itGame: 790,
+    phishGame: 820
+  };
+
+  function imp(el, prop, value){
+    if(el) el.style.setProperty(prop, value, 'important');
+  }
+
+  function rem(el, props){
+    if(!el) return;
+    props.forEach(function(prop){ el.style.removeProperty(prop); });
+  }
+
+  function isTargetLaptop(){
+    var root = document.documentElement;
+    var vw = Math.max(root.clientWidth || 0, window.innerWidth || 0);
+    var vh = Math.max(root.clientHeight || 0, window.innerHeight || 0);
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var effW = Math.round(vw * dpr);
+    if(root.classList.contains('tk-mobile-landscape-v341')) return false;
+    if(vw < 1180 || vw > 1600) return false;
+    if(vh < 650 || vh > 950) return false;
+    if(effW >= 3000) return false;
+    return true;
+  }
+
+  function resetOne(id){
+    var outer = document.getElementById(id);
+    if(!outer) return;
+    var shell = outer.querySelector('.cool-phish-shell');
+    var root = outer.querySelector('.cool-phish-root');
+    var hero = outer.querySelector('.hero');
+    var wrap = outer.querySelector('.wrap');
+    var card = outer.querySelector('.menu-card');
+    var body = outer.querySelector('.menu-body');
+    var mascot = outer.querySelector('.mascot');
+    var copy = outer.querySelector('.menu-copy');
+    var title = copy ? copy.querySelector('h1, h2') : null;
+    var text = copy ? copy.querySelector('p') : null;
+    var actions = outer.querySelector('.menu-actions');
+    var hint = outer.querySelector('.hint, .menu-foot, .tip');
+    var fx = outer.querySelector('#fxIt, #fx');
+    var btns = card ? card.querySelectorAll('.btn') : [];
+
+    rem(document.documentElement, ['--tk-v4-laptop']);
+    rem(outer, ['padding','background','overflow','display']);
+    rem(shell, ['position','left','top','transform','width','max-width','height','min-height','max-height','overflow','display','padding','margin']);
+    rem(root, ['width','height','min-height','overflow','background','padding-bottom']);
+    rem(hero, ['min-height','height','display','padding','margin','background']);
+    rem(wrap, ['width','max-width','margin','gap']);
+    rem(card, ['width','margin','padding','border-radius','overflow']);
+    rem(body, ['display','grid-template-columns','gap','align-items']);
+    rem(mascot, ['width','height','border-radius']);
+    rem(copy, ['gap','min-width']);
+    rem(title, ['font-size','line-height','margin']);
+    rem(text, ['font-size','line-height','max-width','margin']);
+    rem(actions, ['justify-content','align-self','gap','grid-column','padding-top']);
+    rem(hint, ['font-size','line-height','margin-top']);
+    rem(fx, ['display']);
+    btns.forEach(function(btn){ rem(btn, ['padding','font-size']); });
+  }
+
+  function applyOne(id, maxWidth){
+    var outer = document.getElementById(id);
+    if(!outer) return;
+    var open = outer.classList.contains('is-open') || outer.getAttribute('aria-hidden') === 'false';
+    if(!open || !isTargetLaptop()){
+      resetOne(id);
+      return;
+    }
+
+    var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    var shell = outer.querySelector('.cool-phish-shell');
+    var root = outer.querySelector('.cool-phish-root');
+    var hero = outer.querySelector('.hero');
+    var wrap = outer.querySelector('.wrap');
+    var card = outer.querySelector('.menu-card');
+    var body = outer.querySelector('.menu-body');
+    var mascot = outer.querySelector('.mascot');
+    var copy = outer.querySelector('.menu-copy');
+    var title = copy ? copy.querySelector('h1, h2') : null;
+    var text = copy ? copy.querySelector('p') : null;
+    var actions = outer.querySelector('.menu-actions');
+    var hint = outer.querySelector('.hint, .menu-foot, .tip');
+    var fx = outer.querySelector('#fxIt, #fx');
+    var btns = card ? card.querySelectorAll('.btn') : [];
+
+    document.documentElement.classList.add('tk-v4-laptop-force');
+
+    imp(outer, 'padding', '0');
+    imp(outer, 'background', 'rgba(4,10,18,.74)');
+    imp(outer, 'overflow', 'hidden');
+    imp(outer, 'display', 'block');
+
+    imp(shell, 'position', 'fixed');
+    imp(shell, 'left', '50%');
+    imp(shell, 'top', '50%');
+    imp(shell, 'transform', 'translate(-50%, -50%)');
+    imp(shell, 'width', 'min(' + maxWidth + 'px, calc(100vw - 40px))');
+    imp(shell, 'max-width', 'min(' + maxWidth + 'px, calc(100vw - 40px))');
+    imp(shell, 'height', 'auto');
+    imp(shell, 'min-height', '0');
+    imp(shell, 'max-height', 'calc(100vh - 40px)');
+    imp(shell, 'overflow', 'visible');
+    imp(shell, 'display', 'block');
+    imp(shell, 'padding', '0');
+    imp(shell, 'margin', '0');
+
+    imp(root, 'width', '100%');
+    imp(root, 'height', 'auto');
+    imp(root, 'min-height', '0');
+    imp(root, 'overflow', 'visible');
+    imp(root, 'background', 'transparent');
+    imp(root, 'padding-bottom', '0');
+
+    imp(hero, 'min-height', '0');
+    imp(hero, 'height', 'auto');
+    imp(hero, 'display', 'block');
+    imp(hero, 'padding', '0');
+    imp(hero, 'margin', '0');
+    imp(hero, 'background', 'transparent');
+
+    imp(wrap, 'width', '100%');
+    imp(wrap, 'max-width', 'none');
+    imp(wrap, 'margin', '0');
+    imp(wrap, 'gap', '12px');
+
+    imp(card, 'width', '100%');
+    imp(card, 'margin', '0');
+    imp(card, 'padding', '13px 14px 11px');
+    imp(card, 'border-radius', '24px');
+    imp(card, 'overflow', 'hidden');
+
+    imp(body, 'display', 'grid');
+    imp(body, 'grid-template-columns', vw < 1360 ? '60px minmax(0,1fr)' : '64px minmax(0,1fr) auto');
+    imp(body, 'gap', vw < 1360 ? '9px' : '10px');
+    imp(body, 'align-items', 'center');
+
+    imp(mascot, 'width', vw < 1360 ? '60px' : '64px');
+    imp(mascot, 'height', vw < 1360 ? '60px' : '64px');
+    imp(mascot, 'border-radius', '16px');
+
+    imp(copy, 'gap', '4px');
+    imp(copy, 'min-width', '0');
+
+    imp(title, 'font-size', vw < 1360 ? '17px' : '18px');
+    imp(title, 'line-height', '1.14');
+    imp(title, 'margin', '0');
+
+    imp(text, 'font-size', '12.5px');
+    imp(text, 'line-height', '1.4');
+    imp(text, 'max-width', vw < 1360 ? '44ch' : '46ch');
+    imp(text, 'margin', '6px 0 0');
+
+    if(vw < 1360){
+      imp(actions, 'grid-column', '1 / -1');
+      imp(actions, 'justify-content', 'flex-start');
+      imp(actions, 'align-self', 'center');
+      imp(actions, 'gap', '8px');
+      imp(actions, 'padding-top', '2px');
+    } else {
+      imp(actions, 'grid-column', 'auto');
+      imp(actions, 'justify-content', 'flex-end');
+      imp(actions, 'align-self', 'center');
+      imp(actions, 'gap', '8px');
+      imp(actions, 'padding-top', '0');
+    }
+
+    btns.forEach(function(btn){
+      imp(btn, 'padding', '8px 12px');
+      imp(btn, 'font-size', '12px');
+    });
+
+    imp(hint, 'font-size', '11.5px');
+    imp(hint, 'line-height', '1.36');
+    imp(hint, 'margin-top', '8px');
+    imp(fx, 'display', 'none');
+  }
+
+  function frame(){
+    applyOne('itGame', IDS.itGame);
+    applyOne('phishGame', IDS.phishGame);
+    requestAnimationFrame(frame);
+  }
+
+  frame();
+  window.addEventListener('resize', function(){
+    applyOne('itGame', IDS.itGame);
+    applyOne('phishGame', IDS.phishGame);
+  }, { passive:true });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){
+      applyOne('itGame', IDS.itGame);
+      applyOne('phishGame', IDS.phishGame);
+    }, { passive:true });
+  }
+})();
+</script>
+
 </body>
 </html>
-
