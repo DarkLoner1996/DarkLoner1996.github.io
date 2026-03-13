@@ -14976,14 +14976,36 @@ explainBox.classList.toggle('ok', correct);
     itExplainImg.removeAttribute('src');
 
     const isOk = !!ok;
-    itExplainImg.alt = isOk ? 'Картинка: почему верно' : 'Картинка: почему неверно';
-    itExplainImg.src = isOk ? ('verno_inf' + n + '_1.png') : ('neverno_inf' + n + '_1.png');
+    const variants = isOk
+      ? [
+          'verno_it' + n + '_' + n + '.png',
+          'verno_it_' + n + '.png',
+          'verno_it' + n + '.png',
+          'verno_inf' + n + '_1.png'
+        ]
+      : [
+          'neverno_it' + n + '_' + n + '.png',
+          'neverno_it_' + n + '.png',
+          'neverno_it' + n + '.png',
+          'neverno_inf' + n + '_1.png'
+        ];
 
-    itExplainImg.onerror = () => {
-      itExplainImg.hidden = true;
-      itExplainImg.removeAttribute('src');
-      explainImgsEl.hidden = true;
+    itExplainImg.alt = isOk ? 'Картинка: почему верно' : 'Картинка: почему неверно';
+
+    let tryIndex = 0;
+    const tryNextExplainImage = () => {
+      if(tryIndex >= variants.length){
+        itExplainImg.hidden = true;
+        itExplainImg.removeAttribute('src');
+        explainImgsEl.hidden = true;
+        return;
+      }
+      const candidate = variants[tryIndex++];
+      itExplainImg.onerror = tryNextExplainImage;
+      itExplainImg.src = candidate;
     };
+
+    tryNextExplainImage();
   }
 
   function itHideExplainImgs(){
