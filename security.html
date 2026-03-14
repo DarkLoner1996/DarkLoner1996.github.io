@@ -10971,6 +10971,41 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     let hasWon = false;
     const SKIP_MAX = 3;
     let skipUsed = 0;
+    let runAnsweredCount = 0;
+    let runStartedAt = 0;
+
+    function phishFormatDuration(ms){
+      const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
+      const mm = Math.floor(totalSec / 60);
+      const ss = totalSec % 60;
+      return `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+    }
+
+    function phishGetAnsweredCount(){
+      return Math.max(0, runAnsweredCount | 0);
+    }
+
+    function phishGetSkippedCount(){
+      return Math.max(0, skipUsed | 0);
+    }
+
+    function phishGetDirectCorrectCount(){
+      return Math.max(0, (runCorrect | 0) - phishGetSkippedCount());
+    }
+
+    function phishGetWrongCount(){
+      return Math.max(0, phishGetAnsweredCount() - phishGetDirectCorrectCount());
+    }
+
+    function phishGetUnansweredCount(){
+      const goal = sessionCards && sessionCards.length ? sessionCards.length : TOTAL_CARDS;
+      return Math.max(0, goal - phishGetAnsweredCount() - phishGetSkippedCount());
+    }
+
+    function phishGetRunDurationText(){
+      if(!runStartedAt) return "00:00";
+      return phishFormatDuration(Date.now() - runStartedAt);
+    }
 function resetSession() {
       if (hasWon) return;
       sessionCards = buildLevelDeck();
@@ -10981,6 +11016,8 @@ function resetSession() {
       cardCountEl.textContent = String(sessionCards.length);
       runTotal = 0;
       runCorrect = 0;
+      runAnsweredCount = 0;
+      runStartedAt = Date.now();
       renderCard();
       updateHud();
       setExplain("", "");
@@ -11091,12 +11128,24 @@ function setExplain(kind, text) {
       nextBtn && (nextBtn.disabled = true);
 
       if(explainBox){
+        const answeredCount = phishGetAnsweredCount();
+        const skippedCount = phishGetSkippedCount();
+        const directCorrectCount = phishGetDirectCorrectCount();
+        const wrongCount = phishGetWrongCount();
+        const unansweredCount = phishGetUnansweredCount();
+        const durationText = phishGetRunDurationText();
         explainBox.classList.add("is-on");
         explainBox.innerHTML = `
           <div class="tk-win">
             <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
             ${phishIsPerfect25() ? '<div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>' : '<div class="tk-win__title">🏁 Финиш! Ты дошёл до конца тренировки!</div>'}
-            <div class="tk-win__subtitle">Верно: ${runCorrect}/${TOTAL_CARDS} • LVL ${player.lvl}/5 • XP: ${player.xp}</div>
+            <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
+            <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
+            <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
+            <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
+            <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
+            <div class="tk-win__subtitle">LVL ${player.lvl}/5 • XP: ${player.xp}</div>
+            <div class="tk-win__subtitle">Время: ${durationText}</div>
             ${phishIsPerfect25() ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно ' + TOTAL_CARDS + '/' + TOTAL_CARDS + ' ✅</div>'}
             <button type="button" class="btn tk-win__btn" id="phishWinCloseBtn">Закрыть игру</button>
           </div>
@@ -11109,6 +11158,8 @@ function setExplain(kind, text) {
             savePlayer(player);
             hasWon = false;
             skipUsed = 0;
+            runAnsweredCount = 0;
+            runStartedAt = 0;
             sessionCards = [];
             currentIndex = 0;
             answered = false;
@@ -11176,6 +11227,7 @@ function renderCard() {
         (kind === "legit" && card.kind === "legit");
 
       runTotal += 1;
+      runAnsweredCount += 1;
 
       if (isCorrect) {
         runCorrect += 1;
@@ -13962,14 +14014,48 @@ ${currentItem.text}`;
     correct: 0,
     xp: 0,
     skipsUsed: 0,
+    answered: 0,
+    startedAt: 0,
     order: [],
     done: false
   };
 
+  function infoFormatDuration(ms){
+    const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
+    const mm = Math.floor(totalSec / 60);
+    const ss = totalSec % 60;
+    return `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+  }
+
+  function infoGetAnsweredCount(){
+    return Math.max(0, state.answered | 0);
+  }
+
+  function infoGetSkippedCount(){
+    return Math.max(0, state.skipsUsed | 0);
+  }
+
+  function infoGetDirectCorrectCount(){
+    return Math.max(0, (state.correct | 0) - infoGetSkippedCount());
+  }
+
+  function infoGetWrongCount(){
+    return Math.max(0, infoGetAnsweredCount() - infoGetDirectCorrectCount());
+  }
+
+  function infoGetUnansweredCount(){
+    return Math.max(0, total - infoGetAnsweredCount() - infoGetSkippedCount());
+  }
+
+  function infoGetDurationText(){
+    if(!state.startedAt) return '00:00';
+    return infoFormatDuration(Date.now() - state.startedAt);
+  }
+
   function save(){
     try{
       localStorage.setItem(STORAGE_PROFILE, JSON.stringify({avatar: state.avatar, name: state.name}));
-      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp, skipsUsed: state.skipsUsed, order: state.order}));
+      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp, skipsUsed: state.skipsUsed, answered: state.answered, startedAt: state.startedAt, order: state.order}));
     }catch(e){}
   }
   function load(){
@@ -13982,6 +14068,8 @@ ${currentItem.text}`;
       if(typeof pr.correct === 'number') state.correct = Math.max(0, pr.correct);
       if(typeof pr.xp === 'number') state.xp = Math.max(0, pr.xp);
       if(typeof pr.skipsUsed === 'number') state.skipsUsed = Math.max(0, pr.skipsUsed);
+      if(typeof pr.answered === 'number') state.answered = Math.max(0, pr.answered);
+      if(typeof pr.startedAt === 'number') state.startedAt = Math.max(0, pr.startedAt);
       if(Array.isArray(pr.order) && pr.order.length === total) state.order = pr.order.slice();
     }catch(e){}
   }
@@ -14051,12 +14139,24 @@ ${currentItem.text}`;
     nextBtn && (nextBtn.disabled = true);
 
     if(explainBox){
+      const answeredCount = infoGetAnsweredCount();
+      const skippedCount = infoGetSkippedCount();
+      const directCorrectCount = infoGetDirectCorrectCount();
+      const wrongCount = infoGetWrongCount();
+      const unansweredCount = infoGetUnansweredCount();
+      const durationText = infoGetDurationText();
       explainBox.classList.add('is-on');
       explainBox.innerHTML = `
         <div class="tk-win">
           <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
           <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
-          <div class="tk-win__subtitle">Верно: ${state.correct}/25 • LVL ${levelFromXP(state.xp)}/5 • XP: ${state.xp}</div>
+          <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
+          <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
+          <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
+          <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
+          <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
+          <div class="tk-win__subtitle">LVL ${levelFromXP(state.xp)}/5 • XP: ${state.xp}</div>
+          <div class="tk-win__subtitle">Время: ${durationText}</div>
           ${perfect ? "" : '<div class="tk-win__subtitle">До супер‑победы осталось: ' + (25 - Math.min(25, state.correct)) + '/25 ✅</div>'}
           <button type="button" class="btn tk-win__btn" id="infoWinCloseBtn">Закрыть игру</button>
         </div>
@@ -14072,6 +14172,8 @@ ${currentItem.text}`;
           state.correct = 0;
           state.xp = 0;
           state.skipsUsed = 0;
+          state.answered = 0;
+          state.startedAt = 0;
           try{ window.__tkHpReset && window.__tkHpReset("info"); }catch(e){}
           hasWon = false;
           closeInner();
@@ -14128,6 +14230,8 @@ if(fioInput){
     state.correct = 0;
     state.xp = 0;
     state.skipsUsed = 0;
+    state.answered = 0;
+    state.startedAt = Date.now();
     state.order = buildInfoOrder();
     hasWon = false;
     save();
@@ -14232,6 +14336,8 @@ explainBox.classList.toggle('ok', correct);
       explainBox.classList.toggle('bad', !correct);
       explainBox.classList.add('is-on');
     }
+
+    state.answered = (state.answered | 0) + 1;
 
     if(correct){
       state.correct += 1;
@@ -14394,6 +14500,7 @@ explainBox.classList.toggle('ok', correct);
 
   if(toPlayBtn) toPlayBtn.addEventListener('click', ()=>{
     state.name = (fioInput && fioInput.value.trim()) ? fioInput.value.trim() : 'Игрок';
+    if(!state.startedAt) state.startedAt = Date.now();
     if(playerName) playerName.textContent = state.name;
     setAvatarUI();
     updateHud();
@@ -14876,6 +14983,12 @@ explainBox.classList.toggle('ok', correct);
 
 
   const LS_KEY = 'tk_it_game_v1';
+  function itFormatDuration(ms){
+    const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
+    const mm = Math.floor(totalSec / 60);
+    const ss = totalSec % 60;
+    return `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+  }
   function loadState(){
     try{ return JSON.parse(localStorage.getItem(LS_KEY)||'null')||null; }catch(e){ return null; }
   }
@@ -15068,6 +15181,105 @@ explainBox.classList.toggle('ok', correct);
 
   const TOTAL_CARDS = CARDS.length;
 
+  function itFormatDuration(ms){
+    const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
+    const mm = Math.floor(totalSec / 60);
+    const ss = totalSec % 60;
+    return `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+  }
+
+  function itGetSkippedCount(){
+    const arr = (state && Array.isArray(state.skipped)) ? state.skipped : skipped;
+    return Math.max(0, Array.isArray(arr) ? arr.length : 0);
+  }
+
+  function itGetAnsweredCount(){
+    return Math.max(0, (state && state.answered) ? state.answered : 0);
+  }
+
+  function itGetDirectCorrectCount(){
+    const totalCorrect = Math.max(0, (state && state.correct) ? state.correct : 0);
+    return Math.max(0, totalCorrect - itGetSkippedCount());
+  }
+
+  function itGetWrongCount(){
+    return Math.max(0, itGetAnsweredCount() - itGetDirectCorrectCount());
+  }
+
+  function itGetUnansweredCount(){
+    return Math.max(0, TOTAL_CARDS - itGetAnsweredCount() - itGetSkippedCount());
+  }
+
+  function itGetDurationText(){
+    if(!state || !state.startedAt) return '00:00';
+    return itFormatDuration(Date.now() - state.startedAt);
+  }
+
+  function itAttachWinCloseHandler(){
+    setTimeout(()=>{
+      const b = document.getElementById('itWinCloseBtn');
+      if(b){
+        b.addEventListener('click', ()=>{
+          clearState();
+          state = null;
+          selectedAvatar = null;
+          idx = 0;
+          skipped = [];
+          order = [];
+          try{ window.__tkHpReset && window.__tkHpReset("it"); }catch(e){}
+          closeModal();
+        }, { once:true });
+      }
+    }, 0);
+  }
+
+  function itRenderWinScreen(){
+    const xp = (state && typeof state.xp==='number') ? state.xp : 0;
+    const xpC = Math.max(0, Math.min(250, xp));
+    const lvl = Math.min(5, 1 + Math.floor(xpC/50));
+    const score = Math.max(0, (state && state.correct) ? state.correct : 0);
+    const skippedCount = itGetSkippedCount();
+    const answeredCount = itGetAnsweredCount();
+    const directCorrectCount = itGetDirectCorrectCount();
+    const wrongCount = itGetWrongCount();
+    const unansweredCount = itGetUnansweredCount();
+    const durationText = itGetDurationText();
+    const isPerfect = ((answeredCount + skippedCount) >= TOTAL_CARDS) && (wrongCount === 0);
+
+    qTitle.textContent = 'Готово!';
+    qLevel.textContent = 'Финал';
+    qCount.textContent = TOTAL_CARDS + '/' + TOTAL_CARDS;
+    if(itCardIndexEl) itCardIndexEl.textContent = String(TOTAL_CARDS);
+    if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
+    qTopic.textContent = 'Миссия выполнена';
+    itHideQImg();
+    qBody.innerHTML = `
+      <div class="tk-win">
+        <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
+        <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
+        <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
+        <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
+        <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
+        <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
+        <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
+        <div class="tk-win__subtitle">Всего зачтено: ${score}/${TOTAL_CARDS}</div>
+        <div class="tk-win__subtitle">LVL ${lvl}/5 • XP: ${xp}</div>
+        <div class="tk-win__subtitle">Время: ${durationText}</div>
+        ${isPerfect ? '' : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно пройти без ошибок и пропусков.</div>'}
+        <button type="button" class="btn tk-win__btn" id="itWinCloseBtn">Закрыть игру</button>
+      </div>
+    `;
+    qHint.textContent = '';
+    btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+    resultBox.hidden = false;
+    resultPill.textContent = '🏆 Победа';
+    explainEl.classList.add('is-on');
+    itHideExplainImgs();
+    if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Закрыть игру». '; } else { explainEl.textContent = 'Нажмите «Закрыть игру».'; }
+    nextBtn.disabled = true;
+    itAttachWinCloseHandler();
+  }
+
  
   let state = null;
   let selectedAvatar = null; 
@@ -15099,6 +15311,10 @@ explainBox.classList.toggle('ok', correct);
    
     state = loadState();
     if(state && state.avatar && state.name){
+      if(!state.startedAt) {
+        state.startedAt = Date.now();
+        saveState(state);
+      }
       selectedAvatar = state.avatar;
       idx = clamp(state.idx||0,0,Math.max(0, TOTAL_CARDS - 1));
       skipped = Array.isArray(state.skipped)?state.skipped:[];
@@ -15188,6 +15404,7 @@ explainBox.classList.toggle('ok', correct);
       xp: 0,
       correct: 0,
       answered: 0,
+      startedAt: Date.now(),
       order: order,
       idx: 0,
       skipped: [],
@@ -15218,25 +15435,10 @@ explainBox.classList.toggle('ok', correct);
     }
 
 
-    if(idx>=order.length){
+    if((state && state.done) || idx>=order.length){
       state.done = true;
       saveState(state);
-      qTitle.textContent = 'Готово!';
-      qLevel.textContent = 'Финал';
-      qCount.textContent = TOTAL_CARDS + '/' + TOTAL_CARDS;
-      if(itCardIndexEl) itCardIndexEl.textContent = String(TOTAL_CARDS);
-      if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
-      qTopic.textContent = 'Миссия выполнена';
-      itHideQImg();
-      qBody.innerHTML = '<b>Отлично!</b> Вы прошли все вопросы по информатике. Можно начать заново или сменить героя.';
-      qHint.textContent = '';
-      btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-      resultBox.hidden = false;
-      resultPill.textContent = '🎉 Пройдено';
-      explainEl.classList.add('is-on');
-      itHideExplainImgs();
-        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; } else { explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; };
-      nextBtn.disabled = true;
+      itRenderWinScreen();
       return;
     }
 
@@ -15314,66 +15516,7 @@ explainBox.classList.toggle('ok', correct);
     if(idx >= (order.length - 1)){
       state.done = true;
       saveState(state);
-      qTitle.textContent = 'Готово!';
-      qLevel.textContent = 'Финал';
-      qCount.textContent = TOTAL_CARDS + '/' + TOTAL_CARDS;
-      qTopic.textContent = 'Миссия выполнена';
-      const xp = (state && typeof state.xp==='number') ? state.xp : 0;
-      const xpC = Math.max(0, Math.min(250, xp));
-      const lvl = Math.min(5, 1 + Math.floor(xpC/50));
-      const score = (state.correct||0);
-
-      const isPerfect = (score === TOTAL_CARDS);
-      const isWin = true;
-
-      if(isWin){
-        itHideQImg();
-      qBody.innerHTML = `
-          <div class="tk-win">
-            <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
-            <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
-            <div class="tk-win__subtitle">Верно: ${score}/${TOTAL_CARDS} • LVL ${lvl}/5 • XP: ${xp}</div>
-            ${isPerfect ? "" : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно ' + TOTAL_CARDS + '/' + TOTAL_CARDS + ' ✅</div>'}
-            <button type="button" class="btn tk-win__btn" id="itWinCloseBtn">Закрыть игру</button>
-          </div>
-        `;
-        qHint.textContent = '';
-        btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-        resultBox.hidden = false;
-        resultPill.textContent = '🏆 Победа';
-        explainEl.classList.add('is-on');
-        itHideExplainImgs();
-        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Закрыть игру».'; } else { explainEl.textContent = 'Нажмите «Закрыть игру».'; };
-        nextBtn.disabled = true;
-
-
-        setTimeout(()=>{
-          const b = document.getElementById('itWinCloseBtn');
-          if(b){
-            b.addEventListener('click', ()=>{
-              clearState();
-              state = null;
-              selectedAvatar = null;
-              idx = 0;
-              skipped = [];
-              order = [];
-              try{ window.__tkHpReset && window.__tkHpReset("it"); }catch(e){}
-              closeModal();
-            }, { once:true });
-          }
-        }, 0);
-      }else{
-        itHideQImg();
-      qBody.innerHTML = `<b>🎉 Поздравляю!</b> Вы прошли игру «Информатика».<br>Верно: <b>${score}</b>/${TOTAL_CARDS} • Уровень: <b>LVL ${lvl}/5</b> • XP: <b>${xp}</b>.`;
-        qHint.textContent = '';
-        btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-        resultBox.hidden = false;
-        resultPill.textContent = '🎉 Пройдено';
-        explainEl.classList.add('is-on');
-        itHideExplainImgs();
-        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; } else { explainEl.textContent = 'Нажмите «Сначала», чтобы пройти ещё раз и улучшить результат, или «Сброс», чтобы стереть прогресс.'; };
-        nextBtn.disabled = true;
-      }
+      itRenderWinScreen();
     }
   }
 
@@ -15400,7 +15543,6 @@ explainBox.classList.toggle('ok', correct);
     skipped.push(order[idx]);
     state.skipped = skipped.slice();
 
-    state.answered = (state.answered||0) + 1;
     state.correct = (state.correct||0) + 1;
 
     itHideQImg();
