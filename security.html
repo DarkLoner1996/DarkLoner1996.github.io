@@ -4307,8 +4307,8 @@
     text-align:center;
   }
   .tk-win__img{
-    width:min(320px, 82vw);
-    max-width:320px;
+    width:min(440px, 92vw);
+    max-width:440px;
     border-radius:18px;
     overflow:hidden;
     box-shadow:0 10px 26px rgba(0,0,0,.28);
@@ -10905,6 +10905,14 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     const btnSkip  = document.getElementById("btnSkip");
     const nextBtn  = document.getElementById("nextBtn");
     const explainBox = document.getElementById("explainBox");
+    const phishPlayPanel = nextBtn ? nextBtn.closest(".panel") : null;
+    const phishActions = phishPlayPanel ? phishPlayPanel.querySelector(".actions") : null;
+    const phishFooterControls = nextBtn ? nextBtn.closest(".footer-controls") : null;
+
+    function phishSetFinalMode(on){
+      if(phishActions) phishActions.hidden = !!on;
+      if(phishFooterControls) phishFooterControls.hidden = !!on;
+    }
 
     const cardIndexEl = document.getElementById("cardIndex");
     const cardCountEl = document.getElementById("cardCount");
@@ -11126,6 +11134,7 @@ function setExplain(kind, text) {
 
       enableAnswering(false);
       nextBtn && (nextBtn.disabled = true);
+      phishSetFinalMode(true);
 
       if(explainBox){
         const answeredCount = phishGetAnsweredCount();
@@ -11185,6 +11194,7 @@ function setExplain(kind, text) {
       return false;
     }
 function renderCard() {
+      phishSetFinalMode(false);
       const card = sessionCards[currentIndex];
       if (!card) {
 
@@ -13950,6 +13960,14 @@ ${currentItem.text}`;
   const cardIndex = qs('#infoCardIndex', backdrop);
   const cardCount = qs('#infoCardCount', backdrop);
   const nextBtn = qs('#infoNextBtn', backdrop);
+  const infoPlayPanel = nextBtn ? nextBtn.closest('.panel') : null;
+  const infoActions = infoPlayPanel ? infoPlayPanel.querySelector('.actions') : null;
+  const infoFooterControls = nextBtn ? nextBtn.closest('.footer-controls') : null;
+
+  function infoSetFinalMode(on){
+    if(infoActions) infoActions.hidden = !!on;
+    if(infoFooterControls) infoFooterControls.hidden = !!on;
+  }
 
   const backFromTrailerBtn = qs('#infoBackFromTrailerBtn', backdrop);
 
@@ -14130,6 +14148,7 @@ ${currentItem.text}`;
     if(hasWon) return;
     hasWon = true;
     infoHideQImg();
+    infoSetFinalMode(true);
 
     const perfect = infoIsPerfect25();
 
@@ -14148,7 +14167,7 @@ ${currentItem.text}`;
       explainBox.classList.add('is-on');
       explainBox.innerHTML = `
         <div class="tk-win">
-          <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
+          <div class="tk-win__img"><img src="game_win_ib.png" alt="Победа" loading="lazy"></div>
           <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
           <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
           <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
@@ -14239,6 +14258,7 @@ if(fioInput){
   }
 
   function renderCard(){
+    infoSetFinalMode(false);
     ensureInfoOrder(false);
     const cardIndexInDeck = state.order[state.idx];
     const card = deck[cardIndexInDeck];
@@ -15144,6 +15164,15 @@ explainBox.classList.toggle('ok', correct);
   const explainImgsEl = document.getElementById('itExplainImgs');
   const itExplainImg = document.getElementById('itExplainImg');
   const nextBtn = document.getElementById('itNextBtn');
+  const itPlayPanel = nextBtn ? nextBtn.closest('.panel') : null;
+  const itActions = itPlayPanel ? itPlayPanel.querySelector('.actions') : null;
+  const itFooterControls = document.getElementById('itFooterCards');
+
+  function itSetFinalMode(on){
+    if(itActions) itActions.hidden = !!on;
+    if(itFooterControls) itFooterControls.hidden = !!on;
+  }
+
   const restartBtn = document.getElementById('itRestartBtn');
   const innerCloseBtn = document.getElementById('itCloseBtn');
   const innerResetBtn = document.getElementById('itResetBtn');
@@ -15234,6 +15263,7 @@ explainBox.classList.toggle('ok', correct);
   }
 
   function itRenderWinScreen(){
+    itSetFinalMode(true);
     const xp = (state && typeof state.xp==='number') ? state.xp : 0;
     const xpC = Math.max(0, Math.min(250, xp));
     const lvl = Math.min(5, 1 + Math.floor(xpC/50));
@@ -15255,7 +15285,7 @@ explainBox.classList.toggle('ok', correct);
     itHideQImg();
     qBody.innerHTML = `
       <div class="tk-win">
-        <div class="tk-win__img"><img src="game_win.png" alt="Победа" loading="lazy"></div>
+        <div class="tk-win__img"><img src="game_win_inf.png" alt="Победа" loading="lazy"></div>
         <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
         <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
         <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
@@ -15271,11 +15301,11 @@ explainBox.classList.toggle('ok', correct);
     `;
     qHint.textContent = '';
     btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-    resultBox.hidden = false;
+    resultBox.hidden = true;
     resultPill.textContent = '🏆 Победа';
-    explainEl.classList.add('is-on');
+    explainEl.classList.remove('is-on');
     itHideExplainImgs();
-    if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Закрыть игру». '; } else { explainEl.textContent = 'Нажмите «Закрыть игру».'; }
+    if(explainTextEl){ explainTextEl.textContent = ''; } else { explainEl.textContent = ''; }
     nextBtn.disabled = true;
     itAttachWinCloseHandler();
   }
@@ -15415,6 +15445,7 @@ explainBox.classList.toggle('ok', correct);
 
   function renderQuestion(){
     if(!state) return;
+    itSetFinalMode(false);
     locked = false;
     resultBox.hidden = true;
     if(explainEl){
