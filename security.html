@@ -14072,8 +14072,8 @@ ${currentItem.text}`;
 
   function save(){
     try{
-      localStorage.setItem(STORAGE_PROFILE, JSON.stringify({avatar: state.avatar, name: state.name}));
-      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({idx: state.idx, correct: state.correct, xp: state.xp, skipsUsed: state.skipsUsed, answered: state.answered, startedAt: state.startedAt, order: state.order}));
+      localStorage.setItem(STORAGE_PROFILE, JSON.stringify({avatar: state.avatar, name: state.name, xp: state.xp}));
+      localStorage.removeItem(STORAGE_PROGRESS);
     }catch(e){}
   }
   function load(){
@@ -14081,14 +14081,14 @@ ${currentItem.text}`;
       const p = JSON.parse(localStorage.getItem(STORAGE_PROFILE) || '{}');
       if(p && p.avatar) state.avatar = p.avatar;
       if(p && p.name) state.name = p.name;
-      const pr = JSON.parse(localStorage.getItem(STORAGE_PROGRESS) || '{}');
-      if(typeof pr.idx === 'number') state.idx = Math.max(0, Math.min(total-1, pr.idx));
-      if(typeof pr.correct === 'number') state.correct = Math.max(0, pr.correct);
-      if(typeof pr.xp === 'number') state.xp = Math.max(0, pr.xp);
-      if(typeof pr.skipsUsed === 'number') state.skipsUsed = Math.max(0, pr.skipsUsed);
-      if(typeof pr.answered === 'number') state.answered = Math.max(0, pr.answered);
-      if(typeof pr.startedAt === 'number') state.startedAt = Math.max(0, pr.startedAt);
-      if(Array.isArray(pr.order) && pr.order.length === total) state.order = pr.order.slice();
+      if(p && typeof p.xp === 'number'){
+        state.xp = Math.max(0, Math.min(250, p.xp));
+      }else{
+        const pr = JSON.parse(localStorage.getItem(STORAGE_PROGRESS) || '{}');
+        if(pr && typeof pr.xp === 'number'){
+          state.xp = Math.max(0, Math.min(250, pr.xp));
+        }
+      }
     }catch(e){}
   }
   load();
@@ -14105,11 +14105,19 @@ ${currentItem.text}`;
   let hasWon = false;
 
   function levelFromXP(xp){
-    return Math.min(5, 1 + Math.floor(xp / 50));
+    const safeXp = Math.max(0, Math.min(250, xp | 0));
+    return Math.min(5, 1 + Math.floor(safeXp / 50));
+  }
+  function infoLevelBaseXP(xp){
+    const lvl = levelFromXP(xp);
+    return Math.min((lvl - 1) * 50, 200);
+  }
+  function infoLevelProgressXP(xp){
+    return Math.max(0, Math.min(50, (xp | 0) - infoLevelBaseXP(xp)));
   }
   function nextThreshold(xp){
     const lvl = levelFromXP(xp);
-    return (lvl===1)?50: (lvl===2)?100: (lvl===3)?150: (lvl===4)?200: 250;
+    return (lvl >= 5) ? 50 : 50;
   }
 
   function setAvatarUI(){
@@ -14122,15 +14130,19 @@ ${currentItem.text}`;
   }
 
   function updateHud(){
-    const lvl = levelFromXP(state.xp);
-    const next = nextThreshold(state.xp);
-    const remaining = Math.max(0, next - state.xp);
-    const fill = Math.max(0, Math.min(1, state.xp / 250));
+    const totalXp = Math.max(0, Math.min(250, state.xp | 0));
+    const lvl = levelFromXP(totalXp);
+    const need = nextThreshold(totalXp);
+    const levelXp = infoLevelProgressXP(totalXp);
+    const remaining = Math.max(0, need - levelXp);
+    const fill = Math.max(0, Math.min(1, levelXp / need));
 
     if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/5';
-    if(xpBadge) xpBadge.textContent = 'XP ' + state.xp;
+    if(xpBadge) xpBadge.textContent = 'XP ' + levelXp;
     if(xpFill) xpFill.style.width = (fill * 100).toFixed(1) + '%';
-    if(xpText) xpText.textContent = (lvl >= 5) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + remaining + ' XP');
+    if(xpText) xpText.textContent = (lvl >= 5)
+      ? ((levelXp >= need) ? 'Финальный XP заполнен! 🎉' : ('До финала: ' + remaining + ' XP'))
+      : ('До следующего уровня: ' + remaining + ' XP');
 
     if(kpiCorrect) kpiCorrect.textContent = String(state.correct);
   }
@@ -14174,7 +14186,7 @@ ${currentItem.text}`;
           <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
           <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
           <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
-          <div class="tk-win__subtitle">LVL ${levelFromXP(state.xp)}/5 • XP: ${state.xp}</div>
+          <div class="tk-win__subtitle">LVL ${levelFromXP(state.xp)}/5 • Всего XP: ${state.xp}</div>
           <div class="tk-win__subtitle">Время: ${durationText}</div>
           ${perfect ? "" : '<div class="tk-win__subtitle">До супер‑победы осталось: ' + (25 - Math.min(25, state.correct)) + '/25 ✅</div>'}
           <button type="button" class="btn tk-win__btn" id="infoWinCloseBtn">Закрыть игру</button>
@@ -14244,17 +14256,35 @@ if(fioInput){
     if(focusBack && focusBack.focus) focusBack.focus({preventScroll:true});
   }
 
-  function resetProgress(){
+  function resetSession(){
     state.idx = 0;
     state.correct = 0;
-    state.xp = 0;
     state.skipsUsed = 0;
     state.answered = 0;
     state.startedAt = Date.now();
     state.order = buildInfoOrder();
     hasWon = false;
+    try{ window.__tkHpReset && window.__tkHpReset('info'); }catch(e){}
     save();
     updateHud();
+  }
+
+  function resetProfile(){
+    state.avatar = 'boy';
+    state.name = '';
+    state.xp = 0;
+    resetSession();
+  }
+
+  function startInfoRun(){
+    if(!state.name) state.name = 'Игрок';
+    resetSession();
+    if(playerName) playerName.textContent = state.name;
+    setAvatarUI();
+    updateHud();
+    renderCard();
+    openInner('play');
+    save();
   }
 
   function renderCard(){
@@ -14388,7 +14418,7 @@ explainBox.classList.toggle('ok', correct);
         const fin = document.createElement('div');
         fin.className = 'finish-msg';
         const lvlNow = levelFromXP(state.xp);
-        fin.textContent = `🎉 Поздравляю! Вы прошли игру «Инфобез». Верно: ${state.correct}/${total}. Уровень: LVL ${lvlNow}/5. Нажмите «Заново», чтобы сыграть ещё раз.`;
+        fin.textContent = `🎉 Поздравляю! Вы прошли игру «Инфобез». Верно: ${state.correct}/${total}. Уровень: LVL ${lvlNow}/5. Всего XP: ${state.xp}. Нажмите «Заново», чтобы сыграть ещё раз.`;
         explainBox.appendChild(fin);
         explainBox.classList.add('is-on');
       }
@@ -14468,7 +14498,13 @@ explainBox.classList.toggle('ok', correct);
   }
 
 
-  if(startBtn) startBtn.addEventListener('click', ()=>openInner('avatar'));
+  if(startBtn) startBtn.addEventListener('click', ()=>{
+    if(state.avatar && state.name){
+      startInfoRun();
+      return;
+    }
+    openInner('avatar');
+  });
   if(trailerBtn) trailerBtn.addEventListener('click', ()=>openInner('trailer'));
   if(closeBtn) closeBtn.addEventListener('click', closeInner);
 
@@ -14483,7 +14519,9 @@ explainBox.classList.toggle('ok', correct);
   }
 
   if(resetBtn) resetBtn.addEventListener('click', ()=>{
-    resetProgress();
+    try{ localStorage.removeItem(STORAGE_PROFILE); }catch(e){}
+    try{ localStorage.removeItem(STORAGE_PROGRESS); }catch(e){}
+    resetProfile();
     openInner('avatar');
   });
 
@@ -14520,13 +14558,7 @@ explainBox.classList.toggle('ok', correct);
 
   if(toPlayBtn) toPlayBtn.addEventListener('click', ()=>{
     state.name = (fioInput && fioInput.value.trim()) ? fioInput.value.trim() : 'Игрок';
-    if(!state.startedAt) state.startedAt = Date.now();
-    if(playerName) playerName.textContent = state.name;
-    setAvatarUI();
-    updateHud();
-    renderCard();
-    showStep('play');
-    save();
+    startInfoRun();
   });
 
   if(changeAvatarBtn) changeAvatarBtn.addEventListener('click', ()=>showStep('avatar'));
@@ -14538,7 +14570,7 @@ explainBox.classList.toggle('ok', correct);
   if(nextBtn) nextBtn.addEventListener('click', ()=>{
     if(hasWon) return;
     if(state.idx >= total-1){
-      resetProgress();
+      resetSession();
       renderCard();
       updateHud();
       showStep('play');
