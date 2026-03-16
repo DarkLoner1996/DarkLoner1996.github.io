@@ -3380,7 +3380,7 @@
   overflow:auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding: 12px 58px 10px; 
+  padding: 12px 58px 10px;
   width: 100%;
   scrollbar-width: none;
 }
@@ -4252,7 +4252,6 @@
   background: linear-gradient(180deg, rgba(120,230,255,.36), rgba(24,110,200,.28)) !important;
   border-color: rgba(120,230,255,.30) !important;
 }
-
 
 .cinema-slider.cinema-v2 .movie-slide.is-active{
   border-color: rgba(255,244,200,.26) !important;
@@ -8557,7 +8556,6 @@ body.menu-collapsed .side-nav__panel{
 </style>
 
 <style id="tk-v183-fhd-stability">
-
 @media (min-width: 900px) and (max-width: 1920px){
   .header{
     scrollbar-gutter: stable both-edges;
@@ -8566,7 +8564,6 @@ body.menu-collapsed .side-nav__panel{
 </style>
 
     <style id="tk-infosec-15inch-open-fix-v4">
-
 html.tk-games-scroll-compact #infoSecGame.is-open{
   align-items: center !important;
   justify-content: center !important;
@@ -8664,7 +8661,6 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-actions{
 
     
     <style id="tk-infosec-15inch-center-fix-v5">
-
 html.tk-games-scroll-compact #infoSecGame.mg-backdrop.is-open{
   display: flex !important;
   align-items: center !important;
@@ -8713,7 +8709,6 @@ html.tk-games-scroll-compact #infoSecGame.is-open .menu-card{
     
 
 <style id="tk-clean-15inch-it-phish-like-infosec-v1">
-
 html.tk-clean-15inch-menufix #itGame.tk-menu-open-15,
 html.tk-clean-15inch-menufix #phishGame.tk-menu-open-15{
   align-items:center !important;
@@ -12865,8 +12860,6 @@ function renderCard() {
         ctx.strokeStyle = 'rgba(255,255,255,.34)';
         ctx.lineWidth = Math.max(1.2, 1.4*dpr);
         ctx.stroke();
-
-    
       }
 
       function pickIndex(finalAngle){
@@ -14081,7 +14074,7 @@ ${currentItem.text}`;
       const pr = JSON.parse(localStorage.getItem(STORAGE_PROGRESS) || '{}');
       if(typeof pr.idx === 'number') state.idx = Math.max(0, Math.min(total-1, pr.idx));
       if(typeof pr.correct === 'number') state.correct = Math.max(0, pr.correct);
-      if(typeof pr.xp === 'number') state.xp = Math.max(0, pr.xp);
+      if(typeof pr.xp === 'number') state.xp = Math.max(0, Math.min(INFO_MAX_XP, pr.xp));
       if(typeof pr.skipsUsed === 'number') state.skipsUsed = Math.max(0, pr.skipsUsed);
       if(typeof pr.answered === 'number') state.answered = Math.max(0, pr.answered);
       if(typeof pr.startedAt === 'number') state.startedAt = Math.max(0, pr.startedAt);
@@ -14101,12 +14094,48 @@ ${currentItem.text}`;
 
   let hasWon = false;
 
-  function levelFromXP(xp){
-    return Math.min(5, 1 + Math.floor(xp / 50));
+  function clampInfoXp(xp){
+    return Math.max(0, Math.min(INFO_MAX_XP, Number(xp) || 0));
   }
-  function nextThreshold(xp){
-    const lvl = levelFromXP(xp);
-    return (lvl===1)?50: (lvl===2)?100: (lvl===3)?150: (lvl===4)?200: 250;
+
+  function infoProgressFromXP(xp){
+    const totalXp = clampInfoXp(xp);
+    const levelSize = 50;
+
+    if(totalXp >= INFO_MAX_XP){
+      return {
+        totalXp,
+        lvl: 5,
+        levelStart: INFO_MAX_XP - levelSize,
+        levelEnd: INFO_MAX_XP,
+        currentInLevel: levelSize,
+        remaining: 0,
+        fill: 1,
+        isMax: true
+      };
+    }
+
+    const lvl = Math.min(5, Math.floor(totalXp / levelSize) + 1);
+    const levelStart = (lvl - 1) * levelSize;
+    const levelEnd = Math.min(INFO_MAX_XP, levelStart + levelSize);
+    const currentInLevel = totalXp - levelStart;
+    const remaining = Math.max(0, levelEnd - totalXp);
+    const fill = Math.max(0, Math.min(1, currentInLevel / Math.max(1, levelEnd - levelStart)));
+
+    return {
+      totalXp,
+      lvl,
+      levelStart,
+      levelEnd,
+      currentInLevel,
+      remaining,
+      fill,
+      isMax: false
+    };
+  }
+
+  function levelFromXP(xp){
+    return infoProgressFromXP(xp).lvl;
   }
 
   function setAvatarUI(){
@@ -14119,15 +14148,21 @@ ${currentItem.text}`;
   }
 
   function updateHud(){
-    const lvl = levelFromXP(state.xp);
-    const next = nextThreshold(state.xp);
-    const remaining = Math.max(0, next - state.xp);
-    const fill = Math.max(0, Math.min(1, state.xp / 250));
+    const progress = infoProgressFromXP(state.xp);
 
-    if(lvlBadge) lvlBadge.textContent = 'LVL ' + lvl + '/5';
-    if(xpBadge) xpBadge.textContent = 'XP ' + state.xp;
-    if(xpFill) xpFill.style.width = (fill * 100).toFixed(1) + '%';
-    if(xpText) xpText.textContent = (lvl >= 5) ? 'Максимальный уровень! 🎉' : ('До следующего уровня: ' + remaining + ' XP');
+    if(lvlBadge) lvlBadge.textContent = 'LVL ' + progress.lvl + '/5';
+    if(xpBadge) xpBadge.textContent = 'XP ' + progress.totalXp;
+    if(xpFill) xpFill.style.width = (progress.fill * 100).toFixed(1) + '%';
+
+    if(xpText){
+      if(progress.lvl >= 5){
+        xpText.textContent = progress.isMax
+          ? 'Финальный XP заполнен! 🎉'
+          : ('До финала: ' + progress.remaining + ' XP');
+      }else{
+        xpText.textContent = 'До следующего уровня: ' + progress.remaining + ' XP';
+      }
+    }
 
     if(kpiCorrect) kpiCorrect.textContent = String(state.correct);
   }
@@ -14144,7 +14179,7 @@ ${currentItem.text}`;
   function infoShowWin(){
     if(hasWon) return;
     hasWon = true;
-    state.xp = Math.max(state.xp || 0, INFO_MAX_XP);
+    state.xp = clampInfoXp(state.xp);
     infoHideQImg();
     infoSetFinalMode(true);
     updateHud();
@@ -16000,7 +16035,6 @@ explainBox.classList.toggle('ok', correct);
   min-height: 252px !important;
   align-items: center !important;
 }
-
 
 :is(#phishGame,#itGame,#infoSecGame) .cool-phish-root .avatar-tile .bubble{
   width: var(--tk-pickAvatar) !important;
@@ -18282,7 +18316,7 @@ html.tk-non4k-balanced-v19 .debug-tk19-badge{
 </style>
 <div class="debug-tk19-badge" style="display:none">v26 non4k</div>
 <script id="tk-non4k-balanced-v19-script">
-(function(){  return; })();
+(function(){return; })();
 </script>
 
 
@@ -18408,7 +18442,7 @@ html.tk-non4k-balanced-v19 #tk19LeftRail #rouletteDock.roulette-merged-v20 #roul
 }
 </style>
 <script id="tk-roulette-compact-v20-script">
-(function(){  return; })();
+(function(){return; })();
 </script>
 
 
@@ -18518,7 +18552,6 @@ html.tk-non4k-balanced-v19 .cinema-slider.cinema-v2 .slider-next{
 
 
 <style id="tk-non4k-v23-right-roulette">
-
 html.tk-non4k-balanced-v19 #tk23RightRail{
   position: fixed !important;
   right: 12px !important;
@@ -18647,13 +18680,12 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .rou
 }
 </style>
 <script id="tk-non4k-v23-right-roulette-script">
-(function(){ return; })();
+(function(){return; })();
 </script>
 
 
 
 <style id="tk-non4k-v24-roulette-refine">
-
 html.tk-non4k-balanced-v19 #tk23RightRail{
   right: 10px !important;
   bottom: 12px !important;
@@ -19391,7 +19423,6 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .rou
 
 
 <style id="tk-non4k-v29-roulette-right-gap">
-
 html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-merged-v20{
   width: min(214px, calc(100vw - 56px)) !important;
   max-width: min(214px, calc(100vw - 56px)) !important;
@@ -19403,7 +19434,6 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-m
 
 
 <style id="tk-non4k-v30-right-rail-fix">
-
 html.tk-non4k-balanced-v19 #tk23RightRail{
   right: 26px !important;
   max-width: calc(100vw - 52px) !important;
@@ -19433,7 +19463,6 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-m
 
 
 <style id="tk-non4k-v31-right-rail-overflow-fix">
-
 html.tk-non4k-balanced-v19 #tk23RightRail{
   right: 22px !important;
   max-width: calc(100vw - 44px) !important;
@@ -19462,7 +19491,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-dock.roulette-m
 }
 </style>
 <script id="tk-non4k-v31-right-rail-overflow-script">
-(function(){ return; })();
+(function(){return; })();
 </script>
 <script id="tk-non4k-v31-badge">(function(){var b=document.querySelector('.debug-tk19-badge'); if(b) b.textContent='v31 non4k';})();</script>
 
@@ -20112,13 +20141,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-card{
 (function(){return; })();
 </script>
 
-
-
-
-
-
 <style id="tk-small-screens-games-scroll-v81">
-
 html.tk-games-scroll-compact .mg-backdrop{
   align-items:flex-start !important;
   overflow-y:auto !important;
@@ -20216,6 +20239,28 @@ html.tk-games-scroll-compact .mg-body{
   }
 })();
 </script>
+
+
+
+
+<!-- removed tk-v85-menu-fine-tune-smaller -->
+
+<!-- removed tk-v85-menu-fine-tune-smaller-script -->
+<!-- removed tk-v87-menu-laptop-inline-hardfix -->
+
+<!-- removed tk-v87-menu-laptop-inline-hardfix-script -->
+<!-- removed tk-v91-menu-laptop-final-mid-up -->
+
+<!-- removed tk-v91-menu-laptop-final-mid-up-script -->
+<!-- removed tk-v93-menu-laptop-soft-up -->
+
+<!-- removed tk-v93-menu-laptop-soft-up-script -->
+<!-- removed tk-v96-menu-font-readable-stable -->
+
+<!-- removed tk-v96-menu-font-readable-stable-script -->
+
+
+<!-- removed by v101 -->
 
 <style id="tk-v102-menu-gamefont-clean">
 html:not(.tk-v102-menu-ready) .side-nav,
@@ -20598,7 +20643,6 @@ html.tk-v102-menu-ready .side-nav{
 }
 </style>
 <style id="tk-v171-roulette-ring-sync">
-
   #rouletteDock .wheel-rot{ position:relative !important; z-index:2; transform-origin:50% 50% !important; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
   #rouletteDock .wheel-rot > canvas#wheel{ position:relative; z-index:1; }
   #rouletteDock .wheel-rot > .wheel-ring{
@@ -20614,7 +20658,6 @@ html.tk-v102-menu-ready .side-nav{
       repeating-conic-gradient(from -90deg,
         rgba(255,236,170,.20) 0 5deg,
         transparent 5deg 18deg);
-
     -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0 73%, #000 75% 100%);
             mask: radial-gradient(circle at 50% 50%, transparent 0 73%, #000 75% 100%);
   }
@@ -20624,7 +20667,6 @@ html.tk-v102-menu-ready .side-nav{
 </style>
 
 <style id="tk-v172-roulette-clean-crisp">
-
 #rouletteDock .wheel-wrap{
   background: transparent !important;
   border: 0 !important;
@@ -21282,10 +21324,8 @@ html.tk-4k-minigame-focus .side-chip{
   html.tk-cinema-docked #cinema .kino-badge{
     transform: translate(-50%, -100px) !important;
     top: 0 !important;
-
     height: clamp(170px, 10.5vw, 240px) !important;
     max-width: min(900px, 70vw) !important;
-
     --kino-badge-gap: 0px !important;
     --kino-badge-drop: 0px !important;
 
@@ -21355,7 +21395,7 @@ html.tk-4k-minigame-focus .side-chip{
 }
 @media (min-width:2560px){
   html.tk-cinema-docked #cinema{
-    top: calc(var(--tk-cinema-top, 110px) - 123px) !important;
+    top: calc(var(--tk-cinema-top, 110px) - 123px) !important; 
   }
 }
 </style>
@@ -21947,7 +21987,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 }
 </style>
 <script id="tk-non4k-v51-roulette-fit-wheel-script">
-(function(){ return; })();
+(function(){return; })();
 </script>
 
 <style id="tk-v104-roulette-inline-row-compact">
@@ -22160,7 +22200,6 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   var root = document.documentElement;
 
   function is4kLike(){
-    // IMPORTANT: never run in non-4K rail mode (FHD / 15" laptops) to avoid layout conflicts.
     if(root.classList.contains('tk-non4k-balanced-v19')) return false;
 
     var w = Math.round(window.innerWidth || 0);
@@ -22170,13 +22209,11 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
     var effW = Math.round(w * dpr);
     var effH = Math.round(h * dpr);
 
-    // Try to estimate physical pixels; this avoids false 4K-detection on FHD with browser zoom.
     var sw = Math.round(((window.screen && window.screen.width)  ? window.screen.width  : w) * dpr);
     var sh = Math.round(((window.screen && window.screen.height) ? window.screen.height : h) * dpr);
 
     if(w <= 520) return false;
 
-    // 4K-ish threshold (3840×2160) with some tolerance
     return (sw >= 3700) || (effW >= 3700) || (sh >= 2100) || (effH >= 2100);
   }
 
@@ -22196,8 +22233,6 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
     var dock = document.getElementById('rouletteDock');
     var comic = document.getElementById('openComicMenu') || document.querySelector('.rules .rule-pill');
     if(!dock || !comic) return;
-
-    // Never re-position during spin animation (prevents "left-right shaking").
     if(dock.classList.contains('is-spinning')) return;
 
     if(!is4kLike()){
@@ -22235,12 +22270,9 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
   document.addEventListener('DOMContentLoaded', schedule, {once:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
 
-  // Initial passes
   setTimeout(schedule, 60);
   setTimeout(schedule, 240);
   setTimeout(schedule, 800);
-
-  // Observe only class changes (no subtree/childList spam during roulette animations).
   try{
     var mo = new MutationObserver(schedule);
     mo.observe(document.documentElement, {attributes:true, attributeFilter:['class']});
@@ -26252,9 +26284,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock .roulette-miniBtn{
 })();
 </script>
 
-
 <style id="tk-v181-roulette-pointer-minimal">
-
 #rouletteDock .wheel-pointer{
   top: -16px !important;
   left: 50% !important;
@@ -26796,7 +26826,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 </style>
 
 <style id="tk-v220-docked-kino-badge-higher-bigger">
-
 @media (min-width:1100px){
   html.tk-cinema-docked #cinema .kino-badge{
     top: 0 !important;
@@ -26862,13 +26891,14 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 }
 @media (min-width:2560px){
   html.tk-cinema-docked #cinema .kino-badge{
-    transform: translate(-50%, -225px) !important;
+    transform: translate(-50%, -225px) !important; 
   }
 }
 </style>
 
 
 <style id="tk-v223-docked-kino-badge-gap-even-smaller">
+
 @media (min-width:1100px){
   html.tk-cinema-docked #cinema .kino-badge{
     transform: translate(-50%, -178px) !important; 
@@ -26881,7 +26911,8 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 }
 @media (min-width:2560px){
   html.tk-cinema-docked #cinema .kino-badge{
-    transform: translate(-50%, -209px) !important; 
+    transform: translate(-50%, -209px) !important;
+  }
 }
 </style>
 
@@ -26910,7 +26941,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 
 @media (min-width:1100px){
   html.tk-cinema-docked #cinema{
-    top: calc(var(--tk-cinema-top, 110px) - 57px) !important; 
+    top: calc(var(--tk-cinema-top, 110px) - 57px) !important;
   }
 }
 @media (min-width:1500px) and (max-width:2559px){
@@ -27050,6 +27081,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   kick();
 })();
 </script>
+
 
 <style id="tk-v291-4k-kino-drop100">
   html.tk-stable-4k-kino #cinema{
@@ -27348,7 +27380,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 
 
 <style id="tk-roulette-glass-transparent-fix-v2">
-
   html[class] body #rouletteDock.roulette-dock,
   html[class] body #tk23RightRail #rouletteDock.roulette-dock,
   html[class] body #tkV165RightRail #rouletteDock.roulette-dock,
@@ -27555,7 +27586,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     height:13px !important;
   }
 
-
   html.tk-mobile-landscape-v341 .ui{
     display:block !important;
     padding:0 !important;
@@ -27683,7 +27713,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     font-size:9px !important;
     letter-spacing:.08em !important;
   }
-
 
   html.tk-mobile-landscape-v341 .side-chip{
     position:fixed !important;
@@ -27863,7 +27892,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     width:14px !important;
     height:14px !important;
   }
-
 
   @media (max-width: 900px){
     html.tk-mobile-landscape-v341{
@@ -29851,7 +29879,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     height:50px !important;
   }
 
-
   @media (max-width: 780px){
     html.tk-mobile-landscape-v341 #phishGame .cool-phish-root .play-grid,
     html.tk-mobile-landscape-v341 #infoSecGame .cool-phish-root .play-grid,
@@ -30181,7 +30208,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     opacity:0 !important;
     pointer-events:none !important;
   }
-
 
   html.tk-mobile-landscape-v341 .side-nav{
     top:var(--tk-ml-menu-top) !important;
@@ -30808,7 +30834,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     justify-content:flex-end !important;
   }
 
-
   html.tk-mobile-landscape-v341 :is(#phishGame,#infoSecGame,#itGame,#pcPartsGame) .cool-phish-root .panel[data-step="profile"] .field{
     gap:6px !important;
     margin-top:8px !important;
@@ -30826,7 +30851,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     margin-top:10px !important;
     justify-content:space-between !important;
   }
-
 
   html.tk-mobile-landscape-v341 :is(#phishGame,#infoSecGame,#itGame,#pcPartsGame) .cool-phish-root .panel[data-step="play"] .play-grid{
     display:grid !important;
@@ -31516,7 +31540,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     font-size:12px !important;
   }
 
- 
   html.tk-mobile-landscape-v341 #pcPartsGame .pc-start-card{
     width:min(640px, calc(100vw - 28px)) !important;
     padding:14px 16px 16px !important;
@@ -31557,7 +31580,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     font-size:15px !important;
     letter-spacing:.02em !important;
   }
-
 
   html.tk-mobile-landscape-v341 #pcPartsGame .pc-grid{
     grid-template-columns:minmax(0, 1.08fr) minmax(240px, .92fr) !important;
@@ -32042,8 +32064,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-
-
 <style id="tk-fhd-cinema-stable-single-pass-v17">
 @media (min-width:1600px) and (max-width:2559px) and (min-height:850px){
   html.tk-fhd-cinema-stable-v17 #cinema,
