@@ -14221,7 +14221,7 @@ ${currentItem.text}`;
       { id:'boy1', role:'Смелый кибер-капитан', images:['boy-image1.png','boy-image.png'] },
       { id:'boy2', role:'Защитник-инженер', images:['boy-image2.png','boy-image.png'] },
       { id:'boy3', role:'Кибергерой', images:['boy-image3.png','boy-image.png'] },
-      { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image.png'] },
+      { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image1.png','boy-image.png'] },
       { id:'boy5', role:'Защитник школы', images:['boy-image5.png','boy-image.png'] }
     ],
     girl: [
@@ -33568,7 +33568,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
         { id:'boy1', role:'Смелый кибер-капитан', images:['boy-image1.png','boy-image.png'] },
         { id:'boy2', role:'Защитник-инженер', images:['boy-image2.png','boy-image.png'] },
         { id:'boy3', role:'Кибергерой', images:['boy-image3.png','boy-image.png'] },
-        { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image.png'] },
+        { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image1.png','boy-image.png'] },
         { id:'boy5', role:'Защитник школы', images:['boy-image5.png','boy-image.png'] }
       ],
       girl: [
@@ -33584,7 +33584,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
         { id:'boy1', role:'Юный программист', images:['boy-image1.png','boy-image.png'] },
         { id:'boy2', role:'Защитник-инженер', images:['boy-image2.png','boy-image.png'] },
         { id:'boy3', role:'Кибергерой логики', images:['boy-image3.png','boy-image.png'] },
-        { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image.png'] },
+        { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image1.png','boy-image.png'] },
         { id:'boy5', role:'Защитник школы', images:['boy-image5.png','boy-image.png'] }
       ],
       girl: [
@@ -33615,6 +33615,36 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   };
 
   const renderCache = new Map();
+  const resolvedSrcCache = new Map();
+
+  const loadableSrcCache = new Map();
+
+  function findFirstLoadableSource(candidates){
+    const list = (Array.isArray(candidates) ? candidates : [candidates]).filter(Boolean);
+    if(!list.length) return Promise.resolve('');
+    const cacheKey = list.join('|');
+    if(loadableSrcCache.has(cacheKey)) return Promise.resolve(loadableSrcCache.get(cacheKey));
+    return new Promise(resolve => {
+      let i = 0;
+      const tryNext = () => {
+        if(i >= list.length){
+          const fallback = list[list.length - 1] || '';
+          loadableSrcCache.set(cacheKey, fallback);
+          resolve(fallback);
+          return;
+        }
+        const src = list[i++];
+        const probe = new Image();
+        probe.onload = () => {
+          loadableSrcCache.set(cacheKey, src);
+          resolve(src);
+        };
+        probe.onerror = tryNext;
+        probe.src = src;
+      };
+      tryNext();
+    });
+  }
 
   function bySel(root, sel){ return root ? root.querySelector(sel) : null; }
 
@@ -33708,14 +33738,49 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     if(!img || !variant) return;
     const list = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
     if(!list.length) return;
+
+    const variantKey = `${game}:${kind}:${variant.id}`;
+    const cachedSrc = resolvedSrcCache.get(variantKey);
+    if(cachedSrc){
+      img.onerror = null;
+      if(img.dataset.avatarVariantKey !== variantKey || img.getAttribute('src') !== cachedSrc){
+        img.dataset.avatarVariantKey = variantKey;
+        img.src = cachedSrc;
+      }
+      return;
+    }
+
     const req = `${Date.now()}:${Math.random()}`;
     img.dataset.avatarReq = req;
+    img.dataset.avatarVariantKey = variantKey;
+
+    // У boy4 в фишинге/информатике не всегда есть отдельный файл,
+    // поэтому сразу строим стабильный синтетический вариант из базового boy-image.png,
+    // без промежуточной попытки загрузить отсутствующий asset, чтобы не было мигания/битой иконки.
+    if(kind === 'boy' && variant.id === 'boy4' && (game === 'phish' || game === 'it')){
+      findFirstLoadableSource(['boy4-image.png','boy-image4.png','boy-image1.png','boy-image2.png','boy-image3.png','boy-image5.png','boy-image.png']).then(robotBase => {
+        if(img.dataset.avatarReq !== req) return;
+        buildSyntheticAvatar(game, kind, variant, robotBase || 'boy-image1.png').then(finalSrc => {
+          if(img.dataset.avatarReq !== req) return;
+          img.onerror = null;
+          resolvedSrcCache.set(variantKey, finalSrc);
+          if(img.getAttribute('src') !== finalSrc){
+            img.src = finalSrc;
+          }
+        });
+      });
+      return;
+    }
+
     let idx = 0;
 
     function apply(src){
       if(img.dataset.avatarReq !== req) return;
       img.onerror = null;
-      img.src = src;
+      resolvedSrcCache.set(variantKey, src);
+      if(img.getAttribute('src') !== src){
+        img.src = src;
+      }
     }
 
     function next(){
@@ -33732,7 +33797,12 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
           apply(finalSrc);
         });
       };
-      img.src = src;
+      if(img.getAttribute('src') !== src){
+        img.src = src;
+      } else if(!img.complete || (typeof img.naturalWidth === 'number' && img.naturalWidth === 0)){
+        // Повторно инициируем загрузку, если элемент уже завис на битом/незавершённом src.
+        img.src = src;
+      }
     }
 
     next();
@@ -33862,7 +33932,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: ['class','hidden','aria-checked','src']
+      attributeFilter: ['class','hidden','aria-checked']
     });
     root.addEventListener('click', schedule, true);
     root.addEventListener('keydown', schedule, true);
