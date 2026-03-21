@@ -10899,6 +10899,13 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     const phishPlayPanel = nextBtn ? nextBtn.closest(".panel") : null;
     const phishActions = phishPlayPanel ? phishPlayPanel.querySelector(".actions") : null;
     const phishFooterControls = nextBtn ? nextBtn.closest(".footer-controls") : null;
+    const phishQuestionTitle = phishPlayPanel ? phishPlayPanel.querySelector("h3") : null;
+    const phishQuestionCard = phishPlayPanel ? phishPlayPanel.querySelector(".msg-card") : null;
+
+    function phishSetQuestionVisible(on){
+      if(phishQuestionTitle) phishQuestionTitle.hidden = !on;
+      if(phishQuestionCard) phishQuestionCard.hidden = !on;
+    }
 
     function phishSetFinalMode(on){
       if(phishActions) phishActions.hidden = !!on;
@@ -11121,6 +11128,7 @@ function setExplain(kind, text) {
     function phishShowWin(){
       if(hasWon) return;
       hasWon = true;
+      phishSetQuestionVisible(false);
       phishHideQImg();
 
       enableAnswering(false);
@@ -11193,6 +11201,7 @@ function setExplain(kind, text) {
     }
 function renderCard() {
       phishSetFinalMode(false);
+      phishSetQuestionVisible(true);
       const card = sessionCards[currentIndex];
       if (!card) {
 
@@ -11228,6 +11237,7 @@ function renderCard() {
       if (answered) return;
       answered = true;
       enableAnswering(false);
+      phishSetQuestionVisible(false);
 
       const card = sessionCards[currentIndex];
       const isCorrect =
@@ -11379,6 +11389,7 @@ function renderCard() {
       if (answered) return;
       answered = true;
       enableAnswering(false);
+      phishSetQuestionVisible(false);
 
       skipUsed += 1;
       updateSkipLabel();
@@ -13958,6 +13969,13 @@ ${currentItem.text}`;
   const infoPlayPanel = nextBtn ? nextBtn.closest('.panel') : null;
   const infoActions = infoPlayPanel ? infoPlayPanel.querySelector('.actions') : null;
   const infoFooterControls = nextBtn ? nextBtn.closest('.footer-controls') : null;
+  const infoQuestionTitle = infoPlayPanel ? infoPlayPanel.querySelector('h3') : null;
+  const infoQuestionCard = infoPlayPanel ? infoPlayPanel.querySelector('.msg-card') : null;
+
+  function infoSetQuestionVisible(on){
+    if(infoQuestionTitle) infoQuestionTitle.hidden = !on;
+    if(infoQuestionCard) infoQuestionCard.hidden = !on;
+  }
 
   function infoSetFinalMode(on){
     if(infoActions) infoActions.hidden = !!on;
@@ -14308,6 +14326,7 @@ if(fioInput){
 
   function renderCard(){
     infoSetFinalMode(false);
+    infoSetQuestionVisible(true);
     ensureInfoOrder(false);
     const cardIndexInDeck = state.order[state.idx];
     const card = deck[cardIndexInDeck];
@@ -14358,6 +14377,7 @@ if(fioInput){
 
   function answer(choice){
     ensureInfoOrder(false);
+    infoSetQuestionVisible(false);
     const cardIndexInDeck = state.order[state.idx];
     const card = deck[cardIndexInDeck];
     if(!card) return;
@@ -14492,6 +14512,8 @@ explainBox.classList.toggle('ok', correct);
     }
 
     state.correct = (state.correct|0) + 1;
+
+    infoSetQuestionVisible(false);
 
     if(explainBox){
       explainBox.textContent = '⏭️ Пропуск засчитан как верный (без XP).';
@@ -15216,6 +15238,13 @@ explainBox.classList.toggle('ok', correct);
   const itPlayPanel = nextBtn ? nextBtn.closest('.panel') : null;
   const itActions = itPlayPanel ? itPlayPanel.querySelector('.actions') : null;
   const itFooterControls = document.getElementById('itFooterCards');
+  const itQuestionTitle = document.getElementById('itQTitle');
+  const itQuestionCard = itPlayPanel ? itPlayPanel.querySelector('.msg-card') : null;
+
+  function itSetQuestionVisible(on){
+    if(itQuestionTitle) itQuestionTitle.hidden = !on;
+    if(itQuestionCard) itQuestionCard.hidden = !on;
+  }
 
   function itSetFinalMode(on){
     if(itActions) itActions.hidden = !!on;
@@ -15313,6 +15342,7 @@ explainBox.classList.toggle('ok', correct);
 
   function itRenderWinScreen(){
     itSetFinalMode(true);
+    itSetQuestionVisible(false);
     const xp = (state && typeof state.xp==='number') ? state.xp : 0;
     const xpC = Math.max(0, Math.min(250, xp));
     const lvl = Math.min(5, 1 + Math.floor(xpC/50));
@@ -15502,6 +15532,7 @@ explainBox.classList.toggle('ok', correct);
   function renderQuestion(){
     if(!state) return;
     itSetFinalMode(false);
+    itSetQuestionVisible(true);
     locked = false;
     resultBox.hidden = true;
     if(explainEl){
@@ -15550,6 +15581,7 @@ explainBox.classList.toggle('ok', correct);
   function answer(val){
     if(locked || !state) return;
     locked = true;
+    itSetQuestionVisible(false);
 
     const card = CARDS[order[idx]];
     const ok = (val === card.correct);
@@ -15609,6 +15641,7 @@ explainBox.classList.toggle('ok', correct);
 
   function doSkip(){
     if(locked || !state) return;
+    itSetQuestionVisible(false);
 
     if(skipped.length >= 3){
       btnSkip && (btnSkip.disabled = true);
