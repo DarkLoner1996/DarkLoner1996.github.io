@@ -35805,5 +35805,131 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 })();
 </script>
 
+
+<style id="tk-menu-toggle-no-jump-v2">
+html.tk-menu-toggleing .side-nav,
+html.tk-menu-toggleing .side-nav *,
+html.tk-menu-toggleing .side-nav__panel,
+html.tk-menu-toggleing .side-nav__panel *,
+html.tk-menu-toggleing .side-chip--phish-min,
+html.tk-menu-toggleing .side-chip--infosec-min{
+  transition:none !important;
+}
+html.tk-menu-toggleing .side-nav__tab::after,
+html.tk-menu-toggleing .side-nav__panel::after,
+html.tk-menu-toggleing .hud-item::after,
+html.tk-menu-toggleing .hud-ico::after{
+  animation:none !important;
+}
+html.tk-menu-toggleing .header,
+html.tk-menu-toggleing #hero{
+  scroll-behavior:auto !important;
+  overflow-anchor:none !important;
+}
+</style>
+
+<script id="tk-menu-toggle-preserve-scroll-v2">
+(function(){
+  const html = document.documentElement;
+  const body = document.body;
+  const btn = document.getElementById('menuToggle');
+  if(!btn) return;
+
+  function getScrollTarget(){
+    const hero = document.getElementById('hero') || document.querySelector('.header');
+    if(hero){
+      const cs = getComputedStyle(hero);
+      const oy = cs.overflowY;
+      if((oy === 'auto' || oy === 'scroll') && hero.scrollHeight > hero.clientHeight + 2){
+        return hero;
+      }
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+
+  let state = null;
+  let clearTimer = 0;
+
+  function capture(){
+    const target = getScrollTarget();
+    state = {
+      target,
+      top: target ? target.scrollTop : 0,
+      left: target ? target.scrollLeft : 0,
+      winY: window.scrollY || window.pageYOffset || 0,
+      winX: window.scrollX || window.pageXOffset || 0,
+      targetBehavior: target ? target.style.scrollBehavior : '',
+      targetAnchor: target ? target.style.overflowAnchor : '',
+      htmlBehavior: html.style.scrollBehavior || '',
+      bodyBehavior: body ? (body.style.scrollBehavior || '') : '',
+      htmlAnchor: html.style.overflowAnchor || '',
+      bodyAnchor: body ? (body.style.overflowAnchor || '') : ''
+    };
+  }
+
+  function restore(){
+    if(!state) return;
+    const target = state.target || getScrollTarget();
+    if(target){
+      target.style.scrollBehavior = 'auto';
+      target.style.overflowAnchor = 'none';
+      target.scrollTop = state.top;
+      target.scrollLeft = state.left;
+    }
+    html.style.scrollBehavior = 'auto';
+    html.style.overflowAnchor = 'none';
+    if(body){
+      body.style.scrollBehavior = 'auto';
+      body.style.overflowAnchor = 'none';
+    }
+    try{ window.scrollTo(state.winX || 0, state.winY || 0); }catch(_e){}
+  }
+
+  function cleanup(){
+    if(!state) return;
+    const target = state.target || getScrollTarget();
+    if(target){
+      target.style.scrollBehavior = state.targetBehavior;
+      target.style.overflowAnchor = state.targetAnchor;
+    }
+    html.style.scrollBehavior = state.htmlBehavior;
+    html.style.overflowAnchor = state.htmlAnchor;
+    if(body){
+      body.style.scrollBehavior = state.bodyBehavior;
+      body.style.overflowAnchor = state.bodyAnchor;
+    }
+    html.classList.remove('tk-menu-toggleing');
+    state = null;
+  }
+
+  function scheduleCleanup(){
+    clearTimeout(clearTimer);
+    clearTimer = setTimeout(cleanup, 120);
+  }
+
+  btn.addEventListener('pointerdown', capture, true);
+  btn.addEventListener('mousedown', capture, true);
+  btn.addEventListener('touchstart', capture, {capture:true, passive:true});
+  btn.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' ' || e.code === 'Space') capture();
+  }, true);
+
+  btn.addEventListener('click', function(){
+    if(!state) capture();
+    html.classList.add('tk-menu-toggleing');
+    try{ btn.blur(); }catch(_e){}
+
+    restore();
+    requestAnimationFrame(function(){
+      restore();
+      requestAnimationFrame(function(){
+        restore();
+        scheduleCleanup();
+      });
+    });
+  }, true);
+})();
+</script>
+
 </body>
 </html>
