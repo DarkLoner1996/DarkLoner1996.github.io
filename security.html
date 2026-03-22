@@ -16929,6 +16929,31 @@ explainBox.classList.toggle('ok', correct);
   const itFooterControls = document.getElementById('itFooterCards');
   const itQuestionTitle = document.getElementById('itQTitle');
   const itQuestionCard = itPlayPanel ? itPlayPanel.querySelector('.msg-card') : null;
+  let itFinalHost = document.getElementById('itFinalHost');
+  if(!itFinalHost && itFooterControls && itFooterControls.parentNode){
+    itFinalHost = document.createElement('div');
+    itFinalHost.id = 'itFinalHost';
+    itFinalHost.hidden = true;
+    itFooterControls.parentNode.insertBefore(itFinalHost, itFooterControls);
+  }
+
+  function itHideFinalHost(){
+    if(!itFinalHost) return;
+    itFinalHost.hidden = true;
+    itFinalHost.innerHTML = '';
+  }
+
+  function itShowFinalHost(html){
+    if(!itFinalHost && itFooterControls && itFooterControls.parentNode){
+      itFinalHost = document.createElement('div');
+      itFinalHost.id = 'itFinalHost';
+      itFinalHost.hidden = true;
+      itFooterControls.parentNode.insertBefore(itFinalHost, itFooterControls);
+    }
+    if(!itFinalHost) return;
+    itFinalHost.innerHTML = html;
+    itFinalHost.hidden = false;
+  }
 
   function itSetQuestionVisible(on){
     if(itQuestionTitle) itQuestionTitle.hidden = !on;
@@ -16938,6 +16963,7 @@ explainBox.classList.toggle('ok', correct);
   function itSetFinalMode(on){
     if(itActions) itActions.hidden = !!on;
     if(itFooterControls) itFooterControls.hidden = !!on;
+    if(!on) itHideFinalHost();
   }
 
   const restartBtn = document.getElementById('itRestartBtn');
@@ -17068,8 +17094,11 @@ explainBox.classList.toggle('ok', correct);
     if(itCardIndexEl) itCardIndexEl.textContent = String(Math.min(idx + 1, TOTAL_CARDS));
     if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
     qTopic.textContent = 'Попробуй ещё раз';
+    if(qBody) qBody.textContent = '';
+    if(qHint) qHint.textContent = '';
     itHideQImg();
-    qBody.innerHTML = `
+
+    itShowFinalHost(`
       <div class="tk-loss">
         <div class="tk-win__img"><img src="GAME_OVER.jpg" onerror="this.onerror=null;this.src='GAME_OVER.JPG';" alt="Поражение" loading="lazy"></div>
         <div class="tk-win__title">⚠️ Ошибка сбила тебя с маршрута, но миссию можно пройти заново!</div>
@@ -17085,11 +17114,14 @@ explainBox.classList.toggle('ok', correct);
         <div class="tk-win__subtitle">Сделай ещё один заход — теперь ты уже знаешь, на чём можно не терять здоровье.</div>
         <button type="button" class="btn tk-win__btn" id="itLoseCloseBtn">Закрыть игру</button>
       </div>
-    `;
-    qHint.textContent = '';
+    `);
+
     btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-    resultBox.hidden = true;
-    resultPill.textContent = '💔 Поражение';
+    if(resultBox) resultBox.hidden = true;
+    if(resultPill){
+      resultPill.hidden = false;
+      resultPill.textContent = '💔 Поражение';
+    }
     explainEl.classList.remove('is-on');
     itHideExplainImgs();
     if(explainTextEl){ explainTextEl.textContent = ''; } else { explainEl.textContent = ''; }
@@ -17124,8 +17156,11 @@ explainBox.classList.toggle('ok', correct);
     if(itCardIndexEl) itCardIndexEl.textContent = String(TOTAL_CARDS);
     if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
     qTopic.textContent = 'Миссия выполнена';
+    if(qBody) qBody.textContent = '';
+    if(qHint) qHint.textContent = '';
     itHideQImg();
-    qBody.innerHTML = `
+
+    itShowFinalHost(`
       <div class="tk-win">
         <div class="tk-win__img"><img src="game_win_inf.png" alt="Победа" loading="lazy"></div>
         <div class="tk-win__title">🎉 Поздравляю! Ты прошёл все испытания успешно!</div>
@@ -17141,11 +17176,14 @@ explainBox.classList.toggle('ok', correct);
         ${isPerfect ? '' : '<div class="tk-win__subtitle">Чтобы получить супер‑победу, нужно пройти без ошибок и пропусков.</div>'}
         <button type="button" class="btn tk-win__btn" id="itWinCloseBtn">Закрыть игру</button>
       </div>
-    `;
-    qHint.textContent = '';
+    `);
+
     btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-    resultBox.hidden = true;
-    resultPill.textContent = '🏆 Победа';
+    if(resultBox) resultBox.hidden = true;
+    if(resultPill){
+      resultPill.hidden = false;
+      resultPill.textContent = '🏆 Победа';
+    }
     explainEl.classList.remove('is-on');
     itHideExplainImgs();
     if(explainTextEl){ explainTextEl.textContent = ''; } else { explainEl.textContent = ''; }
@@ -17306,9 +17344,11 @@ explainBox.classList.toggle('ok', correct);
     if(!state) return;
     itSetFinalMode(false);
     itSetQuestionVisible(true);
+    itHideFinalHost();
     if(itActions) itActions.hidden = false;
     locked = false;
     resultBox.hidden = true;
+    if(resultPill) resultPill.hidden = false;
     if(explainEl){
       explainEl.classList.remove('is-on');
       if(explainTextEl){ explainTextEl.textContent = ''; } else { itHideExplainImgs();
@@ -17378,7 +17418,9 @@ explainBox.classList.toggle('ok', correct);
 
       
     itHideQImg();
+    itHideFinalHost();
     resultBox.hidden = false;
+    if(resultPill) resultPill.hidden = false;
     resultPill.textContent = ok ? '✅ Верно!' : '⚠️ Неверно';
     explainEl.classList.add('is-on');
     itHideExplainImgs();
@@ -17429,7 +17471,9 @@ explainBox.classList.toggle('ok', correct);
     state.correct = (state.correct||0) + 1;
 
     itHideQImg();
+    itHideFinalHost();
     resultBox.hidden = false;
+    if(resultPill) resultPill.hidden = false;
     resultPill.textContent = '⏭️ Пропуск';
     explainEl.classList.add('is-on');
     itHideExplainImgs();
@@ -17461,6 +17505,7 @@ explainBox.classList.toggle('ok', correct);
     idx = 0;
     order = [];
     skipped = [];
+    itHideFinalHost();
     setAvatarChoice(null);
     if(fioInput) fioInput.value='';
     if(toProfileBtn) toProfileBtn.disabled=true;
@@ -35096,23 +35141,9 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     img.dataset.avatarReq = req;
     img.dataset.avatarVariantKey = variantKey;
 
-    // У boy4 в фишинге/информатике не всегда есть отдельный файл,
-    // поэтому сразу строим стабильный синтетический вариант из базового boy-image.png,
-    // без промежуточной попытки загрузить отсутствующий asset, чтобы не было мигания/битой иконки.
-    if(kind === 'boy' && variant.id === 'boy4' && (game === 'phish' || game === 'it')){
-      findFirstLoadableSource(['boy4-image.png','boy-image4.png','boy-image1.png','boy-image2.png','boy-image3.png','boy-image5.png','boy-image.png']).then(robotBase => {
-        if(img.dataset.avatarReq !== req) return;
-        buildSyntheticAvatar(game, kind, variant, robotBase || 'boy-image1.png').then(finalSrc => {
-          if(img.dataset.avatarReq !== req) return;
-          img.onerror = null;
-          resolvedSrcCache.set(variantKey, finalSrc);
-          if(img.getAttribute('src') !== finalSrc){
-            img.src = finalSrc;
-          }
-        });
-      });
-      return;
-    }
+    // Для boy4 в фишинге и информатике сначала пробуем реальный asset,
+    // как в инфобезе. Синтетический портрет используется только как крайний fallback,
+    // если ни один исходный файл не загрузился.
 
     let idx = 0;
 
