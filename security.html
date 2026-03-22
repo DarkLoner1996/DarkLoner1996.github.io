@@ -12590,6 +12590,17 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     let skipUsed = 0;
     let runAnsweredCount = 0;
     let runStartedAt = 0;
+    function trackPhishAttemptStart(){
+      try{
+        if(window.TKAttempts && typeof window.TKAttempts.start === "function"){
+          window.TKAttempts.start({
+            name: (player && player.fio) ? player.fio : ((fioInput && fioInput.value) || 'Игрок'),
+            game: 'phishing',
+            character: avatarLabel((player && player.avatar) || 'boy')
+          });
+        }
+      }catch(_){ }
+    }
 
     function phishIsTerminalState() {
       return !!hasWon || !!(window.__tkHpIsDead && window.__tkHpIsDead("phish"));
@@ -12988,6 +12999,7 @@ function renderCard() {
       if (player.avatar && player.fio) {
         setStep(3);
         updateHud();
+        trackPhishAttemptStart();
         resetSession();
         openModal();
         return;
@@ -13072,6 +13084,7 @@ function renderCard() {
 
       setStep(3);
       updateHud();
+      trackPhishAttemptStart();
       resetSession();
     });
 
@@ -15990,6 +16003,19 @@ ${currentItem.text}`;
     return infoFormatDuration(Date.now() - state.startedAt);
   }
 
+  function trackInfoAttemptStart(){
+    try{
+      if(window.TKAttempts && typeof window.TKAttempts.start === 'function'){
+        const variant = (typeof getCurrentInfoAvatarVariant === 'function') ? getCurrentInfoAvatarVariant() : null;
+        window.TKAttempts.start({
+          name: (state && state.name) ? state.name : ((fioInput && fioInput.value) || 'Игрок'),
+          game: 'infobez',
+          character: variant && variant.role ? variant.role : 'Герой'
+        });
+      }
+    }catch(_){ }
+  }
+
   function save(){
     try{
       localStorage.setItem(STORAGE_PROFILE, JSON.stringify({
@@ -16664,6 +16690,7 @@ explainBox.classList.toggle('ok', correct);
     if(playerName) playerName.textContent = state.name;
     setAvatarUI();
     updateHud();
+    trackInfoAttemptStart();
     renderCard();
     showStep('play');
     save();
@@ -16679,6 +16706,7 @@ explainBox.classList.toggle('ok', correct);
     if(hasWon) return;
     if(state.idx >= total-1){
       resetProgress();
+      trackInfoAttemptStart();
       renderCard();
       updateHud();
       showStep('play');
@@ -17748,6 +17776,16 @@ explainBox.classList.toggle('ok', correct);
     if(kpiTotal) kpiTotal.textContent = String(TOTAL_CARDS);
   }
 
+  function trackItAttemptStart(){
+    try{
+      if(window.TKAttempts && typeof window.TKAttempts.start === 'function'){
+        const name = (fioInput && fioInput.value.trim()) ? fioInput.value.trim() : ((state && state.name) ? state.name : 'Игрок');
+        const character = selectedAvatar === 'girl' ? 'Девочка' : 'Мальчик-робот';
+        window.TKAttempts.start({ name, game:'informatics', character });
+      }
+    }catch(_){ }
+  }
+
   function ensureNewRun(){
     order = Array.from({length:TOTAL_CARDS},(_,i)=>i);
     for(let i=order.length-1;i>0;i--){
@@ -18060,6 +18098,7 @@ explainBox.classList.toggle('ok', correct);
   }
 
   if(goPlayBtn) goPlayBtn.addEventListener('click', function(){
+    trackItAttemptStart();
     ensureNewRun();
     updateProfileUI();
     if(kpiTotal) kpiTotal.textContent='0';
@@ -36012,6 +36051,115 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
       if(status) status.textContent = 'Не удалось отправить результат в онлайн-таблицу: ' + err.message;
     }
   }
+
+  const ATTEMPTS_KEY = 'tk-attempts-fallback-v1';
+  const ATTEMPTS_SENT_KEY = 'tk-attempts-sent-v1';
+  function normalizeAttemptName(v){
+    return String(v == null ? '' : v).trim().replace(/\s+/g, ' ').slice(0, 40) || 'Игрок';
+  }
+  function normalizeAttemptGame(v){
+    const code = String(v == null ? '' : v).trim().toLowerCase();
+    return ({ info:'infobez', infosec:'infobez', infobez:'infobez', phishing:'phishing', phish:'phishing', it:'informatics', informatics:'informatics' })[code] || code || 'all';
+  }
+  function localAttemptRows(){
+    try { return JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '[]'); } catch(_){ return []; }
+  }
+  function saveLocalAttemptRows(rows){
+    try { localStorage.setItem(ATTEMPTS_KEY, JSON.stringify((rows || []).slice(-500))); } catch(_){ }
+  }
+  function appendLocalAttempt(row){
+    const rows = localAttemptRows();
+    rows.push(row);
+    saveLocalAttemptRows(rows);
+  }
+  function attemptCountsFromRows(rows, name, game){
+    const normalizedName = normalizeAttemptName(name).toLocaleLowerCase('ru-RU');
+    const normalizedGame = normalizeAttemptGame(game || 'all');
+    const filtered = (rows || []).filter(row => {
+      const rowName = normalizeAttemptName(row && row.name).toLocaleLowerCase('ru-RU');
+      if(rowName !== normalizedName) return false;
+      if(normalizedGame !== 'all' && normalizeAttemptGame(row && row.game) !== normalizedGame) return false;
+      return true;
+    });
+    const byGame = { infobez:0, phishing:0, informatics:0 };
+    filtered.forEach(row => {
+      const g = normalizeAttemptGame(row && row.game);
+      if(byGame[g] != null) byGame[g] += 1;
+    });
+    return {
+      ok: true,
+      name: normalizeAttemptName(name),
+      game: normalizedGame,
+      total: filtered.length,
+      counts: byGame,
+      rows: filtered
+    };
+  }
+  function getAttemptSentMap(){
+    try { return JSON.parse(sessionStorage.getItem(ATTEMPTS_SENT_KEY) || '{}'); } catch(_){ return {}; }
+  }
+  function markAttemptSent(key){
+    const map = getAttemptSentMap();
+    map[key] = 1;
+    try { sessionStorage.setItem(ATTEMPTS_SENT_KEY, JSON.stringify(map)); } catch(_){ }
+  }
+  function wasAttemptSent(key){ return !!getAttemptSentMap()[key]; }
+  async function submitAttempt(row){
+    appendLocalAttempt(row);
+    if(!configured()) return { ok:true, mode:'local' };
+    const res = await fetch(LEADERBOARD_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action:'attempt' }, row))
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    let data = {};
+    try { data = await res.json(); } catch(_){ }
+    return data && data.ok === false ? data : { ok:true, mode:'online' };
+  }
+  async function fetchAttemptCounts(name, game){
+    if(!configured()) return attemptCountsFromRows(localAttemptRows(), name, game);
+    const url = LEADERBOARD_URL + (LEADERBOARD_URL.includes('?') ? '&' : '?') +
+      'action=attempts&name=' + encodeURIComponent(normalizeAttemptName(name)) +
+      '&game=' + encodeURIComponent(normalizeAttemptGame(game || 'all'));
+    const res = await fetch(url, { method:'GET' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    return data && typeof data === 'object' ? data : attemptCountsFromRows(localAttemptRows(), name, game);
+  }
+  window.TKAttempts = {
+    start(opts){
+      try{
+        const name = normalizeAttemptName(opts && opts.name);
+        const game = normalizeAttemptGame(opts && opts.game);
+        if(game === 'all') return Promise.resolve({ ok:false, reason:'bad_game' });
+        const row = {
+          event: 'start',
+          name,
+          game,
+          character: String((opts && opts.character) || '').trim().slice(0, 80),
+          source: 'html',
+          createdAt: new Date().toISOString(),
+          dedupeKey: String((opts && opts.dedupeKey) || [game, name, Date.now(), Math.random().toString(36).slice(2,8)].join('|'))
+        };
+        const sentKey = ['start', row.game, row.dedupeKey].join('|');
+        if(wasAttemptSent(sentKey)) return Promise.resolve({ ok:true, skipped:true, mode: configured() ? 'online' : 'local' });
+        return submitAttempt(row).then(data => {
+          markAttemptSent(sentKey);
+          return data;
+        }).catch(err => {
+          console.warn('TKAttempts.start failed:', err);
+          return { ok:false, error: err && err.message ? err.message : String(err) };
+        });
+      }catch(err){
+        return Promise.resolve({ ok:false, error: err && err.message ? err.message : String(err) });
+      }
+    },
+    getCounts(opts){
+      return fetchAttemptCounts(opts && opts.name, opts && opts.game).catch(err => ({ ok:false, error: err && err.message ? err.message : String(err) }));
+    }
+  };
+
   const obs = new MutationObserver((mutations) => {
     mutations.forEach(m => {
       m.addedNodes.forEach(node => {
