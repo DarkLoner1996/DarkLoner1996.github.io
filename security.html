@@ -17283,19 +17283,70 @@ explainBox.classList.toggle('ok', correct);
     const name = (state && state.name) ? state.name : 'Игрок';
     const avatar = selectedAvatar || (state && state.avatar) || 'boy';
 
+    const IT_VARIANTS = {
+      boy: [
+        { id:'boy1', role:'Юный программист', images:['boy-image1.png','boy-image.png'] },
+        { id:'boy2', role:'Защитник-инженер', images:['boy-image2.png','boy-image.png'] },
+        { id:'boy3', role:'Кибергерой логики', images:['boy-image3.png','boy-image.png'] },
+        { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image1.png','boy-image.png'] },
+        { id:'boy5', role:'Защитник школы', images:['boy-image5.png','boy-image.png'] }
+      ],
+      girl: [
+        { id:'girl1', role:'Логическая исследовательница', images:['girl-image1.png','girl-image.png'] },
+        { id:'girl2', role:'Девочка-алгоритмист', images:['girl-image2.png','girl-image.png'] },
+        { id:'girl3', role:'Кибергероиня логики', images:['girl-image3.png','girl-image.png'] },
+        { id:'girl4', role:'Девочка-робот', images:['girl-image4.png','girl-image.png'] },
+        { id:'girl5', role:'Защитница школы', images:['girl-image5.png','girl-image.png'] }
+      ]
+    };
+
+    const variantList = IT_VARIANTS[avatar === 'girl' ? 'girl' : 'boy'];
+    const choiceKey = avatar === 'girl' ? 'tk_it_avatar_choice_girl_v1' : 'tk_it_avatar_choice_boy_v1';
+    let choiceId = variantList[0].id;
+    try{
+      const storedChoice = localStorage.getItem(choiceKey);
+      if(storedChoice && variantList.some(v => v.id === storedChoice)) choiceId = storedChoice;
+    }catch(e){}
+    const variant = variantList.find(v => v.id === choiceId) || variantList[0];
+
     if(avatarBig){
-      avatarBig.innerHTML='';
-      const img=document.createElement('img');
-      img.alt='';
-      img.src = avatar==='girl' ? 'girl-image.png' : 'boy-image.png';
-      img.style.width='100%';
-      img.style.height='100%';
-      img.style.objectFit='contain';
-      avatarBig.appendChild(img);
+      let img = avatarBig.querySelector('img.avatar-img-big, img');
+      if(!img){
+        img = document.createElement('img');
+        avatarBig.innerHTML = '';
+        avatarBig.appendChild(img);
+      }
+      img.className = 'avatar-img-big';
+      img.alt = '';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.style.objectPosition = 'bottom center';
+      const variantKey = `${avatar}:${variant.id}`;
+      if(img.dataset.variantKey !== variantKey){
+        img.dataset.variantKey = variantKey;
+        const sources = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
+        let sourceIndex = 0;
+        const fallback = avatar === 'girl' ? 'girl-image.png' : 'boy-image.png';
+        const applyNextSource = () => {
+          const nextSrc = sources[sourceIndex] || fallback;
+          img.onerror = () => {
+            sourceIndex += 1;
+            if(sourceIndex < sources.length){
+              applyNextSource();
+              return;
+            }
+            img.onerror = null;
+            img.src = fallback;
+          };
+          if(img.getAttribute('src') !== nextSrc) img.src = nextSrc;
+        };
+        applyNextSource();
+      }
     }
 
     if(playerNameEl) playerNameEl.textContent = name;
-    if(playerRoleEl) playerRoleEl.textContent = avatar==='girl' ? 'Логическая исследовательница' : 'Юный программист';
+    if(playerRoleEl) playerRoleEl.textContent = variant.role;
 
     const xp = (state && typeof state.xp==='number') ? state.xp : 0;
     const xpC = Math.max(0, Math.min(250, xp));
@@ -36152,4 +36203,3 @@ html.tk-menu-toggleing #hero{
 
 </body>
 </html>
-
