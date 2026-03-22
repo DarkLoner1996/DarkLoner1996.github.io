@@ -10381,6 +10381,45 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
 </head>
     
 <body>
+
+<div class="tk-loader" id="tkLoader" aria-live="polite" aria-label="Загрузка сайта">
+  <div class="tk-loader__bg"></div>
+  <div class="tk-loader__noise"></div>
+  <div class="tk-loader__particles" id="tkLoaderParticles" aria-hidden="true"></div>
+  <div class="tk-loader__panel">
+    <div class="tk-loader__eyebrow">ИГРОВАЯ СИСТЕМА</div>
+    <div class="tk-loader__core" aria-hidden="true">
+      <div class="tk-loader__ring tk-loader__ring--outer"></div>
+      <div class="tk-loader__ring tk-loader__ring--mid"></div>
+      <div class="tk-loader__ring tk-loader__ring--inner"></div>
+      <div class="tk-loader__core-glow"></div>
+      <div class="tk-loader__badge">TK</div>
+    </div>
+    <h1 class="tk-loader__title">ТехноКрыльяРоссии</h1>
+    <p class="tk-loader__subtitle">Загрузка миссии и подготовка игрового мира</p>
+
+    <div class="tk-loader__status-wrap">
+      <div class="tk-loader__status" id="tkLoaderStatus">Инициализация интерфейса…</div>
+      <div class="tk-loader__percent" id="tkLoaderPercent">0%</div>
+    </div>
+
+    <div class="tk-loader__bar" aria-hidden="true">
+      <div class="tk-loader__bar-fill" id="tkLoaderFill"></div>
+      <div class="tk-loader__bar-sheen"></div>
+    </div>
+
+    <div class="tk-loader__phase" id="tkLoaderPhase">Подготовка ядра</div>
+
+    <ol class="tk-loader__steps" id="tkLoaderSteps">
+      <li class="is-active">Запуск ядра</li>
+      <li>Загрузка героев</li>
+      <li>Подключение модулей</li>
+      <li>Синхронизация миссий</li>
+      <li>Открытие штаба</li>
+    </ol>
+  </div>
+</div>
+
 <div aria-hidden="true" class="intro" id="intro"></div>
 <div aria-hidden="true" class="page-transition" id="pt">
 <div class="wipe"></div>
@@ -36467,6 +36506,406 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
     inset 0 0 10px rgba(120,230,255,.016) !important;
 }
 </style>
+
+
+<style id="oa-tk-game-loader">
+.tk-loader{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:
+    radial-gradient(1200px 700px at 50% 55%, rgba(17,72,112,.38), transparent 60%),
+    radial-gradient(900px 520px at 50% 35%, rgba(56,147,220,.18), transparent 58%),
+    linear-gradient(180deg, #020814 0%, #041224 48%, #020814 100%);
+  opacity:1;
+  visibility:visible;
+  transition:opacity .85s ease, visibility .85s ease;
+}
+.tk-loader.is-hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.tk-loader__bg,
+.tk-loader__noise,
+.tk-loader__particles{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.tk-loader__bg{
+  background:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 88%);
+  opacity:.45;
+  animation: tkLoaderGridMove 12s linear infinite;
+}
+.tk-loader__noise{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,208,122,.08), transparent 20%),
+    radial-gradient(circle at 80% 30%, rgba(99,210,255,.08), transparent 18%),
+    radial-gradient(circle at 50% 80%, rgba(255,255,255,.045), transparent 22%),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.02) 0 2px, transparent 2px 5px);
+  mix-blend-mode:screen;
+  opacity:.48;
+  animation: tkLoaderNoise 5s linear infinite;
+}
+.tk-loader__particles span{
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background: radial-gradient(circle, rgba(255,245,217,.95) 0%, rgba(116,221,255,.86) 40%, rgba(116,221,255,0) 72%);
+  box-shadow:0 0 16px rgba(109,213,255,.38), 0 0 28px rgba(255,206,103,.22);
+  animation: tkLoaderParticleFloat linear infinite;
+}
+.tk-loader__panel{
+  position:relative;
+  width:min(92vw, 760px);
+  padding:42px 42px 34px;
+  border-radius:30px;
+  border:1px solid rgba(255,225,150,.48);
+  background:
+    linear-gradient(180deg, rgba(7,23,39,.82), rgba(4,14,24,.7)),
+    radial-gradient(160% 140% at 15% 0%, rgba(255,255,255,.08), transparent 48%),
+    radial-gradient(120% 120% at 100% 0%, rgba(112,214,255,.1), transparent 42%);
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.52),
+    0 0 0 1px rgba(255,247,220,.1),
+    inset 0 1px 0 rgba(255,255,255,.1),
+    inset 0 -30px 80px rgba(23,80,128,.1);
+  backdrop-filter: blur(18px) saturate(135%);
+  isolation:isolate;
+}
+.tk-loader__panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:1.7px;
+  border-radius:inherit;
+  background:linear-gradient(135deg, rgba(255,248,218,.95), rgba(255,213,120,.84) 28%, rgba(93,197,255,.3) 50%, rgba(255,213,120,.82) 73%, rgba(255,248,218,.9));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;
+}
+.tk-loader__eyebrow{
+  text-align:center;
+  font:700 12px/1.1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing:.34em;
+  color:rgba(180,224,255,.72);
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+.tk-loader__core{
+  position:relative;
+  width:162px;
+  height:162px;
+  margin:0 auto 20px;
+  display:grid;
+  place-items:center;
+}
+.tk-loader__ring,
+.tk-loader__core-glow,
+.tk-loader__badge{
+  position:absolute;
+  border-radius:999px;
+}
+.tk-loader__ring--outer{
+  inset:0;
+  border:1.5px solid rgba(255,220,138,.54);
+  box-shadow:0 0 22px rgba(255,203,84,.14), inset 0 0 20px rgba(255,255,255,.04);
+  animation: tkLoaderSpin 10s linear infinite;
+}
+.tk-loader__ring--mid{
+  inset:18px;
+  border:1.5px solid rgba(103,214,255,.46);
+  box-shadow:0 0 24px rgba(86,199,255,.16);
+  animation: tkLoaderSpinReverse 8s linear infinite;
+}
+.tk-loader__ring--inner{
+  inset:35px;
+  border:1.5px solid rgba(255,238,186,.65);
+  box-shadow:0 0 18px rgba(255,231,162,.18);
+  animation: tkLoaderPulse 1.9s ease-in-out infinite;
+}
+.tk-loader__core-glow{
+  inset:42px;
+  background:radial-gradient(circle, rgba(84,195,255,.32), rgba(84,195,255,.08) 46%, rgba(255,213,120,.04) 78%, transparent 100%);
+  filter:blur(4px);
+  animation: tkLoaderPulse 2s ease-in-out infinite;
+}
+.tk-loader__badge{
+  inset:49px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,220,138,.55);
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 30%),
+    linear-gradient(180deg, rgba(19,73,126,.94), rgba(10,34,62,.98));
+  box-shadow:0 0 26px rgba(61,179,255,.18), inset 0 1px 0 rgba(255,255,255,.12);
+  color:#fff0c4;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-shadow:0 2px 12px rgba(0,0,0,.45), 0 0 10px rgba(255,210,110,.18);
+}
+.tk-loader__title{
+  margin:0;
+  text-align:center;
+  color:#f7fbff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size:clamp(34px, 5vw, 54px);
+  font-weight:900;
+  letter-spacing:.02em;
+  text-shadow:0 6px 24px rgba(0,0,0,.45);
+}
+.tk-loader__subtitle{
+  margin:10px auto 28px;
+  max-width:580px;
+  text-align:center;
+  color:rgba(216,236,252,.82);
+  font:600 clamp(15px, 2vw, 18px)/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.tk-loader__status-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+}
+.tk-loader__status,
+.tk-loader__percent,
+.tk-loader__phase,
+.tk-loader__steps{
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.tk-loader__status{
+  color:#fff4d4;
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:.01em;
+}
+.tk-loader__percent{
+  min-width:66px;
+  text-align:right;
+  color:#72d6ff;
+  font-size:24px;
+  font-weight:900;
+}
+.tk-loader__bar{
+  position:relative;
+  height:18px;
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(255,227,157,.38);
+  background:linear-gradient(180deg, rgba(7,24,42,.9), rgba(8,18,30,.82));
+  box-shadow: inset 0 1px 4px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.03);
+}
+.tk-loader__bar-fill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width:0%;
+  border-radius:inherit;
+  background:
+    linear-gradient(90deg, rgba(78,188,255,.96) 0%, rgba(118,221,255,.98) 28%, rgba(255,233,171,.98) 68%, rgba(255,195,76,.95) 100%);
+  box-shadow:0 0 22px rgba(109,212,255,.26), 0 0 34px rgba(255,199,90,.18);
+  transition:width .26s ease-out;
+}
+.tk-loader__bar-sheen{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg, transparent 18%, rgba(255,255,255,.24) 45%, transparent 70%);
+  transform:translateX(-120%);
+  animation: tkLoaderSheen 2.2s linear infinite;
+}
+.tk-loader__phase{
+  margin-top:10px;
+  color:rgba(180,223,250,.82);
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.tk-loader__steps{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0,1fr));
+  gap:10px;
+  list-style:none;
+  margin:24px 0 0;
+  padding:0;
+}
+.tk-loader__steps li{
+  position:relative;
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 12px;
+  border-radius:18px;
+  border:1px solid rgba(255,224,153,.18);
+  background:linear-gradient(180deg, rgba(10,32,52,.54), rgba(5,18,30,.36));
+  color:rgba(218,232,246,.64);
+  font-size:13px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:.03em;
+  transition:transform .35s ease, border-color .35s ease, color .35s ease, box-shadow .35s ease, background .35s ease;
+}
+.tk-loader__steps li.is-active{
+  color:#fff4d3;
+  border-color:rgba(255,222,142,.5);
+  background:linear-gradient(180deg, rgba(26,84,133,.62), rgba(13,38,65,.42));
+  box-shadow:0 12px 32px rgba(0,0,0,.2), 0 0 0 1px rgba(255,255,255,.03), inset 0 1px 0 rgba(255,255,255,.08);
+  transform:translateY(-2px);
+}
+.tk-loader__steps li.is-done{
+  color:#c5ffe5;
+  border-color:rgba(122,255,204,.42);
+  background:linear-gradient(180deg, rgba(12,90,70,.48), rgba(6,37,30,.3));
+}
+@keyframes tkLoaderSpin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes tkLoaderSpinReverse{ from{transform:rotate(360deg)} to{transform:rotate(0)} }
+@keyframes tkLoaderPulse{ 0%,100%{ transform:scale(1); opacity:.88;} 50%{ transform:scale(1.04); opacity:1;} }
+@keyframes tkLoaderGridMove{ from{transform:translate3d(0,0,0)} to{transform:translate3d(48px,48px,0)} }
+@keyframes tkLoaderNoise{ 0%{transform:translateY(0)} 50%{transform:translateY(-6px)} 100%{transform:translateY(0)} }
+@keyframes tkLoaderSheen{ from{transform:translateX(-120%)} to{transform:translateX(120%)} }
+@keyframes tkLoaderParticleFloat{
+  from{ transform: translate3d(var(--x1), var(--y1), 0) scale(var(--s1)); opacity:0; }
+  18%{ opacity:.95; }
+  82%{ opacity:.75; }
+  to{ transform: translate3d(var(--x2), var(--y2), 0) scale(var(--s2)); opacity:0; }
+}
+@media (max-width: 780px){
+  .tk-loader__panel{ padding:34px 20px 24px; width:min(94vw, 760px); }
+  .tk-loader__core{ width:132px; height:132px; }
+  .tk-loader__badge{ inset:39px; font-size:34px; }
+  .tk-loader__steps{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .tk-loader__steps li:last-child{ grid-column:1 / -1; }
+  .tk-loader__status{ font-size:16px; }
+}
+</style>
+
+
+<script id="oa-tk-game-loader-script">
+(function(){
+  var overlay = document.getElementById('tkLoader');
+  if(!overlay) return;
+  var fill = document.getElementById('tkLoaderFill');
+  var percentEl = document.getElementById('tkLoaderPercent');
+  var statusEl = document.getElementById('tkLoaderStatus');
+  var phaseEl = document.getElementById('tkLoaderPhase');
+  var steps = Array.prototype.slice.call(document.querySelectorAll('#tkLoaderSteps li'));
+  var particlesHost = document.getElementById('tkLoaderParticles');
+  var statusPool = [
+    'Инициализация интерфейса…',
+    'Подключение игровых модулей…',
+    'Загрузка героев и ролей…',
+    'Синхронизация миссий…',
+    'Открытие штаба…'
+  ];
+  var phasePool = [
+    'Подготовка ядра',
+    'Загрузка ресурсов',
+    'Сборка сцены',
+    'Проверка систем',
+    'Финальный запуск'
+  ];
+  for(var i=0;i<24;i++){
+    var p=document.createElement('span');
+    var x1=(Math.random()*100).toFixed(2)+'vw';
+    var y1=(Math.random()*100).toFixed(2)+'vh';
+    var x2=(Math.random()*100).toFixed(2)+'vw';
+    var y2=(Math.random()*100).toFixed(2)+'vh';
+    p.style.setProperty('--x1', x1);
+    p.style.setProperty('--y1', y1);
+    p.style.setProperty('--x2', x2);
+    p.style.setProperty('--y2', y2);
+    p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
+    p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
+    p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
+    p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
+    particlesHost.appendChild(p);
+  }
+
+  var progress = 0;
+  var target = 0;
+  var started = performance.now();
+  var minDuration = 2200;
+  var isLoaded = document.readyState === 'complete';
+  if (sessionStorage.getItem('tk_loader_seen') === '1') {
+    minDuration = 1100;
+  }
+
+  function updateStage(pct){
+    var idx = Math.min(steps.length - 1, Math.floor(pct / 20));
+    steps.forEach(function(step, i){
+      step.classList.toggle('is-done', i < idx);
+      step.classList.toggle('is-active', i === idx);
+    });
+    statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
+    phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
+  }
+
+  function draw(){
+    progress += (target - progress) * (target >= 100 ? 0.22 : 0.085);
+    if (target - progress < 0.25) progress = target;
+    var shown = Math.max(0, Math.min(100, Math.round(progress)));
+    fill.style.width = shown + '%';
+    percentEl.textContent = shown + '%';
+    updateStage(shown);
+
+    if (isLoaded && shown >= 100 && (performance.now() - started) > minDuration){
+      finish();
+      return;
+    }
+    requestAnimationFrame(draw);
+  }
+
+  function finish(){
+    if (overlay.dataset.done === '1') return;
+    overlay.dataset.done = '1';
+    sessionStorage.setItem('tk_loader_seen', '1');
+    overlay.classList.add('is-hidden');
+    setTimeout(function(){
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 900);
+  }
+
+  var staging = [18, 36, 54, 71, 86, 92];
+  var stageIndex = 0;
+  function bumpTarget(){
+    if (isLoaded) return;
+    target = Math.max(target, staging[Math.min(stageIndex, staging.length - 1)]);
+    stageIndex += 1;
+    if (!isLoaded) {
+      setTimeout(bumpTarget, 240 + Math.random() * 360);
+    }
+  }
+
+  window.addEventListener('load', function(){
+    isLoaded = true;
+    target = 100;
+    statusEl.textContent = 'Запуск игрового мира…';
+    phaseEl.textContent = 'Миссия готова';
+    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
+  }, { once:true });
+
+  if (isLoaded) {
+    target = 100;
+  } else {
+    setTimeout(bumpTarget, 120);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
 
 </body>
 </html>
