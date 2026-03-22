@@ -4296,7 +4296,8 @@
 }
 
 
-  .tk-win{
+  .tk-win,
+  .tk-loss{
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -12199,6 +12200,12 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     let runTotal = 0;
     let runCorrect = 0;
     let hasWon = false;
+
+    window.__tkHpCustomDeath = window.__tkHpCustomDeath || {};
+    window.__tkHpCustomDeath.phish = function(){
+      phishShowLoss();
+    };
+
     const SKIP_MAX = 3;
     let skipUsed = 0;
     let runAnsweredCount = 0;
@@ -12444,6 +12451,62 @@ function setExplain(kind, text) {
       }
     }
 
+    function phishShowLoss(){
+      if(!(window.__tkHpIsDead && window.__tkHpIsDead("phish"))) return;
+      phishHideQImg();
+      phishSetQuestionVisible(false);
+      phishSetFinalMode(true);
+      enableAnswering(false);
+      nextBtn && (nextBtn.disabled = true);
+      updateHud();
+
+      if(explainBox){
+        const answeredCount = phishGetAnsweredCount();
+        const skippedCount = phishGetSkippedCount();
+        const directCorrectCount = phishGetDirectCorrectCount();
+        const wrongCount = phishGetWrongCount();
+        const unansweredCount = phishGetUnansweredCount();
+        const durationText = phishGetRunDurationText();
+        const lossName = String((player && player.fio) ? player.fio : 'Игрок')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+        explainBox.classList.add("is-on");
+        explainBox.innerHTML = `
+          <div class="tk-loss">
+            <div class="tk-win__img"><img src="GAME_OVER.jpg" onerror="this.onerror=null;this.src='GAME_OVER.JPG';" alt="Поражение" loading="lazy"></div>
+            <div class="tk-win__title">⚠️ Ты попался на уловку мошенников!</div>
+            <div class="tk-win__subtitle">Ник: ${lossName}</div>
+            <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
+            <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
+            <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
+            <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
+            <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
+            <div class="tk-win__subtitle">LVL ${player.lvl}/5 • XP: ${player.xp}</div>
+            <div class="tk-win__subtitle">Время: ${durationText}</div>
+            <div class="tk-win__subtitle">Соберись и попробуй ещё раз — теперь фальшивые письма будет проще распознать.</div>
+            <button type="button" class="btn tk-win__btn" id="phishLoseCloseBtn">Закрыть игру</button>
+          </div>
+        `;
+        const b = document.getElementById("phishLoseCloseBtn");
+        if(b){
+          b.addEventListener("click", () => {
+            closeModal();
+          }, { once:true });
+        }
+      }
+    }
+
+    function phishCheckLoss(){
+      if(window.__tkHpIsDead && window.__tkHpIsDead("phish")){
+        phishShowLoss();
+        return true;
+      }
+      return false;
+    }
+
     function phishCheckWin(){
       if(hasWon) return true;
       if(phishHasWon()){
@@ -12513,6 +12576,7 @@ function renderCard() {
       }
 
       updateHud();
+      if (phishCheckLoss()) return;
       if (phishCheckWin()) return;
       nextBtn.disabled = false;
       if (window.__tkHpIsDead && window.__tkHpIsDead("phish")) nextBtn.disabled = true;
@@ -15597,6 +15661,11 @@ ${currentItem.text}`;
 
   let hasWon = false;
 
+  window.__tkHpCustomDeath = window.__tkHpCustomDeath || {};
+  window.__tkHpCustomDeath.info = function(){
+    infoShowLoss();
+  };
+
   function infoIsTerminalState(){
     return !!hasWon || !!(window.__tkHpIsDead && window.__tkHpIsDead("info"));
   }
@@ -15799,6 +15868,67 @@ ${currentItem.text}`;
     }
   }
 
+  function infoShowLoss(){
+    if(!(window.__tkHpIsDead && window.__tkHpIsDead("info"))) return;
+    infoHideQImg();
+    infoSetQuestionVisible(false);
+    infoSetFinalMode(true);
+    updateHud();
+    save();
+
+    btnRisk && (btnRisk.disabled = true);
+    btnSafe && (btnSafe.disabled = true);
+    btnSkip && (btnSkip.disabled = true);
+    nextBtn && (nextBtn.disabled = true);
+
+    if(explainBox){
+      const answeredCount = infoGetAnsweredCount();
+      const skippedCount = infoGetSkippedCount();
+      const directCorrectCount = infoGetDirectCorrectCount();
+      const wrongCount = infoGetWrongCount();
+      const unansweredCount = infoGetUnansweredCount();
+      const durationText = infoGetDurationText();
+      const lossName = String((state && state.name) ? state.name : 'Игрок')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+      explainBox.classList.remove('ok','bad');
+      explainBox.classList.add('is-on');
+      explainBox.innerHTML = `
+        <div class="tk-loss">
+          <div class="tk-win__img"><img src="GAME_OVER.jpg" onerror="this.onerror=null;this.src='GAME_OVER.JPG';" alt="Поражение" loading="lazy"></div>
+          <div class="tk-win__title">⚠️ Миссия сорвалась, но это не конец!</div>
+          <div class="tk-win__subtitle">Ник: ${lossName}</div>
+          <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
+          <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
+          <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
+          <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
+          <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
+          <div class="tk-win__subtitle">LVL ${levelFromXP(state.xp)}/5 • XP: ${state.xp}</div>
+          <div class="tk-win__subtitle">Время: ${durationText}</div>
+          <div class="tk-win__subtitle">Попробуй ещё раз — теперь ты знаешь, где были ошибки.</div>
+          <button type="button" class="btn tk-win__btn" id="infoLoseCloseBtn">Закрыть игру</button>
+        </div>
+      `;
+      const b = document.getElementById('infoLoseCloseBtn');
+      if(b){
+        b.addEventListener('click', () => {
+          closeInner();
+        }, { once:true });
+      }
+    }
+  }
+
+  function infoCheckLoss(){
+    if(window.__tkHpIsDead && window.__tkHpIsDead("info")){
+      infoShowLoss();
+      return true;
+    }
+    return false;
+  }
+
   function infoCheckWin(){
     if(hasWon) return true;
     if(infoHasWon()){
@@ -15979,28 +16109,18 @@ explainBox.classList.toggle('ok', correct);
     updateHud();
     save();
 
-    const isDeadInfo = !!(window.__tkHpIsDead && window.__tkHpIsDead("info"));
-    if(explainBox){
-      if(isDeadInfo){
-        infoHideQImg();
-        explainBox.appendChild(document.createElement('br'));
-        explainBox.appendChild(document.createElement('br'));
-        const fin = document.createElement('div');
-        fin.className = 'finish-msg';
-        fin.textContent = '💔 Игра окончена: здоровье закончилось. Нажмите «Сбросить профиль» или начните заново.';
-        explainBox.appendChild(fin);
-        explainBox.classList.add('is-on');
-      }else if(state.idx >= total-1){
-        if(infoCheckWin()) return;
-        explainBox.appendChild(document.createElement('br'));
-        explainBox.appendChild(document.createElement('br'));
-        const fin = document.createElement('div');
-        fin.className = 'finish-msg';
-        const lvlNow = levelFromXP(state.xp);
-        fin.textContent = `🎉 Поздравляю! Вы прошли игру «Инфобез». Верно: ${state.correct}/${total}. Уровень: LVL ${lvlNow}/5. Нажмите «Заново», чтобы сыграть ещё раз.`;
-        explainBox.appendChild(fin);
-        explainBox.classList.add('is-on');
-      }
+    if(infoCheckLoss()) return;
+
+    if(explainBox && state.idx >= total-1){
+      if(infoCheckWin()) return;
+      explainBox.appendChild(document.createElement('br'));
+      explainBox.appendChild(document.createElement('br'));
+      const fin = document.createElement('div');
+      fin.className = 'finish-msg';
+      const lvlNow = levelFromXP(state.xp);
+      fin.textContent = `🎉 Поздравляю! Вы прошли игру «Инфобез». Верно: ${state.correct}/${total}. Уровень: LVL ${lvlNow}/5. Нажмите «Заново», чтобы сыграть ещё раз.`;
+      explainBox.appendChild(fin);
+      explainBox.classList.add('is-on');
     }
 
     if(nextBtn){
@@ -16909,6 +17029,74 @@ explainBox.classList.toggle('ok', correct);
     }, 0);
   }
 
+  function itAttachLossCloseHandler(){
+    setTimeout(()=>{
+      const b = document.getElementById('itLoseCloseBtn');
+      if(b){
+        b.addEventListener('click', ()=>{
+          closeModal();
+        }, { once:true });
+      }
+    }, 0);
+  }
+
+  function itRenderLossScreen(){
+    if(!(window.__tkHpIsDead && window.__tkHpIsDead("it"))) return;
+
+    itSetFinalMode(true);
+    itSetQuestionVisible(false);
+    const xp = (state && typeof state.xp==='number') ? state.xp : 0;
+    const xpC = Math.max(0, Math.min(250, xp));
+    const lvl = Math.min(5, 1 + Math.floor(xpC/50));
+    const score = Math.max(0, (state && state.correct) ? state.correct : 0);
+    const skippedCount = itGetSkippedCount();
+    const answeredCount = itGetAnsweredCount();
+    const directCorrectCount = itGetDirectCorrectCount();
+    const wrongCount = itGetWrongCount();
+    const unansweredCount = itGetUnansweredCount();
+    const durationText = itGetDurationText();
+    const lossName = String((state && state.name) ? state.name : 'Игрок')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    qTitle.textContent = 'Игра окончена';
+    qLevel.textContent = 'Финал';
+    qCount.textContent = TOTAL_CARDS + '/' + TOTAL_CARDS;
+    if(itCardIndexEl) itCardIndexEl.textContent = String(Math.min(idx + 1, TOTAL_CARDS));
+    if(itCardCountEl) itCardCountEl.textContent = String(TOTAL_CARDS);
+    qTopic.textContent = 'Попробуй ещё раз';
+    itHideQImg();
+    qBody.innerHTML = `
+      <div class="tk-loss">
+        <div class="tk-win__img"><img src="GAME_OVER.jpg" onerror="this.onerror=null;this.src='GAME_OVER.JPG';" alt="Поражение" loading="lazy"></div>
+        <div class="tk-win__title">⚠️ Ошибка сбила тебя с маршрута, но миссию можно пройти заново!</div>
+        <div class="tk-win__subtitle">Ник: ${lossName}</div>
+        <div class="tk-win__subtitle">Верных ответов: ${directCorrectCount}</div>
+        <div class="tk-win__subtitle">Неверных ответов: ${wrongCount}</div>
+        <div class="tk-win__subtitle">Пропущено: ${skippedCount}</div>
+        <div class="tk-win__subtitle">Отвечено: ${answeredCount}</div>
+        <div class="tk-win__subtitle">Без ответа: ${unansweredCount}</div>
+        <div class="tk-win__subtitle">Всего зачтено: ${score}/${TOTAL_CARDS}</div>
+        <div class="tk-win__subtitle">LVL ${lvl}/5 • XP: ${xp}</div>
+        <div class="tk-win__subtitle">Время: ${durationText}</div>
+        <div class="tk-win__subtitle">Сделай ещё один заход — теперь ты уже знаешь, на чём можно не терять здоровье.</div>
+        <button type="button" class="btn tk-win__btn" id="itLoseCloseBtn">Закрыть игру</button>
+      </div>
+    `;
+    qHint.textContent = '';
+    btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
+    resultBox.hidden = true;
+    resultPill.textContent = '💔 Поражение';
+    explainEl.classList.remove('is-on');
+    itHideExplainImgs();
+    if(explainTextEl){ explainTextEl.textContent = ''; } else { explainEl.textContent = ''; }
+    nextBtn.disabled = true;
+    itAttachLossCloseHandler();
+  }
+
   function itRenderWinScreen(){
     itSetFinalMode(true);
     itSetQuestionVisible(false);
@@ -16972,6 +17160,11 @@ explainBox.classList.toggle('ok', correct);
   let idx = 0;
   let locked = false;
   let skipped = [];
+
+  window.__tkHpCustomDeath = window.__tkHpCustomDeath || {};
+  window.__tkHpCustomDeath.it = function(){
+    itRenderLossScreen();
+  };
 
   function itHasTerminalState(savedState){
     return !!((savedState && savedState.done) || (window.__tkHpIsDead && window.__tkHpIsDead("it")));
@@ -17178,20 +17371,7 @@ explainBox.classList.toggle('ok', correct);
       if(window.__tkHpIsDead && window.__tkHpIsDead("it")){
         state.done = true;
         saveState(state);
-        qTitle.textContent = 'Игра окончена';
-        qLevel.textContent = 'Финал';
-        qCount.textContent = (idx+1) + '/' + TOTAL_CARDS;
-        qTopic.textContent = 'Здоровье закончилось';
-        itHideQImg();
-      qBody.innerHTML = '<b>💔 Здоровье закончилось.</b> Попробуйте ещё раз и отвечайте внимательнее!';
-        qHint.textContent = '';
-        btnTrue.disabled = btnFalse.disabled = btnSkip.disabled = true;
-        resultBox.hidden = false;
-        resultPill.textContent = '💔 Конец игры';
-        explainEl.classList.add('is-on');
-        itHideExplainImgs();
-        if(explainTextEl){ explainTextEl.textContent = 'Нажмите «Сначала», чтобы начать заново.'; } else { explainEl.textContent = 'Нажмите «Сначала», чтобы начать заново.'; };
-        nextBtn.disabled = true;
+        itRenderLossScreen();
         return;
       }
     }
@@ -18026,12 +18206,20 @@ explainBox.classList.toggle('ok', correct);
 
     if(hp[prefix] <= 0){
       dead[prefix] = true;
-      const box = ensureGameOver(prefix);
-      if(box) box.hidden = false;
 
       const backdrop = document.getElementById(CFG[prefix].rootId);
       const stage = backdrop ? (backdrop.querySelector(".cool-phish-root") || backdrop) : null;
-      if(stage) stage.classList.add("hp-dead");
+      const customDeath = window.__tkHpCustomDeath && typeof window.__tkHpCustomDeath[prefix] === 'function'
+        ? window.__tkHpCustomDeath[prefix]
+        : null;
+
+      if(customDeath){
+        try{ customDeath({ prefix, backdrop, stage }); }catch(e){}
+      }else{
+        const box = ensureGameOver(prefix);
+        if(box) box.hidden = false;
+        if(stage) stage.classList.add("hp-dead");
+      }
 
       setButtonsDisabled(prefix, true);
 
