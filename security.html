@@ -12754,10 +12754,73 @@ function setExplain(kind, text) {
     }
 
     function updateHud() {
+      const avatarKind = (player && player.avatar === 'girl') ? 'girl' : 'boy';
+      const choiceKey = avatarKind === 'girl' ? 'tk_phish_avatar_choice_girl_v1' : 'tk_phish_avatar_choice_boy_v1';
+      const PHISH_VARIANTS = {
+        boy: [
+          { id:'boy1', role:'Смелый кибер-капитан', images:['boy-image1.png','boy-image.png'] },
+          { id:'boy2', role:'Защитник-инженер', images:['boy-image2.png','boy-image.png'] },
+          { id:'boy3', role:'Кибергерой', images:['boy-image3.png','boy-image.png'] },
+          { id:'boy4', role:'Мальчик-робот', images:['boy4-image.png','boy-image4.png','boy-image1.png','boy-image.png'] },
+          { id:'boy5', role:'Защитник школы', images:['boy-image5.png','boy-image.png'] }
+        ],
+        girl: [
+          { id:'girl1', role:'Кибер-инженер защиты', images:['girl-image1.png','girl-image.png'] },
+          { id:'girl2', role:'Защитница-безопасности', images:['girl-image2.png','girl-image.png'] },
+          { id:'girl3', role:'Кибергероиня', images:['girl-image3.png','girl-image.png'] },
+          { id:'girl4', role:'Девочка-робот', images:['girl-image4.png','girl-image.png'] },
+          { id:'girl5', role:'Защитница школы', images:['girl-image5.png','girl-image.png'] }
+        ]
+      };
+
       playerName.textContent = player.fio || "Игрок";
       try { window.TKAttemptsUI && window.TKAttemptsUI.refreshPhish(player.fio || "Игрок"); } catch(_) {}
-      playerRole.textContent = avatarLabel(player.avatar || "boy");
-      avatarBig.innerHTML = avatarSvg(player.avatar || "boy");
+
+      const variantList = PHISH_VARIANTS[avatarKind];
+      let choiceId = variantList[0].id;
+      try{
+        const storedChoice = localStorage.getItem(choiceKey);
+        if(storedChoice && variantList.some(v => v.id === storedChoice)) choiceId = storedChoice;
+      }catch(e){}
+      const variant = variantList.find(v => v.id === choiceId) || variantList[0];
+
+      playerRole.textContent = (avatarKind === 'girl' ? 'Девочка • ' : 'Мальчик • ') + variant.role;
+
+      if(avatarBig){
+        let img = avatarBig.querySelector('img.avatar-img-big, img');
+        if(!img){
+          img = document.createElement('img');
+          avatarBig.innerHTML = '';
+          avatarBig.appendChild(img);
+        }
+        img.className = 'avatar-img-big';
+        img.alt = '';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'bottom center';
+        const variantKey = `${avatarKind}:${variant.id}`;
+        if(img.dataset.variantKey !== variantKey){
+          img.dataset.variantKey = variantKey;
+          const sources = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
+          let sourceIndex = 0;
+          const fallback = avatarKind === 'girl' ? 'girl-image.png' : 'boy-image.png';
+          const applyNextSource = () => {
+            const nextSrc = sources[sourceIndex] || fallback;
+            img.onerror = () => {
+              sourceIndex += 1;
+              if(sourceIndex < sources.length){
+                applyNextSource();
+                return;
+              }
+              img.onerror = null;
+              img.src = fallback;
+            };
+            if(img.getAttribute('src') !== nextSrc) img.src = nextSrc;
+          };
+          applyNextSource();
+        }
+      }
 
       lvlBadge.textContent = `LVL ${player.lvl}/5`;
       xpBadge.textContent = `XP ${player.xp}`;
@@ -17747,25 +17810,36 @@ explainBox.classList.toggle('ok', correct);
       img.style.objectFit = 'contain';
       img.style.objectPosition = 'bottom center';
       const variantKey = `${avatar}:${variant.id}`;
-      if(img.dataset.variantKey !== variantKey){
+      const stableCache = window.__tkItResolvedAvatarSrc = window.__tkItResolvedAvatarSrc || {};
+      const fallback = avatar === 'girl' ? 'girl-image.png' : 'boy-image.png';
+      const sources = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
+      if(stableCache[variantKey]){
         img.dataset.variantKey = variantKey;
-        const sources = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
-        let sourceIndex = 0;
-        const fallback = avatar === 'girl' ? 'girl-image.png' : 'boy-image.png';
-        const applyNextSource = () => {
-          const nextSrc = sources[sourceIndex] || fallback;
-          img.onerror = () => {
-            sourceIndex += 1;
-            if(sourceIndex < sources.length){
-              applyNextSource();
-              return;
-            }
+        img.onerror = null;
+        if(img.getAttribute('src') !== stableCache[variantKey]) img.src = stableCache[variantKey];
+      } else if(img.dataset.variantKey !== variantKey){
+        img.dataset.variantKey = variantKey;
+        const req = `${Date.now()}:${Math.random()}`;
+        img.dataset.variantReq = req;
+        const trySource = (index) => {
+          if(img.dataset.variantReq !== req) return;
+          if(index >= sources.length){
+            stableCache[variantKey] = fallback;
+            if(img.getAttribute('src') !== fallback) img.src = fallback;
+            return;
+          }
+          const probeSrc = sources[index] || fallback;
+          const probe = new Image();
+          probe.onload = () => {
+            if(img.dataset.variantReq !== req) return;
+            stableCache[variantKey] = probeSrc;
             img.onerror = null;
-            img.src = fallback;
+            if(img.getAttribute('src') !== probeSrc) img.src = probeSrc;
           };
-          if(img.getAttribute('src') !== nextSrc) img.src = nextSrc;
+          probe.onerror = () => trySource(index + 1);
+          probe.src = probeSrc;
         };
-        applyNextSource();
+        trySource(0);
       }
     }
 
@@ -35494,6 +35568,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   const resolvedSrcCache = new Map();
 
   const loadableSrcCache = new Map();
+  const sourcePromiseCache = new Map();
 
   function findFirstLoadableSource(candidates){
     const list = (Array.isArray(candidates) ? candidates : [candidates]).filter(Boolean);
@@ -35504,9 +35579,8 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
       let i = 0;
       const tryNext = () => {
         if(i >= list.length){
-          const fallback = list[list.length - 1] || '';
-          loadableSrcCache.set(cacheKey, fallback);
-          resolve(fallback);
+          loadableSrcCache.set(cacheKey, '');
+          resolve('');
           return;
         }
         const src = list[i++];
@@ -35520,6 +35594,33 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
       };
       tryNext();
     });
+  }
+
+  function resolveVariantSource(game, kind, variant){
+    if(!variant) return Promise.resolve(kind === 'girl' ? 'girl-image.png' : 'boy-image.png');
+    const list = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
+    const fallback = list[list.length - 1] || (kind === 'girl' ? 'girl-image.png' : 'boy-image.png');
+    const variantKey = `${game}:${kind}:${variant.id}`;
+    const cached = resolvedSrcCache.get(variantKey);
+    if(cached) return Promise.resolve(cached);
+    if(sourcePromiseCache.has(variantKey)) return sourcePromiseCache.get(variantKey);
+
+    const task = findFirstLoadableSource(list).then(src => {
+      if(src){
+        resolvedSrcCache.set(variantKey, src);
+        return src;
+      }
+      return buildSyntheticAvatar(game, kind, variant, fallback).then(finalSrc => {
+        const safeSrc = finalSrc || fallback;
+        resolvedSrcCache.set(variantKey, safeSrc);
+        return safeSrc;
+      });
+    }).finally(() => {
+      sourcePromiseCache.delete(variantKey);
+    });
+
+    sourcePromiseCache.set(variantKey, task);
+    return task;
   }
 
   function bySel(root, sel){ return root ? root.querySelector(sel) : null; }
@@ -35612,9 +35713,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 
   function setImgForVariant(game, img, kind, variant){
     if(!img || !variant) return;
-    const list = (Array.isArray(variant.images) ? variant.images : [variant.images]).filter(Boolean);
-    if(!list.length) return;
-
     const variantKey = `${game}:${kind}:${variant.id}`;
     const cachedSrc = resolvedSrcCache.get(variantKey);
     if(cachedSrc){
@@ -35629,45 +35727,15 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
     const req = `${Date.now()}:${Math.random()}`;
     img.dataset.avatarReq = req;
     img.dataset.avatarVariantKey = variantKey;
+    img.onerror = null;
 
-    // Для boy4 в фишинге и информатике сначала пробуем реальный asset,
-    // как в инфобезе. Синтетический портрет используется только как крайний fallback,
-    // если ни один исходный файл не загрузился.
-
-    let idx = 0;
-
-    function apply(src){
+    resolveVariantSource(game, kind, variant).then(src => {
       if(img.dataset.avatarReq !== req) return;
-      img.onerror = null;
-      resolvedSrcCache.set(variantKey, src);
+      if(!src) return;
       if(img.getAttribute('src') !== src){
         img.src = src;
       }
-    }
-
-    function next(){
-      const src = list[idx];
-      img.onerror = () => {
-        idx += 1;
-        if(idx < list.length - 1){
-          next();
-          return;
-        }
-        const fallback = list[list.length - 1] || src;
-        buildSyntheticAvatar(game, kind, variant, fallback).then(finalSrc => {
-          if(img.dataset.avatarReq !== req) return;
-          apply(finalSrc);
-        });
-      };
-      if(img.getAttribute('src') !== src){
-        img.src = src;
-      } else if(!img.complete || (typeof img.naturalWidth === 'number' && img.naturalWidth === 0)){
-        // Повторно инициируем загрузку, если элемент уже завис на битом/незавершённом src.
-        img.src = src;
-      }
-    }
-
-    next();
+    });
   }
 
   function tileMarkup(kind){
