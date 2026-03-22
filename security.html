@@ -10,6 +10,56 @@
 <link as="image" href="bg_mobile.jpg" media="(max-width: 520px)" rel="preload"/>
 <link as="image" href="bg_fhd_m.jpg" media="(max-width: 1920px)" rel="preload"/>
 <link as="image" href="header-bg-m-3840.jpg" media="(min-width: 1921px)" rel="preload"/>
+<script id="tk-loader-preboot-script">
+document.documentElement.classList.add('tk-loader-preboot');
+</script>
+<style id="tk-loader-preboot-style">
+html.tk-loader-preboot,
+html.tk-loader-preboot body{
+  background:#020814 !important;
+}
+html.tk-loader-preboot body{
+  overflow:hidden !important;
+}
+html.tk-loader-preboot body > *{
+  opacity:0 !important;
+}
+html.tk-loader-preboot #tkLoader{
+  opacity:1 !important;
+  display:flex !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:999999 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(1200px 700px at 50% 55%, rgba(17,72,112,.38), transparent 60%),
+    radial-gradient(900px 520px at 50% 35%, rgba(56,147,220,.18), transparent 58%),
+    linear-gradient(180deg, #020814 0%, #041224 48%, #020814 100%) !important;
+}
+html.tk-loader-preboot #tkLoader *{
+  visibility:hidden !important;
+}
+html.tk-loader-preboot #tkLoader::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(83,183,255,.12), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255,214,123,.06), transparent 60%);
+}
+html.tk-loader-preboot #tkLoader::after{
+  content:"Подготовка игровой системы…";
+  position:relative;
+  z-index:1;
+  color:rgba(240,247,255,.96);
+  font:800 clamp(18px, 2.2vw, 24px)/1.2 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  text-shadow:0 4px 24px rgba(0,0,0,.45), 0 0 16px rgba(83,183,255,.18);
+}
+</style>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
 
@@ -36813,8 +36863,14 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
 
 <script id="oa-tk-game-loader-script">
 (function(){
+  var root = document.documentElement;
   var overlay = document.getElementById('tkLoader');
-  if(!overlay) return;
+  if(!overlay){
+    root.classList.remove('tk-loader-preboot');
+    return;
+  }
+  root.classList.remove('tk-loader-preboot');
+  root.classList.add('tk-loader-ready');
   var fill = document.getElementById('tkLoaderFill');
   var percentEl = document.getElementById('tkLoaderPercent');
   var statusEl = document.getElementById('tkLoaderStatus');
@@ -36855,10 +36911,10 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
   var progress = 0;
   var target = 0;
   var started = performance.now();
-  var minDuration = 2200;
+  var minDuration = 3400;
   var isLoaded = document.readyState === 'complete';
   if (sessionStorage.getItem('tk_loader_seen') === '1') {
-    minDuration = 1100;
+    minDuration = 1900;
   }
 
   function updateStage(pct){
@@ -36872,7 +36928,7 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
   }
 
   function draw(){
-    progress += (target - progress) * (target >= 100 ? 0.22 : 0.085);
+    progress += (target - progress) * (target >= 100 ? 0.18 : 0.072);
     if (target - progress < 0.25) progress = target;
     var shown = Math.max(0, Math.min(100, Math.round(progress)));
     fill.style.width = shown + '%';
@@ -36903,7 +36959,7 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
     target = Math.max(target, staging[Math.min(stageIndex, staging.length - 1)]);
     stageIndex += 1;
     if (!isLoaded) {
-      setTimeout(bumpTarget, 240 + Math.random() * 360);
+      setTimeout(bumpTarget, 340 + Math.random() * 420);
     }
   }
 
@@ -36918,7 +36974,7 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
   if (isLoaded) {
     target = 100;
   } else {
-    setTimeout(bumpTarget, 120);
+    setTimeout(bumpTarget, 180);
   }
   requestAnimationFrame(draw);
 })();
