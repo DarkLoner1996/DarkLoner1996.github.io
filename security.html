@@ -9882,6 +9882,12 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     margin-right:4px;
     font-size:20px;
   }
+  .tk-top10-attempts{
+    font-weight:900;
+    color:#9dd6ff;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
   .tk-top10-time{
     font-weight:900;
     color:#ffe9ab;
@@ -9943,7 +9949,7 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     .tk-top10-table thead th{ font-size:11px; padding:14px 10px; }
     .tk-top10-table tbody td{ font-size:14px; padding:14px 10px; }
     .tk-top10-table thead th:nth-child(4), .tk-top10-table tbody td:nth-child(4),
-    .tk-top10-table thead th:nth-child(6), .tk-top10-table tbody td:nth-child(6){ display:none; }
+    .tk-top10-table thead th:nth-child(7), .tk-top10-table tbody td:nth-child(7){ display:none; }
   }
 </style>
 
@@ -35830,12 +35836,13 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
               <th>Игрок</th>
               <th>Игра</th>
               <th>Герой</th>
+              <th>Попытки</th>
               <th>Время</th>
               <th>Дата</th>
             </tr>
           </thead>
           <tbody id="tkTop10Body">
-            <tr><td colspan="6" class="tk-top10-loading">Загрузка таблицы…</td></tr>
+            <tr><td colspan="7" class="tk-top10-loading">Загрузка таблицы…</td></tr>
           </tbody>
         </table>
       </div>
@@ -35911,7 +35918,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
   function renderRows(rows){
     if(!rows.length){
-      bodyEl.innerHTML = '<tr><td colspan="6" class="tk-top10-empty">Пока нет идеальных прохождений в этой категории.</td></tr>';
+      bodyEl.innerHTML = '<tr><td colspan="7" class="tk-top10-empty">Пока нет идеальных прохождений в этой категории.</td></tr>';
       return;
     }
     bodyEl.innerHTML = rows.map((row, i) => `
@@ -35920,14 +35927,45 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
         <td>${esc(row.name || 'Игрок')}</td>
         <td>${esc(gameLabel(row.game || 'all'))}</td>
         <td>${esc(row.character || 'Герой')}</td>
+        <td class="tk-top10-attempts" data-attempt-name="${esc(row.name || 'Игрок')}" data-attempt-game="${esc(row.game || 'all')}">…</td>
         <td class="tk-top10-time">${esc(formatMs(row.timeMs))}</td>
         <td>${esc(formatDate(row.createdAt))}</td>
       </tr>`).join('');
+    hydrateAttemptCells();
   }
+
+  async function hydrateAttemptCells(){
+    const cells = Array.from(bodyEl.querySelectorAll('.tk-top10-attempts'));
+    if(!cells.length) return;
+    const unique = new Map();
+    cells.forEach(cell => {
+      const name = cell.dataset.attemptName || 'Игрок';
+      const game = cell.dataset.attemptGame || 'all';
+      const key = name + '|' + game;
+      if(!unique.has(key)) unique.set(key, { name, game });
+    });
+    const resolved = new Map();
+    await Promise.all(Array.from(unique.values()).map(async entry => {
+      try {
+        const data = await fetchAttemptCounts(entry.name, entry.game);
+        const total = Math.max(0, Number(data && data.total) || 0);
+        resolved.set(entry.name + '|' + entry.game, total);
+      } catch(_){
+        resolved.set(entry.name + '|' + entry.game, null);
+      }
+    }));
+    cells.forEach(cell => {
+      const key = (cell.dataset.attemptName || 'Игрок') + '|' + (cell.dataset.attemptGame || 'all');
+      const total = resolved.get(key);
+      cell.textContent = total == null ? '—' : String(total);
+      cell.title = total == null ? 'Не удалось загрузить количество попыток' : ('Попыток в этой игре: ' + total);
+    });
+  }
+
   async function refreshTop(){
     if(loading) return;
     loading = true;
-    bodyEl.innerHTML = '<tr><td colspan="6" class="tk-top10-loading">Загрузка таблицы…</td></tr>';
+    bodyEl.innerHTML = '<tr><td colspan="7" class="tk-top10-loading">Загрузка таблицы…</td></tr>';
     modePillEl.textContent = configured() ? 'Режим: онлайн ТАБЛИЦЫ ГЕРОЕВ!' : 'Режим: локальный предпросмотр';
     noteEl.textContent = configured()
       ? 'Онлайн-таблица активна. В топ попадают только идеальные прохождения: 0 ошибок и 0 пропусков.'
@@ -35936,7 +35974,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
       const rows = await fetchTop(currentGame);
       renderRows(rows);
     } catch(err){
-      bodyEl.innerHTML = '<tr><td colspan="6" class="tk-top10-empty">Не удалось загрузить таблицу. Проверьте URL Google Apps Script.</td></tr>';
+      bodyEl.innerHTML = '<tr><td colspan="7" class="tk-top10-empty">Не удалось загрузить таблицу. Проверьте URL Google Apps Script.</td></tr>';
       noteEl.textContent = 'Ошибка загрузки: ' + err.message;
     } finally { loading = false; }
   }
