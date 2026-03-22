@@ -11443,6 +11443,7 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
 <div aria-hidden="true" class="avatar-big" id="itAvatarBig"></div>
 <div class="profile-meta">
 <h4 id="itPlayerName">Игрок</h4>
+<div class="sub tk-attempts-line" id="itAttemptsStat">↻ Попытки: —</div>
 <div class="sub" id="itPlayerRole">Персонаж</div>
 <div class="lvl">
 <span class="badge" id="itLvlBadge">LVL 1</span>
@@ -11666,6 +11667,7 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
 <div aria-hidden="true" class="avatar-big" id="infoAvatarBig"></div>
 <div class="profile-meta">
 <h4 id="infoPlayerName">Игрок</h4>
+<div class="sub tk-attempts-line" id="infoAttemptsStat">↻ Попытки: —</div>
 <div class="sub" id="infoPlayerRole">Персонаж</div>
 <div class="lvl">
 <span class="badge" id="infoLvlBadge">LVL 1</span>
@@ -11904,6 +11906,7 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
 <div aria-hidden="true" class="avatar-big" id="avatarBig"></div>
 <div class="profile-meta">
 <h4 id="playerName">Игрок</h4>
+<div class="sub tk-attempts-line" id="phishAttemptsStat">↻ Попытки: —</div>
 <div class="sub" id="playerRole">Персонаж</div>
 <div class="lvl">
 <span class="badge" id="lvlBadge">LVL 1</span>
@@ -12597,7 +12600,7 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
             name: (player && player.fio) ? player.fio : ((fioInput && fioInput.value) || 'Игрок'),
             game: 'phishing',
             character: avatarLabel((player && player.avatar) || 'boy')
-          });
+          }).then(()=>{ try { window.TKAttemptsUI && window.TKAttemptsUI.refreshPhish((player && player.fio) ? player.fio : ((fioInput && fioInput.value) || 'Игрок'), { force:true }); } catch(_) {} });
         }
       }catch(_){ }
     }
@@ -12742,6 +12745,7 @@ function setExplain(kind, text) {
 
     function updateHud() {
       playerName.textContent = player.fio || "Игрок";
+      try { window.TKAttemptsUI && window.TKAttemptsUI.refreshPhish(player.fio || "Игрок"); } catch(_) {}
       playerRole.textContent = avatarLabel(player.avatar || "boy");
       avatarBig.innerHTML = avatarSvg(player.avatar || "boy");
 
@@ -16011,7 +16015,7 @@ ${currentItem.text}`;
           name: (state && state.name) ? state.name : ((fioInput && fioInput.value) || 'Игрок'),
           game: 'infobez',
           character: variant && variant.role ? variant.role : 'Герой'
-        });
+        }).then(()=>{ try { window.TKAttemptsUI && window.TKAttemptsUI.refreshInfo((state && state.name) ? state.name : ((fioInput && fioInput.value) || 'Игрок'), { force:true }); } catch(_) {} });
       }
     }catch(_){ }
   }
@@ -16179,6 +16183,7 @@ ${currentItem.text}`;
   }
 
   function updateHud(){
+    try { window.TKAttemptsUI && window.TKAttemptsUI.refreshInfo((state && state.name) ? state.name : 'Игрок'); } catch(_) {}
     const progress = infoProgressFromXP(state.xp);
 
     if(lvlBadge) lvlBadge.textContent = 'LVL ' + progress.lvl + '/5';
@@ -17689,6 +17694,7 @@ explainBox.classList.toggle('ok', correct);
 
   function updateProfileUI(){
     const name = (state && state.name) ? state.name : 'Игрок';
+    try { window.TKAttemptsUI && window.TKAttemptsUI.refreshIt(name); } catch(_) {}
     const avatar = selectedAvatar || (state && state.avatar) || 'boy';
 
     const IT_VARIANTS = {
@@ -17781,7 +17787,7 @@ explainBox.classList.toggle('ok', correct);
       if(window.TKAttempts && typeof window.TKAttempts.start === 'function'){
         const name = (fioInput && fioInput.value.trim()) ? fioInput.value.trim() : ((state && state.name) ? state.name : 'Игрок');
         const character = selectedAvatar === 'girl' ? 'Девочка' : 'Мальчик-робот';
-        window.TKAttempts.start({ name, game:'informatics', character });
+        window.TKAttempts.start({ name, game:'informatics', character }).then(()=>{ try { window.TKAttemptsUI && window.TKAttemptsUI.refreshIt(name, { force:true }); } catch(_) {} });
       }
     }catch(_){ }
   }
@@ -36174,6 +36180,91 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 })();
 </script>
 
+<style id="tk-attempts-ui-inline-v1">
+.tk-attempts-line{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:5px;
+  padding:4px 10px;
+  border-radius:999px;
+  width:max-content;
+  max-width:100%;
+  font-size:11.5px;
+  line-height:1.15;
+  color:rgba(232,241,255,.92);
+  background:linear-gradient(180deg, rgba(88,142,214,.16), rgba(27,53,88,.18));
+  border:1px solid rgba(129,181,247,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  white-space:nowrap;
+}
+.tk-attempts-line.is-loading{ color:rgba(232,241,255,.7); }
+.tk-attempts-line.is-error{
+  color:rgba(255,212,212,.84);
+  border-color:rgba(255,132,132,.2);
+  background:linear-gradient(180deg, rgba(120,44,44,.16), rgba(58,20,20,.16));
+}
+</style>
+
+<script id="tk-attempts-ui-inline-script-v1">
+(function(){
+  const TTL = 10000;
+  const cache = Object.create(null);
+  const pending = Object.create(null);
+  function normalizeName(name){
+    return String(name == null ? '' : name).trim().replace(/\s+/g,' ') || 'Игрок';
+  }
+  function render(el, total, error){
+    if(!el) return;
+    el.classList.remove('is-loading','is-error');
+    if(error){
+      el.classList.add('is-error');
+      el.textContent = '↻ Попытки: —';
+      return;
+    }
+    const safeTotal = Number.isFinite(+total) ? Math.max(0, +total) : 0;
+    el.textContent = '↻ Попытки: ' + safeTotal;
+    el.title = safeTotal + ' ' + (safeTotal === 1 ? 'попытка' : (safeTotal >= 2 && safeTotal <= 4 ? 'попытки' : 'попыток')) + ' в этой игре';
+  }
+  function requestCount(name, game, elId, opts){
+    const el = document.getElementById(elId);
+    if(!el) return Promise.resolve(null);
+    const cleanName = normalizeName(name);
+    const key = game + '|' + cleanName.toLocaleLowerCase('ru-RU');
+    const force = !!(opts && opts.force);
+    const now = Date.now();
+    if(!force && cache[key] && (now - cache[key].ts) < TTL){
+      render(el, cache[key].total, false);
+      return Promise.resolve(cache[key]);
+    }
+    if(!force && pending[key]){
+      el.classList.add('is-loading');
+      return pending[key].then(data => { render(el, data && data.total, false); return data; }).catch(() => { render(el, null, true); return null; });
+    }
+    el.classList.add('is-loading');
+    el.textContent = '↻ Попытки: ...';
+    const fetcher = (window.TKAttempts && typeof window.TKAttempts.getCounts === 'function')
+      ? window.TKAttempts.getCounts({ name: cleanName, game })
+      : Promise.resolve({ ok:true, total:0 });
+    pending[key] = Promise.resolve(fetcher).then(data => {
+      const total = Number.isFinite(+(data && data.total)) ? +(data && data.total) : 0;
+      const payload = { total, ts: Date.now() };
+      cache[key] = payload;
+      render(el, total, false);
+      return payload;
+    }).catch(err => {
+      render(el, null, true);
+      throw err;
+    }).finally(() => { delete pending[key]; });
+    return pending[key];
+  }
+  window.TKAttemptsUI = {
+    refreshPhish(name, opts){ return requestCount(name, 'phishing', 'phishAttemptsStat', opts); },
+    refreshInfo(name, opts){ return requestCount(name, 'infobez', 'infoAttemptsStat', opts); },
+    refreshIt(name, opts){ return requestCount(name, 'informatics', 'itAttemptsStat', opts); }
+  };
+})();
+</script>
 
 <style id="tk-menu-button-final-polish-v1">
 /* Final mobile polish for the top game menu bar:
