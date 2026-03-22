@@ -11636,6 +11636,9 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     }
 
     function closeModal() {
+      if (phishIsTerminalState()) {
+        phishResetFlow();
+      }
       backdrop.classList.remove("is-open");
       backdrop.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
@@ -11682,6 +11685,34 @@ html.tk-games-scroll-compact #phishGame.is-open .menu-actions{
     let skipUsed = 0;
     let runAnsweredCount = 0;
     let runStartedAt = 0;
+
+    function phishIsTerminalState() {
+      return !!hasWon || !!(window.__tkHpIsDead && window.__tkHpIsDead("phish"));
+    }
+
+    function phishResetFlow() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      player = defaultPlayer();
+      savePlayer(player);
+      sessionCards = [];
+      currentIndex = 0;
+      answered = false;
+      runTotal = 0;
+      runCorrect = 0;
+      hasWon = false;
+      skipUsed = 0;
+      runAnsweredCount = 0;
+      runStartedAt = 0;
+      try { window.__tkHpReset && window.__tkHpReset("phish"); } catch {}
+      setExplain("", "");
+      phishSetQuestionVisible(true);
+      phishSetFinalMode(false);
+      reflectAvatarSelection();
+      if (fioInput) fioInput.value = "";
+      reflectFio();
+      setStep(1);
+      updateHud();
+    }
 
     function phishFormatDuration(ms){
       const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
@@ -11988,6 +12019,10 @@ function renderCard() {
     }
 
     function startGameFlow() {
+      if (phishIsTerminalState()) {
+        phishResetFlow();
+      }
+
       if (player.avatar && player.fio) {
         setStep(3);
         updateHud();
@@ -15044,6 +15079,57 @@ ${currentItem.text}`;
 
   let hasWon = false;
 
+  function infoIsTerminalState(){
+    return !!hasWon || !!(window.__tkHpIsDead && window.__tkHpIsDead("info"));
+  }
+
+  function infoResetTerminalState(){
+    try{ localStorage.removeItem(STORAGE_PROFILE); }catch(e){}
+    try{ localStorage.removeItem(STORAGE_PROGRESS); }catch(e){}
+    state.avatar = '';
+    state.name = '';
+    state.idx = 0;
+    state.correct = 0;
+    state.xp = 0;
+    state.skipsUsed = 0;
+    state.answered = 0;
+    state.startedAt = 0;
+    state.order = buildInfoOrder();
+    hasWon = false;
+    ensureInfoAvatarChoice('boy');
+    ensureInfoAvatarChoice('girl');
+    try{ window.__tkHpReset && window.__tkHpReset("info"); }catch(e){}
+    if(explainBox){
+      explainBox.innerHTML = '';
+      explainBox.textContent = '';
+      explainBox.classList.remove('is-on','ok','bad');
+    }
+    infoSetFinalMode(false);
+    infoSetQuestionVisible(true);
+    infoSetActionsVisible(true);
+    infoHideQImg();
+    if(btnRisk) btnRisk.disabled = false;
+    if(btnSafe) btnSafe.disabled = false;
+    if(btnSkip){
+      btnSkip.disabled = false;
+      if(!btnSkip.dataset.baseLabel){
+        const t = (btnSkip.textContent || 'Пропустить').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/,'').trim();
+        btnSkip.dataset.baseLabel = t || 'Пропустить';
+      }
+      const base = btnSkip.dataset.baseLabel || 'Пропустить';
+      btnSkip.textContent = `${base} (0/3)`;
+    }
+    if(nextBtn){
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Далее';
+    }
+    if(fioInput) fioInput.value = '';
+    if(toPlayBtn) toPlayBtn.disabled = true;
+    refreshInfoAvatarTiles();
+    setAvatarUI();
+    updateHud();
+  }
+
   function clampInfoXp(xp){
     return Math.max(0, Math.min(INFO_MAX_XP, Number(xp) || 0));
   }
@@ -15215,6 +15301,9 @@ ${currentItem.text}`;
   }
 
   function openInner(step){
+    if(infoIsTerminalState()){
+      infoResetTerminalState();
+    }
     backdrop.classList.add('is-open');
     backdrop.setAttribute('aria-hidden','false');
     showStep(step);
@@ -15233,6 +15322,9 @@ if(fioInput){
     updateHud();
   }
   function closeInner(){
+    if(infoIsTerminalState()){
+      infoResetTerminalState();
+    }
     backdrop.classList.remove('is-open');
     backdrop.setAttribute('aria-hidden','true');
     const focusBack = startBtn || trailerBtn;
@@ -16363,6 +16455,10 @@ explainBox.classList.toggle('ok', correct);
   let locked = false;
   let skipped = [];
 
+  function itHasTerminalState(savedState){
+    return !!((savedState && savedState.done) || (window.__tkHpIsDead && window.__tkHpIsDead("it")));
+  }
+
   function computeLevelFromIndex(i){
     if(i < 5) return 1;
     if(i < 10) return 2;
@@ -16385,6 +16481,10 @@ explainBox.classList.toggle('ok', correct);
 
    
     state = loadState();
+    if(itHasTerminalState(state)){
+      restart();
+      state = null;
+    }
     if(state && state.avatar && state.name){
       if(!state.startedAt) {
         state.startedAt = Date.now();
@@ -16405,6 +16505,9 @@ explainBox.classList.toggle('ok', correct);
   }
 
   function closeModal(){
+    if(itHasTerminalState(state)){
+      restart();
+    }
     if(backdrop && backdrop.classList && backdrop.classList.contains('is-open')){
       closeInner();
     }
@@ -17305,7 +17408,7 @@ explainBox.classList.toggle('ok', correct);
       hpValId: "phishHpVal",
       hpFillId: "phishHpFill",
       disableBtnIds: ["btnPhish","btnLegit","nextBtn"],
-      restartBtnId: "restartBtn",
+      restartBtnId: "resetBtn",
       startBtnIds: ["toPlayBtn","trailerStartBtn"]
     },
     info: {
@@ -17313,7 +17416,7 @@ explainBox.classList.toggle('ok', correct);
       hpValId: "infoHpVal",
       hpFillId: "infoHpFill",
       disableBtnIds: ["infoBtnRisk","infoBtnSafe","infoBtnSkip","infoNextBtn"],
-      restartBtnId: "infoRestartBtn",
+      restartBtnId: "infoResetBtn",
       startBtnIds: ["infoToPlayBtn","infoTrailerStartBtn"]
     },
     it: {
