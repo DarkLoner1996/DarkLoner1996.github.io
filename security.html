@@ -38006,4 +38006,341 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
 })();
 </script>
 
-  
+
+<style id="tk-live-stats-style">
+.tk-live-stats{
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 55;
+  width: min(260px, calc(100vw - 28px));
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .32s ease, transform .32s ease, filter .32s ease;
+  filter: saturate(.96);
+}
+.tk-live-stats.is-ready{
+  opacity: 1;
+  transform: translateY(0);
+}
+.tk-live-stats.is-soft{
+  opacity: .52;
+  filter: saturate(.8) blur(.15px);
+}
+.tk-live-stats__panel{
+  position: relative;
+  border-radius: 22px;
+  padding: 14px 14px 13px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(112,204,255,.16), transparent 44%),
+    radial-gradient(120% 120% at 100% 100%, rgba(255,204,112,.14), transparent 38%),
+    linear-gradient(180deg, rgba(8,20,44,.76), rgba(5,15,34,.6));
+  border: 1.5px solid rgba(243,213,149,.46);
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 0 0 1px rgba(75,145,235,.16);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+}
+.tk-live-stats__panel::before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:20px;
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.01));
+  pointer-events:none;
+}
+.tk-live-stats__head{
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom: 11px;
+}
+.tk-live-stats__title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.tk-live-stats__orb{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0 16%, #70d2ff 24%, #2496ff 58%, rgba(8,58,130,.8) 100%);
+  box-shadow: 0 0 0 3px rgba(92,186,255,.12), 0 0 18px rgba(92,186,255,.55);
+  animation: tkLivePulse 2.2s ease-in-out infinite;
+}
+@keyframes tkLivePulse{
+  0%,100%{ transform:scale(1); box-shadow: 0 0 0 3px rgba(92,186,255,.1), 0 0 16px rgba(92,186,255,.45); }
+  50%{ transform:scale(1.08); box-shadow: 0 0 0 5px rgba(92,186,255,.14), 0 0 24px rgba(92,186,255,.72); }
+}
+.tk-live-stats__label{
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(197,225,255,.76);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.tk-live-stats__sub{
+  font-size: 10px;
+  line-height: 1.15;
+  color: rgba(218,232,249,.58);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tk-live-stats__grid{
+  position: relative;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tk-live-stats__card{
+  position: relative;
+  min-height: 76px;
+  border-radius: 18px;
+  padding: 12px 12px 11px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025)),
+    linear-gradient(180deg, rgba(11,29,64,.64), rgba(7,20,45,.5));
+  border: 1px solid rgba(128,174,225,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+}
+.tk-live-stats__metric{
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(218,233,255,.82);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.tk-live-stats__value{
+  font-size: 31px;
+  line-height: .98;
+  font-weight: 900;
+  letter-spacing: -.04em;
+  color: #f4f8ff;
+  text-shadow: 0 0 18px rgba(64,170,255,.18);
+}
+.tk-live-stats__hint{
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: rgba(220,231,247,.65);
+  font-weight: 700;
+}
+.tk-live-stats__card--online .tk-live-stats__value{
+  color: #82e0ff;
+  text-shadow: 0 0 18px rgba(74,192,255,.32);
+}
+.tk-live-stats__card--visits .tk-live-stats__value{
+  color: #ffe4a1;
+  text-shadow: 0 0 18px rgba(255,196,84,.26);
+}
+.tk-live-stats__badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width: 48px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(245,216,155,.42);
+  background: linear-gradient(180deg, rgba(255,221,152,.14), rgba(255,221,152,.05));
+  color: rgba(255,233,190,.92);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+@media (max-width: 900px){
+  .tk-live-stats{
+    right: 14px;
+    bottom: 14px;
+    width: min(232px, calc(100vw - 18px));
+  }
+  .tk-live-stats__panel{ padding: 12px; border-radius: 20px; }
+  .tk-live-stats__grid{ gap: 8px; }
+  .tk-live-stats__card{ min-height: 70px; padding: 11px 11px 10px; border-radius: 16px; }
+  .tk-live-stats__value{ font-size: 27px; }
+}
+@media (max-width: 640px){
+  .tk-live-stats{
+    right: 10px;
+    left: 10px;
+    width: auto;
+    bottom: 10px;
+  }
+}
+</style>
+
+<div class="tk-live-stats" id="tkLiveStats" aria-live="polite" aria-label="Статистика платформы">
+  <div class="tk-live-stats__panel">
+    <div class="tk-live-stats__head">
+      <div class="tk-live-stats__title">
+        <span class="tk-live-stats__orb" aria-hidden="true"></span>
+        <div>
+          <div class="tk-live-stats__label">Статус платформы</div>
+          <div class="tk-live-stats__sub">живой онлайн-мониторинг</div>
+        </div>
+      </div>
+      <div class="tk-live-stats__badge" id="tkLiveStatsBadge">LIVE</div>
+    </div>
+    <div class="tk-live-stats__grid">
+      <section class="tk-live-stats__card tk-live-stats__card--online">
+        <div class="tk-live-stats__metric">Онлайн</div>
+        <div class="tk-live-stats__value" id="tkLiveOnline">—</div>
+        <div class="tk-live-stats__hint">активных игроков сейчас</div>
+      </section>
+      <section class="tk-live-stats__card tk-live-stats__card--visits">
+        <div class="tk-live-stats__metric">Посещения</div>
+        <div class="tk-live-stats__value" id="tkLiveVisits">—</div>
+        <div class="tk-live-stats__hint">всего запусков сайта</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script id="tk-live-stats-script">
+(function(){
+  var root = document.getElementById('tkLiveStats');
+  var onlineEl = document.getElementById('tkLiveOnline');
+  var visitsEl = document.getElementById('tkLiveVisits');
+  var badgeEl = document.getElementById('tkLiveStatsBadge');
+  if(!root || !onlineEl || !visitsEl) return;
+  // Виджет онлайна и посещений использует отдельный backend,
+  // чтобы не затрагивать таблицу победителей и её логику.
+
+  var ENDPOINT = window.TK_LIVE_STATS_URL || 'https://script.google.com/macros/s/AKfycbzcYMv_H0JmcwXsjAd8ZAcITpX0upJ6_XYlbEAPMzLD_38ca2HNMOtcHZ6L1r52oNRX/exec';
+  var PRESENCE_PING_MS = 25000;
+  var initialized = false;
+  var inflight = false;
+  var visitKey = 'visit-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+
+  function safeStorage(type){
+    try{ return window[type]; }catch(_){ return null; }
+  }
+  function ensureId(store, key, prefix){
+    try {
+      var current = store && store.getItem(key);
+      if(current) return current;
+      current = prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+      store && store.setItem(key, current);
+      return current;
+    } catch(_) {
+      return prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+    }
+  }
+  var localStore = safeStorage('localStorage');
+  var sessionStore = safeStorage('sessionStorage');
+  var clientId = ensureId(localStore, 'tk-site-client-id-v1', 'client');
+  var presenceId = ensureId(sessionStore, 'tk-site-presence-id-v1', 'presence');
+
+  function fmt(value){
+    var num = Math.max(0, Number(value) || 0);
+    try { return new Intl.NumberFormat('ru-RU').format(num); } catch(_) { return String(num); }
+  }
+  function setSoft(flag){ root.classList.toggle('is-soft', !!flag); }
+  function render(data){
+    if(!data) return;
+    onlineEl.textContent = fmt(data.onlineUsers);
+    visitsEl.textContent = fmt(data.totalVisits);
+    root.classList.add('is-ready');
+    if(badgeEl){ badgeEl.textContent = 'LIVE'; }
+  }
+  function configured(){
+    return !!ENDPOINT && !/PASTE_GOOGLE_APPS_SCRIPT_URL_HERE/i.test(ENDPOINT);
+  }
+  async function fetchStats(){
+    if(!configured()) return;
+    var sep = ENDPOINT.indexOf('?') >= 0 ? '&' : '?';
+    var url = ENDPOINT + sep + 'action=siteStats';
+    var res = await fetch(url, { method:'GET', cache:'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    if(data && data.ok === false) throw new Error(data.error || 'Stats error');
+    render(data);
+  }
+  async function pingPresence(){
+    if(!configured() || inflight) return;
+    inflight = true;
+    try {
+      var payload = {
+        action: 'presence',
+        sessionId: presenceId,
+        clientId: clientId,
+        visitKey: visitKey,
+        path: location.pathname || '/',
+        title: document.title || 'ТехноКрыльяРоссии',
+        source: 'site-live-widget',
+        userAgent: (navigator.userAgent || '').slice(0, 180)
+      };
+      var res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        keepalive: true
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      if(data && data.ok === false) throw new Error(data.error || 'Presence error');
+      render(data);
+      initialized = true;
+    } catch(err) {
+      if(!initialized){
+        onlineEl.textContent = '—';
+        visitsEl.textContent = '—';
+        root.classList.add('is-ready');
+        if(badgeEl) badgeEl.textContent = 'OFF';
+      }
+    } finally {
+      inflight = false;
+    }
+  }
+  function schedule(){
+    setInterval(function(){
+      if(document.visibilityState === 'visible') pingPresence();
+    }, PRESENCE_PING_MS);
+  }
+  function watchOverlayState(){
+    var selectors = [
+      '#tkLicenseOverlay.is-open',
+      '#tkTop10Modal[style*="display: block"]',
+      '.modal.show',
+      '.modal.is-open',
+      '.game-modal.is-open'
+    ];
+    function sync(){
+      var dim = false;
+      try{
+        dim = selectors.some(function(sel){ return !!document.querySelector(sel); });
+      } catch(_){ dim = false; }
+      setSoft(dim);
+    }
+    sync();
+    new MutationObserver(sync).observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','aria-hidden'] });
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') pingPresence();
+  });
+  window.addEventListener('pageshow', function(){ setTimeout(pingPresence, 380); });
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      fetchStats().catch(function(){});
+      pingPresence();
+      schedule();
+      watchOverlayState();
+    }, 1200);
+  }, { once:true });
+})();
+</script>
