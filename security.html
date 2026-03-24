@@ -20265,6 +20265,8 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   .cinema-slider.cinema-v2 .kino-badge{
     --kino-badge-drop: 10px;
     --kino-badge-gap: clamp(28px, 3vh, 52px);
+    height: clamp(236px, 16.2vw, 356px);
+    max-width: min(980px, 92vw);
   }
 }
 
@@ -40962,10 +40964,10 @@ html body #cinema .cinema-banner-title.cinema-banner-title--svg{
 
 html body #cinema .cinema-banner-title img.cinema-title-art{
   display:block !important;
-  width:min(700px, 36vw) !important;
+  width:min(430px, 22.8vw) !important;
   max-width:92vw !important;
   height:auto !important;
-  max-height:250px !important;
+  max-height:160px !important;
   margin:0 auto !important;
   object-fit:contain !important;
   image-rendering:auto !important;
@@ -41048,9 +41050,10 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
   function is4kLike(){
     var dpr = window.devicePixelRatio || 1;
     var sw = Math.max(window.screen && window.screen.width || 0, window.screen && window.screen.height || 0);
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, window.innerHeight || 0);
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 0);
     var eff = iw * dpr;
-    return iw >= 2400 || sw >= 3000 || eff >= 3000;
+    if(iw <= 2150) return false;
+    return iw >= 2400 || ((sw >= 3000 || eff >= 3000) && iw > 2150);
   }
 
   function imp(el, prop, val){
@@ -41098,6 +41101,10 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
     var oldBadge = cinema.querySelector('.cinema-banner > .kino-badge');
     var kicker = cinema.querySelector('.cinema-kicker');
     var img = ensureImage(title);
+    var vpW = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 0);
+    var vpH = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, 0);
+    var fhdView = vpW >= 1500 && vpW <= 2150 && vpH >= 820;
+    var fhdNarrow = vpW <= 1850;
     var fourK = is4kLike();
 
     root.classList.toggle('tk-clean-4k-cinema-v1', fourK);
@@ -41193,10 +41200,10 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
 
     if(img){
       imp(img, 'display', 'block');
-      imp(img, 'width', fourK ? 'min(760px, 38vw)' : 'min(700px, 36vw)');
+      imp(img, 'width', fourK ? 'min(760px, 38vw)' : 'min(470px, 24.5vw)');
       imp(img, 'max-width', '92vw');
       imp(img, 'height', 'auto');
-      imp(img, 'max-height', fourK ? '270px' : '250px');
+      imp(img, 'max-height', fourK ? '270px' : '178px');
       imp(img, 'margin', '0 auto');
       imp(img, 'object-fit', 'contain');
     }
@@ -41293,8 +41300,9 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
 })();
 </script>
 
-</body>
-</html>
+
+
+
 
 <style id="oa-sidechip-gold-outline-like-menu-v3">
 /* Much stronger gold frame for the mini-game cards, visually closer to the top game-menu bar. */
@@ -46860,9 +46868,10 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
   function is4kLike(){
     var dpr = window.devicePixelRatio || 1;
     var sw = Math.max(window.screen && window.screen.width || 0, window.screen && window.screen.height || 0);
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, window.innerHeight || 0);
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 0);
     var eff = iw * dpr;
-    return iw >= 2400 || sw >= 3000 || eff >= 3000;
+    if(iw <= 2150) return false;
+    return iw >= 2400 || ((sw >= 3000 || eff >= 3000) && iw > 2150);
   }
 
   function imp(el, prop, val){
@@ -46910,6 +46919,10 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
     var oldBadge = cinema.querySelector('.cinema-banner > .kino-badge');
     var kicker = cinema.querySelector('.cinema-kicker');
     var img = ensureImage(title);
+    var vpW = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 0);
+    var vpH = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, 0);
+    var fhdView = vpW >= 1500 && vpW <= 2150 && vpH >= 820;
+    var fhdNarrow = vpW <= 1850;
     var fourK = is4kLike();
 
     root.classList.toggle('tk-clean-4k-cinema-v1', fourK);
@@ -46987,10 +47000,12 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
     }
 
     if(title){
+      var titleW = fhdView ? (fhdNarrow ? '330px' : '360px') : 'auto';
       title.className = 'cinema-banner-title cinema-banner-title--art cinema-banner-title--cartoon-clean';
       imp(title, 'display', 'block');
-      imp(title, 'width', 'auto');
-      imp(title, 'max-width', 'none');
+      imp(title, 'width', titleW);
+      imp(title, 'max-width', fhdView ? titleW : 'none');
+      imp(title, 'min-width', '0');
       imp(title, 'margin', '0 auto');
       imp(title, 'padding', '0');
       imp(title, 'font-size', '0');
@@ -47002,11 +47017,15 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
     }
 
     if(img){
+      var imgW = fhdView ? (fhdNarrow ? '330px' : '360px') : (fourK ? 'min(760px, 38vw)' : 'min(700px, 36vw)');
+      var imgMaxW = fhdView ? imgW : '92vw';
+      var imgMaxH = fhdView ? (fhdNarrow ? '126px' : '138px') : (fourK ? '270px' : '250px');
       imp(img, 'display', 'block');
-      imp(img, 'width', fourK ? 'min(760px, 38vw)' : 'min(700px, 36vw)');
-      imp(img, 'max-width', '92vw');
+      imp(img, 'width', imgW);
+      imp(img, 'max-width', imgMaxW);
+      imp(img, 'min-width', '0');
       imp(img, 'height', 'auto');
-      imp(img, 'max-height', fourK ? '270px' : '250px');
+      imp(img, 'max-height', imgMaxH);
       imp(img, 'margin', '0 auto');
       imp(img, 'object-fit', 'contain');
     }
@@ -47103,5 +47122,443 @@ html.tk-clean-4k-cinema-v1 #cinema .cinema-banner-title img.cinema-title-art{
 })();
 </script>
 
+
+<style id="tk-fhd-cartoon-size-tune-v2">
+@media (min-width: 1600px) and (max-width: 2559px) and (min-height: 850px){
+  html:not(.tk-clean-4k-cinema-v1) body #cinema .cinema-banner-title img.cinema-title-art,
+  html:not(.tk-clean-4k-cinema-v1) #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cinema-stable-v17 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cinema-stable-v17 #cinema .cinema-banner-title img.cinema-title-art{
+    width:min(470px, 24.5vw) !important;
+    max-width:min(430px, 82vw) !important;
+    max-height:178px !important;
+    height:auto !important;
+    margin:0 auto !important;
+  }
+}
+</style>
+<script id="tk-fhd-cartoon-size-tune-v2-script">
+(function(){
+  function isFhd(){
+    const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return w >= 1600 && w <= 2559 && h >= 850;
+  }
+  function apply(){
+    if(!isFhd()) return;
+    const img = document.querySelector('#cinema .cinema-banner-title img.cinema-title-art');
+    if(!img) return;
+    img.style.setProperty('width', 'min(470px, 24.5vw)', 'important');
+    img.style.setProperty('max-width', 'min(470px, 82vw)', 'important');
+    img.style.setProperty('max-height', '178px', 'important');
+    img.style.setProperty('height', 'auto', 'important');
+    img.style.setProperty('margin', '0 auto', 'important');
+  }
+  let raf = 0;
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', queue, {once:true});
+  } else {
+    queue();
+  }
+  window.addEventListener('load', queue, {once:false});
+  window.addEventListener('resize', queue, {passive:true});
+  const mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true});
+})();
+</script>
+
+
+<style id="tk-fhd-cartoon-size-final-v7">
+@media (min-width: 1500px) and (max-width: 1899px) and (min-height: 820px){
+  html.tk-fhd-cartoon-final-v7 #cinema .cinema-banner,
+  html.tk-fhd-cartoon-final-v7 #cinema .cinema-banner-title{
+    width:auto !important;
+    max-width:none !important;
+  }
+  html.tk-fhd-cartoon-final-v7 #cinema .cinema-banner-title img.cinema-title-art{
+    width:min(390px, 22.5vw) !important;
+    max-width:min(390px, 82vw) !important;
+    max-height:148px !important;
+    height:auto !important;
+    margin:0 auto !important;
+    object-fit:contain !important;
+  }
+}
+@media (min-width: 1900px) and (max-width: 2559px) and (min-height: 820px){
+  html.tk-fhd-cartoon-final-v7 #cinema .cinema-banner,
+  html.tk-fhd-cartoon-final-v7 #cinema .cinema-banner-title{
+    width:auto !important;
+    max-width:none !important;
+  }
+  html.tk-fhd-cartoon-final-v7 #cinema .cinema-banner-title img.cinema-title-art{
+    width:min(470px, 24.5vw) !important;
+    max-width:min(470px, 82vw) !important;
+    max-height:178px !important;
+    height:auto !important;
+    margin:0 auto !important;
+    object-fit:contain !important;
+  }
+}
+</style>
+<script id="tk-fhd-cartoon-size-final-v7-script">
+(function(){
+  function dims(){
+    const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const dpr = window.devicePixelRatio || 1;
+    const eff = Math.max(w, h) * dpr;
+    return {w, h, eff};
+  }
+  function is4kLike(){
+    const {w} = dims();
+    const sw = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
+    return w >= 2400 || sw >= 3000;
+  }
+  function isFhdTarget(){
+    const {w, h} = dims();
+    return w >= 1500 && w <= 2150 && h >= 820;
+  }
+  function imp(el, prop, val){
+    if(!el) return;
+    try{ el.style.setProperty(prop, val, 'important'); }catch(_e){}
+  }
+  function apply(){
+    const root = document.documentElement;
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    const img = cinema.querySelector('.cinema-banner-title img.cinema-title-art');
+    const title = cinema.querySelector('.cinema-banner-title');
+    const banner = cinema.querySelector('.cinema-banner');
+    const fourK = is4kLike();
+    const fhd = isFhdTarget() && !fourK;
+    root.classList.toggle('tk-fhd-cartoon-final-v7', fhd);
+    if(!fhd || !img) return;
+    const {w} = dims();
+    const small = w < 1900;
+    if(title){
+      imp(title, 'display', 'block');
+      imp(title, 'width', 'auto');
+      imp(title, 'max-width', 'none');
+      imp(title, 'margin', '0 auto');
+      imp(title, 'padding', '0');
+      imp(title, 'font-size', '0');
+      imp(title, 'line-height', '0');
+    }
+    if(banner){
+      imp(banner, 'width', 'auto');
+      imp(banner, 'max-width', 'none');
+      imp(banner, 'margin', '0 auto 6px');
+      imp(banner, 'padding', '0');
+      imp(banner, 'background', 'none');
+      imp(banner, 'border', 'none');
+      imp(banner, 'box-shadow', 'none');
+    }
+    imp(img, 'width', small ? 'min(390px, 22.5vw)' : 'min(430px, 22.8vw)');
+    imp(img, 'max-width', small ? 'min(390px, 82vw)' : 'min(430px, 82vw)');
+    imp(img, 'max-height', small ? '148px' : '160px');
+    imp(img, 'height', 'auto');
+    imp(img, 'margin', '0 auto');
+    imp(img, 'object-fit', 'contain');
+  }
+  let raf = 0;
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', queue, {once:true});
+  }else{
+    queue();
+  }
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  [0, 120, 300, 700, 1400, 2600, 4200, 6500, 9000, 12000].forEach(ms => setTimeout(queue, ms));
+  const mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src']});
+})();
+</script>
+
+
+<style id="tk-fhd-cartoon-ultimate-narrow-v9">
+@media (min-width: 1500px) and (max-width: 1850px) and (min-height: 820px){
+  html body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cinema-stable-v17 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cartoon-final-v7 body #cinema .cinema-banner-title img.cinema-title-art{
+    width:min(390px, 22.5vw) !important;
+    max-width:min(390px, 82vw) !important;
+    max-height:148px !important;
+    height:auto !important;
+  }
+}
+@media (min-width: 1851px) and (max-width: 2150px) and (min-height: 820px){
+  html body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cinema-stable-v17 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cartoon-final-v7 body #cinema .cinema-banner-title img.cinema-title-art{
+    width:min(430px, 22.8vw) !important;
+    max-width:min(430px, 82vw) !important;
+    max-height:160px !important;
+    height:auto !important;
+  }
+}
+</style>
+<script id="tk-fhd-cartoon-ultimate-narrow-v9-script">
+(function(){
+  function dims(){
+    const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return {w,h};
+  }
+  function apply(){
+    const {w,h} = dims();
+    if(h < 820 || w < 1500 || w > 2150) return;
+    const img = document.querySelector('#cinema .cinema-banner-title img.cinema-title-art');
+    if(!img) return;
+    const small = w <= 1850;
+    img.style.setProperty('width', small ? 'min(390px, 22.5vw)' : 'min(430px, 22.8vw)', 'important');
+    img.style.setProperty('max-width', small ? 'min(390px, 82vw)' : 'min(430px, 82vw)', 'important');
+    img.style.setProperty('max-height', small ? '148px' : '160px', 'important');
+    img.style.setProperty('height', 'auto', 'important');
+    img.style.setProperty('object-fit', 'contain', 'important');
+    const title = document.querySelector('#cinema .cinema-banner-title');
+    if(title){
+      title.style.setProperty('width','auto','important');
+      title.style.setProperty('max-width','none','important');
+      title.style.setProperty('font-size','0','important');
+      title.style.setProperty('line-height','0','important');
+    }
+  }
+  let raf = 0;
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', queue, {once:true});
+  } else {
+    queue();
+  }
+  window.addEventListener('load', queue);
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  [0,100,250,500,1000,1800,3200,5000,8000,12000].forEach(ms => setTimeout(queue, ms));
+  const mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src']});
+})();
+</script>
+
+
+<style id="tk-fhd-cartoon-real-fix-v11">
+@media (min-width: 1500px) and (max-width: 2150px) and (min-height: 820px){
+  html.tk-fhd-cartoon-real-fix-v11 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cartoon-real-fix-v11 #cinema .cinema-banner-title img.cinema-title-art{
+    width: 460px !important;
+    max-width: 460px !important;
+    min-width: 0 !important;
+    max-height: 176px !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+}
+@media (min-width: 1500px) and (max-width: 1850px) and (min-height: 820px){
+  html.tk-fhd-cartoon-real-fix-v11 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cartoon-real-fix-v11 #cinema .cinema-banner-title img.cinema-title-art{
+    width: 430px !important;
+    max-width: 430px !important;
+    min-width: 0 !important;
+    max-height: 164px !important;
+  }
+}
+</style>
+<script id="tk-fhd-cartoon-real-fix-v11-script">
+(function(){
+  function dims(){
+    const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
+    return {w,h,sw};
+  }
+  function isRealFhd(){
+    const {w,h,sw} = dims();
+    return w >= 1500 && w <= 2150 && h >= 820 && sw < 3000;
+  }
+  function imp(el, prop, val){
+    if(!el) return;
+    try{ el.style.setProperty(prop, val, 'important'); }catch(_e){}
+  }
+  function apply(){
+    const root = document.documentElement;
+    const fhd = isRealFhd();
+    root.classList.toggle('tk-fhd-cartoon-real-fix-v11', fhd);
+    const img = document.querySelector('#cinema .cinema-banner-title img.cinema-title-art');
+    const title = document.querySelector('#cinema .cinema-banner-title');
+    const banner = document.querySelector('#cinema .cinema-banner');
+    if(!fhd || !img) return;
+    const {w} = dims();
+    const narrow = w <= 1850;
+    imp(img, 'width', narrow ? '430px' : '460px');
+    imp(img, 'max-width', narrow ? '430px' : '460px');
+    imp(img, 'min-width', '0');
+    imp(img, 'max-height', narrow ? '164px' : '176px');
+    imp(img, 'height', 'auto');
+    imp(img, 'object-fit', 'contain');
+    imp(img, 'display', 'block');
+    imp(img, 'margin', '0 auto');
+    imp(img, 'transform', 'none');
+    if(title){
+      imp(title, 'width', 'auto');
+      imp(title, 'max-width', 'none');
+      imp(title, 'min-width', '0');
+      imp(title, 'font-size', '0');
+      imp(title, 'line-height', '0');
+      imp(title, 'margin', '0 auto');
+      imp(title, 'padding', '0');
+    }
+    if(banner){
+      imp(banner, 'width', 'auto');
+      imp(banner, 'max-width', 'none');
+      imp(banner, 'min-width', '0');
+      imp(banner, 'margin', '0 auto 6px');
+      imp(banner, 'padding', '0');
+    }
+  }
+  let raf = 0;
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', queue, {once:true});
+  } else {
+    queue();
+  }
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  [0,120,300,700,1400,2600,4200,6500,9000].forEach(ms => setTimeout(queue, ms));
+  const mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src']});
+})();
+</script>
+
+
+<style id="tk-fhd-cartoon-force-v12">
+@media (min-width: 1500px) and (max-width: 2150px) and (min-height: 820px){
+  html.tk-fhd-cartoon-force-v12 body #cinema .cinema-banner,
+  html.tk-fhd-cartoon-force-v12 #cinema .cinema-banner{
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    padding:0 !important;
+    margin:0 auto 6px !important;
+    background:none !important;
+    border:none !important;
+    box-shadow:none !important;
+  }
+  html.tk-fhd-cartoon-force-v12 body #cinema .cinema-banner-title,
+  html.tk-fhd-cartoon-force-v12 #cinema .cinema-banner-title{
+    width:360px !important;
+    max-width:360px !important;
+    min-width:0 !important;
+    margin:0 auto !important;
+    padding:0 !important;
+    font-size:0 !important;
+    line-height:0 !important;
+  }
+  html.tk-fhd-cartoon-force-v12 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cartoon-force-v12 #cinema .cinema-banner-title img.cinema-title-art{
+    display:block !important;
+    width:360px !important;
+    max-width:360px !important;
+    min-width:0 !important;
+    max-height:138px !important;
+    height:auto !important;
+    margin:0 auto !important;
+    object-fit:contain !important;
+  }
+}
+@media (min-width: 1500px) and (max-width: 1850px) and (min-height: 820px){
+  html.tk-fhd-cartoon-force-v12 body #cinema .cinema-banner-title,
+  html.tk-fhd-cartoon-force-v12 #cinema .cinema-banner-title{
+    width:330px !important;
+    max-width:330px !important;
+  }
+  html.tk-fhd-cartoon-force-v12 body #cinema .cinema-banner-title img.cinema-title-art,
+  html.tk-fhd-cartoon-force-v12 #cinema .cinema-banner-title img.cinema-title-art{
+    width:330px !important;
+    max-width:330px !important;
+    max-height:126px !important;
+  }
+}
+</style>
+<script id="tk-fhd-cartoon-force-v12-script">
+(function(){
+  function dims(){
+    const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
+    return {w,h,sw};
+  }
+  function isFhd(){
+    const {w,h,sw} = dims();
+    return w >= 1500 && w <= 2150 && h >= 820 && sw < 3000;
+  }
+  function imp(el, prop, val){
+    if(!el) return;
+    try{ el.style.setProperty(prop, val, 'important'); }catch(_e){}
+  }
+  function apply(){
+    const root = document.documentElement;
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    const on = isFhd();
+    root.classList.toggle('tk-fhd-cartoon-force-v12', on);
+    if(!on) return;
+    const title = cinema.querySelector('.cinema-banner-title');
+    const img = cinema.querySelector('.cinema-banner-title img.cinema-title-art');
+    const banner = cinema.querySelector('.cinema-banner');
+    const {w} = dims();
+    const narrow = w <= 1850;
+    const imgW = narrow ? '330px' : '360px';
+    const imgH = narrow ? '126px' : '138px';
+    if(banner){
+      imp(banner,'width','auto');
+      imp(banner,'max-width','none');
+      imp(banner,'min-width','0');
+      imp(banner,'padding','0');
+      imp(banner,'margin','0 auto 6px');
+      imp(banner,'background','none');
+      imp(banner,'border','none');
+      imp(banner,'box-shadow','none');
+    }
+    if(title){
+      imp(title,'display','block');
+      imp(title,'width',imgW);
+      imp(title,'max-width',imgW);
+      imp(title,'min-width','0');
+      imp(title,'margin','0 auto');
+      imp(title,'padding','0');
+      imp(title,'font-size','0');
+      imp(title,'line-height','0');
+      imp(title,'transform','none');
+    }
+    if(img){
+      imp(img,'display','block');
+      imp(img,'width',imgW);
+      imp(img,'max-width',imgW);
+      imp(img,'min-width','0');
+      imp(img,'max-height',imgH);
+      imp(img,'height','auto');
+      imp(img,'margin','0 auto');
+      imp(img,'object-fit','contain');
+      imp(img,'transform','none');
+    }
+  }
+  let raf = 0;
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  [0,100,250,500,1000,1800,3200,5000,8000,12000].forEach(ms => setTimeout(queue, ms));
+  const mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src']});
+})();
+</script>
 </body>
 </html>
+
+
