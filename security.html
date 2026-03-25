@@ -39997,6 +39997,101 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinem
   mo.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src'] });
 })();
 </script>
+
+<style id="tk-4k-cinema-v9-height-and-badge-fix">
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .slider-container::before{
+  inset: -8px 12px -10px !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .slider-wrapper{
+  padding-top: 12px !important;
+  padding-bottom: 10px !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-slide{
+  padding: 10px 10px 9px !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-img{
+  height: clamp(110px, 12.1vw, 142px) !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-slide.is-active .movie-img{
+  height: clamp(128px, 13.95vw, 164px) !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-info{
+  margin-top: 8px !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-info h3{
+  font-size: clamp(14px, 1.25vw, 16px) !important;
+  min-height: 2.2em !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-slide.is-active .movie-info h3{
+  font-size: clamp(15px, 1.44vw, 18px) !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-btn{
+  padding: 8px 13px !important;
+  font-size: 10.5px !important;
+}
+</style>
+<script id="tk-4k-cinema-v9-badge-size-fix-script">
+(function(){
+  var ticking = false;
+  var mo = null;
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+  function is4k(){
+    var d = vp();
+    return d.w >= 2300 || d.h >= 1300;
+  }
+  function clamp(n, min, max){
+    return Math.max(min, Math.min(max, n));
+  }
+  function imp(el, prop, val){
+    if(!el) return;
+    try{ el.style.setProperty(prop, val, 'important'); }catch(_e){}
+  }
+  function setVar(name, val){
+    try{ document.documentElement.style.setProperty(name, val); }catch(_e){}
+  }
+  function apply(){
+    ticking = false;
+    var root = document.documentElement;
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    var active = root.classList.contains('tk-cinema-final-clean') &&
+                 root.classList.contains('tk-cinema-final-4k') &&
+                 root.classList.contains('tk-4k-cinema-bear-align-fix') &&
+                 is4k();
+    if(!active) return;
+    var d = vp();
+    var headWidth = clamp(Math.round(d.w * 0.208), 760, 840);
+    var badgeWidth = clamp(Math.round(headWidth * 0.3335 * 0.855), 216, 239);
+    var topBadge = cinema.querySelector('.kino-badge-top-4k');
+    if(topBadge){
+      setVar('--tk-4k-kino-badge-width', badgeWidth + 'px');
+      imp(topBadge, 'width', badgeWidth + 'px');
+      imp(topBadge, 'max-width', badgeWidth + 'px');
+      imp(topBadge, 'height', 'auto');
+    }
+  }
+  function queue(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(apply);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0, 120, 400, 1000, 2500, 5000].forEach(function(ms){ setTimeout(queue, ms); });
+  mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src'] });
+})();
+</script>
+
 </body>
 </html>
 
