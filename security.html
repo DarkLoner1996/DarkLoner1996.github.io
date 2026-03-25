@@ -39754,6 +39754,247 @@ html.tk-cinema-final-clean:not(.tk-cinema-final-4k) #cinema .cinema-head{
   }
 }
 </style>
+
+<style id="tk-4k-cinema-bear-align-fix-v3">
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema{
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  top: var(--tk-4k-cinema-top, 150px) !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  z-index: 26 !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-head{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: var(--tk-4k-cinema-head-width, 800px) !important;
+  max-width: min(var(--tk-4k-cinema-head-width, 800px), 92vw) !important;
+  margin: 0 auto 16px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  row-gap: 0 !important;
+  overflow: visible !important;
+  text-align: center !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .kino-badge-top-4k{
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  align-self: center !important;
+  justify-self: center !important;
+  width: var(--tk-4k-kino-badge-width, 230px) !important;
+  max-width: var(--tk-4k-kino-badge-width, 230px) !important;
+  height: auto !important;
+  margin: var(--tk-4k-kino-badge-margin, 0 auto 8px) !important;
+  transform: translate3d(var(--tk-4k-kino-badge-x, 0px), var(--tk-4k-kino-badge-y, 0px), 0) !important;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,.24)) !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-banner{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: var(--tk-4k-cinema-head-width, 800px) !important;
+  max-width: min(var(--tk-4k-cinema-head-width, 800px), 92vw) !important;
+  min-width: 0 !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: visible !important;
+  text-align: center !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-banner-title,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-banner-title.cinema-banner-title--art{
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  text-align: center !important;
+  transform: none !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-banner-title img.cinema-title-art{
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  max-height: var(--tk-4k-cinema-title-height, 280px) !important;
+  margin: 0 auto !important;
+  object-fit: contain !important;
+  transform: none !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-banner-sub{
+  margin: var(--tk-4k-cinema-sub-margin, 6px auto 0) !important;
+  transform: none !important;
+}
+</style>
+<script id="tk-4k-cinema-bear-align-fix-v3-script">
+(function(){
+  var ticking = false;
+  var mo = null;
+
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+  function is4k(){
+    var d = vp();
+    return d.w >= 2300 || d.h >= 1300;
+  }
+  function clamp(n, min, max){
+    return Math.max(min, Math.min(max, n));
+  }
+  function imp(el, prop, val){
+    if(!el) return;
+    try{ el.style.setProperty(prop, val, 'important'); }catch(_e){}
+  }
+  function setVar(name, val){
+    try{ document.documentElement.style.setProperty(name, val); }catch(_e){}
+  }
+
+  function apply(){
+    ticking = false;
+    var root = document.documentElement;
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    var active = root.classList.contains('tk-cinema-final-clean') &&
+                 root.classList.contains('tk-cinema-final-4k') &&
+                 is4k();
+
+    root.classList.toggle('tk-4k-cinema-bear-align-fix', active);
+    if(!active) return;
+
+    var d = vp();
+    var cinemaTop = clamp(Math.round(d.h * 0.072), 132, 168);
+    var headWidth = clamp(Math.round(d.w * 0.208), 760, 840);
+    var titleHeight = clamp(Math.round(d.h * 0.13), 245, 290);
+    var badgeWidth = clamp(Math.round(headWidth * 0.3335), 253, 282);
+    var badgeX = 0;
+    var badgeY = 0;
+    var badgeMargin = '0 auto 12px';
+    var subMargin = '6px auto 0';
+
+    setVar('--tk-4k-cinema-top', cinemaTop + 'px');
+    setVar('--tk-4k-cinema-head-width', headWidth + 'px');
+    setVar('--tk-4k-cinema-title-height', titleHeight + 'px');
+    setVar('--tk-4k-kino-badge-width', badgeWidth + 'px');
+    setVar('--tk-4k-kino-badge-x', badgeX + 'px');
+    setVar('--tk-4k-kino-badge-y', badgeY + 'px');
+    setVar('--tk-4k-kino-badge-margin', badgeMargin);
+    setVar('--tk-4k-cinema-sub-margin', subMargin);
+
+    var head = cinema.querySelector('.cinema-head');
+    var banner = cinema.querySelector('.cinema-banner');
+    var topBadge = cinema.querySelector('.kino-badge-top-4k');
+    var title = cinema.querySelector('.cinema-banner-title');
+    var titleImg = cinema.querySelector('.cinema-title-art');
+    var sub = cinema.querySelector('.cinema-banner-sub');
+
+    imp(cinema, 'top', cinemaTop + 'px');
+    imp(cinema, 'left', 'auto');
+    imp(cinema, 'right', 'auto');
+    imp(cinema, 'margin', '0 auto');
+    imp(cinema, 'transform', 'none');
+
+    if(head){
+      imp(head, 'display', 'flex');
+      imp(head, 'flex-direction', 'column');
+      imp(head, 'align-items', 'center');
+      imp(head, 'justify-content', 'flex-start');
+      imp(head, 'width', headWidth + 'px');
+      imp(head, 'max-width', 'min(' + headWidth + 'px, 92vw)');
+      imp(head, 'margin', '0 auto 16px');
+      imp(head, 'padding', '0');
+      imp(head, 'gap', '0');
+      imp(head, 'row-gap', '0');
+      imp(head, 'text-align', 'center');
+      imp(head, 'transform', 'none');
+    }
+    if(topBadge){
+      imp(topBadge, 'display', 'block');
+      imp(topBadge, 'visibility', 'visible');
+      imp(topBadge, 'opacity', '1');
+      imp(topBadge, 'position', 'relative');
+      imp(topBadge, 'left', 'auto');
+      imp(topBadge, 'right', 'auto');
+      imp(topBadge, 'top', 'auto');
+      imp(topBadge, 'bottom', 'auto');
+      imp(topBadge, 'align-self', 'center');
+      imp(topBadge, 'justify-self', 'center');
+      imp(topBadge, 'width', badgeWidth + 'px');
+      imp(topBadge, 'max-width', badgeWidth + 'px');
+      imp(topBadge, 'height', 'auto');
+      imp(topBadge, 'margin', badgeMargin);
+      imp(topBadge, 'transform', 'translate3d(' + badgeX + 'px,' + badgeY + 'px,0)');
+    }
+    if(banner){
+      imp(banner, 'display', 'flex');
+      imp(banner, 'flex-direction', 'column');
+      imp(banner, 'align-items', 'center');
+      imp(banner, 'justify-content', 'flex-start');
+      imp(banner, 'width', headWidth + 'px');
+      imp(banner, 'max-width', 'min(' + headWidth + 'px, 92vw)');
+      imp(banner, 'margin', '0 auto');
+      imp(banner, 'padding', '0');
+      imp(banner, 'gap', '0');
+      imp(banner, 'text-align', 'center');
+      imp(banner, 'transform', 'none');
+    }
+    if(title){
+      imp(title, 'display', 'block');
+      imp(title, 'width', '100%');
+      imp(title, 'max-width', '100%');
+      imp(title, 'margin', '0 auto');
+      imp(title, 'padding', '0');
+      imp(title, 'text-align', 'center');
+      imp(title, 'transform', 'none');
+    }
+    if(titleImg){
+      imp(titleImg, 'display', 'block');
+      imp(titleImg, 'width', '100%');
+      imp(titleImg, 'max-width', '100%');
+      imp(titleImg, 'height', 'auto');
+      imp(titleImg, 'max-height', titleHeight + 'px');
+      imp(titleImg, 'margin', '0 auto');
+      imp(titleImg, 'transform', 'none');
+    }
+    if(sub){
+      imp(sub, 'margin', subMargin);
+      imp(sub, 'transform', 'none');
+    }
+  }
+
+  function queue(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(apply);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0,120,400,1000,2500,5000].forEach(function(ms){ setTimeout(queue, ms); });
+
+  mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style','src'] });
+})();
+</script>
 </body>
 </html>
 
