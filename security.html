@@ -42253,6 +42253,303 @@ html.tk-2560x1600-real-fix-v8 #cinema .movie-btn{
 })();
 </script>
 
+
+<style id="tk-2560x1600-real-fix-v9-style">
+html.tk-2560x1600-real-fix-v9 #cinema{
+  width: min(1028px, calc(100vw - 430px)) !important;
+  max-width: min(1028px, calc(100vw - 430px)) !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .slider-container{
+  position: relative !important;
+  width: min(910px, calc(100vw - 610px)) !important;
+  max-width: min(910px, calc(100vw - 610px)) !important;
+  margin: 10px auto 0 !important;
+  overflow: visible !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .slider-wrapper{
+  width: min(910px, calc(100vw - 610px)) !important;
+  max-width: min(910px, calc(100vw - 610px)) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  gap: 14px !important;
+  padding: 14px 0 18px !important;
+  margin: 0 auto !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-snap-type: x mandatory !important;
+  scroll-padding-left: 0 !important;
+  scroll-padding-right: 0 !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .slider-wrapper::-webkit-scrollbar{
+  display: none !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .slider-prev,
+html.tk-2560x1600-real-fix-v9 #cinema .slider-next{
+  width: 44px !important;
+  height: 44px !important;
+  top: 49% !important;
+  z-index: 120 !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .slider-prev{
+  left: -54px !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .slider-next{
+  right: -54px !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-slide{
+  flex: 0 0 294px !important;
+  width: 294px !important;
+  min-width: 294px !important;
+  max-width: 294px !important;
+  border-radius: 25px !important;
+  transform: translateY(0) scale(.995) !important;
+  scroll-snap-align: start !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-slide.is-active{
+  transform: translateY(-8px) scale(1.02) !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-media,
+html.tk-2560x1600-real-fix-v9 #cinema .movie-slide.is-active .movie-media{
+  height: 183px !important;
+  min-height: 183px !important;
+  max-height: 183px !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-img,
+html.tk-2560x1600-real-fix-v9 #cinema .movie-slide.is-active .movie-img,
+html.tk-2560x1600-real-fix-v9 #cinema .movie-slide:not(.is-active) .movie-img{
+  height: 183px !important;
+  min-height: 183px !important;
+  max-height: 183px !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-info{
+  padding: 13px 14px 14px !important;
+  gap: 10px !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-info h3{
+  font-size: 15px !important;
+  line-height: 1.08 !important;
+}
+html.tk-2560x1600-real-fix-v9 #cinema .movie-btn{
+  min-width: 108px !important;
+  height: 36px !important;
+}
+</style>
+<script id="tk-2560x1600-real-fix-v9-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  let mo = null;
+
+  function metrics(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = (window.screen && (window.screen.availWidth || window.screen.width)) || iw;
+    const sh = (window.screen && (window.screen.availHeight || window.screen.height)) || ih;
+    const physW = Math.round(Math.max(sw, iw) * dpr);
+    const physH = Math.round(Math.max(sh, ih) * dpr);
+    const ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+    return { dpr, iw, ih, sw, sh, physW, physH, ratio };
+  }
+
+  function isTarget(){
+    const m = metrics();
+    const looks2560class =
+      ((m.sw >= 1200 && m.sw <= 1800 && m.sh >= 760 && m.sh <= 1150 && m.dpr >= 1.4) ||
+       (m.physW >= 2400 && m.physW <= 3300 && m.physH >= 1450 && m.physH <= 2100));
+    const viewportOk = m.iw >= 1180 && m.iw <= 1900 && m.ih >= 760 && m.ih <= 1220;
+    const not4k = !(m.physW >= 3300 || m.physH >= 2100 || m.iw >= 2200 || m.ih >= 1320);
+    return looks2560class && viewportOk && not4k && m.ratio >= 1.38 && m.ratio <= 1.78;
+  }
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+
+  function getUI(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    const prev = cinema.querySelector('.slider-prev');
+    const next = cinema.querySelector('.slider-next');
+    if(!stage || !track || slides.length < 3) return null;
+    return { cinema, stage, track, slides, prev, next };
+  }
+
+  function wrapIndex(i, n){
+    if(!n) return 0;
+    if(i < 0) return n - 1;
+    if(i >= n) return 0;
+    return i;
+  }
+
+  function currentIndex(ui){
+    const fromData = parseInt(ui.cinema.dataset.tk2560ActiveV9 || ui.cinema.dataset.tk2560Active || '', 10);
+    if(Number.isFinite(fromData)) return wrapIndex(fromData, ui.slides.length);
+    const fromDom = ui.slides.findIndex(s => s.classList.contains('is-active'));
+    return wrapIndex(fromDom >= 0 ? fromDom : 0, ui.slides.length);
+  }
+
+  function groupStart(active, total){
+    if(total <= 3) return 0;
+    return Math.max(0, Math.min(active - 1, total - 3));
+  }
+
+  function setActive(ui, index, smooth){
+    const total = ui.slides.length;
+    const active = wrapIndex(index, total);
+    ui.cinema.dataset.tk2560ActiveV9 = String(active);
+
+    ui.slides.forEach((slide, i) => {
+      slide.classList.toggle('is-active', i === active);
+      if(i === active){
+        imp(slide, 'transform', 'translateY(-8px) scale(1.02)');
+      }else{
+        imp(slide, 'transform', 'translateY(0) scale(.995)');
+      }
+    });
+
+    const start = groupStart(active, total);
+    const left = ui.slides[start].offsetLeft;
+    try{
+      ui.track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+    }catch(_e){
+      ui.track.scrollLeft = left;
+    }
+  }
+
+  function bind(ui){
+    if(ui.cinema.dataset.tk2560BoundV9 === '1') return;
+    ui.cinema.dataset.tk2560BoundV9 = '1';
+
+    ui.track.addEventListener('scroll', function(e){
+      if(isTarget()) e.stopImmediatePropagation();
+    }, true);
+
+    if(ui.prev){
+      ui.prev.addEventListener('click', function(e){
+        if(!isTarget()) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setActive(ui, currentIndex(ui) - 1, true);
+      }, true);
+    }
+    if(ui.next){
+      ui.next.addEventListener('click', function(e){
+        if(!isTarget()) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setActive(ui, currentIndex(ui) + 1, true);
+      }, true);
+    }
+    ui.slides.forEach(function(slide, i){
+      slide.addEventListener('click', function(e){
+        if(!isTarget()) return;
+        if(e.target.closest('button') || e.target.closest('a')) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setActive(ui, i, true);
+      }, true);
+    });
+  }
+
+  function applyInline(ui){
+    const stageW = 'min(910px, calc(100vw - 610px))';
+    imp(ui.cinema, 'width', 'min(1028px, calc(100vw - 430px))');
+    imp(ui.cinema, 'max-width', 'min(1028px, calc(100vw - 430px))');
+
+    imp(ui.stage, 'position', 'relative');
+    imp(ui.stage, 'width', stageW);
+    imp(ui.stage, 'max-width', stageW);
+    imp(ui.stage, 'margin', '10px auto 0');
+    imp(ui.stage, 'overflow', 'visible');
+
+    imp(ui.track, 'width', stageW);
+    imp(ui.track, 'max-width', stageW);
+    imp(ui.track, 'display', 'flex');
+    imp(ui.track, 'gap', '14px');
+    imp(ui.track, 'padding', '14px 0 18px');
+    imp(ui.track, 'margin', '0 auto');
+    imp(ui.track, 'overflow-x', 'auto');
+    imp(ui.track, 'overflow-y', 'visible');
+    imp(ui.track, 'scroll-padding-left', '0');
+    imp(ui.track, 'scroll-padding-right', '0');
+    imp(ui.track, 'scroll-snap-type', 'x mandatory');
+    imp(ui.track, 'mask-image', 'none');
+    imp(ui.track, '-webkit-mask-image', 'none');
+
+    [ui.prev, ui.next].forEach(function(btn){
+      if(!btn) return;
+      imp(btn, 'width', '44px');
+      imp(btn, 'height', '44px');
+      imp(btn, 'top', '49%');
+      imp(btn, 'z-index', '120');
+    });
+    if(ui.prev) imp(ui.prev, 'left', '-54px');
+    if(ui.next) imp(ui.next, 'right', '-54px');
+
+    ui.slides.forEach(function(slide){
+      imp(slide, 'flex', '0 0 294px');
+      imp(slide, 'width', '294px');
+      imp(slide, 'min-width', '294px');
+      imp(slide, 'max-width', '294px');
+      imp(slide, 'scroll-snap-align', 'start');
+      if(!slide.classList.contains('is-active')) imp(slide, 'transform', 'translateY(0) scale(.995)');
+    });
+
+    ui.cinema.querySelectorAll('.movie-slide.is-active').forEach(function(slide){
+      imp(slide, 'transform', 'translateY(-8px) scale(1.02)');
+    });
+
+    ui.cinema.querySelectorAll('.movie-media').forEach(function(el){
+      imp(el, 'height', '183px');
+      imp(el, 'min-height', '183px');
+      imp(el, 'max-height', '183px');
+    });
+
+    ui.cinema.querySelectorAll('.movie-img').forEach(function(img){
+      imp(img, 'height', '183px');
+      imp(img, 'min-height', '183px');
+      imp(img, 'max-height', '183px');
+    });
+  }
+
+  function run(){
+    raf = 0;
+    const on = isTarget();
+    root.classList.toggle('tk-2560x1600-real-fix-v9', on);
+    if(!on) return;
+    const ui = getUI();
+    if(!ui) return;
+    bind(ui);
+    applyInline(ui);
+    setActive(ui, currentIndex(ui), false);
+  }
+
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(run);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0, 120, 500, 1500, 3500, 6000].forEach(ms => setTimeout(queue, ms));
+  mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+})();
+</script>
+
 </body>
 </html>
 
