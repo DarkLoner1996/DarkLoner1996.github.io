@@ -42572,6 +42572,7 @@ html.tk-retina-16x10-three-slides-v15 #cinema .slider-wrapper::-webkit-scrollbar
   display: none !important;
 }
 html.tk-retina-16x10-three-slides-v15 #cinema .movie-slide{
+  box-sizing: border-box !important;
   scroll-snap-align: start !important;
   transform: translateY(0) scale(1) !important;
 }
@@ -42632,10 +42633,11 @@ html.tk-retina-16x10-three-slides-v15 #cinema .movie-slide.is-active{
     const trackRect = u.track.getBoundingClientRect();
     const cinemaRect = u.cinema.getBoundingClientRect();
     const base = Math.round(Math.max(0, stageRect.width || trackRect.width || cinemaRect.width));
-    const stageW = clamp(base, 540, 910);
+    const stageW = clamp(base + 14, 554, 924);
     const gap = stageW >= 820 ? 14 : (stageW >= 680 ? 12 : 10);
-    const side = stageW >= 820 ? 8 : 6;
-    const slideW = Math.floor((stageW - (gap * 2) - (side * 2)) / 3);
+    const side = stageW >= 820 ? 10 : 8;
+    const reserve = stageW >= 820 ? 12 : 6;
+    const slideW = Math.floor((stageW - (gap * 2) - (side * 2) - reserve) / 3);
     const mediaH = clamp(Math.round(slideW * 0.62), 128, 183);
     const titleSize = slideW >= 250 ? 15 : (slideW >= 215 ? 14 : 13);
     const btnW = slideW >= 250 ? 108 : (slideW >= 215 ? 100 : 92);
@@ -42703,7 +42705,8 @@ html.tk-retina-16x10-three-slides-v15 #cinema .movie-slide.is-active{
     state.active = wrap(index, n);
     paintActive(u, state.active);
     const start = groupStart(state.active, n);
-    const left = Math.max(0, start * (L.slideW + L.gap));
+    const anchor = u.slides[start];
+    const left = Math.max(0, (anchor ? anchor.offsetLeft : start * (L.slideW + L.gap)) - L.side);
     try{ u.track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); }
     catch(_e){ u.track.scrollLeft = left; }
   }
@@ -42763,13 +42766,6 @@ html.tk-retina-16x10-three-slides-v15 #cinema .movie-slide.is-active{
   [0,100,300,700,1500,2500,4000].forEach(function(ms){ setTimeout(queue, ms); });
 })();
 </script>
-
-
-<style id="tk-retina-16x10-three-slides-v16-style">
-html.tk-retina-16x10-three-slides-v15 #cinema .movie-slide{
-  box-sizing: border-box !important;
-}
-</style>
 
 </body>
 </html>
