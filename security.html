@@ -43080,78 +43080,60 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-cinema-overlay-arrows-20260327">
-#tkCinemaPrevOverlay,
-#tkCinemaNextOverlay{
-  position: fixed;
-  width: 52px;
-  height: 52px;
-  border: 1px solid rgba(255,255,255,.22);
-  border-radius: 999px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  z-index: 2147483647;
-  background:
-    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.22), transparent 60%),
-    linear-gradient(180deg, rgba(58,175,245,.95), rgba(21,103,191,.97));
-  box-shadow:
-    0 18px 34px rgba(0,0,0,.28),
-    inset 0 1px 0 rgba(255,255,255,.22);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-}
-#tkCinemaPrevOverlay:hover,
-#tkCinemaNextOverlay:hover{
-  filter: brightness(1.06) saturate(1.05);
-}
-#tkCinemaPrevOverlay svg,
-#tkCinemaNextOverlay svg{
-  width: 24px;
-  height: 24px;
-  stroke: rgba(255,255,255,.97);
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 2px 10px rgba(0,0,0,.22));
-  pointer-events: none;
-}
-html.tk-cinema-overlay-arrows-active #cinema .slider-prev,
-html.tk-cinema-overlay-arrows-active #cinema .slider-next{
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+<style id="tk-cinema-arrow-detach-fix-v1-style">
+html.tk-cinema-arrow-detach-fix-v1-on #cinema .slider-prev,
+html.tk-cinema-arrow-detach-fix-v1-on #cinema .slider-next{
+  position: fixed !important;
+  transform: none !important;
+  margin: 0 !important;
+  z-index: 2147483000 !important;
+  overflow: visible !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  will-change: left, top !important;
 }
 </style>
-<script id="tk-cinema-overlay-arrows-20260327-script">
+<script id="tk-cinema-arrow-detach-fix-v1-script">
 (function(){
   const root = document.documentElement;
-  let prevOverlay = null;
-  let nextOverlay = null;
   let raf = 0;
   let mo = null;
 
-  function shouldApply(){
-    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    return iw >= 1100 && ih >= 650;
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
+    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
+    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
+    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
+    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
+    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
+    const ratio = Math.max(sw, aw, iw) / Math.max(1, Math.max(sh, ah, ih));
+    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH, ratio };
   }
 
-  function createButton(id, dir){
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = id;
-    btn.setAttribute('aria-hidden', 'false');
-    btn.setAttribute('aria-label', dir === 'prev' ? 'Предыдущий фильм' : 'Следующий фильм');
-    btn.innerHTML = dir === 'prev'
-      ? '<svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>'
-      : '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>';
-    document.body.appendChild(btn);
-    return btn;
+  function isTarget(){
+    const m = metrics();
+    const aspectOk = m.ratio >= 1.49 && m.ratio <= 1.67;
+    const logicalBand = m.iw >= 1180 && m.iw <= 1400 && m.ih >= 760 && m.ih <= 930;
+    const desktopBand = Math.max(m.sw, m.aw) >= 1180 && Math.max(m.sw, m.aw) <= 1512 && Math.max(m.sh, m.ah) >= 760 && Math.max(m.sh, m.ah) <= 982;
+    const physicalBand = m.physW >= 2400 && m.physW <= 3100 && m.physH >= 1500 && m.physH <= 1900;
+    const retinaBand = m.dpr >= 1.5 && m.dpr <= 2.5;
+    const not4k = !(m.physW >= 3200 || m.physH >= 1900 || m.iw >= 1700 || m.ih >= 1200);
+    return aspectOk && retinaBand && not4k && (logicalBand || desktopBand || physicalBand);
+  }
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+
+  function clearBtn(btn){
+    if(!btn) return;
+    ['position','left','top','right','bottom','transform','z-index','margin','overflow','clip-path','-webkit-clip-path','will-change'].forEach(function(p){
+      try{ btn.style.removeProperty(p); }catch(_e){}
+    });
   }
 
   function getUI(){
@@ -43162,109 +43144,103 @@ html.tk-cinema-overlay-arrows-active #cinema .slider-next{
     const prev = cinema.querySelector('.slider-prev');
     const next = cinema.querySelector('.slider-next');
     const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || !prev || !next || slides.length < 1) return null;
+    if(!stage || !track || !prev || !next || slides.length < 3) return null;
     return { cinema, stage, track, prev, next, slides };
   }
 
   function visibleSlides(ui){
     const stageRect = ui.stage.getBoundingClientRect();
-    const visible = ui.slides.filter(function(slide){
+    const fully = [];
+    const partly = [];
+    ui.slides.forEach(function(slide){
       const r = slide.getBoundingClientRect();
       const overlap = Math.min(r.right, stageRect.right) - Math.max(r.left, stageRect.left);
-      return overlap > Math.min(80, r.width * 0.28);
+      const visibleW = Math.max(0, overlap);
+      if(visibleW <= 8) return;
+      const item = { slide: slide, rect: r, visibleW: visibleW };
+      if(r.left >= stageRect.left - 2 && r.right <= stageRect.right + 2) fully.push(item);
+      else partly.push(item);
     });
-    return visible.length ? visible : ui.slides.slice(0, 3);
+    const list = (fully.length >= 3 ? fully : fully.concat(partly))
+      .sort(function(a,b){ return a.rect.left - b.rect.left; })
+      .slice(0, 3);
+    return list;
   }
 
-  function place(){
+  function apply(){
     raf = 0;
+    const on = isTarget();
     const ui = getUI();
-    const on = shouldApply() && !!ui;
-    root.classList.toggle('tk-cinema-overlay-arrows-active', on);
-    if(!on){
-      if(prevOverlay) prevOverlay.style.display = 'none';
-      if(nextOverlay) nextOverlay.style.display = 'none';
+    if(!on || !ui){
+      root.classList.remove('tk-cinema-arrow-detach-fix-v1-on');
+      if(ui){ clearBtn(ui.prev); clearBtn(ui.next); }
       return;
     }
 
-    if(!prevOverlay) prevOverlay = createButton('tkCinemaPrevOverlay', 'prev');
-    if(!nextOverlay) nextOverlay = createButton('tkCinemaNextOverlay', 'next');
+    const vis = visibleSlides(ui);
+    if(vis.length < 3){
+      root.classList.remove('tk-cinema-arrow-detach-fix-v1-on');
+      clearBtn(ui.prev); clearBtn(ui.next);
+      return;
+    }
 
+    root.classList.add('tk-cinema-arrow-detach-fix-v1-on');
+
+    const first = vis[0].rect;
+    const last = vis[vis.length - 1].rect;
     const stageRect = ui.stage.getBoundingClientRect();
-    const shown = visibleSlides(ui);
-    const first = shown[0].getBoundingClientRect();
-    const last = shown[shown.length - 1].getBoundingClientRect();
-    const btnSize = 52;
-    const gap = 22;
-    const top = Math.round(stageRect.top + (stageRect.height * 0.52) - (btnSize / 2));
-    let leftX = Math.round(first.left - btnSize - gap);
-    let rightX = Math.round(last.right + gap);
+    const btnRect = ui.prev.getBoundingClientRect();
+    const btnW = Math.max(44, Math.round(btnRect.width || 44));
+    const btnH = Math.max(44, Math.round(btnRect.height || 44));
+    const gap = 26;
+    const leftX = Math.max(18, Math.round(first.left - btnW - gap));
+    const rightX = Math.min((window.innerWidth || document.documentElement.clientWidth || 0) - btnW - 18, Math.round(last.right + gap));
+    const centerY = Math.round(stageRect.top + (stageRect.height * 0.49) - (btnH / 2));
+    const topY = Math.max(8, centerY);
 
-    leftX = Math.max(8, leftX);
-    rightX = Math.min((window.innerWidth || document.documentElement.clientWidth || 0) - btnSize - 8, rightX);
+    [ui.prev, ui.next].forEach(function(btn){
+      imp(btn, 'position', 'fixed');
+      imp(btn, 'top', topY + 'px');
+      imp(btn, 'transform', 'none');
+      imp(btn, 'z-index', '2147483000');
+      imp(btn, 'overflow', 'visible');
+      imp(btn, 'clip-path', 'none');
+      imp(btn, '-webkit-clip-path', 'none');
+      imp(btn, 'will-change', 'left, top');
+      imp(btn, 'margin', '0');
+      imp(btn, 'right', 'auto');
+      imp(btn, 'bottom', 'auto');
+    });
 
-    prevOverlay.style.display = 'flex';
-    nextOverlay.style.display = 'flex';
-    prevOverlay.style.left = leftX + 'px';
-    prevOverlay.style.top = top + 'px';
-    nextOverlay.style.left = rightX + 'px';
-    nextOverlay.style.top = top + 'px';
+    imp(ui.prev, 'left', leftX + 'px');
+    imp(ui.next, 'left', rightX + 'px');
   }
 
   function queue(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(place);
+    raf = requestAnimationFrame(apply);
   }
 
-  function bindClicks(){
-    if(!prevOverlay) prevOverlay = createButton('tkCinemaPrevOverlay', 'prev');
-    if(!nextOverlay) nextOverlay = createButton('tkCinemaNextOverlay', 'next');
-    if(!prevOverlay.dataset.bound){
-      prevOverlay.dataset.bound = '1';
-      prevOverlay.addEventListener('click', function(){
-        const btn = document.querySelector('#cinema .slider-prev');
-        if(btn) btn.click();
-        queue();
-        setTimeout(queue, 60);
-        setTimeout(queue, 220);
-      });
-    }
-    if(!nextOverlay.dataset.bound){
-      nextOverlay.dataset.bound = '1';
-      nextOverlay.addEventListener('click', function(){
-        const btn = document.querySelector('#cinema .slider-next');
-        if(btn) btn.click();
-        queue();
-        setTimeout(queue, 60);
-        setTimeout(queue, 220);
-      });
-    }
-  }
-
-  function boot(){
-    bindClicks();
-    queue();
-    if(mo) return;
-    const ui = getUI();
-    mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
-    if(ui && ui.track && !ui.track.dataset.tkOverlayBound){
-      ui.track.dataset.tkOverlayBound = '1';
-      ui.track.addEventListener('scroll', queue, { passive:true });
-    }
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
-  else boot();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
   window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
-  window.addEventListener('scroll', queue, { passive:true });
-  if(window.visualViewport){
+  window.addEventListener('scroll', queue, { passive:true, capture:true });
+  if(window.visualViewport) {
     window.visualViewport.addEventListener('resize', queue, { passive:true });
     window.visualViewport.addEventListener('scroll', queue, { passive:true });
   }
-  [0,100,300,700,1200,2200,4000,6500].forEach(function(ms){ setTimeout(queue, ms); });
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#cinema .slider-prev, #cinema .slider-next, #cinema .movie-slide, #cinema .movie-btn')){
+      setTimeout(queue, 0);
+      setTimeout(queue, 120);
+      setTimeout(queue, 350);
+    }
+  }, true);
+  [0,120,350,700,1200,2500,4000,6500].forEach(function(ms){ setTimeout(queue, ms); });
+  mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
 })();
 </script>
 
