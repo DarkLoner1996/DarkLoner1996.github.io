@@ -42768,201 +42768,222 @@ html.tk-retina-16x10-three-slides-v18 #cinema .movie-slide.is-active{
 </script>
 
 
-<style id="tk-2500x1600-cinema-three-slides-direct-fix-v1">
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema,
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema.cinema-slider.cinema-v2{
-  width: 628px !important;
-  max-width: min(628px, calc(100vw - 430px)) !important;
-  left: 50% !important;
-  right: auto !important;
-  transform: translateX(calc(-50% - 10px)) !important;
+<style id="tk-retina-2500x1600-cinema-v19-style">
+html.tk-retina-2500x1600-cinema-v19 #cinema .slider-container{
+  overflow: visible !important;
 }
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .slider-container{
-  width: 628px !important;
-  max-width: 628px !important;
-  overflow: hidden !important;
-}
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .slider-wrapper{
-  width: 628px !important;
-  max-width: 628px !important;
-  gap: 10px !important;
-  padding: 14px 4px 18px !important;
-  scroll-padding-left: 4px !important;
-  scroll-padding-right: 4px !important;
+html.tk-retina-2500x1600-cinema-v19 #cinema .slider-wrapper{
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: stretch !important;
+  margin: 0 auto !important;
   overflow-x: auto !important;
   overflow-y: visible !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scroll-snap-type: none !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
 }
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-slide{
-  flex: 0 0 200px !important;
-  width: 200px !important;
-  min-width: 200px !important;
-  max-width: 200px !important;
+html.tk-retina-2500x1600-cinema-v19 #cinema .slider-wrapper::-webkit-scrollbar{
+  display: none !important;
+}
+html.tk-retina-2500x1600-cinema-v19 #cinema .movie-slide{
+  box-sizing: border-box !important;
+  scroll-snap-align: start !important;
   transform: translateY(0) scale(1) !important;
 }
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-slide.is-active{
-  transform: translateY(-8px) scale(1) !important;
-}
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-img,
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-slide.is-active .movie-img,
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-slide:not(.is-active) .movie-img{
-  height: 132px !important;
-  min-height: 132px !important;
-  max-height: 132px !important;
-}
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-info h3{
-  font-size: 13px !important;
-  line-height: 1.06 !important;
-}
-html.tk-2500x1600-cinema-three-slides-direct-fix-v1 #cinema .movie-btn{
-  min-width: 96px !important;
+html.tk-retina-2500x1600-cinema-v19 #cinema .movie-slide.is-active{
+  transform: translateY(-10px) scale(1) !important;
 }
 </style>
-<script id="tk-2500x1600-cinema-three-slides-direct-fix-v1-script">
+<script id="tk-retina-2500x1600-cinema-v19-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
-  let ticks = 0;
-  let mo = null;
+  const state = { ui:null, bound:false, active:0, layout:null };
 
-  function imp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
-  }
-
+  function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
   function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio) || 1);
-    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const dpr = Number(window.devicePixelRatio || 1);
     const sw = Number((window.screen && window.screen.width) || 0);
     const sh = Number((window.screen && window.screen.height) || 0);
     const aw = Number((window.screen && window.screen.availWidth) || sw || 0);
     const ah = Number((window.screen && window.screen.availHeight) || sh || 0);
-    const cssW = Math.max(iw, sw, aw);
-    const cssH = Math.max(ih, sh, ah);
-    const physW = Math.round(cssW * dpr);
-    const physH = Math.round(cssH * dpr);
-    const ratio = physW / Math.max(1, physH);
-    return { dpr, iw, ih, sw, sh, aw, ah, cssW, cssH, physW, physH, ratio };
+    const screenW = Math.max(sw, aw);
+    const screenH = Math.max(sh, ah);
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return { dpr, sw, sh, aw, ah, screenW, screenH, iw, ih, ratio: screenW / Math.max(1, screenH) };
   }
 
   function isTarget(){
     const m = metrics();
-    const retina = m.dpr >= 1.75 && m.dpr <= 2.25;
-    const exactBand =
-      (m.physW >= 2480 && m.physW <= 2625 && m.physH >= 1560 && m.physH <= 1645) ||
-      (m.physW >= 2440 && m.physW <= 2660 && m.physH >= 1520 && m.physH <= 1665);
-    const cssBand = m.iw >= 1180 && m.iw <= 1320 && m.ih >= 760 && m.ih <= 860;
-    const aspectOk = m.ratio >= 1.52 && m.ratio <= 1.64;
-    const not4k = m.physW < 3000 && m.physH < 1900 && m.iw < 1500;
-    return retina && exactBand && cssBand && aspectOk && not4k;
+    const retina = m.dpr >= 1.5 && m.dpr <= 2.5;
+    const mac16x10 = m.ratio > 1.54 && m.ratio < 1.66;
+    const screenBand = m.screenW >= 1230 && m.screenW <= 1315 && m.screenH >= 780 && m.screenH <= 835;
+    const viewportBand = m.iw >= 1080 && m.iw <= 1400 && m.ih >= 700 && m.ih <= 930;
+    return retina && mac16x10 && screenBand && viewportBand;
   }
 
-  function currentActive(slides){
-    const idx = slides.findIndex(slide => slide.classList.contains('is-active'));
-    return idx >= 0 ? idx : 0;
-  }
-
-  function paintActive(slides, idx){
-    slides.forEach(function(slide, i){
-      const on = i === idx;
-      slide.classList.toggle('is-active', on);
-      imp(slide, 'transform', on ? 'translateY(-8px) scale(1)' : 'translateY(0) scale(1)');
-    });
-  }
-
-  function scrollToGroup(track, slides, idx){
-    const start = Math.max(0, Math.min(slides.length - 3, idx <= 0 ? 0 : idx >= slides.length - 1 ? slides.length - 3 : idx - 1));
-    const anchor = slides[start];
-    const left = Math.max(0, (anchor ? anchor.offsetLeft : 0) - 4);
-    try{ track.scrollTo({ left, behavior: 'auto' }); }
-    catch(_e){ track.scrollLeft = left; }
-  }
-
-  function apply(){
-    raf = 0;
-    const on = isTarget();
-    root.classList.toggle('tk-2500x1600-cinema-three-slides-direct-fix-v1', on);
-
+  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
+  function ui(){
     const cinema = document.getElementById('cinema');
-    if(!cinema || !on) return;
-
+    if(!cinema) return null;
     const stage = cinema.querySelector('.slider-container');
     const track = cinema.querySelector('.slider-wrapper');
     const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || slides.length < 3) return;
-
-    imp(cinema, 'width', '628px');
-    imp(cinema, 'max-width', 'min(628px, calc(100vw - 430px))');
-    imp(cinema, 'left', '50%');
-    imp(cinema, 'right', 'auto');
-    imp(cinema, 'transform', 'translateX(calc(-50% - 10px))');
-
-    imp(stage, 'width', '628px');
-    imp(stage, 'max-width', '628px');
-    imp(stage, 'overflow', 'hidden');
-
-    imp(track, 'width', '628px');
-    imp(track, 'max-width', '628px');
-    imp(track, 'gap', '10px');
-    imp(track, 'padding', '14px 4px 18px');
-    imp(track, 'scroll-padding-left', '4px');
-    imp(track, 'scroll-padding-right', '4px');
-    imp(track, '-webkit-mask-image', 'none');
-    imp(track, 'mask-image', 'none');
-
-    slides.forEach(function(slide){
-      imp(slide, 'flex', '0 0 200px');
-      imp(slide, 'width', '200px');
-      imp(slide, 'min-width', '200px');
-      imp(slide, 'max-width', '200px');
-    });
-
-    cinema.querySelectorAll('.movie-img').forEach(function(img){
-      imp(img, 'height', '132px');
-      imp(img, 'min-height', '132px');
-      imp(img, 'max-height', '132px');
-    });
-
-    cinema.querySelectorAll('.movie-info h3').forEach(function(h3){
-      imp(h3, 'font-size', '13px');
-      imp(h3, 'line-height', '1.06');
-    });
-
-    cinema.querySelectorAll('.movie-btn').forEach(function(btn){
-      imp(btn, 'min-width', '96px');
-    });
-
-    const active = currentActive(slides);
-    paintActive(slides, active);
-    scrollToGroup(track, slides, active);
+    const prev = cinema.querySelector('.slider-prev');
+    const next = cinema.querySelector('.slider-next');
+    if(!stage || !track || slides.length < 3) return null;
+    return { cinema, stage, track, slides, prev, next };
   }
 
-  function queue(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
+  function currentActive(u){
+    const fromClass = u.slides.findIndex(s => s.classList.contains('is-active'));
+    return fromClass >= 0 ? fromClass : state.active || 0;
   }
+  function wrap(i,n){ return ((i % n) + n) % n; }
+
+  function calcLayout(u){
+    const stageRect = u.stage.getBoundingClientRect();
+    const trackRect = u.track.getBoundingClientRect();
+    const cinemaRect = u.cinema.getBoundingClientRect();
+    const base = Math.round(Math.max(0, stageRect.width || trackRect.width || cinemaRect.width));
+    const stageW = clamp(base + 104, 760, 1060);
+    const gap = stageW >= 920 ? 14 : 12;
+    const side = stageW >= 920 ? 12 : 10;
+    const reserve = 2;
+    const slideW = Math.floor((stageW - (gap * 2) - (side * 2) - reserve) / 3);
+    const mediaH = clamp(Math.round(slideW * 0.66), 148, 210);
+    const titleSize = slideW >= 300 ? 16 : (slideW >= 260 ? 15 : 14);
+    const btnW = slideW >= 300 ? 118 : (slideW >= 260 ? 110 : 102);
+    return { stageW, gap, side, slideW, mediaH, titleSize, btnW };
+  }
+
+  function applyLayout(u){
+    const L = calcLayout(u);
+    state.layout = L;
+
+    imp(u.stage, 'width', L.stageW + 'px');
+    imp(u.stage, 'max-width', L.stageW + 'px');
+    imp(u.stage, 'overflow', 'visible');
+
+    imp(u.track, 'width', L.stageW + 'px');
+    imp(u.track, 'max-width', L.stageW + 'px');
+    imp(u.track, 'gap', L.gap + 'px');
+    imp(u.track, 'padding', '16px ' + L.side + 'px 22px');
+    imp(u.track, 'scroll-padding-left', L.side + 'px');
+    imp(u.track, 'scroll-padding-right', (L.side + 2) + 'px');
+
+    u.slides.forEach(function(slide){
+      imp(slide, 'flex', '0 0 ' + L.slideW + 'px');
+      imp(slide, 'width', L.slideW + 'px');
+      imp(slide, 'min-width', L.slideW + 'px');
+      imp(slide, 'max-width', L.slideW + 'px');
+    });
+
+    u.cinema.querySelectorAll('.movie-img').forEach(function(el){
+      imp(el, 'height', L.mediaH + 'px');
+      imp(el, 'min-height', L.mediaH + 'px');
+      imp(el, 'max-height', L.mediaH + 'px');
+    });
+    u.cinema.querySelectorAll('.movie-info').forEach(function(el){
+      imp(el, 'margin-top', '12px');
+    });
+    u.cinema.querySelectorAll('.movie-info h3').forEach(function(el){
+      imp(el, 'font-size', L.titleSize + 'px');
+      imp(el, 'line-height', '1.08');
+    });
+    u.cinema.querySelectorAll('.movie-btn').forEach(function(el){
+      imp(el, 'min-width', L.btnW + 'px');
+    });
+  }
+
+  function groupStart(active,total){
+    if(total <= 3) return 0;
+    if(active <= 0) return 0;
+    if(active >= total - 1) return total - 3;
+    return clamp(active - 1, 0, total - 3);
+  }
+
+  function paintActive(u, idx){
+    u.slides.forEach(function(slide, i){
+      const on = i === idx;
+      slide.classList.toggle('is-active', on);
+      if(on){ imp(slide, 'transform', 'translateY(-10px) scale(1)'); }
+      else { imp(slide, 'transform', 'translateY(0) scale(1)'); }
+    });
+  }
+
+  function goTo(index, smooth){
+    const u = state.ui || ui();
+    if(!u) return;
+    if(!state.layout) applyLayout(u);
+    const L = state.layout;
+    const n = u.slides.length;
+    state.active = wrap(index, n);
+    paintActive(u, state.active);
+    const start = groupStart(state.active, n);
+    const anchor = u.slides[start];
+    const left = Math.max(0, (anchor ? anchor.offsetLeft : start * (L.slideW + L.gap)) - L.side);
+    try{ u.track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); }
+    catch(_e){ u.track.scrollLeft = left; }
+  }
+
+  function bind(u){
+    if(state.bound) return;
+    state.bound = true;
+
+    if(u.prev){
+      u.prev.addEventListener('click', function(e){
+        if(!root.classList.contains('tk-retina-2500x1600-cinema-v19')) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        goTo((state.active || currentActive(u)) - 1, true);
+      }, true);
+    }
+    if(u.next){
+      u.next.addEventListener('click', function(e){
+        if(!root.classList.contains('tk-retina-2500x1600-cinema-v19')) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        goTo((state.active || currentActive(u)) + 1, true);
+      }, true);
+    }
+    u.slides.forEach(function(slide, i){
+      slide.addEventListener('click', function(e){
+        if(!root.classList.contains('tk-retina-2500x1600-cinema-v19')) return;
+        if(e.target.closest('button') || e.target.closest('a')) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        goTo(i, true);
+      }, true);
+    });
+    u.track.addEventListener('scroll', function(e){
+      if(!root.classList.contains('tk-retina-2500x1600-cinema-v19')) return;
+      if(state._fixing) e.stopImmediatePropagation();
+    }, true);
+  }
+
+  function enforce(){
+    raf = 0;
+    const on = isTarget();
+    root.classList.toggle('tk-retina-2500x1600-cinema-v19', on);
+    if(!on) return;
+    const u = ui();
+    if(!u) return;
+    state.ui = u;
+    applyLayout(u);
+    bind(u);
+    goTo(currentActive(u), false);
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(enforce); }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
   else queue();
-
   window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-
-  [0, 80, 200, 500, 1000, 1800, 2800, 4200].forEach(function(ms){ setTimeout(queue, ms); });
-  const interval = setInterval(function(){
-    queue();
-    ticks += 1;
-    if(ticks > 40) clearInterval(interval);
-  }, 250);
-
-  try{
-    mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
-  }catch(_e){}
+  [0,100,300,700,1500,2500,4000].forEach(function(ms){ setTimeout(queue, ms); });
 })();
 </script>
 
