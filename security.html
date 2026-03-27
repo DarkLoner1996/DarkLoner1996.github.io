@@ -43080,22 +43080,22 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-cinema-detached-arrows-final-v1-style">
-html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev,
-html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext{
+<style id="tk-cinema-detached-arrows-final-v2-style">
+html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedPrev,
+html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext{
   position: fixed !important;
-  width: 46px !important;
-  height: 46px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255,255,255,.18) !important;
-  background:
-    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
-    linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92)) !important;
-  box-shadow:
-    0 18px 34px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
   display: grid !important;
   place-items: center !important;
+  width: var(--tk-detached-arrow-size, 48px) !important;
+  height: var(--tk-detached-arrow-size, 48px) !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.22), transparent 60%),
+    linear-gradient(180deg, rgba(48,178,248,.94), rgba(18,110,200,.94)) !important;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.26),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
   padding: 0 !important;
   margin: 0 !important;
   z-index: 2147483000 !important;
@@ -43103,14 +43103,14 @@ html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext{
   opacity: .98 !important;
   transform: none !important;
 }
-html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev:hover,
-html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext:hover{
+html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedPrev:hover,
+html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext:hover{
   filter: brightness(1.08) saturate(1.05) !important;
 }
-html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev svg,
-html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext svg{
-  width: 22px !important;
-  height: 22px !important;
+html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedPrev svg,
+html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext svg{
+  width: calc(var(--tk-detached-arrow-size, 48px) * .48) !important;
+  height: calc(var(--tk-detached-arrow-size, 48px) * .48) !important;
   stroke: rgba(255,255,255,.96) !important;
   fill: none !important;
   stroke-width: 2.6 !important;
@@ -43118,14 +43118,20 @@ html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext svg{
   stroke-linejoin: round !important;
   filter: drop-shadow(0 2px 10px rgba(0,0,0,.22)) !important;
 }
-html.tk-cinema-detached-arrows-final-v1 #cinema .slider-prev,
-html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
+html.tk-cinema-detached-arrows-global-v2 #cinema .slider-prev,
+html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
+@media (min-width: 1200px){
+  html body #cinema,
+  html body #cinema .slider-container{
+    overflow: visible !important;
+  }
+}
 </style>
-<script id="tk-cinema-detached-arrows-final-v1-script">
+<script id="tk-cinema-detached-arrows-final-v2-script">
 (function(){
   var root = document.documentElement;
   var prevBtn = null;
@@ -43133,24 +43139,52 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
   var raf = 0;
   var mo = null;
 
-  function target(){
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    var sw = Math.max(Number((window.screen && window.screen.width) || 0), Number((window.screen && window.screen.availWidth) || 0), iw);
-    var sh = Math.max(Number((window.screen && window.screen.height) || 0), Number((window.screen && window.screen.availHeight) || 0), ih);
-    var ratio = sw / Math.max(1, sh);
-    return dpr >= 1.5 && iw >= 1100 && iw <= 1600 && ih >= 680 && ih <= 980 && ratio >= 1.45 && ratio <= 1.95;
+  function viewport(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
   }
 
   function q(sel){ return document.querySelector(sel); }
   function rect(el){ return el ? el.getBoundingClientRect() : null; }
   function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+  function getCinemaUI(){
+    var cinema = q('#cinema');
+    if(!cinema) return null;
+    var stage = q('#cinema .slider-container');
+    var track = q('#cinema .slider-wrapper');
+    var prev = q('#cinema .slider-prev');
+    var next = q('#cinema .slider-next');
+    if(!stage || !track || !prev || !next) return null;
+    return { cinema: cinema, stage: stage, track: track, prev: prev, next: next };
+  }
+
+  function shouldDetach(ui){
+    if(!ui) return false;
+    var vp = viewport();
+    if(vp.w < 1200 || vp.h < 700 || vp.w <= vp.h) return false;
+
+    var stageRect = rect(ui.stage);
+    if(!stageRect || stageRect.width < 520 || stageRect.height < 120) return false;
+
+    var btnSize = clamp(Math.round(stageRect.height * 0.18), 44, 56);
+    var gap = clamp(Math.round(stageRect.width * 0.018), 16, 28);
+    var needed = btnSize + gap + 10;
+    var leftSpace = stageRect.left;
+    var rightSpace = vp.w - stageRect.right;
+
+    if(leftSpace < needed || rightSpace < needed) return false;
+    return true;
+  }
 
   function ensure(){
     if(!prevBtn){
       prevBtn = document.createElement('button');
       prevBtn.id = 'tkCinemaDetachedPrev';
+      prevBtn.type = 'button';
       prevBtn.setAttribute('aria-label', 'Предыдущий фильм');
       prevBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7"></path></svg>';
       prevBtn.addEventListener('click', function(ev){
@@ -43163,6 +43197,7 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
     if(!nextBtn){
       nextBtn = document.createElement('button');
       nextBtn.id = 'tkCinemaDetachedNext';
+      nextBtn.type = 'button';
       nextBtn.setAttribute('aria-label', 'Следующий фильм');
       nextBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>';
       nextBtn.addEventListener('click', function(ev){
@@ -43174,43 +43209,47 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
     }
   }
 
-  function hideDetached(){
-    root.classList.remove('tk-cinema-detached-arrows-final-v1');
+  function hideDetached(ui){
+    root.classList.remove('tk-cinema-detached-arrows-global-v2');
     if(prevBtn) prevBtn.style.display = 'none';
     if(nextBtn) nextBtn.style.display = 'none';
+    if(ui && ui.prev){
+      ui.prev.style.removeProperty('visibility');
+      ui.prev.style.removeProperty('opacity');
+      ui.prev.style.removeProperty('pointer-events');
+    }
+    if(ui && ui.next){
+      ui.next.style.removeProperty('visibility');
+      ui.next.style.removeProperty('opacity');
+      ui.next.style.removeProperty('pointer-events');
+    }
   }
 
   function place(){
     raf = 0;
-    if(!target()){
-      hideDetached();
-      return;
-    }
-    var cinema = q('#cinema');
-    var stage = q('#cinema .slider-container');
-    var slides = document.querySelectorAll('#cinema .movie-slide');
-    if(!cinema || !stage || !slides || slides.length < 3){
-      hideDetached();
+    var ui = getCinemaUI();
+    if(!ui || !shouldDetach(ui)){
+      hideDetached(ui);
       return;
     }
 
     ensure();
-    root.classList.add('tk-cinema-detached-arrows-final-v1');
+    root.classList.add('tk-cinema-detached-arrows-global-v2');
 
-    var stageRect = rect(stage);
-    var firstRect = rect(slides[0]);
-    var thirdRect = rect(slides[2]);
-    if(!stageRect || !firstRect || !thirdRect){
-      hideDetached();
+    var vp = viewport();
+    var stageRect = rect(ui.stage);
+    if(!stageRect){
+      hideDetached(ui);
       return;
     }
 
-    var btnW = 46;
-    var gap = 20;
-    var leftX = Math.round(Math.max(8, firstRect.left - btnW - gap));
-    var rightX = Math.round(Math.min(window.innerWidth - btnW - 8, thirdRect.right + gap));
-    var centerY = Math.round(stageRect.top + (stageRect.height * 0.48) - (btnW / 2));
-    var topY = Math.max(8, centerY);
+    var btnSize = clamp(Math.round(stageRect.height * 0.18), 44, 56);
+    var gap = clamp(Math.round(stageRect.width * 0.018), 16, 28);
+    var topY = clamp(Math.round(stageRect.top + (stageRect.height * 0.47) - (btnSize / 2)), 8, Math.max(8, vp.h - btnSize - 8));
+    var leftX = Math.round(stageRect.left - btnSize - gap);
+    var rightX = Math.round(stageRect.right + gap);
+
+    root.style.setProperty('--tk-detached-arrow-size', btnSize + 'px');
 
     prevBtn.style.display = 'grid';
     nextBtn.style.display = 'grid';
@@ -43220,6 +43259,13 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
     imp(nextBtn, 'left', rightX + 'px');
     imp(nextBtn, 'top', topY + 'px');
     imp(nextBtn, 'right', 'auto');
+
+    imp(ui.prev, 'visibility', 'hidden');
+    imp(ui.prev, 'opacity', '0');
+    imp(ui.prev, 'pointer-events', 'none');
+    imp(ui.next, 'visibility', 'hidden');
+    imp(ui.next, 'opacity', '0');
+    imp(ui.next, 'pointer-events', 'none');
   }
 
   function queue(){
@@ -43232,6 +43278,7 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
   window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
+  window.addEventListener('scroll', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
   document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30); }, true);
   [0,100,300,700,1500,2500,4000,6500].forEach(function(ms){ setTimeout(queue, ms); });
