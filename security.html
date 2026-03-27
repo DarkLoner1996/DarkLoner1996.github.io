@@ -4281,11 +4281,7 @@ html.tk-loader-preboot #tkLoader::after{
   left: clamp(-64px, -5vw, -26px) !important;
 }
 .cinema-slider.cinema-v2 .slider-next{
-  right: clamp(-92px, -7vw, -44px) !important;
-  transform: translate(16px, -50%) !important;
-}
-.cinema-slider.cinema-v2 .slider-next:hover{
-  transform: translate(16px, -50%) scale(1.05) !important;
+  right: clamp(-64px, -5vw, -26px) !important;
 }
 
 
@@ -43084,23 +43080,62 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-cinema-right-arrow-2600x1400-base-runtime-fix">
-@media (min-width: 1180px) and (max-width: 1500px) and (max-height: 860px){
-  #cinema .slider-container{ overflow: visible !important; }
-  #cinema .slider-next{
-    right: -78px !important;
-    transform: translate(18px, -50%) !important;
-    z-index: 500 !important;
-  }
-  #cinema .slider-next:hover{
-    transform: translate(18px, -50%) scale(1.05) !important;
-  }
+<style id="tk-cinema-fixed-arrow-overlay-v2-style">
+.tk-cinema-fixed-arrow-overlay-v2{
+  position:fixed !important;
+  left:-9999px !important;
+  top:-9999px !important;
+  width:44px !important;
+  height:44px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92)) !important;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+  display:none !important;
+  place-items:center !important;
+  padding:0 !important;
+  margin:0 !important;
+  cursor:pointer !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  z-index:2147483647 !important;
+  transform:translate(-50%, -50%) !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  clip-path:none !important;
+  overflow:visible !important;
+}
+.tk-cinema-fixed-arrow-overlay-v2 svg{
+  width:22px !important;
+  height:22px !important;
+  stroke:rgba(255,255,255,.98) !important;
+  fill:none !important;
+  stroke-width:2.6 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.26)) !important;
+  pointer-events:none !important;
+}
+.tk-cinema-fixed-arrow-overlay-v2:hover{
+  filter:brightness(1.08) saturate(1.05) !important;
+}
+html.tk-cinema-fixed-arrow-overlay-active #cinema .slider-prev,
+html.tk-cinema-fixed-arrow-overlay-active #cinema .slider-next{
+  opacity:0 !important;
+  pointer-events:none !important;
 }
 </style>
-<script id="tk-cinema-right-arrow-2600x1400-base-runtime-fix-script">
+<script id="tk-cinema-fixed-arrow-overlay-v2-script">
 (function(){
-  let raf = 0;
-  let mo = null;
+  const root = document.documentElement;
+  const state = { prev:null, next:null, raf:0, mo:null, ro:null };
+
   function metrics(){
     const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
     const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
@@ -43114,152 +43149,155 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
     const ratio = Math.max(sw, aw, iw) / Math.max(1, Math.max(sh, ah, ih));
     return { dpr, iw, ih, sw, sh, aw, ah, physW, physH, ratio };
   }
+
   function isTarget(){
     const m = metrics();
-    const safariRetinaLike = m.dpr >= 1.5 && m.iw >= 1180 && m.iw <= 1500 && m.ih >= 620 && m.ih <= 900;
-    const screenLike2600 = Math.max(m.sw, m.aw, m.physW) >= 2400 && Math.max(m.sw, m.aw, m.physW) <= 3200 && Math.max(m.sh, m.ah, m.physH) >= 1300 && Math.max(m.sh, m.ah, m.physH) <= 1900;
-    return m.ratio >= 1.45 && m.ratio <= 1.95 && (safariRetinaLike || screenLike2600);
+    const aspectOk = m.ratio >= 1.49 && m.ratio <= 1.67;
+    const logical2500 = m.iw >= 1180 && m.iw <= 1420 && m.ih >= 740 && m.ih <= 930;
+    const desktop2500 = Math.max(m.sw, m.aw) >= 2400 && Math.max(m.sw, m.aw) <= 2700 && Math.max(m.sh, m.ah) >= 1400 && Math.max(m.sh, m.ah) <= 1750;
+    const physical2500 = m.physW >= 2400 && m.physW <= 3000 && m.physH >= 1400 && m.physH <= 1900;
+    const retina1600 = m.dpr >= 1.25 && m.dpr <= 2.5 && m.iw >= 1180 && m.iw <= 1450 && m.ih >= 740 && m.ih <= 980;
+    const not4k = !(m.physW >= 3200 || m.physH >= 2100 || m.iw >= 2100 || m.ih >= 1300);
+    return aspectOk && not4k && (desktop2500 || physical2500 || logical2500 || retina1600);
   }
-  function imp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
-  }
-  function apply(){
-    raf = 0;
-    if(!isTarget()) return;
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    const stage = cinema.querySelector('.slider-container');
-    const next = cinema.querySelector('.slider-next');
-    if(stage) imp(stage, 'overflow', 'visible');
-    if(next){
-      imp(next, 'right', '-78px');
-      imp(next, 'transform', 'translate(18px, -50%)');
-      imp(next, 'z-index', '500');
-    }
-  }
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
-  else queue();
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  [0, 120, 500, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
-  mo = new MutationObserver(queue);
-  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
-})();
-</script>
 
-
-<style id="tk-cinema-arrow-visibility-and-left-gap-fix-v2">
-@media (min-width: 1180px) and (max-width: 1500px) and (max-height: 860px){
-  #cinema{
-    position: relative !important;
-    z-index: 12020 !important;
-    isolation: isolate !important;
-    overflow: visible !important;
-  }
-  #cinema .slider-container,
-  #cinema .slider-wrapper{
-    overflow: visible !important;
-  }
-  #cinema .slider-prev,
-  #cinema .slider-next{
-    overflow: visible !important;
-    clip-path: none !important;
-    -webkit-clip-path: none !important;
-    z-index: 12100 !important;
-  }
-  #cinema .slider-prev{
-    left: -46px !important;
-    transform: translate(0, -50%) !important;
-  }
-  #cinema .slider-prev:hover{
-    transform: translate(0, -50%) scale(1.05) !important;
-  }
-  #cinema .slider-next{
-    right: -78px !important;
-    transform: translate(18px, -50%) !important;
-  }
-  #cinema .slider-next:hover{
-    transform: translate(18px, -50%) scale(1.05) !important;
-  }
-}
-</style>
-<script id="tk-cinema-arrow-visibility-and-left-gap-fix-v2-script">
-(function(){
-  let raf = 0;
-  let mo = null;
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
-    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
-    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
-    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
-    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
-    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
-    const ratio = Math.max(sw, aw, iw) / Math.max(1, Math.max(sh, ah, ih));
-    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH, ratio };
-  }
-  function isTarget(){
-    const m = metrics();
-    const safariRetinaLike = m.dpr >= 1.5 && m.iw >= 1180 && m.iw <= 1500 && m.ih >= 620 && m.ih <= 900;
-    const screenLike2600 = Math.max(m.sw, m.aw, m.physW) >= 2400 && Math.max(m.sw, m.aw, m.physW) <= 3200 && Math.max(m.sh, m.ah, m.physH) >= 1300 && Math.max(m.sh, m.ah, m.physH) <= 1900;
-    return m.ratio >= 1.45 && m.ratio <= 1.95 && (safariRetinaLike || screenLike2600);
-  }
-  function imp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
-  }
-  function apply(){
-    raf = 0;
-    if(!isTarget()) return;
+  function getUI(){
     const cinema = document.getElementById('cinema');
-    if(!cinema) return;
+    if(!cinema) return null;
     const stage = cinema.querySelector('.slider-container');
     const track = cinema.querySelector('.slider-wrapper');
     const prev = cinema.querySelector('.slider-prev');
     const next = cinema.querySelector('.slider-next');
-    imp(cinema, 'position', 'relative');
-    imp(cinema, 'z-index', '12020');
-    imp(cinema, 'isolation', 'isolate');
-    imp(cinema, 'overflow', 'visible');
-    if(stage){
-      imp(stage, 'position', 'relative');
-      imp(stage, 'overflow', 'visible');
-      imp(stage, 'z-index', '12030');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !track || !prev || !next || !slides.length) return null;
+    return { cinema, stage, track, prev, next, slides };
+  }
+
+  function mkBtn(kind){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tk-cinema-fixed-arrow-overlay-v2 tk-cinema-fixed-arrow-overlay-v2--' + kind;
+    btn.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-label', kind === 'prev' ? 'Предыдущий фильм' : 'Следующий фильм');
+    btn.innerHTML = kind === 'prev'
+      ? '<svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>';
+    document.body.appendChild(btn);
+    return btn;
+  }
+
+  function ensure(){
+    if(!state.prev) state.prev = mkBtn('prev');
+    if(!state.next) state.next = mkBtn('next');
+  }
+
+  function show(btn){ if(btn) btn.style.setProperty('display', 'grid', 'important'); }
+  function hide(btn){ if(btn) btn.style.setProperty('display', 'none', 'important'); }
+
+  function placeBtn(btn, cx, cy, w, h){
+    if(!btn) return;
+    btn.style.setProperty('display', 'grid', 'important');
+    btn.style.setProperty('left', cx + 'px', 'important');
+    btn.style.setProperty('top', cy + 'px', 'important');
+    btn.style.setProperty('width', w + 'px', 'important');
+    btn.style.setProperty('height', h + 'px', 'important');
+  }
+
+  function proxyClick(which){
+    const ui = getUI();
+    if(!ui) return;
+    const target = which === 'prev' ? ui.prev : ui.next;
+    if(target) target.click();
+    queue();
+    setTimeout(queue, 60);
+    setTimeout(queue, 220);
+    setTimeout(queue, 500);
+  }
+
+  function bindOnce(){
+    if(state.prev && !state.prev.dataset.bound){
+      state.prev.dataset.bound = '1';
+      state.prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); proxyClick('prev'); }, true);
     }
-    if(track) imp(track, 'overflow', 'visible');
-    if(prev){
-      imp(prev, 'left', '-46px');
-      imp(prev, 'transform', 'translate(0, -50%)');
-      imp(prev, 'z-index', '12100');
-      imp(prev, 'overflow', 'visible');
-      imp(prev, 'clip-path', 'none');
-      imp(prev, '-webkit-clip-path', 'none');
-    }
-    if(next){
-      imp(next, 'right', '-78px');
-      imp(next, 'transform', 'translate(18px, -50%)');
-      imp(next, 'z-index', '12100');
-      imp(next, 'overflow', 'visible');
-      imp(next, 'clip-path', 'none');
-      imp(next, '-webkit-clip-path', 'none');
+    if(state.next && !state.next.dataset.bound){
+      state.next.dataset.bound = '1';
+      state.next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); proxyClick('next'); }, true);
     }
   }
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+
+  function visibleSlides(ui){
+    const stageRect = ui.stage.getBoundingClientRect();
+    return ui.slides
+      .map(slide => ({ slide, rect: slide.getBoundingClientRect() }))
+      .filter(item => item.rect.right > stageRect.left + 6 && item.rect.left < stageRect.right - 6);
+  }
+
+  function sync(){
+    state.raf = 0;
+    const ui = getUI();
+    const active = isTarget() && !!ui;
+    root.classList.toggle('tk-cinema-fixed-arrow-overlay-active', active);
+
+    if(!active){
+      hide(state.prev); hide(state.next);
+      return;
+    }
+
+    ensure();
+    bindOnce();
+
+    const prevRect = ui.prev.getBoundingClientRect();
+    const nextRect = ui.next.getBoundingClientRect();
+    const stageRect = ui.stage.getBoundingClientRect();
+    const vis = visibleSlides(ui);
+    const firstRect = (vis[0] && vis[0].rect) || ui.slides[0].getBoundingClientRect();
+    const btnW = Math.max(42, Math.round(nextRect.width || prevRect.width || 44));
+    const btnH = Math.max(42, Math.round(nextRect.height || prevRect.height || 44));
+    const cy = Math.round((nextRect.height ? (nextRect.top + nextRect.height / 2) : (stageRect.top + stageRect.height * 0.49)));
+
+    let nextCx = nextRect.width ? (nextRect.left + nextRect.width / 2) : (stageRect.right + 22);
+    let prevCx = prevRect.width ? (prevRect.left + prevRect.width / 2) : (firstRect.left - 24);
+
+    prevCx = Math.min(prevCx - 26, firstRect.left - 34);
+    prevCx = Math.max(btnW / 2 + 10, Math.min(window.innerWidth - btnW / 2 - 10, prevCx));
+    nextCx = Math.max(btnW / 2 + 10, Math.min(window.innerWidth - btnW / 2 - 10, nextCx));
+
+    placeBtn(state.prev, Math.round(prevCx), cy, btnW, btnH);
+    placeBtn(state.next, Math.round(nextCx), cy, btnW, btnH);
+  }
+
+  function queue(){
+    if(state.raf) cancelAnimationFrame(state.raf);
+    state.raf = requestAnimationFrame(sync);
+  }
+
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
   else queue();
   window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  [0, 120, 500, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
-  mo = new MutationObserver(queue);
-  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+  document.addEventListener('click', function(){ setTimeout(queue, 0); }, true);
+  document.addEventListener('scroll', queue, true);
+  [0, 120, 400, 900, 1800, 3200, 5200, 7600].forEach(function(ms){ setTimeout(queue, ms); });
+
+  state.mo = new MutationObserver(queue);
+  state.mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+
+  if('ResizeObserver' in window){
+    state.ro = new ResizeObserver(queue);
+    const boot = () => {
+      const ui = getUI();
+      if(ui){
+        state.ro.observe(ui.stage);
+        state.ro.observe(ui.track);
+        ui.slides.forEach(slide => state.ro.observe(slide));
+      }
+    };
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
+    else boot();
+    setTimeout(boot, 800);
+  }
 })();
 </script>
 
