@@ -43080,91 +43080,132 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-2600x1400-arrow-hotfix-v1-style">
-html.tk-2600x1400-arrow-hotfix-v1 #cinema .slider-container{
-  position: relative !important;
+<style id="tk-cinema-arrow-overlap-fix-style">
+html.tk-cinema-arrow-overlap-fix #cinema .slider-container{
   overflow: visible !important;
 }
-html.tk-2600x1400-arrow-hotfix-v1 #cinema .slider-next{
-  right: -66px !important;
-  z-index: 320 !important;
+html.tk-cinema-arrow-overlap-fix #cinema .slider-prev,
+html.tk-cinema-arrow-overlap-fix #cinema .slider-next{
+  z-index: 9999 !important;
 }
 </style>
-<script id="tk-2600x1400-arrow-hotfix-v1-script">
+<script id="tk-cinema-arrow-overlap-fix-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
   let mo = null;
-
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
-    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
-    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
-    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
-    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
-    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
-    const ratio = Math.max(sw, aw, iw) / Math.max(1, Math.max(sh, ah, ih));
-    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH, ratio };
-  }
-
-  function isTarget(){
-    const m = metrics();
-    const aspectOk = m.ratio >= 1.55 && m.ratio <= 1.95;
-    const logicalMatch = m.iw >= 1180 && m.iw <= 1520 && m.ih >= 700 && m.ih <= 980;
-    const desktopMatch = Math.max(m.sw, m.aw) >= 2450 && Math.max(m.sw, m.aw) <= 2750 && Math.max(m.sh, m.ah) >= 1350 && Math.max(m.sh, m.ah) <= 1700;
-    const physicalMatch = m.physW >= 2450 && m.physW <= 2750 && m.physH >= 1350 && m.physH <= 1700;
-    const retinaLike = m.dpr >= 1.25 && m.dpr <= 2.5;
-    const not4k = !(m.physW >= 3200 || m.physH >= 1900 || m.iw >= 2100 || m.ih >= 1300);
-    return aspectOk && retinaLike && not4k && (desktopMatch || physicalMatch || logicalMatch);
-  }
 
   function imp(el, prop, value){
     if(!el) return;
     try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
   }
 
-  function apply(){
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    root.classList.add('tk-2600x1400-arrow-hotfix-v1');
-
-    const stage = cinema.querySelector('.slider-container');
-    if(stage){
-      imp(stage, 'position', 'relative');
-      imp(stage, 'overflow', 'visible');
-    }
-
-    const next = cinema.querySelector('.slider-next');
-    if(next){
-      imp(next, 'right', '-66px');
-      imp(next, 'z-index', '320');
-    }
+  function px(value){
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? n : 0;
   }
 
-  function run(){
+  function ui(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const prev = cinema.querySelector('.slider-prev');
+    const next = cinema.querySelector('.slider-next');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !track || !next || slides.length < 3) return null;
+    return { cinema, stage, track, prev, next, slides };
+  }
+
+  function getVisibleSlides(u){
+    const stageRect = u.stage.getBoundingClientRect();
+    return u.slides.filter(function(slide){
+      const r = slide.getBoundingClientRect();
+      return r.right > stageRect.left + 8 && r.left < stageRect.right - 8;
+    });
+  }
+
+  function apply(){
     raf = 0;
-    const on = isTarget();
-    root.classList.toggle('tk-2600x1400-arrow-hotfix-v1', on);
-    if(on) apply();
+    const u = ui();
+    if(!u) return;
+
+    root.classList.add('tk-cinema-arrow-overlap-fix');
+
+    imp(u.stage, 'overflow', 'visible');
+    imp(u.next, 'z-index', '9999');
+    if(u.prev) imp(u.prev, 'z-index', '9999');
+
+    const visible = getVisibleSlides(u);
+    if(!visible.length) return;
+
+    const stageRect = u.stage.getBoundingClientRect();
+    const nextRect = u.next.getBoundingClientRect();
+    const rightMostSlide = visible.reduce(function(best, slide){
+      const r = slide.getBoundingClientRect();
+      if(!best || r.right > best.right) return { slide, right: r.right };
+      return best;
+    }, null);
+    if(!rightMostSlide) return;
+
+    const computedRight = px(getComputedStyle(u.next).right);
+    const desiredGap = 18;
+    const overlap = rightMostSlide.right + desiredGap - nextRect.left;
+
+    let targetRight = computedRight;
+    if(overlap > 0){
+      targetRight = computedRight - overlap;
+    }
+
+    const maxInsideRight = 14;
+    const minOutsideRight = -120;
+    if(targetRight > maxInsideRight) targetRight = maxInsideRight;
+    if(targetRight < minOutsideRight) targetRight = minOutsideRight;
+
+    // If the button still sits inside the stage, bias it further outward on large desktop layouts.
+    if(stageRect.width >= 860 && targetRight > -18){
+      targetRight = -18;
+    }
+
+    imp(u.next, 'right', Math.round(targetRight) + 'px');
   }
 
   function queue(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(run);
+    raf = requestAnimationFrame(apply);
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
   else queue();
+
   window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  [0, 120, 500, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#cinema .slider-prev, #cinema .slider-next, #cinema .movie-slide, #cinema .cinema-tab')){
+      queue();
+      setTimeout(queue, 40);
+      setTimeout(queue, 180);
+    }
+  }, true);
+
+  Array.from(document.images || []).forEach(function(img){
+    if(!img || img.complete) return;
+    img.addEventListener('load', queue, { passive:true });
+    img.addEventListener('error', queue, { passive:true });
+  });
+
+  [0, 100, 250, 500, 1000, 1800, 3200, 5000, 7000].forEach(function(ms){ setTimeout(queue, ms); });
+
   mo = new MutationObserver(queue);
-  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+  mo.observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['class', 'style', 'src']
+  });
 })();
 </script>
 
