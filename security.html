@@ -43080,65 +43080,190 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-l15-cinema-arrow-gutter-hotfix-v1">
-@media (min-width:1180px) and (max-width:1599px) and (min-height:500px) and (max-height:950px){
-  html.tk-l15-cinema-static-clean #cinema .slider-container{
-    width: 540px !important;
-    max-width: 540px !important;
-    overflow: visible !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .slider-wrapper{
-    box-sizing: border-box !important;
-    gap: 8px !important;
-    padding: 6px 42px 10px !important;
-    scroll-padding-left: 42px !important;
-    scroll-padding-right: 42px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .movie-slide{
-    flex: 0 0 146px !important;
-    width: 146px !important;
-    min-width: 146px !important;
-    max-width: 146px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .movie-img{
-    height: 96px !important;
-    min-height: 96px !important;
-    max-height: 96px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .movie-info{
-    padding: 7px 8px 9px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .movie-info h3{
-    font-size: 8.5px !important;
-    min-height: 18px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .movie-btn{
-    min-width: 66px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .slider-prev,
-  html.tk-l15-cinema-static-clean #cinema .slider-next{
-    width: 34px !important;
-    height: 34px !important;
-    top: 40% !important;
-    z-index: 24000 !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .slider-prev{
-    left: 4px !important;
-  }
-
-  html.tk-l15-cinema-static-clean #cinema .slider-next{
-    right: 4px !important;
-  }
+<style id="tk-cinema-arrow-masterfix-v11">
+html.tk-cinema-arrow-masterfix-v11 #cinema .slider-container{
+  position: relative !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+html.tk-cinema-arrow-masterfix-v11 #cinema .slider-wrapper{
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+html.tk-cinema-arrow-masterfix-v11 #cinema .slider-wrapper::-webkit-scrollbar{
+  display: none !important;
+}
+html.tk-cinema-arrow-masterfix-v11 #cinema .slider-prev,
+html.tk-cinema-arrow-masterfix-v11 #cinema .slider-next{
+  position: absolute !important;
+  transform: translateY(-50%) !important;
+  z-index: 9999 !important;
 }
 </style>
+<script id="tk-cinema-arrow-masterfix-v11-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
+    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
+    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
+    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
+    const screenW = Math.max(sw, aw, iw);
+    const screenH = Math.max(sh, ah, ih);
+    return { dpr, iw, ih, sw, sh, aw, ah, screenW, screenH, ratio: screenW / Math.max(1, screenH) };
+  }
+
+  function isTarget(){
+    const m = metrics();
+    const laptopBand = m.iw >= 1180 && m.iw <= 1600 && m.ih >= 650 && m.ih <= 980;
+    const retinaBand = m.dpr >= 1.25 && m.ratio >= 1.45 && m.ratio <= 1.72;
+    const activeClass = root.classList.contains('tk-l15-cinema-static-clean') ||
+      root.classList.contains('tk-retina-16x10-three-slides-v18') ||
+      root.classList.contains('tk-2500x1600-three-slide-hardfix-v9') ||
+      root.classList.contains('tk-2560x1600-real-fix-v8') ||
+      root.classList.contains('tk-2560x1600-real-fix-v9');
+    return activeClass || (laptopBand && retinaBand);
+  }
+
+  function getUI(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    const prev = cinema.querySelector('.slider-prev');
+    const next = cinema.querySelector('.slider-next');
+    if(!stage || !track || slides.length < 3 || !prev || !next) return null;
+    return { cinema, stage, track, slides, prev, next };
+  }
+
+  function tune(ui){
+    const stageRect = ui.stage.getBoundingClientRect();
+    const stageW = Math.round(stageRect.width || ui.stage.clientWidth || 540);
+    const compact = stageW <= 700;
+    const btnSize = compact ? 34 : (stageW <= 860 ? 38 : 44);
+    const sidePad = compact ? 46 : (stageW <= 860 ? 56 : 64);
+    const gap = compact ? 8 : (stageW <= 860 ? 10 : 14);
+    const top = compact ? '41%' : '49%';
+
+    root.classList.add('tk-cinema-arrow-masterfix-v11');
+
+    imp(ui.stage, 'position', 'relative');
+    imp(ui.stage, 'box-sizing', 'border-box');
+    imp(ui.stage, 'padding-left', sidePad + 'px');
+    imp(ui.stage, 'padding-right', sidePad + 'px');
+    imp(ui.stage, 'overflow', 'visible');
+    imp(ui.stage, 'clip-path', 'none');
+
+    imp(ui.track, 'box-sizing', 'border-box');
+    imp(ui.track, 'width', '100%');
+    imp(ui.track, 'max-width', 'none');
+    imp(ui.track, 'margin', '0');
+    imp(ui.track, 'padding', (compact ? '8px 0 12px' : '14px 0 18px'));
+    imp(ui.track, 'gap', gap + 'px');
+    imp(ui.track, 'overflow-x', 'auto');
+    imp(ui.track, 'overflow-y', 'visible');
+    imp(ui.track, 'scroll-padding-left', '0');
+    imp(ui.track, 'scroll-padding-right', '0');
+    imp(ui.track, 'scroll-snap-type', 'none');
+    imp(ui.track, 'mask-image', 'none');
+    imp(ui.track, '-webkit-mask-image', 'none');
+
+    const inner = Math.max(300, Math.round(ui.track.clientWidth || (stageW - sidePad * 2)));
+    const slideW = Math.max(compact ? 144 : 218, Math.floor((inner - gap * 2) / 3));
+
+    ui.slides.forEach(function(slide){
+      imp(slide, 'flex', '0 0 ' + slideW + 'px');
+      imp(slide, 'width', slideW + 'px');
+      imp(slide, 'min-width', slideW + 'px');
+      imp(slide, 'max-width', slideW + 'px');
+    });
+
+    const mediaH = compact ? 104 : Math.max(148, Math.min(196, Math.round(slideW * 0.62)));
+    ui.cinema.querySelectorAll('.movie-media, .movie-img').forEach(function(el){
+      imp(el, 'height', mediaH + 'px');
+      imp(el, 'min-height', mediaH + 'px');
+      imp(el, 'max-height', mediaH + 'px');
+    });
+
+    const titleSize = compact ? '9px' : (slideW < 250 ? '14px' : '15px');
+    ui.cinema.querySelectorAll('.movie-info h3').forEach(function(el){
+      imp(el, 'font-size', titleSize);
+      imp(el, 'line-height', '1.08');
+    });
+
+    [ui.prev, ui.next].forEach(function(btn){
+      imp(btn, 'position', 'absolute');
+      imp(btn, 'width', btnSize + 'px');
+      imp(btn, 'height', btnSize + 'px');
+      imp(btn, 'min-width', btnSize + 'px');
+      imp(btn, 'min-height', btnSize + 'px');
+      imp(btn, 'top', top);
+      imp(btn, 'transform', 'translateY(-50%)');
+      imp(btn, 'z-index', '9999');
+      imp(btn, 'opacity', '1');
+      imp(btn, 'visibility', 'visible');
+      imp(btn, 'display', 'grid');
+      imp(btn, 'place-items', 'center');
+    });
+    ui.cinema.querySelectorAll('.slider-prev svg, .slider-next svg').forEach(function(svg){
+      imp(svg, 'width', compact ? '16px' : '18px');
+      imp(svg, 'height', compact ? '16px' : '18px');
+    });
+
+    imp(ui.prev, 'left', compact ? '6px' : '8px');
+    imp(ui.next, 'right', compact ? '6px' : '8px');
+  }
+
+  function apply(){
+    const ui = getUI();
+    if(!ui) return;
+    if(!isTarget()) return;
+    tune(ui);
+  }
+
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0, 100, 250, 500, 900, 1500, 2500, 4000, 6500, 9000].forEach(function(ms){ setTimeout(queue, ms); });
+  let ticks = 0;
+  const interval = setInterval(function(){
+    queue();
+    ticks += 1;
+    if(ticks > 70) clearInterval(interval);
+  }, 250);
+  try{
+    const mo = new MutationObserver(queue);
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+  }catch(_e){}
+})();
+</script>
 
 </body>
 </html>
