@@ -43080,233 +43080,260 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-
-<style id="tk-cinema-nav-host-hardfix-v2-style">
-#cinema,
-#cinema .slider-container{
-  overflow: visible !important;
-}
-#cinema .tk-cinema-nav-host-hardfix{
-  position: absolute !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  margin: 0 !important;
+<style id="tk-cinema-detached-arrows-final-v1-style">
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext{
+  position: fixed !important;
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92)) !important;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+  display: grid !important;
+  place-items: center !important;
   padding: 0 !important;
+  margin: 0 !important;
+  z-index: 2147483000 !important;
+  cursor: pointer !important;
+  opacity: .98 !important;
+  transform: none !important;
+}
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev:hover,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext:hover{
+  filter: brightness(1.08) saturate(1.05) !important;
+}
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev svg,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext svg{
+  width: 22px !important;
+  height: 22px !important;
+  stroke: rgba(255,255,255,.96) !important;
+  fill: none !important;
+  stroke-width: 2.6 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,.22)) !important;
+}
+html.tk-cinema-detached-arrows-final-v1 #cinema .slider-prev,
+html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
+  visibility: hidden !important;
+  opacity: 0 !important;
   pointer-events: none !important;
-  z-index: 2147481000 !important;
-  display: none;
-}
-#cinema.tk-cinema-nav-host-hardfix-active .tk-cinema-nav-host-hardfix{
-  display: block !important;
-}
-#cinema.tk-cinema-nav-host-hardfix-active .tk-cinema-nav-host-hardfix .slider-prev,
-#cinema.tk-cinema-nav-host-hardfix-active .tk-cinema-nav-host-hardfix .slider-next{
-  position: absolute !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  pointer-events: auto !important;
-  z-index: 2147482000 !important;
-}
-#cinema.tk-cinema-nav-host-hardfix-active .tk-cinema-nav-host-hardfix .slider-prev{
-  left: 0 !important;
-  right: auto !important;
-}
-#cinema.tk-cinema-nav-host-hardfix-active .tk-cinema-nav-host-hardfix .slider-next{
-  right: 0 !important;
-  left: auto !important;
-}
-@media (max-width: 1199px){
-  #cinema .tk-cinema-nav-host-hardfix{
-    display: none !important;
-  }
 }
 </style>
-<script id="tk-cinema-nav-host-hardfix-v2-script">
+<script id="tk-cinema-detached-arrows-final-v1-script">
 (function(){
-  var cinema = null;
-  var host = null;
+  var root = document.documentElement;
+  var prevBtn = null;
+  var nextBtn = null;
   var raf = 0;
   var mo = null;
 
-  function q(sel, root){ return (root || document).querySelector(sel); }
-  function qa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
+  function target(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    var sw = Math.max(Number((window.screen && window.screen.width) || 0), Number((window.screen && window.screen.availWidth) || 0), iw);
+    var sh = Math.max(Number((window.screen && window.screen.height) || 0), Number((window.screen && window.screen.availHeight) || 0), ih);
+    var ratio = sw / Math.max(1, sh);
+    return dpr >= 1.5 && iw >= 1100 && iw <= 1600 && ih >= 680 && ih <= 980 && ratio >= 1.45 && ratio <= 1.95;
+  }
+
+  function q(sel){ return document.querySelector(sel); }
   function rect(el){ return el ? el.getBoundingClientRect() : null; }
-  function overlaps(a, b){ return !!(a && b && !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom)); }
+  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
 
-  function getCinema(){
-    cinema = cinema || document.getElementById('cinema');
-    return cinema;
-  }
-
-  function getStage(){
-    var root = getCinema();
-    return root ? q('.slider-container', root) : null;
-  }
-
-  function getButtons(){
-    var root = getCinema();
-    if(!root) return { prev:null, next:null };
-    return {
-      prev: q('.slider-prev', root),
-      next: q('.slider-next', root)
-    };
-  }
-
-  function ensureHost(){
-    var root = getCinema();
-    if(!root) return null;
-    host = q('.tk-cinema-nav-host-hardfix', root);
-    if(!host){
-      host = document.createElement('div');
-      host.className = 'tk-cinema-nav-host-hardfix';
-      root.appendChild(host);
+  function ensure(){
+    if(!prevBtn){
+      prevBtn = document.createElement('button');
+      prevBtn.id = 'tkCinemaDetachedPrev';
+      prevBtn.setAttribute('aria-label', 'Предыдущий фильм');
+      prevBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7"></path></svg>';
+      prevBtn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var orig = q('#cinema .slider-prev');
+        if(orig) orig.click();
+      }, true);
+      document.body.appendChild(prevBtn);
     }
-    return host;
-  }
-
-  function restoreDefaultPositions(){
-    var root = getCinema();
-    var stage = getStage();
-    var btns = getButtons();
-    if(!root || !stage) return;
-    root.classList.remove('tk-cinema-nav-host-hardfix-active');
-    if(host) host.style.display = 'none';
-    if(btns.prev && btns.prev.parentNode === host){
-      stage.insertBefore(btns.prev, stage.firstChild);
-    }
-    if(btns.next && btns.next.parentNode === host){
-      stage.appendChild(btns.next);
+    if(!nextBtn){
+      nextBtn = document.createElement('button');
+      nextBtn.id = 'tkCinemaDetachedNext';
+      nextBtn.setAttribute('aria-label', 'Следующий фильм');
+      nextBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>';
+      nextBtn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var orig = q('#cinema .slider-next');
+        if(orig) orig.click();
+      }, true);
+      document.body.appendChild(nextBtn);
     }
   }
 
-  function currentVisibleEdgeSlides(root, stage){
-    var slides = qa('.movie-slide', root).filter(function(slide){
-      var r = rect(slide);
-      return r && r.width > 40 && r.height > 40;
-    });
-    var stageRect = rect(stage);
-    var first = null;
-    var last = null;
-    slides.forEach(function(slide){
-      var r = rect(slide);
-      if(!r) return;
-      if(r.right > stageRect.left + 8 && r.left < stageRect.right - 8){
-        if(!first || r.left < rect(first).left) first = slide;
-        if(!last || r.right > rect(last).right) last = slide;
-      }
-    });
-    return { first:first, last:last, slides:slides, stageRect:stageRect };
+  function hideDetached(){
+    root.classList.remove('tk-cinema-detached-arrows-final-v1');
+    if(prevBtn) prevBtn.style.display = 'none';
+    if(nextBtn) nextBtn.style.display = 'none';
   }
 
-  function apply(){
+  function place(){
     raf = 0;
-    var root = getCinema();
-    var stage = getStage();
-    var btns = getButtons();
-    if(!root || !stage || !btns.prev || !btns.next){
+    if(!target()){
+      hideDetached();
+      return;
+    }
+    var cinema = q('#cinema');
+    var stage = q('#cinema .slider-container');
+    var slides = document.querySelectorAll('#cinema .movie-slide');
+    if(!cinema || !stage || !slides || slides.length < 3){
+      hideDetached();
       return;
     }
 
-    var desktop = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0) >= 1200;
-    if(!desktop){
-      restoreDefaultPositions();
-      return;
-    }
-
-    var navHost = ensureHost();
-    if(!navHost) return;
-
-    if(btns.prev.parentNode !== navHost) navHost.appendChild(btns.prev);
-    if(btns.next.parentNode !== navHost) navHost.appendChild(btns.next);
-    root.classList.add('tk-cinema-nav-host-hardfix-active');
-    navHost.style.display = 'block';
+    ensure();
+    root.classList.add('tk-cinema-detached-arrows-final-v1');
 
     var stageRect = rect(stage);
-    if(!stageRect || stageRect.width < 200){
-      restoreDefaultPositions();
+    var firstRect = rect(slides[0]);
+    var thirdRect = rect(slides[2]);
+    if(!stageRect || !firstRect || !thirdRect){
+      hideDetached();
       return;
     }
 
-    var prevBox = rect(btns.prev) || { width:46, height:46 };
-    var nextBox = rect(btns.next) || { width:46, height:46 };
-    var btnW = Math.max(46, Math.ceil(prevBox.width || 46), Math.ceil(nextBox.width || 46));
-    var btnH = Math.max(46, Math.ceil(prevBox.height || 46), Math.ceil(nextBox.height || 46));
-    var outside = Math.max(btnW + 26, Math.min(210, Math.round((window.innerWidth || 0) * 0.075)));
+    var btnW = 46;
+    var gap = 20;
+    var leftX = Math.round(Math.max(8, firstRect.left - btnW - gap));
+    var rightX = Math.round(Math.min(window.innerWidth - btnW - 8, thirdRect.right + gap));
+    var centerY = Math.round(stageRect.top + (stageRect.height * 0.48) - (btnW / 2));
+    var topY = Math.max(8, centerY);
 
-    imp(root, 'overflow', 'visible');
-    imp(stage, 'overflow', 'visible');
-    imp(navHost, 'top', stage.offsetTop + 'px');
-    imp(navHost, 'width', (Math.round(stage.clientWidth) + outside * 2) + 'px');
-    imp(navHost, 'height', Math.max(stage.offsetHeight, btnH + 20) + 'px');
-
-    [btns.prev, btns.next].forEach(function(btn){
-      imp(btn, 'position', 'absolute');
-      imp(btn, 'top', '50%');
-      imp(btn, 'transform', 'translateY(-50%)');
-      imp(btn, 'pointer-events', 'auto');
-      imp(btn, 'z-index', '2147482000');
-      imp(btn, 'margin', '0');
-    });
-
-    imp(btns.prev, 'left', '0px');
-    imp(btns.prev, 'right', 'auto');
-    imp(btns.next, 'right', '0px');
-    imp(btns.next, 'left', 'auto');
-
-    var edges = currentVisibleEdgeSlides(root, stage);
-    var prevRect = rect(btns.prev);
-    var nextRect = rect(btns.next);
-    var growL = 0;
-    var growR = 0;
-    if(edges.first){
-      var firstRect = rect(edges.first);
-      if(overlaps(prevRect, firstRect)) growL = Math.ceil((prevRect.right - firstRect.left) + 30);
-    }
-    if(edges.last){
-      var lastRect = rect(edges.last);
-      if(overlaps(nextRect, lastRect)) growR = Math.ceil((lastRect.right - nextRect.left) + 30);
-    }
-    if(growL > 0 || growR > 0){
-      var extraL = outside + growL;
-      var extraR = outside + growR;
-      imp(navHost, 'width', (Math.round(stage.clientWidth) + extraL + extraR) + 'px');
-      imp(btns.prev, 'left', '0px');
-      imp(btns.next, 'right', '0px');
-    }
+    prevBtn.style.display = 'grid';
+    nextBtn.style.display = 'grid';
+    imp(prevBtn, 'left', leftX + 'px');
+    imp(prevBtn, 'top', topY + 'px');
+    imp(prevBtn, 'right', 'auto');
+    imp(nextBtn, 'left', rightX + 'px');
+    imp(nextBtn, 'top', topY + 'px');
+    imp(nextBtn, 'right', 'auto');
   }
 
   function queue(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
+    raf = requestAnimationFrame(place);
   }
 
-  function boot(){
-    queue();
-    [40, 120, 260, 600, 1200, 2200, 3600, 5200, 8000].forEach(function(ms){ setTimeout(queue, ms); });
-    window.addEventListener('load', queue, { passive:true });
-    window.addEventListener('resize', queue, { passive:true });
-    window.addEventListener('orientationchange', queue, { passive:true });
-    if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-    document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 40); }, true);
-    try{
-      mo = new MutationObserver(function(list){
-        for(var i = 0; i < list.length; i++){
-          var t = list[i].target;
-          if(t && (t.id === 'cinema' || (t.closest && t.closest('#cinema')))){
-            queue();
-            break;
-          }
-        }
-      });
-      mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
-    }catch(_e){}
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
-  else boot();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30); }, true);
+  [0,100,300,700,1500,2500,4000,6500].forEach(function(ms){ setTimeout(queue, ms); });
+  try{
+    mo = new MutationObserver(queue);
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
+  }catch(_e){}
 })();
 </script>
 
+
+<style id="oai-cinema-arrow-gutter-fix-final">
+/* Final fix: put cinema nav buttons into dedicated side gutters instead of over the slides */
+#cinema.cinema-slider.cinema-v2 .slider-container{
+  display:grid !important;
+  grid-template-columns: clamp(54px, 4.2vw, 72px) minmax(0, 1fr) clamp(54px, 4.2vw, 72px) !important;
+  align-items:center !important;
+  column-gap: clamp(8px, 1vw, 14px) !important;
+}
+
+#cinema.cinema-slider.cinema-v2 .slider-prev,
+#cinema.cinema-slider.cinema-v2 .slider-next{
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+  right:auto !important;
+  transform:none !important;
+  margin:0 !important;
+  place-self:center !important;
+  z-index:8 !important;
+}
+
+#cinema.cinema-slider.cinema-v2 .slider-prev{ grid-column:1 !important; }
+#cinema.cinema-slider.cinema-v2 .slider-wrapper{ 
+  grid-column:2 !important;
+  min-width:0 !important;
+  width:100% !important;
+  padding-left:0 !important;
+  padding-right:0 !important;
+  scroll-padding-left:0 !important;
+  scroll-padding-right:0 !important;
+}
+#cinema.cinema-slider.cinema-v2 .slider-next{ grid-column:3 !important; }
+
+/* keep the decorative background behind the whole component after switching to grid */
+#cinema.cinema-slider.cinema-v2 .slider-container::before{
+  inset: -12px 0 -16px !important;
+}
+#cinema.cinema-slider.cinema-v2 .slider-container::after{
+  inset: -8px 0 -10px !important;
+}
+
+/* on tighter desktop heights give the arrows a slightly wider gutter */
+@media (min-width: 900px) and (max-height: 950px){
+  #cinema.cinema-slider.cinema-v2 .slider-container{
+    grid-template-columns: 64px minmax(0, 1fr) 64px !important;
+    column-gap: 10px !important;
+  }
+  #cinema.cinema-slider.cinema-v2 .slider-wrapper{
+    padding-top: 14px !important;
+    padding-bottom: 12px !important;
+  }
+}
+
+/* mobile keeps the original overlay layout */
+@media (max-width: 520px){
+  #cinema.cinema-slider.cinema-v2 .slider-container{
+    display:flex !important;
+  }
+  #cinema.cinema-slider.cinema-v2 .slider-prev,
+  #cinema.cinema-slider.cinema-v2 .slider-next{
+    position:absolute !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+  }
+  #cinema.cinema-slider.cinema-v2 .slider-prev{ left:10px !important; }
+  #cinema.cinema-slider.cinema-v2 .slider-next{ right:10px !important; }
+  #cinema.cinema-slider.cinema-v2 .slider-wrapper{
+    padding-left:66px !important;
+    padding-right:66px !important;
+  }
+}
+</style>
+
+
+
+<style id="oai-cinema-detached-disable-final">
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-cinema-detached-arrows-final-v1 #cinema .slider-prev,
+html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
+  visibility:visible !important;
+  opacity:.96 !important;
+  pointer-events:auto !important;
+}
+</style>
+
 </body>
 </html>
+
+
