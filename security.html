@@ -43151,6 +43151,118 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 })();
 </script>
 
+
+<style id="tk-cinema-arrow-visibility-and-left-gap-fix-v2">
+@media (min-width: 1180px) and (max-width: 1500px) and (max-height: 860px){
+  #cinema{
+    position: relative !important;
+    z-index: 12020 !important;
+    isolation: isolate !important;
+    overflow: visible !important;
+  }
+  #cinema .slider-container,
+  #cinema .slider-wrapper{
+    overflow: visible !important;
+  }
+  #cinema .slider-prev,
+  #cinema .slider-next{
+    overflow: visible !important;
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
+    z-index: 12100 !important;
+  }
+  #cinema .slider-prev{
+    left: -46px !important;
+    transform: translate(0, -50%) !important;
+  }
+  #cinema .slider-prev:hover{
+    transform: translate(0, -50%) scale(1.05) !important;
+  }
+  #cinema .slider-next{
+    right: -78px !important;
+    transform: translate(18px, -50%) !important;
+  }
+  #cinema .slider-next:hover{
+    transform: translate(18px, -50%) scale(1.05) !important;
+  }
+}
+</style>
+<script id="tk-cinema-arrow-visibility-and-left-gap-fix-v2-script">
+(function(){
+  let raf = 0;
+  let mo = null;
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
+    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
+    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
+    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
+    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
+    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
+    const ratio = Math.max(sw, aw, iw) / Math.max(1, Math.max(sh, ah, ih));
+    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH, ratio };
+  }
+  function isTarget(){
+    const m = metrics();
+    const safariRetinaLike = m.dpr >= 1.5 && m.iw >= 1180 && m.iw <= 1500 && m.ih >= 620 && m.ih <= 900;
+    const screenLike2600 = Math.max(m.sw, m.aw, m.physW) >= 2400 && Math.max(m.sw, m.aw, m.physW) <= 3200 && Math.max(m.sh, m.ah, m.physH) >= 1300 && Math.max(m.sh, m.ah, m.physH) <= 1900;
+    return m.ratio >= 1.45 && m.ratio <= 1.95 && (safariRetinaLike || screenLike2600);
+  }
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+  function apply(){
+    raf = 0;
+    if(!isTarget()) return;
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const prev = cinema.querySelector('.slider-prev');
+    const next = cinema.querySelector('.slider-next');
+    imp(cinema, 'position', 'relative');
+    imp(cinema, 'z-index', '12020');
+    imp(cinema, 'isolation', 'isolate');
+    imp(cinema, 'overflow', 'visible');
+    if(stage){
+      imp(stage, 'position', 'relative');
+      imp(stage, 'overflow', 'visible');
+      imp(stage, 'z-index', '12030');
+    }
+    if(track) imp(track, 'overflow', 'visible');
+    if(prev){
+      imp(prev, 'left', '-46px');
+      imp(prev, 'transform', 'translate(0, -50%)');
+      imp(prev, 'z-index', '12100');
+      imp(prev, 'overflow', 'visible');
+      imp(prev, 'clip-path', 'none');
+      imp(prev, '-webkit-clip-path', 'none');
+    }
+    if(next){
+      imp(next, 'right', '-78px');
+      imp(next, 'transform', 'translate(18px, -50%)');
+      imp(next, 'z-index', '12100');
+      imp(next, 'overflow', 'visible');
+      imp(next, 'clip-path', 'none');
+      imp(next, '-webkit-clip-path', 'none');
+    }
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0, 120, 500, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
+  mo = new MutationObserver(queue);
+  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+})();
+</script>
+
 </body>
 </html>
 
