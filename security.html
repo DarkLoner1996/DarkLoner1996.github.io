@@ -43080,233 +43080,128 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-cinema-arrow-proxy-wide-short-fix-style">
-.tk-cinema-arrow-proxy{
-  position: fixed !important;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.18);
-  background:
-    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
-    linear-gradient(180deg, rgba(40,170,240,.78), rgba(18,110,200,.78));
-  box-shadow:
-    0 18px 34px rgba(0,0,0,.20),
-    inset 0 1px 0 rgba(255,255,255,.18);
-  display: none;
-  place-items: center;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  opacity: .96;
-  filter: none;
-  outline: none;
-  z-index: 2147483647 !important;
-  transition: transform .22s ease, filter .22s ease, opacity .22s ease;
-  -webkit-appearance: none;
-  appearance: none;
-  overflow: visible !important;
-  clip-path: none !important;
-}
-.tk-cinema-arrow-proxy:hover{
-  filter: brightness(1.08) saturate(1.05);
-  transform: scale(1.05);
-}
-.tk-cinema-arrow-proxy svg{
-  width: 22px;
-  height: 22px;
-  stroke: rgba(255,255,255,.96);
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 2px 10px rgba(0,0,0,.22));
-  pointer-events: none;
-}
-html.tk-cinema-arrow-proxy-wide-short-fix #cinema,
-html.tk-cinema-arrow-proxy-wide-short-fix #cinema .slider-container,
-html.tk-cinema-arrow-proxy-wide-short-fix #cinema .slider-wrapper{
-  overflow: visible !important;
-}
-html.tk-cinema-arrow-proxy-wide-short-fix #cinema .slider-prev,
-html.tk-cinema-arrow-proxy-wide-short-fix #cinema .slider-next{
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
+<style id="oai-cinema-arrow-fixed-viewport-patch">
+  #cinema .slider-prev,
+  #cinema .slider-next{
+    will-change: left, top, transform;
+  }
 </style>
-<script id="tk-cinema-arrow-proxy-wide-short-fix-script">
+<script id="oai-cinema-arrow-fixed-viewport-patch-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
   let mo = null;
-  let prevProxy = null;
-  let nextProxy = null;
-
-  function m(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
-    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
-    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
-    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
-    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
-    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
-    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH };
-  }
-
-  function isTarget(){
-    const x = m();
-    const logicalWideShort = x.iw >= 1100 && x.iw <= 1500 && x.ih >= 620 && x.ih <= 920;
-    const physicalWideShort = x.physW >= 2200 && x.physW <= 3200 && x.physH >= 1200 && x.physH <= 1900;
-    return logicalWideShort || (x.dpr >= 1.5 && physicalWideShort);
-  }
+  let interval = null;
 
   function imp(el, prop, value){
     if(!el) return;
     try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
   }
 
-  function ensureProxy(kind){
-    let btn = document.getElementById('tk-cinema-arrow-proxy-' + kind);
-    if(btn) return btn;
-    btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'tk-cinema-arrow-proxy-' + kind;
-    btn.className = 'tk-cinema-arrow-proxy tk-cinema-arrow-proxy-' + kind;
-    btn.setAttribute('aria-label', kind === 'prev' ? 'Предыдущий фильм' : 'Следующий фильм');
-    btn.innerHTML = kind === 'prev'
-      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>'
-      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg>';
-    btn.addEventListener('click', function(){
-      const cinema = document.getElementById('cinema');
-      if(!cinema) return;
-      const real = cinema.querySelector(kind === 'prev' ? '.slider-prev' : '.slider-next');
-      if(real){
-        try{ real.click(); }catch(_e){
-          try{ real.dispatchEvent(new MouseEvent('click', { bubbles:true, cancelable:true, view:window })); }catch(_e2){}
-        }
-      }
-      [80, 220, 500].forEach(ms => setTimeout(queue, ms));
-    }, true);
-    document.body.appendChild(btn);
-    return btn;
-  }
-
-  function visibleSlides(cinema){
-    const stage = cinema.querySelector('.slider-container');
-    const track = cinema.querySelector('.slider-wrapper');
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || !slides.length) return null;
-    const stageRect = stage.getBoundingClientRect();
-    const items = slides.map(slide => ({ slide, rect: slide.getBoundingClientRect() }))
-      .filter(x => x.rect.width > 120 && x.rect.height > 100)
-      .filter(x => x.rect.right > stageRect.left + 10 && x.rect.left < stageRect.right - 10)
-      .sort((a,b) => a.rect.left - b.rect.left);
-    return items.length ? { stage, track, stageRect, items } : null;
-  }
-
-  function hideRealArrows(cinema, on){
-    const prev = cinema.querySelector('.slider-prev');
-    const next = cinema.querySelector('.slider-next');
-    [prev, next].forEach(function(btn){
-      if(!btn) return;
-      if(on){
-        imp(btn, 'opacity', '0');
-        imp(btn, 'visibility', 'hidden');
-        imp(btn, 'pointer-events', 'none');
-      }else{
-        btn.style.removeProperty('opacity');
-        btn.style.removeProperty('visibility');
-        btn.style.removeProperty('pointer-events');
-      }
+  function visibleSlides(track, slides){
+    const tr = track.getBoundingClientRect();
+    return slides.filter(function(slide){
+      const r = slide.getBoundingClientRect();
+      return r.right > tr.left + 8 && r.left < tr.right - 8;
     });
   }
 
-  function placeProxy(btn, x, y, size){
-    imp(btn, 'display', 'grid');
-    imp(btn, 'width', size + 'px');
-    imp(btn, 'height', size + 'px');
-    imp(btn, 'left', Math.round(x) + 'px');
-    imp(btn, 'top', Math.round(y) + 'px');
-    imp(btn, 'right', 'auto');
-    imp(btn, 'bottom', 'auto');
-    imp(btn, 'transform', 'none');
-  }
-
-  function hideProxy(btn){
-    if(!btn) return;
-    btn.style.removeProperty('display');
-    btn.style.removeProperty('left');
-    btn.style.removeProperty('top');
-    btn.style.removeProperty('right');
-    btn.style.removeProperty('bottom');
-    btn.style.removeProperty('transform');
-  }
-
-  function run(){
-    raf = 0;
+  function apply(){
     const cinema = document.getElementById('cinema');
-    if(!cinema){
-      root.classList.remove('tk-cinema-arrow-proxy-wide-short-fix');
-      hideProxy(prevProxy); hideProxy(nextProxy);
-      return;
-    }
-    const on = isTarget();
-    root.classList.toggle('tk-cinema-arrow-proxy-wide-short-fix', on);
-    if(!on){
-      hideRealArrows(cinema, false);
-      hideProxy(prevProxy); hideProxy(nextProxy);
-      return;
-    }
+    if(!cinema) return;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const prev = cinema.querySelector('.slider-prev');
+    const next = cinema.querySelector('.slider-next');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !track || !prev || !next || slides.length < 1) return;
 
-    const vis = visibleSlides(cinema);
-    if(!vis || vis.items.length < 2){
-      hideRealArrows(cinema, false);
-      hideProxy(prevProxy); hideProxy(nextProxy);
-      return;
-    }
+    const stageRect = stage.getBoundingClientRect();
+    const vis = visibleSlides(track, slides);
+    const first = vis[0] || slides[0];
+    const last = vis[vis.length - 1] || slides[Math.min(2, slides.length - 1)] || slides[slides.length - 1];
+    const firstRect = first.getBoundingClientRect();
+    const lastRect = last.getBoundingClientRect();
 
-    hideRealArrows(cinema, true);
-    prevProxy = ensureProxy('prev');
-    nextProxy = ensureProxy('next');
+    const vh = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const vw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const isDesktopWide = vw >= 1100;
+    if(!isDesktopWide) return;
 
-    const first = vis.items[0].rect;
-    const last = vis.items[vis.items.length - 1].rect;
-    const size = 44;
-    const gap = 26;
-    const minEdge = 20;
-    const maxEdge = 20;
-    const centerY = vis.stageRect.top + vis.stageRect.height * 0.49;
-    const y = centerY - size / 2;
-    let prevX = first.left - size - gap;
-    let nextX = last.right + gap;
-    prevX = Math.max(minEdge, prevX);
-    nextX = Math.min(window.innerWidth - maxEdge - size, nextX);
+    const size = Math.round(Math.max(42, Math.min(50, stageRect.height * 0.11 || 46)));
+    const gap = Math.round(Math.max(18, Math.min(34, stageRect.width * 0.022 || 22)));
+    const top = Math.round(Math.max(8, Math.min(vh - size - 8, stageRect.top + stageRect.height * 0.49 - size / 2)));
+    const prevLeft = Math.round(Math.max(12, firstRect.left - size - gap));
+    const nextLeft = Math.round(Math.min(vw - size - 12, lastRect.right + gap));
 
-    placeProxy(prevProxy, prevX, y, size);
-    placeProxy(nextProxy, nextX, y, size);
+    imp(stage, 'overflow', 'visible');
+    imp(cinema, 'overflow', 'visible');
+    imp(track, 'overflow-y', 'visible');
+
+    [prev, next].forEach(function(btn){
+      imp(btn, 'position', 'fixed');
+      imp(btn, 'top', top + 'px');
+      imp(btn, 'right', 'auto');
+      imp(btn, 'bottom', 'auto');
+      imp(btn, 'transform', 'none');
+      imp(btn, 'margin', '0');
+      imp(btn, 'width', size + 'px');
+      imp(btn, 'height', size + 'px');
+      imp(btn, 'min-width', size + 'px');
+      imp(btn, 'min-height', size + 'px');
+      imp(btn, 'max-width', size + 'px');
+      imp(btn, 'max-height', size + 'px');
+      imp(btn, 'z-index', '2147483000');
+      imp(btn, 'display', 'grid');
+      imp(btn, 'place-items', 'center');
+      imp(btn, 'overflow', 'visible');
+      imp(btn, 'clip-path', 'none');
+      imp(btn, 'opacity', '1');
+      imp(btn, 'visibility', 'visible');
+      imp(btn, 'pointer-events', 'auto');
+    });
+
+    imp(prev, 'left', prevLeft + 'px');
+    imp(next, 'left', nextLeft + 'px');
+
+    const prevSvg = prev.querySelector('svg');
+    const nextSvg = next.querySelector('svg');
+    if(prevSvg){ imp(prevSvg, 'width', Math.round(size * 0.52) + 'px'); imp(prevSvg, 'height', Math.round(size * 0.52) + 'px'); }
+    if(nextSvg){ imp(nextSvg, 'width', Math.round(size * 0.52) + 'px'); imp(nextSvg, 'height', Math.round(size * 0.52) + 'px'); }
   }
 
   function queue(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(run);
+    raf = requestAnimationFrame(function(){ raf = 0; apply(); });
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
   else queue();
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  window.addEventListener('scroll', queue, { passive:true, capture:true });
-  if(window.visualViewport) {
-    window.visualViewport.addEventListener('resize', queue, { passive:true });
-    window.visualViewport.addEventListener('scroll', queue, { passive:true });
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('scroll', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', queue, {passive:true});
+    window.visualViewport.addEventListener('scroll', queue, {passive:true});
   }
-  [0, 120, 400, 900, 1600, 2600, 4200, 6500].forEach(ms => setTimeout(queue, ms));
-  mo = new MutationObserver(queue);
-  mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30);
+  }, true);
+
+  [0, 80, 160, 320, 700, 1200, 2000, 3200, 5000, 7000].forEach(function(ms){ setTimeout(queue, ms); });
+  let ticks = 0;
+  interval = setInterval(function(){
+    queue();
+    ticks += 1;
+    if(ticks > 80) clearInterval(interval);
+  }, 250);
+
+  try{
+    mo = new MutationObserver(queue);
+    mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']});
+  }catch(_e){}
 })();
 </script>
 
