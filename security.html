@@ -43080,22 +43080,22 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-cinema-detached-arrows-final-v2-style">
-html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedPrev,
-html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext{
+<style id="tk-cinema-detached-arrows-final-v1-style">
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext{
   position: fixed !important;
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(40,170,240,.92), rgba(18,110,200,.92)) !important;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
   display: grid !important;
   place-items: center !important;
-  width: var(--tk-detached-arrow-size, 48px) !important;
-  height: var(--tk-detached-arrow-size, 48px) !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255,255,255,.20) !important;
-  background:
-    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.22), transparent 60%),
-    linear-gradient(180deg, rgba(48,178,248,.94), rgba(18,110,200,.94)) !important;
-  box-shadow:
-    0 18px 34px rgba(0,0,0,.26),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
   padding: 0 !important;
   margin: 0 !important;
   z-index: 2147483000 !important;
@@ -43103,14 +43103,14 @@ html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext{
   opacity: .98 !important;
   transform: none !important;
 }
-html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedPrev:hover,
-html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext:hover{
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev:hover,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext:hover{
   filter: brightness(1.08) saturate(1.05) !important;
 }
-html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedPrev svg,
-html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext svg{
-  width: calc(var(--tk-detached-arrow-size, 48px) * .48) !important;
-  height: calc(var(--tk-detached-arrow-size, 48px) * .48) !important;
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedPrev svg,
+html.tk-cinema-detached-arrows-final-v1 #tkCinemaDetachedNext svg{
+  width: 22px !important;
+  height: 22px !important;
   stroke: rgba(255,255,255,.96) !important;
   fill: none !important;
   stroke-width: 2.6 !important;
@@ -43118,20 +43118,14 @@ html.tk-cinema-detached-arrows-global-v2 #tkCinemaDetachedNext svg{
   stroke-linejoin: round !important;
   filter: drop-shadow(0 2px 10px rgba(0,0,0,.22)) !important;
 }
-html.tk-cinema-detached-arrows-global-v2 #cinema .slider-prev,
-html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
+html.tk-cinema-detached-arrows-final-v1 #cinema .slider-prev,
+html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
-@media (min-width: 1200px){
-  html body #cinema,
-  html body #cinema .slider-container{
-    overflow: visible !important;
-  }
-}
 </style>
-<script id="tk-cinema-detached-arrows-final-v2-script">
+<script id="tk-cinema-detached-arrows-final-v1-script">
 (function(){
   var root = document.documentElement;
   var prevBtn = null;
@@ -43139,52 +43133,24 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
   var raf = 0;
   var mo = null;
 
-  function viewport(){
-    return {
-      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
-      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
-    };
+  function target(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    var sw = Math.max(Number((window.screen && window.screen.width) || 0), Number((window.screen && window.screen.availWidth) || 0), iw);
+    var sh = Math.max(Number((window.screen && window.screen.height) || 0), Number((window.screen && window.screen.availHeight) || 0), ih);
+    var ratio = sw / Math.max(1, sh);
+    return dpr >= 1.5 && iw >= 1100 && iw <= 1600 && ih >= 680 && ih <= 980 && ratio >= 1.45 && ratio <= 1.95;
   }
 
   function q(sel){ return document.querySelector(sel); }
   function rect(el){ return el ? el.getBoundingClientRect() : null; }
   function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-
-  function getCinemaUI(){
-    var cinema = q('#cinema');
-    if(!cinema) return null;
-    var stage = q('#cinema .slider-container');
-    var track = q('#cinema .slider-wrapper');
-    var prev = q('#cinema .slider-prev');
-    var next = q('#cinema .slider-next');
-    if(!stage || !track || !prev || !next) return null;
-    return { cinema: cinema, stage: stage, track: track, prev: prev, next: next };
-  }
-
-  function shouldDetach(ui){
-    if(!ui) return false;
-    var vp = viewport();
-    if(vp.w < 1200 || vp.h < 700 || vp.w <= vp.h) return false;
-
-    var stageRect = rect(ui.stage);
-    if(!stageRect || stageRect.width < 520 || stageRect.height < 120) return false;
-
-    var btnSize = clamp(Math.round(stageRect.height * 0.18), 44, 56);
-    var gap = clamp(Math.round(stageRect.width * 0.018), 16, 28);
-    var needed = btnSize + gap + 10;
-    var leftSpace = stageRect.left;
-    var rightSpace = vp.w - stageRect.right;
-
-    if(leftSpace < needed || rightSpace < needed) return false;
-    return true;
-  }
 
   function ensure(){
     if(!prevBtn){
       prevBtn = document.createElement('button');
       prevBtn.id = 'tkCinemaDetachedPrev';
-      prevBtn.type = 'button';
       prevBtn.setAttribute('aria-label', 'Предыдущий фильм');
       prevBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7"></path></svg>';
       prevBtn.addEventListener('click', function(ev){
@@ -43197,7 +43163,6 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
     if(!nextBtn){
       nextBtn = document.createElement('button');
       nextBtn.id = 'tkCinemaDetachedNext';
-      nextBtn.type = 'button';
       nextBtn.setAttribute('aria-label', 'Следующий фильм');
       nextBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>';
       nextBtn.addEventListener('click', function(ev){
@@ -43209,47 +43174,43 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
     }
   }
 
-  function hideDetached(ui){
-    root.classList.remove('tk-cinema-detached-arrows-global-v2');
+  function hideDetached(){
+    root.classList.remove('tk-cinema-detached-arrows-final-v1');
     if(prevBtn) prevBtn.style.display = 'none';
     if(nextBtn) nextBtn.style.display = 'none';
-    if(ui && ui.prev){
-      ui.prev.style.removeProperty('visibility');
-      ui.prev.style.removeProperty('opacity');
-      ui.prev.style.removeProperty('pointer-events');
-    }
-    if(ui && ui.next){
-      ui.next.style.removeProperty('visibility');
-      ui.next.style.removeProperty('opacity');
-      ui.next.style.removeProperty('pointer-events');
-    }
   }
 
   function place(){
     raf = 0;
-    var ui = getCinemaUI();
-    if(!ui || !shouldDetach(ui)){
-      hideDetached(ui);
+    if(!target()){
+      hideDetached();
+      return;
+    }
+    var cinema = q('#cinema');
+    var stage = q('#cinema .slider-container');
+    var slides = document.querySelectorAll('#cinema .movie-slide');
+    if(!cinema || !stage || !slides || slides.length < 3){
+      hideDetached();
       return;
     }
 
     ensure();
-    root.classList.add('tk-cinema-detached-arrows-global-v2');
+    root.classList.add('tk-cinema-detached-arrows-final-v1');
 
-    var vp = viewport();
-    var stageRect = rect(ui.stage);
-    if(!stageRect){
-      hideDetached(ui);
+    var stageRect = rect(stage);
+    var firstRect = rect(slides[0]);
+    var thirdRect = rect(slides[2]);
+    if(!stageRect || !firstRect || !thirdRect){
+      hideDetached();
       return;
     }
 
-    var btnSize = clamp(Math.round(stageRect.height * 0.18), 44, 56);
-    var gap = clamp(Math.round(stageRect.width * 0.018), 16, 28);
-    var topY = clamp(Math.round(stageRect.top + (stageRect.height * 0.47) - (btnSize / 2)), 8, Math.max(8, vp.h - btnSize - 8));
-    var leftX = Math.round(stageRect.left - btnSize - gap);
-    var rightX = Math.round(stageRect.right + gap);
-
-    root.style.setProperty('--tk-detached-arrow-size', btnSize + 'px');
+    var btnW = 46;
+    var gap = 20;
+    var leftX = Math.round(Math.max(8, firstRect.left - btnW - gap));
+    var rightX = Math.round(Math.min(window.innerWidth - btnW - 8, thirdRect.right + gap));
+    var centerY = Math.round(stageRect.top + (stageRect.height * 0.48) - (btnW / 2));
+    var topY = Math.max(8, centerY);
 
     prevBtn.style.display = 'grid';
     nextBtn.style.display = 'grid';
@@ -43259,13 +43220,6 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
     imp(nextBtn, 'left', rightX + 'px');
     imp(nextBtn, 'top', topY + 'px');
     imp(nextBtn, 'right', 'auto');
-
-    imp(ui.prev, 'visibility', 'hidden');
-    imp(ui.prev, 'opacity', '0');
-    imp(ui.prev, 'pointer-events', 'none');
-    imp(ui.next, 'visibility', 'hidden');
-    imp(ui.next, 'opacity', '0');
-    imp(ui.next, 'pointer-events', 'none');
   }
 
   function queue(){
@@ -43278,7 +43232,6 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
   window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
-  window.addEventListener('scroll', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
   document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30); }, true);
   [0,100,300,700,1500,2500,4000,6500].forEach(function(ms){ setTimeout(queue, ms); });
@@ -43290,182 +43243,227 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
 </script>
 
 
-<style id="tk-cinema-arrows-outside-hardfix-v3-style">
-html.tk-cinema-arrows-outside-hardfix-v3 #cinema,
-html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-container{
-  overflow: visible !important;
+<style id="tk-cinema-arrow-overlap-rescue-v2-style">
+html.tk-cinema-arrow-overlap-rescue-v2 #tkCinemaRescuePrev,
+html.tk-cinema-arrow-overlap-rescue-v2 #tkCinemaRescueNext{
+  position: fixed !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(40,170,240,.94), rgba(18,110,200,.94)) !important;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 2147483646 !important;
+  cursor: pointer !important;
+  opacity: .98 !important;
+  transform: none !important;
+  pointer-events: auto !important;
 }
-html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-wrapper{
-  overflow-y: visible !important;
+html.tk-cinema-arrow-overlap-rescue-v2 #tkCinemaRescuePrev:hover,
+html.tk-cinema-arrow-overlap-rescue-v2 #tkCinemaRescueNext:hover{
+  filter: brightness(1.08) saturate(1.05) !important;
 }
-html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-prev,
-html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-next{
-  z-index: 2147482000 !important;
+html.tk-cinema-arrow-overlap-rescue-v2 #tkCinemaRescuePrev svg,
+html.tk-cinema-arrow-overlap-rescue-v2 #tkCinemaRescueNext svg{
+  width: 22px !important;
+  height: 22px !important;
+  stroke: rgba(255,255,255,.96) !important;
+  fill: none !important;
+  stroke-width: 2.6 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,.22)) !important;
 }
-html.tk-cinema-arrows-outside-hardfix-v3 #tkCinemaDetachedPrev,
-html.tk-cinema-arrows-outside-hardfix-v3 #tkCinemaDetachedNext{
-  display: none !important;
+html.tk-cinema-arrow-overlap-rescue-v2 #cinema .slider-prev,
+html.tk-cinema-arrow-overlap-rescue-v2 #cinema .slider-next{
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
 </style>
-<script id="tk-cinema-arrows-outside-hardfix-v3-script">
+<script id="tk-cinema-arrow-overlap-rescue-v2-script">
 (function(){
-  var root = document.documentElement;
-  var raf = 0;
-  var mo = null;
-  var everApplied = false;
-  var LEGACY_CLASSES = [
-    'tk-cinema-detached-arrows-final-v1',
-    'tk-cinema-detached-arrows-global-v2'
-  ];
+  const root = document.documentElement;
+  let prev = null;
+  let next = null;
+  let raf = 0;
+  let mo = null;
 
-  function q(sel, scope){
-    return (scope || document).querySelector(sel);
+  function q(sel, scope){ return (scope || document).querySelector(sel); }
+  function rect(el){ return el && el.getBoundingClientRect ? el.getBoundingClientRect() : null; }
+  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+  function ensureButtons(){
+    if(!prev){
+      prev = document.createElement('button');
+      prev.id = 'tkCinemaRescuePrev';
+      prev.type = 'button';
+      prev.setAttribute('aria-label', 'Предыдущий фильм');
+      prev.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7"></path></svg>';
+      prev.addEventListener('click', function(ev){
+        ev.preventDefault();
+        const orig = q('#cinema .slider-prev');
+        if(orig) orig.click();
+      }, true);
+      document.body.appendChild(prev);
+    }
+    if(!next){
+      next = document.createElement('button');
+      next.id = 'tkCinemaRescueNext';
+      next.type = 'button';
+      next.setAttribute('aria-label', 'Следующий фильм');
+      next.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>';
+      next.addEventListener('click', function(ev){
+        ev.preventDefault();
+        const orig = q('#cinema .slider-next');
+        if(orig) orig.click();
+      }, true);
+      document.body.appendChild(next);
+    }
   }
 
-  function imp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  function hideDetached(){
+    root.classList.remove('tk-cinema-arrow-overlap-rescue-v2');
+    if(prev) prev.style.display = 'none';
+    if(next) next.style.display = 'none';
   }
 
-  function viewport(){
-    return {
-      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
-      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
-    };
-  }
-
-  function rect(el){
-    return el ? el.getBoundingClientRect() : null;
-  }
-
-  function clamp(n, min, max){
-    return Math.max(min, Math.min(max, n));
-  }
-
-  function getUI(){
-    var cinema = document.getElementById('cinema');
+  function getState(){
+    const cinema = document.getElementById('cinema');
     if(!cinema) return null;
-    var stage = q('.slider-container', cinema);
-    var track = q('.slider-wrapper', cinema);
-    var prev = q('.slider-prev', cinema);
-    var next = q('.slider-next', cinema);
-    if(!stage || !track || !prev || !next) return null;
-    return { cinema: cinema, stage: stage, track: track, prev: prev, next: next };
+    const stage = q('.slider-container', cinema);
+    const track = q('.slider-wrapper', cinema);
+    const origPrev = q('.slider-prev', cinema);
+    const origNext = q('.slider-next', cinema);
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !track || !origPrev || !origNext || slides.length < 1) return null;
+    return { cinema, stage, track, origPrev, origNext, slides };
   }
 
-  function killLegacyDetached(){
-    LEGACY_CLASSES.forEach(function(cls){ root.classList.remove(cls); });
-    ['tkCinemaDetachedPrev','tkCinemaDetachedNext'].forEach(function(id){
-      var el = document.getElementById(id);
-      if(!el) return;
-      imp(el, 'display', 'none');
-      imp(el, 'visibility', 'hidden');
-      imp(el, 'opacity', '0');
-      imp(el, 'pointer-events', 'none');
-    });
+  function isDesktopLike(){
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    return !coarse && iw >= 1180 && ih >= 640;
   }
 
-  function metrics(ui){
-    var vp = viewport();
-    var stageRect = rect(ui.stage);
-    var prevRect = rect(ui.prev);
-    var nextRect = rect(ui.next);
-    var btnSize = clamp(Math.round(Math.max(
-      (prevRect && prevRect.width) || 0,
-      (nextRect && nextRect.width) || 0,
-      46
-    )), 44, 58);
-    var gap = clamp(Math.round((stageRect ? stageRect.width : 900) * 0.018), 16, 30);
-    return {
-      vp: vp,
-      stageRect: stageRect,
-      btnSize: btnSize,
-      gap: gap,
-      offset: btnSize + gap
-    };
+  function areaOverlap(a, b){
+    const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+    const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    return x * y;
   }
 
-  function canApply(ui){
-    if(!ui) return false;
-    var m = metrics(ui);
-    if(!m.stageRect) return false;
-    if(m.vp.w < 1180 || m.vp.h < 680 || m.vp.w <= m.vp.h) return false;
-    if(m.stageRect.width < 520 || m.stageRect.height < 110) return false;
-
-    var leftSpace = m.stageRect.left;
-    var rightSpace = m.vp.w - m.stageRect.right;
-    var needed = m.offset + 8;
-    return leftSpace >= needed && rightSpace >= needed;
+  function visibleSlides(state, stageRect){
+    return state.slides
+      .map(function(slide){ return { slide, rect: rect(slide) }; })
+      .filter(function(item){
+        if(!item.rect || item.rect.width < 6 || item.rect.height < 6) return false;
+        return item.rect.right > stageRect.left + 4 && item.rect.left < stageRect.right - 4;
+      });
   }
 
-  function apply(){
+  function shouldDetach(state){
+    if(!isDesktopLike()) return false;
+    const stageRect = rect(state.stage);
+    const prevRect = rect(state.origPrev);
+    const nextRect = rect(state.origNext);
+    if(!stageRect || !prevRect || !nextRect) return false;
+    if(stageRect.bottom < 60 || stageRect.top > (window.innerHeight - 60)) return false;
+
+    const visible = visibleSlides(state, stageRect);
+    if(!visible.length) return false;
+
+    let overlap = false;
+    for(const item of visible){
+      if(areaOverlap(prevRect, item.rect) > 2 || areaOverlap(nextRect, item.rect) > 2){
+        overlap = true;
+        break;
+      }
+    }
+
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const wideDesktop = iw >= 1600;
+    const compressedStage = stageRect.width <= iw - 180;
+    return overlap || (wideDesktop && compressedStage);
+  }
+
+  function place(){
     raf = 0;
-    killLegacyDetached();
-
-    var ui = getUI();
-    if(!ui) return;
-    if(!canApply(ui)){
-      if(!everApplied) root.classList.remove('tk-cinema-arrows-outside-hardfix-v3');
+    const state = getState();
+    if(!state || !shouldDetach(state)){
+      hideDetached();
       return;
     }
 
-    everApplied = true;
-    root.classList.add('tk-cinema-arrows-outside-hardfix-v3');
+    const stageRect = rect(state.stage);
+    const visible = visibleSlides(state, stageRect);
+    if(!stageRect || !visible.length){
+      hideDetached();
+      return;
+    }
 
-    var m = metrics(ui);
+    ensureButtons();
+    root.classList.add('tk-cinema-arrow-overlap-rescue-v2');
 
-    imp(ui.cinema, 'overflow', 'visible');
-    imp(ui.stage, 'overflow', 'visible');
-    imp(ui.track, 'overflow-y', 'visible');
+    const leftMost = visible[0].rect;
+    const rightMost = visible[visible.length - 1].rect;
+    const btnW = 48;
+    const gap = 18;
+    const viewportPad = 10;
 
-    [ui.prev, ui.next].forEach(function(btn){
-      imp(btn, 'position', 'absolute');
-      imp(btn, 'display', 'grid');
-      imp(btn, 'place-items', 'center');
-      imp(btn, 'width', m.btnSize + 'px');
-      imp(btn, 'height', m.btnSize + 'px');
-      imp(btn, 'top', '50%');
-      imp(btn, 'bottom', 'auto');
-      imp(btn, 'transform', 'translateY(-50%)');
-      imp(btn, 'visibility', 'visible');
-      imp(btn, 'opacity', '.98');
-      imp(btn, 'pointer-events', 'auto');
-      imp(btn, 'z-index', '2147482000');
-    });
+    const leftX = clamp(Math.round(leftMost.left - btnW - gap), viewportPad, Math.max(viewportPad, window.innerWidth - btnW - viewportPad));
+    const rightX = clamp(Math.round(rightMost.right + gap), viewportPad, Math.max(viewportPad, window.innerWidth - btnW - viewportPad));
+    const topY = clamp(Math.round(stageRect.top + stageRect.height * 0.48 - btnW / 2), viewportPad, Math.max(viewportPad, window.innerHeight - btnW - viewportPad));
 
-    imp(ui.prev, 'left', '-' + m.offset + 'px');
-    imp(ui.prev, 'right', 'auto');
-    imp(ui.next, 'right', '-' + m.offset + 'px');
-    imp(ui.next, 'left', 'auto');
+    prev.style.display = 'grid';
+    next.style.display = 'grid';
+
+    imp(prev, 'left', leftX + 'px');
+    imp(prev, 'top', topY + 'px');
+    imp(prev, 'right', 'auto');
+
+    imp(next, 'left', rightX + 'px');
+    imp(next, 'top', topY + 'px');
+    imp(next, 'right', 'auto');
   }
 
   function queue(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
+    raf = requestAnimationFrame(place);
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
-  else queue();
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
+  function bindTrack(){
+    const state = getState();
+    if(!state || state.track.dataset.tkCinemaRescueBound === '1') return;
+    state.track.dataset.tkCinemaRescueBound = '1';
+    state.track.addEventListener('scroll', queue, { passive:true });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ bindTrack(); queue(); }, { once:true });
+  else { bindTrack(); queue(); }
+
+  window.addEventListener('load', function(){ bindTrack(); queue(); }, { passive:true });
+  window.addEventListener('resize', function(){ bindTrack(); queue(); }, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
-  window.addEventListener('scroll', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
   document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30);
+    if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 40);
   }, true);
-  [0, 120, 500, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
+
+  [0,120,350,800,1500,2600,4200,6500].forEach(function(ms){ setTimeout(function(){ bindTrack(); queue(); }, ms); });
+
   try{
-    mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['class','style','src']
-    });
+    mo = new MutationObserver(function(){ bindTrack(); queue(); });
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
   }catch(_e){}
 })();
 </script>
