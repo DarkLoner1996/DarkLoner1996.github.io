@@ -42767,7 +42767,157 @@ html.tk-retina-16x10-three-slides-v18 #cinema .movie-slide.is-active{
 })();
 </script>
 
+
+<style id="tk-retina-2500x1600-three-slides-v19-style">
+html.tk-retina-2500x1600-three-slides-v19 #cinema .slider-container{
+  overflow: hidden !important;
+}
+html.tk-retina-2500x1600-three-slides-v19 #cinema .slider-wrapper{
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: stretch !important;
+  margin: 0 auto !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scroll-snap-type: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+html.tk-retina-2500x1600-three-slides-v19 #cinema .slider-wrapper::-webkit-scrollbar{
+  display: none !important;
+}
+html.tk-retina-2500x1600-three-slides-v19 #cinema .movie-slide{
+  box-sizing: border-box !important;
+  scroll-snap-align: start !important;
+  transform: translateY(0) scale(1) !important;
+}
+html.tk-retina-2500x1600-three-slides-v19 #cinema .movie-slide.is-active{
+  transform: translateY(-8px) scale(1) !important;
+}
+</style>
+<script id="tk-retina-2500x1600-three-slides-v19-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+  function metrics(){
+    const dpr = Number(window.devicePixelRatio || 1);
+    const sw = Number((window.screen && window.screen.width) || 0);
+    const sh = Number((window.screen && window.screen.height) || 0);
+    const aw = Number((window.screen && window.screen.availWidth) || sw || 0);
+    const ah = Number((window.screen && window.screen.availHeight) || sh || 0);
+    const screenW = Math.max(sw, aw);
+    const screenH = Math.max(sh, ah);
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const physW = Math.round(screenW * Math.max(1, dpr));
+    const physH = Math.round(screenH * Math.max(1, dpr));
+    const ratio = screenW / Math.max(1, screenH);
+    return { dpr, sw, sh, aw, ah, screenW, screenH, iw, ih, physW, physH, ratio };
+  }
+
+  function isTarget(){
+    const m = metrics();
+    const exact2560ish =
+      (m.physW >= 2400 && m.physW <= 2700 && m.physH >= 1500 && m.physH <= 1705) ||
+      (m.screenW >= 1180 && m.screenW <= 1320 && m.screenH >= 760 && m.screenH <= 860 && m.dpr >= 1.5 && m.dpr <= 2.5);
+    const viewportOk = m.iw >= 1100 && m.iw <= 1500 && m.ih >= 700 && m.ih <= 980;
+    const not15inch = !(m.physW >= 2800 || m.physH >= 1800 || m.screenW >= 1400);
+    return exact2560ish && viewportOk && not15inch && m.ratio >= 1.5 && m.ratio <= 1.66;
+  }
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+
+  function getUI(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !track || slides.length < 3) return null;
+    return { cinema, stage, track, slides };
+  }
+
+  function calcLayout(ui){
+    const m = metrics();
+    const stageRect = ui.stage.getBoundingClientRect();
+    const trackRect = ui.track.getBoundingClientRect();
+    const cinemaRect = ui.cinema.getBoundingClientRect();
+    const base = Math.round(Math.max(0, stageRect.width || trackRect.width || cinemaRect.width));
+    const viewportCap = clamp(m.iw - 530, 688, 724);
+    const stageW = clamp(Math.max(base + 28, 696), 696, viewportCap);
+    const gap = stageW >= 712 ? 10 : 9;
+    const side = 4;
+    const slideW = Math.floor((stageW - (gap * 2) - (side * 2)) / 3);
+    const mediaH = clamp(Math.round(slideW * 0.63), 136, 188);
+    const titleSize = slideW >= 224 ? 15 : 14;
+    const btnW = slideW >= 224 ? 110 : 104;
+    return { stageW, gap, side, slideW, mediaH, titleSize, btnW };
+  }
+
+  function apply(){
+    raf = 0;
+    const on = isTarget();
+    root.classList.toggle('tk-retina-2500x1600-three-slides-v19', on);
+    if(!on) return;
+
+    const ui = getUI();
+    if(!ui) return;
+    const L = calcLayout(ui);
+
+    imp(ui.stage, 'width', L.stageW + 'px');
+    imp(ui.stage, 'max-width', L.stageW + 'px');
+    imp(ui.stage, 'overflow', 'hidden');
+
+    imp(ui.track, 'width', L.stageW + 'px');
+    imp(ui.track, 'max-width', L.stageW + 'px');
+    imp(ui.track, 'gap', L.gap + 'px');
+    imp(ui.track, 'padding', '14px ' + L.side + 'px 18px');
+    imp(ui.track, 'scroll-padding-left', L.side + 'px');
+    imp(ui.track, 'scroll-padding-right', L.side + 'px');
+
+    ui.slides.forEach(function(slide){
+      imp(slide, 'flex', '0 0 ' + L.slideW + 'px');
+      imp(slide, 'width', L.slideW + 'px');
+      imp(slide, 'min-width', L.slideW + 'px');
+      imp(slide, 'max-width', L.slideW + 'px');
+    });
+
+    ui.cinema.querySelectorAll('.movie-img').forEach(function(el){
+      imp(el, 'height', L.mediaH + 'px');
+      imp(el, 'min-height', L.mediaH + 'px');
+      imp(el, 'max-height', L.mediaH + 'px');
+    });
+    ui.cinema.querySelectorAll('.movie-info h3').forEach(function(el){
+      imp(el, 'font-size', L.titleSize + 'px');
+      imp(el, 'line-height', '1.08');
+    });
+    ui.cinema.querySelectorAll('.movie-btn').forEach(function(el){
+      imp(el, 'min-width', L.btnW + 'px');
+    });
+  }
+
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0, 140, 420, 900, 1700, 2800, 4300, 6500].forEach(function(ms){ setTimeout(queue, ms); });
+})();
+</script>
+
 </body>
 </html>
-
-
