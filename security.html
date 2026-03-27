@@ -43289,6 +43289,187 @@ html.tk-cinema-detached-arrows-global-v2 #cinema .slider-next{
 })();
 </script>
 
+
+<style id="tk-cinema-arrows-outside-hardfix-v3-style">
+html.tk-cinema-arrows-outside-hardfix-v3 #cinema,
+html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-container{
+  overflow: visible !important;
+}
+html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-wrapper{
+  overflow-y: visible !important;
+}
+html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-prev,
+html.tk-cinema-arrows-outside-hardfix-v3 #cinema .slider-next{
+  z-index: 2147482000 !important;
+}
+html.tk-cinema-arrows-outside-hardfix-v3 #tkCinemaDetachedPrev,
+html.tk-cinema-arrows-outside-hardfix-v3 #tkCinemaDetachedNext{
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+</style>
+<script id="tk-cinema-arrows-outside-hardfix-v3-script">
+(function(){
+  var root = document.documentElement;
+  var raf = 0;
+  var mo = null;
+  var everApplied = false;
+  var LEGACY_CLASSES = [
+    'tk-cinema-detached-arrows-final-v1',
+    'tk-cinema-detached-arrows-global-v2'
+  ];
+
+  function q(sel, scope){
+    return (scope || document).querySelector(sel);
+  }
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+
+  function viewport(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+
+  function rect(el){
+    return el ? el.getBoundingClientRect() : null;
+  }
+
+  function clamp(n, min, max){
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function getUI(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    var stage = q('.slider-container', cinema);
+    var track = q('.slider-wrapper', cinema);
+    var prev = q('.slider-prev', cinema);
+    var next = q('.slider-next', cinema);
+    if(!stage || !track || !prev || !next) return null;
+    return { cinema: cinema, stage: stage, track: track, prev: prev, next: next };
+  }
+
+  function killLegacyDetached(){
+    LEGACY_CLASSES.forEach(function(cls){ root.classList.remove(cls); });
+    ['tkCinemaDetachedPrev','tkCinemaDetachedNext'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      imp(el, 'display', 'none');
+      imp(el, 'visibility', 'hidden');
+      imp(el, 'opacity', '0');
+      imp(el, 'pointer-events', 'none');
+    });
+  }
+
+  function metrics(ui){
+    var vp = viewport();
+    var stageRect = rect(ui.stage);
+    var prevRect = rect(ui.prev);
+    var nextRect = rect(ui.next);
+    var btnSize = clamp(Math.round(Math.max(
+      (prevRect && prevRect.width) || 0,
+      (nextRect && nextRect.width) || 0,
+      46
+    )), 44, 58);
+    var gap = clamp(Math.round((stageRect ? stageRect.width : 900) * 0.018), 16, 30);
+    return {
+      vp: vp,
+      stageRect: stageRect,
+      btnSize: btnSize,
+      gap: gap,
+      offset: btnSize + gap
+    };
+  }
+
+  function canApply(ui){
+    if(!ui) return false;
+    var m = metrics(ui);
+    if(!m.stageRect) return false;
+    if(m.vp.w < 1180 || m.vp.h < 680 || m.vp.w <= m.vp.h) return false;
+    if(m.stageRect.width < 520 || m.stageRect.height < 110) return false;
+
+    var leftSpace = m.stageRect.left;
+    var rightSpace = m.vp.w - m.stageRect.right;
+    var needed = m.offset + 8;
+    return leftSpace >= needed && rightSpace >= needed;
+  }
+
+  function apply(){
+    raf = 0;
+    killLegacyDetached();
+
+    var ui = getUI();
+    if(!ui) return;
+    if(!canApply(ui)){
+      if(!everApplied) root.classList.remove('tk-cinema-arrows-outside-hardfix-v3');
+      return;
+    }
+
+    everApplied = true;
+    root.classList.add('tk-cinema-arrows-outside-hardfix-v3');
+
+    var m = metrics(ui);
+
+    imp(ui.cinema, 'overflow', 'visible');
+    imp(ui.stage, 'overflow', 'visible');
+    imp(ui.track, 'overflow-y', 'visible');
+
+    [ui.prev, ui.next].forEach(function(btn){
+      imp(btn, 'position', 'absolute');
+      imp(btn, 'display', 'grid');
+      imp(btn, 'place-items', 'center');
+      imp(btn, 'width', m.btnSize + 'px');
+      imp(btn, 'height', m.btnSize + 'px');
+      imp(btn, 'top', '50%');
+      imp(btn, 'bottom', 'auto');
+      imp(btn, 'transform', 'translateY(-50%)');
+      imp(btn, 'visibility', 'visible');
+      imp(btn, 'opacity', '.98');
+      imp(btn, 'pointer-events', 'auto');
+      imp(btn, 'z-index', '2147482000');
+    });
+
+    imp(ui.prev, 'left', '-' + m.offset + 'px');
+    imp(ui.prev, 'right', 'auto');
+    imp(ui.next, 'right', '-' + m.offset + 'px');
+    imp(ui.next, 'left', 'auto');
+  }
+
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  window.addEventListener('scroll', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30);
+  }, true);
+  [0, 120, 500, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
+  try{
+    mo = new MutationObserver(queue);
+    mo.observe(document.documentElement, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class','style','src']
+    });
+  }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
 
