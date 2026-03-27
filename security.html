@@ -43080,94 +43080,154 @@ html.tk-2500x1600-three-slide-hardfix-v9 #cinema .movie-btn{
 </script>
 
 
-<style id="tk-cinema-arrow-overlap-fix-style">
-html.tk-cinema-arrow-overlap-fix #cinema .slider-container{
-  overflow: visible !important;
+
+<style id="tk-cinema-next-proxy-fix-style">
+#tkCinemaNextProxyFix{
+  position: fixed !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  background:
+    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(180deg, rgba(40,170,240,.78), rgba(18,110,200,.78)) !important;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+  cursor: pointer !important;
+  opacity: .98 !important;
+  z-index: 999999 !important;
+  padding: 0 !important;
+  transform: translateZ(0) !important;
 }
-html.tk-cinema-arrow-overlap-fix #cinema .slider-prev,
-html.tk-cinema-arrow-overlap-fix #cinema .slider-next{
-  z-index: 9999 !important;
+#tkCinemaNextProxyFix:hover{
+  filter: brightness(1.08) saturate(1.05) !important;
+}
+#tkCinemaNextProxyFix svg{
+  width: 22px !important;
+  height: 22px !important;
+  display: block !important;
+}
+html.tk-cinema-next-proxy-active #cinema .slider-next{
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 </style>
-<script id="tk-cinema-arrow-overlap-fix-script">
+<script id="tk-cinema-next-proxy-fix-script">
 (function(){
   const root = document.documentElement;
   let raf = 0;
   let mo = null;
+  let proxy = null;
 
   function imp(el, prop, value){
     if(!el) return;
     try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
   }
 
-  function px(value){
-    const n = parseFloat(value);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function ui(){
+  function getUI(){
     const cinema = document.getElementById('cinema');
     if(!cinema) return null;
     const stage = cinema.querySelector('.slider-container');
     const track = cinema.querySelector('.slider-wrapper');
-    const prev = cinema.querySelector('.slider-prev');
     const next = cinema.querySelector('.slider-next');
     const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || !next || slides.length < 3) return null;
-    return { cinema, stage, track, prev, next, slides };
+    if(!stage || !track || !next || !slides.length) return null;
+    return { cinema, stage, track, next, slides };
   }
 
-  function getVisibleSlides(u){
-    const stageRect = u.stage.getBoundingClientRect();
-    return u.slides.filter(function(slide){
+  function ensureProxy(original){
+    if(proxy && proxy.isConnected) return proxy;
+    proxy = document.createElement('button');
+    proxy.type = 'button';
+    proxy.id = 'tkCinemaNextProxyFix';
+    proxy.setAttribute('aria-label', original.getAttribute('aria-label') || 'Следующий фильм');
+    proxy.innerHTML = original.innerHTML;
+    proxy.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      try{ original.click(); }catch(_e){}
+      queue();
+      setTimeout(queue, 40);
+      setTimeout(queue, 160);
+      setTimeout(queue, 320);
+    }, true);
+    document.body.appendChild(proxy);
+    return proxy;
+  }
+
+  function isVisibleRect(r){
+    return !!r && r.width > 0 && r.height > 0;
+  }
+
+  function getRightMostVisibleSlide(u, stageRect){
+    let best = null;
+    for(const slide of u.slides){
       const r = slide.getBoundingClientRect();
-      return r.right > stageRect.left + 8 && r.left < stageRect.right - 8;
-    });
+      if(r.right <= stageRect.left + 6) continue;
+      if(r.left >= stageRect.right - 6) continue;
+      if(!best || r.right > best.right) best = r;
+    }
+    return best;
   }
 
   function apply(){
     raf = 0;
-    const u = ui();
+    const u = getUI();
     if(!u) return;
 
-    root.classList.add('tk-cinema-arrow-overlap-fix');
-
-    imp(u.stage, 'overflow', 'visible');
-    imp(u.next, 'z-index', '9999');
-    if(u.prev) imp(u.prev, 'z-index', '9999');
-
-    const visible = getVisibleSlides(u);
-    if(!visible.length) return;
+    const original = u.next;
+    const p = ensureProxy(original);
 
     const stageRect = u.stage.getBoundingClientRect();
-    const nextRect = u.next.getBoundingClientRect();
-    const rightMostSlide = visible.reduce(function(best, slide){
-      const r = slide.getBoundingClientRect();
-      if(!best || r.right > best.right) return { slide, right: r.right };
-      return best;
-    }, null);
-    if(!rightMostSlide) return;
+    const nextRect = original.getBoundingClientRect();
+    const rightMost = getRightMostVisibleSlide(u, stageRect);
+    const roulette = document.querySelector('#rouletteDock, .roulette-dock');
+    const rouletteRect = roulette ? roulette.getBoundingClientRect() : null;
 
-    const computedRight = px(getComputedStyle(u.next).right);
-    const desiredGap = 18;
-    const overlap = rightMostSlide.right + desiredGap - nextRect.left;
-
-    let targetRight = computedRight;
-    if(overlap > 0){
-      targetRight = computedRight - overlap;
+    if(!isVisibleRect(stageRect) || !isVisibleRect(nextRect) || !rightMost){
+      p.style.display = 'none';
+      root.classList.remove('tk-cinema-next-proxy-active');
+      return;
     }
 
-    const maxInsideRight = 14;
-    const minOutsideRight = -120;
-    if(targetRight > maxInsideRight) targetRight = maxInsideRight;
-    if(targetRight < minOutsideRight) targetRight = minOutsideRight;
+    const overlap = Math.round(rightMost.right - nextRect.left);
+    const desktopish = window.innerWidth >= 1100 && window.innerHeight >= 680;
+    const shouldActivate = desktopish && overlap >= -8;
 
-    // If the button still sits inside the stage, bias it further outward on large desktop layouts.
-    if(stageRect.width >= 860 && targetRight > -18){
-      targetRight = -18;
+    if(!shouldActivate){
+      p.style.display = 'none';
+      root.classList.remove('tk-cinema-next-proxy-active');
+      return;
     }
 
-    imp(u.next, 'right', Math.round(targetRight) + 'px');
+    root.classList.add('tk-cinema-next-proxy-active');
+
+    const origCenterY = nextRect.top + nextRect.height / 2;
+    const btnW = Math.max(42, Math.round(nextRect.width || 44));
+    const btnH = Math.max(42, Math.round(nextRect.height || 44));
+
+    let left = Math.round(Math.max(stageRect.right + 14, rightMost.right + 18));
+    const viewportMax = window.innerWidth - btnW - 12;
+
+    if(rouletteRect && rouletteRect.width > 0){
+      left = Math.min(left, Math.round(rouletteRect.left - btnW - 12));
+    }
+    left = Math.min(left, viewportMax);
+    left = Math.max(left, Math.round(stageRect.right + 10));
+
+    let top = Math.round(origCenterY - btnH / 2);
+    top = Math.max(8, Math.min(top, window.innerHeight - btnH - 8));
+
+    imp(p, 'display', 'flex');
+    imp(p, 'left', left + 'px');
+    imp(p, 'top', top + 'px');
+    imp(p, 'width', btnW + 'px');
+    imp(p, 'height', btnH + 'px');
   }
 
   function queue(){
@@ -43175,29 +43235,24 @@ html.tk-cinema-arrow-overlap-fix #cinema .slider-next{
     raf = requestAnimationFrame(apply);
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
   else queue();
 
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
 
   document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && e.target.closest('#cinema .slider-prev, #cinema .slider-next, #cinema .movie-slide, #cinema .cinema-tab')){
+    if(e.target && e.target.closest && e.target.closest('#cinema .slider-prev, #cinema .slider-next, #cinema .movie-slide, #cinema .cinema-tab, #tkCinemaNextProxyFix')){
       queue();
-      setTimeout(queue, 40);
+      setTimeout(queue, 50);
       setTimeout(queue, 180);
+      setTimeout(queue, 420);
     }
   }, true);
 
-  Array.from(document.images || []).forEach(function(img){
-    if(!img || img.complete) return;
-    img.addEventListener('load', queue, { passive:true });
-    img.addEventListener('error', queue, { passive:true });
-  });
-
-  [0, 100, 250, 500, 1000, 1800, 3200, 5000, 7000].forEach(function(ms){ setTimeout(queue, ms); });
+  [0, 120, 300, 700, 1200, 2500, 4000, 6500].forEach(function(ms){ setTimeout(queue, ms); });
 
   mo = new MutationObserver(queue);
   mo.observe(document.documentElement, {
