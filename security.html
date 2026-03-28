@@ -44271,6 +44271,184 @@ html.oai-right-rail-2600-only-fix #tkLiveStats.tk-live-stats--rules-left-embed{
 })();
 </script>
 
+
+<style id="oai-right-rail-2600-v5-hard-style">
+html.oai-right-rail-2600-only-fix #openComicMenu,
+html.oai-right-rail-2600-only-fix #openRuleGame,
+html.oai-right-rail-2600-only-fix #openPcPartsGame{
+  box-sizing:border-box !important;
+}
+html.oai-right-rail-2600-only-fix #tkLiveStats,
+html.oai-right-rail-2600-only-fix #rouletteDock{
+  transition:none !important;
+}
+</style>
+<script id="oai-right-rail-2600-v5-hard-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  let timer = 0;
+
+  function px(v){ return Math.round(Number(v) || 0); }
+  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function rem(el, prop){ if(!el) return; try{ el.style.removeProperty(prop); }catch(_e){} }
+  function m(){
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = Math.max((window.screen && (window.screen.width || window.screen.availWidth)) || 0, iw);
+    const sh = Math.max((window.screen && (window.screen.height || window.screen.availHeight)) || 0, ih);
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    return { iw, ih, sw, sh, dpr, physW: Math.round(sw*dpr), physH: Math.round(sh*dpr), innerPhysW: Math.round(iw*dpr), innerPhysH: Math.round(ih*dpr) };
+  }
+  function isTarget(){
+    if(root.classList.contains('oai-right-rail-2600-only-fix')) return true;
+    const x = m();
+    const fourK = x.iw >= 1850 || x.ih >= 1120 || x.innerPhysW >= 3600 || x.innerPhysH >= 2300 || x.physW >= 3600 || x.physH >= 2300;
+    if(fourK) return false;
+    return x.dpr >= 1.5 && x.iw >= 1180 && x.iw <= 1720 && x.ih >= 720 && x.ih <= 1040 && (
+      (x.innerPhysW >= 2450 && x.innerPhysW <= 3400 && x.innerPhysH >= 1350 && x.innerPhysH <= 2200) ||
+      (x.physW >= 2450 && x.physW <= 3400 && x.physH >= 1350 && x.physH <= 2200)
+    );
+  }
+  function getRules(){
+    return document.querySelector('#tk23RightRail .rules, #tkV205RightRail4k .rules, #tkFhdRightRailFinal .rules, .rules');
+  }
+  function getRail(){
+    return document.getElementById('tk23RightRail') || document.getElementById('tkV205RightRail4k') || document.getElementById('tkFhdRightRailFinal');
+  }
+  function naturalWidth(el){
+    if(!el) return 0;
+    const props = ['width','min-width','max-width','left','top','right','bottom','transform','position','margin-left','margin-right','align-self'];
+    const prev = {};
+    props.forEach(p => prev[p] = el.style.getPropertyValue(p));
+    ['width','min-width','max-width','left','top','right','bottom','transform','position','margin-left','margin-right','align-self'].forEach(p => rem(el,p));
+    imp(el,'width','max-content');
+    imp(el,'min-width','0px');
+    imp(el,'max-width','none');
+    imp(el,'position','relative');
+    imp(el,'align-self','flex-end');
+    const r = el.getBoundingClientRect();
+    const w = Math.ceil(Math.max(r.width || 0, el.scrollWidth || 0));
+    props.forEach(p => { if(prev[p]) imp(el,p,prev[p]); else rem(el,p); });
+    return w;
+  }
+  function clearAll(){
+    const ids = ['openComicMenu','openRuleGame','openPcPartsGame'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      ['width','min-width','max-width','align-self','margin-left','margin-right'].forEach(p => rem(el,p));
+    });
+    const rules = getRules();
+    if(rules) ['width','min-width','max-width'].forEach(p => rem(rules,p));
+    const widget = document.getElementById('tkLiveStats');
+    if(widget) ['position','left','top','right','bottom','margin','transform','z-index'].forEach(p => rem(widget,p));
+    const dock = document.getElementById('rouletteDock');
+    if(dock) ['position','left','top','right','bottom','margin','transform','z-index'].forEach(p => rem(dock,p));
+  }
+  function fitButtons(){
+    const rules = getRules();
+    const comic = document.getElementById('openComicMenu');
+    const day = document.getElementById('openRuleGame');
+    const pc = document.getElementById('openPcPartsGame');
+    if(!rules || !comic || !day || !pc) return null;
+
+    const target = Math.max(naturalWidth(pc), naturalWidth(comic), naturalWidth(day));
+    if(!target) return null;
+
+    imp(rules,'display','flex');
+    imp(rules,'flex-direction','column');
+    imp(rules,'align-items','stretch');
+    imp(rules,'gap','8px');
+    imp(rules,'width', target + 'px');
+    imp(rules,'min-width', target + 'px');
+    imp(rules,'max-width', target + 'px');
+    imp(rules,'margin-left','auto');
+
+    [comic, day, pc].forEach(btn => {
+      imp(btn,'width', target + 'px');
+      imp(btn,'min-width', target + 'px');
+      imp(btn,'max-width', target + 'px');
+      imp(btn,'align-self','stretch');
+      imp(btn,'margin-left','0');
+      imp(btn,'margin-right','0');
+      imp(btn,'justify-content','flex-start');
+      imp(btn,'box-sizing','border-box');
+    });
+    return { rules, comic, day, pc, width: target };
+  }
+  function placeStats(rules){
+    const widget = document.getElementById('tkLiveStats');
+    if(!widget || !rules) return;
+    const rr = rules.getBoundingClientRect();
+    if(!rr.width || !rr.height) return;
+    imp(widget,'visibility','hidden');
+    imp(widget,'position','fixed');
+    imp(widget,'left','0px');
+    imp(widget,'top','0px');
+    imp(widget,'right','auto');
+    imp(widget,'bottom','auto');
+    imp(widget,'margin','0');
+    imp(widget,'transform','none');
+    const wr = widget.getBoundingClientRect();
+    rem(widget,'visibility');
+    const ww = Math.ceil(wr.width || 246);
+    const wh = Math.ceil(wr.height || 150);
+    const gap = 2;
+    let left = Math.round(rr.left - ww - gap);
+    let top = Math.round(rr.bottom - wh);
+    left = Math.max(8, left);
+    top = Math.max(8, Math.min(top, (window.innerHeight || document.documentElement.clientHeight || 0) - wh - 8));
+    imp(widget,'left', left + 'px');
+    imp(widget,'top', top + 'px');
+    imp(widget,'right','auto');
+    imp(widget,'bottom','auto');
+    imp(widget,'z-index','100181');
+  }
+  function placeRoulette(rules){
+    const dock = document.getElementById('rouletteDock');
+    if(!dock || !rules) return;
+    const rr = rules.getBoundingClientRect();
+    const comic = document.getElementById('openComicMenu');
+    if(!comic) return;
+    const cr = comic.getBoundingClientRect();
+    imp(dock,'visibility','hidden');
+    imp(dock,'position','fixed');
+    imp(dock,'right', Math.max(8, Math.round(window.innerWidth - rr.right)) + 'px');
+    imp(dock,'left','auto');
+    imp(dock,'top','0px');
+    imp(dock,'bottom','auto');
+    imp(dock,'margin','0');
+    imp(dock,'transform','none');
+    const dr = dock.getBoundingClientRect();
+    rem(dock,'visibility');
+    const dh = Math.ceil(dr.height || 260);
+    const top = Math.max(8, Math.round(cr.top - dh - 12));
+    imp(dock,'top', top + 'px');
+    imp(dock,'right', Math.max(8, Math.round(window.innerWidth - rr.right)) + 'px');
+    imp(dock,'bottom','auto');
+    imp(dock,'left','auto');
+    imp(dock,'z-index','100180');
+  }
+  function apply(){
+    raf = 0;
+    if(!isTarget()) { clearAll(); return; }
+    const data = fitButtons();
+    if(!data) return;
+    placeStats(data.rules);
+    placeRoulette(data.rules);
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
+  window.addEventListener('load', () => { queue(); [120,400,900,1600,2600,4200].forEach(ms => setTimeout(queue, ms)); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame')) [0,120,360,900].forEach(ms => setTimeout(queue, ms)); }, true);
+  timer = window.setInterval(function(){ if(isTarget()) apply(); }, 700);
+})();
+</script>
+
 </body>
 </html>
 
