@@ -45629,6 +45629,392 @@ html.oai-cinema-2600-finalfix-v1.oai-cinema-2600-finalfix-v2 #cinema .movie-btn{
 })();
 </script>
 
+
+<style id="oai-cinema-2600-separate-rewrite-v3-style">
+html.oai-cinema-2600-separate-rewrite-v3 #cinema .slider-container,
+html.oai-cinema-2600-separate-rewrite-v3 #cinema .slider-wrapper,
+html.oai-cinema-2600-separate-rewrite-v3 #cinema .slider-prev,
+html.oai-cinema-2600-separate-rewrite-v3 #cinema .slider-next,
+html.oai-cinema-2600-separate-rewrite-v3 #cinema .movie-slide{
+  transition-property: transform, opacity, filter, box-shadow !important;
+}
+</style>
+<script id="oai-cinema-2600-separate-rewrite-v3-script">
+(function(){
+  const root = document.documentElement;
+  const CLASS = 'oai-cinema-2600-separate-rewrite-v3';
+  const OLD_CLASSES = [
+    'oai-cinema-2600-finalfix-v1',
+    'oai-cinema-2600-finalfix-v2',
+    'oai-cinema-2600-left-hardfix-v9',
+    'oai-cinema-2600-pocket-fix',
+    'oai-cinema-2600-corridor-fix',
+    'tk-2500x1600-three-slide-hardfix-v9',
+    'tk-retina-16x10-three-slides-v18'
+  ];
+  let raf = 0;
+  let scrollTimer = 0;
+
+  function q(sel, ctx=document){ return ctx ? ctx.querySelector(sel) : null; }
+  function qa(sel, ctx=document){ return ctx ? Array.from(ctx.querySelectorAll(sel)) : []; }
+  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function rem(el, prop){ if(!el) return; try{ el.style.removeProperty(prop); }catch(_e){} }
+  function rect(el){
+    if(!el || !el.getBoundingClientRect) return null;
+    const r = el.getBoundingClientRect();
+    return (r && r.width > 0 && r.height > 0) ? r : null;
+  }
+  function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
+  function metrics(){
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
+    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
+    return { iw, ih, dpr, sw, sh, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
+  }
+  function isTarget(){
+    const m = metrics();
+    const aspect = m.iw / Math.max(1, m.ih);
+    const logicalLaptop = m.iw >= 1180 && m.iw <= 1550 && m.ih >= 720 && m.ih <= 980 && m.dpr >= 1.35 && aspect >= 1.45 && aspect <= 1.95;
+    const physical2600 = m.physW >= 2450 && m.physW <= 2920 && m.physH >= 1340 && m.physH <= 1545;
+    const direct2600 = m.iw >= 2400 && m.iw <= 2800 && m.ih >= 1320 && m.ih <= 1500;
+    return (logicalLaptop && physical2600) || direct2600;
+  }
+  function removeOldClasses(){ OLD_CLASSES.forEach(c => root.classList.remove(c)); }
+  function hideGhostButtons(){
+    ['oai2600CinemaPrev','oai2600CinemaNext','tkCinemaDetachedPrev','tkCinemaDetachedNext'].forEach(function(id){
+      const el = document.getElementById(id);
+      if(el) imp(el, 'display', 'none');
+    });
+  }
+  function leftRailRight(){
+    const cands = [
+      q('.side-nav'),
+      document.getElementById('tk18LeftRail'),
+      document.getElementById('tk19LeftRail'),
+      document.getElementById('tkFhdLeftRailFinal')
+    ].filter(Boolean);
+    let best = 0;
+    cands.forEach(function(el){ const r = rect(el); if(r) best = Math.max(best, r.right); });
+    return best;
+  }
+  function rightObstacleLeft(){
+    const cands = [
+      document.getElementById('rouletteDock'),
+      q('#rouletteDock .roulette-card'),
+      q('#rouletteDock .roulette-info'),
+      q('.rules'),
+      document.getElementById('openComicMenu'),
+      document.getElementById('openRuleGame'),
+      document.getElementById('openPcPartsGame')
+    ].filter(Boolean);
+    let left = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0) - 24;
+    cands.forEach(function(el){ const r = rect(el); if(r) left = Math.min(left, r.left); });
+    return left;
+  }
+  function currentStart(track, slides){
+    const total = slides.length;
+    if(total <= 3) return 0;
+    const byClass = slides.findIndex(s => s.classList.contains('is-active'));
+    if(byClass >= 0) return clamp(byClass - 1, 0, total - 3);
+    const x = track ? track.scrollLeft : 0;
+    let best = 0, bestDist = Infinity;
+    slides.forEach(function(slide, i){
+      const d = Math.abs((slide.offsetLeft || 0) - x);
+      if(d < bestDist){ bestDist = d; best = i; }
+    });
+    return clamp(best, 0, total - 3);
+  }
+  function setActive(slides, idx){ slides.forEach((s,i) => s.classList.toggle('is-active', i === idx)); }
+  function scrollToStart(track, slides, start, smooth){
+    const total = slides.length;
+    const clamped = clamp(start, 0, Math.max(0, total - 3));
+    const anchor = slides[clamped];
+    if(anchor){
+      const left = Math.max(0, anchor.offsetLeft || 0);
+      try{ track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); }
+      catch(_e){ track.scrollLeft = left; }
+    }
+    setActive(slides, Math.min(clamped + 1, slides.length - 1));
+  }
+  function ui(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = q('.slider-container', cinema);
+    const track = q('.slider-wrapper', cinema);
+    const prev = q('.slider-prev', cinema);
+    const next = q('.slider-next', cinema);
+    const slides = qa('.movie-slide', track);
+    return (stage && track && prev && next && slides.length) ? { cinema, stage, track, prev, next, slides } : null;
+  }
+  function bind(ui){
+    if(ui.prev && !ui.prev.dataset.oai2600RewriteBound){
+      ui.prev.dataset.oai2600RewriteBound = '1';
+      ui.prev.addEventListener('click', function(e){
+        if(!root.classList.contains(CLASS)) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const start = currentStart(ui.track, ui.slides);
+        scrollToStart(ui.track, ui.slides, start - 1, true);
+        queueSoon();
+      }, true);
+    }
+    if(ui.next && !ui.next.dataset.oai2600RewriteBound){
+      ui.next.dataset.oai2600RewriteBound = '1';
+      ui.next.addEventListener('click', function(e){
+        if(!root.classList.contains(CLASS)) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const start = currentStart(ui.track, ui.slides);
+        scrollToStart(ui.track, ui.slides, start + 1, true);
+        queueSoon();
+      }, true);
+    }
+    if(ui.track && !ui.track.dataset.oai2600RewriteScrollBound){
+      ui.track.dataset.oai2600RewriteScrollBound = '1';
+      ui.track.addEventListener('scroll', function(){
+        if(!root.classList.contains(CLASS)) return;
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function(){
+          const start = currentStart(ui.track, ui.slides);
+          setActive(ui.slides, Math.min(start + 1, ui.slides.length - 1));
+        }, 80);
+      }, { passive:true });
+    }
+  }
+  function clearInline(ui){
+    if(!ui) return;
+    [
+      ['display','grid-template-columns','column-gap','align-items','justify-content','justify-items','width','max-width','margin','padding','overflow','position','left','right','top','bottom','transform','isolation'],
+      ['display','gap','width','min-width','max-width','padding','overflow-x','overflow-y','scroll-snap-type','scroll-padding-left','scroll-padding-right','scrollbar-width','mask-image','-webkit-mask-image','grid-column'],
+      ['position','top','left','right','bottom','transform','margin','width','height','min-width','max-width','min-height','max-height','display','place-items','align-self','justify-self','grid-column','z-index','opacity','visibility','pointer-events'],
+      ['flex','width','min-width','max-width','transform','opacity','overflow','scroll-snap-align'],
+      ['height'],
+      ['padding-top'],
+      ['font-size','line-height','letter-spacing'],
+      ['min-width','padding','font-size']
+    ];
+    clearInline.list = clearInline.list || [];
+    const stageProps = arguments[1][0], trackProps = arguments[1][1], btnProps = arguments[1][2], slideProps = arguments[1][3], imgProps = arguments[1][4], infoProps = arguments[1][5], h3Props = arguments[1][6], btnInnerProps = arguments[1][7];
+    stageProps.forEach(p => rem(ui.stage, p));
+    trackProps.forEach(p => rem(ui.track, p));
+    [ui.prev, ui.next].forEach(btn => btnProps.forEach(p => rem(btn, p)));
+    ui.slides.forEach(slide => {
+      slideProps.forEach(p => rem(slide, p));
+      const img = q('.movie-img', slide); if(img) imgProps.forEach(p => rem(img, p));
+      const info = q('.movie-info', slide); if(info) infoProps.forEach(p => rem(info, p));
+      const h3 = q('.movie-info h3', slide); if(h3) h3Props.forEach(p => rem(h3, p));
+      const btn = q('.movie-btn', slide); if(btn) btnInnerProps.forEach(p => rem(btn, p));
+    });
+  }
+  function cleanup(){
+    const U = ui();
+    root.classList.remove(CLASS);
+    if(U){
+      clearInline(U, [
+        ['display','grid-template-columns','column-gap','align-items','justify-content','justify-items','width','max-width','margin','padding','overflow','position','left','right','top','bottom','transform','isolation'],
+        ['display','gap','width','min-width','max-width','padding','overflow-x','overflow-y','scroll-snap-type','scroll-padding-left','scroll-padding-right','scrollbar-width','mask-image','-webkit-mask-image','grid-column'],
+        ['position','top','left','right','bottom','transform','margin','width','height','min-width','max-width','min-height','max-height','display','place-items','align-self','justify-self','grid-column','z-index','opacity','visibility','pointer-events'],
+        ['flex','width','min-width','max-width','transform','opacity','overflow','scroll-snap-align'],
+        ['height'],
+        ['padding-top'],
+        ['font-size','line-height','letter-spacing'],
+        ['min-width','padding','font-size']
+      ]);
+    }
+  }
+  function computeGeometry(){
+    const leftSafe = Math.max(18, Math.round(leftRailRight() + 16));
+    const rightSafe = Math.max(leftSafe + 620, Math.round(rightObstacleLeft() - 18));
+    const corridor = rightSafe - leftSafe;
+    const navSize = 46;
+    const navGap = 16;
+    const slideGap = 12;
+    const reserve = (navSize * 2) + (navGap * 2);
+    let trackW = clamp(corridor - reserve, 540, 640);
+    let slideW = clamp(Math.floor((trackW - (slideGap * 2)) / 3), 168, 204);
+    trackW = (slideW * 3) + (slideGap * 2);
+    let totalW = trackW + reserve;
+    if(totalW > corridor){
+      slideW = clamp(Math.floor((corridor - reserve - (slideGap * 2)) / 3), 156, 198);
+      trackW = (slideW * 3) + (slideGap * 2);
+      totalW = trackW + reserve;
+    }
+    if(totalW > corridor){
+      slideW = clamp(Math.floor((corridor - reserve - (slideGap * 2)) / 3), 148, 190);
+      trackW = (slideW * 3) + (slideGap * 2);
+      totalW = trackW + reserve;
+    }
+    return { leftSafe, rightSafe, corridor, navSize, navGap, slideGap, slideW, trackW, totalW, stageLeft:leftSafe };
+  }
+  function applyInline(U, g){
+    imp(U.cinema, 'width', '100%');
+    imp(U.cinema, 'max-width', 'none');
+
+    imp(U.stage, 'position', 'relative');
+    imp(U.stage, 'display', 'grid');
+    imp(U.stage, 'grid-template-columns', g.navSize + 'px ' + g.trackW + 'px ' + g.navSize + 'px');
+    imp(U.stage, 'column-gap', g.navGap + 'px');
+    imp(U.stage, 'align-items', 'center');
+    imp(U.stage, 'justify-content', 'start');
+    imp(U.stage, 'justify-items', 'stretch');
+    imp(U.stage, 'width', g.totalW + 'px');
+    imp(U.stage, 'max-width', g.totalW + 'px');
+    imp(U.stage, 'margin', '10px 0 0 ' + g.stageLeft + 'px');
+    imp(U.stage, 'padding', '0');
+    imp(U.stage, 'overflow', 'visible');
+    imp(U.stage, 'left', '0');
+    imp(U.stage, 'right', 'auto');
+    imp(U.stage, 'top', 'auto');
+    imp(U.stage, 'bottom', 'auto');
+    imp(U.stage, 'transform', 'none');
+    imp(U.stage, 'isolation', 'isolate');
+
+    imp(U.track, 'grid-column', '2');
+    imp(U.track, 'display', 'flex');
+    imp(U.track, 'gap', g.slideGap + 'px');
+    imp(U.track, 'width', g.trackW + 'px');
+    imp(U.track, 'min-width', g.trackW + 'px');
+    imp(U.track, 'max-width', g.trackW + 'px');
+    imp(U.track, 'padding', '14px 0 14px 0');
+    imp(U.track, 'overflow-x', 'auto');
+    imp(U.track, 'overflow-y', 'visible');
+    imp(U.track, 'scroll-snap-type', 'x mandatory');
+    imp(U.track, 'scroll-padding-left', '0');
+    imp(U.track, 'scroll-padding-right', '0');
+    imp(U.track, 'scrollbar-width', 'none');
+    imp(U.track, 'mask-image', 'none');
+    imp(U.track, '-webkit-mask-image', 'none');
+
+    [U.prev, U.next].forEach(function(btn){
+      imp(btn, 'position', 'relative');
+      imp(btn, 'top', 'auto');
+      imp(btn, 'left', 'auto');
+      imp(btn, 'right', 'auto');
+      imp(btn, 'bottom', 'auto');
+      imp(btn, 'transform', 'none');
+      imp(btn, 'margin', '0');
+      imp(btn, 'width', g.navSize + 'px');
+      imp(btn, 'height', g.navSize + 'px');
+      imp(btn, 'min-width', g.navSize + 'px');
+      imp(btn, 'max-width', g.navSize + 'px');
+      imp(btn, 'min-height', g.navSize + 'px');
+      imp(btn, 'max-height', g.navSize + 'px');
+      imp(btn, 'display', 'grid');
+      imp(btn, 'place-items', 'center');
+      imp(btn, 'align-self', 'center');
+      imp(btn, 'justify-self', 'center');
+      imp(btn, 'z-index', '3');
+      imp(btn, 'opacity', '1');
+      imp(btn, 'visibility', 'visible');
+      imp(btn, 'pointer-events', 'auto');
+    });
+    imp(U.prev, 'grid-column', '1');
+    imp(U.next, 'grid-column', '3');
+
+    U.slides.forEach(function(slide){
+      imp(slide, 'flex', '0 0 ' + g.slideW + 'px');
+      imp(slide, 'width', g.slideW + 'px');
+      imp(slide, 'min-width', g.slideW + 'px');
+      imp(slide, 'max-width', g.slideW + 'px');
+      imp(slide, 'transform', 'translateY(0) scale(1)');
+      imp(slide, 'opacity', '1');
+      imp(slide, 'overflow', 'visible');
+      imp(slide, 'scroll-snap-align', 'start');
+
+      const img = q('.movie-img', slide);
+      if(img) imp(img, 'height', Math.round(g.slideW * 0.68) + 'px');
+      const info = q('.movie-info', slide);
+      if(info) imp(info, 'padding-top', '10px');
+      const h3 = q('.movie-info h3', slide);
+      if(h3){
+        imp(h3, 'font-size', '15px');
+        imp(h3, 'line-height', '1.08');
+        imp(h3, 'letter-spacing', '.03em');
+      }
+      const btn = q('.movie-btn', slide);
+      if(btn){
+        imp(btn, 'min-width', Math.max(122, g.slideW - 28) + 'px');
+        imp(btn, 'padding', '9px 12px');
+        imp(btn, 'font-size', '10px');
+      }
+    });
+
+    const start = currentStart(U.track, U.slides);
+    scrollToStart(U.track, U.slides, start, false);
+    const active = U.slides[Math.min(start + 1, U.slides.length - 1)];
+    if(active){
+      imp(active, 'transform', 'translateY(-6px) scale(1)');
+      const img = q('.movie-img', active);
+      if(img) imp(img, 'height', Math.round(g.slideW * 0.70) + 'px');
+      const h3 = q('.movie-info h3', active);
+      if(h3) imp(h3, 'font-size', '16px');
+    }
+  }
+  function fitStage(U, g){
+    applyInline(U, g);
+    let r = rect(U.stage);
+    if(!r) return g;
+    const leftLimit = g.leftSafe;
+    const rightLimit = g.rightSafe;
+    let stageLeft = g.stageLeft;
+    if(r.left < leftLimit) stageLeft += Math.round(leftLimit - r.left);
+    if(r.right > rightLimit) stageLeft -= Math.round(r.right - rightLimit);
+    stageLeft = Math.max(leftLimit - 6, stageLeft);
+    if(stageLeft !== g.stageLeft){
+      g = Object.assign({}, g, { stageLeft: stageLeft });
+      applyInline(U, g);
+      r = rect(U.stage);
+    }
+    if(r && r.right > rightLimit){
+      let slideW = g.slideW;
+      while(slideW > 148 && r.right > rightLimit){
+        slideW -= 4;
+        g = Object.assign({}, g, {
+          slideW: slideW,
+          trackW: (slideW * 3) + (g.slideGap * 2),
+          totalW: (slideW * 3) + (g.slideGap * 2) + (g.navSize * 2) + (g.navGap * 2)
+        });
+        applyInline(U, g);
+        r = rect(U.stage);
+      }
+    }
+    return g;
+  }
+  function place(){
+    raf = 0;
+    const U = ui();
+    if(!U) return;
+    if(!isTarget()) return cleanup();
+    removeOldClasses();
+    hideGhostButtons();
+    root.classList.add(CLASS);
+    bind(U);
+    const g = fitStage(U, computeGeometry());
+    root.style.setProperty('--oai2600-v3-stage-left', g.stageLeft + 'px');
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(place); }
+  function queueSoon(){ [40, 140, 320, 700, 1400].forEach(ms => setTimeout(queue, ms)); }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ queue(); queueSoon(); }, { once:true });
+  } else { queue(); queueSoon(); }
+  window.addEventListener('load', function(){ queue(); queueSoon(); }, { once:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  document.addEventListener('click', function(e){
+    if(!e.target || !e.target.closest) return;
+    if(e.target.closest('#cinema') || e.target.closest('#rouletteDock') || e.target.closest('.rules') || e.target.closest('.side-nav')) queueSoon();
+  }, true);
+  try{
+    const mo = new MutationObserver(function(){ queueSoon(); });
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
+  }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
 
