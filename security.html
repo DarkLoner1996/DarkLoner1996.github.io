@@ -43334,666 +43334,245 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
 </style>
 
 
+<style id="oai-2600x1400-cinema-reflow-v4">
+html.oai-2600x1400-cinema-reflow-v4 #cinema,
+html.oai-2600x1400-cinema-reflow-v4 #cinema .cinema-head,
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-container,
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-wrapper,
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-slide{
+  overflow: visible !important;
+}
 
-<style id="oai-cinema-overlap-runtime-fix-v2600-style">
-html.oai-cinema-overlap-runtime-fix-v2600 #cinema .slider-container{
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-container{
+  display: grid !important;
+  grid-template-columns: var(--oai2600-navw, 56px) minmax(0, 1fr) var(--oai2600-navw, 56px) !important;
+  align-items: center !important;
+  column-gap: var(--oai2600-navgap, 10px) !important;
+  width: var(--oai2600-stagew, 860px) !important;
+  max-width: var(--oai2600-stagew, 860px) !important;
+  margin: 8px 0 0 var(--oai2600-stage-left, 0px) !important;
+  padding: 0 !important;
+  overflow: visible !important;
   position: relative !important;
-  overflow: visible !important;
+  z-index: 2 !important;
 }
-html.oai-cinema-overlap-runtime-fix-v2600 #cinema .slider-prev,
-html.oai-cinema-overlap-runtime-fix-v2600 #cinema .slider-next{
-  position: absolute !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  margin: 0 !important;
-  z-index: 400 !important;
-  grid-column: auto !important;
-  place-self: auto !important;
-}
-/* only the target band gets a slightly larger safe zone around edge slides */
-html.oai-cinema-overlap-runtime-fix-v2600 #cinema .slider-wrapper{
-  overflow-x: visible !important;
-}
-</style>
-<script id="oai-cinema-overlap-runtime-fix-v2600-script">
-(function(){
-  const root = document.documentElement;
-  let raf = 0;
-  let mo = null;
 
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
-    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
-    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
-    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
-    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
-    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
-    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH };
-  }
-
-  function isDesktopLike(){
-    const m = metrics();
-    return m.iw >= 980 && m.ih >= 620;
-  }
-
-  function maybe2560Band(){
-    const m = metrics();
-    const aspect = Math.max(m.sw, m.aw, m.iw) / Math.max(1, Math.max(m.sh, m.ah, m.ih));
-    const physicalBand = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1300 && m.physH <= 1600;
-    const logicalBand = m.iw >= 1180 && m.iw <= 2100 && m.ih >= 700 && m.ih <= 1180 && aspect >= 1.58 && aspect <= 1.95;
-    const not4k = !(m.physW >= 3200 || m.physH >= 1850 || m.iw >= 2200 || m.ih >= 1300);
-    return not4k && (physicalBand || logicalBand);
-  }
-
-  function rectsOverlap(a, b){
-    if(!a || !b) return false;
-    return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-  }
-
-  function q(sel, rootEl){ return (rootEl || document).querySelector(sel); }
-
-  function getUI(){
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return null;
-    const stage = q('.slider-container', cinema);
-    const track = q('.slider-wrapper', cinema);
-    const prev = q('.slider-prev', cinema);
-    const next = q('.slider-next', cinema);
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || !prev || !next || slides.length < 2) return null;
-    return { cinema, stage, track, prev, next, slides };
-  }
-
-  function visibleSlides(ui){
-    const stageRect = ui.stage.getBoundingClientRect();
-    const visible = ui.slides.filter(function(slide){
-      const r = slide.getBoundingClientRect();
-      const horiz = r.right > stageRect.left + 6 && r.left < stageRect.right - 6;
-      const bigEnough = r.width > 40 && r.height > 40;
-      return horiz && bigEnough;
-    });
-    return visible.length ? visible : ui.slides;
-  }
-
-  function clearInline(ui){
-    [ui.prev, ui.next].forEach(function(btn){
-      try{
-        btn.style.removeProperty('left');
-        btn.style.removeProperty('right');
-        btn.style.removeProperty('top');
-        btn.style.removeProperty('transform');
-        btn.style.removeProperty('position');
-        btn.style.removeProperty('margin');
-        btn.style.removeProperty('grid-column');
-        btn.style.removeProperty('place-self');
-        btn.style.removeProperty('z-index');
-      }catch(_e){}
-    });
-  }
-
-  function applyFix(ui){
-    const stageRect = ui.stage.getBoundingClientRect();
-    const vis = visibleSlides(ui).map(function(slide){ return slide.getBoundingClientRect(); }).sort(function(a,b){ return a.left - b.left; });
-    if(!vis.length) return false;
-
-    const leftSlide = vis[0];
-    const rightSlide = vis[vis.length - 1];
-    const prevRect = ui.prev.getBoundingClientRect();
-    const nextRect = ui.next.getBoundingClientRect();
-    const prevOverlap = rectsOverlap(prevRect, leftSlide);
-    const nextOverlap = rectsOverlap(nextRect, rightSlide);
-
-    if(!prevOverlap && !nextOverlap) return false;
-
-    root.classList.add('oai-cinema-overlap-runtime-fix-v2600');
-
-    try{ ui.stage.style.setProperty('position', 'relative', 'important'); }catch(_e){}
-    try{ ui.stage.style.setProperty('overflow', 'visible', 'important'); }catch(_e){}
-    try{ ui.track.style.setProperty('overflow-x', 'visible', 'important'); }catch(_e){}
-
-    const gap = 16;
-    const prevW = Math.max(prevRect.width || ui.prev.offsetWidth || 42, 36);
-    const nextW = Math.max(nextRect.width || ui.next.offsetWidth || 42, 36);
-
-    const desiredPrevLeftViewport = leftSlide.left - gap - prevW;
-    const desiredNextLeftViewport = rightSlide.right + gap;
-
-    let prevLeft = Math.round(desiredPrevLeftViewport - stageRect.left);
-    let nextRight = Math.round(stageRect.right - desiredNextLeftViewport - nextW);
-
-    prevLeft = Math.min(prevLeft, -18);
-    nextRight = Math.min(nextRight, -18);
-    prevLeft = Math.max(prevLeft, -120);
-    nextRight = Math.max(nextRight, -120);
-
-    const topValue = '50%';
-    try{
-      ui.prev.style.setProperty('position', 'absolute', 'important');
-      ui.prev.style.setProperty('top', topValue, 'important');
-      ui.prev.style.setProperty('transform', 'translateY(-50%)', 'important');
-      ui.prev.style.setProperty('left', prevLeft + 'px', 'important');
-      ui.prev.style.setProperty('right', 'auto', 'important');
-      ui.prev.style.setProperty('margin', '0', 'important');
-      ui.prev.style.setProperty('grid-column', 'auto', 'important');
-      ui.prev.style.setProperty('place-self', 'auto', 'important');
-      ui.prev.style.setProperty('z-index', '400', 'important');
-    }catch(_e){}
-    try{
-      ui.next.style.setProperty('position', 'absolute', 'important');
-      ui.next.style.setProperty('top', topValue, 'important');
-      ui.next.style.setProperty('transform', 'translateY(-50%)', 'important');
-      ui.next.style.setProperty('right', nextRight + 'px', 'important');
-      ui.next.style.setProperty('left', 'auto', 'important');
-      ui.next.style.setProperty('margin', '0', 'important');
-      ui.next.style.setProperty('grid-column', 'auto', 'important');
-      ui.next.style.setProperty('place-self', 'auto', 'important');
-      ui.next.style.setProperty('z-index', '400', 'important');
-    }catch(_e){}
-
-    return true;
-  }
-
-  function run(){
-    raf = 0;
-    const ui = getUI();
-    if(!ui || !isDesktopLike()) return;
-    const shouldInspect = maybe2560Band();
-    if(!shouldInspect){
-      root.classList.remove('oai-cinema-overlap-runtime-fix-v2600');
-      return;
-    }
-    applyFix(ui);
-  }
-
-  function queue(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(run);
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
-  else queue();
-
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-
-  [0, 120, 500, 1400, 2800, 5000].forEach(function(ms){ setTimeout(queue, ms); });
-
-  try{
-    mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
-  }catch(_e){}
-})();
-</script>
-
-
-<style id="oai-cinema-right-gutter-v2600-style">
-html.oai-cinema-right-gutter-v2600 #cinema,
-html.oai-cinema-right-gutter-v2600 #cinema .slider-container{
-  overflow: visible !important;
-}
-html.oai-cinema-right-gutter-v2600 #cinema .slider-next{
-  position: absolute !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  left: auto !important;
-  z-index: 450 !important;
-}
-</style>
-<script id="oai-cinema-right-gutter-v2600-script">
-(function(){
-  const root = document.documentElement;
-  let raf = 0;
-  let mo = null;
-
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
-    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
-    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
-    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
-    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
-    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
-    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH };
-  }
-
-  function isDesktopLike(){
-    const m = metrics();
-    return m.iw >= 980 && m.ih >= 620;
-  }
-
-  function isTargetBand(){
-    const m = metrics();
-    const aspect = Math.max(m.sw, m.aw, m.iw) / Math.max(1, Math.max(m.sh, m.ah, m.ih));
-    const physicalBand = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1300 && m.physH <= 1600;
-    const logicalBand = m.iw >= 1180 && m.iw <= 2100 && m.ih >= 700 && m.ih <= 1180 && aspect >= 1.58 && aspect <= 1.95;
-    const not4k = !(m.physW >= 3200 || m.physH >= 1850 || m.iw >= 2200 || m.ih >= 1300);
-    return not4k && (physicalBand || logicalBand);
-  }
-
-  function rectOverlap(a, b){
-    return !!a && !!b && !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-  }
-
-  function getUI(){
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return null;
-    const stage = cinema.querySelector('.slider-container');
-    const track = cinema.querySelector('.slider-wrapper');
-    const next = cinema.querySelector('.slider-next');
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || !next || slides.length < 2) return null;
-    return { cinema, stage, track, next, slides };
-  }
-
-  function visibleRects(ui){
-    const stageRect = ui.stage.getBoundingClientRect();
-    return ui.slides
-      .map(slide => slide.getBoundingClientRect())
-      .filter(r => Math.min(r.right, stageRect.right) - Math.max(r.left, stageRect.left) > 24 && r.width > 60 && r.height > 60)
-      .sort((a,b)=>a.left-b.left);
-  }
-
-  function anyOverlap(btnRect, rects){
-    for(const r of rects){
-      if(rectOverlap(btnRect, r)) return true;
-    }
-    return false;
-  }
-
-  function pushNextOutside(ui){
-    const rects = visibleRects(ui);
-    if(!rects.length) return;
-
-    root.classList.add('oai-cinema-right-gutter-v2600');
-
-    try{ ui.cinema.style.setProperty('overflow', 'visible', 'important'); }catch(_e){}
-    try{ ui.stage.style.setProperty('overflow', 'visible', 'important'); }catch(_e){}
-
-    const current = parseFloat(getComputedStyle(ui.next).right) || 0;
-    const candidates = [
-      Math.min(current, -18), -26, -34, -42, -52, -64, -78, -94, -112, -132, -154, -178
-    ];
-    const uniq = [...new Set(candidates.map(v => Math.round(v)))];
-
-    let applied = uniq[0];
-    for(const rightVal of uniq){
-      try{
-        ui.next.style.setProperty('position', 'absolute', 'important');
-        ui.next.style.setProperty('top', '50%', 'important');
-        ui.next.style.setProperty('transform', 'translateY(-50%)', 'important');
-        ui.next.style.setProperty('left', 'auto', 'important');
-        ui.next.style.setProperty('right', rightVal + 'px', 'important');
-        ui.next.style.setProperty('margin', '0', 'important');
-        ui.next.style.setProperty('grid-column', 'auto', 'important');
-        ui.next.style.setProperty('place-self', 'auto', 'important');
-        ui.next.style.setProperty('z-index', '450', 'important');
-      }catch(_e){}
-      const btnRect = ui.next.getBoundingClientRect();
-      applied = rightVal;
-      if(!anyOverlap(btnRect, rects)) break;
-    }
-
-    const btnRect = ui.next.getBoundingClientRect();
-    if(anyOverlap(btnRect, rects)){
-      const last = rects[rects.length - 1];
-      const stageRect = ui.stage.getBoundingClientRect();
-      const gap = 18;
-      const btnW = Math.max(btnRect.width || ui.next.offsetWidth || 42, 36);
-      let rightVal = Math.round(stageRect.right - (last.right + gap + btnW));
-      rightVal = Math.min(rightVal, -190);
-      rightVal = Math.max(rightVal, -320);
-      try{ ui.next.style.setProperty('right', rightVal + 'px', 'important'); }catch(_e){}
-    }
-  }
-
-  function run(){
-    raf = 0;
-    const ui = getUI();
-    if(!ui || !isDesktopLike() || !isTargetBand()) return;
-    pushNextOutside(ui);
-  }
-
-  function queue(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(run);
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
-  else queue();
-
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  [0, 120, 500, 1500, 3000, 5000].forEach(ms => setTimeout(queue, ms));
-
-  try{
-    mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
-  }catch(_e){}
-})();
-</script>
-
-
-<style id="oai-2560x1400-clean-v3-style">
-html.oai-2560x1400-clean-v3 #cinema{
-  width: var(--oai-2600-cinema-w, 660px) !important;
-  max-width: var(--oai-2600-cinema-w, 660px) !important;
-  margin: 0 auto !important;
-  overflow: visible !important;
-}
-html.oai-2560x1400-clean-v3 #cinema .slider-container{
-  position: relative !important;
-  width: var(--oai-2600-cinema-w, 660px) !important;
-  max-width: var(--oai-2600-cinema-w, 660px) !important;
-  margin: 8px auto 0 !important;
-  overflow: visible !important;
-}
-html.oai-2560x1400-clean-v3 #cinema .slider-wrapper{
-  width: var(--oai-2600-cinema-w, 660px) !important;
-  max-width: var(--oai-2600-cinema-w, 660px) !important;
-  display: flex !important;
-  align-items: stretch !important;
-  gap: 12px !important;
-  padding: 14px 0 18px !important;
-  margin: 0 auto !important;
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-wrapper{
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  gap: var(--oai2600-gap, 14px) !important;
+  padding-top: 18px !important;
+  padding-bottom: 14px !important;
+  padding-left: var(--oai2600-sidepad, 26px) !important;
+  padding-right: var(--oai2600-sidepad, 26px) !important;
+  scroll-padding-left: var(--oai2600-sidepad, 26px) !important;
+  scroll-padding-right: var(--oai2600-sidepad, 26px) !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
   overflow-x: auto !important;
   overflow-y: visible !important;
-  scroll-snap-type: none !important;
-  scroll-padding-left: 0 !important;
-  scroll-padding-right: 0 !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .slider-wrapper::-webkit-scrollbar{ display:none !important; }
-html.oai-2560x1400-clean-v3 #cinema .slider-prev,
-html.oai-2560x1400-clean-v3 #cinema .slider-next{
-  position: absolute !important;
-  top: 49% !important;
-  transform: translateY(-50%) !important;
-  width: 42px !important;
-  height: 42px !important;
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-prev,
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-next{
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
   margin: 0 !important;
-  z-index: 220 !important;
+  align-self: center !important;
+  justify-self: center !important;
+  width: var(--oai2600-btn, 48px) !important;
+  height: var(--oai2600-btn, 48px) !important;
+  z-index: 12 !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .slider-prev{ left: -56px !important; right:auto !important; }
-html.oai-2560x1400-clean-v3 #cinema .slider-next{ right: -56px !important; left:auto !important; }
-html.oai-2560x1400-clean-v3 #cinema .movie-slide{
-  flex: 0 0 var(--oai-2600-slide-w, 212px) !important;
-  width: var(--oai-2600-slide-w, 212px) !important;
-  min-width: var(--oai-2600-slide-w, 212px) !important;
-  max-width: var(--oai-2600-slide-w, 212px) !important;
-  box-sizing: border-box !important;
-  border-radius: 22px !important;
-  scroll-snap-align: start !important;
-  transform: translateY(0) scale(.955) !important;
-  opacity: .9 !important;
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-prev{ grid-column: 1 !important; }
+html.oai-2600x1400-cinema-reflow-v4 #cinema .slider-next{ grid-column: 3 !important; }
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-slide{
+  flex: 0 0 var(--oai2600-cardw, 204px) !important;
+  width: var(--oai2600-cardw, 204px) !important;
+  max-width: var(--oai2600-cardw, 204px) !important;
+  min-width: var(--oai2600-cardw, 204px) !important;
+  transform: translateZ(0) scale(.94) !important;
+  transform-origin: center center !important;
+  opacity: .94 !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .movie-slide.is-active{
-  transform: translateY(-8px) scale(1.025) !important;
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-slide.is-active{
+  transform: translateY(calc(var(--oai2600-lift, 10px) * -1)) scale(var(--oai2600-active-scale, 1.03)) !important;
+  z-index: 7 !important;
   opacity: 1 !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .movie-img,
-html.oai-2560x1400-clean-v3 #cinema .movie-slide.is-active .movie-img,
-html.oai-2560x1400-clean-v3 #cinema .movie-slide:not(.is-active) .movie-img{
-  height: 142px !important;
-  min-height: 142px !important;
-  max-height: 142px !important;
-  border-radius: 18px !important;
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-img{
+  height: var(--oai2600-imgh, 152px) !important;
+  border-radius: 22px 22px 0 0 !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .movie-info{
-  padding: 11px 12px 12px !important;
-  gap: 9px !important;
-  margin-top: 10px !important;
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-info{
+  padding: 12px 14px 14px !important;
+  gap: 10px !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .movie-info h3{
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-info h3{
   font-size: 14px !important;
-  line-height: 1.08 !important;
-  letter-spacing: .04em !important;
+  line-height: 1.1 !important;
+  min-height: 32px !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .movie-slide.is-active .movie-info h3{
-  font-size: 16px !important;
-  line-height: 1.08 !important;
-  letter-spacing: .06em !important;
-}
-html.oai-2560x1400-clean-v3 #cinema .movie-btn{
-  min-width: 96px !important;
-  height: 34px !important;
-  padding: 8px 12px !important;
-  font-size: 10px !important;
-}
-html.oai-2560x1400-clean-v3 #cinema .movie-badges{
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-badges{
   gap: 6px !important;
 }
-html.oai-2560x1400-clean-v3 #cinema .movie-ep,
-html.oai-2560x1400-clean-v3 #cinema .movie-duration{
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-ep,
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-duration{
+  font-size: 9px !important;
   padding: 4px 8px !important;
-  font-size: 8px !important;
+}
+
+html.oai-2600x1400-cinema-reflow-v4 #cinema .movie-btn{
+  min-width: 94px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 9px !important;
 }
 </style>
-<script id="oai-2560x1400-clean-v3-script">
+<script id="oai-2600x1400-cinema-reflow-v4-script">
 (function(){
   const root = document.documentElement;
+  const stage = document.querySelector('#cinema .slider-container');
+  const track = document.querySelector('#cinema .slider-wrapper');
+  const prev = document.querySelector('#cinema .slider-prev');
+  const next = document.querySelector('#cinema .slider-next');
+  const cinema = document.getElementById('cinema');
+  if(!root || !stage || !track || !prev || !next || !cinema) return;
+
   let raf = 0;
-  let mo = null;
 
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
-    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
-    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
-    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
-    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
-    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
-    const ratio = Math.max(sw, aw, iw) / Math.max(1, Math.max(sh, ah, ih));
-    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH, ratio };
+  function num(v, fallback){ v = Number(v); return Number.isFinite(v) ? v : fallback; }
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  function rect(el){
+    if(!el || !el.getBoundingClientRect) return null;
+    const cs = getComputedStyle(el);
+    if(cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return null;
+    const r = el.getBoundingClientRect();
+    if(r.width < 20 || r.height < 20) return null;
+    return r;
+  }
+  function first(sel){ return document.querySelector(sel); }
+  function all(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+  function isTargetMode(){
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const dpr = Math.max(1, num(window.devicePixelRatio, 1));
+    const sw = Math.max(num(window.screen && window.screen.width, 0), num(window.screen && window.screen.availWidth, 0), Math.round(iw * dpr));
+    const sh = Math.max(num(window.screen && window.screen.height, 0), num(window.screen && window.screen.availHeight, 0), Math.round(ih * dpr));
+
+    const physical2600 = sw >= 2350 && sw <= 2900 && sh >= 1280 && sh <= 1550;
+    const cssRetina2600 = iw >= 1180 && iw <= 1700 && ih >= 650 && ih <= 980 && dpr >= 1.2;
+    const likely4k = sw >= 3400 || iw >= 1850;
+
+    return !likely4k && (physical2600 || cssRetina2600);
   }
 
-  function isTarget(){
-    const m = metrics();
-    const desktop1400 = Math.max(m.sw, m.aw) >= 2480 && Math.max(m.sw, m.aw) <= 2680 && Math.max(m.sh, m.ah) >= 1360 && Math.max(m.sh, m.ah) <= 1505;
-    const physical1400 = m.physW >= 2480 && m.physW <= 2680 && m.physH >= 1360 && m.physH <= 1520;
-    const logicalRetina = m.dpr >= 1.5 && m.dpr <= 2.6 && m.iw >= 1180 && m.iw <= 1500 && m.ih >= 640 && m.ih <= 860;
-    const aspectOk = m.ratio >= 1.72 && m.ratio <= 1.92;
-    const not4k = !(m.physW >= 3200 || m.physH >= 1850 || m.iw >= 1700 || m.ih >= 1000);
-    return aspectOk && not4k && (desktop1400 || physical1400 || logicalRetina);
-  }
-
-  function imp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
-  }
-  function clearImp(el, props){
-    if(!el) return;
-    props.forEach(function(prop){ try{ el.style.removeProperty(prop); }catch(_e){} });
-  }
-
-  function getUI(){
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return null;
-    const stage = cinema.querySelector('.slider-container');
-    const track = cinema.querySelector('.slider-wrapper');
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    const prev = cinema.querySelector('.slider-prev');
-    const next = cinema.querySelector('.slider-next');
-    if(!stage || !track || !prev || !next || slides.length < 3) return null;
-    return { cinema, stage, track, slides, prev, next };
-  }
-
-  function wrap(i, n){ return n ? ((i % n) + n) % n : 0; }
-
-  function currentIndex(ui){
-    const fromData = parseInt(ui.cinema.dataset.oai2600ActiveV3 || '', 10);
-    if(Number.isFinite(fromData)) return wrap(fromData, ui.slides.length);
-    const fromClass = ui.slides.findIndex(s => s.classList.contains('is-active'));
-    return wrap(fromClass >= 0 ? fromClass : 0, ui.slides.length);
-  }
-
-  function computeSizes(){
-    const m = metrics();
-    const maxStage = Math.max(636, Math.min(700, m.iw - 620));
-    const slideW = Math.max(202, Math.min(220, Math.floor((maxStage - 24) / 3)));
-    const stageW = slideW * 3 + 24;
-    return { stageW, slideW };
-  }
-
-  function applyLayout(ui){
-    const s = computeSizes();
-    root.style.setProperty('--oai-2600-cinema-w', s.stageW + 'px');
-    root.style.setProperty('--oai-2600-slide-w', s.slideW + 'px');
-
-    ['oai-cinema-overlap-runtime-fix-v2600', 'oai-cinema-right-gutter-v2600', 'tk-2500x1600-three-slide-hardfix-v9', 'tk-cinema-detached-arrows-final-v1'].forEach(function(cls){
-      root.classList.remove(cls);
-      document.body.classList.remove(cls);
+  function obstructionLeft(){
+    const cands = [
+      first('.side-nav'),
+      first('#tk18LeftRail'),
+      first('#tk19LeftRail')
+    ].filter(Boolean);
+    let edge = 0;
+    cands.forEach(el => {
+      const r = rect(el);
+      if(r) edge = Math.max(edge, r.right);
     });
+    return edge;
+  }
 
-    clearImp(ui.cinema, ['width','max-width','overflow']);
-    clearImp(ui.stage, ['display','grid-template-columns','column-gap','width','max-width','overflow','position','margin']);
-    clearImp(ui.track, ['width','max-width','gap','padding','margin','overflow-x','overflow-y','scroll-snap-type','scroll-padding-left','scroll-padding-right','mask-image','-webkit-mask-image']);
-    [ui.prev, ui.next].forEach(function(btn){
-      clearImp(btn, ['position','left','right','top','transform','grid-column','place-self','margin','z-index','width','height']);
+  function obstructionRight(){
+    const cands = [
+      first('#tk23RightRail'),
+      first('#rouletteDock.roulette-dock'),
+      first('.rules')
+    ].filter(Boolean);
+    let edge = window.innerWidth || document.documentElement.clientWidth || 0;
+    cands.forEach(el => {
+      const r = rect(el);
+      if(r && r.left > (window.innerWidth || document.documentElement.clientWidth || 0) * 0.45){
+        edge = Math.min(edge, r.left);
+      }
     });
-
-    imp(ui.cinema, 'width', 'var(--oai-2600-cinema-w)');
-    imp(ui.cinema, 'max-width', 'var(--oai-2600-cinema-w)');
-    imp(ui.cinema, 'overflow', 'visible');
-
-    imp(ui.stage, 'position', 'relative');
-    imp(ui.stage, 'width', 'var(--oai-2600-cinema-w)');
-    imp(ui.stage, 'max-width', 'var(--oai-2600-cinema-w)');
-    imp(ui.stage, 'overflow', 'visible');
-    imp(ui.stage, 'margin', '8px auto 0');
-
-    imp(ui.track, 'width', 'var(--oai-2600-cinema-w)');
-    imp(ui.track, 'max-width', 'var(--oai-2600-cinema-w)');
-    imp(ui.track, 'display', 'flex');
-    imp(ui.track, 'gap', '12px');
-    imp(ui.track, 'padding', '14px 0 18px');
-    imp(ui.track, 'margin', '0 auto');
-    imp(ui.track, 'overflow-x', 'auto');
-    imp(ui.track, 'overflow-y', 'visible');
-    imp(ui.track, 'scroll-snap-type', 'none');
-    imp(ui.track, 'scroll-padding-left', '0');
-    imp(ui.track, 'scroll-padding-right', '0');
-    imp(ui.track, 'mask-image', 'none');
-    imp(ui.track, '-webkit-mask-image', 'none');
-
-    imp(ui.prev, 'position', 'absolute'); imp(ui.prev, 'left', '-56px'); imp(ui.prev, 'right', 'auto');
-    imp(ui.next, 'position', 'absolute'); imp(ui.next, 'right', '-56px'); imp(ui.next, 'left', 'auto');
-    [ui.prev, ui.next].forEach(function(btn){ imp(btn, 'top', '49%'); imp(btn, 'transform', 'translateY(-50%)'); imp(btn, 'width', '42px'); imp(btn, 'height', '42px'); imp(btn, 'margin', '0'); imp(btn, 'z-index', '220'); });
-
-    ui.slides.forEach(function(slide){
-      imp(slide, 'flex', '0 0 var(--oai-2600-slide-w)');
-      imp(slide, 'width', 'var(--oai-2600-slide-w)');
-      imp(slide, 'min-width', 'var(--oai-2600-slide-w)');
-      imp(slide, 'max-width', 'var(--oai-2600-slide-w)');
-      imp(slide, 'transform', 'translateY(0) scale(.955)');
-      imp(slide, 'opacity', '.9');
-    });
-
-    ui.cinema.querySelectorAll('.movie-img').forEach(function(el){ imp(el, 'height', '142px'); imp(el, 'min-height', '142px'); imp(el, 'max-height', '142px'); });
-    ui.cinema.querySelectorAll('.movie-info').forEach(function(el){ imp(el, 'padding', '11px 12px 12px'); imp(el, 'gap', '9px'); imp(el, 'margin-top', '10px'); });
-    ui.cinema.querySelectorAll('.movie-info h3').forEach(function(el){ imp(el, 'font-size', '14px'); imp(el, 'line-height', '1.08'); });
-    ui.cinema.querySelectorAll('.movie-btn').forEach(function(el){ imp(el, 'min-width', '96px'); imp(el, 'height', '34px'); imp(el, 'padding', '8px 12px'); imp(el, 'font-size', '10px'); });
+    return edge;
   }
 
-  function groupStart(active, total){
-    if(total <= 3) return 0;
-    return Math.max(0, Math.min(active - 1, total - 3));
-  }
-
-  function paintActive(ui, active){
-    ui.slides.forEach(function(slide, i){
-      const on = i === active;
-      slide.classList.toggle('is-active', on);
-      if(on){ imp(slide, 'transform', 'translateY(-8px) scale(1.025)'); imp(slide, 'opacity', '1'); }
-      else { imp(slide, 'transform', 'translateY(0) scale(.955)'); imp(slide, 'opacity', '.9'); }
-    });
-  }
-
-  function setActive(ui, index, smooth){
-    const total = ui.slides.length;
-    const active = wrap(index, total);
-    ui.cinema.dataset.oai2600ActiveV3 = String(active);
-    paintActive(ui, active);
-    const start = groupStart(active, total);
-    const anchor = ui.slides[start];
-    const left = Math.max(0, anchor ? anchor.offsetLeft : 0);
-    try{ ui.track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); }
-    catch(_e){ ui.track.scrollLeft = left; }
-  }
-
-  function bind(ui){
-    if(ui.cinema.dataset.oai2600BoundV3 === '1') return;
-    ui.cinema.dataset.oai2600BoundV3 = '1';
-
-    ui.track.addEventListener('scroll', function(e){
-      if(isTarget()) e.stopImmediatePropagation();
-    }, true);
-
-    ui.prev.addEventListener('click', function(e){
-      if(!isTarget()) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      setActive(ui, currentIndex(ui) - 1, true);
-    }, true);
-
-    ui.next.addEventListener('click', function(e){
-      if(!isTarget()) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      setActive(ui, currentIndex(ui) + 1, true);
-    }, true);
-
-    ui.slides.forEach(function(slide, i){
-      slide.addEventListener('click', function(e){
-        if(!isTarget()) return;
-        if(e.target.closest('button') || e.target.closest('a')) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        setActive(ui, i, true);
-      }, true);
-    });
-  }
-
-  function run(){
+  function apply(){
     raf = 0;
-    const on = isTarget();
-    root.classList.toggle('oai-2560x1400-clean-v3', on);
-    if(!on) return;
-    const ui = getUI();
-    if(!ui) return;
-    applyLayout(ui);
-    bind(ui);
-    setActive(ui, currentIndex(ui), false);
+
+    if(!isTargetMode()){
+      root.classList.remove('oai-2600x1400-cinema-reflow-v4');
+      ['--oai2600-stagew','--oai2600-stage-left','--oai2600-navw','--oai2600-navgap','--oai2600-gap','--oai2600-sidepad','--oai2600-cardw','--oai2600-active-scale','--oai2600-lift','--oai2600-imgh','--oai2600-btn'].forEach(v=>root.style.removeProperty(v));
+      ['width','max-width','margin-left','margin-right','padding-left','padding-right','scroll-padding-left','scroll-padding-right'].forEach(p=>{ try{ stage.style.removeProperty(p); }catch(e){} try{ track.style.removeProperty(p); }catch(e){} });
+      return;
+    }
+
+    root.classList.add('oai-2600x1400-cinema-reflow-v4');
+
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const leftBlock = obstructionLeft();
+    const rightBlock = obstructionRight();
+
+    const leftPad = clamp(Math.round(leftBlock + 24), 12, Math.max(12, iw - 760));
+    const rightPad = clamp(Math.round(rightBlock - 24), Math.min(iw - 24, leftPad + 760), iw - 12);
+    const corridor = Math.max(760, rightPad - leftPad);
+
+    const stageW = clamp(Math.round(Math.min(corridor, 980)), 760, 980);
+    const stageLeft = Math.max(12, Math.round(leftPad + ((corridor - stageW) / 2)));
+
+    const navW = corridor >= 900 ? 58 : 54;
+    const navGap = 10;
+    const button = corridor >= 900 ? 50 : 46;
+    const innerTrack = stageW - navW * 2 - navGap * 2;
+    const gap = innerTrack >= 760 ? 14 : 12;
+    const cardW = clamp(Math.round((innerTrack - gap * 2 - 18) / 3), 186, 222);
+    const activeScale = cardW >= 210 ? 1.035 : 1.025;
+    const lift = cardW >= 210 ? 10 : 8;
+    const imgH = clamp(Math.round(cardW * 0.78), 146, 172);
+    const sidePad = clamp(Math.round((innerTrack - (cardW * 3 + gap * 2)) / 2), 8, 24);
+
+    root.style.setProperty('--oai2600-stagew', stageW + 'px');
+    root.style.setProperty('--oai2600-stage-left', stageLeft + 'px');
+    root.style.setProperty('--oai2600-navw', navW + 'px');
+    root.style.setProperty('--oai2600-navgap', navGap + 'px');
+    root.style.setProperty('--oai2600-gap', gap + 'px');
+    root.style.setProperty('--oai2600-sidepad', sidePad + 'px');
+    root.style.setProperty('--oai2600-cardw', cardW + 'px');
+    root.style.setProperty('--oai2600-active-scale', String(activeScale));
+    root.style.setProperty('--oai2600-lift', lift + 'px');
+    root.style.setProperty('--oai2600-imgh', imgH + 'px');
+    root.style.setProperty('--oai2600-btn', button + 'px');
   }
 
-  function queue(){
+  function schedule(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(run);
+    raf = requestAnimationFrame(apply);
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
-  else queue();
-  window.addEventListener('load', queue, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  [0, 100, 400, 1200, 2500, 5000, 8000].forEach(function(ms){ setTimeout(queue, ms); });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true });
+  else schedule();
+  window.addEventListener('load', schedule, { passive:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
+  document.addEventListener('click', function(e){ if(e.target && e.target.closest && (e.target.closest('.slider-prev') || e.target.closest('.slider-next') || e.target.closest('.side-nav') || e.target.closest('#menuToggle'))) setTimeout(schedule, 40); }, true);
+  [0,120,350,800,1600,2600,4200].forEach(ms => setTimeout(schedule, ms));
   try{
-    mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src'] });
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
   }catch(_e){}
 })();
 </script>
