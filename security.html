@@ -44884,1608 +44884,363 @@ html.oai-cinema-2600-left-hardfix-v9 #cinema .movie-slide.is-active .movie-info 
 </script>
 
 
-<style id="tk-2600x1400-13-cinema-fix">
-html.tk-2600x1400-13 #cinema,
-html.tk-2600x1400-13 #cinema .cinema-head,
-html.tk-2600x1400-13 #cinema .slider-container,
-html.tk-2600x1400-13 #cinema .slider-wrapper{
-  overflow: visible !important;
-}
-
-html.tk-2600x1400-13 #cinema .slider-container{
-  max-width: none !important;
-  width: var(--tk-cinema-stage-w, 790px) !important;
-  margin-top: 12px !important;
-  margin-right: auto !important;
-  margin-left: var(--tk-cinema-stage-left, 280px) !important;
-  padding-left: var(--tk-cinema-arrow-col, 64px) !important;
-  padding-right: var(--tk-cinema-arrow-col, 64px) !important;
-  box-sizing: border-box !important;
-  justify-content: flex-start !important;
-}
-
-html.tk-2600x1400-13 #cinema .slider-wrapper{
-  width: 100% !important;
-  padding: 10px 0 10px !important;
-  gap: var(--tk-cinema-gap, 16px) !important;
-  overflow-x: auto !important;
-  overflow-y: visible !important;
-  scroll-snap-type: none !important;
-  scrollbar-width: none !important;
-}
-html.tk-2600x1400-13 #cinema .slider-wrapper::-webkit-scrollbar{
-  display: none !important;
-}
-
-html.tk-2600x1400-13 #cinema .slider-prev,
-html.tk-2600x1400-13 #cinema .slider-next{
-  position: absolute !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 44px !important;
-  height: 44px !important;
-  z-index: 9 !important;
-}
-html.tk-2600x1400-13 #cinema .slider-prev{ left: 10px !important; }
-html.tk-2600x1400-13 #cinema .slider-next{ right: 10px !important; }
-
-html.tk-2600x1400-13 #cinema .movie-slide{
-  flex: 0 0 var(--tk-cinema-slide-w, 214px) !important;
-  width: var(--tk-cinema-slide-w, 214px) !important;
-  min-width: var(--tk-cinema-slide-w, 214px) !important;
-  transform: translateY(0) scale(1) !important;
-  opacity: 1 !important;
-  filter: none !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-slide.is-active{
-  transform: translateY(-6px) scale(1) !important;
-  opacity: 1 !important;
-  filter: drop-shadow(0 18px 34px rgba(0,0,0,.24)) !important;
-  z-index: 3 !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-img,
-html.tk-2600x1400-13 #cinema .movie-slide.is-active .movie-img{
-  height: clamp(132px, 14vw, 176px) !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-info{
-  margin-top: 10px !important;
-  gap: 8px !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-info h3,
-html.tk-2600x1400-13 #cinema .movie-slide.is-active .movie-info h3{
-  font-size: clamp(14px, 1.35vw, 18px) !important;
-  line-height: 1.05 !important;
-  letter-spacing: .02em !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  min-height: 2.2em !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-btn,
-html.tk-2600x1400-13 #cinema .movie-slide:not(.is-active) .movie-btn{
-  min-width: 110px !important;
-  padding: 10px 12px !important;
-  font-size: 10px !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-badges{
-  gap: 6px !important;
-}
-
-html.tk-2600x1400-13 #cinema .movie-ep,
-html.tk-2600x1400-13 #cinema .movie-duration{
-  font-size: 10px !important;
-}
-</style>
-<script id="tk-2600x1400-13-cinema-script">
-(function(){
-  const cinema = document.getElementById('cinema');
-  if(!cinema) return;
-
-  const stage = cinema.querySelector('.slider-container');
-  const track = cinema.querySelector('.slider-wrapper');
-  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-  const prevBtn = cinema.querySelector('.slider-prev');
-  const nextBtn = cinema.querySelector('.slider-next');
-  if(!stage || !track || !slides.length || !prevBtn || !nextBtn) return;
-
-  let currentIndex = 0;
-  let step = 0;
-  let maxIndex = Math.max(0, slides.length - 3);
-  let enabled = false;
-  let scrollTimer = 0;
-
-  function approxPhysicalScreen(){
-    const dpr = Math.max(window.devicePixelRatio || 1, 1);
-    const sw = Math.max(window.screen?.width || 0, window.screen?.availWidth || 0, window.innerWidth || 0);
-    const sh = Math.max(window.screen?.height || 0, window.screen?.availHeight || 0, window.innerHeight || 0);
-    return { w: sw * dpr, h: sh * dpr, dpr };
-  }
-
-  function isTargetMode(){
-    const { w, h, dpr } = approxPhysicalScreen();
-    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-
-    const physicalMatch = (w >= 2380 && w <= 2920 && h >= 1260 && h <= 1600);
-    const viewportMatch = (vw >= 1120 && vw <= 1420 && vh >= 620 && vh <= 900);
-    return physicalMatch && viewportMatch && dpr >= 1.75;
-  }
-
-  function getRect(selector){
-    const el = document.querySelector(selector);
-    if(!el) return null;
-    const rect = el.getBoundingClientRect();
-    if(!rect || rect.width <= 0 || rect.height <= 0) return null;
-    return rect;
-  }
-
-  function clamp(v, min, max){
-    return Math.max(min, Math.min(max, v));
-  }
-
-  function computeLayout(){
-    enabled = isTargetMode();
-    document.documentElement.classList.toggle('tk-2600x1400-13', enabled);
-    if(!enabled) return;
-
-    const menuRect = getRect('.side-nav');
-    const rouletteRect = getRect('.roulette-dock');
-    const rulesRect = getRect('.rules');
-
-    const leftEdge = Math.round(Math.max(24, menuRect ? (menuRect.right + 28) : 280));
-    const obstacleLeft = Math.round(Math.min(
-      rouletteRect ? rouletteRect.left : window.innerWidth - 24,
-      rulesRect ? rulesRect.left : window.innerWidth - 24,
-      window.innerWidth - 24
-    ));
-
-    const corridor = Math.max(730, obstacleLeft - leftEdge - 24);
-    const arrowCol = 64;
-    const gap = 16;
-
-    let slideW = clamp(Math.floor((Math.min(860, corridor) - (arrowCol * 2) - (gap * 2)) / 3), 198, 246);
-    let stageW = (arrowCol * 2) + (slideW * 3) + (gap * 2);
-
-    if(stageW > corridor){
-      slideW = clamp(Math.floor((corridor - (arrowCol * 2) - (gap * 2)) / 3), 198, 246);
-      stageW = (arrowCol * 2) + (slideW * 3) + (gap * 2);
-    }
-
-    document.documentElement.style.setProperty('--tk-cinema-stage-left', leftEdge + 'px');
-    document.documentElement.style.setProperty('--tk-cinema-stage-w', stageW + 'px');
-    document.documentElement.style.setProperty('--tk-cinema-slide-w', slideW + 'px');
-    document.documentElement.style.setProperty('--tk-cinema-gap', gap + 'px');
-    document.documentElement.style.setProperty('--tk-cinema-arrow-col', arrowCol + 'px');
-
-    updateMetrics();
-  }
-
-  function updateMetrics(){
-    const cs = getComputedStyle(track);
-    const gap = parseFloat(cs.columnGap || cs.gap) || 16;
-    const first = slides[0];
-    const slideW = first ? first.getBoundingClientRect().width : 0;
-    step = Math.max(1, Math.round(slideW + gap));
-    maxIndex = Math.max(0, slides.length - 3);
-  }
-
-  function paintActive(){
-    const activeIndex = enabled ? clamp(currentIndex + 1, 0, slides.length - 1) : 0;
-    slides.forEach((slide, idx) => {
-      slide.classList.toggle('is-active', idx === activeIndex);
-    });
-    prevBtn.disabled = enabled ? currentIndex <= 0 : false;
-    nextBtn.disabled = enabled ? currentIndex >= maxIndex : false;
-  }
-
-  function scrollToIndex(smooth){
-    if(!enabled) return;
-    updateMetrics();
-    currentIndex = clamp(currentIndex, 0, maxIndex);
-    const left = currentIndex * step;
-    track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
-    paintActive();
-  }
-
-  prevBtn.addEventListener('click', function(e){
-    if(!enabled) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    currentIndex = clamp(currentIndex - 1, 0, maxIndex);
-    scrollToIndex(true);
-  }, true);
-
-  nextBtn.addEventListener('click', function(e){
-    if(!enabled) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    currentIndex = clamp(currentIndex + 1, 0, maxIndex);
-    scrollToIndex(true);
-  }, true);
-
-  slides.forEach((slide, idx) => {
-    slide.addEventListener('click', function(e){
-      if(!enabled) return;
-      if(e.target.closest('button') || e.target.closest('a')) return;
-      currentIndex = clamp(idx - 1, 0, maxIndex);
-      scrollToIndex(true);
-    }, true);
-  });
-
-  track.addEventListener('scroll', function(){
-    if(!enabled) return;
-    window.clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(function(){
-      updateMetrics();
-      currentIndex = clamp(Math.round(track.scrollLeft / step), 0, maxIndex);
-      paintActive();
-    }, 70);
-  }, { passive: true });
-
-  function refresh(forceAuto){
-    computeLayout();
-    if(enabled){
-      scrollToIndex(!forceAuto);
-    }
-  }
-
-  window.addEventListener('load', function(){ refresh(true); });
-  window.addEventListener('resize', function(){ refresh(true); }, { passive: true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){ refresh(true); }, { passive: true });
-  }
-  setTimeout(function(){ refresh(true); }, 60);
-  setTimeout(function(){ refresh(true); }, 260);
-})();
-</script>
-
-
-<style id="tk-2600x1400-13-cinema-clean2-style">
-html.tk-2600x1400-13-clean2 #tkCinemaDetachedPrev,
-html.tk-2600x1400-13-clean2 #tkCinemaDetachedNext,
-html.tk-2600x1400-13-clean2 #oai2600CinemaPrev,
-html.tk-2600x1400-13-clean2 #oai2600CinemaNext{
+<style id="oai-2600-retina-two-slide-final-style">
+html.oai-2600-retina-two-slide-final #tkCinemaDetachedPrev,
+html.oai-2600-retina-two-slide-final #tkCinemaDetachedNext,
+html.oai-2600-retina-two-slide-final #oai2600CinemaPrev,
+html.oai-2600-retina-two-slide-final #oai2600CinemaNext{
   display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
 }
-html.tk-2600x1400-13-clean2 #cinema,
-html.tk-2600x1400-13-clean2 #cinema .cinema-head,
-html.tk-2600x1400-13-clean2 #cinema .slider-container,
-html.tk-2600x1400-13-clean2 #cinema .slider-wrapper{
+
+html.oai-2600-retina-two-slide-final #cinema{
+  width: var(--oai2600-cinema-w, 760px) !important;
+  max-width: var(--oai2600-cinema-w, 760px) !important;
+  min-width: var(--oai2600-cinema-w, 760px) !important;
+  margin: 0 auto !important;
   overflow: visible !important;
 }
-html.tk-2600x1400-13-clean2 #cinema .slider-container{
+
+html.oai-2600-retina-two-slide-final #cinema .cinema-head{
+  width: 100% !important;
+  margin: 0 0 10px 0 !important;
+}
+
+html.oai-2600-retina-two-slide-final #cinema .slider-container{
   position: relative !important;
+  width: var(--oai2600-stage-w, 690px) !important;
+  max-width: var(--oai2600-stage-w, 690px) !important;
+  min-width: var(--oai2600-stage-w, 690px) !important;
+  margin: 8px 0 0 0 !important;
   display: grid !important;
-  grid-template-columns: var(--tk13-arrow-col, 50px) minmax(0, 1fr) var(--tk13-arrow-col, 50px) !important;
-  column-gap: var(--tk13-arrow-gap, 12px) !important;
+  grid-template-columns: var(--oai2600-arrow-zone, 46px) minmax(0, 1fr) var(--oai2600-arrow-zone, 46px) !important;
+  column-gap: var(--oai2600-arrow-gap, 12px) !important;
   align-items: center !important;
-  justify-content: start !important;
-  width: var(--tk13-stage-w, 846px) !important;
-  min-width: var(--tk13-stage-w, 846px) !important;
-  max-width: var(--tk13-stage-w, 846px) !important;
-  margin-top: 12px !important;
-  margin-right: 0 !important;
-  margin-left: var(--tk13-stage-left, 280px) !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
+  justify-items: stretch !important;
+  overflow: visible !important;
+}
+
+html.oai-2600-retina-two-slide-final #cinema .oai-2600-viewport{
+  grid-column: 2 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+html.oai-2600-retina-two-slide-final #cinema .slider-prev,
+html.oai-2600-retina-two-slide-final #cinema .slider-next{
+  position: relative !important;
+  top: auto !important;
   left: auto !important;
   right: auto !important;
+  bottom: auto !important;
   transform: none !important;
-}
-html.tk-2600x1400-13-clean2 #cinema .slider-wrapper{
-  grid-column: 2 !important;
-  width: var(--tk13-track-w, 722px) !important;
-  min-width: var(--tk13-track-w, 722px) !important;
-  max-width: var(--tk13-track-w, 722px) !important;
   margin: 0 !important;
-  padding: 10px 0 12px !important;
-  gap: var(--tk13-slide-gap, 14px) !important;
-  overflow-x: auto !important;
-  overflow-y: visible !important;
-  scroll-snap-type: none !important;
-  scroll-padding-left: 0 !important;
-  scroll-padding-right: 0 !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  place-self: center !important;
+  z-index: 90 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html.oai-2600-retina-two-slide-final #cinema .slider-prev{ grid-column: 1 !important; }
+html.oai-2600-retina-two-slide-final #cinema .slider-next{ grid-column: 3 !important; }
+
+html.oai-2600-retina-two-slide-final #cinema .slider-wrapper{
+  display: flex !important;
+  align-items: stretch !important;
+  gap: var(--oai2600-gap, 14px) !important;
+  width: max-content !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 14px 0 18px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  transform: translate3d(0,0,0) !important;
+  transition: transform .38s cubic-bezier(.4,0,.2,1) !important;
+  will-change: transform !important;
+  scroll-behavior: auto !important;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
 }
-html.tk-2600x1400-13-clean2 #cinema .slider-wrapper::-webkit-scrollbar{
-  display:none !important;
-}
-html.tk-2600x1400-13-clean2 #cinema .slider-prev,
-html.tk-2600x1400-13-clean2 #cinema .slider-next{
-  position: relative !important;
-  top: auto !important;
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-  transform: none !important;
-  width: 46px !important;
-  height: 46px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  z-index: 9 !important;
-  align-self: center !important;
-  justify-self: center !important;
-}
-html.tk-2600x1400-13-clean2 #cinema .slider-prev{ grid-column: 1 !important; }
-html.tk-2600x1400-13-clean2 #cinema .slider-next{ grid-column: 3 !important; }
-html.tk-2600x1400-13-clean2 #cinema .movie-slide{
-  flex: 0 0 var(--tk13-slide-w, 231px) !important;
-  width: var(--tk13-slide-w, 231px) !important;
-  min-width: var(--tk13-slide-w, 231px) !important;
-  max-width: var(--tk13-slide-w, 231px) !important;
+html.oai-2600-retina-two-slide-final #cinema .slider-wrapper::-webkit-scrollbar{ display:none !important; }
+
+html.oai-2600-retina-two-slide-final #cinema .movie-slide{
+  flex: 0 0 var(--oai2600-slide-w, 280px) !important;
+  width: var(--oai2600-slide-w, 280px) !important;
+  min-width: var(--oai2600-slide-w, 280px) !important;
+  max-width: var(--oai2600-slide-w, 280px) !important;
   transform: translateY(0) scale(1) !important;
+  box-sizing: border-box !important;
+}
+html.oai-2600-retina-two-slide-final #cinema .movie-slide.is-active{
+  transform: translateY(-6px) scale(1) !important;
+}
+html.oai-2600-retina-two-slide-final #cinema .movie-img,
+html.oai-2600-retina-two-slide-final #cinema .movie-slide.is-active .movie-img,
+html.oai-2600-retina-two-slide-final #cinema .movie-slide:not(.is-active) .movie-img{
+  height: var(--oai2600-img-h, 172px) !important;
+  min-height: var(--oai2600-img-h, 172px) !important;
+  max-height: var(--oai2600-img-h, 172px) !important;
+}
+html.oai-2600-retina-two-slide-final #cinema .movie-info h3,
+html.oai-2600-retina-two-slide-final #cinema .movie-slide.is-active .movie-info h3{
+  font-size: 15px !important;
+  line-height: 1.08 !important;
+}
+html.oai-2600-retina-two-slide-final #cinema .movie-btn,
+html.oai-2600-retina-two-slide-final #cinema .movie-slide:not(.is-active) .movie-btn{
+  min-width: 108px !important;
   opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
   filter: none !important;
 }
-html.tk-2600x1400-13-clean2 #cinema .movie-slide.is-active{
-  transform: translateY(-6px) scale(1) !important;
-  opacity: 1 !important;
-  filter: drop-shadow(0 18px 34px rgba(0,0,0,.20)) !important;
-  z-index: 3 !important;
+
+html.oai-2600-retina-two-slide-final .rules{
+  right: 12px !important;
+  left: auto !important;
 }
-html.tk-2600x1400-13-clean2 #cinema .movie-img,
-html.tk-2600x1400-13-clean2 #cinema .movie-slide.is-active .movie-img{
-  height: 154px !important;
-}
-html.tk-2600x1400-13-clean2 #cinema .movie-info{
-  margin-top: 10px !important;
-  gap: 8px !important;
-}
-html.tk-2600x1400-13-clean2 #cinema .movie-info h3,
-html.tk-2600x1400-13-clean2 #cinema .movie-slide.is-active .movie-info h3{
-  font-size: 17px !important;
-  line-height: 1.06 !important;
-  letter-spacing: .03em !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  min-height: 2.15em !important;
-}
-html.tk-2600x1400-13-clean2 #cinema .movie-btn,
-html.tk-2600x1400-13-clean2 #cinema .movie-slide:not(.is-active) .movie-btn{
-  min-width: 112px !important;
-  padding: 10px 12px !important;
-  font-size: 10px !important;
+html.oai-2600-retina-two-slide-final #rouletteDock,
+html.oai-2600-retina-two-slide-final .roulette-dock{
+  right: 12px !important;
+  left: auto !important;
 }
 </style>
-<script id="tk-2600x1400-13-cinema-clean2-script">
+<script id="oai-2600-retina-two-slide-final-script">
 (function(){
   const root = document.documentElement;
-  const cinema = document.getElementById('cinema');
-  if(!cinema) return;
-  const stage = cinema.querySelector('.slider-container');
-  const track = cinema.querySelector('.slider-wrapper');
-  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-  const prevBtn = cinema.querySelector('.slider-prev');
-  const nextBtn = cinema.querySelector('.slider-next');
-  if(!stage || !track || slides.length < 3 || !prevBtn || !nextBtn) return;
+  const state = { initialized:false, bound:false, page:0, pageSize:2, raf:0, mo:null };
 
-  let raf = 0;
-  let scrollTimer = 0;
+  function q(sel, ctx=document){ return ctx.querySelector(sel); }
+  function qa(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
+  function rect(el){ if(!el) return null; const r = el.getBoundingClientRect(); return (r && r.width > 0 && r.height > 0) ? r : null; }
+  function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
+  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
 
-  function imp(el, prop, value){
-    if(!el) return;
-    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
-  }
-  function rect(el){
-    if(!el) return null;
-    const r = el.getBoundingClientRect();
-    if(!r || r.width <= 0 || r.height <= 0) return null;
-    return r;
-  }
-  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
   function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), window.innerWidth || 0);
-    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), window.innerHeight || 0);
     const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
     const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    return { dpr, sw, sh, iw, ih, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
+    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
+    const physW = Math.round(sw * dpr);
+    const physH = Math.round(sh * dpr);
+    return { iw, ih, sw, sh, dpr, physW, physH, ratio:(sw / Math.max(1, sh)) };
   }
+
   function isTarget(){
+    if(root.classList.contains('tk-4k')) return false;
     const m = metrics();
-    const aspect = m.physW / Math.max(1, m.physH);
-    const physical = m.physW >= 2450 && m.physW <= 2750 && m.physH >= 1350 && m.physH <= 1550;
-    const viewport = m.iw >= 1180 && m.iw <= 1420 && m.ih >= 720 && m.ih <= 940;
-    return physical && viewport && m.dpr >= 1.6 && m.dpr <= 2.5 && aspect >= 1.68 && aspect <= 1.95;
+    const logicalLaptop = m.iw >= 1180 && m.iw <= 1500 && m.ih >= 700 && m.ih <= 940;
+    const retina = m.dpr >= 1.45 && m.dpr <= 2.35;
+    const aspect = m.ratio >= 1.48 && m.ratio <= 1.92;
+    const physical2600 = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1280 && m.physH <= 1600;
+    const not4k = !(m.physW >= 3200 || m.physH >= 1800 || m.iw >= 1850 || m.ih >= 1100);
+    return not4k && retina && aspect && (logicalLaptop || physical2600);
   }
-  function leftRailRight(){
-    let best = 0;
-    ['.side-nav','#tk18LeftRail','#tk19LeftRail','#tkFhdLeftRailFinal'].forEach(sel => {
-      const el = document.querySelector(sel);
-      const r = rect(el);
-      if(r) best = Math.max(best, r.right);
-    });
-    return best || 290;
+
+  function leftBound(){
+    const rails = qa('.side-nav, #tk18LeftRail, #tk19LeftRail, #tkFhdLeftRailFinal').map(rect).filter(Boolean);
+    const r = rails.reduce((best, cur) => (!best || cur.right > best.right ? cur : best), null);
+    return Math.round((r ? r.right : 290) + 18);
   }
-  function rightRailLeft(){
-    let best = window.innerWidth - 20;
-    ['#rouletteDock','.rules','#tkLiveStats','#openComicMenu','#openRuleGame','#openPcPartsGame'].forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        const r = rect(el);
-        if(r) best = Math.min(best, r.left);
-      });
-    });
-    return best;
+
+  function rightBound(){
+    const cands = [
+      q('#rouletteDock'), q('.roulette-dock'), q('.rules'),
+      document.getElementById('openComicMenu'), document.getElementById('openRuleGame'), document.getElementById('openPcPartsGame')
+    ].map(rect).filter(Boolean);
+    const minLeft = cands.reduce((v, r) => Math.min(v, r.left), window.innerWidth - 16);
+    return Math.round(minLeft - 18);
   }
-  function hideDetached(){
-    ['tkCinemaDetachedPrev','tkCinemaDetachedNext','oai2600CinemaPrev','oai2600CinemaNext'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.style.setProperty('display', 'none', 'important');
-    });
-  }
-  function paintSlides(){
-    slides.forEach(slide => {
-      const on = slide.classList.contains('is-active');
-      imp(slide, 'transform', on ? 'translateY(-6px) scale(1)' : 'translateY(0) scale(1)');
-      imp(slide, 'opacity', '1');
-    });
-  }
-  function apply(){
-    raf = 0;
-    const on = isTarget();
-    root.classList.toggle('tk-2600x1400-13-clean2', on);
-    if(!on) return;
 
-    [
-      'oai-cinema-2600-left-hardfix-v9',
-      'oai-cinema-2600-pocket-fix',
-      'oai-cinema-2600-corridor-fix',
-      'tk-retina-16x10-three-slides-v18',
-      'tk-2500x1600-three-slide-hardfix-v9',
-      'tk-2560x1600-real-fix-v9',
-      'tk-2560x1600-real-fix-v8',
-      'tk-2560x1600-real-fix-v6',
-      'tk-2560x1600-real-fix-v5',
-      'tk-2560x1600-real-fix-v3'
-    ].forEach(cls => root.classList.remove(cls));
+  function getUI(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = q('.slider-container', cinema);
+    if(!stage) return null;
 
-    const cinemaRect = rect(cinema);
-    if(!cinemaRect) return;
+    if(!state.initialized){
+      let prev = q('.slider-prev', stage);
+      let next = q('.slider-next', stage);
+      let track = q('.slider-wrapper', stage);
+      if(!prev || !next || !track) return null;
 
-    const leftEdge = Math.round(Math.max(cinemaRect.left + 4, leftRailRight() + 12));
-    const rightEdge = Math.round(Math.min(window.innerWidth - 18, rightRailLeft() - 14));
+      const prevClone = prev.cloneNode(true);
+      const nextClone = next.cloneNode(true);
+      const trackClone = track.cloneNode(true);
+      prev.replaceWith(prevClone);
+      next.replaceWith(nextClone);
+      track.replaceWith(trackClone);
 
-    const arrowCol = 50;
-    const arrowGap = 12;
-    const slideGap = 14;
-    const usable = rightEdge - leftEdge;
-    if(usable < 760) return;
-
-    let slideW = clamp(Math.floor((usable - (arrowCol * 2) - (arrowGap * 2) - (slideGap * 2)) / 3), 214, 234);
-    let trackW = slideW * 3 + slideGap * 2;
-    let stageW = trackW + arrowCol * 2 + arrowGap * 2;
-
-    if(stageW > usable){
-      slideW = clamp(Math.floor((usable - (arrowCol * 2) - (arrowGap * 2) - (slideGap * 2)) / 3), 206, 234);
-      trackW = slideW * 3 + slideGap * 2;
-      stageW = trackW + arrowCol * 2 + arrowGap * 2;
+      let viewport = document.createElement('div');
+      viewport.className = 'oai-2600-viewport';
+      stage.insertBefore(viewport, nextClone);
+      viewport.appendChild(trackClone);
+      state.initialized = true;
     }
 
-    let stageLeft = Math.round(leftEdge - cinemaRect.left);
-    const maxStageLeft = Math.round((rightEdge - cinemaRect.left) - stageW);
-    stageLeft = clamp(stageLeft, 0, Math.max(0, maxStageLeft));
+    const prev = q('.slider-prev', stage);
+    const next = q('.slider-next', stage);
+    const viewport = q('.oai-2600-viewport', stage);
+    const track = q('.slider-wrapper', viewport || stage);
+    const slides = qa('.movie-slide', track);
+    if(!prev || !next || !viewport || !track || slides.length < 2) return null;
+    return { cinema, stage, viewport, track, slides, prev, next };
+  }
 
-    root.style.setProperty('--tk13-arrow-col', arrowCol + 'px');
-    root.style.setProperty('--tk13-arrow-gap', arrowGap + 'px');
-    root.style.setProperty('--tk13-slide-gap', slideGap + 'px');
-    root.style.setProperty('--tk13-slide-w', slideW + 'px');
-    root.style.setProperty('--tk13-track-w', trackW + 'px');
-    root.style.setProperty('--tk13-stage-w', stageW + 'px');
-    root.style.setProperty('--tk13-stage-left', stageLeft + 'px');
+  function applyLayout(ui){
+    const lb = leftBound();
+    const rb = rightBound();
+    const available = clamp(rb - lb, 700, 860);
+    const cinemaW = clamp(available, 720, 820);
+    const arrowZone = 46;
+    const arrowGap = 12;
+    const gap = 14;
+    const stageW = clamp(Math.min(cinemaW - 12, 690), 620, 690);
+    const viewportW = stageW - (arrowZone * 2) - (arrowGap * 2);
+    const slideW = clamp(Math.floor((viewportW - gap) / 2), 248, 292);
+    const imgH = clamp(Math.round(slideW * 0.62), 156, 182);
 
-    imp(stage, 'display', 'grid');
-    imp(stage, 'grid-template-columns', arrowCol + 'px minmax(0,1fr) ' + arrowCol + 'px');
-    imp(stage, 'column-gap', arrowGap + 'px');
-    imp(stage, 'align-items', 'center');
-    imp(stage, 'width', stageW + 'px');
-    imp(stage, 'min-width', stageW + 'px');
-    imp(stage, 'max-width', stageW + 'px');
-    imp(stage, 'margin-left', stageLeft + 'px');
-    imp(stage, 'margin-right', '0');
-    imp(stage, 'padding-left', '0');
-    imp(stage, 'padding-right', '0');
-    imp(stage, 'transform', 'none');
+    root.style.setProperty('--oai2600-cinema-w', cinemaW + 'px');
+    root.style.setProperty('--oai2600-stage-w', stageW + 'px');
+    root.style.setProperty('--oai2600-arrow-zone', arrowZone + 'px');
+    root.style.setProperty('--oai2600-arrow-gap', arrowGap + 'px');
+    root.style.setProperty('--oai2600-gap', gap + 'px');
+    root.style.setProperty('--oai2600-slide-w', slideW + 'px');
+    root.style.setProperty('--oai2600-img-h', imgH + 'px');
 
-    imp(track, 'grid-column', '2');
-    imp(track, 'width', trackW + 'px');
-    imp(track, 'min-width', trackW + 'px');
-    imp(track, 'max-width', trackW + 'px');
-    imp(track, 'gap', slideGap + 'px');
-    imp(track, 'padding', '10px 0 12px');
-    imp(track, 'scroll-padding-left', '0');
-    imp(track, 'scroll-padding-right', '0');
-    imp(track, 'scrollbar-width', 'none');
-    imp(track, '-webkit-mask-image', 'none');
-    imp(track, 'mask-image', 'none');
+    imp(ui.cinema, 'width', cinemaW + 'px');
+    imp(ui.cinema, 'max-width', cinemaW + 'px');
+    imp(ui.cinema, 'min-width', cinemaW + 'px');
 
-    [prevBtn, nextBtn].forEach((btn, idx) => {
-      ['left','right','top','bottom'].forEach(prop => btn.style.removeProperty(prop));
-      imp(btn, 'position', 'relative');
-      imp(btn, 'transform', 'none');
-      imp(btn, 'width', '46px');
-      imp(btn, 'height', '46px');
-      imp(btn, 'margin', '0');
-      imp(btn, 'top', 'auto');
-      imp(btn, 'left', 'auto');
-      imp(btn, 'right', 'auto');
-      imp(btn, 'bottom', 'auto');
-      imp(btn, 'grid-column', idx === 0 ? '1' : '3');
-    });
+    imp(ui.stage, 'width', stageW + 'px');
+    imp(ui.stage, 'max-width', stageW + 'px');
+    imp(ui.stage, 'min-width', stageW + 'px');
+    imp(ui.stage, 'margin-left', '0');
+    imp(ui.stage, 'margin-right', 'auto');
 
-    slides.forEach(slide => {
+    imp(ui.viewport, 'width', viewportW + 'px');
+    imp(ui.viewport, 'max-width', viewportW + 'px');
+    imp(ui.viewport, 'min-width', viewportW + 'px');
+
+    ui.slides.forEach(function(slide){
       imp(slide, 'flex', '0 0 ' + slideW + 'px');
       imp(slide, 'width', slideW + 'px');
       imp(slide, 'min-width', slideW + 'px');
       imp(slide, 'max-width', slideW + 'px');
     });
-
-    paintSlides();
-    hideDetached();
   }
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
 
-  prevBtn.addEventListener('click', function(){ if(!root.classList.contains('tk-2600x1400-13-clean2')) return; setTimeout(function(){ queue(); paintSlides(); }, 40); }, true);
-  nextBtn.addEventListener('click', function(){ if(!root.classList.contains('tk-2600x1400-13-clean2')) return; setTimeout(function(){ queue(); paintSlides(); }, 40); }, true);
-  track.addEventListener('scroll', function(){
-    if(!root.classList.contains('tk-2600x1400-13-clean2')) return;
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(function(){ paintSlides(); queue(); }, 80);
-  }, { passive:true });
+  function pageCount(ui){ return Math.max(1, Math.ceil(ui.slides.length / state.pageSize)); }
+  function wrapPage(i, count){ return ((i % count) + count) % count; }
+
+  function paintVisible(ui, page){
+    const start = page * state.pageSize;
+    const end = start + state.pageSize;
+    ui.slides.forEach(function(slide, idx){
+      const on = idx >= start && idx < end;
+      slide.classList.toggle('is-active', on);
+      slide.setAttribute('aria-hidden', on ? 'false' : 'true');
+    });
+  }
+
+  function render(smooth){
+    const ui = getUI();
+    if(!ui) return;
+    applyLayout(ui);
+    const count = pageCount(ui);
+    state.page = wrapPage(state.page, count);
+    const gap = parseFloat(getComputedStyle(root).getPropertyValue('--oai2600-gap')) || 14;
+    const slideW = parseFloat(getComputedStyle(root).getPropertyValue('--oai2600-slide-w')) || 280;
+    const offset = state.page * (state.pageSize * (slideW + gap));
+    imp(ui.track, 'transition', smooth ? 'transform .38s cubic-bezier(.4,0,.2,1)' : 'none');
+    imp(ui.track, 'transform', 'translate3d(' + (-offset) + 'px,0,0)');
+    paintVisible(ui, state.page);
+    ui.cinema.dataset.oai2600Page = String(state.page);
+    if(!smooth) requestAnimationFrame(() => imp(ui.track, 'transition', 'transform .38s cubic-bezier(.4,0,.2,1)'));
+  }
+
+  function bind(){
+    const ui = getUI();
+    if(!ui || state.bound) return;
+    state.bound = true;
+
+    ui.prev.addEventListener('click', function(e){
+      if(!isTarget()) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      state.page -= 1; render(true);
+    }, true);
+
+    ui.next.addEventListener('click', function(e){
+      if(!isTarget()) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      state.page += 1; render(true);
+    }, true);
+
+    ui.slides.forEach(function(slide, idx){
+      slide.addEventListener('click', function(e){
+        if(!isTarget()) return;
+        if(e.target.closest('button') || e.target.closest('a')) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        state.page = Math.floor(idx / state.pageSize);
+        render(true);
+      }, true);
+    });
+  }
+
+  function disableLegacyButtons(){
+    ['tkCinemaDetachedPrev','tkCinemaDetachedNext','oai2600CinemaPrev','oai2600CinemaNext'].forEach(function(id){
+      const el = document.getElementById(id);
+      if(el){ imp(el, 'display', 'none'); imp(el, 'pointer-events', 'none'); }
+    });
+  }
+
+  function run(){
+    state.raf = 0;
+    const on = isTarget();
+    root.classList.toggle('oai-2600-retina-two-slide-final', on);
+    if(!on) return;
+    const ui = getUI();
+    if(!ui) return;
+    const saved = parseInt(ui.cinema.dataset.oai2600Page || '0', 10);
+    if(ui.cinema.dataset.oai2600Booted !== '1'){
+      state.page = 0;
+      ui.cinema.dataset.oai2600Booted = '1';
+    } else if(Number.isFinite(saved)){
+      state.page = saved;
+    }
+    bind();
+    disableLegacyButtons();
+    render(false);
+    [120, 360, 900, 1800].forEach(ms => setTimeout(function(){ disableLegacyButtons(); render(false); }, ms));
+  }
+
+  function queue(){ if(state.raf) cancelAnimationFrame(state.raf); state.raf = requestAnimationFrame(run); }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
   else queue();
-  window.addEventListener('load', function(){ queue(); [120, 320, 800, 1600].forEach(ms => setTimeout(queue, ms)); }, { once:true });
+  window.addEventListener('load', queue, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-})();
-</script>
-
-
-<style id="tk-2600x1400-13-two-up-final-style">
-html.tk-2600x1400-13-two-up-final #cinema,
-html.tk-2600x1400-13-two-up-final #cinema .slider-container,
-html.tk-2600x1400-13-two-up-final #cinema .slider-wrapper{
-  overflow: visible !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .slider-container{
-  display: grid !important;
-  grid-template-columns: var(--tk2600-arrow-col, 52px) minmax(0,1fr) var(--tk2600-arrow-col, 52px) !important;
-  column-gap: var(--tk2600-arrow-gap, 14px) !important;
-  align-items: center !important;
-  width: var(--tk2600-stage-w, 796px) !important;
-  min-width: var(--tk2600-stage-w, 796px) !important;
-  max-width: var(--tk2600-stage-w, 796px) !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  transform: translateX(var(--tk2600-stage-shift, 0px)) !important;
-  transform-origin: left center !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .slider-wrapper{
-  grid-column: 2 !important;
-  width: var(--tk2600-track-w, 662px) !important;
-  min-width: var(--tk2600-track-w, 662px) !important;
-  max-width: var(--tk2600-track-w, 662px) !important;
-  padding: 14px 0 14px !important;
-  gap: var(--tk2600-gap, 22px) !important;
-  align-items: stretch !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  scroll-behavior: smooth !important;
-  scroll-snap-type: x mandatory !important;
-  scroll-padding-left: 0 !important;
-  scroll-padding-right: 0 !important;
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .slider-wrapper::-webkit-scrollbar{
-  display: none !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .slider-prev,
-html.tk-2600x1400-13-two-up-final #cinema .slider-next{
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-  width: 48px !important;
-  height: 48px !important;
-  z-index: 8 !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .slider-prev{ grid-column: 1 !important; }
-html.tk-2600x1400-13-two-up-final #cinema .slider-next{ grid-column: 3 !important; }
-html.tk-2600x1400-13-two-up-final #cinema .movie-slide{
-  flex: 0 0 var(--tk2600-card-w, 320px) !important;
-  width: var(--tk2600-card-w, 320px) !important;
-  min-width: var(--tk2600-card-w, 320px) !important;
-  max-width: var(--tk2600-card-w, 320px) !important;
-  scroll-snap-align: start !important;
-  transform: translateY(0) scale(1) !important;
-  opacity: 1 !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .movie-slide.is-active{
-  transform: translateY(-6px) scale(1) !important;
-  opacity: 1 !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .movie-img,
-html.tk-2600x1400-13-two-up-final #cinema .movie-slide.is-active .movie-img{
-  height: 194px !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .movie-info{
-  min-height: 130px !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .movie-info h3,
-html.tk-2600x1400-13-two-up-final #cinema .movie-slide.is-active .movie-info h3{
-  font-size: clamp(18px, 1.45vw, 22px) !important;
-  line-height: 1.04 !important;
-  letter-spacing: .04em !important;
-}
-html.tk-2600x1400-13-two-up-final #cinema .movie-btn,
-html.tk-2600x1400-13-two-up-final #cinema .movie-slide:not(.is-active) .movie-btn{
-  min-width: 128px !important;
-  padding: 10px 16px !important;
-  font-size: 11px !important;
-}
-</style>
-<script id="tk-2600x1400-13-two-up-final-script">
-(function(){
-  const root = document.documentElement;
-  const cinema = document.getElementById('cinema');
-  if(!cinema) return;
-  const stage = cinema.querySelector('.slider-container');
-  const track = cinema.querySelector('.slider-wrapper');
-  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-  const prevBtn = cinema.querySelector('.slider-prev');
-  const nextBtn = cinema.querySelector('.slider-next');
-  if(!stage || !track || slides.length < 3 || !prevBtn || !nextBtn) return;
-
-  let raf = 0;
-  let syncing = false;
-  let scrollTimer = 0;
-  let clickTimer = 0;
-
-  function rect(el){
-    if(!el) return null;
-    const r = el.getBoundingClientRect();
-    if(!r || r.width <= 0 || r.height <= 0) return null;
-    return r;
-  }
-  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
-    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
-    return { dpr, iw, ih, effW: Math.round(sw * dpr), effH: Math.round(sh * dpr) };
-  }
-  function isTarget(){
-    const m = metrics();
-    const physical = m.effW >= 2450 && m.effW <= 2850 && m.effH >= 1350 && m.effH <= 1650;
-    const viewport = m.iw >= 1180 && m.iw <= 1500 && m.ih >= 700 && m.ih <= 980;
-    return physical && viewport && m.dpr >= 1.5 && m.dpr <= 2.6;
-  }
-  function leftRailRight(){
-    let best = 0;
-    ['.side-nav','#tk18LeftRail','#tk19LeftRail','#tkFhdLeftRailFinal'].forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        const r = rect(el);
-        if(r) best = Math.max(best, r.right);
-      });
-    });
-    return best || 270;
-  }
-  function rightRailLeft(){
-    let best = window.innerWidth - 18;
-    ['#rouletteDock','.rules','#tkFhdRightRailFinal','#tk23RightRail','#tkV165RightRail','#tkLiveStats'].forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        const r = rect(el);
-        if(r) best = Math.min(best, r.left);
-      });
-    });
-    return best;
-  }
-  function setVar(name, value){ root.style.setProperty(name, value); }
-  function currentStep(){
-    const gap = parseFloat(getComputedStyle(root).getPropertyValue('--tk2600-gap')) || 22;
-    const card = parseFloat(getComputedStyle(root).getPropertyValue('--tk2600-card-w')) || slides[0].getBoundingClientRect().width || 320;
-    return Math.max(1, Math.round(card + gap));
-  }
-  function maxIndex(){ return Math.max(0, slides.length - 2); }
-  function readIndex(){
-    const step = currentStep();
-    return clamp(Math.round(track.scrollLeft / step), 0, maxIndex());
-  }
-  function paint(index){
-    slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
-  }
-  function goTo(index, smooth){
-    index = clamp(index, 0, maxIndex());
-    const slide = slides[index];
-    if(!slide) return;
-    const left = Math.max(0, slide.offsetLeft);
-    syncing = true;
-    track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
-    paint(index);
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => { syncing = false; paint(readIndex()); }, smooth ? 220 : 40);
-  }
-  function applyLayout(){
-    raf = 0;
-    const on = isTarget();
-    root.classList.toggle('tk-2600x1400-13-two-up-final', on);
-    if(!on) return;
-
-    root.classList.remove('tk-2600x1400-13-clean2', 'tk-2600x1400-13');
-
-    const cinemaRect = rect(cinema);
-    const stageRect = rect(stage);
-    if(!cinemaRect || !stageRect) return;
-
-    const leftEdge = Math.round(Math.max(cinemaRect.left + 4, leftRailRight() + 20));
-    const rightEdge = Math.round(Math.min(window.innerWidth - 16, rightRailLeft() - 18));
-    const corridor = rightEdge - leftEdge;
-    if(corridor < 700) return;
-
-    const arrowCol = 52;
-    const arrowGap = 14;
-    const gap = 22;
-    const cardW = clamp(Math.floor((corridor - (arrowCol * 2) - (arrowGap * 2) - gap) / 2), 272, 320);
-    const trackW = cardW * 2 + gap;
-    const stageW = trackW + (arrowCol * 2) + (arrowGap * 2);
-    const desiredLeft = leftEdge;
-    const shift = Math.round(desiredLeft - stageRect.left);
-
-    setVar('--tk2600-arrow-col', arrowCol + 'px');
-    setVar('--tk2600-arrow-gap', arrowGap + 'px');
-    setVar('--tk2600-gap', gap + 'px');
-    setVar('--tk2600-card-w', cardW + 'px');
-    setVar('--tk2600-track-w', trackW + 'px');
-    setVar('--tk2600-stage-w', stageW + 'px');
-    setVar('--tk2600-stage-shift', shift + 'px');
-
-    stage.style.setProperty('width', stageW + 'px', 'important');
-    stage.style.setProperty('min-width', stageW + 'px', 'important');
-    stage.style.setProperty('max-width', stageW + 'px', 'important');
-    stage.style.setProperty('transform', 'translateX(' + shift + 'px)', 'important');
-    track.style.setProperty('width', trackW + 'px', 'important');
-    track.style.setProperty('min-width', trackW + 'px', 'important');
-    track.style.setProperty('max-width', trackW + 'px', 'important');
-    track.style.setProperty('gap', gap + 'px', 'important');
-    slides.forEach(slide => {
-      slide.style.setProperty('flex', '0 0 ' + cardW + 'px', 'important');
-      slide.style.setProperty('width', cardW + 'px', 'important');
-      slide.style.setProperty('min-width', cardW + 'px', 'important');
-      slide.style.setProperty('max-width', cardW + 'px', 'important');
-    });
-
-    setTimeout(() => goTo(readIndex() || 0, false), 20);
-  }
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(applyLayout); }
-  function afterClick(nextIndex){
-    clearTimeout(clickTimer);
-    goTo(nextIndex, true);
-    clickTimer = setTimeout(() => { queue(); goTo(nextIndex, false); }, 120);
-  }
-
-  prevBtn.addEventListener('click', function(e){
-    if(!root.classList.contains('tk-2600x1400-13-two-up-final')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const idx = clamp(readIndex() - 1, 0, maxIndex());
-    afterClick(idx);
-  }, true);
-  nextBtn.addEventListener('click', function(e){
-    if(!root.classList.contains('tk-2600x1400-13-two-up-final')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const idx = clamp(readIndex() + 1, 0, maxIndex());
-    afterClick(idx);
-  }, true);
-
-  track.addEventListener('scroll', function(){
-    if(!root.classList.contains('tk-2600x1400-13-two-up-final')) return;
-    if(syncing) return;
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => paint(readIndex()), 60);
-  }, { passive:true });
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
-  else queue();
-  window.addEventListener('load', function(){ queue(); setTimeout(queue, 140); setTimeout(() => goTo(0, false), 220); setTimeout(queue, 900); }, { once:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-})();
-</script>
-
-
-<style id="oai-2600-final-rightedge-v2-style">
-html.oai-2600-final-rightedge-v2 #tkCinemaDetachedPrev,
-html.oai-2600-final-rightedge-v2 #tkCinemaDetachedNext,
-html.oai-2600-final-rightedge-v2 #oai2600CinemaPrev,
-html.oai-2600-final-rightedge-v2 #oai2600CinemaNext{
-  display:none !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema,
-html.oai-2600-final-rightedge-v2 #cinema .slider-container,
-html.oai-2600-final-rightedge-v2 #cinema .slider-wrapper{
-  overflow: visible !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .slider-container{
-  position: relative !important;
-  width: var(--oai2600-track-w, 648px) !important;
-  min-width: var(--oai2600-track-w, 648px) !important;
-  max-width: var(--oai2600-track-w, 648px) !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  transform: translateX(var(--oai2600-shift-x, 0px)) !important;
-  transform-origin: left center !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .slider-wrapper{
-  width: var(--oai2600-track-w, 648px) !important;
-  min-width: var(--oai2600-track-w, 648px) !important;
-  max-width: var(--oai2600-track-w, 648px) !important;
-  gap: var(--oai2600-gap, 20px) !important;
-  padding: 14px 0 !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  scroll-behavior: smooth !important;
-  scroll-snap-type: x proximity !important;
-  scroll-padding-left: 0 !important;
-  scroll-padding-right: 0 !important;
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .slider-wrapper::-webkit-scrollbar{
-  display:none !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .movie-slide{
-  flex: 0 0 var(--oai2600-card-w, 314px) !important;
-  width: var(--oai2600-card-w, 314px) !important;
-  min-width: var(--oai2600-card-w, 314px) !important;
-  max-width: var(--oai2600-card-w, 314px) !important;
-  scroll-snap-align: start !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .slider-prev,
-html.oai-2600-final-rightedge-v2 #cinema .slider-next{
-  position: absolute !important;
-  top: 50% !important;
-  bottom: auto !important;
-  margin: 0 !important;
-  width: 48px !important;
-  height: 48px !important;
-  transform: translateY(-50%) !important;
-  z-index: 14 !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .slider-prev{
-  left: calc(-1 * var(--oai2600-arrow-out, 56px)) !important;
-  right: auto !important;
-}
-html.oai-2600-final-rightedge-v2 #cinema .slider-next{
-  right: calc(-1 * var(--oai2600-arrow-out, 56px)) !important;
-  left: auto !important;
-}
-html.oai-2600-final-rightedge-v2 .rules{
-  position: fixed !important;
-  right: 10px !important;
-  left: auto !important;
-  top: auto !important;
-  bottom: 14px !important;
-  margin: 0 !important;
-  transform: none !important;
-  z-index: 100181 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  gap: 10px !important;
-}
-html.oai-2600-final-rightedge-v2 #openComicMenu,
-html.oai-2600-final-rightedge-v2 #openRuleGame,
-html.oai-2600-final-rightedge-v2 #openPcPartsGame{
-  width: var(--oai2600-rules-w, 286px) !important;
-  min-width: var(--oai2600-rules-w, 286px) !important;
-  max-width: var(--oai2600-rules-w, 286px) !important;
-  margin: 0 !important;
-  align-self: stretch !important;
-  justify-content: flex-start !important;
-  box-sizing: border-box !important;
-}
-html.oai-2600-final-rightedge-v2 #rouletteDock{
-  position: fixed !important;
-  right: 10px !important;
-  left: auto !important;
-  top: auto !important;
-  bottom: var(--oai2600-roulette-bottom, 250px) !important;
-  margin: 0 !important;
-  transform: none !important;
-  z-index: 100180 !important;
-}
-html.oai-2600-final-rightedge-v2 #tkLiveStats{
-  position: fixed !important;
-  right: var(--oai2600-stats-right, 312px) !important;
-  left: auto !important;
-  top: auto !important;
-  bottom: 14px !important;
-  margin: 0 !important;
-  transform: none !important;
-  z-index: 100181 !important;
-}
-</style>
-<script id="oai-2600-final-rightedge-v2-script">
-(function(){
-  const root = document.documentElement;
-  const cinema = document.getElementById('cinema');
-  if(!cinema) return;
-  const stage = cinema.querySelector('.slider-container');
-  const track = cinema.querySelector('.slider-wrapper');
-  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-  if(!stage || !track || !slides.length) return;
-
-  let raf = 0;
-  function imp(el, prop, val){ if(el) try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
-  function rect(el){ if(!el) return null; const r = el.getBoundingClientRect(); return (r && r.width > 0 && r.height > 0) ? r : null; }
-  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
-  function setVar(name, value){ root.style.setProperty(name, value); }
-
-  function naturalWidth(el){
-    if(!el) return 0;
-    const props = ['width','min-width','max-width','left','right','top','bottom','transform','position','margin-left','margin-right'];
-    const prev = {};
-    props.forEach(p => prev[p] = el.style.getPropertyValue(p));
-    props.forEach(p => el.style.removeProperty(p));
-    imp(el, 'width', 'max-content');
-    imp(el, 'min-width', '0px');
-    imp(el, 'max-width', 'none');
-    imp(el, 'position', 'relative');
-    const r = el.getBoundingClientRect();
-    const w = Math.ceil(Math.max(r.width || 0, el.scrollWidth || 0));
-    props.forEach(p => prev[p] ? imp(el,p,prev[p]) : el.style.removeProperty(p));
-    return w;
-  }
-
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
-    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
-    const physW = Math.round(sw * dpr);
-    const physH = Math.round(sh * dpr);
-    const innerPhysW = Math.round(iw * dpr);
-    const innerPhysH = Math.round(ih * dpr);
-    return {dpr, iw, ih, sw, sh, physW, physH, innerPhysW, innerPhysH};
-  }
-
-  function isTarget(){
-    const m = metrics();
-    const viewportBand = m.iw >= 1180 && m.iw <= 1650 && m.ih >= 700 && m.ih <= 980;
-    const dprBand = m.dpr >= 1.45 && m.dpr <= 2.6;
-    const physBand = (
-      (m.physW >= 2450 && m.physW <= 3100 && m.physH >= 1350 && m.physH <= 1700) ||
-      (m.innerPhysW >= 2450 && m.innerPhysW <= 3100 && m.innerPhysH >= 1350 && m.innerPhysH <= 1700)
-    );
-    return viewportBand && dprBand && physBand;
-  }
-
-  function placeRightRail(){
-    const rules = document.querySelector('.rules');
-    const roulette = document.getElementById('rouletteDock');
-    const stats = document.getElementById('tkLiveStats');
-    const comic = document.getElementById('openComicMenu');
-    const day = document.getElementById('openRuleGame');
-    const pc = document.getElementById('openPcPartsGame');
-    if(!rules || !roulette || !comic || !day || !pc) return null;
-
-    const rightPad = 10;
-    const bottomPad = 14;
-    const rulesW = Math.max(268, naturalWidth(comic), naturalWidth(day), naturalWidth(pc));
-    setVar('--oai2600-rules-w', rulesW + 'px');
-
-    imp(rules, 'position', 'fixed');
-    imp(rules, 'right', rightPad + 'px');
-    imp(rules, 'left', 'auto');
-    imp(rules, 'top', 'auto');
-    imp(rules, 'bottom', bottomPad + 'px');
-    imp(rules, 'margin', '0');
-    imp(rules, 'transform', 'none');
-    imp(rules, 'width', rulesW + 'px');
-    imp(rules, 'min-width', rulesW + 'px');
-    imp(rules, 'max-width', rulesW + 'px');
-
-    [comic, day, pc].forEach(btn => {
-      imp(btn, 'width', rulesW + 'px');
-      imp(btn, 'min-width', rulesW + 'px');
-      imp(btn, 'max-width', rulesW + 'px');
-      imp(btn, 'align-self', 'stretch');
-      imp(btn, 'margin', '0');
-      imp(btn, 'justify-content', 'flex-start');
-    });
-
-    const rr = rect(rules);
-    if(!rr) return null;
-
-    if(stats){
-      imp(stats, 'position', 'fixed');
-      imp(stats, 'right', (rightPad + rr.width + 14) + 'px');
-      imp(stats, 'left', 'auto');
-      imp(stats, 'top', 'auto');
-      imp(stats, 'bottom', bottomPad + 'px');
-      imp(stats, 'margin', '0');
-      imp(stats, 'transform', 'none');
-      setVar('--oai2600-stats-right', (rightPad + rr.width + 14) + 'px');
-    }
-
-    imp(roulette, 'position', 'fixed');
-    imp(roulette, 'right', rightPad + 'px');
-    imp(roulette, 'left', 'auto');
-    imp(roulette, 'top', 'auto');
-    imp(roulette, 'bottom', '0px');
-    imp(roulette, 'margin', '0');
-    imp(roulette, 'transform', 'none');
-    const dr0 = rect(roulette);
-    const rulesH = Math.ceil(rr.height || 240);
-    const dockH = Math.ceil((dr0 && dr0.height) || 260);
-    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    let rouletteBottom = bottomPad + rulesH + 16;
-    const maxBottom = Math.max(bottomPad + rulesH + 8, vh - dockH - 8);
-    rouletteBottom = clamp(rouletteBottom, bottomPad + rulesH + 8, maxBottom);
-    imp(roulette, 'bottom', rouletteBottom + 'px');
-    setVar('--oai2600-roulette-bottom', rouletteBottom + 'px');
-
-    return {
-      rightEdge: Math.min(
-        rect(rules)?.left ?? window.innerWidth,
-        rect(roulette)?.left ?? window.innerWidth,
-        rect(stats)?.left ?? window.innerWidth
-      ) - 16,
-      rulesW
-    };
-  }
-
-  function leftMenuRight(){
-    let best = 0;
-    document.querySelectorAll('.side-nav').forEach(el => {
-      const r = rect(el);
-      if(r) best = Math.max(best, r.right);
-    });
-    return best || 270;
-  }
-
-  function apply(){
-    raf = 0;
-    const on = isTarget();
-    root.classList.toggle('oai-2600-final-rightedge-v2', on);
-    if(!on) return;
-
-    ['tk-2600x1400-13','tk-2600x1400-13-clean2','tk-2600x1400-13-two-up-final','oai-right-rail-2600-only-fix'].forEach(cls => root.classList.remove(cls));
-
-    const rail = placeRightRail();
-    const stageRect = rect(stage);
-    const cinemaRect = rect(cinema);
-    if(!rail || !stageRect || !cinemaRect) return;
-
-    const leftEdge = Math.round(Math.max(cinemaRect.left + 4, leftMenuRight() + 28));
-    const arrowOut = 56;
-    const gap = 20;
-    const rightEdge = Math.round(rail.rightEdge);
-    const usableTrack = Math.max(560, rightEdge - leftEdge - arrowOut);
-    const cardW = clamp(Math.floor((usableTrack - gap) / 2), 272, 314);
-    const trackW = (cardW * 2) + gap;
-    const shiftX = Math.round(leftEdge - stageRect.left);
-
-    setVar('--oai2600-arrow-out', arrowOut + 'px');
-    setVar('--oai2600-gap', gap + 'px');
-    setVar('--oai2600-card-w', cardW + 'px');
-    setVar('--oai2600-track-w', trackW + 'px');
-    setVar('--oai2600-shift-x', shiftX + 'px');
-
-    imp(stage, 'width', trackW + 'px');
-    imp(stage, 'min-width', trackW + 'px');
-    imp(stage, 'max-width', trackW + 'px');
-    imp(stage, 'transform', 'translateX(' + shiftX + 'px)');
-    imp(track, 'width', trackW + 'px');
-    imp(track, 'min-width', trackW + 'px');
-    imp(track, 'max-width', trackW + 'px');
-    imp(track, 'gap', gap + 'px');
-    slides.forEach(slide => {
-      imp(slide, 'flex', '0 0 ' + cardW + 'px');
-      imp(slide, 'width', cardW + 'px');
-      imp(slide, 'min-width', cardW + 'px');
-      imp(slide, 'max-width', cardW + 'px');
-    });
-
-    // старт без третьего слайда
-    track.scrollLeft = 0;
-    slides.forEach((slide, idx) => slide.classList.toggle('is-active', idx === 0));
-  }
-
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', function(){ queue(); [120, 360, 900, 1600, 2600].forEach(ms => setTimeout(queue, ms)); }, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', queue, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  document.addEventListener('click', function(e){
-    const t = e.target && e.target.closest ? e.target.closest('#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame,.slider-prev,.slider-next') : null;
-    if(t) [0, 120, 420, 900].forEach(ms => setTimeout(queue, ms));
-  }, true);
-})();
-</script>
-
-
-<style id="oai-2600-two-up-rebuild-v3-style">
-html.oai-2600-two-up-rebuild-v3 #tkCinemaDetachedPrev,
-html.oai-2600-two-up-rebuild-v3 #tkCinemaDetachedNext,
-html.oai-2600-two-up-rebuild-v3 #oai2600CinemaPrev,
-html.oai-2600-two-up-rebuild-v3 #oai2600CinemaNext,
-html.oai-2600-two-up-rebuild-v3 #oai2600RebuildPrev,
-html.oai-2600-two-up-rebuild-v3 #oai2600RebuildNext,
-html.oai-2600-two-up-rebuild-v3 #cinema .slider-prev,
-html.oai-2600-two-up-rebuild-v3 #cinema .slider-next{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .slider-container{
-  position:relative !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  width:var(--oai2600-stage-w, 592px) !important;
-  min-width:var(--oai2600-stage-w, 592px) !important;
-  max-width:var(--oai2600-stage-w, 592px) !important;
-  margin:10px 0 0 auto !important;
-  padding:0 !important;
-  overflow:visible !important;
-  transform:translateX(var(--oai2600-stage-shift, 0px)) !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .slider-wrapper{
-  display:flex !important;
-  align-items:stretch !important;
-  justify-content:flex-start !important;
-  width:var(--oai2600-track-w, 592px) !important;
-  min-width:var(--oai2600-track-w, 592px) !important;
-  max-width:var(--oai2600-track-w, 592px) !important;
-  padding:8px 0 10px !important;
-  margin:0 !important;
-  gap:var(--oai2600-gap, 16px) !important;
-  overflow-x:hidden !important;
-  overflow-y:visible !important;
-  scroll-snap-type:none !important;
-  -webkit-overflow-scrolling:auto !important;
-  scrollbar-width:none !important;
-  mask-image:none !important;
-  -webkit-mask-image:none !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .slider-wrapper::-webkit-scrollbar{
-  display:none !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .movie-slide{
-  flex:0 0 var(--oai2600-card-w, 288px) !important;
-  width:var(--oai2600-card-w, 288px) !important;
-  min-width:var(--oai2600-card-w, 288px) !important;
-  max-width:var(--oai2600-card-w, 288px) !important;
-  scroll-snap-align:none !important;
-  transform:none !important;
-  opacity:1 !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .movie-slide.is-active{
-  transform:translateY(-8px) !important;
-  opacity:1 !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .movie-img{
-  height:154px !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .movie-slide.is-active .movie-img{
-  height:154px !important;
-}
-html.oai-2600-two-up-rebuild-v3 #cinema .movie-info h3{
-  font-size:18px !important;
-}
-html.oai-2600-two-up-rebuild-v3 #oai2600RebuildPrev,
-html.oai-2600-two-up-rebuild-v3 #oai2600RebuildNext{
-  position:fixed !important;
-  z-index:100260 !important;
-  width:46px !important;
-  height:46px !important;
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-  background:
-    radial-gradient(120% 140% at 20% 20%, rgba(255,255,255,.20), transparent 60%),
-    linear-gradient(180deg, rgba(40,170,240,.86), rgba(18,110,200,.86)) !important;
-  box-shadow:
-    0 18px 34px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
-  display:grid !important;
-  place-items:center !important;
-  padding:0 !important;
-  margin:0 !important;
-  cursor:pointer !important;
-}
-html.oai-2600-two-up-rebuild-v3 #oai2600RebuildPrev svg,
-html.oai-2600-two-up-rebuild-v3 #oai2600RebuildNext svg{
-  width:22px !important;
-  height:22px !important;
-  stroke:rgba(255,255,255,.96) !important;
-  fill:none !important;
-  stroke-width:2.8 !important;
-  stroke-linecap:round !important;
-  stroke-linejoin:round !important;
-}
-html.oai-2600-two-up-rebuild-v3 .rules{
-  position:fixed !important;
-  right:8px !important;
-  left:auto !important;
-  top:auto !important;
-  bottom:14px !important;
-  margin:0 !important;
-  transform:none !important;
-  z-index:100181 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  gap:10px !important;
-}
-html.oai-2600-two-up-rebuild-v3 #openComicMenu,
-html.oai-2600-two-up-rebuild-v3 #openRuleGame,
-html.oai-2600-two-up-rebuild-v3 #openPcPartsGame{
-  width:var(--oai2600-rules-w, 286px) !important;
-  min-width:var(--oai2600-rules-w, 286px) !important;
-  max-width:var(--oai2600-rules-w, 286px) !important;
-  margin:0 !important;
-  justify-content:flex-start !important;
-  align-self:stretch !important;
-}
-html.oai-2600-two-up-rebuild-v3 #rouletteDock{
-  position:fixed !important;
-  right:8px !important;
-  left:auto !important;
-  top:auto !important;
-  bottom:var(--oai2600-roulette-bottom, 252px) !important;
-  margin:0 !important;
-  transform:none !important;
-  z-index:100180 !important;
-}
-html.oai-2600-two-up-rebuild-v3 #tkLiveStats{
-  position:fixed !important;
-  right:var(--oai2600-stats-right, 308px) !important;
-  left:auto !important;
-  top:auto !important;
-  bottom:14px !important;
-  margin:0 !important;
-  transform:none !important;
-  z-index:100181 !important;
-}
-</style>
-<script id="oai-2600-two-up-rebuild-v3-script">
-(function(){
-  const root = document.documentElement;
-  const cinema = document.getElementById('cinema');
-  if(!cinema) return;
-  const stage = cinema.querySelector('.slider-container');
-  const track = cinema.querySelector('.slider-wrapper');
-  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-  if(!stage || !track || slides.length < 2) return;
-
-  const STEP = 2;
-  let currentStart = 0;
-  let raf = 0;
-
-  function q(sel, ctx=document){ return ctx.querySelector(sel); }
-  function rect(el){ if(!el) return null; const r = el.getBoundingClientRect(); return (r && r.width > 0 && r.height > 0) ? r : null; }
-  function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
-  function imp(el, prop, val){ if(el) try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
-  function rem(el, prop){ if(el) try{ el.style.removeProperty(prop); }catch(_e){} }
-  function setVar(name, value){ root.style.setProperty(name, value); }
-
-  function metrics(){
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
-    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
-    const physW = Math.round(sw * dpr);
-    const physH = Math.round(sh * dpr);
-    const innerPhysW = Math.round(iw * dpr);
-    const innerPhysH = Math.round(ih * dpr);
-    return { dpr, iw, ih, sw, sh, physW, physH, innerPhysW, innerPhysH };
-  }
-
-  function isTarget(){
-    const m = metrics();
-    const viewportBand = m.iw >= 1180 && m.iw <= 1650 && m.ih >= 700 && m.ih <= 980;
-    const dprBand = m.dpr >= 1.45 && m.dpr <= 2.6;
-    const physBand = (
-      (m.physW >= 2450 && m.physW <= 3100 && m.physH >= 1350 && m.physH <= 1700) ||
-      (m.innerPhysW >= 2450 && m.innerPhysW <= 3100 && m.innerPhysH >= 1350 && m.innerPhysH <= 1700)
-    );
-    return viewportBand && dprBand && physBand;
-  }
-
-  function ensureButton(id, path, label){
-    let btn = document.getElementById(id);
-    if(!btn){
-      btn = document.createElement('button');
-      btn.type = 'button';
-      btn.id = id;
-      btn.setAttribute('aria-label', label);
-      btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+path+'"></path></svg>';
-      document.body.appendChild(btn);
-    }
-    return btn;
-  }
-
-  function hideButton(id){
-    const el = document.getElementById(id);
-    if(el) el.style.display = 'none';
-  }
-
-  function naturalWidth(el){
-    if(!el) return 0;
-    const props = ['width','min-width','max-width','position','left','right','top','bottom','transform','margin'];
-    const prev = { style: el.getAttribute('style') || '' };
-    props.forEach(p => el.style.removeProperty(p));
-    imp(el, 'position', 'relative');
-    imp(el, 'width', 'max-content');
-    imp(el, 'min-width', '0px');
-    imp(el, 'max-width', 'none');
-    const r = el.getBoundingClientRect();
-    const w = Math.ceil(Math.max(r.width || 0, el.scrollWidth || 0));
-    el.setAttribute('style', prev.style);
-    return w;
-  }
-
-  function leftMenuRight(){
-    let best = 0;
-    document.querySelectorAll('.side-nav').forEach(el => {
-      const r = rect(el);
-      if(r) best = Math.max(best, r.right);
-    });
-    return best || 250;
-  }
-
-  function snapStart(idx){
-    const maxStart = Math.max(0, slides.length - STEP);
-    let s = Math.max(0, Math.min(idx, maxStart));
-    s = s - (s % STEP);
-    if(s > maxStart) s = Math.max(0, maxStart - (maxStart % STEP));
-    return s;
-  }
-
-  function rightRailEdge(){
-    const rules = document.querySelector('.rules');
-    const roulette = document.getElementById('rouletteDock');
-    const stats = document.getElementById('tkLiveStats');
-    const comic = document.getElementById('openComicMenu');
-    const day = document.getElementById('openRuleGame');
-    const pc = document.getElementById('openPcPartsGame');
-    if(!rules || !roulette || !comic || !day || !pc) return window.innerWidth - 10;
-
-    const rightPad = 8;
-    const bottomPad = 14;
-    const rulesW = Math.max(274, naturalWidth(comic), naturalWidth(day), naturalWidth(pc));
-    setVar('--oai2600-rules-w', rulesW + 'px');
-
-    imp(rules, 'position', 'fixed');
-    imp(rules, 'right', rightPad + 'px');
-    imp(rules, 'left', 'auto');
-    imp(rules, 'top', 'auto');
-    imp(rules, 'bottom', bottomPad + 'px');
-    imp(rules, 'margin', '0');
-    imp(rules, 'transform', 'none');
-    imp(rules, 'width', rulesW + 'px');
-    imp(rules, 'min-width', rulesW + 'px');
-    imp(rules, 'max-width', rulesW + 'px');
-
-    [comic, day, pc].forEach(btn => {
-      imp(btn, 'width', rulesW + 'px');
-      imp(btn, 'min-width', rulesW + 'px');
-      imp(btn, 'max-width', rulesW + 'px');
-      imp(btn, 'margin', '0');
-      imp(btn, 'align-self', 'stretch');
-      imp(btn, 'justify-content', 'flex-start');
-    });
-
-    const rr = rect(rules);
-    if(stats && rr){
-      const statsRight = rightPad + rr.width + 14;
-      setVar('--oai2600-stats-right', statsRight + 'px');
-      imp(stats, 'position', 'fixed');
-      imp(stats, 'right', statsRight + 'px');
-      imp(stats, 'left', 'auto');
-      imp(stats, 'top', 'auto');
-      imp(stats, 'bottom', bottomPad + 'px');
-      imp(stats, 'margin', '0');
-      imp(stats, 'transform', 'none');
-    }
-
-    imp(roulette, 'position', 'fixed');
-    imp(roulette, 'right', rightPad + 'px');
-    imp(roulette, 'left', 'auto');
-    imp(roulette, 'top', 'auto');
-    imp(roulette, 'margin', '0');
-    imp(roulette, 'transform', 'none');
-    const rrh = Math.ceil((rr && rr.height) || 232);
-    const dockRect0 = rect(roulette);
-    const dockH = Math.ceil((dockRect0 && dockRect0.height) || 255);
-    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    let rouletteBottom = bottomPad + rrh + 16;
-    rouletteBottom = clamp(rouletteBottom, bottomPad + rrh + 8, Math.max(bottomPad + rrh + 8, vh - dockH - 8));
-    setVar('--oai2600-roulette-bottom', rouletteBottom + 'px');
-    imp(roulette, 'bottom', rouletteBottom + 'px');
-
-    const edges = [rect(rules), rect(roulette), rect(stats)].filter(Boolean).map(r => r.left);
-    return (edges.length ? Math.min.apply(null, edges) : window.innerWidth) - 16;
-  }
-
-  function visibleStartFromScroll(){
-    const x = track.scrollLeft;
-    let best = 0;
-    let bestDist = Infinity;
-    for(let i = 0; i < slides.length; i += STEP){
-      const d = Math.abs((slides[i] ? slides[i].offsetLeft : 0) - x);
-      if(d < bestDist){ bestDist = d; best = i; }
-    }
-    return best;
-  }
-
-  function updateButtons(stageRect, rightLimit){
-    const btnSize = 46;
-    const gap = 14;
-    const prev = ensureButton('oai2600RebuildPrev', 'M15 19l-7-7 7-7', 'Предыдущие фильмы');
-    const next = ensureButton('oai2600RebuildNext', 'M9 5l7 7-7 7', 'Следующие фильмы');
-    const top = Math.round(stageRect.top + (stageRect.height / 2) - (btnSize / 2));
-    const prevLeft = Math.round(stageRect.left - gap - btnSize);
-    const nextLeft = Math.round(Math.min(stageRect.right + gap, rightLimit - btnSize));
-    imp(prev, 'display', 'grid');
-    imp(next, 'display', 'grid');
-    imp(prev, 'top', top + 'px');
-    imp(next, 'top', top + 'px');
-    imp(prev, 'left', prevLeft + 'px');
-    imp(next, 'left', nextLeft + 'px');
-  }
-
-  function applyPage(start, smooth){
-    currentStart = snapStart(start);
-    slides.forEach((slide, idx) => slide.classList.toggle('is-active', idx === currentStart));
-    const target = slides[currentStart] ? slides[currentStart].offsetLeft : 0;
-    try{ track.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'auto' }); }
-    catch(_e){ track.scrollLeft = target; }
-  }
-
-  function hardResetConflicts(){
-    [
-      'oai-cinema-2600-corridor-fix',
-      'oai-cinema-2600-pocket-fix',
-      'oai-cinema-2600-left-hardfix-v9',
-      'oai-right-rail-2600-only-fix',
-      'oai-2600-final-rightedge-v2',
-      'tk-2600x1400-13',
-      'tk-2600x1400-13-clean2',
-      'tk-2600x1400-13-two-up-final'
-    ].forEach(cls => root.classList.remove(cls));
-    hideButton('tkCinemaDetachedPrev');
-    hideButton('tkCinemaDetachedNext');
-    hideButton('oai2600CinemaPrev');
-    hideButton('oai2600CinemaNext');
-  }
-
-  function cleanup(){
-    root.classList.remove('oai-2600-two-up-rebuild-v3');
-    hideButton('oai2600RebuildPrev');
-    hideButton('oai2600RebuildNext');
-    ['--oai2600-stage-w','--oai2600-track-w','--oai2600-card-w','--oai2600-gap','--oai2600-stage-shift','--oai2600-rules-w','--oai2600-roulette-bottom','--oai2600-stats-right'].forEach(v => root.style.removeProperty(v));
-    [stage, track].forEach(el => ['width','min-width','max-width','transform','overflow','overflow-x','overflow-y','padding','margin','gap'].forEach(p => rem(el, p)));
-    slides.forEach(slide => ['flex','width','min-width','max-width','transform','opacity'].forEach(p => rem(slide,p)));
-  }
-
-  function layout(forceStart){
-    raf = 0;
-    if(!isTarget()) return cleanup();
-    root.classList.add('oai-2600-two-up-rebuild-v3');
-    hardResetConflicts();
-
-    const stageRect0 = rect(stage);
-    const cinemaRect = rect(cinema);
-    if(!stageRect0 || !cinemaRect) return;
-
-    const btn = 46;
-    const btnGap = 14;
-    const gap = 16;
-    const leftBound = Math.round(Math.max(cinemaRect.left + 6, leftMenuRight() + 24));
-    const rightBound = Math.round(rightRailEdge());
-    const maxTrackW = Math.max(520, rightBound - leftBound - (btn + btnGap) * 2);
-    const cardW = clamp(Math.floor((maxTrackW - gap) / 2), 252, 296);
-    const trackW = (cardW * 2) + gap;
-    const stageLeft = Math.round(leftBound + btn + btnGap);
-    const shiftX = Math.round(stageLeft - stageRect0.left);
-
-    setVar('--oai2600-gap', gap + 'px');
-    setVar('--oai2600-card-w', cardW + 'px');
-    setVar('--oai2600-track-w', trackW + 'px');
-    setVar('--oai2600-stage-w', trackW + 'px');
-    setVar('--oai2600-stage-shift', shiftX + 'px');
-
-    imp(stage, 'width', trackW + 'px');
-    imp(stage, 'min-width', trackW + 'px');
-    imp(stage, 'max-width', trackW + 'px');
-    imp(stage, 'transform', 'translateX(' + shiftX + 'px)');
-    imp(track, 'width', trackW + 'px');
-    imp(track, 'min-width', trackW + 'px');
-    imp(track, 'max-width', trackW + 'px');
-    imp(track, 'gap', gap + 'px');
-    imp(track, 'overflow-x', 'hidden');
-    imp(track, 'overflow-y', 'visible');
-    slides.forEach(slide => {
-      imp(slide, 'flex', '0 0 ' + cardW + 'px');
-      imp(slide, 'width', cardW + 'px');
-      imp(slide, 'min-width', cardW + 'px');
-      imp(slide, 'max-width', cardW + 'px');
-    });
-
-    const start = typeof forceStart === 'number' ? forceStart : currentStart;
-    applyPage(start, false);
-
-    requestAnimationFrame(function(){
-      const stageRect = rect(stage);
-      if(stageRect) updateButtons(stageRect, rightBound);
-      applyPage(typeof forceStart === 'number' ? forceStart : visibleStartFromScroll(), false);
-    });
-  }
-
-  function queue(forceStart){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ layout(forceStart); });
-  }
-
-  const prev = ensureButton('oai2600RebuildPrev', 'M15 19l-7-7 7-7', 'Предыдущие фильмы');
-  const next = ensureButton('oai2600RebuildNext', 'M9 5l7 7-7 7', 'Следующие фильмы');
-  prev.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); queue(snapStart(currentStart - STEP)); [0,90,260].forEach(ms => setTimeout(() => queue(snapStart(currentStart)), ms)); }, true);
-  next.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); const maxStart = Math.max(0, slides.length - STEP); let nxt = currentStart + STEP; if(nxt > maxStart) nxt = 0; queue(snapStart(nxt)); [0,90,260].forEach(ms => setTimeout(() => queue(snapStart(nxt)), ms)); }, true);
-
-  document.addEventListener('click', function(e){
-    const t = e.target && e.target.closest ? e.target.closest('.slider-prev,.slider-next,#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame') : null;
-    if(t) [0,80,260,800].forEach(ms => setTimeout(() => queue(currentStart), ms));
-  }, true);
-
-  let scrollT = 0;
-  track.addEventListener('scroll', function(){
-    if(!root.classList.contains('oai-2600-two-up-rebuild-v3')) return;
-    clearTimeout(scrollT);
-    scrollT = setTimeout(function(){
-      currentStart = snapStart(visibleStartFromScroll());
-      applyPage(currentStart, false);
-    }, 40);
-  }, { passive:true });
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ queue(0); }, {once:true});
-  else queue(0);
-  window.addEventListener('load', function(){ [0,60,180,420,900,1600,2600].forEach(ms => setTimeout(() => queue(0), ms)); }, {once:true});
-  window.addEventListener('resize', function(){ queue(currentStart); }, {passive:true});
-  window.addEventListener('orientationchange', function(){ queue(currentStart); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ queue(currentStart); }, {passive:true});
+  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 40); }, true);
+  [0, 120, 360, 900, 1800, 3200, 5200, 7600].forEach(ms => setTimeout(queue, ms));
+  try{
+    state.mo = new MutationObserver(function(){ setTimeout(queue, 30); });
+    state.mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
+  }catch(_e){}
 })();
 </script>
 
