@@ -45715,6 +45715,325 @@ html.tk-2600x1400-13-two-up-final #cinema .movie-slide:not(.is-active) .movie-bt
 })();
 </script>
 
+
+<style id="oai-2600-final-rightedge-v2-style">
+html.oai-2600-final-rightedge-v2 #tkCinemaDetachedPrev,
+html.oai-2600-final-rightedge-v2 #tkCinemaDetachedNext,
+html.oai-2600-final-rightedge-v2 #oai2600CinemaPrev,
+html.oai-2600-final-rightedge-v2 #oai2600CinemaNext{
+  display:none !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema,
+html.oai-2600-final-rightedge-v2 #cinema .slider-container,
+html.oai-2600-final-rightedge-v2 #cinema .slider-wrapper{
+  overflow: visible !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .slider-container{
+  position: relative !important;
+  width: var(--oai2600-track-w, 648px) !important;
+  min-width: var(--oai2600-track-w, 648px) !important;
+  max-width: var(--oai2600-track-w, 648px) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  transform: translateX(var(--oai2600-shift-x, 0px)) !important;
+  transform-origin: left center !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .slider-wrapper{
+  width: var(--oai2600-track-w, 648px) !important;
+  min-width: var(--oai2600-track-w, 648px) !important;
+  max-width: var(--oai2600-track-w, 648px) !important;
+  gap: var(--oai2600-gap, 20px) !important;
+  padding: 14px 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x proximity !important;
+  scroll-padding-left: 0 !important;
+  scroll-padding-right: 0 !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .slider-wrapper::-webkit-scrollbar{
+  display:none !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .movie-slide{
+  flex: 0 0 var(--oai2600-card-w, 314px) !important;
+  width: var(--oai2600-card-w, 314px) !important;
+  min-width: var(--oai2600-card-w, 314px) !important;
+  max-width: var(--oai2600-card-w, 314px) !important;
+  scroll-snap-align: start !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .slider-prev,
+html.oai-2600-final-rightedge-v2 #cinema .slider-next{
+  position: absolute !important;
+  top: 50% !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  width: 48px !important;
+  height: 48px !important;
+  transform: translateY(-50%) !important;
+  z-index: 14 !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .slider-prev{
+  left: calc(-1 * var(--oai2600-arrow-out, 56px)) !important;
+  right: auto !important;
+}
+html.oai-2600-final-rightedge-v2 #cinema .slider-next{
+  right: calc(-1 * var(--oai2600-arrow-out, 56px)) !important;
+  left: auto !important;
+}
+html.oai-2600-final-rightedge-v2 .rules{
+  position: fixed !important;
+  right: 10px !important;
+  left: auto !important;
+  top: auto !important;
+  bottom: 14px !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 100181 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
+html.oai-2600-final-rightedge-v2 #openComicMenu,
+html.oai-2600-final-rightedge-v2 #openRuleGame,
+html.oai-2600-final-rightedge-v2 #openPcPartsGame{
+  width: var(--oai2600-rules-w, 286px) !important;
+  min-width: var(--oai2600-rules-w, 286px) !important;
+  max-width: var(--oai2600-rules-w, 286px) !important;
+  margin: 0 !important;
+  align-self: stretch !important;
+  justify-content: flex-start !important;
+  box-sizing: border-box !important;
+}
+html.oai-2600-final-rightedge-v2 #rouletteDock{
+  position: fixed !important;
+  right: 10px !important;
+  left: auto !important;
+  top: auto !important;
+  bottom: var(--oai2600-roulette-bottom, 250px) !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 100180 !important;
+}
+html.oai-2600-final-rightedge-v2 #tkLiveStats{
+  position: fixed !important;
+  right: var(--oai2600-stats-right, 312px) !important;
+  left: auto !important;
+  top: auto !important;
+  bottom: 14px !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 100181 !important;
+}
+</style>
+<script id="oai-2600-final-rightedge-v2-script">
+(function(){
+  const root = document.documentElement;
+  const cinema = document.getElementById('cinema');
+  if(!cinema) return;
+  const stage = cinema.querySelector('.slider-container');
+  const track = cinema.querySelector('.slider-wrapper');
+  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+  if(!stage || !track || !slides.length) return;
+
+  let raf = 0;
+  function imp(el, prop, val){ if(el) try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function rect(el){ if(!el) return null; const r = el.getBoundingClientRect(); return (r && r.width > 0 && r.height > 0) ? r : null; }
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function setVar(name, value){ root.style.setProperty(name, value); }
+
+  function naturalWidth(el){
+    if(!el) return 0;
+    const props = ['width','min-width','max-width','left','right','top','bottom','transform','position','margin-left','margin-right'];
+    const prev = {};
+    props.forEach(p => prev[p] = el.style.getPropertyValue(p));
+    props.forEach(p => el.style.removeProperty(p));
+    imp(el, 'width', 'max-content');
+    imp(el, 'min-width', '0px');
+    imp(el, 'max-width', 'none');
+    imp(el, 'position', 'relative');
+    const r = el.getBoundingClientRect();
+    const w = Math.ceil(Math.max(r.width || 0, el.scrollWidth || 0));
+    props.forEach(p => prev[p] ? imp(el,p,prev[p]) : el.style.removeProperty(p));
+    return w;
+  }
+
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
+    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
+    const physW = Math.round(sw * dpr);
+    const physH = Math.round(sh * dpr);
+    const innerPhysW = Math.round(iw * dpr);
+    const innerPhysH = Math.round(ih * dpr);
+    return {dpr, iw, ih, sw, sh, physW, physH, innerPhysW, innerPhysH};
+  }
+
+  function isTarget(){
+    const m = metrics();
+    const viewportBand = m.iw >= 1180 && m.iw <= 1650 && m.ih >= 700 && m.ih <= 980;
+    const dprBand = m.dpr >= 1.45 && m.dpr <= 2.6;
+    const physBand = (
+      (m.physW >= 2450 && m.physW <= 3100 && m.physH >= 1350 && m.physH <= 1700) ||
+      (m.innerPhysW >= 2450 && m.innerPhysW <= 3100 && m.innerPhysH >= 1350 && m.innerPhysH <= 1700)
+    );
+    return viewportBand && dprBand && physBand;
+  }
+
+  function placeRightRail(){
+    const rules = document.querySelector('.rules');
+    const roulette = document.getElementById('rouletteDock');
+    const stats = document.getElementById('tkLiveStats');
+    const comic = document.getElementById('openComicMenu');
+    const day = document.getElementById('openRuleGame');
+    const pc = document.getElementById('openPcPartsGame');
+    if(!rules || !roulette || !comic || !day || !pc) return null;
+
+    const rightPad = 10;
+    const bottomPad = 14;
+    const rulesW = Math.max(268, naturalWidth(comic), naturalWidth(day), naturalWidth(pc));
+    setVar('--oai2600-rules-w', rulesW + 'px');
+
+    imp(rules, 'position', 'fixed');
+    imp(rules, 'right', rightPad + 'px');
+    imp(rules, 'left', 'auto');
+    imp(rules, 'top', 'auto');
+    imp(rules, 'bottom', bottomPad + 'px');
+    imp(rules, 'margin', '0');
+    imp(rules, 'transform', 'none');
+    imp(rules, 'width', rulesW + 'px');
+    imp(rules, 'min-width', rulesW + 'px');
+    imp(rules, 'max-width', rulesW + 'px');
+
+    [comic, day, pc].forEach(btn => {
+      imp(btn, 'width', rulesW + 'px');
+      imp(btn, 'min-width', rulesW + 'px');
+      imp(btn, 'max-width', rulesW + 'px');
+      imp(btn, 'align-self', 'stretch');
+      imp(btn, 'margin', '0');
+      imp(btn, 'justify-content', 'flex-start');
+    });
+
+    const rr = rect(rules);
+    if(!rr) return null;
+
+    if(stats){
+      imp(stats, 'position', 'fixed');
+      imp(stats, 'right', (rightPad + rr.width + 14) + 'px');
+      imp(stats, 'left', 'auto');
+      imp(stats, 'top', 'auto');
+      imp(stats, 'bottom', bottomPad + 'px');
+      imp(stats, 'margin', '0');
+      imp(stats, 'transform', 'none');
+      setVar('--oai2600-stats-right', (rightPad + rr.width + 14) + 'px');
+    }
+
+    imp(roulette, 'position', 'fixed');
+    imp(roulette, 'right', rightPad + 'px');
+    imp(roulette, 'left', 'auto');
+    imp(roulette, 'top', 'auto');
+    imp(roulette, 'bottom', '0px');
+    imp(roulette, 'margin', '0');
+    imp(roulette, 'transform', 'none');
+    const dr0 = rect(roulette);
+    const rulesH = Math.ceil(rr.height || 240);
+    const dockH = Math.ceil((dr0 && dr0.height) || 260);
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    let rouletteBottom = bottomPad + rulesH + 16;
+    const maxBottom = Math.max(bottomPad + rulesH + 8, vh - dockH - 8);
+    rouletteBottom = clamp(rouletteBottom, bottomPad + rulesH + 8, maxBottom);
+    imp(roulette, 'bottom', rouletteBottom + 'px');
+    setVar('--oai2600-roulette-bottom', rouletteBottom + 'px');
+
+    return {
+      rightEdge: Math.min(
+        rect(rules)?.left ?? window.innerWidth,
+        rect(roulette)?.left ?? window.innerWidth,
+        rect(stats)?.left ?? window.innerWidth
+      ) - 16,
+      rulesW
+    };
+  }
+
+  function leftMenuRight(){
+    let best = 0;
+    document.querySelectorAll('.side-nav').forEach(el => {
+      const r = rect(el);
+      if(r) best = Math.max(best, r.right);
+    });
+    return best || 270;
+  }
+
+  function apply(){
+    raf = 0;
+    const on = isTarget();
+    root.classList.toggle('oai-2600-final-rightedge-v2', on);
+    if(!on) return;
+
+    ['tk-2600x1400-13','tk-2600x1400-13-clean2','tk-2600x1400-13-two-up-final','oai-right-rail-2600-only-fix'].forEach(cls => root.classList.remove(cls));
+
+    const rail = placeRightRail();
+    const stageRect = rect(stage);
+    const cinemaRect = rect(cinema);
+    if(!rail || !stageRect || !cinemaRect) return;
+
+    const leftEdge = Math.round(Math.max(cinemaRect.left + 4, leftMenuRight() + 28));
+    const arrowOut = 56;
+    const gap = 20;
+    const rightEdge = Math.round(rail.rightEdge);
+    const usableTrack = Math.max(560, rightEdge - leftEdge - arrowOut);
+    const cardW = clamp(Math.floor((usableTrack - gap) / 2), 272, 314);
+    const trackW = (cardW * 2) + gap;
+    const shiftX = Math.round(leftEdge - stageRect.left);
+
+    setVar('--oai2600-arrow-out', arrowOut + 'px');
+    setVar('--oai2600-gap', gap + 'px');
+    setVar('--oai2600-card-w', cardW + 'px');
+    setVar('--oai2600-track-w', trackW + 'px');
+    setVar('--oai2600-shift-x', shiftX + 'px');
+
+    imp(stage, 'width', trackW + 'px');
+    imp(stage, 'min-width', trackW + 'px');
+    imp(stage, 'max-width', trackW + 'px');
+    imp(stage, 'transform', 'translateX(' + shiftX + 'px)');
+    imp(track, 'width', trackW + 'px');
+    imp(track, 'min-width', trackW + 'px');
+    imp(track, 'max-width', trackW + 'px');
+    imp(track, 'gap', gap + 'px');
+    slides.forEach(slide => {
+      imp(slide, 'flex', '0 0 ' + cardW + 'px');
+      imp(slide, 'width', cardW + 'px');
+      imp(slide, 'min-width', cardW + 'px');
+      imp(slide, 'max-width', cardW + 'px');
+    });
+
+    // старт без третьего слайда
+    track.scrollLeft = 0;
+    slides.forEach((slide, idx) => slide.classList.toggle('is-active', idx === 0));
+  }
+
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', function(){ queue(); [120, 360, 900, 1600, 2600].forEach(ms => setTimeout(queue, ms)); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  document.addEventListener('click', function(e){
+    const t = e.target && e.target.closest ? e.target.closest('#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame,.slider-prev,.slider-next') : null;
+    if(t) [0, 120, 420, 900].forEach(ms => setTimeout(queue, ms));
+  }, true);
+})();
+</script>
+
 </body>
 </html>
 
