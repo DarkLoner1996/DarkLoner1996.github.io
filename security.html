@@ -44091,6 +44091,186 @@ html.oai-right-rail-2600-only-fix #tkLiveStats.tk-live-stats--hard-next-to-rules
 })();
 </script>
 
+
+
+<style id="oai-right-rail-2600-v4-style">
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k,
+html.oai-right-rail-2600-only-fix #tk23RightRail,
+html.oai-right-rail-2600-only-fix #tkFhdRightRailFinal{
+  gap: 12px !important;
+  align-items: flex-end !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rules,
+html.oai-right-rail-2600-only-fix #tk23RightRail .rules,
+html.oai-right-rail-2600-only-fix #tkFhdRightRailFinal .rules{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 8px !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill,
+html.oai-right-rail-2600-only-fix #tk23RightRail .rule-pill,
+html.oai-right-rail-2600-only-fix #tkFhdRightRailFinal .rule-pill{
+  justify-content: flex-start !important;
+  align-self: flex-end !important;
+}
+html.oai-right-rail-2600-only-fix #tkLiveStats.tk-live-stats--hard-next-to-rules,
+html.oai-right-rail-2600-only-fix #tkLiveStats.tk-live-stats--rules-left-embed{
+  transition: none !important;
+}
+</style>
+<script id="oai-right-rail-2600-v4-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  let mo = null;
+
+  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function rem(el, prop){ if(!el) return; try{ el.style.removeProperty(prop); }catch(_e){} }
+  function isOn(){ return root.classList.contains('oai-right-rail-2600-only-fix'); }
+  function getRail(){
+    return document.getElementById('tkV205RightRail4k') || document.getElementById('tkFhdRightRailFinal') || document.getElementById('tk23RightRail');
+  }
+  function getRules(rail){
+    return (rail && rail.querySelector('.rules')) || document.querySelector('.rules');
+  }
+  function clearBtn(btn){
+    if(!btn) return;
+    ['width','min-width','max-width','align-self'].forEach(function(p){ rem(btn, p); });
+  }
+  function measureNaturalWidth(btn){
+    if(!btn) return 0;
+    const prev = {
+      width: btn.style.getPropertyValue('width'),
+      minWidth: btn.style.getPropertyValue('min-width'),
+      maxWidth: btn.style.getPropertyValue('max-width'),
+      alignSelf: btn.style.getPropertyValue('align-self')
+    };
+    clearBtn(btn);
+    imp(btn, 'width', 'max-content');
+    imp(btn, 'min-width', '0px');
+    imp(btn, 'max-width', 'none');
+    imp(btn, 'align-self', 'flex-end');
+    const w = Math.ceil(btn.getBoundingClientRect().width || btn.scrollWidth || 0);
+    rem(btn, 'width'); rem(btn, 'min-width'); rem(btn, 'max-width'); rem(btn, 'align-self');
+    if(prev.width) imp(btn, 'width', prev.width);
+    if(prev.minWidth) imp(btn, 'min-width', prev.minWidth);
+    if(prev.maxWidth) imp(btn, 'max-width', prev.maxWidth);
+    if(prev.alignSelf) imp(btn, 'align-self', prev.alignSelf);
+    return w;
+  }
+  function fitRuleButtons(){
+    const rail = getRail();
+    const rules = getRules(rail);
+    const comic = document.getElementById('openComicMenu');
+    const day = document.getElementById('openRuleGame');
+    const pc = document.getElementById('openPcPartsGame');
+    if(!rules || !comic || !day || !pc) return null;
+
+    [comic, day, pc].forEach(clearBtn);
+    ['width','min-width','max-width'].forEach(function(p){ rem(rules, p); });
+    imp(rules, 'width', 'max-content');
+    imp(rules, 'min-width', '0px');
+    imp(rules, 'max-width', 'none');
+
+    const pcW = measureNaturalWidth(pc);
+    const comicW = measureNaturalWidth(comic);
+    const dayW = measureNaturalWidth(day);
+    const targetW = Math.max(pcW, 0);
+    if(!targetW) return null;
+
+    imp(rules, 'width', targetW + 'px');
+    imp(rules, 'min-width', targetW + 'px');
+    imp(rules, 'max-width', targetW + 'px');
+
+    [comic, day, pc].forEach(function(btn){
+      imp(btn, 'width', targetW + 'px');
+      imp(btn, 'min-width', targetW + 'px');
+      imp(btn, 'max-width', targetW + 'px');
+      imp(btn, 'align-self', 'stretch');
+    });
+
+    return { rail: rail, rules: rules, width: targetW };
+  }
+  function placeLiveStats(rules){
+    const widget = document.getElementById('tkLiveStats');
+    if(!widget || !rules) return;
+    if(!(widget.classList.contains('tk-live-stats--hard-next-to-rules') || widget.classList.contains('tk-live-stats--rules-left-embed'))) return;
+
+    const rr = rules.getBoundingClientRect();
+    if(!rr || !rr.width || !rr.height) return;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const prevVis = widget.style.getPropertyValue('visibility');
+    imp(widget, 'visibility', 'hidden');
+    imp(widget, 'left', '16px');
+    imp(widget, 'top', '16px');
+    imp(widget, 'right', 'auto');
+    imp(widget, 'bottom', 'auto');
+    const wr = widget.getBoundingClientRect();
+    if(prevVis) imp(widget, 'visibility', prevVis); else rem(widget, 'visibility');
+    const ww = Math.ceil(wr.width || 248);
+    const wh = Math.ceil(wr.height || 148);
+    const gap = 1;
+    let left = Math.round(rr.left - ww - gap);
+    let top = Math.round(rr.bottom - wh + 2);
+    top = Math.max(8, Math.min(top, Math.max(8, vh - wh - 8)));
+    imp(widget, 'position', 'fixed');
+    imp(widget, 'left', left + 'px');
+    imp(widget, 'top', top + 'px');
+    imp(widget, 'right', 'auto');
+    imp(widget, 'bottom', 'auto');
+    imp(widget, 'margin', '0');
+    imp(widget, 'transform', 'none');
+    imp(widget, 'z-index', '100181');
+  }
+  function nudgeRoulette(rail){
+    if(!rail) return;
+    imp(rail, 'gap', '12px');
+    const dock = document.getElementById('rouletteDock');
+    if(!dock || dock.parentNode !== rail) return;
+    imp(dock, 'margin', '0');
+    imp(dock, 'align-self', 'flex-end');
+  }
+  function clearLiveStats(){
+    const widget = document.getElementById('tkLiveStats');
+    if(!widget) return;
+    ['left','top','right','bottom','margin','transform','z-index'].forEach(function(p){ rem(widget, p); });
+  }
+  function clearAll(){
+    const rules = document.querySelector('.rules');
+    [document.getElementById('openComicMenu'), document.getElementById('openRuleGame'), document.getElementById('openPcPartsGame')].forEach(clearBtn);
+    if(rules) ['width','min-width','max-width'].forEach(function(p){ rem(rules, p); });
+    clearLiveStats();
+  }
+  function apply(){
+    raf = 0;
+    if(!isOn()){
+      clearAll();
+      return;
+    }
+    const data = fitRuleButtons();
+    if(!data) return;
+    nudgeRoulette(data.rail);
+    placeLiveStats(data.rules);
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', function(){ queue(); [100, 260, 700, 1400, 2600].forEach(function(ms){ setTimeout(queue, ms); }); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  document.addEventListener('click', function(e){
+    const t = e.target && e.target.closest ? e.target.closest('#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame') : null;
+    if(t){ [0, 120, 500, 1200].forEach(function(ms){ setTimeout(queue, ms); }); }
+  }, true);
+  try{
+    mo = new MutationObserver(queue);
+    mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']});
+  }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
 
