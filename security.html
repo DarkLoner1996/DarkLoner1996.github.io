@@ -44453,541 +44453,196 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
 </script>
 
 
-<style id="oai-cinema-2600-slide-left-final-style">
-html.oai-cinema-2600-slide-left-final #tkCinemaDetachedPrev,
-html.oai-cinema-2600-slide-left-final #tkCinemaDetachedNext{
+<style id="oai-cinema-2600-pocket-fix-style">
+html.oai-cinema-2600-pocket-fix #tkCinemaDetachedPrev,
+html.oai-cinema-2600-pocket-fix #tkCinemaDetachedNext{
   display:none !important;
   visibility:hidden !important;
   pointer-events:none !important;
 }
-html.oai-cinema-2600-slide-left-final #cinema .slider-prev,
-html.oai-cinema-2600-slide-left-final #cinema .slider-next{
-  visibility:visible !important;
-  opacity:1 !important;
-  pointer-events:auto !important;
-  transition:none !important;
+html.oai-cinema-2600-pocket-fix #cinema .slider-container{
+  display:grid !important;
+  grid-template-columns: 50px minmax(0,1fr) 50px !important;
+  align-items:center !important;
+  column-gap: 10px !important;
+  position:relative !important;
+  overflow:visible !important;
+  width: var(--oai-cinema-2600-stage-w, 800px) !important;
+  max-width: var(--oai-cinema-2600-stage-w, 800px) !important;
+  min-width: var(--oai-cinema-2600-stage-w, 800px) !important;
+  margin: 10px auto 0 !important;
+  transform: translateX(var(--oai-cinema-2600-shift-x, 0px)) !important;
 }
-html.oai-cinema-2600-slide-left-final #cinema .slider-container,
-html.oai-cinema-2600-slide-left-final #cinema .slider-wrapper,
-html.oai-cinema-2600-slide-left-final #cinema .movie-slide{
-  transition:none !important;
-}
-html.oai-cinema-2600-slide-left-final #cinema .slider-wrapper{
-  -webkit-mask-image:none !important;
+html.oai-cinema-2600-pocket-fix #cinema .slider-wrapper{
+  grid-column: 2 !important;
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+  padding: 12px 0 10px !important;
+  gap: 12px !important;
+  overflow-x:auto !important;
+  overflow-y:visible !important;
+  scroll-padding-left: 0 !important;
+  scroll-padding-right: 0 !important;
   mask-image:none !important;
+  -webkit-mask-image:none !important;
   scrollbar-width:none !important;
 }
-html.oai-cinema-2600-slide-left-final #cinema .slider-wrapper::-webkit-scrollbar{
+html.oai-cinema-2600-pocket-fix #cinema .slider-wrapper::-webkit-scrollbar{
   display:none !important;
 }
+html.oai-cinema-2600-pocket-fix #cinema .slider-prev,
+html.oai-cinema-2600-pocket-fix #cinema .slider-next{
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+  right:auto !important;
+  transform:none !important;
+  margin:0 !important;
+  place-self:center !important;
+  justify-self:center !important;
+  align-self:center !important;
+  z-index:55 !important;
+  width:40px !important;
+  height:40px !important;
+}
+html.oai-cinema-2600-pocket-fix #cinema .slider-prev{ grid-column:1 !important; }
+html.oai-cinema-2600-pocket-fix #cinema .slider-next{ grid-column:3 !important; }
+html.oai-cinema-2600-pocket-fix #cinema .movie-slide{
+  flex:0 0 var(--oai-cinema-2600-slide-w, 214px) !important;
+  width:var(--oai-cinema-2600-slide-w, 214px) !important;
+  min-width:var(--oai-cinema-2600-slide-w, 214px) !important;
+  max-width:var(--oai-cinema-2600-slide-w, 214px) !important;
+}
 </style>
-<script id="oai-cinema-2600-slide-left-final-script">
+<script id="oai-cinema-2600-pocket-fix-script">
 (function(){
   const root = document.documentElement;
-  let raf = 0;
-  let observer = null;
-  let selfApplying = false;
+  let queued = 0;
 
-  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
-  function rem(el, prop){ if(el) try{ el.style.removeProperty(prop); }catch(_e){} }
+  function q(sel, ctx=document){ return ctx.querySelector(sel); }
+  function qa(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
   function rect(el){ if(!el) return null; const r = el.getBoundingClientRect(); return (r && r.width > 0 && r.height > 0) ? r : null; }
   function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
-
-  function metrics(){
-    const de = document.documentElement;
-    const iw = Math.max(window.innerWidth || 0, de.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, de.clientHeight || 0);
-    const sw = Math.max(Number((window.screen && window.screen.width) || 0), Number((window.screen && window.screen.availWidth) || 0), iw);
-    const sh = Math.max(Number((window.screen && window.screen.height) || 0), Number((window.screen && window.screen.availHeight) || 0), ih);
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    return { iw, ih, sw, sh, dpr, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
-  }
+  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
+  function rem(el, prop){ if(el) try{ el.style.removeProperty(prop); }catch(_e){} }
 
   function isTarget(){
-    const m = metrics();
-    const aspect = m.sw / Math.max(1, m.sh);
-    const not4k = !(m.iw >= 1850 || m.ih >= 1120 || m.physW >= 3600 || m.physH >= 2300);
-    const cssLaptop = m.iw >= 1180 && m.iw <= 1620 && m.ih >= 720 && m.ih <= 980;
-    const retinaBand = m.dpr >= 1.45 && m.dpr <= 2.25;
-    const phys2600 = (m.physW >= 2450 && m.physW <= 3400 && m.physH >= 1350 && m.physH <= 2200);
-    return not4k && retinaBand && cssLaptop && phys2600 && aspect >= 1.5 && aspect <= 1.95;
+    if(root.classList.contains('tk-4k')) return false;
+    if(root.classList.contains('oai-right-rail-2600-only-fix')) return true;
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    return iw >= 1160 && iw <= 1500 && ih >= 700 && ih <= 940 && dpr >= 1.45 && dpr <= 2.35;
   }
 
   function getUI(){
     const cinema = document.getElementById('cinema');
     if(!cinema) return null;
-    const stage = cinema.querySelector('.slider-container');
-    const track = cinema.querySelector('.slider-wrapper');
-    const prev = cinema.querySelector('.slider-prev');
-    const next = cinema.querySelector('.slider-next');
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
-    if(!stage || !track || !prev || !next || slides.length < 3) return null;
-    return { cinema, stage, track, prev, next, slides };
-  }
-
-  function getRightRailRect(){
-    const els = [
-      document.querySelector('.rules'),
-      document.getElementById('openPcPartsGame'),
-      document.getElementById('openRuleGame'),
-      document.getElementById('openComicMenu'),
-      document.getElementById('tk23RightRail'),
-      document.getElementById('tkV205RightRail4k')
-    ].filter(Boolean);
-    let best = null;
-    for(const el of els){
-      const r = rect(el);
-      if(!r) continue;
-      if(!best || r.left < best.left) best = r;
-    }
-    return best;
-  }
-
-  function getLeftRailRect(){
-    const els = [
-      document.querySelector('.side-nav'),
-      document.getElementById('tk18LeftRail'),
-      document.getElementById('tk19LeftRail')
-    ].filter(Boolean);
-    let best = null;
-    for(const el of els){
-      const r = rect(el);
-      if(!r) continue;
-      if(!best || r.right > best.right) best = r;
-    }
-    return best;
-  }
-
-  function activeIndex(ui){
-    const fromClass = ui.slides.findIndex(s => s.classList.contains('is-active'));
-    if(fromClass >= 0) return fromClass;
-    const dataKeys = ['tk2500ActiveV9','tk2560ActiveV9','tk2560Active','tkCinemaIndex'];
-    for(const key of dataKeys){
-      const v = parseInt(ui.cinema.dataset[key] || '', 10);
-      if(Number.isFinite(v)) return ((v % ui.slides.length) + ui.slides.length) % ui.slides.length;
-    }
-    return 0;
-  }
-
-  function groupStart(active, total){
-    if(total <= 3) return 0;
-    if(active <= 0) return 0;
-    if(active >= total - 1) return total - 3;
-    return clamp(active - 1, 0, total - 3);
-  }
-
-  function clearOur(ui){
-    root.classList.remove('oai-cinema-2600-slide-left-final');
-    if(!ui) return;
-    const stageProps = ['display','grid-template-columns','align-items','column-gap','width','max-width','min-width','position','overflow','transform','margin'];
-    const trackProps = ['grid-column','width','max-width','min-width','padding','scroll-padding-left','scroll-padding-right','overflow-x','overflow-y','gap','scroll-snap-type','mask-image','-webkit-mask-image','margin'];
-    const btnProps = ['grid-column','position','top','left','right','transform','margin','place-self','justify-self','align-self','z-index','width','height'];
-    const slideProps = ['flex','width','min-width','max-width','transform'];
-    stageProps.forEach(p => rem(ui.stage, p));
-    trackProps.forEach(p => rem(ui.track, p));
-    [ui.prev, ui.next].forEach(el => btnProps.forEach(p => rem(el, p)));
-    ui.slides.forEach(el => slideProps.forEach(p => rem(el, p)));
-  }
-
-  function apply(){
-    raf = 0;
-    const ui = getUI();
-    if(!ui) return;
-    if(!isTarget()){
-      clearOur(ui);
-      return;
-    }
-
-    selfApplying = true;
-    root.classList.add('oai-cinema-2600-slide-left-final');
-
-    rem(ui.stage, 'transform');
-    const stageRectBase = rect(ui.stage);
-    const leftRail = getLeftRailRect();
-    const rightRail = getRightRailRect();
-    if(!stageRectBase || !rightRail){
-      selfApplying = false;
-      return;
-    }
-
-    const leftBound = Math.round(Math.max(22, (leftRail ? leftRail.right + 26 : 260)));
-    const rightBound = Math.round(Math.min((window.innerWidth || document.documentElement.clientWidth || 0) - 18, rightRail.left - 14));
-    const available = rightBound - leftBound;
-    if(available < 700){
-      selfApplying = false;
-      return;
-    }
-
-    const arrowCol = 54;
-    const colGap = 10;
-    const trackGap = 12;
-    const stageW = Math.round(clamp(Math.min(available, 860), 760, 860));
-    const desiredLeft = Math.round(Math.max(leftBound, rightBound - stageW));
-    const shiftX = desiredLeft - stageRectBase.left;
-    const trackW = stageW - (arrowCol * 2) - (colGap * 2);
-    const slideW = Math.round(clamp(Math.floor((trackW - (trackGap * 2)) / 3), 212, 248));
-
-    imp(ui.stage, 'display', 'grid');
-    imp(ui.stage, 'grid-template-columns', arrowCol + 'px minmax(0,1fr) ' + arrowCol + 'px');
-    imp(ui.stage, 'align-items', 'center');
-    imp(ui.stage, 'column-gap', colGap + 'px');
-    imp(ui.stage, 'width', stageW + 'px');
-    imp(ui.stage, 'max-width', stageW + 'px');
-    imp(ui.stage, 'min-width', stageW + 'px');
-    imp(ui.stage, 'position', 'relative');
-    imp(ui.stage, 'overflow', 'visible');
-    imp(ui.stage, 'margin', '10px auto 0');
-    imp(ui.stage, 'transform', 'translateX(' + Math.round(shiftX) + 'px)');
-
-    imp(ui.track, 'grid-column', '2');
-    imp(ui.track, 'width', '100%');
-    imp(ui.track, 'max-width', '100%');
-    imp(ui.track, 'min-width', '0');
-    imp(ui.track, 'padding', '14px 0 18px');
-    imp(ui.track, 'scroll-padding-left', '0');
-    imp(ui.track, 'scroll-padding-right', '0');
-    imp(ui.track, 'overflow-x', 'hidden');
-    imp(ui.track, 'overflow-y', 'visible');
-    imp(ui.track, 'gap', trackGap + 'px');
-    imp(ui.track, 'scroll-snap-type', 'none');
-    imp(ui.track, 'margin', '0');
-
-    [ui.prev, ui.next].forEach(function(btn, idx){
-      imp(btn, 'grid-column', idx === 0 ? '1' : '3');
-      imp(btn, 'position', 'relative');
-      imp(btn, 'top', 'auto');
-      imp(btn, 'left', 'auto');
-      imp(btn, 'right', 'auto');
-      imp(btn, 'transform', 'none');
-      imp(btn, 'margin', '0');
-      imp(btn, 'place-self', 'center');
-      imp(btn, 'justify-self', 'center');
-      imp(btn, 'align-self', 'center');
-      imp(btn, 'z-index', '60');
-      imp(btn, 'width', '44px');
-      imp(btn, 'height', '44px');
-    });
-
-    ui.slides.forEach(function(slide){
-      imp(slide, 'flex', '0 0 ' + slideW + 'px');
-      imp(slide, 'width', slideW + 'px');
-      imp(slide, 'min-width', slideW + 'px');
-      imp(slide, 'max-width', slideW + 'px');
-      if(slide.classList.contains('is-active')) imp(slide, 'transform', 'translateY(-8px) scale(1.01)');
-      else imp(slide, 'transform', 'translateY(0) scale(.985)');
-    });
-
-    const active = activeIndex(ui);
-    const start = groupStart(active, ui.slides.length);
-    const anchor = ui.slides[start];
-    const left = Math.max(0, (anchor ? anchor.offsetLeft : 0));
-    try{ ui.track.scrollTo({ left, behavior:'auto' }); }
-    catch(_e){ ui.track.scrollLeft = left; }
-
-    selfApplying = false;
-  }
-
-  function queue(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
-  }
-
-  function bootObserver(){
-    if(observer) return;
-    const body = document.body;
-    if(!body) return;
-    observer = new MutationObserver(function(){ if(!selfApplying) queue(); });
-    observer.observe(body, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ queue(); bootObserver(); }, {once:true});
-  else { queue(); bootObserver(); }
-
-  window.addEventListener('load', function(){ queue(); [120, 500, 1200, 2400, 4200].forEach(ms => setTimeout(queue, ms)); }, {passive:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', queue, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema, #openComicMenu, #openRuleGame, #openPcPartsGame, #spinBtn')) [40, 180, 520].forEach(ms => setTimeout(queue, ms)); }, true);
-})();
-</script>
-
-
-<style id="oai-cinema-2600-no-overlap-v2-style">
-html.oai-cinema-2600-no-overlap-v2 #cinema .slider-container,
-html.oai-cinema-2600-no-overlap-v2 #cinema .slider-wrapper,
-html.oai-cinema-2600-no-overlap-v2 #cinema .movie-slide,
-html.oai-cinema-2600-no-overlap-v2 #cinema .slider-prev,
-html.oai-cinema-2600-no-overlap-v2 #cinema .slider-next{
-  transition:none !important;
-}
-html.oai-cinema-2600-no-overlap-v2 #cinema .slider-wrapper{
-  -webkit-mask-image:none !important;
-  mask-image:none !important;
-  scrollbar-width:none !important;
-}
-html.oai-cinema-2600-no-overlap-v2 #cinema .slider-wrapper::-webkit-scrollbar{
-  display:none !important;
-}
-</style>
-<script id="oai-cinema-2600-no-overlap-v2-script">
-(function(){
-  const root = document.documentElement;
-  let raf = 0;
-  let observer = null;
-  let selfApplying = false;
-
-  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
-  function rem(el, prop){ if(el) try{ el.style.removeProperty(prop); }catch(_e){} }
-  function rect(el){ if(!el) return null; const r = el.getBoundingClientRect(); return (r && r.width > 0 && r.height > 0) ? r : null; }
-  function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
-
-  function metrics(){
-    const de = document.documentElement;
-    const iw = Math.max(window.innerWidth || 0, de.clientWidth || 0);
-    const ih = Math.max(window.innerHeight || 0, de.clientHeight || 0);
-    const sw = Math.max(Number((window.screen && window.screen.width) || 0), Number((window.screen && window.screen.availWidth) || 0), iw);
-    const sh = Math.max(Number((window.screen && window.screen.height) || 0), Number((window.screen && window.screen.availHeight) || 0), ih);
-    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    return { iw, ih, sw, sh, dpr, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr), aspect: sw / Math.max(1, sh) };
-  }
-
-  function isTarget(){
-    const m = metrics();
-    const logical = m.iw >= 1160 && m.iw <= 1420 && m.ih >= 720 && m.ih <= 940;
-    const retina = m.dpr >= 1.45 && m.dpr <= 2.35;
-    const physical = m.physW >= 2400 && m.physW <= 3200 && m.physH >= 1400 && m.physH <= 1900;
-    const not4k = !(m.iw >= 1800 || m.ih >= 1100 || m.physW >= 3400 || m.physH >= 2100);
-    return logical && retina && physical && not4k && m.aspect >= 1.45 && m.aspect <= 1.75;
-  }
-
-  function getUI(){
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return null;
-    const stage = cinema.querySelector('.slider-container');
-    const track = cinema.querySelector('.slider-wrapper');
-    const prev = cinema.querySelector('.slider-prev');
-    const next = cinema.querySelector('.slider-next');
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    const stage = q('.slider-container', cinema);
+    const track = q('.slider-wrapper', cinema);
+    const prev = q('.slider-prev', cinema);
+    const next = q('.slider-next', cinema);
+    const slides = qa('.movie-slide', track);
     if(!stage || !track || !prev || !next || slides.length < 3) return null;
     return { cinema, stage, track, prev, next, slides };
   }
 
   function leftRailRect(){
-    const candidates = [
-      document.querySelector('.side-nav'),
-      document.getElementById('tk18LeftRail'),
-      document.getElementById('tk19LeftRail'),
-      document.getElementById('tkFhdLeftRailFinal')
-    ].filter(Boolean);
+    const cands = [q('.side-nav'), document.getElementById('tk18LeftRail'), document.getElementById('tk19LeftRail'), document.getElementById('tkFhdLeftRailFinal')].filter(Boolean);
     let best = null;
-    for(const el of candidates){
-      const r = rect(el);
-      if(!r) continue;
-      if(!best || r.right > best.right) best = r;
-    }
+    for(const el of cands){ const r = rect(el); if(r && (!best || r.right > best.right)) best = r; }
     return best;
   }
 
   function rightRailRect(){
-    const candidates = [
-      document.querySelector('.rules'),
-      document.getElementById('openComicMenu'),
-      document.getElementById('openRuleGame'),
-      document.getElementById('openPcPartsGame'),
-      document.getElementById('tk23RightRail'),
-      document.getElementById('tkV205RightRail4k')
-    ].filter(Boolean);
+    const cands = [q('.rules'), document.getElementById('openComicMenu'), document.getElementById('openRuleGame'), document.getElementById('openPcPartsGame'), document.getElementById('tk23RightRail'), document.getElementById('tkV205RightRail4k')].filter(Boolean);
     let best = null;
-    for(const el of candidates){
-      const r = rect(el);
-      if(!r) continue;
-      if(!best || r.left < best.left) best = r;
-    }
+    for(const el of cands){ const r = rect(el); if(r && (!best || r.left < best.left)) best = r; }
     return best;
+  }
+
+  function cleanup(ui){
+    root.classList.remove('oai-cinema-2600-pocket-fix');
+    root.style.removeProperty('--oai-cinema-2600-stage-w');
+    root.style.removeProperty('--oai-cinema-2600-slide-w');
+    root.style.removeProperty('--oai-cinema-2600-shift-x');
+    if(!ui) return;
+    [ui.stage, ui.track, ui.prev, ui.next].forEach(el => {
+      ['display','grid-template-columns','align-items','column-gap','position','overflow','width','max-width','min-width','margin','transform','grid-column','min-width','padding','gap','overflow-x','overflow-y','scroll-padding-left','scroll-padding-right','mask-image','-webkit-mask-image','top','left','right','place-self','justify-self','align-self','z-index','height'].forEach(p => rem(el, p));
+    });
+    ui.slides.forEach(slide => ['flex','width','min-width','max-width'].forEach(p => rem(slide, p)));
   }
 
   function activeIndex(ui){
     const idx = ui.slides.findIndex(s => s.classList.contains('is-active'));
-    if(idx >= 0) return idx;
-    return 0;
+    return idx >= 0 ? idx : 0;
   }
 
-  function groupStart(active, total){
+  function groupStart(i, total){
     if(total <= 3) return 0;
-    if(active <= 0) return 0;
-    if(active >= total - 1) return total - 3;
-    return clamp(active - 1, 0, total - 3);
-  }
-
-  function clear(ui){
-    root.classList.remove('oai-cinema-2600-no-overlap-v2');
-    if(!ui) return;
-    const stageProps = ['display','grid-template-columns','align-items','column-gap','width','max-width','min-width','position','overflow','margin','transform'];
-    const trackProps = ['grid-column','width','max-width','min-width','padding','scroll-padding-left','scroll-padding-right','overflow-x','overflow-y','gap','scroll-snap-type','mask-image','-webkit-mask-image','margin','justify-content'];
-    const btnProps = ['grid-column','position','top','left','right','transform','margin','place-self','justify-self','align-self','z-index','width','height'];
-    const slideProps = ['flex','width','min-width','max-width','transform'];
-    stageProps.forEach(p => rem(ui.stage, p));
-    trackProps.forEach(p => rem(ui.track, p));
-    [ui.prev, ui.next].forEach(btn => btnProps.forEach(p => rem(btn, p)));
-    ui.slides.forEach(slide => slideProps.forEach(p => rem(slide, p)));
-  }
-
-  function bind(ui){
-    if(ui.cinema.dataset.oaiCinema2600Bound === '1') return;
-    ui.cinema.dataset.oaiCinema2600Bound = '1';
-
-    ui.prev.addEventListener('click', function(e){
-      if(!root.classList.contains('oai-cinema-2600-no-overlap-v2')) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const i = activeIndex(ui);
-      setActive(ui, i - 1, true);
-    }, true);
-
-    ui.next.addEventListener('click', function(e){
-      if(!root.classList.contains('oai-cinema-2600-no-overlap-v2')) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const i = activeIndex(ui);
-      setActive(ui, i + 1, true);
-    }, true);
-
-    ui.slides.forEach(function(slide, idx){
-      slide.addEventListener('click', function(e){
-        if(!root.classList.contains('oai-cinema-2600-no-overlap-v2')) return;
-        if(e.target.closest('button') || e.target.closest('a')) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        setActive(ui, idx, true);
-      }, true);
-    });
-  }
-
-  function setActive(ui, index, smooth){
-    const total = ui.slides.length;
-    const active = ((index % total) + total) % total;
-    ui.slides.forEach(function(slide, i){
-      const on = i === active;
-      slide.classList.toggle('is-active', on);
-      if(on) imp(slide, 'transform', 'translateY(-8px) scale(1.01)');
-      else imp(slide, 'transform', 'translateY(0) scale(.985)');
-    });
-    const start = groupStart(active, total);
-    const anchor = ui.slides[start];
-    const left = Math.max(0, (anchor ? anchor.offsetLeft : 0));
-    try{ ui.track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); }
-    catch(_e){ ui.track.scrollLeft = left; }
+    if(i <= 0) return 0;
+    if(i >= total - 1) return total - 3;
+    return clamp(i - 1, 0, total - 3);
   }
 
   function apply(){
-    raf = 0;
+    queued = 0;
     const ui = getUI();
     if(!ui) return;
     if(!isTarget()){
-      clear(ui);
+      cleanup(ui);
       return;
     }
 
-    selfApplying = true;
-    root.classList.remove('oai-cinema-2600-slide-left-final');
-    root.classList.add('oai-cinema-2600-no-overlap-v2');
-
     const leftRail = leftRailRect();
     const rightRail = rightRailRect();
-    const stageRect = rect(ui.stage);
-    if(!stageRect || !rightRail){ selfApplying = false; return; }
+    const stageRectBefore = rect(ui.stage);
+    if(!stageRectBefore) return;
 
-    const leftBound = Math.round(Math.max(24, (leftRail ? leftRail.right + 26 : 260)));
-    const rightBound = Math.round(rightRail.left - 22);
+    const leftBound = Math.round(Math.max(24, leftRail ? leftRail.right + 22 : stageRectBefore.left));
+    const rightBound = Math.round(Math.min(window.innerWidth - 16, rightRail ? rightRail.left - 16 : stageRectBefore.right));
     const available = rightBound - leftBound;
-    if(available < 720){ selfApplying = false; return; }
+    const stageW = Math.round(clamp(Math.min(available, 820), 740, 820));
+    const slideW = Math.round(clamp(Math.floor((stageW - 50 - 50 - 10 - 10 - 24) / 3), 198, 222));
+    const desiredLeft = Math.round(clamp((rightBound - stageW) - 2, leftBound, rightBound - stageW));
+    const shiftX = Math.round((stageRectBefore ? desiredLeft - stageRectBefore.left : 0));
 
-    const arrowCol = 48;
-    const colGap = 8;
-    const trackGap = 12;
-    const sideSafe = 0;
-    const stageW = Math.round(clamp(Math.min(available, 816), 756, 816));
-    const desiredLeft = Math.round(rightBound - stageW);
-    const shiftX = clamp(desiredLeft - stageRect.left, -140, 8);
-    const trackW = stageW - (arrowCol * 2) - (colGap * 2);
-    const slideW = Math.round(clamp(Math.floor((trackW - (trackGap * 2) - sideSafe) / 3), 214, 236));
+    root.classList.add('oai-cinema-2600-pocket-fix');
+    root.style.setProperty('--oai-cinema-2600-stage-w', stageW + 'px');
+    root.style.setProperty('--oai-cinema-2600-slide-w', slideW + 'px');
+    root.style.setProperty('--oai-cinema-2600-shift-x', shiftX + 'px');
 
-    imp(ui.stage, 'display', 'grid');
-    imp(ui.stage, 'grid-template-columns', arrowCol + 'px minmax(0,1fr) ' + arrowCol + 'px');
-    imp(ui.stage, 'align-items', 'center');
-    imp(ui.stage, 'column-gap', colGap + 'px');
-    imp(ui.stage, 'width', stageW + 'px');
-    imp(ui.stage, 'max-width', stageW + 'px');
-    imp(ui.stage, 'min-width', stageW + 'px');
-    imp(ui.stage, 'position', 'relative');
-    imp(ui.stage, 'overflow', 'visible');
-    imp(ui.stage, 'margin', '10px auto 0');
-    imp(ui.stage, 'transform', 'translateX(' + Math.round(shiftX) + 'px)');
-
-    imp(ui.track, 'grid-column', '2');
-    imp(ui.track, 'width', '100%');
-    imp(ui.track, 'max-width', '100%');
-    imp(ui.track, 'min-width', '0');
-    imp(ui.track, 'padding', '14px 0 18px');
-    imp(ui.track, 'scroll-padding-left', '0');
-    imp(ui.track, 'scroll-padding-right', '0');
-    imp(ui.track, 'overflow-x', 'hidden');
-    imp(ui.track, 'overflow-y', 'visible');
-    imp(ui.track, 'gap', trackGap + 'px');
-    imp(ui.track, 'scroll-snap-type', 'none');
-    imp(ui.track, 'margin', '0');
-    imp(ui.track, 'justify-content', 'flex-start');
-
-    [ui.prev, ui.next].forEach(function(btn, idx){
-      imp(btn, 'grid-column', idx === 0 ? '1' : '3');
-      imp(btn, 'position', 'relative');
-      imp(btn, 'top', 'auto');
-      imp(btn, 'left', 'auto');
-      imp(btn, 'right', 'auto');
-      imp(btn, 'transform', 'none');
-      imp(btn, 'margin', '0');
-      imp(btn, 'place-self', 'center');
-      imp(btn, 'justify-self', 'center');
-      imp(btn, 'align-self', 'center');
-      imp(btn, 'z-index', '80');
-      imp(btn, 'width', '42px');
-      imp(btn, 'height', '42px');
-    });
-
-    ui.slides.forEach(function(slide){
-      imp(slide, 'flex', '0 0 ' + slideW + 'px');
-      imp(slide, 'width', slideW + 'px');
-      imp(slide, 'min-width', slideW + 'px');
-      imp(slide, 'max-width', slideW + 'px');
-      if(!slide.classList.contains('is-active')) imp(slide, 'transform', 'translateY(0) scale(.985)');
-    });
-
-    bind(ui);
-    setActive(ui, activeIndex(ui), false);
-    selfApplying = false;
+    const active = activeIndex(ui);
+    const start = groupStart(active, ui.slides.length);
+    const anchor = ui.slides[start];
+    const left = Math.max(0, anchor ? anchor.offsetLeft : 0);
+    try{ ui.track.scrollTo({ left, behavior:'auto' }); }catch(_e){ ui.track.scrollLeft = left; }
   }
 
   function queue(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(apply);
+    if(queued) cancelAnimationFrame(queued);
+    queued = requestAnimationFrame(apply);
   }
 
-  function bootObserver(){
-    if(observer) return;
-    const body = document.body;
-    if(!body) return;
-    observer = new MutationObserver(function(){ if(!selfApplying) queue(); });
-    observer.observe(body, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      queue();
+      [120, 450, 1100, 2200].forEach(ms => setTimeout(queue, ms));
+    }, {once:true});
+  } else {
+    queue();
+    [120, 450, 1100, 2200].forEach(ms => setTimeout(queue, ms));
   }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ queue(); bootObserver(); }, { once:true });
-  else { queue(); bootObserver(); }
-
-  window.addEventListener('load', function(){ queue(); [80, 240, 600, 1200, 2400, 4200].forEach(ms => setTimeout(queue, ms)); }, { passive:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', queue, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema, #openComicMenu, #openRuleGame, #openPcPartsGame, #spinBtn')) [40, 180, 420].forEach(ms => setTimeout(queue, ms)); }, true);
+  window.addEventListener('load', function(){ queue(); [160, 700, 1600].forEach(ms => setTimeout(queue, ms)); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#cinema, #openComicMenu, #openRuleGame, #openPcPartsGame')){
+      [40, 180].forEach(ms => setTimeout(queue, ms));
+    }
+  }, true);
 })();
 </script>
 
