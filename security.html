@@ -45145,6 +45145,312 @@ html.tk-2600x1400-13 #cinema .movie-duration{
 })();
 </script>
 
+
+<style id="tk-2600x1400-13-cinema-clean2-style">
+html.tk-2600x1400-13-clean2 #tkCinemaDetachedPrev,
+html.tk-2600x1400-13-clean2 #tkCinemaDetachedNext,
+html.tk-2600x1400-13-clean2 #oai2600CinemaPrev,
+html.tk-2600x1400-13-clean2 #oai2600CinemaNext{
+  display:none !important;
+}
+html.tk-2600x1400-13-clean2 #cinema,
+html.tk-2600x1400-13-clean2 #cinema .cinema-head,
+html.tk-2600x1400-13-clean2 #cinema .slider-container,
+html.tk-2600x1400-13-clean2 #cinema .slider-wrapper{
+  overflow: visible !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .slider-container{
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: var(--tk13-arrow-col, 50px) minmax(0, 1fr) var(--tk13-arrow-col, 50px) !important;
+  column-gap: var(--tk13-arrow-gap, 12px) !important;
+  align-items: center !important;
+  justify-content: start !important;
+  width: var(--tk13-stage-w, 846px) !important;
+  min-width: var(--tk13-stage-w, 846px) !important;
+  max-width: var(--tk13-stage-w, 846px) !important;
+  margin-top: 12px !important;
+  margin-right: 0 !important;
+  margin-left: var(--tk13-stage-left, 280px) !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .slider-wrapper{
+  grid-column: 2 !important;
+  width: var(--tk13-track-w, 722px) !important;
+  min-width: var(--tk13-track-w, 722px) !important;
+  max-width: var(--tk13-track-w, 722px) !important;
+  margin: 0 !important;
+  padding: 10px 0 12px !important;
+  gap: var(--tk13-slide-gap, 14px) !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-snap-type: none !important;
+  scroll-padding-left: 0 !important;
+  scroll-padding-right: 0 !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .slider-wrapper::-webkit-scrollbar{
+  display:none !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .slider-prev,
+html.tk-2600x1400-13-clean2 #cinema .slider-next{
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 9 !important;
+  align-self: center !important;
+  justify-self: center !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .slider-prev{ grid-column: 1 !important; }
+html.tk-2600x1400-13-clean2 #cinema .slider-next{ grid-column: 3 !important; }
+html.tk-2600x1400-13-clean2 #cinema .movie-slide{
+  flex: 0 0 var(--tk13-slide-w, 231px) !important;
+  width: var(--tk13-slide-w, 231px) !important;
+  min-width: var(--tk13-slide-w, 231px) !important;
+  max-width: var(--tk13-slide-w, 231px) !important;
+  transform: translateY(0) scale(1) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .movie-slide.is-active{
+  transform: translateY(-6px) scale(1) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 18px 34px rgba(0,0,0,.20)) !important;
+  z-index: 3 !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .movie-img,
+html.tk-2600x1400-13-clean2 #cinema .movie-slide.is-active .movie-img{
+  height: 154px !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .movie-info{
+  margin-top: 10px !important;
+  gap: 8px !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .movie-info h3,
+html.tk-2600x1400-13-clean2 #cinema .movie-slide.is-active .movie-info h3{
+  font-size: 17px !important;
+  line-height: 1.06 !important;
+  letter-spacing: .03em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  min-height: 2.15em !important;
+}
+html.tk-2600x1400-13-clean2 #cinema .movie-btn,
+html.tk-2600x1400-13-clean2 #cinema .movie-slide:not(.is-active) .movie-btn{
+  min-width: 112px !important;
+  padding: 10px 12px !important;
+  font-size: 10px !important;
+}
+</style>
+<script id="tk-2600x1400-13-cinema-clean2-script">
+(function(){
+  const root = document.documentElement;
+  const cinema = document.getElementById('cinema');
+  if(!cinema) return;
+  const stage = cinema.querySelector('.slider-container');
+  const track = cinema.querySelector('.slider-wrapper');
+  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+  const prevBtn = cinema.querySelector('.slider-prev');
+  const nextBtn = cinema.querySelector('.slider-next');
+  if(!stage || !track || slides.length < 3 || !prevBtn || !nextBtn) return;
+
+  let raf = 0;
+  let scrollTimer = 0;
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+  function rect(el){
+    if(!el) return null;
+    const r = el.getBoundingClientRect();
+    if(!r || r.width <= 0 || r.height <= 0) return null;
+    return r;
+  }
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), window.innerWidth || 0);
+    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), window.innerHeight || 0);
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return { dpr, sw, sh, iw, ih, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
+  }
+  function isTarget(){
+    const m = metrics();
+    const aspect = m.physW / Math.max(1, m.physH);
+    const physical = m.physW >= 2450 && m.physW <= 2750 && m.physH >= 1350 && m.physH <= 1550;
+    const viewport = m.iw >= 1180 && m.iw <= 1420 && m.ih >= 720 && m.ih <= 940;
+    return physical && viewport && m.dpr >= 1.6 && m.dpr <= 2.5 && aspect >= 1.68 && aspect <= 1.95;
+  }
+  function leftRailRight(){
+    let best = 0;
+    ['.side-nav','#tk18LeftRail','#tk19LeftRail','#tkFhdLeftRailFinal'].forEach(sel => {
+      const el = document.querySelector(sel);
+      const r = rect(el);
+      if(r) best = Math.max(best, r.right);
+    });
+    return best || 290;
+  }
+  function rightRailLeft(){
+    let best = window.innerWidth - 20;
+    ['#rouletteDock','.rules','#tkLiveStats','#openComicMenu','#openRuleGame','#openPcPartsGame'].forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        const r = rect(el);
+        if(r) best = Math.min(best, r.left);
+      });
+    });
+    return best;
+  }
+  function hideDetached(){
+    ['tkCinemaDetachedPrev','tkCinemaDetachedNext','oai2600CinemaPrev','oai2600CinemaNext'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.setProperty('display', 'none', 'important');
+    });
+  }
+  function paintSlides(){
+    slides.forEach(slide => {
+      const on = slide.classList.contains('is-active');
+      imp(slide, 'transform', on ? 'translateY(-6px) scale(1)' : 'translateY(0) scale(1)');
+      imp(slide, 'opacity', '1');
+    });
+  }
+  function apply(){
+    raf = 0;
+    const on = isTarget();
+    root.classList.toggle('tk-2600x1400-13-clean2', on);
+    if(!on) return;
+
+    [
+      'oai-cinema-2600-left-hardfix-v9',
+      'oai-cinema-2600-pocket-fix',
+      'oai-cinema-2600-corridor-fix',
+      'tk-retina-16x10-three-slides-v18',
+      'tk-2500x1600-three-slide-hardfix-v9',
+      'tk-2560x1600-real-fix-v9',
+      'tk-2560x1600-real-fix-v8',
+      'tk-2560x1600-real-fix-v6',
+      'tk-2560x1600-real-fix-v5',
+      'tk-2560x1600-real-fix-v3'
+    ].forEach(cls => root.classList.remove(cls));
+
+    const cinemaRect = rect(cinema);
+    if(!cinemaRect) return;
+
+    const leftEdge = Math.round(Math.max(cinemaRect.left + 4, leftRailRight() + 12));
+    const rightEdge = Math.round(Math.min(window.innerWidth - 18, rightRailLeft() - 14));
+
+    const arrowCol = 50;
+    const arrowGap = 12;
+    const slideGap = 14;
+    const usable = rightEdge - leftEdge;
+    if(usable < 760) return;
+
+    let slideW = clamp(Math.floor((usable - (arrowCol * 2) - (arrowGap * 2) - (slideGap * 2)) / 3), 214, 234);
+    let trackW = slideW * 3 + slideGap * 2;
+    let stageW = trackW + arrowCol * 2 + arrowGap * 2;
+
+    if(stageW > usable){
+      slideW = clamp(Math.floor((usable - (arrowCol * 2) - (arrowGap * 2) - (slideGap * 2)) / 3), 206, 234);
+      trackW = slideW * 3 + slideGap * 2;
+      stageW = trackW + arrowCol * 2 + arrowGap * 2;
+    }
+
+    let stageLeft = Math.round(leftEdge - cinemaRect.left);
+    const maxStageLeft = Math.round((rightEdge - cinemaRect.left) - stageW);
+    stageLeft = clamp(stageLeft, 0, Math.max(0, maxStageLeft));
+
+    root.style.setProperty('--tk13-arrow-col', arrowCol + 'px');
+    root.style.setProperty('--tk13-arrow-gap', arrowGap + 'px');
+    root.style.setProperty('--tk13-slide-gap', slideGap + 'px');
+    root.style.setProperty('--tk13-slide-w', slideW + 'px');
+    root.style.setProperty('--tk13-track-w', trackW + 'px');
+    root.style.setProperty('--tk13-stage-w', stageW + 'px');
+    root.style.setProperty('--tk13-stage-left', stageLeft + 'px');
+
+    imp(stage, 'display', 'grid');
+    imp(stage, 'grid-template-columns', arrowCol + 'px minmax(0,1fr) ' + arrowCol + 'px');
+    imp(stage, 'column-gap', arrowGap + 'px');
+    imp(stage, 'align-items', 'center');
+    imp(stage, 'width', stageW + 'px');
+    imp(stage, 'min-width', stageW + 'px');
+    imp(stage, 'max-width', stageW + 'px');
+    imp(stage, 'margin-left', stageLeft + 'px');
+    imp(stage, 'margin-right', '0');
+    imp(stage, 'padding-left', '0');
+    imp(stage, 'padding-right', '0');
+    imp(stage, 'transform', 'none');
+
+    imp(track, 'grid-column', '2');
+    imp(track, 'width', trackW + 'px');
+    imp(track, 'min-width', trackW + 'px');
+    imp(track, 'max-width', trackW + 'px');
+    imp(track, 'gap', slideGap + 'px');
+    imp(track, 'padding', '10px 0 12px');
+    imp(track, 'scroll-padding-left', '0');
+    imp(track, 'scroll-padding-right', '0');
+    imp(track, 'scrollbar-width', 'none');
+    imp(track, '-webkit-mask-image', 'none');
+    imp(track, 'mask-image', 'none');
+
+    [prevBtn, nextBtn].forEach((btn, idx) => {
+      ['left','right','top','bottom'].forEach(prop => btn.style.removeProperty(prop));
+      imp(btn, 'position', 'relative');
+      imp(btn, 'transform', 'none');
+      imp(btn, 'width', '46px');
+      imp(btn, 'height', '46px');
+      imp(btn, 'margin', '0');
+      imp(btn, 'top', 'auto');
+      imp(btn, 'left', 'auto');
+      imp(btn, 'right', 'auto');
+      imp(btn, 'bottom', 'auto');
+      imp(btn, 'grid-column', idx === 0 ? '1' : '3');
+    });
+
+    slides.forEach(slide => {
+      imp(slide, 'flex', '0 0 ' + slideW + 'px');
+      imp(slide, 'width', slideW + 'px');
+      imp(slide, 'min-width', slideW + 'px');
+      imp(slide, 'max-width', slideW + 'px');
+    });
+
+    paintSlides();
+    hideDetached();
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+
+  prevBtn.addEventListener('click', function(){ if(!root.classList.contains('tk-2600x1400-13-clean2')) return; setTimeout(function(){ queue(); paintSlides(); }, 40); }, true);
+  nextBtn.addEventListener('click', function(){ if(!root.classList.contains('tk-2600x1400-13-clean2')) return; setTimeout(function(){ queue(); paintSlides(); }, 40); }, true);
+  track.addEventListener('scroll', function(){
+    if(!root.classList.contains('tk-2600x1400-13-clean2')) return;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function(){ paintSlides(); queue(); }, 80);
+  }, { passive:true });
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', function(){ queue(); [120, 320, 800, 1600].forEach(ms => setTimeout(queue, ms)); }, { once:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+})();
+</script>
+
 </body>
 </html>
 
