@@ -45451,6 +45451,270 @@ html.tk-2600x1400-13-clean2 #cinema .movie-slide:not(.is-active) .movie-btn{
 })();
 </script>
 
+
+<style id="tk-2600x1400-13-two-up-final-style">
+html.tk-2600x1400-13-two-up-final #cinema,
+html.tk-2600x1400-13-two-up-final #cinema .slider-container,
+html.tk-2600x1400-13-two-up-final #cinema .slider-wrapper{
+  overflow: visible !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .slider-container{
+  display: grid !important;
+  grid-template-columns: var(--tk2600-arrow-col, 52px) minmax(0,1fr) var(--tk2600-arrow-col, 52px) !important;
+  column-gap: var(--tk2600-arrow-gap, 14px) !important;
+  align-items: center !important;
+  width: var(--tk2600-stage-w, 796px) !important;
+  min-width: var(--tk2600-stage-w, 796px) !important;
+  max-width: var(--tk2600-stage-w, 796px) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  transform: translateX(var(--tk2600-stage-shift, 0px)) !important;
+  transform-origin: left center !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .slider-wrapper{
+  grid-column: 2 !important;
+  width: var(--tk2600-track-w, 662px) !important;
+  min-width: var(--tk2600-track-w, 662px) !important;
+  max-width: var(--tk2600-track-w, 662px) !important;
+  padding: 14px 0 14px !important;
+  gap: var(--tk2600-gap, 22px) !important;
+  align-items: stretch !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x mandatory !important;
+  scroll-padding-left: 0 !important;
+  scroll-padding-right: 0 !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .slider-wrapper::-webkit-scrollbar{
+  display: none !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .slider-prev,
+html.tk-2600x1400-13-two-up-final #cinema .slider-next{
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  width: 48px !important;
+  height: 48px !important;
+  z-index: 8 !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .slider-prev{ grid-column: 1 !important; }
+html.tk-2600x1400-13-two-up-final #cinema .slider-next{ grid-column: 3 !important; }
+html.tk-2600x1400-13-two-up-final #cinema .movie-slide{
+  flex: 0 0 var(--tk2600-card-w, 320px) !important;
+  width: var(--tk2600-card-w, 320px) !important;
+  min-width: var(--tk2600-card-w, 320px) !important;
+  max-width: var(--tk2600-card-w, 320px) !important;
+  scroll-snap-align: start !important;
+  transform: translateY(0) scale(1) !important;
+  opacity: 1 !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .movie-slide.is-active{
+  transform: translateY(-6px) scale(1) !important;
+  opacity: 1 !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .movie-img,
+html.tk-2600x1400-13-two-up-final #cinema .movie-slide.is-active .movie-img{
+  height: 194px !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .movie-info{
+  min-height: 130px !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .movie-info h3,
+html.tk-2600x1400-13-two-up-final #cinema .movie-slide.is-active .movie-info h3{
+  font-size: clamp(18px, 1.45vw, 22px) !important;
+  line-height: 1.04 !important;
+  letter-spacing: .04em !important;
+}
+html.tk-2600x1400-13-two-up-final #cinema .movie-btn,
+html.tk-2600x1400-13-two-up-final #cinema .movie-slide:not(.is-active) .movie-btn{
+  min-width: 128px !important;
+  padding: 10px 16px !important;
+  font-size: 11px !important;
+}
+</style>
+<script id="tk-2600x1400-13-two-up-final-script">
+(function(){
+  const root = document.documentElement;
+  const cinema = document.getElementById('cinema');
+  if(!cinema) return;
+  const stage = cinema.querySelector('.slider-container');
+  const track = cinema.querySelector('.slider-wrapper');
+  const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+  const prevBtn = cinema.querySelector('.slider-prev');
+  const nextBtn = cinema.querySelector('.slider-next');
+  if(!stage || !track || slides.length < 3 || !prevBtn || !nextBtn) return;
+
+  let raf = 0;
+  let syncing = false;
+  let scrollTimer = 0;
+  let clickTimer = 0;
+
+  function rect(el){
+    if(!el) return null;
+    const r = el.getBoundingClientRect();
+    if(!r || r.width <= 0 || r.height <= 0) return null;
+    return r;
+  }
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = Math.max(Number((window.screen && (window.screen.width || window.screen.availWidth)) || 0), iw);
+    const sh = Math.max(Number((window.screen && (window.screen.height || window.screen.availHeight)) || 0), ih);
+    return { dpr, iw, ih, effW: Math.round(sw * dpr), effH: Math.round(sh * dpr) };
+  }
+  function isTarget(){
+    const m = metrics();
+    const physical = m.effW >= 2450 && m.effW <= 2850 && m.effH >= 1350 && m.effH <= 1650;
+    const viewport = m.iw >= 1180 && m.iw <= 1500 && m.ih >= 700 && m.ih <= 980;
+    return physical && viewport && m.dpr >= 1.5 && m.dpr <= 2.6;
+  }
+  function leftRailRight(){
+    let best = 0;
+    ['.side-nav','#tk18LeftRail','#tk19LeftRail','#tkFhdLeftRailFinal'].forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        const r = rect(el);
+        if(r) best = Math.max(best, r.right);
+      });
+    });
+    return best || 270;
+  }
+  function rightRailLeft(){
+    let best = window.innerWidth - 18;
+    ['#rouletteDock','.rules','#tkFhdRightRailFinal','#tk23RightRail','#tkV165RightRail','#tkLiveStats'].forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        const r = rect(el);
+        if(r) best = Math.min(best, r.left);
+      });
+    });
+    return best;
+  }
+  function setVar(name, value){ root.style.setProperty(name, value); }
+  function currentStep(){
+    const gap = parseFloat(getComputedStyle(root).getPropertyValue('--tk2600-gap')) || 22;
+    const card = parseFloat(getComputedStyle(root).getPropertyValue('--tk2600-card-w')) || slides[0].getBoundingClientRect().width || 320;
+    return Math.max(1, Math.round(card + gap));
+  }
+  function maxIndex(){ return Math.max(0, slides.length - 2); }
+  function readIndex(){
+    const step = currentStep();
+    return clamp(Math.round(track.scrollLeft / step), 0, maxIndex());
+  }
+  function paint(index){
+    slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
+  }
+  function goTo(index, smooth){
+    index = clamp(index, 0, maxIndex());
+    const slide = slides[index];
+    if(!slide) return;
+    const left = Math.max(0, slide.offsetLeft);
+    syncing = true;
+    track.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+    paint(index);
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => { syncing = false; paint(readIndex()); }, smooth ? 220 : 40);
+  }
+  function applyLayout(){
+    raf = 0;
+    const on = isTarget();
+    root.classList.toggle('tk-2600x1400-13-two-up-final', on);
+    if(!on) return;
+
+    root.classList.remove('tk-2600x1400-13-clean2', 'tk-2600x1400-13');
+
+    const cinemaRect = rect(cinema);
+    const stageRect = rect(stage);
+    if(!cinemaRect || !stageRect) return;
+
+    const leftEdge = Math.round(Math.max(cinemaRect.left + 4, leftRailRight() + 20));
+    const rightEdge = Math.round(Math.min(window.innerWidth - 16, rightRailLeft() - 18));
+    const corridor = rightEdge - leftEdge;
+    if(corridor < 700) return;
+
+    const arrowCol = 52;
+    const arrowGap = 14;
+    const gap = 22;
+    const cardW = clamp(Math.floor((corridor - (arrowCol * 2) - (arrowGap * 2) - gap) / 2), 272, 320);
+    const trackW = cardW * 2 + gap;
+    const stageW = trackW + (arrowCol * 2) + (arrowGap * 2);
+    const desiredLeft = leftEdge;
+    const shift = Math.round(desiredLeft - stageRect.left);
+
+    setVar('--tk2600-arrow-col', arrowCol + 'px');
+    setVar('--tk2600-arrow-gap', arrowGap + 'px');
+    setVar('--tk2600-gap', gap + 'px');
+    setVar('--tk2600-card-w', cardW + 'px');
+    setVar('--tk2600-track-w', trackW + 'px');
+    setVar('--tk2600-stage-w', stageW + 'px');
+    setVar('--tk2600-stage-shift', shift + 'px');
+
+    stage.style.setProperty('width', stageW + 'px', 'important');
+    stage.style.setProperty('min-width', stageW + 'px', 'important');
+    stage.style.setProperty('max-width', stageW + 'px', 'important');
+    stage.style.setProperty('transform', 'translateX(' + shift + 'px)', 'important');
+    track.style.setProperty('width', trackW + 'px', 'important');
+    track.style.setProperty('min-width', trackW + 'px', 'important');
+    track.style.setProperty('max-width', trackW + 'px', 'important');
+    track.style.setProperty('gap', gap + 'px', 'important');
+    slides.forEach(slide => {
+      slide.style.setProperty('flex', '0 0 ' + cardW + 'px', 'important');
+      slide.style.setProperty('width', cardW + 'px', 'important');
+      slide.style.setProperty('min-width', cardW + 'px', 'important');
+      slide.style.setProperty('max-width', cardW + 'px', 'important');
+    });
+
+    setTimeout(() => goTo(readIndex() || 0, false), 20);
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(applyLayout); }
+  function afterClick(nextIndex){
+    clearTimeout(clickTimer);
+    goTo(nextIndex, true);
+    clickTimer = setTimeout(() => { queue(); goTo(nextIndex, false); }, 120);
+  }
+
+  prevBtn.addEventListener('click', function(e){
+    if(!root.classList.contains('tk-2600x1400-13-two-up-final')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const idx = clamp(readIndex() - 1, 0, maxIndex());
+    afterClick(idx);
+  }, true);
+  nextBtn.addEventListener('click', function(e){
+    if(!root.classList.contains('tk-2600x1400-13-two-up-final')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const idx = clamp(readIndex() + 1, 0, maxIndex());
+    afterClick(idx);
+  }, true);
+
+  track.addEventListener('scroll', function(){
+    if(!root.classList.contains('tk-2600x1400-13-two-up-final')) return;
+    if(syncing) return;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => paint(readIndex()), 60);
+  }, { passive:true });
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', function(){ queue(); setTimeout(queue, 140); setTimeout(() => goTo(0, false), 220); setTimeout(queue, 900); }, { once:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+})();
+</script>
+
 </body>
 </html>
 
