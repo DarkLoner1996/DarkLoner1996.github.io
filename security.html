@@ -43530,6 +43530,157 @@ html.oai-cinema-overlap-runtime-fix-v2600 #cinema .slider-wrapper{
 })();
 </script>
 
+
+<style id="oai-cinema-right-gutter-v2600-style">
+html.oai-cinema-right-gutter-v2600 #cinema,
+html.oai-cinema-right-gutter-v2600 #cinema .slider-container{
+  overflow: visible !important;
+}
+html.oai-cinema-right-gutter-v2600 #cinema .slider-next{
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: auto !important;
+  z-index: 450 !important;
+}
+</style>
+<script id="oai-cinema-right-gutter-v2600-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  let mo = null;
+
+  function metrics(){
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+    const ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+    const sw = Number((window.screen && (window.screen.width || window.screen.availWidth)) || iw);
+    const sh = Number((window.screen && (window.screen.height || window.screen.availHeight)) || ih);
+    const aw = Number((window.screen && window.screen.availWidth) || sw || iw);
+    const ah = Number((window.screen && window.screen.availHeight) || sh || ih);
+    const physW = Math.round(Math.max(sw, aw, iw) * dpr);
+    const physH = Math.round(Math.max(sh, ah, ih) * dpr);
+    return { dpr, iw, ih, sw, sh, aw, ah, physW, physH };
+  }
+
+  function isDesktopLike(){
+    const m = metrics();
+    return m.iw >= 980 && m.ih >= 620;
+  }
+
+  function isTargetBand(){
+    const m = metrics();
+    const aspect = Math.max(m.sw, m.aw, m.iw) / Math.max(1, Math.max(m.sh, m.ah, m.ih));
+    const physicalBand = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1300 && m.physH <= 1600;
+    const logicalBand = m.iw >= 1180 && m.iw <= 2100 && m.ih >= 700 && m.ih <= 1180 && aspect >= 1.58 && aspect <= 1.95;
+    const not4k = !(m.physW >= 3200 || m.physH >= 1850 || m.iw >= 2200 || m.ih >= 1300);
+    return not4k && (physicalBand || logicalBand);
+  }
+
+  function rectOverlap(a, b){
+    return !!a && !!b && !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+  }
+
+  function getUI(){
+    const cinema = document.getElementById('cinema');
+    if(!cinema) return null;
+    const stage = cinema.querySelector('.slider-container');
+    const track = cinema.querySelector('.slider-wrapper');
+    const next = cinema.querySelector('.slider-next');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !track || !next || slides.length < 2) return null;
+    return { cinema, stage, track, next, slides };
+  }
+
+  function visibleRects(ui){
+    const stageRect = ui.stage.getBoundingClientRect();
+    return ui.slides
+      .map(slide => slide.getBoundingClientRect())
+      .filter(r => Math.min(r.right, stageRect.right) - Math.max(r.left, stageRect.left) > 24 && r.width > 60 && r.height > 60)
+      .sort((a,b)=>a.left-b.left);
+  }
+
+  function anyOverlap(btnRect, rects){
+    for(const r of rects){
+      if(rectOverlap(btnRect, r)) return true;
+    }
+    return false;
+  }
+
+  function pushNextOutside(ui){
+    const rects = visibleRects(ui);
+    if(!rects.length) return;
+
+    root.classList.add('oai-cinema-right-gutter-v2600');
+
+    try{ ui.cinema.style.setProperty('overflow', 'visible', 'important'); }catch(_e){}
+    try{ ui.stage.style.setProperty('overflow', 'visible', 'important'); }catch(_e){}
+
+    const current = parseFloat(getComputedStyle(ui.next).right) || 0;
+    const candidates = [
+      Math.min(current, -18), -26, -34, -42, -52, -64, -78, -94, -112, -132, -154, -178
+    ];
+    const uniq = [...new Set(candidates.map(v => Math.round(v)))];
+
+    let applied = uniq[0];
+    for(const rightVal of uniq){
+      try{
+        ui.next.style.setProperty('position', 'absolute', 'important');
+        ui.next.style.setProperty('top', '50%', 'important');
+        ui.next.style.setProperty('transform', 'translateY(-50%)', 'important');
+        ui.next.style.setProperty('left', 'auto', 'important');
+        ui.next.style.setProperty('right', rightVal + 'px', 'important');
+        ui.next.style.setProperty('margin', '0', 'important');
+        ui.next.style.setProperty('grid-column', 'auto', 'important');
+        ui.next.style.setProperty('place-self', 'auto', 'important');
+        ui.next.style.setProperty('z-index', '450', 'important');
+      }catch(_e){}
+      const btnRect = ui.next.getBoundingClientRect();
+      applied = rightVal;
+      if(!anyOverlap(btnRect, rects)) break;
+    }
+
+    const btnRect = ui.next.getBoundingClientRect();
+    if(anyOverlap(btnRect, rects)){
+      const last = rects[rects.length - 1];
+      const stageRect = ui.stage.getBoundingClientRect();
+      const gap = 18;
+      const btnW = Math.max(btnRect.width || ui.next.offsetWidth || 42, 36);
+      let rightVal = Math.round(stageRect.right - (last.right + gap + btnW));
+      rightVal = Math.min(rightVal, -190);
+      rightVal = Math.max(rightVal, -320);
+      try{ ui.next.style.setProperty('right', rightVal + 'px', 'important'); }catch(_e){}
+    }
+  }
+
+  function run(){
+    raf = 0;
+    const ui = getUI();
+    if(!ui || !isDesktopLike() || !isTargetBand()) return;
+    pushNextOutside(ui);
+  }
+
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(run);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [0, 120, 500, 1500, 3000, 5000].forEach(ms => setTimeout(queue, ms));
+
+  try{
+    mo = new MutationObserver(queue);
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
+  }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
 
