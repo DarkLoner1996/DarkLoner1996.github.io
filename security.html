@@ -43833,49 +43833,55 @@ html.oai-cinema-2600-corridor-fix #cinema .movie-slide.is-active .movie-info h3{
 
 
 <style id="oai-right-rail-2600-only-fix-style">
-html.oai-right-rail-2600-only-fix #tkV205RightRail4k{
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k,
+html.oai-right-rail-2600-only-fix .rules{
   right: 14px !important;
   bottom: 14px !important;
   gap: 8px !important;
 }
 html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rules,
 html.oai-right-rail-2600-only-fix .rules{
-  width: 312px !important;
-  min-width: 312px !important;
-  max-width: 312px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
   gap: 8px !important;
 }
 html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill,
 html.oai-right-rail-2600-only-fix .rules > .rule-pill{
-  width: 312px !important;
-  min-width: 312px !important;
-  max-width: 312px !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  padding: 8px 12px !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  padding: 8px 14px !important;
   gap: 10px !important;
   box-sizing: border-box !important;
+  align-self: flex-end !important;
 }
 html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__icon,
 html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__icon{
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 16px !important;
-  flex: 0 0 44px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 15px !important;
+  flex: 0 0 42px !important;
 }
 html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__icon img,
 html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__icon img{
-  width: 34px !important;
-  height: 34px !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__title,
 html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__title{
   font-size: 15px !important;
   line-height: 1.04 !important;
-  letter-spacing: .02em !important;
+  letter-spacing: .01em !important;
   margin-right: 0 !important;
-  flex: 1 1 auto !important;
+  flex: 0 1 auto !important;
   min-width: 0 !important;
+  white-space: nowrap !important;
 }
 html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__badge,
 html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__badge{
@@ -43892,15 +43898,32 @@ html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__badge{
     const sw = Math.max((window.screen && (window.screen.width || window.screen.availWidth)) || 0, iw);
     const sh = Math.max((window.screen && (window.screen.height || window.screen.availHeight)) || 0, ih);
     const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    return { iw, ih, sw, sh, dpr, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
+    return {
+      iw, ih, sw, sh, dpr,
+      physW: Math.round(sw * dpr),
+      physH: Math.round(sh * dpr),
+      innerPhysW: Math.round(iw * dpr),
+      innerPhysH: Math.round(ih * dpr)
+    };
   }
   function isTarget(){
     const m = metrics();
-    const aspect = m.sw / Math.max(1, m.sh);
-    const physical = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1280 && m.physH <= 1600;
-    const logical = m.iw >= 1080 && m.iw <= 1680 && m.ih >= 620 && m.ih <= 980 && aspect >= 1.55 && aspect <= 1.95;
-    const not4k = !(m.physW >= 3200 || m.physH >= 1800 || m.iw >= 1850 || m.ih >= 1100);
-    return not4k && (physical || logical);
+    const logicalLaptop = (
+      m.dpr >= 1.5 &&
+      m.iw >= 1280 && m.iw <= 1720 &&
+      m.ih >= 760 && m.ih <= 1040
+    );
+    const scaled2600ish = (
+      m.dpr >= 1.5 &&
+      ((m.innerPhysW >= 2500 && m.innerPhysW <= 3400 && m.innerPhysH >= 1400 && m.innerPhysH <= 2200) ||
+       (m.physW >= 2500 && m.physW <= 3400 && m.physH >= 1400 && m.physH <= 2200))
+    );
+    const true4k = (
+      m.iw >= 1850 || m.ih >= 1120 ||
+      m.innerPhysW >= 3600 || m.innerPhysH >= 2300 ||
+      m.physW >= 3600 || m.physH >= 2300
+    );
+    return !true4k && (logicalLaptop || scaled2600ish);
   }
   function apply(){
     raf = 0;
