@@ -39024,8 +39024,6 @@ html body #cinema .cinema-banner-sub{
   const widget = document.getElementById('tkLiveStats');
   if(!widget) return;
   let rafId = 0;
-  let intervalId = 0;
-  let tries = 0;
 
   function stripOldPlacementClasses(){
     widget.classList.remove(
@@ -39061,6 +39059,7 @@ html body #cinema .cinema-banner-sub{
     widget.style.setProperty('right', 'auto', 'important');
     widget.style.setProperty('bottom', 'auto', 'important');
     widget.style.setProperty('position', 'fixed', 'important');
+    widget.style.setProperty('transition', 'none', 'important');
     const wr = widget.getBoundingClientRect();
     widget.style.visibility = prevVis || '';
 
@@ -39096,40 +39095,16 @@ html body #cinema .cinema-banner-sub{
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(hardPlace);
   }
-
-  function boot(){
-    hardPlace();
-    tries = 0;
-    clearInterval(intervalId);
-    intervalId = setInterval(()=>{
-      hardPlace();
-      tries += 1;
-      if(tries > 80) clearInterval(intervalId);
-    }, 250);
-
-    window.addEventListener('resize', schedule, { passive:true });
-    window.addEventListener('orientationchange', schedule, { passive:true });
-    window.addEventListener('scroll', schedule, { passive:true });
-
-    const rules = document.querySelector('.rules');
-    if(rules && window.MutationObserver){
-      new MutationObserver(schedule).observe(rules, { attributes:true, childList:true, subtree:true, attributeFilter:['class','style'] });
-      if(rules.parentNode) new MutationObserver(schedule).observe(rules.parentNode, { attributes:true, childList:true, subtree:false, attributeFilter:['class','style'] });
-    }
-    if(window.MutationObserver){
-      new MutationObserver(schedule).observe(document.documentElement, { attributes:true, subtree:true, childList:true, attributeFilter:['class','style'] });
-    }
-  }
+  function burst(delays){ delays.forEach(ms => setTimeout(schedule, ms)); }
 
   if(document.readyState === 'complete'){
-    setTimeout(boot, 60);
+    burst([60, 180, 400, 900, 1600, 2600]);
   } else {
-    window.addEventListener('load', ()=>setTimeout(boot, 60), { once:true });
+    window.addEventListener('load', ()=>burst([60, 180, 400, 900, 1600, 2600]), { once:true });
   }
-  document.addEventListener('DOMContentLoaded', ()=>setTimeout(hardPlace, 80), { once:true });
-  setTimeout(hardPlace, 400);
-  setTimeout(hardPlace, 1200);
-  setTimeout(hardPlace, 2600);
+  document.addEventListener('DOMContentLoaded', ()=>burst([80, 240, 700]), { once:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('orientationchange', schedule, { passive:true });
 })();
 </script>
 
@@ -44287,9 +44262,8 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
 (function(){
   const root = document.documentElement;
   let raf = 0;
-  let timer = 0;
+  let active = false;
 
-  function px(v){ return Math.round(Number(v) || 0); }
   function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
   function rem(el, prop){ if(!el) return; try{ el.style.removeProperty(prop); }catch(_e){} }
   function m(){
@@ -44298,30 +44272,42 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
     const sw = Math.max((window.screen && (window.screen.width || window.screen.availWidth)) || 0, iw);
     const sh = Math.max((window.screen && (window.screen.height || window.screen.availHeight)) || 0, ih);
     const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    return { iw, ih, sw, sh, dpr, physW: Math.round(sw*dpr), physH: Math.round(sh*dpr), innerPhysW: Math.round(iw*dpr), innerPhysH: Math.round(ih*dpr) };
+    return {
+      iw, ih, sw, sh, dpr,
+      physW: Math.round(sw * dpr),
+      physH: Math.round(sh * dpr),
+      innerPhysW: Math.round(iw * dpr),
+      innerPhysH: Math.round(ih * dpr)
+    };
   }
   function isTarget(){
-    if(root.classList.contains('oai-right-rail-2600-only-fix')) return true;
     const x = m();
-    const fourK = x.iw >= 1850 || x.ih >= 1120 || x.innerPhysW >= 3600 || x.innerPhysH >= 2300 || x.physW >= 3600 || x.physH >= 2300;
-    if(fourK) return false;
-    return x.dpr >= 1.5 && x.iw >= 1180 && x.iw <= 1720 && x.ih >= 720 && x.ih <= 1040 && (
+    const true4k = (
+      x.iw >= 1850 || x.ih >= 1120 ||
+      x.innerPhysW >= 3600 || x.innerPhysH >= 2300 ||
+      x.physW >= 3600 || x.physH >= 2300
+    );
+    if(true4k) return false;
+    const laptopBand = (
+      x.dpr >= 1.45 && x.dpr <= 2.25 &&
+      x.iw >= 1180 && x.iw <= 1720 &&
+      x.ih >= 720 && x.ih <= 1040
+    );
+    const phys2600Band = (
       (x.innerPhysW >= 2450 && x.innerPhysW <= 3400 && x.innerPhysH >= 1350 && x.innerPhysH <= 2200) ||
       (x.physW >= 2450 && x.physW <= 3400 && x.physH >= 1350 && x.physH <= 2200)
     );
+    return laptopBand && phys2600Band;
   }
   function getRules(){
     return document.querySelector('#tk23RightRail .rules, #tkV205RightRail4k .rules, #tkFhdRightRailFinal .rules, .rules');
-  }
-  function getRail(){
-    return document.getElementById('tk23RightRail') || document.getElementById('tkV205RightRail4k') || document.getElementById('tkFhdRightRailFinal');
   }
   function naturalWidth(el){
     if(!el) return 0;
     const props = ['width','min-width','max-width','left','top','right','bottom','transform','position','margin-left','margin-right','align-self'];
     const prev = {};
     props.forEach(p => prev[p] = el.style.getPropertyValue(p));
-    ['width','min-width','max-width','left','top','right','bottom','transform','position','margin-left','margin-right','align-self'].forEach(p => rem(el,p));
+    props.forEach(p => rem(el,p));
     imp(el,'width','max-content');
     imp(el,'min-width','0px');
     imp(el,'max-width','none');
@@ -44332,19 +44318,20 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
     props.forEach(p => { if(prev[p]) imp(el,p,prev[p]); else rem(el,p); });
     return w;
   }
-  function clearAll(){
+  function clearOnlyOurOverrides(){
     const ids = ['openComicMenu','openRuleGame','openPcPartsGame'];
     ids.forEach(id => {
       const el = document.getElementById(id);
       if(!el) return;
-      ['width','min-width','max-width','align-self','margin-left','margin-right'].forEach(p => rem(el,p));
+      ['width','min-width','max-width','align-self','margin-left','margin-right','justify-content','box-sizing'].forEach(p => rem(el,p));
     });
     const rules = getRules();
-    if(rules) ['width','min-width','max-width'].forEach(p => rem(rules,p));
+    if(rules) ['display','flex-direction','align-items','gap','width','min-width','max-width','margin-left'].forEach(p => rem(rules,p));
     const widget = document.getElementById('tkLiveStats');
-    if(widget) ['position','left','top','right','bottom','margin','transform','z-index'].forEach(p => rem(widget,p));
+    if(widget) ['position','left','top','right','bottom','margin','transform','z-index','transition'].forEach(p => rem(widget,p));
     const dock = document.getElementById('rouletteDock');
-    if(dock) ['position','left','top','right','bottom','margin','transform','z-index'].forEach(p => rem(dock,p));
+    if(dock) ['position','left','top','right','bottom','margin','transform','z-index','transition'].forEach(p => rem(dock,p));
+    active = false;
   }
   function fitButtons(){
     const rules = getRules();
@@ -44390,6 +44377,7 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
     imp(widget,'bottom','auto');
     imp(widget,'margin','0');
     imp(widget,'transform','none');
+    imp(widget,'transition','none');
     const wr = widget.getBoundingClientRect();
     rem(widget,'visibility');
     const ww = Math.ceil(wr.width || 246);
@@ -44420,6 +44408,7 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
     imp(dock,'bottom','auto');
     imp(dock,'margin','0');
     imp(dock,'transform','none');
+    imp(dock,'transition','none');
     const dr = dock.getBoundingClientRect();
     rem(dock,'visibility');
     const dh = Math.ceil(dr.height || 260);
@@ -44432,20 +44421,34 @@ html.oai-right-rail-2600-only-fix #rouletteDock{
   }
   function apply(){
     raf = 0;
-    if(!isTarget()) { clearAll(); return; }
+    if(!isTarget()){
+      if(active) clearOnlyOurOverrides();
+      return;
+    }
     const data = fitButtons();
     if(!data) return;
     placeStats(data.rules);
     placeRoulette(data.rules);
+    active = true;
   }
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
-  window.addEventListener('load', () => { queue(); [120,400,900,1600,2600,4200].forEach(ms => setTimeout(queue, ms)); }, {once:true});
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+  function burst(delays){ delays.forEach(ms => setTimeout(queue, ms)); }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => burst([0,120,400,900,1600,2600,4200]), {once:true});
+  else burst([0,120,400,900,1600,2600,4200]);
+
+  window.addEventListener('load', () => burst([0,120,400,900,1600,2600,4200]), {once:true});
   window.addEventListener('resize', queue, {passive:true});
   window.addEventListener('orientationchange', queue, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame')) [0,120,360,900].forEach(ms => setTimeout(queue, ms)); }, true);
-  timer = window.setInterval(function(){ if(isTarget()) apply(); }, 700);
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#spinBtn,#openComicMenu,#openRuleGame,#openPcPartsGame')){
+      burst([0,120,360,900]);
+    }
+  }, true);
 })();
 </script>
 
