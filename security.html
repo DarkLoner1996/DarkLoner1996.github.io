@@ -43831,6 +43831,95 @@ html.oai-cinema-2600-corridor-fix #cinema .movie-slide.is-active .movie-info h3{
 })();
 </script>
 
+
+<style id="oai-right-rail-2600-only-fix-style">
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k{
+  right: 14px !important;
+  bottom: 14px !important;
+  gap: 8px !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rules,
+html.oai-right-rail-2600-only-fix .rules{
+  width: 312px !important;
+  min-width: 312px !important;
+  max-width: 312px !important;
+  gap: 8px !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill,
+html.oai-right-rail-2600-only-fix .rules > .rule-pill{
+  width: 312px !important;
+  min-width: 312px !important;
+  max-width: 312px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 8px 12px !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__icon,
+html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__icon{
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 16px !important;
+  flex: 0 0 44px !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__icon img,
+html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__icon img{
+  width: 34px !important;
+  height: 34px !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__title,
+html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__title{
+  font-size: 15px !important;
+  line-height: 1.04 !important;
+  letter-spacing: .02em !important;
+  margin-right: 0 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+html.oai-right-rail-2600-only-fix #tkV205RightRail4k .rule-pill__badge,
+html.oai-right-rail-2600-only-fix .rules > .rule-pill .rule-pill__badge{
+  display: none !important;
+}
+</style>
+<script id="oai-right-rail-2600-only-fix-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  function metrics(){
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const sw = Math.max((window.screen && (window.screen.width || window.screen.availWidth)) || 0, iw);
+    const sh = Math.max((window.screen && (window.screen.height || window.screen.availHeight)) || 0, ih);
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    return { iw, ih, sw, sh, dpr, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
+  }
+  function isTarget(){
+    const m = metrics();
+    const aspect = m.sw / Math.max(1, m.sh);
+    const physical = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1280 && m.physH <= 1600;
+    const logical = m.iw >= 1080 && m.iw <= 1680 && m.ih >= 620 && m.ih <= 980 && aspect >= 1.55 && aspect <= 1.95;
+    const not4k = !(m.physW >= 3200 || m.physH >= 1800 || m.iw >= 1850 || m.ih >= 1100);
+    return not4k && (physical || logical);
+  }
+  function apply(){
+    raf = 0;
+    root.classList.toggle('oai-right-rail-2600-only-fix', isTarget());
+  }
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  [0,120,500,1200,2500].forEach(ms => setTimeout(queue, ms));
+})();
+</script>
+
 </body>
 </html>
 
