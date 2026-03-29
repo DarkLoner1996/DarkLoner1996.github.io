@@ -44996,75 +44996,138 @@ html.oai2600-clean-cinema #cinema .oai2600-nav svg{
 <script id="oai-2600-two-slide-clean-script">
 (function(){
   const root = document.documentElement;
-  const state = {on:false,page:0,pageSize:2,bound:false,wheelAcc:0,wheelLock:0,raf:0};
+  const state = {on:false,page:0,pageSize:2,wheelAcc:0,wheelLock:0,raf:0};
   const q=(s,c=document)=>c.querySelector(s), qa=(s,c=document)=>Array.from(c.querySelectorAll(s));
   const clamp=(v,a,b)=>Math.max(a,Math.min(v,b));
   const imp=(el,p,v)=>{ if(el) try{ el.style.setProperty(p,v,'important'); }catch(e){} };
+  const rem=(el,p)=>{ if(el) try{ el.style.removeProperty(p); }catch(e){} };
   const rect=(el)=>{ if(!el) return null; const r=el.getBoundingClientRect(); return r&&r.width>0&&r.height>0?r:null; };
+
   function metrics(){
     const iw=Math.max(window.innerWidth||0, document.documentElement.clientWidth||0);
     const ih=Math.max(window.innerHeight||0, document.documentElement.clientHeight||0);
     const dpr=Math.max(1, Number(window.devicePixelRatio||1));
     const sw=Math.max(Number((screen&&screen.width)||0), iw);
     const sh=Math.max(Number((screen&&screen.height)||0), ih);
-    return {iw,ih,dpr,physW:Math.round(sw*dpr),physH:Math.round(sh*dpr),ratio:sw/Math.max(1,sh)};
+    return {iw,ih,dpr,sw,sh,physW:Math.round(sw*dpr),physH:Math.round(sh*dpr),ratio:sw/Math.max(1,sh)};
   }
+
   function isTarget(){
     const m=metrics();
     if(root.classList.contains('tk-4k')) return false;
-    const logical = m.iw >= 1180 && m.iw <= 1500 && m.ih >= 700 && m.ih <= 940;
+    const laptopViewport = m.iw >= 1100 && m.iw <= 1520 && m.ih >= 680 && m.ih <= 950;
+    const laptopScreen = m.sw >= 1200 && m.sw <= 1550 && m.sh >= 760 && m.sh <= 1020;
     const retina = m.dpr >= 1.45 && m.dpr <= 2.35;
-    const physical = m.physW >= 2350 && m.physW <= 2900 && m.physH >= 1280 && m.physH <= 1600;
-    return retina && (logical || physical);
+    const notDesktop = m.sw < 1800 && m.sh < 1100 && m.physW < 3300 && m.physH < 2200;
+    return retina && laptopViewport && laptopScreen && notDesktop;
   }
-  function build(){
+
+  function getCinemaParts(){
     const cinema = document.getElementById('cinema');
     const container = cinema && q('.slider-container', cinema);
-    let track = container && q('.slider-wrapper', container);
-    if(!cinema || !container || !track) return null;
-    let stage = q('.oai2600-stage', container);
-    if(!stage && !track.dataset.oai2600Cloned){
-      const clone = track.cloneNode(true);
-      clone.dataset.oai2600Cloned = '1';
-      track.replaceWith(clone);
-      track = clone;
-    }
-    let viewport = q('.oai2600-viewport', container);
-    let prev = q('.oai2600-prev', container);
-    let next = q('.oai2600-next', container);
-    if(!stage){
-      stage = document.createElement('div'); stage.className='oai2600-stage';
-      viewport = document.createElement('div'); viewport.className='oai2600-viewport';
-      prev = document.createElement('button'); prev.type='button'; prev.className='oai2600-nav oai2600-prev'; prev.setAttribute('aria-label','Предыдущие фильмы');
-      next = document.createElement('button'); next.type='button'; next.className='oai2600-nav oai2600-next'; next.setAttribute('aria-label','Следующие фильмы');
-      prev.innerHTML='<svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>';
-      next.innerHTML='<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>';
-      container.appendChild(stage);
-      stage.appendChild(prev); stage.appendChild(viewport); stage.appendChild(next);
-      viewport.appendChild(track);
-    }
-    const slides = qa('.movie-slide', track);
-    return {cinema,container,stage,viewport,track,slides,prev,next};
+    return cinema && container ? {cinema, container} : null;
   }
+
+  function getLegacyButtons(container){
+    const children = Array.from(container.children || []);
+    return {
+      prev: children.find(el => el.classList && el.classList.contains('slider-prev') && !el.classList.contains('oai2600-nav')) || null,
+      next: children.find(el => el.classList && el.classList.contains('slider-next') && !el.classList.contains('oai2600-nav')) || null
+    };
+  }
+
+  function ensureBuilt(){
+    const parts = getCinemaParts();
+    if(!parts) return null;
+    const {cinema, container} = parts;
+    let stage = q('.oai2600-stage', container);
+    let viewport, track, prev, next;
+    const legacy = getLegacyButtons(container);
+
+    if(!stage){
+      track = legacy.prev ? legacy.prev.nextElementSibling : null;
+      if(!track || !track.classList || !track.classList.contains('slider-wrapper')){
+        track = q('.slider-wrapper', container);
+      }
+      if(!track) return null;
+      stage = document.createElement('div');
+      stage.className = 'oai2600-stage';
+      viewport = document.createElement('div');
+      viewport.className = 'oai2600-viewport';
+      prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'oai2600-nav oai2600-prev';
+      prev.setAttribute('aria-label', 'Предыдущие фильмы');
+      prev.innerHTML = '<svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>';
+      next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'oai2600-nav oai2600-next';
+      next.setAttribute('aria-label', 'Следующие фильмы');
+      next.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>';
+      container.appendChild(stage);
+      stage.appendChild(prev);
+      stage.appendChild(viewport);
+      stage.appendChild(next);
+      viewport.appendChild(track);
+    } else {
+      viewport = q('.oai2600-viewport', stage);
+      track = q('.slider-wrapper', viewport || stage);
+      prev = q('.oai2600-prev', stage);
+      next = q('.oai2600-next', stage);
+    }
+    if(!viewport || !track || !prev || !next) return null;
+    const slides = qa('.movie-slide', track);
+    if(slides.length < 2) return null;
+    return {cinema,container,stage,viewport,track,slides,prev,next,legacy};
+  }
+
+  function teardown(){
+    const parts = getCinemaParts();
+    if(!parts) return;
+    const {container} = parts;
+    const stage = q('.oai2600-stage', container);
+    const legacy = getLegacyButtons(container);
+    if(stage){
+      const viewport = q('.oai2600-viewport', stage);
+      const track = q('.slider-wrapper', viewport || stage);
+      if(track){
+        container.insertBefore(track, legacy.next || stage);
+        track.style.cssText = '';
+      }
+      stage.remove();
+    }
+    [legacy.prev, legacy.next].forEach(function(el){
+      if(!el) return;
+      ['display','pointer-events','visibility','opacity','left','right','top','transform'].forEach(p => rem(el, p));
+    });
+    root.classList.remove('oai2600-clean-cinema');
+    state.on = false;
+    state.wheelAcc = 0;
+    state.wheelLock = 0;
+  }
+
   function getLeftBound(){
     const rails = qa('.side-nav, #tk18LeftRail, #tk19LeftRail, #tkFhdLeftRailFinal').map(rect).filter(Boolean);
     const right = rails.reduce((m,r)=>Math.max(m,r.right), 250);
     return right + 18;
   }
+
   function getRightBound(){
     const nodes = [q('#rouletteDock'), q('.roulette-dock'), q('.rules'), document.getElementById('openComicMenu'), document.getElementById('openRuleGame'), document.getElementById('openPcPartsGame')].map(rect).filter(Boolean);
     const left = nodes.length ? Math.min(...nodes.map(r=>r.left)) : window.innerWidth - 14;
     return left - 18;
   }
+
   function getCenterX(ui){
     const sub = q('.cinema-banner-sub', ui.cinema) || q('.cinema-banner', ui.cinema) || q('.cinema-head', ui.cinema);
     const r = rect(sub) || rect(ui.cinema);
     return r ? (r.left + r.width/2) : window.innerWidth/2;
   }
+
   function applyLayout(ui){
     const leftBound = getLeftBound();
     const rightBound = getRightBound();
-    const btn = 46, btnGap = 8, slideGap = 16;
+    const btn = 46, btnGap = 10, slideGap = 16;
     const available = clamp(rightBound - leftBound, 600, 760);
     let slideW = clamp(Math.floor((available - (btn*2) - (btnGap*2) - slideGap)/2), 240, 272);
     const viewportW = slideW*2 + slideGap;
@@ -45087,7 +45150,9 @@ html.oai2600-clean-cinema #cinema .oai2600-nav svg{
     imp(ui.stage, 'margin-left', relLeft + 'px');
     imp(ui.stage, 'margin-right', '0');
   }
+
   function pageCount(ui){ return Math.max(1, Math.ceil(ui.slides.length / state.pageSize)); }
+
   function setActive(ui){
     const start = state.page * state.pageSize;
     const end = start + state.pageSize;
@@ -45097,8 +45162,9 @@ html.oai2600-clean-cinema #cinema .oai2600-nav svg{
       slide.setAttribute('aria-hidden', on ? 'false' : 'true');
     });
   }
+
   function render(smooth){
-    const ui = build(); if(!ui) return;
+    const ui = ensureBuilt(); if(!ui) return;
     state.page = ((state.page % pageCount(ui)) + pageCount(ui)) % pageCount(ui);
     applyLayout(ui);
     const slideW = parseFloat(getComputedStyle(root).getPropertyValue('--oai-slide-w')) || 264;
@@ -45107,8 +45173,10 @@ html.oai2600-clean-cinema #cinema .oai2600-nav svg{
     imp(ui.track, 'transition', smooth ? 'transform .34s cubic-bezier(.4,0,.2,1)' : 'none');
     imp(ui.track, 'transform', `translate3d(${-offset}px,0,0)`);
     setActive(ui);
+    ui.stage.dataset.oaiPage = String(state.page);
     if(!smooth) requestAnimationFrame(()=>imp(ui.track,'transition','transform .34s cubic-bezier(.4,0,.2,1)'));
   }
+
   function onWheel(e){
     if(!state.on) return;
     const now = Date.now();
@@ -45123,39 +45191,57 @@ html.oai2600-clean-cinema #cinema .oai2600-nav svg{
     state.wheelLock = now + 240;
     render(true);
   }
+
   function bind(ui){
-    if(state.bound || !ui) return;
-    state.bound = true;
+    if(!ui || ui.stage.dataset.oaiBound === '1') return;
+    ui.stage.dataset.oaiBound = '1';
     ui.prev.addEventListener('click', (e)=>{ if(!state.on) return; e.preventDefault(); state.page -= 1; render(true); }, true);
     ui.next.addEventListener('click', (e)=>{ if(!state.on) return; e.preventDefault(); state.page += 1; render(true); }, true);
     ui.stage.addEventListener('wheel', onWheel, {passive:false});
-    ui.slides.forEach((slide, idx)=>{
-      slide.addEventListener('click', (e)=>{
-        if(!state.on) return;
-        if(e.target.closest('button') || e.target.closest('a')) return;
-        e.preventDefault(); e.stopImmediatePropagation();
-        state.page = Math.floor(idx / state.pageSize);
-        render(true);
-      }, true);
-    });
+    ui.track.addEventListener('click', (e)=>{
+      if(!state.on) return;
+      if(e.target.closest('button') || e.target.closest('a')) return;
+      const slide = e.target.closest('.movie-slide');
+      if(!slide) return;
+      const idx = ui.slides.indexOf(slide);
+      if(idx < 0) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      state.page = Math.floor(idx / state.pageSize);
+      render(true);
+    }, true);
   }
+
   function toggleLegacy(on){
-    const cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    ['.slider-prev','.slider-next'].forEach(sel=>qa(sel, cinema).forEach(el=>{ if(!el.classList.contains('oai2600-nav')) imp(el,'display', on ? 'none':''); }));
+    const parts = getCinemaParts();
+    if(!parts) return;
+    const legacy = getLegacyButtons(parts.container);
+    [legacy.prev, legacy.next].forEach(el=>{ if(el) imp(el, 'display', on ? 'none' : ''); });
   }
+
   function run(){
-    state.on = isTarget();
-    root.classList.toggle('oai2600-clean-cinema', state.on);
-    const ui = build(); if(!ui) return;
+    const on = isTarget();
+    if(!on){
+      if(state.on || q('.oai2600-stage', document)) teardown();
+      toggleLegacy(false);
+      return;
+    }
+    state.on = true;
+    root.classList.add('oai2600-clean-cinema');
+    const ui = ensureBuilt();
+    if(!ui) return;
     bind(ui);
-    toggleLegacy(state.on);
-    if(state.on){ state.page = Math.max(0, Math.min(state.page, pageCount(ui)-1)); render(false); }
+    toggleLegacy(true);
+    state.page = Math.max(0, Math.min(state.page, pageCount(ui)-1));
+    render(false);
   }
+
   function queue(){ cancelAnimationFrame(state.raf); state.raf = requestAnimationFrame(run); }
+
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
-  window.addEventListener('load', ()=>{ state.page = 0; queue(); setTimeout(()=>{state.page=0; queue();}, 180); setTimeout(()=>{state.page=0; queue();}, 600); }, {passive:true});
+  window.addEventListener('load', ()=>{ state.page = 0; queue(); setTimeout(queue, 180); setTimeout(queue, 600); }, {passive:true});
   window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
 })();
 </script>
