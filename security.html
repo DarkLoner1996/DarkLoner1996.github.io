@@ -45437,6 +45437,226 @@ html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-btn{
 })();
 </script>
 
+
+<style id="tk-wide-4k-cinema-fit-v1">
+html.tk-wide-4k-cinema-fit-v1 #cinema .slider-container{
+  width: min(var(--tk-wide4k-slider-maxw, 1440px), calc(100vw - 72px)) !important;
+  max-width: min(var(--tk-wide4k-slider-maxw, 1440px), calc(100vw - 72px)) !important;
+  overflow: visible !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .slider-container::before{
+  inset: -12px 12px -16px !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .slider-wrapper{
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  padding-top: var(--tk-wide4k-slider-pad-top, 22px) !important;
+  padding-bottom: var(--tk-wide4k-slider-pad-bottom, 18px) !important;
+  padding-left: var(--tk-wide4k-slider-sidepad, 72px) !important;
+  padding-right: var(--tk-wide4k-slider-sidepad, 72px) !important;
+  scroll-padding-left: var(--tk-wide4k-slider-sidepad, 72px) !important;
+  scroll-padding-right: var(--tk-wide4k-slider-sidepad, 72px) !important;
+  gap: var(--tk-wide4k-slider-gap, 16px) !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .slider-prev{
+  left: max(8px, calc(var(--tk-wide4k-slider-sidepad, 72px) - 44px)) !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .slider-next{
+  right: max(8px, calc(var(--tk-wide4k-slider-sidepad, 72px) - 44px)) !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .movie-slide{
+  flex: 0 0 var(--tk-wide4k-slider-card, 244px) !important;
+  width: var(--tk-wide4k-slider-card, 244px) !important;
+  min-width: var(--tk-wide4k-slider-card, 244px) !important;
+  max-width: var(--tk-wide4k-slider-card, 244px) !important;
+  overflow: visible !important;
+  z-index: 1 !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .movie-slide.is-active{
+  transform: translateY(-8px) scale(1.035) !important;
+  z-index: 8 !important;
+}
+html.tk-wide-4k-cinema-fit-v1 #cinema .movie-slide:not(.is-active){
+  transform: translateZ(0) scale(.94) !important;
+}
+</style>
+<script id="tk-wide-4k-cinema-fit-v1-script">
+(function(){
+  const root = document.documentElement;
+  const cinema = document.getElementById('cinema');
+  if(!cinema) return;
+
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+
+  function isScaled4kWide(){
+    const d = vp();
+    return d.w >= 2000 && d.w < 2300 && d.h >= 1000;
+  }
+
+  function clamp(n, min, max){
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function setVar(name, value){
+    try{ root.style.setProperty(name, value); }catch(_e){}
+  }
+
+  function apply(){
+    const active = isScaled4kWide();
+    root.classList.toggle('tk-wide-4k-cinema-fit-v1', active);
+    if(!active) return;
+
+    const d = vp();
+    const maxW = clamp(Math.round(d.w * 0.70), 1380, 1500);
+    const sidePad = clamp(Math.round(maxW * 0.050), 68, 80);
+    const gap = clamp(Math.round(maxW * 0.011), 14, 18);
+    const card = clamp(Math.round((maxW - sidePad * 2 - gap * 3) / 4), 232, 248);
+    const topPad = clamp(Math.round(d.h * 0.017), 20, 28);
+    const bottomPad = clamp(Math.round(d.h * 0.012), 16, 22);
+
+    setVar('--tk-wide4k-slider-maxw', maxW + 'px');
+    setVar('--tk-wide4k-slider-sidepad', sidePad + 'px');
+    setVar('--tk-wide4k-slider-gap', gap + 'px');
+    setVar('--tk-wide4k-slider-card', card + 'px');
+    setVar('--tk-wide4k-slider-pad-top', topPad + 'px');
+    setVar('--tk-wide4k-slider-pad-bottom', bottomPad + 'px');
+  }
+
+  let raf = 0;
+  function queue(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      apply();
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [120, 400, 1000, 2500].forEach(function(ms){ setTimeout(queue, ms); });
+})();
+</script>
+
+
+<style id="tk-wide-4k-cinema-fit-v2">
+html.tk-wide-4k-cinema-fit-v2 #cinema .slider-container{
+  width: min(var(--tk-wide4k-v2-slider-maxw, 1900px), calc(100vw - 36px)) !important;
+  max-width: min(var(--tk-wide4k-v2-slider-maxw, 1900px), calc(100vw - 36px)) !important;
+  overflow: visible !important;
+}
+html.tk-wide-4k-cinema-fit-v2 #cinema .slider-container::before{
+  inset: -12px 6px -16px !important;
+}
+html.tk-wide-4k-cinema-fit-v2 #cinema .slider-wrapper{
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  padding-top: var(--tk-wide4k-v2-slider-pad-top, 22px) !important;
+  padding-bottom: var(--tk-wide4k-v2-slider-pad-bottom, 18px) !important;
+  padding-left: var(--tk-wide4k-v2-slider-sidepad, 28px) !important;
+  padding-right: var(--tk-wide4k-v2-slider-sidepad, 28px) !important;
+  scroll-padding-left: var(--tk-wide4k-v2-slider-sidepad, 28px) !important;
+  scroll-padding-right: var(--tk-wide4k-v2-slider-sidepad, 28px) !important;
+  gap: var(--tk-wide4k-v2-slider-gap, 16px) !important;
+}
+html.tk-wide-4k-cinema-fit-v2 #cinema .slider-prev{
+  left: 8px !important;
+}
+html.tk-wide-4k-cinema-fit-v2 #cinema .slider-next{
+  right: 8px !important;
+}
+html.tk-wide-4k-cinema-fit-v2 #cinema .movie-slide{
+  flex: 0 0 var(--tk-wide4k-v2-slider-card, 448px) !important;
+  width: var(--tk-wide4k-v2-slider-card, 448px) !important;
+  min-width: var(--tk-wide4k-v2-slider-card, 448px) !important;
+  max-width: var(--tk-wide4k-v2-slider-card, 448px) !important;
+  overflow: visible !important;
+  z-index: 1 !important;
+}
+html.tk-wide-4k-cinema-fit-v2 #cinema .movie-slide.is-active{
+  transform: translateY(-8px) scale(1.04) !important;
+  z-index: 8 !important;
+}
+</style>
+<script id="tk-wide-4k-cinema-fit-v2-script">
+(function(){
+  const root = document.documentElement;
+  const cinema = document.getElementById('cinema');
+  if(!cinema) return;
+
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+
+  function isScaled4kWide(){
+    const d = vp();
+    return d.w >= 2000 && d.w < 2300 && d.h >= 1000 && d.h < 1300;
+  }
+
+  function clamp(n, min, max){
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function setVar(name, value){
+    try{ root.style.setProperty(name, value); }catch(_e){}
+  }
+
+  function apply(){
+    const active = isScaled4kWide();
+    root.classList.toggle('tk-wide-4k-cinema-fit-v2', active);
+    if(active) root.classList.remove('tk-wide-4k-cinema-fit-v1');
+    if(!active) return;
+
+    const d = vp();
+    const maxW = clamp(Math.round(d.w - 110), 1780, 1940);
+    const sidePad = clamp(Math.round(maxW * 0.015), 24, 34);
+    const gap = clamp(Math.round(maxW * 0.0085), 14, 18);
+    const card = clamp(Math.floor((maxW - sidePad * 2 - gap * 3) / 4), 420, 462);
+    const topPad = clamp(Math.round(d.h * 0.017), 20, 28);
+    const bottomPad = clamp(Math.round(d.h * 0.012), 16, 22);
+
+    setVar('--tk-wide4k-v2-slider-maxw', maxW + 'px');
+    setVar('--tk-wide4k-v2-slider-sidepad', sidePad + 'px');
+    setVar('--tk-wide4k-v2-slider-gap', gap + 'px');
+    setVar('--tk-wide4k-v2-slider-card', card + 'px');
+    setVar('--tk-wide4k-v2-slider-pad-top', topPad + 'px');
+    setVar('--tk-wide4k-v2-slider-pad-bottom', bottomPad + 'px');
+  }
+
+  let raf = 0;
+  function queue(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      apply();
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { passive:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  [120, 420, 900, 1800].forEach(function(ms){ setTimeout(queue, ms); });
+})();
+</script>
+
 </body>
 </html>
 
