@@ -45282,6 +45282,111 @@ html.oai2600-clean-cinema #cinema .oai2600-nav svg{
 }
 </style>
 
+
+<style id="oai-fhd-adaptive-threefit-v3">
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .slider-wrapper{
+  gap: var(--oai-fhd-gap, 8px) !important;
+  padding-left: var(--oai-fhd-pad, 8px) !important;
+  padding-right: var(--oai-fhd-pad, 8px) !important;
+  scroll-padding-inline: var(--oai-fhd-pad, 8px) !important;
+}
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-slide{
+  flex: 0 0 var(--oai-fhd-card, 220px) !important;
+  width: var(--oai-fhd-card, 220px) !important;
+  min-width: var(--oai-fhd-card, 220px) !important;
+  max-width: var(--oai-fhd-card, 220px) !important;
+}
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-img,
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-slide.is-active .movie-img,
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-slide:not(.is-active) .movie-img{
+  height: var(--oai-fhd-img-h, 140px) !important;
+}
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-info{
+  padding: 11px 12px 13px !important;
+}
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-info h3{
+  font-size: 13px !important;
+  min-height: 32px !important;
+}
+html.oai-fhd-adaptive-threefit:not(.oai2600-clean-cinema) #cinema .movie-btn{
+  min-width: 98px !important;
+  padding: 0 12px !important;
+}
+</style>
+<script id="oai-fhd-adaptive-threefit-v3-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+
+  function vw(){ return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0); }
+  function vh(){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
+  function is2600Mode(){ return root.classList.contains('oai2600-clean-cinema'); }
+  function is4k(){ return vw() >= 2560; }
+  function isCandidate(){ return !is2600Mode() && !is4k() && vh() >= 700; }
+  function px(n){ return (Math.max(0, n)|0) + 'px'; }
+
+  function apply(){
+    const cinema = document.getElementById('cinema');
+    const track = cinema && cinema.querySelector('.slider-wrapper');
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!cinema || !track || slides.length < 3){
+      root.classList.remove('oai-fhd-adaptive-threefit');
+      return;
+    }
+    if(!isCandidate()){
+      root.classList.remove('oai-fhd-adaptive-threefit');
+      root.style.removeProperty('--oai-fhd-gap');
+      root.style.removeProperty('--oai-fhd-pad');
+      root.style.removeProperty('--oai-fhd-card');
+      root.style.removeProperty('--oai-fhd-img-h');
+      return;
+    }
+
+    const cs = getComputedStyle(track);
+    const padL = parseFloat(cs.paddingLeft) || 0;
+    const padR = parseFloat(cs.paddingRight) || 0;
+    const gap = parseFloat(cs.columnGap || cs.gap) || 0;
+    const avail = Math.max(0, track.clientWidth - padL - padR);
+    const first3 = slides.slice(0,3);
+    const need = first3.reduce((s, el) => s + el.getBoundingClientRect().width, 0) + gap * 2;
+
+    if(need <= avail - 2){
+      root.classList.remove('oai-fhd-adaptive-threefit');
+      root.style.removeProperty('--oai-fhd-gap');
+      root.style.removeProperty('--oai-fhd-pad');
+      root.style.removeProperty('--oai-fhd-card');
+      root.style.removeProperty('--oai-fhd-img-h');
+      return;
+    }
+
+    const newGap = 8;
+    const newPad = 8;
+    const safeAvail = Math.max(0, track.clientWidth - newPad - newPad);
+    const rawCard = Math.floor((safeAvail - newGap * 2 - 2) / 3);
+    const card = Math.max(188, Math.min(236, rawCard));
+    const imgH = Math.max(126, Math.min(150, Math.round(card * 0.62)));
+
+    root.classList.add('oai-fhd-adaptive-threefit');
+    root.style.setProperty('--oai-fhd-gap', px(newGap));
+    root.style.setProperty('--oai-fhd-pad', px(newPad));
+    root.style.setProperty('--oai-fhd-card', px(card));
+    root.style.setProperty('--oai-fhd-img-h', px(imgH));
+
+    if(track.scrollLeft < 4){
+      try{ track.scrollTo({left:0, behavior:'auto'}); }catch(_e){ track.scrollLeft = 0; }
+    }
+  }
+
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  [120, 420, 900].forEach(ms => setTimeout(queue, ms));
+})();
+</script>
+
 </body>
 </html>
 
