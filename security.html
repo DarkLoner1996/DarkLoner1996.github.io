@@ -45696,21 +45696,21 @@ html.oai-2600-hard-two-slider-v5 #cinema .oai2600-v5-next:disabled{
 </style>
 
 
-<style id="oai-2600-v9-arrow-anchor-style">
+<style id="oai-2600-two-slides-v10-arrow-lock-style">
 html.oai-2600-hard-two-slider-v5 #cinema .oai2600-v5-prev,
 html.oai-2600-hard-two-slider-v5 #cinema .oai2600-v5-next{
   right:auto !important;
+  position:absolute !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
 }
 </style>
-<script id="oai-2600-v9-arrow-anchor-script">
+<script id="oai-2600-two-slides-v10-arrow-lock-script">
 (function(){
   const root = document.documentElement;
-  const PAGE_SIZE = 2;
   let raf = 0;
   let mo = null;
 
-  function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
-  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
   function metrics(){
     const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
     const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
@@ -45722,6 +45722,7 @@ html.oai-2600-hard-two-slider-v5 #cinema .oai2600-v5-next{
     const ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
     return { iw, ih, sw, sh, dpr, physW, physH, ratio };
   }
+
   function isTarget(){
     if(!root.classList.contains('oai-2600-hard-two-slider-v5')) return false;
     if(root.classList.contains('tk-4k')) return false;
@@ -45733,43 +45734,35 @@ html.oai-2600-hard-two-slider-v5 #cinema .oai2600-v5-next{
     const aspectOk = m.ratio >= 1.42 && m.ratio <= 1.92;
     return laptopViewport && retinaLaptop && aspectOk && (physicalNear2600 || logicalNear13);
   }
+
+  function imp(el, prop, value){ if(el) try{ el.style.setProperty(prop, value, 'important'); }catch(_e){} }
+
   function getUI(){
     const cinema = document.getElementById('cinema');
     if(!cinema) return null;
     const stage = cinema.querySelector('.slider-container');
     const viewport = stage && stage.querySelector('.oai2600-v5-viewport');
     const track = stage && stage.querySelector('.slider-wrapper');
-    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
     const prev = stage && stage.querySelector('.oai2600-v5-prev');
     const next = stage && stage.querySelector('.oai2600-v5-next');
-    if(!cinema || !stage || !viewport || !track || slides.length < 2 || !prev || !next) return null;
-    return { cinema, stage, viewport, track, slides, prev, next };
+    const slides = track ? Array.from(track.querySelectorAll('.movie-slide')) : [];
+    if(!stage || !viewport || !track || !prev || !next || slides.length < 2) return null;
+    return { cinema, stage, viewport, track, prev, next, slides };
   }
 
   function positionButtons(){
+    raf = 0;
     if(!isTarget()) return;
     const ui = getUI();
     if(!ui) return;
 
-    const page = Math.max(0, parseInt(ui.cinema.dataset.oai2600v5Page || '0', 10) || 0);
-    const slideW = ui.slides[0].getBoundingClientRect().width || 262;
+    const btnW = Math.round(ui.next.getBoundingClientRect().width || 38);
     const gap = parseFloat(getComputedStyle(root).getPropertyValue('--oai2600-v5-gap')) || 12;
-    const startIndex = clamp(page * PAGE_SIZE, 0, Math.max(0, ui.slides.length - PAGE_SIZE));
-    const first = ui.slides[startIndex];
-    const second = ui.slides[Math.min(startIndex + 1, ui.slides.length - 1)];
-    if(!first || !second) return;
-
-    const visibleOffset = startIndex * (slideW + gap);
-    const viewportLeft = ui.viewport.offsetLeft;
-    const btnW = ui.next.getBoundingClientRect().width || 38;
-    const overlapOut = 10;
-    const outerGap = 8;
-
-    const firstLeft = viewportLeft + first.offsetLeft - visibleOffset;
-    const secondRight = viewportLeft + second.offsetLeft - visibleOffset + second.offsetWidth;
-
-    const prevLeft = Math.round(firstLeft - btnW - outerGap);
-    const nextLeft = Math.round(secondRight + outerGap - overlapOut);
+    const slideW = Math.round(ui.slides[0].getBoundingClientRect().width || ui.slides[0].offsetWidth || 262);
+    const viewportLeft = Math.round(ui.viewport.offsetLeft || 0);
+    const visibleRight = viewportLeft + (slideW * 2) + gap;
+    const prevLeft = Math.round(viewportLeft - btnW - 8);
+    const nextLeft = Math.round(visibleRight + 8);
 
     imp(ui.prev, 'left', prevLeft + 'px');
     imp(ui.prev, 'right', 'auto');
@@ -45786,23 +45779,17 @@ html.oai-2600-hard-two-slider-v5 #cinema .oai2600-v5-next{
     raf = requestAnimationFrame(positionButtons);
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', queue, { once:true });
-  } else {
-    queue();
-  }
-  window.addEventListener('load', function(){
-    queue();
-    [80, 180, 320, 700, 1200].forEach(ms => setTimeout(queue, ms));
-  }, { passive:true });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', function(){ queue(); [80,160,320,700,1200].forEach(ms => setTimeout(queue, ms)); }, { passive:true });
   window.addEventListener('resize', queue, { passive:true });
   window.addEventListener('orientationchange', queue, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
   document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30); }, true);
-
+  document.addEventListener('wheel', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema')) setTimeout(queue, 30); }, { passive:true, capture:true });
   try{
     mo = new MutationObserver(queue);
-    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style','data-oai2600v5Page'] });
+    mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] });
   }catch(_e){}
 })();
 </script>
