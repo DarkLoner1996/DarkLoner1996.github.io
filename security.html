@@ -51513,20 +51513,87 @@ html.tk-4k-static-slider-v14 #cinema .movie-slide.is-featured .movie-btn{
 </script>
 
 
-
-
-<style id="tk-4k-cinema-drop-200-v17">
+<style id="tk-4k-cinema-drop-100-v15">
 html.tk-4k-static-slider-v14 #cinema{
-  position:relative !important;
-  margin-top:200px !important;
-  top:0 !important;
-  transform:none !important;
-}
-
-html.tk-4k-static-slider-v14 #cinema .cinema-head,
-html.tk-4k-static-slider-v14 #cinema .slider-container{
-  position:relative !important;
+  margin-top:100px !important;
 }
 </style>
+
+
+<style id="tk-4k-cinema-drop-real-v18">
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema{
+  will-change: top !important;
+}
+</style>
+<script id="tk-4k-cinema-drop-real-v18-script">
+(function(){
+  var EXTRA_DROP = 100; /* from v15 add another 100px only on real 4K branch */
+  var ticking = false;
+  var mo = null;
+
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+  function isReal4kBranch(){
+    var root = document.documentElement;
+    var d = vp();
+    return root.classList.contains('tk-cinema-final-clean') &&
+           root.classList.contains('tk-cinema-final-4k') &&
+           root.classList.contains('tk-4k-cinema-bear-align-fix') &&
+           (d.w >= 2300 || d.h >= 1300);
+  }
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function setVar(name, val){ try{ document.documentElement.style.setProperty(name, val); }catch(_e){} }
+
+  function apply(){
+    ticking = false;
+    var root = document.documentElement;
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    if(!isReal4kBranch()) return;
+
+    var d = vp();
+    var baseTop = clamp(Math.round(d.h * 0.072), 132, 168);
+    var finalTop = baseTop + EXTRA_DROP;
+
+    setVar('--tk-4k-cinema-top', finalTop + 'px');
+    setVar('--tk-v18-real-drop', EXTRA_DROP + 'px');
+
+    imp(cinema, 'position', 'relative');
+    imp(cinema, 'top', finalTop + 'px');
+    imp(cinema, 'margin-top', '0');
+    imp(cinema, 'transform', 'none');
+    imp(cinema, 'left', 'auto');
+    imp(cinema, 'right', 'auto');
+    imp(cinema, 'bottom', 'auto');
+
+    var head = cinema.querySelector('.cinema-head');
+    var stage = cinema.querySelector('.slider-container');
+    if(head) imp(head, 'margin', '0 auto 16px');
+    if(stage) imp(stage, 'margin-top', '0');
+  }
+
+  function queue(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(apply);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', queue, {passive:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  [0, 100, 300, 700, 1500, 3000, 5000].forEach(function(ms){ setTimeout(queue, ms); });
+  mo = new MutationObserver(queue);
+  try{ mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']}); }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
