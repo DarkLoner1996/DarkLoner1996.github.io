@@ -40310,6 +40310,28 @@ html body #cinema .cinema-banner-sub{
     inset 0 1px 0 rgba(255,255,255,.04) !important;
 }
 </style>
+<style id="tk-license-immediate-open-fix">
+#tkLicenseOverlay.tk-license--instant,
+#tkLicenseOverlay.tk-license--instant::before,
+#tkLicenseOverlay.tk-license--instant .tk-license{
+  transition: none !important;
+  animation: none !important;
+}
+html.tk-license-open #cinema .slider-wrapper,
+html.tk-license-open #cinema .movie-track,
+html.tk-license-open #cinema .slider-container,
+html.tk-license-open #cinema .movie-slide,
+html.tk-license-open #cinema .movie-slide *,
+body.tk-license-open #cinema .slider-wrapper,
+body.tk-license-open #cinema .movie-track,
+body.tk-license-open #cinema .slider-container,
+body.tk-license-open #cinema .movie-slide,
+body.tk-license-open #cinema .movie-slide *{
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+</style>
 <style id="tk-license-modal-style">
 #tkLicenseOverlay{
   position: fixed;
@@ -40752,33 +40774,61 @@ html body #cinema .cinema-banner-sub{
   var declineBtn = document.getElementById('tkLicenseDecline');
   var declineTop = document.getElementById('tkLicenseDeclineTop');
   var errorEl = document.getElementById('tkLicenseError');
+  var root = document.documentElement;
+  var body = document.body;
   var isOpen = false;
   var shown = false;
+
+  function syncPageLock(flag){
+    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_){}
+    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_){}
+  }
+
   function setOpen(flag){
     isOpen = !!flag;
     overlay.classList.toggle('is-open', isOpen);
     overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    syncPageLock(isOpen);
     if(isOpen){
-      setTimeout(function(){ try { (checkbox || acceptBtn).focus(); } catch(_){} }, 40);
+      setTimeout(function(){ try { (checkbox || acceptBtn).focus(); } catch(_){} }, 10);
     }
   }
+
   function openModal(){
     if(shown) return;
     shown = true;
     setOpen(true);
   }
+
+  function openModalInstant(){
+    if(shown) return;
+    overlay.classList.add('tk-license--instant');
+    openModal();
+    setTimeout(function(){ overlay.classList.remove('tk-license--instant'); }, 80);
+  }
+
   function closeModal(){
     setOpen(false);
   }
+
   function syncState(){
     if(!acceptBtn || !checkbox) return;
     acceptBtn.disabled = !checkbox.checked;
     if(errorEl) errorEl.textContent = checkbox.checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
   }
+
   function decline(){
     if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
     try{ checkbox && checkbox.focus(); }catch(_){}
   }
+
+  function openIfLoaderDone(){
+    var loader = document.getElementById('tkLoader');
+    if(!shown && (!loader || loader.classList.contains('is-hidden') || loader.dataset.done === '1')){
+      openModalInstant();
+    }
+  }
+
   if(checkbox){
     checkbox.addEventListener('change', syncState);
     syncState();
@@ -40809,16 +40859,15 @@ html body #cinema .cinema-banner-sub{
       acceptBtn && acceptBtn.click();
     }
   }, true);
+
   window.addEventListener('tk:loaderhidden', function(){
-    setTimeout(openModal, 360);
+    openModalInstant();
   }, { once:true });
+
+  setTimeout(openIfLoaderDone, 0);
+
   window.addEventListener('load', function(){
-    setTimeout(function(){
-      var loader = document.getElementById('tkLoader');
-      if(!shown && (!loader || loader.classList.contains('is-hidden') || loader.dataset.done === '1')){
-        openModal();
-      }
-    }, 4300);
+    setTimeout(openIfLoaderDone, 60);
   }, { once:true });
 })();
 </script>
@@ -50491,6 +50540,447 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   window.addEventListener('load', reconcileLocks);
   setTimeout(reconcileLocks, 60);
   setTimeout(reconcileLocks, 240);
+})();
+</script>
+
+<style id="tk-cinema-wide-remove-dark-slider-bg-v1">
+@media (min-width: 1400px){
+  html #cinema.cinema-slider.cinema-v2 .slider-container,
+  body #cinema.cinema-slider.cinema-v2 .slider-container{
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  html #cinema.cinema-slider.cinema-v2 .slider-container::before,
+  html #cinema.cinema-slider.cinema-v2 .slider-container::after,
+  body #cinema.cinema-slider.cinema-v2 .slider-container::before,
+  body #cinema.cinema-slider.cinema-v2 .slider-container::after{
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    opacity: 0 !important;
+  }
+}
+</style>
+
+
+<style id="tk-cinema-force-no-stage-dark-bg-v2">
+/* Final override: remove ONLY the dark stage/background around cinema slides,
+   keep slide sizes/adaptive widths/nav layout intact on all screens. */
+html #cinema.cinema-slider.cinema-v2 .slider-container,
+body #cinema.cinema-slider.cinema-v2 .slider-container,
+html #cinema .slider-container,
+body #cinema .slider-container{
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .slider-container::before,
+html #cinema.cinema-slider.cinema-v2 .slider-container::after,
+body #cinema.cinema-slider.cinema-v2 .slider-container::before,
+body #cinema.cinema-slider.cinema-v2 .slider-container::after,
+html #cinema .slider-container::before,
+html #cinema .slider-container::after,
+body #cinema .slider-container::before,
+body #cinema .slider-container::after{
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  opacity: 0 !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .slider-wrapper,
+body #cinema.cinema-slider.cinema-v2 .slider-wrapper,
+html #cinema .slider-wrapper,
+body #cinema .slider-wrapper{
+  background: transparent !important;
+  box-shadow: none !important;
+}
+</style>
+
+
+<style id="tk-cinema-remove-outer-slide-shell-v3">
+/* Remove the dark outer shell around the cinema slides themselves,
+   without touching widths, flex-basis, active scaling, or screen-specific layout. */
+html #cinema.cinema-slider.cinema-v2 .movie-slide,
+body #cinema.cinema-slider.cinema-v2 .movie-slide,
+html #cinema .movie-slide,
+body #cinema .movie-slide{
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-slide::before,
+body #cinema.cinema-slider.cinema-v2 .movie-slide::before,
+html #cinema .movie-slide::before,
+body #cinema .movie-slide::before{
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-slide.is-active,
+body #cinema.cinema-slider.cinema-v2 .movie-slide.is-active,
+html #cinema .movie-slide.is-active,
+body #cinema .movie-slide.is-active{
+  box-shadow: none !important;
+}
+
+/* Keep the readable lower text area as a local panel, not as a shared dark slab behind the whole slide. */
+html #cinema.cinema-slider.cinema-v2 .movie-info,
+body #cinema.cinema-slider.cinema-v2 .movie-info,
+html #cinema .movie-info,
+body #cinema .movie-info{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-info::before,
+body #cinema.cinema-slider.cinema-v2 .movie-info::before,
+html #cinema .movie-info::before,
+body #cinema .movie-info::before{
+  content: "" !important;
+  position: absolute !important;
+  inset: -10px -10px -8px -10px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(10,30,52,.44), rgba(8,22,40,.36)) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+  backdrop-filter: blur(6px) saturate(1.02) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(1.02) !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+</style>
+
+<style id="tk-cinema-remove-last-dark-residue-v4">
+/* Final cleanup: keep layout/adaptive exactly as is,
+   but remove the last residual dark haze under/around the slide body. */
+html #cinema.cinema-slider.cinema-v2 .movie-info::before,
+body #cinema.cinema-slider.cinema-v2 .movie-info::before,
+html #cinema .movie-info::before,
+body #cinema .movie-info::before{
+  background: linear-gradient(180deg, rgba(8,22,40,.18), rgba(8,22,40,.10)) !important;
+  border-color: rgba(255,255,255,.06) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-slide,
+body #cinema.cinema-slider.cinema-v2 .movie-slide,
+html #cinema .movie-slide,
+body #cinema .movie-slide{
+  filter: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-slide.is-active,
+body #cinema.cinema-slider.cinema-v2 .movie-slide.is-active,
+html #cinema .movie-slide.is-active,
+body #cinema .movie-slide.is-active{
+  filter: saturate(1.02) !important;
+}
+</style>
+
+
+<style id="tk-cinema-restore-gold-frame-and-bottom-panels-v5">
+/* Restore the beautiful gold frame and local lower panels,
+   while keeping the global dark stage/background removed. */
+html #cinema.cinema-slider.cinema-v2 .movie-slide,
+body #cinema.cinema-slider.cinema-v2 .movie-slide,
+html #cinema .movie-slide,
+body #cinema .movie-slide{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-slide::before,
+body #cinema.cinema-slider.cinema-v2 .movie-slide::before,
+html #cinema .movie-slide::before,
+body #cinema .movie-slide::before{
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 22px !important;
+  padding: 2px !important;
+  background: linear-gradient(90deg,
+    rgba(255,244,201,.95),
+    rgba(255,210,122,.78),
+    rgba(255,255,255,.22),
+    rgba(255,210,122,.74),
+    rgba(255,244,201,.92)
+  ) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+  opacity: .95 !important;
+  box-shadow: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-info,
+body #cinema.cinema-slider.cinema-v2 .movie-info,
+html #cinema .movie-info,
+body #cinema .movie-info{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-info::before,
+body #cinema.cinema-slider.cinema-v2 .movie-info::before,
+html #cinema .movie-info::before,
+body #cinema .movie-info::before{
+  content: "" !important;
+  position: absolute !important;
+  inset: -10px -10px -8px -10px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(10,30,52,.30), rgba(8,22,40,.22)) !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+  backdrop-filter: blur(3px) saturate(1.01) !important;
+  -webkit-backdrop-filter: blur(3px) saturate(1.01) !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+</style>
+
+
+
+<style id="tk-cinema-final-clean-shell-and-solid-bottom-panels-v7">
+/* Final cinema cleanup:
+   1) remove the last transparent shell/haze around slides
+   2) keep the gold frame
+   3) restore a solid inner bottom panel like the reference */
+html #cinema.cinema-slider.cinema-v2 .movie-slide,
+body #cinema.cinema-slider.cinema-v2 .movie-slide,
+html #cinema .movie-slide,
+body #cinema .movie-slide{
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-slide.is-active,
+body #cinema.cinema-slider.cinema-v2 .movie-slide.is-active,
+html #cinema .movie-slide.is-active,
+body #cinema .movie-slide.is-active{
+  box-shadow: none !important;
+  filter: saturate(1.02) !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-info,
+body #cinema.cinema-slider.cinema-v2 .movie-info,
+html #cinema .movie-info,
+body #cinema .movie-info{
+  position: relative !important;
+  z-index: 1 !important;
+  margin-top: 10px !important;
+  padding: 12px 14px !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.08), transparent 58%),
+    linear-gradient(180deg, rgba(13,44,74,.96), rgba(8,29,58,.95)) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 10px 22px rgba(0,0,0,.16) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-info::before,
+html #cinema.cinema-slider.cinema-v2 .movie-info::after,
+body #cinema.cinema-slider.cinema-v2 .movie-info::before,
+body #cinema.cinema-slider.cinema-v2 .movie-info::after,
+html #cinema .movie-info::before,
+html #cinema .movie-info::after,
+body #cinema .movie-info::before,
+body #cinema .movie-info::after{
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-text,
+body #cinema.cinema-slider.cinema-v2 .movie-text,
+html #cinema .movie-text,
+body #cinema .movie-text{
+  gap: 8px !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-info h3,
+body #cinema.cinema-slider.cinema-v2 .movie-info h3,
+html #cinema .movie-info h3,
+body #cinema .movie-info h3{
+  text-shadow: 0 8px 20px rgba(0,0,0,.22) !important;
+}
+
+html #cinema.cinema-slider.cinema-v2 .movie-btn,
+body #cinema.cinema-slider.cinema-v2 .movie-btn,
+html #cinema .movie-btn,
+body #cinema .movie-btn{
+  box-shadow:
+    0 12px 20px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+</style>
+
+<style id="tk-4k-cinema-y-lock-style">
+html.tk-4k-cinema-y-lock .ui-bottom,
+html.tk-4k-cinema-y-lock #cinema,
+html.tk-4k-cinema-y-lock #cinema .slider-container,
+html.tk-4k-cinema-y-lock #cinema .oai4k-stage,
+html.tk-4k-cinema-y-lock #cinema .oai4k-viewport,
+html.tk-4k-cinema-y-lock #cinema .slider-wrapper{
+  transition: none !important;
+  animation: none !important;
+}
+html.tk-4k-cinema-y-lock #cinema{
+  margin-top: 0 !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+</style>
+<script id="tk-4k-cinema-y-lock-script">
+(function(){
+  const root = document.documentElement;
+  let raf = 0;
+  let mo = null;
+  let timers = [];
+
+  function vp(){
+    const iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    const sw = Math.max(Number((window.screen && window.screen.width) || 0), iw);
+    const sh = Math.max(Number((window.screen && window.screen.height) || 0), ih);
+    return { iw, ih, dpr, sw, sh, physW: Math.round(sw * dpr), physH: Math.round(sh * dpr) };
+  }
+
+  function is4k(){
+    const m = vp();
+    return m.sw >= 3000 || m.iw >= 1900 || (m.physW >= 3400 && m.physH >= 1800 && m.ih >= 900);
+  }
+
+  function imp(el, prop, value){
+    if(!el) return;
+    try{ el.style.setProperty(prop, value, 'important'); }catch(_e){}
+  }
+
+  function getUiBottomTop(){
+    const inlineVal = (root.style.getPropertyValue('--ui-bottom-top') || '').trim();
+    if(inlineVal) return inlineVal;
+    const cssVal = (getComputedStyle(root).getPropertyValue('--ui-bottom-top') || '').trim();
+    return cssVal || '';
+  }
+
+  function clearLock(){
+    root.classList.remove('tk-4k-cinema-y-lock');
+    root.style.removeProperty('--tk-lock-ui-bottom-top');
+    root.style.removeProperty('--tk-lock-cinema-top');
+    const cinema = document.getElementById('cinema');
+    if(cinema){
+      cinema.style.removeProperty('top');
+      cinema.style.removeProperty('margin-top');
+      cinema.style.removeProperty('transform');
+    }
+  }
+
+  function reapplyLocked(){
+    if(!root.classList.contains('tk-4k-cinema-y-lock')) return;
+    const cinema = document.getElementById('cinema');
+    const lockedUiTop = (root.style.getPropertyValue('--tk-lock-ui-bottom-top') || '').trim();
+    const lockedCinemaTop = (root.style.getPropertyValue('--tk-lock-cinema-top') || '').trim();
+    if(lockedUiTop) root.style.setProperty('--ui-bottom-top', lockedUiTop, 'important');
+    if(cinema && lockedCinemaTop){
+      imp(cinema, 'top', lockedCinemaTop);
+      imp(cinema, 'margin-top', '0px');
+      imp(cinema, 'transform', 'none');
+    }
+  }
+
+  function freezeNow(){
+    if(!is4k()){
+      clearLock();
+      return;
+    }
+    const cinema = document.getElementById('cinema');
+    const uiBottomTop = getUiBottomTop();
+    if(!cinema || !uiBottomTop) return;
+
+    let cinemaTop = (getComputedStyle(cinema).top || '').trim();
+    if(!cinemaTop || cinemaTop === 'auto') cinemaTop = '0px';
+
+    root.style.setProperty('--tk-lock-ui-bottom-top', uiBottomTop, 'important');
+    root.style.setProperty('--tk-lock-cinema-top', cinemaTop, 'important');
+    root.classList.add('tk-4k-cinema-y-lock');
+    reapplyLocked();
+  }
+
+  function schedule(){
+    timers.forEach(clearTimeout);
+    timers = [];
+    const steps = [0, 120, 420, 900, 1800, 2600];
+    steps.forEach(ms => timers.push(setTimeout(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(freezeNow);
+    }, ms)));
+  }
+
+  function kick(){
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(reapplyLocked);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true });
+  else schedule();
+
+  window.addEventListener('load', schedule, { once:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#cinema')) schedule();
+  }, true);
+
+  mo = new MutationObserver(function(){
+    if(root.classList.contains('tk-4k-cinema-y-lock')) kick();
+  });
+  mo.observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['class', 'style']
+  });
 })();
 </script>
 
