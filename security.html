@@ -51763,5 +51763,108 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-
 }
 </style>
 
+
+
+<style id="tk-4k-cinema-raise-v22">
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema{
+  margin-top: 0 !important;
+}
+</style>
+<script id="tk-4k-cinema-raise-v22-script">
+(function(){
+  var SHIFT_UP = 50;
+  var raf = 0;
+  var mo = null;
+  var cinemaMo = null;
+
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+  function isReal4kBranch(){
+    var root = document.documentElement;
+    var d = vp();
+    return root.classList.contains('tk-cinema-final-clean') &&
+           root.classList.contains('tk-cinema-final-4k') &&
+           root.classList.contains('tk-4k-cinema-bear-align-fix') &&
+           root.classList.contains('oai4k-clean-cinema') &&
+           (d.w >= 2300 || d.h >= 1300);
+  }
+  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function pxNum(v){ var n = parseFloat(v || ''); return Number.isFinite(n) ? n : NaN; }
+  function readLockedTop(cinema){
+    var root = document.documentElement;
+    var cached = pxNum(root.style.getPropertyValue('--tk-v22-locked-cinema-top'));
+    if(Number.isFinite(cached)) return cached;
+
+    var current = pxNum(cinema && cinema.style ? cinema.style.top : '');
+    if(!Number.isFinite(current)) current = pxNum(getComputedStyle(cinema).top);
+    if(!Number.isFinite(current)) current = 0;
+
+    var finalTop = current - SHIFT_UP;
+    root.style.setProperty('--tk-v22-locked-cinema-top', finalTop + 'px');
+    root.style.setProperty('--tk-v22-shift-up', SHIFT_UP + 'px');
+    return finalTop;
+  }
+  function apply(){
+    raf = 0;
+    if(!isReal4kBranch()) return;
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    var finalTop = readLockedTop(cinema);
+
+    imp(cinema, 'position', 'relative');
+    imp(cinema, 'top', finalTop + 'px');
+    imp(cinema, 'margin-top', '0');
+    imp(cinema, 'left', 'auto');
+    imp(cinema, 'right', 'auto');
+    imp(cinema, 'bottom', 'auto');
+
+    var head = cinema.querySelector('.cinema-head');
+    var stage = cinema.querySelector('.slider-container');
+    if(head) imp(head, 'margin-top', '0');
+    if(stage) imp(stage, 'margin-top', '0');
+  }
+  function queue(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ setTimeout(apply, 0); });
+  }
+  function burst(){ [0, 24, 80, 180].forEach(function(ms){ setTimeout(queue, ms); }); }
+  function watchCinema(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema || cinema.__tkV22Watch) return;
+    cinema.__tkV22Watch = true;
+    cinemaMo = new MutationObserver(burst);
+    try{ cinemaMo.observe(cinema, { attributes:true, subtree:false, attributeFilter:['style','class'] }); }catch(_e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ burst(); watchCinema(); }, { once:true });
+  } else {
+    burst(); watchCinema();
+  }
+  window.addEventListener('load', function(){ burst(); watchCinema(); }, { once:true });
+  window.addEventListener('resize', burst, { passive:true });
+  window.addEventListener('orientationchange', burst, { passive:true });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', burst, { passive:true });
+    window.visualViewport.addEventListener('scroll', burst, { passive:true });
+  }
+  mo = new MutationObserver(function(muts){
+    for(var i=0;i<muts.length;i++){
+      var t = muts[i].target;
+      if(t === document.documentElement || (t && t.id === 'cinema') || (t && t.closest && t.closest('#cinema'))){
+        burst();
+        watchCinema();
+        break;
+      }
+    }
+  });
+  try{ mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] }); }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
