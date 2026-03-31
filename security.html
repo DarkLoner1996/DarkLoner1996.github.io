@@ -51513,244 +51513,6 @@ html.tk-4k-static-slider-v14 #cinema .movie-slide.is-featured .movie-btn{
 </script>
 
 
-<style id="tk-4k-cinema-drop-100-v15">
-html.tk-4k-static-slider-v14 #cinema{
-  margin-top:100px !important;
-}
-</style>
-
-
-<style id="tk-4k-cinema-drop-real-v19">
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema{
-  will-change: top !important;
-}
-</style>
-<script id="tk-4k-cinema-drop-real-v19-script">
-(function(){
-  var EXTRA_DROP = 80; /* from v18 raise cinema block by 20px only on real 4K branch */
-  var ticking = false;
-  var mo = null;
-
-  function vp(){
-    return {
-      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
-      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
-    };
-  }
-  function isReal4kBranch(){
-    var root = document.documentElement;
-    var d = vp();
-    return root.classList.contains('tk-cinema-final-clean') &&
-           root.classList.contains('tk-cinema-final-4k') &&
-           root.classList.contains('tk-4k-cinema-bear-align-fix') &&
-           (d.w >= 2300 || d.h >= 1300);
-  }
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
-  function setVar(name, val){ try{ document.documentElement.style.setProperty(name, val); }catch(_e){} }
-
-  function apply(){
-    ticking = false;
-    var root = document.documentElement;
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    if(!isReal4kBranch()) return;
-
-    var d = vp();
-    var baseTop = clamp(Math.round(d.h * 0.072), 132, 168);
-    var finalTop = baseTop + EXTRA_DROP;
-
-    setVar('--tk-4k-cinema-top', finalTop + 'px');
-    setVar('--tk-v19-real-drop', EXTRA_DROP + 'px');
-
-    imp(cinema, 'position', 'relative');
-    imp(cinema, 'top', finalTop + 'px');
-    imp(cinema, 'margin-top', '0');
-    imp(cinema, 'transform', 'none');
-    imp(cinema, 'left', 'auto');
-    imp(cinema, 'right', 'auto');
-    imp(cinema, 'bottom', 'auto');
-
-    var head = cinema.querySelector('.cinema-head');
-    var stage = cinema.querySelector('.slider-container');
-    if(head) imp(head, 'margin', '0 auto 16px');
-    if(stage) imp(stage, 'margin-top', '0');
-  }
-
-  function queue(){
-    if(ticking) return;
-    ticking = true;
-    requestAnimationFrame(apply);
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', queue, {passive:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', queue, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  [0, 100, 300, 700, 1500, 3000, 5000].forEach(function(ms){ setTimeout(queue, ms); });
-  mo = new MutationObserver(queue);
-  try{ mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']}); }catch(_e){}
-})();
-</script>
-
-
-
-<style id="tk-4k-cinema-antijump-v20">
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema{
-  will-change: auto !important;
-  transition: none !important;
-  animation: none !important;
-  backface-visibility: hidden !important;
-  transform: translateZ(0) !important;
-}
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-head,
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .slider-container,
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-slide,
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-media,
-html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-info{
-  transition-property: opacity, box-shadow, border-color, background-color, filter !important;
-  transition-duration: .18s !important;
-}
-</style>
-<script id="tk-4k-cinema-antijump-v20-script">
-(function(){
-  var LOCKED_TOP = null;
-  var BASE_W = 0;
-  var BASE_H = 0;
-  var raf = 0;
-  var mo = null;
-  var cinemaMo = null;
-  var LOCK_OFFSET = 80; /* keep current v19 look */
-
-  function vp(){
-    return {
-      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
-      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
-    };
-  }
-  function isReal4kBranch(){
-    var root = document.documentElement;
-    var d = vp();
-    return root.classList.contains('tk-cinema-final-clean') &&
-           root.classList.contains('tk-cinema-final-4k') &&
-           root.classList.contains('tk-4k-cinema-bear-align-fix') &&
-           (d.w >= 2300 || d.h >= 1300);
-  }
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
-  function pxNum(v){
-    var n = parseFloat(v || '');
-    return Number.isFinite(n) ? n : NaN;
-  }
-  function computedTop(cinema){
-    var inlineTop = pxNum(cinema && cinema.style ? cinema.style.top : '');
-    if(Number.isFinite(inlineTop)) return inlineTop;
-    var cssTop = pxNum(cinema ? getComputedStyle(cinema).top : '');
-    if(Number.isFinite(cssTop)) return cssTop;
-    return NaN;
-  }
-  function calcStableTop(){
-    var d = vp();
-    return clamp(Math.round(d.h * 0.072), 132, 168) + LOCK_OFFSET;
-  }
-  function hardLock(cinema){
-    if(!cinema || !Number.isFinite(LOCKED_TOP)) return;
-    document.documentElement.style.setProperty('--tk-v20-locked-cinema-top', LOCKED_TOP + 'px');
-    imp(cinema, 'position', 'relative');
-    imp(cinema, 'top', LOCKED_TOP + 'px');
-    imp(cinema, 'margin-top', '0');
-    imp(cinema, 'left', 'auto');
-    imp(cinema, 'right', 'auto');
-    imp(cinema, 'bottom', 'auto');
-    imp(cinema, 'transform', 'translateZ(0)');
-    imp(cinema, 'transition', 'none');
-
-    var head = cinema.querySelector('.cinema-head');
-    var stage = cinema.querySelector('.slider-container');
-    if(head){
-      imp(head, 'margin', '0 auto 16px');
-      imp(head, 'transform', 'none');
-    }
-    if(stage){
-      imp(stage, 'margin-top', '0');
-      imp(stage, 'transform', 'none');
-    }
-  }
-  function maybeRefreshLock(cinema, force){
-    var d = vp();
-    var majorViewportChange = Math.abs(d.w - BASE_W) > 220 || Math.abs(d.h - BASE_H) > 220;
-    if(force || !Number.isFinite(LOCKED_TOP) || majorViewportChange){
-      var current = computedTop(cinema);
-      LOCKED_TOP = Number.isFinite(current) ? current : calcStableTop();
-      BASE_W = d.w;
-      BASE_H = d.h;
-    }
-  }
-  function apply(force){
-    raf = 0;
-    if(!isReal4kBranch()) return;
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    maybeRefreshLock(cinema, !!force);
-    hardLock(cinema);
-  }
-  function queue(force){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ apply(force); });
-  }
-  function burst(){
-    [0, 16, 34, 70, 120].forEach(function(ms){ setTimeout(function(){ queue(false); }, ms); });
-  }
-  function watchCinema(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema || cinema.__tkV20Watch) return;
-    cinema.__tkV20Watch = true;
-    cinemaMo = new MutationObserver(function(){ burst(); });
-    try{ cinemaMo.observe(cinema, { attributes:true, subtree:false, attributeFilter:['style','class'] }); }catch(_e){}
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){
-      queue(true);
-      burst();
-      watchCinema();
-    }, { once:true });
-  } else {
-    queue(true);
-    burst();
-    watchCinema();
-  }
-
-  window.addEventListener('load', function(){
-    queue(true);
-    [60, 140, 260, 520, 900, 1600, 3100, 5100].forEach(function(ms){ setTimeout(function(){ queue(ms < 300); }, ms); });
-    watchCinema();
-  }, { once:true });
-
-  window.addEventListener('resize', function(){ queue(false); }, { passive:true });
-  window.addEventListener('orientationchange', function(){ queue(true); }, { passive:true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){ queue(false); }, { passive:true });
-    window.visualViewport.addEventListener('scroll', function(){ burst(); }, { passive:true });
-  }
-
-  mo = new MutationObserver(function(muts){
-    for(var i=0;i<muts.length;i++){
-      var t = muts[i].target;
-      if(t === document.documentElement || (t && t.id === 'cinema') || (t && t.closest && t.closest('#cinema'))){
-        burst();
-        watchCinema();
-        break;
-      }
-    }
-  });
-  try{ mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] }); }catch(_e){}
-})();
-</script>
-
-
 <style id="tk-4k-cinema-gap-tighten-v21">
 html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .cinema-head{
   margin-bottom: 6px !important;
@@ -51765,18 +51527,48 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-
 
 
 
-<style id="tk-4k-cinema-raise-v22">
+
+<style id="tk-4k-cinema-final-v23">
 html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema{
+  position: relative !important;
+  top: var(--tk-v23-cinema-top, 162px) !important;
   margin-top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  will-change: auto !important;
+  transition: none !important;
+  animation: none !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .cinema-head,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .slider-container,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-stage,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-viewport,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-track,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .movie-slide,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .movie-media,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .movie-info{
+  animation: none !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .cinema-head,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .slider-container,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-stage,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-viewport,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-track,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .movie-slide,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .movie-media,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .movie-info{
+  transition-property: opacity, box-shadow, border-color, background-color, filter !important;
+  transition-duration: .18s !important;
+  transition-timing-function: ease !important;
+  transform: none !important;
 }
 </style>
-<script id="tk-4k-cinema-raise-v22-script">
+<script id="tk-4k-cinema-final-v23-script">
 (function(){
-  var SHIFT_UP = 50;
   var raf = 0;
-  var mo = null;
-  var cinemaMo = null;
-
   function vp(){
     return {
       w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
@@ -51792,77 +51584,221 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-
            root.classList.contains('oai4k-clean-cinema') &&
            (d.w >= 2300 || d.h >= 1300);
   }
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
   function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
-  function pxNum(v){ var n = parseFloat(v || ''); return Number.isFinite(n) ? n : NaN; }
-  function readLockedTop(cinema){
-    var root = document.documentElement;
-    var cached = pxNum(root.style.getPropertyValue('--tk-v22-locked-cinema-top'));
-    if(Number.isFinite(cached)) return cached;
-
-    var current = pxNum(cinema && cinema.style ? cinema.style.top : '');
-    if(!Number.isFinite(current)) current = pxNum(getComputedStyle(cinema).top);
-    if(!Number.isFinite(current)) current = 0;
-
-    var finalTop = current - SHIFT_UP;
-    root.style.setProperty('--tk-v22-locked-cinema-top', finalTop + 'px');
-    root.style.setProperty('--tk-v22-shift-up', SHIFT_UP + 'px');
-    return finalTop;
+  function calcTop(){
+    var d = vp();
+    return clamp(Math.round(d.h * 0.072), 132, 168) + 30;
   }
   function apply(){
     raf = 0;
     if(!isReal4kBranch()) return;
+    var root = document.documentElement;
     var cinema = document.getElementById('cinema');
     if(!cinema) return;
-    var finalTop = readLockedTop(cinema);
-
+    var top = calcTop();
+    root.style.setProperty('--tk-v23-cinema-top', top + 'px');
     imp(cinema, 'position', 'relative');
-    imp(cinema, 'top', finalTop + 'px');
+    imp(cinema, 'top', top + 'px');
     imp(cinema, 'margin-top', '0');
     imp(cinema, 'left', 'auto');
     imp(cinema, 'right', 'auto');
     imp(cinema, 'bottom', 'auto');
-
+    imp(cinema, 'transform', 'none');
+    imp(cinema, 'transition', 'none');
+    imp(cinema, 'animation', 'none');
     var head = cinema.querySelector('.cinema-head');
     var stage = cinema.querySelector('.slider-container');
-    if(head) imp(head, 'margin-top', '0');
-    if(stage) imp(stage, 'margin-top', '0');
+    var oaiStage = cinema.querySelector('.oai4k-stage');
+    var viewport = cinema.querySelector('.oai4k-viewport');
+    var track = cinema.querySelector('.oai4k-track');
+    if(head){ imp(head, 'margin-top', '0'); imp(head, 'transform', 'none'); }
+    if(stage){ imp(stage, 'margin-top', '0'); imp(stage, 'transform', 'none'); }
+    if(oaiStage) imp(oaiStage, 'transform', 'none');
+    if(viewport) imp(viewport, 'transform', 'none');
+    if(track) imp(track, 'transform', 'none');
   }
-  function queue(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ setTimeout(apply, 0); });
-  }
-  function burst(){ [0, 24, 80, 180].forEach(function(ms){ setTimeout(queue, ms); }); }
-  function watchCinema(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema || cinema.__tkV22Watch) return;
-    cinema.__tkV22Watch = true;
-    cinemaMo = new MutationObserver(burst);
-    try{ cinemaMo.observe(cinema, { attributes:true, subtree:false, attributeFilter:['style','class'] }); }catch(_e){}
-  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', queue, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  [120, 500, 1400].forEach(function(ms){ setTimeout(queue, ms); });
+})();
+</script>
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ burst(); watchCinema(); }, { once:true });
-  } else {
-    burst(); watchCinema();
+
+<style id="tk-4k-cinema-freeze-v24-style">
+html.tk-4k-cinema-freeze-v24 #cinema .slider-container,
+html.tk-4k-cinema-freeze-v24 #cinema .oai4k-stage,
+html.tk-4k-cinema-freeze-v24 #cinema .oai4k-viewport,
+html.tk-4k-cinema-freeze-v24 #cinema .slider-wrapper,
+html.tk-4k-cinema-freeze-v24 #cinema .oai4k-track{
+  min-height: var(--tk-v24-track-h, auto) !important;
+  height: var(--tk-v24-track-h, auto) !important;
+  max-height: var(--tk-v24-track-h, none) !important;
+  overflow-y: hidden !important;
+  align-items: flex-start !important;
+}
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-active,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-featured{
+  flex: 0 0 var(--tk-v24-slide-w, auto) !important;
+  width: var(--tk-v24-slide-w, auto) !important;
+  min-width: var(--tk-v24-slide-w, auto) !important;
+  max-width: var(--tk-v24-slide-w, auto) !important;
+  min-height: var(--tk-v24-slide-h, auto) !important;
+  height: var(--tk-v24-slide-h, auto) !important;
+  max-height: var(--tk-v24-slide-h, none) !important;
+  transform: none !important;
+  will-change: auto !important;
+  transition-property: opacity, box-shadow, border-color, background-color, filter !important;
+  transition-duration: .18s !important;
+  transition-timing-function: ease !important;
+}
+html.tk-4k-cinema-freeze-v24 #cinema .movie-media,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-active .movie-media,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-featured .movie-media,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-img,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-active .movie-img,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-featured .movie-img{
+  min-height: var(--tk-v24-media-h, auto) !important;
+  height: var(--tk-v24-media-h, auto) !important;
+  max-height: var(--tk-v24-media-h, none) !important;
+  transform: none !important;
+  transition: opacity .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, filter .18s ease !important;
+}
+html.tk-4k-cinema-freeze-v24 #cinema .movie-info,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-active .movie-info,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-featured .movie-info{
+  min-height: var(--tk-v24-info-h, auto) !important;
+  height: var(--tk-v24-info-h, auto) !important;
+  max-height: var(--tk-v24-info-h, none) !important;
+}
+html.tk-4k-cinema-freeze-v24 #cinema .movie-info h3,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-active .movie-info h3,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-featured .movie-info h3{
+  font-size: var(--tk-v24-h3-size, inherit) !important;
+  line-height: var(--tk-v24-h3-line, inherit) !important;
+  min-height: var(--tk-v24-h3-min-h, auto) !important;
+  letter-spacing: var(--tk-v24-h3-letter, inherit) !important;
+  text-transform: none !important;
+}
+html.tk-4k-cinema-freeze-v24 #cinema .movie-btn,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-active .movie-btn,
+html.tk-4k-cinema-freeze-v24 #cinema .movie-slide.is-featured .movie-btn{
+  min-width: var(--tk-v24-btn-w, auto) !important;
+  width: var(--tk-v24-btn-w, auto) !important;
+  height: var(--tk-v24-btn-h, auto) !important;
+  max-height: var(--tk-v24-btn-h, none) !important;
+}
+</style>
+<script id="tk-4k-cinema-freeze-v24-script">
+(function(){
+  var root = document.documentElement;
+  var raf = 0;
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+  function px(n){ return Math.round(n) + 'px'; }
+  function num(v){ var n = parseFloat(v); return Number.isFinite(n) ? n : 0; }
+  function metrics(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+    var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+    return { iw:iw, ih:ih, dpr:dpr, sw:sw, sh:sh, physW:Math.round(sw * dpr), physH:Math.round(sh * dpr) };
   }
-  window.addEventListener('load', function(){ burst(); watchCinema(); }, { once:true });
-  window.addEventListener('resize', burst, { passive:true });
-  window.addEventListener('orientationchange', burst, { passive:true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', burst, { passive:true });
-    window.visualViewport.addEventListener('scroll', burst, { passive:true });
+  function isStrict4k(){
+    var m = metrics();
+    var looksLike2600 = (m.sw >= 2400 && m.sw <= 2900 && m.sh >= 1300 && m.sh <= 1700 && m.physW < 3500);
+    if(looksLike2600) return false;
+    var native4k = m.sw >= 3000 || m.sh >= 1700 || m.iw >= 2500;
+    var scaled4k = m.physW >= 3600 && m.physH >= 2000 && m.iw >= 1750 && m.ih >= 900;
+    return native4k || scaled4k;
   }
-  mo = new MutationObserver(function(muts){
-    for(var i=0;i<muts.length;i++){
-      var t = muts[i].target;
-      if(t === document.documentElement || (t && t.id === 'cinema') || (t && t.closest && t.closest('#cinema'))){
-        burst();
-        watchCinema();
-        break;
-      }
+  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
+  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function pickSample(slides){
+    if(!slides || !slides.length) return null;
+    return slides.find(function(s){ return !s.classList.contains('is-active') && !s.classList.contains('is-featured'); }) || slides[0];
+  }
+  function apply(){
+    raf = 0;
+    if(!isStrict4k()){
+      root.classList.remove('tk-4k-cinema-freeze-v24');
+      ['--tk-v24-track-h','--tk-v24-slide-w','--tk-v24-slide-h','--tk-v24-media-h','--tk-v24-info-h','--tk-v24-btn-w','--tk-v24-btn-h','--tk-v24-h3-size','--tk-v24-h3-line','--tk-v24-h3-min-h','--tk-v24-h3-letter'].forEach(function(v){ root.style.removeProperty(v); });
+      return;
     }
-  });
-  try{ mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] }); }catch(_e){}
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    var track = q('.slider-wrapper, .oai4k-track', cinema);
+    var slides = qa('.movie-slide', track || cinema);
+    if(!track || !slides.length) return;
+
+    var sample = pickSample(slides);
+    if(!sample) return;
+    var media = q('.movie-media', sample);
+    var img = q('.movie-img', sample) || media;
+    var info = q('.movie-info', sample);
+    var btn = q('.movie-btn', sample);
+    var h3 = q('.movie-info h3', sample);
+    var viewport = q('.oai4k-viewport, .tk4kStatic-viewport', cinema) || track.parentElement;
+    var container = q('.slider-container', cinema) || viewport;
+
+    var slideRect = sample.getBoundingClientRect();
+    var mediaRect = media ? media.getBoundingClientRect() : null;
+    var infoRect = info ? info.getBoundingClientRect() : null;
+    var btnRect = btn ? btn.getBoundingClientRect() : null;
+    var viewportRect = viewport ? viewport.getBoundingClientRect() : null;
+    var trackRect = track.getBoundingClientRect();
+
+    if(!slideRect.width || !slideRect.height) return;
+
+    var slideW = clamp(slideRect.width, 160, 520);
+    var slideH = clamp(slideRect.height, 180, 520);
+    var mediaH = clamp((mediaRect && mediaRect.height) || (img && img.getBoundingClientRect().height) || (slideH * 0.56), 90, 320);
+    var infoH = clamp((infoRect && infoRect.height) || Math.max(60, slideH - mediaH - 12), 60, 220);
+    var btnW = clamp((btnRect && btnRect.width) || 120, 84, 260);
+    var btnH = clamp((btnRect && btnRect.height) || 36, 28, 72);
+    var trackH = clamp(Math.max(trackRect.height || 0, viewportRect ? viewportRect.height : 0, slideH + 12), slideH, 620);
+
+    root.style.setProperty('--tk-v24-slide-w', px(slideW));
+    root.style.setProperty('--tk-v24-slide-h', px(slideH));
+    root.style.setProperty('--tk-v24-media-h', px(mediaH));
+    root.style.setProperty('--tk-v24-info-h', px(infoH));
+    root.style.setProperty('--tk-v24-btn-w', px(btnW));
+    root.style.setProperty('--tk-v24-btn-h', px(btnH));
+    root.style.setProperty('--tk-v24-track-h', px(trackH));
+
+    if(h3){
+      var cs = getComputedStyle(h3);
+      root.style.setProperty('--tk-v24-h3-size', cs.fontSize);
+      root.style.setProperty('--tk-v24-h3-line', cs.lineHeight);
+      root.style.setProperty('--tk-v24-h3-letter', cs.letterSpacing);
+      root.style.setProperty('--tk-v24-h3-min-h', px(h3.getBoundingClientRect().height || num(cs.lineHeight) * 2 || 40));
+    }
+
+    if(container){
+      container.style.setProperty('min-height', px(trackH), 'important');
+      container.style.setProperty('height', px(trackH), 'important');
+    }
+    if(viewport){
+      viewport.style.setProperty('min-height', px(trackH), 'important');
+      viewport.style.setProperty('height', px(trackH), 'important');
+    }
+
+    root.classList.add('tk-4k-cinema-freeze-v24');
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ queue(); [120, 500, 1400, 2600].forEach(function(ms){ setTimeout(queue, ms); }); }, {once:true});
+  else { queue(); [120, 500, 1400, 2600].forEach(function(ms){ setTimeout(queue, ms); }); }
+  window.addEventListener('load', function(){ queue(); [150, 700, 1800].forEach(function(ms){ setTimeout(queue, ms); }); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  document.addEventListener('click', function(e){ if(e.target && e.target.closest && e.target.closest('#cinema .slider-prev, #cinema .slider-next, #cinema .movie-slide, #cinema .movie-btn')) setTimeout(queue, 420); }, true);
 })();
 </script>
 
