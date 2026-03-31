@@ -42323,7 +42323,7 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinem
   justify-content: flex-start !important;
   width: var(--tk-4k-cinema-head-width, 800px) !important;
   max-width: min(var(--tk-4k-cinema-head-width, 800px), 92vw) !important;
-  margin: 0 auto 16px !important;
+  margin: 0 auto 6px !important;
   padding: 0 !important;
   gap: 0 !important;
   row-gap: 0 !important;
@@ -42436,7 +42436,7 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinem
     var badgeX = 0;
     var badgeY = 0;
     var badgeMargin = '0 auto 12px';
-    var subMargin = '6px auto 0';
+    var subMargin = '2px auto 0';
 
     setVar('--tk-4k-cinema-top', cinemaTop + 'px');
     setVar('--tk-4k-cinema-head-width', headWidth + 'px');
@@ -47692,7 +47692,7 @@ html.oai4k-clean-cinema #cinema .slider-next{
 }
 html.oai4k-clean-cinema #cinema .oai4k-stage{
   position:relative !important;
-  margin:10px auto 0 !important;
+  margin:0 auto 0 !important;
 }
 html.oai4k-clean-cinema #cinema .oai4k-viewport{
   overflow:hidden !important;
@@ -47944,7 +47944,7 @@ html.oai4k-clean-cinema #cinema .movie-slide.is-featured .movie-btn{
     hardCss(ui.container, 'width:' + stageW + 'px !important;max-width:none !important;overflow:visible !important;');
     hardCss(ui.stage, 'display:grid !important;grid-template-columns:' + navSize + 'px ' + viewportW + 'px ' + navSize + 'px !important;column-gap:' + navGap + 'px !important;align-items:center !important;width:' + stageW + 'px !important;max-width:' + stageW + 'px !important;margin-left:auto !important;margin-right:auto !important;');
     hardCss(ui.viewport, 'width:' + viewportW + 'px !important;max-width:' + viewportW + 'px !important;min-width:' + viewportW + 'px !important;overflow:hidden !important;');
-    hardCss(ui.track, 'display:flex !important;gap:' + cardGap + 'px !important;padding:18px 0 16px !important;width:max-content !important;min-width:' + viewportW + 'px !important;overflow:visible !important;scroll-snap-type:none !important;');
+    hardCss(ui.track, 'display:flex !important;gap:' + cardGap + 'px !important;padding:6px 0 16px !important;width:max-content !important;min-width:' + viewportW + 'px !important;overflow:visible !important;scroll-snap-type:none !important;');
 
     [ui.prev, ui.next].forEach(function(btn){
       hardCss(btn, 'display:grid !important;place-items:center !important;width:' + navSize + 'px !important;height:' + navSize + 'px !important;');
@@ -51594,6 +51594,174 @@ html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinem
   try{ mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']}); }catch(_e){}
 })();
 </script>
+
+
+
+<style id="tk-4k-cinema-antijump-v20">
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema{
+  will-change: auto !important;
+  transition: none !important;
+  animation: none !important;
+  backface-visibility: hidden !important;
+  transform: translateZ(0) !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .cinema-head,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .slider-container,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-slide,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-media,
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix #cinema .movie-info{
+  transition-property: opacity, box-shadow, border-color, background-color, filter !important;
+  transition-duration: .18s !important;
+}
+</style>
+<script id="tk-4k-cinema-antijump-v20-script">
+(function(){
+  var LOCKED_TOP = null;
+  var BASE_W = 0;
+  var BASE_H = 0;
+  var raf = 0;
+  var mo = null;
+  var cinemaMo = null;
+  var LOCK_OFFSET = 80; /* keep current v19 look */
+
+  function vp(){
+    return {
+      w: Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0),
+      h: Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0)
+    };
+  }
+  function isReal4kBranch(){
+    var root = document.documentElement;
+    var d = vp();
+    return root.classList.contains('tk-cinema-final-clean') &&
+           root.classList.contains('tk-cinema-final-4k') &&
+           root.classList.contains('tk-4k-cinema-bear-align-fix') &&
+           (d.w >= 2300 || d.h >= 1300);
+  }
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
+  function pxNum(v){
+    var n = parseFloat(v || '');
+    return Number.isFinite(n) ? n : NaN;
+  }
+  function computedTop(cinema){
+    var inlineTop = pxNum(cinema && cinema.style ? cinema.style.top : '');
+    if(Number.isFinite(inlineTop)) return inlineTop;
+    var cssTop = pxNum(cinema ? getComputedStyle(cinema).top : '');
+    if(Number.isFinite(cssTop)) return cssTop;
+    return NaN;
+  }
+  function calcStableTop(){
+    var d = vp();
+    return clamp(Math.round(d.h * 0.072), 132, 168) + LOCK_OFFSET;
+  }
+  function hardLock(cinema){
+    if(!cinema || !Number.isFinite(LOCKED_TOP)) return;
+    document.documentElement.style.setProperty('--tk-v20-locked-cinema-top', LOCKED_TOP + 'px');
+    imp(cinema, 'position', 'relative');
+    imp(cinema, 'top', LOCKED_TOP + 'px');
+    imp(cinema, 'margin-top', '0');
+    imp(cinema, 'left', 'auto');
+    imp(cinema, 'right', 'auto');
+    imp(cinema, 'bottom', 'auto');
+    imp(cinema, 'transform', 'translateZ(0)');
+    imp(cinema, 'transition', 'none');
+
+    var head = cinema.querySelector('.cinema-head');
+    var stage = cinema.querySelector('.slider-container');
+    if(head){
+      imp(head, 'margin', '0 auto 16px');
+      imp(head, 'transform', 'none');
+    }
+    if(stage){
+      imp(stage, 'margin-top', '0');
+      imp(stage, 'transform', 'none');
+    }
+  }
+  function maybeRefreshLock(cinema, force){
+    var d = vp();
+    var majorViewportChange = Math.abs(d.w - BASE_W) > 220 || Math.abs(d.h - BASE_H) > 220;
+    if(force || !Number.isFinite(LOCKED_TOP) || majorViewportChange){
+      var current = computedTop(cinema);
+      LOCKED_TOP = Number.isFinite(current) ? current : calcStableTop();
+      BASE_W = d.w;
+      BASE_H = d.h;
+    }
+  }
+  function apply(force){
+    raf = 0;
+    if(!isReal4kBranch()) return;
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    maybeRefreshLock(cinema, !!force);
+    hardLock(cinema);
+  }
+  function queue(force){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ apply(force); });
+  }
+  function burst(){
+    [0, 16, 34, 70, 120].forEach(function(ms){ setTimeout(function(){ queue(false); }, ms); });
+  }
+  function watchCinema(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema || cinema.__tkV20Watch) return;
+    cinema.__tkV20Watch = true;
+    cinemaMo = new MutationObserver(function(){ burst(); });
+    try{ cinemaMo.observe(cinema, { attributes:true, subtree:false, attributeFilter:['style','class'] }); }catch(_e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      queue(true);
+      burst();
+      watchCinema();
+    }, { once:true });
+  } else {
+    queue(true);
+    burst();
+    watchCinema();
+  }
+
+  window.addEventListener('load', function(){
+    queue(true);
+    [60, 140, 260, 520, 900, 1600, 3100, 5100].forEach(function(ms){ setTimeout(function(){ queue(ms < 300); }, ms); });
+    watchCinema();
+  }, { once:true });
+
+  window.addEventListener('resize', function(){ queue(false); }, { passive:true });
+  window.addEventListener('orientationchange', function(){ queue(true); }, { passive:true });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ queue(false); }, { passive:true });
+    window.visualViewport.addEventListener('scroll', function(){ burst(); }, { passive:true });
+  }
+
+  mo = new MutationObserver(function(muts){
+    for(var i=0;i<muts.length;i++){
+      var t = muts[i].target;
+      if(t === document.documentElement || (t && t.id === 'cinema') || (t && t.closest && t.closest('#cinema'))){
+        burst();
+        watchCinema();
+        break;
+      }
+    }
+  });
+  try{ mo.observe(document.documentElement, { subtree:true, childList:true, attributes:true, attributeFilter:['class','style'] }); }catch(_e){}
+})();
+</script>
+
+
+<style id="tk-4k-cinema-gap-tighten-v21">
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .cinema-head{
+  margin-bottom: 6px !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .cinema-banner-sub{
+  margin: 2px auto 0 !important;
+}
+html.tk-cinema-final-clean.tk-cinema-final-4k.tk-4k-cinema-bear-align-fix.oai4k-clean-cinema #cinema .oai4k-stage{
+  margin-top: 0 !important;
+}
+</style>
 
 </body>
 </html>
