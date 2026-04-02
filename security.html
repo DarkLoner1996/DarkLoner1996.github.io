@@ -53887,5 +53887,114 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 }
 </style>
 
+
+<style id="oa-menu-pill-toggle-unify-v1">
+/* Remove the separate arrow button and move collapse/expand onto the main
+   "Игровое меню" button without breaking existing JS that still uses #menuToggle. */
+.side-nav .tab-row{
+  grid-template-columns:minmax(0,1fr) max-content !important;
+  gap:12px !important;
+}
+
+.side-nav .back-btn{
+  display:none !important;
+}
+
+.side-nav .menu-pill{
+  cursor:pointer !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  touch-action:manipulation !important;
+  transition:
+    transform .16s ease,
+    filter .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease !important;
+}
+
+.side-nav .menu-pill:hover{
+  transform:translateY(-1px) !important;
+  filter:saturate(1.06) brightness(1.02) !important;
+  box-shadow:
+    0 22px 44px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+
+.side-nav .menu-pill:active{
+  transform:translateY(0) scale(.994) !important;
+}
+
+.side-nav .menu-pill:focus-visible{
+  box-shadow:
+    0 0 0 3px rgba(255,242,205,.34),
+    0 0 0 6px rgba(105,205,255,.22),
+    0 18px 36px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+
+.side-nav .menu-pill__label{
+  pointer-events:none !important;
+}
+
+@media (max-width:560px){
+  .side-nav .tab-row{
+    grid-template-columns:minmax(0,1fr) max-content !important;
+    gap:8px !important;
+  }
+}
+</style>
+<script id="oa-menu-pill-toggle-unify-script-v1">
+(function(){
+  function initMenuPillToggle(){
+    var nav = document.querySelector('.side-nav');
+    var hiddenToggle = document.getElementById('menuToggle');
+    var pill = document.querySelector('.side-nav .menu-pill');
+    if(!nav || !hiddenToggle || !pill) return;
+    if(pill.dataset.menuToggleUnified === '1') return;
+    pill.dataset.menuToggleUnified = '1';
+
+    pill.setAttribute('role', 'button');
+    pill.setAttribute('tabindex', '0');
+    pill.setAttribute('aria-controls', hiddenToggle.getAttribute('aria-controls') || 'hudPanel');
+
+    var sync = function(){
+      var expanded = !nav.classList.contains('is-collapsed') && hiddenToggle.getAttribute('aria-expanded') !== 'false';
+      pill.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      pill.setAttribute('title', expanded ? 'Свернуть игровое меню' : 'Развернуть игровое меню');
+    };
+
+    var trigger = function(ev){
+      if(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      hiddenToggle.click();
+      requestAnimationFrame(sync);
+      setTimeout(sync, 0);
+    };
+
+    pill.addEventListener('click', trigger);
+    pill.addEventListener('keydown', function(ev){
+      if(ev.key === 'Enter' || ev.key === ' ' || ev.code === 'Space'){
+        trigger(ev);
+      }
+    });
+
+    try{
+      new MutationObserver(sync).observe(nav, { attributes:true, attributeFilter:['class'] });
+      new MutationObserver(sync).observe(hiddenToggle, { attributes:true, attributeFilter:['aria-expanded'] });
+    }catch(_e){}
+
+    sync();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initMenuPillToggle, { once:true });
+  }else{
+    initMenuPillToggle();
+  }
+})();
+</script>
+
 </body>
 </html>
