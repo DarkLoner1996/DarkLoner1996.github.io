@@ -16799,6 +16799,9 @@ function renderCard() {
           return (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search);
         }catch(_){ return true; }
       }
+      function isInstantMenuLink(a){
+        return !!(a && a.matches('.side-nav .hud-item[href]'));
+      }
 
       document.addEventListener('click', (e) => {
         const a = e.target.closest('a[href]');
@@ -16812,6 +16815,7 @@ function renderCard() {
         if(samePage(href) && href.includes('#')) return;
         if(reduce) return;
         if(a.target === '_blank') return;
+        if(isInstantMenuLink(a)) return;
 
         if(e.target.closest('#phishGame') || e.target.closest('#ruleGame')) return;
 
@@ -16831,6 +16835,45 @@ function renderCard() {
         pt.classList.add('is-entering');
         setTimeout(() => pt.classList.remove('is-entering'), 520);
       });
+    })();
+
+    (function fastMenuNavigation(){
+      function isModifiedClick(e){
+        return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+      }
+      function isSamePage(href){
+        try{
+          const u = new URL(href, location.href);
+          return u.origin === location.origin && u.pathname === location.pathname && u.search === location.search && !u.hash;
+        }catch(_){
+          return false;
+        }
+      }
+
+      window.addEventListener('click', (e) => {
+        const a = e.target && e.target.closest ? e.target.closest('.side-nav .hud-item[href]') : null;
+        if(!a) return;
+
+        const href = a.getAttribute('href');
+        if(!href) return;
+        if(href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
+        if(isModifiedClick(e)) return;
+        if(a.target === '_blank') return;
+        if(isSamePage(href)) return;
+
+        try{ e.preventDefault(); }catch(_){ }
+        try{ e.stopImmediatePropagation(); }catch(_){ }
+        try{ e.stopPropagation(); }catch(_){ }
+
+        const pt = document.getElementById('pt');
+        if(pt){
+          pt.classList.remove('is-leaving', 'is-entering');
+          pt.style.opacity = '0';
+          pt.style.pointerEvents = 'none';
+        }
+
+        window.location.assign(a.href || href);
+      }, { capture: true });
     })();
 
 
