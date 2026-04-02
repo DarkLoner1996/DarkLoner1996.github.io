@@ -16766,6 +16766,7 @@ function renderCard() {
       document.addEventListener('click', (e) => {
         const a = e.target.closest('a[href]');
         if(!a) return;
+        if(a.closest('.side-nav') || a.closest('.side-chip') || a.closest('.rules')) return;
 
         const href = a.getAttribute('href');
         if(!href) return;
@@ -52007,7 +52008,9 @@ html.tk-fhd-clean-ui #cinema .cinema-banner-sub{
     if(!navLink) return;
     var href = navLink.getAttribute('href');
     if(!href) return;
-    closeModal();
+    try{ e.preventDefault(); }catch(_e){}
+    try{ e.stopPropagation(); }catch(_e){}
+    try{ e.stopImmediatePropagation(); }catch(_e){}
     window.location.href = href;
   }, true);
 
