@@ -52074,5 +52074,125 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   setTimeout(unlock, 2200);
 })();
 </script>
+
+<style id="tk-scroll-hitbox-fix-v4">
+@media (min-width: 521px){
+  /* Прозрачные layout-обёртки не должны блокировать скролл и клики по фону */
+  .ui-bottom,
+  .cta-row,
+  .cinema-grid,
+  .cinema-slider .slider-container,
+  .cinema-slider .slider-wrapper,
+  .side-nav,
+  .side-chip,
+  .rules,
+  .roulette-dock{
+    pointer-events:none !important;
+  }
+
+  /* Интерактивные элементы внутри остаются кликабельными */
+  .side-nav__tab,
+  .side-nav__panel,
+  .menu-pill,
+  .back-btn,
+  .hud-item,
+  .cta,
+  .movie-card,
+  .movie-btn,
+  .cinema-slider,
+  .cinema-slider .slider-prev,
+  .cinema-slider .slider-next,
+  .cinema-slider .movie-slide,
+  .cinema-slider .movie-btn,
+  .cinema-slider .cinema-tab,
+  .avatar,
+  .chip-card,
+  .chip-btn,
+  .rule-pill,
+  .rules-card,
+  .roulette-card,
+  .roulette-info,
+  .roulette-btn,
+  .roulette-link,
+  .roulette-miniBtn,
+  .roulette-ghostBtn,
+  .roulette-history .hist,
+  .roulette-dock .wheel-center{
+    pointer-events:auto !important;
+  }
+}
+</style>
+
+<script id="tk-global-wheel-relay-v4">
+(function(){
+  const header = document.getElementById('hero') || document.querySelector('.header');
+  if(!header) return;
+
+  function isDesktop(){
+    return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0) >= 521;
+  }
+
+  function isScrollable(el){
+    if(!el || el === document.body) return false;
+    const st = getComputedStyle(el);
+    const oy = st.overflowY;
+    const ox = st.overflowX;
+    const canY = (oy === 'auto' || oy === 'scroll' || oy === 'overlay') && el.scrollHeight > el.clientHeight + 2;
+    const canX = (ox === 'auto' || ox === 'scroll' || ox === 'overlay') && el.scrollWidth > el.clientWidth + 2;
+    return canY || canX;
+  }
+
+  function canScrollY(el, deltaY){
+    if(!el || !deltaY) return false;
+    if(!isScrollable(el)) return false;
+    const top = el.scrollTop;
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
+    return deltaY < 0 ? top > 0 : top < max - 1;
+  }
+
+  function inOwnScrollableArea(target, deltaY){
+    for(let el = target; el && el !== document.body && el !== document.documentElement; el = el.parentElement){
+      if(el === header) return false;
+      if(canScrollY(el, deltaY)) return true;
+      if(isScrollable(el)) return false;
+    }
+    return false;
+  }
+
+  function isBlockedContext(target){
+    if(!target || !target.closest) return false;
+    return !!target.closest(
+      '.mg-backdrop.is-open, .rm-backdrop.is-open, .info-map-lightbox, .modal[aria-modal="true"], ' +
+      '#phishGame.is-open, #infoSecGame.is-open, #itGame.is-open, #pcPartsGame.is-open, ' +
+      '#comicMenu .comic-screen:not([hidden]), .comic-pageWrap, .comic-strip, .roulette-history, ' +
+      '.cinema-slider .slider-wrapper, canvas#wheel, .wheel-wrap'
+    );
+  }
+
+  function relayWheel(e){
+    if(!isDesktop()) return;
+    if(!header || typeof e.deltaY !== 'number' || e.deltaY === 0) return;
+    const target = e.target;
+    if(isBlockedContext(target)) return;
+    if(inOwnScrollableArea(target, e.deltaY)) return;
+
+    const maxTop = Math.max(0, header.scrollHeight - header.clientHeight);
+    if(maxTop <= 0) return;
+
+    const prev = header.scrollTop;
+    let next = prev + e.deltaY;
+    if(next < 0) next = 0;
+    if(next > maxTop) next = maxTop;
+    if(next === prev) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    header.scrollTop = next;
+  }
+
+  window.addEventListener('wheel', relayWheel, { passive:false, capture:true });
+})();
+</script>
+
 </body>
 </html>
