@@ -996,6 +996,377 @@
       img, iframe, table{ max-width: 100% !important; }
     }
 
+  
+    /* =========================================================
+       CYBERPOLYGON NOTICE
+    ========================================================= */
+    .cyber-alert{
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .28s ease, visibility .28s ease;
+    }
+    .cyber-alert.is-open{
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .cyber-alert__backdrop{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(102,163,255,.18), transparent 60%),
+        radial-gradient(800px 460px at 80% 90%, rgba(255,106,95,.16), transparent 60%),
+        linear-gradient(180deg, rgba(3,7,20,.82), rgba(3,7,20,.92));
+      backdrop-filter: blur(10px) saturate(1.08);
+      -webkit-backdrop-filter: blur(10px) saturate(1.08);
+    }
+    .cyber-alert__panel{
+      position: relative;
+      width: min(860px, calc(100vw - 28px));
+      max-height: min(88vh, 900px);
+      overflow: auto;
+      border-radius: 28px;
+      padding: 28px 24px 22px;
+      color: rgba(237,245,255,.96);
+      background:
+        radial-gradient(1200px 380px at 0% 0%, rgba(0,57,166,.26), transparent 58%),
+        radial-gradient(980px 420px at 100% 100%, rgba(213,43,30,.22), transparent 60%),
+        linear-gradient(180deg, rgba(8,17,37,.98), rgba(8,17,37,.96));
+      border: 1px solid rgba(125,191,255,.18);
+      box-shadow:
+        0 36px 90px rgba(0,0,0,.50),
+        0 0 0 1px rgba(255,255,255,.06) inset,
+        0 0 50px rgba(102,163,255,.12),
+        0 0 36px rgba(255,106,95,.08);
+      isolation: isolate;
+      transform: translateY(18px) scale(.97);
+      transition: transform .28s ease;
+    }
+    .cyber-alert.is-open .cyber-alert__panel{
+      transform: translateY(0) scale(1);
+    }
+    .cyber-alert__panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: inherit;
+      padding: 1px;
+      background:
+        linear-gradient(135deg, rgba(102,163,255,.92), rgba(255,255,255,.45), rgba(255,106,95,.9));
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events:none;
+      opacity: .85;
+    }
+    .cyber-alert__panel::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: inherit;
+      pointer-events:none;
+      opacity: .18;
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,.08) 0 1px,
+          rgba(255,255,255,0) 1px 4px
+        );
+      mix-blend-mode: screen;
+    }
+    .cyber-alert__close{
+      position:absolute;
+      right: 14px;
+      top: 14px;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.96);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      box-shadow:
+        0 16px 28px rgba(0,0,0,.24),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      cursor: pointer;
+      transition: transform .14s ease, filter .14s ease, border-color .14s ease;
+      z-index: 3;
+    }
+    .cyber-alert__close:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.08);
+      border-color: rgba(125,191,255,.34);
+    }
+    .cyber-alert__eyebrow{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(214,233,255,.95);
+      background: rgba(102,163,255,.10);
+      border: 1px solid rgba(102,163,255,.18);
+      box-shadow:
+        0 12px 24px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.08);
+      position: relative;
+      z-index: 2;
+    }
+    .cyber-alert__eyebrow i{
+      color: #8fc2ff;
+      filter: drop-shadow(0 0 10px rgba(143,194,255,.45));
+    }
+    .cyber-alert__title{
+      margin: 0 52px 12px 0;
+      font-family: 'Russo One', sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      color: rgba(255,255,255,.98);
+      text-shadow:
+        0 0 18px rgba(102,163,255,.18),
+        0 12px 34px rgba(0,0,0,.32);
+      position: relative;
+      z-index: 2;
+    }
+    .cyber-alert__title strong{
+      color: #9fd1ff;
+      text-shadow:
+        0 0 18px rgba(125,191,255,.32),
+        0 12px 30px rgba(0,0,0,.30);
+    }
+    .cyber-alert__lead{
+      margin: 0 0 18px;
+      font-size: clamp(16px, 1.25vw, 19px) !important;
+      line-height: 1.72 !important;
+      color: rgba(235,242,252,.92);
+      max-width: 68ch;
+      position: relative;
+      z-index: 2;
+    }
+    .cyber-alert__grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      position: relative;
+      z-index: 2;
+    }
+    .cyber-alert__card{
+      border-radius: 22px;
+      padding: 18px;
+      background:
+        radial-gradient(140% 140% at 20% 0%, rgba(102,163,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 16px 30px rgba(0,0,0,.18);
+    }
+    .cyber-alert__card h3{
+      margin: 0 0 12px;
+      font-family: 'Russo One', sans-serif;
+      font-size: 18px;
+      letter-spacing: .04em;
+      color: rgba(255,255,255,.96);
+    }
+    .cyber-alert__card p{
+      margin: 0 0 12px;
+      color: rgba(231,238,247,.92);
+      font-size: 15px !important;
+      line-height: 1.72 !important;
+    }
+    .cyber-alert__list{
+      display:grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .cyber-alert__list li{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      color: rgba(240,245,252,.94);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .cyber-alert__list i{
+      margin-top: 2px;
+      color: #90c6ff;
+      filter: drop-shadow(0 0 8px rgba(144,198,255,.42));
+      flex: 0 0 auto;
+    }
+    .cyber-alert__badge-row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .cyber-alert__badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(241,246,255,.95);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .cyber-alert__footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      position: relative;
+      z-index: 2;
+    }
+    .cyber-alert__hint{
+      margin: 0;
+      color: rgba(222,231,244,.86);
+      font-size: 13px !important;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .cyber-alert__action{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(125,191,255,.24);
+      color: rgba(255,255,255,.98);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.18), transparent 62%),
+        linear-gradient(180deg, rgba(0,57,166,.86), rgba(7,18,38,.78));
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.26),
+        0 0 24px rgba(102,163,255,.12);
+      font-weight: 900;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: transform .14s ease, filter .14s ease, border-color .14s ease;
+    }
+    .cyber-alert__action:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.08);
+      border-color: rgba(170,220,255,.38);
+    }
+    body.cyber-alert-open{
+      overflow: hidden;
+    }
+
+
+    /* =========================================================
+       CYBER SCROLLBAR
+    ========================================================= */
+    .cyber-alert__panel{
+      scrollbar-width: thin;
+      scrollbar-color: rgba(120, 190, 255, .92) rgba(255,255,255,.06);
+    }
+
+    .cyber-alert__panel::-webkit-scrollbar{
+      width: 14px;
+      height: 14px;
+    }
+
+    .cyber-alert__panel::-webkit-scrollbar-track{
+      border-radius: 999px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.06),
+        inset 0 10px 22px rgba(0,0,0,.24);
+      margin: 10px 0;
+    }
+
+    .cyber-alert__panel::-webkit-scrollbar-thumb{
+      border-radius: 999px;
+      border: 3px solid transparent;
+      background-clip: padding-box;
+      background:
+        linear-gradient(180deg, rgba(158,210,255,.98), rgba(69,132,255,.92) 54%, rgba(255,106,95,.86));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.08) inset,
+        0 0 18px rgba(120,190,255,.26),
+        0 8px 18px rgba(0,0,0,.26);
+    }
+
+    .cyber-alert__panel::-webkit-scrollbar-thumb:hover{
+      background:
+        linear-gradient(180deg, rgba(188,226,255,.99), rgba(92,158,255,.95) 52%, rgba(255,136,112,.90));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.10) inset,
+        0 0 24px rgba(120,190,255,.34),
+        0 10px 20px rgba(0,0,0,.28);
+    }
+
+    .cyber-alert__panel::-webkit-scrollbar-thumb:active{
+      background:
+        linear-gradient(180deg, rgba(210,235,255,.99), rgba(104,170,255,.96) 48%, rgba(255,150,125,.92));
+    }
+
+    .cyber-alert__panel::-webkit-scrollbar-corner{
+      background: transparent;
+    }
+
+
+    @media (max-width: 760px){
+      .cyber-alert{
+        padding: 12px;
+      }
+      .cyber-alert__panel{
+        width: min(100vw - 16px, 100%);
+        max-height: 92vh;
+        border-radius: 22px;
+        padding: 18px 16px 16px;
+      }
+      .cyber-alert__title{
+        margin-right: 52px;
+        font-size: clamp(24px, 8vw, 34px);
+      }
+      .cyber-alert__grid{
+        grid-template-columns: 1fr;
+      }
+      .cyber-alert__footer{
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .cyber-alert__action{
+        width: 100%;
+        justify-content: center;
+      }
+      .cyber-alert__hint{
+        text-align:center;
+      }
+    }
+
+
   </style>
 </head>
 
@@ -1059,7 +1430,7 @@
                 </span>
               </a>
 
-              <a class="quick-nav__btn quick-nav__btn--red" data-nav="cyber" href="https://digitalhavenrussia.ru/project.html#help">
+              <a class="quick-nav__btn quick-nav__btn--red" data-nav="cyber" href="https://digitalhavenrussia.ru/project.html#help" aria-haspopup="dialog" aria-controls="cyber-alert" aria-expanded="false">
                 <span class="quick-nav__ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
                 <span class="quick-nav__txt">
                   <span class="quick-nav__title">Киберполигон</span>
@@ -1583,6 +1954,77 @@
     </div>
   </main>
 
+
+  <div class="cyber-alert" id="cyber-alert" aria-hidden="true">
+    <div class="cyber-alert__backdrop" data-cyber-close="true"></div>
+
+    <section
+      class="cyber-alert__panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cyber-alert-title"
+      aria-describedby="cyber-alert-desc"
+      tabindex="-1"
+    >
+      <button class="cyber-alert__close" type="button" aria-label="Закрыть уведомление" data-cyber-close="true">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="cyber-alert__eyebrow">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Сигнал штаба • режим подготовки</span>
+      </div>
+
+      <h2 class="cyber-alert__title" id="cyber-alert-title">
+        Привет, герой! <strong>Киберполигон</strong> готовится к запуску.
+      </h2>
+
+      <p class="cyber-alert__lead" id="cyber-alert-desc">
+        Мы тщательно собираем программу, чтобы она была полезной, понятной и по-настоящему интересной.
+        Сейчас киберполигон находится в стадии разработки и работает в формате бета-тестирования.
+      </p>
+
+      <div class="cyber-alert__grid">
+        <div class="cyber-alert__card">
+          <h3>Что происходит сейчас</h3>
+          <p>
+            Бета-доступ предоставляется только по заявкам для детей из детских домов и школ-интернатов.
+            Мы внимательно изучаем отзывы, проверяем формат занятий и дорабатываем каждую деталь, чтобы запуск получился действительно достойным.
+          </p>
+          <p>
+            Спасибо, что интересуетесь темой цифровой безопасности. Немного подождите — и всё обязательно будет.
+            Как только киберполигон перейдёт из режима бета-тестирования в полноценный режим, мы откроем доступ для всех желающих.
+          </p>
+
+          <div class="cyber-alert__badge-row" aria-label="Статус запуска">
+            <span class="cyber-alert__badge"><i class="fa-solid fa-gamepad"></i> Игровой формат</span>
+            <span class="cyber-alert__badge"><i class="fa-solid fa-flask"></i> Бета-тест</span>
+            <span class="cyber-alert__badge"><i class="fa-solid fa-user-shield"></i> Цифровая безопасность</span>
+          </div>
+        </div>
+
+        <div class="cyber-alert__card">
+          <h3>Статус миссии</h3>
+          <ul class="cyber-alert__list">
+            <li><i class="fa-solid fa-bolt"></i><span>Платформа находится в разработке и проходит финальную настройку.</span></li>
+            <li><i class="fa-solid fa-users"></i><span>Доступ сейчас открыт только в формате заявок для детей из детских домов и школ-интернатов.</span></li>
+            <li><i class="fa-solid fa-screwdriver-wrench"></i><span>Программа улучшается на основе реальных отзывов и бета-проверок.</span></li>
+            <li><i class="fa-solid fa-rocket"></i><span>После завершения бета-этапа мы откроем полноценный доступ для всех желающих.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cyber-alert__footer">
+        <p class="cyber-alert__hint">Спасибо за интерес к цифровой безопасности</p>
+        <button class="cyber-alert__action" type="button" data-cyber-close="true">
+          <i class="fa-solid fa-check"></i>
+          <span>Понял, жду запуск</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+
   <!-- FOOTER -->
   <footer>
     <div class="footer__inner">
@@ -1819,6 +2261,60 @@
 </script>
 
 
+
+
+<script>
+/* ✅ Cyberpolygon launch notice */
+(function(){
+  const cyberBtn = document.querySelector('.quick-nav__btn[data-nav="cyber"]');
+  const modal = document.getElementById('cyber-alert');
+  if(!cyberBtn || !modal) return;
+
+  const panel = modal.querySelector('.cyber-alert__panel');
+  const closers = modal.querySelectorAll('[data-cyber-close="true"]');
+  let lastFocused = null;
+
+  function openCyberAlert(){
+    lastFocused = document.activeElement;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    cyberBtn.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('cyber-alert-open');
+    requestAnimationFrame(() => panel && panel.focus());
+  }
+
+  function closeCyberAlert(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    cyberBtn.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('cyber-alert-open');
+    if(lastFocused && typeof lastFocused.focus === 'function'){
+      lastFocused.focus();
+    }else{
+      cyberBtn.focus();
+    }
+  }
+
+  cyberBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    openCyberAlert();
+  });
+
+  closers.forEach(el => el.addEventListener('click', closeCyberAlert));
+
+  modal.addEventListener('click', (e) => {
+    if(e.target && e.target.dataset && e.target.dataset.cyberClose === 'true'){
+      closeCyberAlert();
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && modal.classList.contains('is-open')){
+      closeCyberAlert();
+    }
+  });
+})();
+</script>
 
 
 </body>
