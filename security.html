@@ -78,6 +78,40 @@ html.tk-loader-preboot #tkLoader::after{
   filter:drop-shadow(0 4px 20px rgba(0,0,0,.28));
 }
 </style>
+
+<script id="oai-4k-cinema-preboot-script">
+(function(){
+  var root = document.documentElement;
+  root.classList.add('oai-no-start-focus');
+  function is4k(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+    var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+    return sw >= 3000 || iw >= 2200 || (Math.round(sw * dpr) >= 3400 && Math.round(sh * dpr) >= 1800);
+  }
+  if(is4k()) root.classList.add('oai-4k-cinema-preroll');
+  function onTab(e){
+    if(e.key === 'Tab'){
+      root.classList.remove('oai-no-start-focus');
+      document.removeEventListener('keydown', onTab, true);
+    }
+  }
+  document.addEventListener('keydown', onTab, true);
+})();
+</script>
+<style id="oai-4k-cinema-preboot-style">
+html.oai-no-start-focus :focus-visible{
+  box-shadow:none !important;
+}
+html.oai-4k-cinema-preroll #cinema{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+</style>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Handjet:wght@700;800;900&display=swap');
 
@@ -55725,162 +55759,134 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 </script>
 
 
-<style id="oai-final-4k-stable-and-focus-patch-style">
-html.oai-no-boot-focus #rouletteDock *:focus,
-html.oai-no-boot-focus #rouletteDock *:focus-visible,
-html.oai-no-boot-focus .rules *:focus,
-html.oai-no-boot-focus .rules *:focus-visible{
-  outline:none !important;
-  box-shadow:none !important;
-}
-html.oai-4k-cinema-stable .ui-bottom,
-html.oai-4k-cinema-stable #cinema{
-  transition:none !important;
+<style id="oai-4k-cinema-static-fix-v3-style">
+@media (min-width: 2200px), (min-height: 1300px){
+  html.oai-4k-cinema-static-fix{
+    --cinema-head-shift: 0px !important;
+  }
+  html.oai-4k-cinema-static-fix #cinema{
+    position: fixed !important;
+    left: 50% !important;
+    top: 0px !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 20080 !important;
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+  }
+  html.oai-4k-cinema-static-fix #cinema .cinema-head{
+    margin: 0 auto 12px !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    transform: none !important;
+  }
+  html.oai-4k-cinema-static-fix #cinema .cinema-kicker{
+    margin: 0 0 8px !important;
+  }
+  html.oai-4k-cinema-static-fix #cinema .cinema-banner{
+    margin: 0 auto !important;
+  }
+  html.oai-4k-cinema-static-fix #cinema .slider-container,
+  html.oai-4k-cinema-static-fix #cinema .slider-wrapper,
+  html.oai-4k-cinema-static-fix #cinema .movie-slide,
+  html.oai-4k-cinema-static-fix #cinema .movie-slide.is-active{
+    transition: none !important;
+    animation: none !important;
+  }
 }
 </style>
-<script id="oai-final-4k-stable-and-focus-patch-script">
+<script id="oai-4k-cinema-static-fix-v3-script">
 (function(){
-  'use strict';
   var root = document.documentElement;
-  root.classList.add('oai-no-boot-focus');
-
-  function blurGhostFocus(){
-    try{
-      var active = document.activeElement;
-      if(active && (active.closest('#rouletteDock') || active.closest('.rules')) && typeof active.blur === 'function'){
-        active.blur();
-      }
-    }catch(_e){}
+  var resizeTimer = 0;
+  function is4k(){
+    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+    var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+    return sw >= 3000 || iw >= 2200 || (Math.round(sw * dpr) >= 3400 && Math.round(sh * dpr) >= 1800) || root.classList.contains('tk-4k-clean-v36');
   }
-
-  function strictIsOpen(el){
-    if(!el) return false;
-    if(el.classList.contains('is-open')) return true;
-    if(el.getAttribute('aria-hidden') === 'false') return true;
-    var st = getComputedStyle(el);
-    if(st.display === 'none' || st.visibility === 'hidden' || Number(st.opacity || 1) <= 0.01) return false;
-    if((el.offsetWidth || 0) <= 0 && (el.offsetHeight || 0) <= 0) return false;
-    return false;
+  function noModalOpen(){
+    return !document.querySelector('.mg-backdrop.is-open, .rm-backdrop.is-open, .intro.is-on, [aria-modal="true"]');
   }
-
-  var modalIds = ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','ruleDayGame','ruleModal'];
-  var ruleBtnIds = ['openComicMenu','openRuleGame','openPcPartsGame'];
-  var chipSelectors = ['.side-chip--it-min','.side-chip--infosec-min','.side-chip--phish-min'];
-  var focusClasses = [
-    'tk-4k-minigame-focus',
-    'tk-4k-minigame-focus--it',
-    'tk-4k-minigame-focus--info',
-    'tk-4k-minigame-focus--phish',
-    'tk-4k-minigame-focus--pc',
-    'tk-4k-minigame-focus--comic',
-    'tk-4k-minigame-focus--rule'
-  ];
-
-  function anyModalOpen(){
-    return modalIds.some(function(id){ return strictIsOpen(document.getElementById(id)); });
-  }
-
-  function clearGhostHighlight(){
-    blurGhostFocus();
-    if(anyModalOpen()) return;
-    root.classList.remove.apply(root.classList, focusClasses);
-    ruleBtnIds.forEach(function(id){
+  function blurStartFocus(){
+    if(!noModalOpen()) return;
+    var active = document.activeElement;
+    if(active && active !== document.body && active !== document.documentElement && typeof active.blur === 'function'){
+      try{ active.blur(); }catch(_e){}
+    }
+    ['openComicMenu','openRuleGame','openPcPartsGameLaunch','rouletteSound','spinBtn','rLink'].forEach(function(id){
       var el = document.getElementById(id);
-      if(el) el.classList.remove('tk-rule-active');
-    });
-    chipSelectors.forEach(function(sel){
-      var el = document.querySelector(sel);
-      if(el) el.classList.remove('is-active');
+      if(el && typeof el.blur === 'function'){
+        try{ el.blur(); }catch(_e){}
+      }
     });
   }
-
-  function vp(){
-    var w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var dpr = Math.max(1, Number(window.devicePixelRatio) || 1);
-    return { w:w, h:h, effW: Math.round(w * dpr), effH: Math.round(h * dpr) };
-  }
-
-  function is4kLike(){
-    var d = vp();
-    return d.w >= 2300 || d.h >= 1300 || d.effW >= 3000 || d.effH >= 1800;
-  }
-
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-  function pxNum(v){ var n = parseFloat(v); return Number.isFinite(n) ? n : 0; }
-
-  var hero = null;
-  var uiBottom = null;
-  var cinema = null;
-  var heroImg = null;
-  function bindEls(){
-    hero = document.getElementById('hero') || document.querySelector('.header');
-    uiBottom = document.querySelector('.ui-bottom');
-    cinema = document.getElementById('cinema');
-    heroImg = document.querySelector('.header__bg');
-    return !!(hero && uiBottom && cinema);
-  }
-
-  function stabilizeCinema(){
-    if(!bindEls()) return;
-    if(!is4kLike()){
-      root.classList.remove('oai-4k-cinema-stable');
+  function apply(){
+    if(!is4k()){
+      root.classList.remove('oai-4k-cinema-preroll','oai-4k-cinema-static-fix');
       return;
     }
-    root.classList.add('oai-4k-cinema-stable');
-    var d = vp();
-    var localCinemaTop = pxNum(getComputedStyle(cinema).top);
-    var desiredCinemaTop = clamp(Math.round(d.h * 0.03), 34, 60);
-    var stableUiTop = Math.round(desiredCinemaTop - localCinemaTop);
-    uiBottom.style.setProperty('top', stableUiTop + 'px', 'important');
-    root.style.setProperty('--ui-bottom-top', stableUiTop + 'px');
-    cinema.style.setProperty('margin-top', '0px', 'important');
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+
+    root.classList.add('oai-4k-cinema-static-fix');
+    root.classList.remove('oai-4k-cinema-preroll');
+    try{ root.style.setProperty('--cinema-head-shift', '0px', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('position', 'fixed', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('left', '50%', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('top', '0px', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('right', 'auto', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('bottom', 'auto', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('transform', 'translateX(-50%)', 'important'); }catch(_e){}
+    try{ cinema.style.setProperty('margin', '0', 'important'); }catch(_e){}
+    var head = cinema.querySelector('.cinema-head');
+    if(head){
+      try{ head.style.setProperty('margin-top', '0px', 'important'); }catch(_e){}
+      try{ head.style.setProperty('padding-top', '0px', 'important'); }catch(_e){}
+      try{ head.style.setProperty('transform', 'none', 'important'); }catch(_e){}
+    }
+    requestAnimationFrame(function(){ requestAnimationFrame(blurStartFocus); });
   }
-
-  var raf = 0;
-  var timers = [];
-  function applyAll(){
-    raf = 0;
-    clearGhostHighlight();
-    stabilizeCinema();
-  }
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    timers.forEach(clearTimeout);
-    timers = [];
-    raf = requestAnimationFrame(applyAll);
-    [40, 140, 320, 760, 1400].forEach(function(ms){ timers.push(setTimeout(applyAll, ms)); });
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true });
-  else schedule();
-
-  window.addEventListener('load', function(){
-    schedule();
-    setTimeout(function(){ root.classList.remove('oai-no-boot-focus'); }, 900);
-  }, { once:true });
-  window.addEventListener('pageshow', schedule, { passive:true });
-  window.addEventListener('resize', schedule, { passive:true });
-  window.addEventListener('orientationchange', schedule, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) schedule(); }, { passive:true });
-
-  [0,120,360,900,1800,3200,5200].forEach(function(ms){ setTimeout(schedule, ms); });
-
-  try{
-    var mo = new MutationObserver(function(muts){
-      for(var i=0;i<muts.length;i++){
-        var t = muts[i].target;
-        if(t === document.documentElement || t === document.body || t === uiBottom || t === cinema || (t && t.id && modalIds.indexOf(t.id) !== -1)){
-          schedule();
-          break;
-        }
-      }
+  function afterAssets(cb){
+    var waits = [];
+    var hero = document.querySelector('.header__bg');
+    if(hero && !hero.complete) waits.push(new Promise(function(res){ hero.addEventListener('load', res, {once:true}); hero.addEventListener('error', res, {once:true}); }));
+    document.querySelectorAll('#cinema img').forEach(function(img){
+      if(!img.complete) waits.push(new Promise(function(res){ img.addEventListener('load', res, {once:true}); img.addEventListener('error', res, {once:true}); }));
     });
-    mo.observe(document.documentElement, { subtree:true, attributes:true, attributeFilter:['class','style','aria-hidden'] });
-  }catch(_e){}
-
-  if(bindEls() && heroImg && !heroImg.complete) heroImg.addEventListener('load', schedule, { once:true });
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready.catch(function(){}) : Promise.resolve();
+    Promise.all([fontsReady].concat(waits)).then(function(){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          setTimeout(cb, 120);
+        });
+      });
+    });
+  }
+  function boot(){ afterAssets(apply); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
+  else boot();
+  window.addEventListener('load', function(){ setTimeout(apply, 0); setTimeout(apply, 180); setTimeout(apply, 700); }, {once:true});
+  window.addEventListener('resize', function(){
+    if(!is4k()) return;
+    root.classList.add('oai-4k-cinema-preroll');
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(apply, 140);
+  }, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){
+      if(!is4k()) return;
+      root.classList.add('oai-4k-cinema-preroll');
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(apply, 140);
+    }, {passive:true});
+  }
 })();
 </script>
 
