@@ -1919,10 +1919,10 @@ html.tk-loader-preboot #tkLoader::after{
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      gap: 4px;
+      gap: 2px;
       width:100%;
       margin-top: 2px;
-      font-family:"Russo One", "Arial Black", system-ui, sans-serif;
+      font-family:"Handjet", "Russo One", system-ui, sans-serif;
       transform: translateZ(0);
     }
     #tkCatStart .tk-cat-launch__title::before{
@@ -1959,8 +1959,8 @@ html.tk-loader-preboot #tkLoader::after{
       width:max-content;
       max-width:100%;
       white-space:nowrap;
-      will-change: contents, opacity, transform;
       text-rendering: geometricPrecision;
+      letter-spacing:0;
     }
     #tkCatStart .tk-cat-launch__line::after{
       content:"";
@@ -1976,13 +1976,17 @@ html.tk-loader-preboot #tkLoader::after{
         0 0 18px rgba(255,214,120,.18);
       opacity:0;
       transform: scaleY(.96);
-      animation: tkCatCursor 0.82s steps(1,end) infinite;
+      pointer-events:none;
     }
-    #tkCatStart .tk-cat-launch__line.is-active::after{ opacity:1; }
-    #tkCatStart .tk-cat-launch__line.is-complete::after,
+    #tkCatStart.is-typing .tk-cat-launch__line::after{
+      animation: tkCatLineCursor calc(var(--line-dur, .26s) + .08s) steps(1,end) var(--line-delay, 0s) both;
+    }
     html.tk-cat-launch-opened #tkCatStart .tk-cat-launch__line::after,
-    html.tk-cat-launch-opening #tkCatStart .tk-cat-launch__line::after{ opacity:0; }
+    html.tk-cat-launch-opening #tkCatStart .tk-cat-launch__line::after,
+    #tkCatStart .tk-cat-launch__typing.is-complete + .tk-cat-launch__cursor{ opacity:0; }
     #tkCatStart .tk-cat-launch__line--meow{
+      --line-delay:.02s;
+      --line-dur:.18s;
       font-size: clamp(16px, 2.2vw, 20px);
       line-height: .96;
       letter-spacing:.12em;
@@ -1994,6 +1998,8 @@ html.tk-loader-preboot #tkLoader::after{
         0 0 16px rgba(255,210,120,.22);
     }
     #tkCatStart .tk-cat-launch__line--hero{
+      --line-delay:.24s;
+      --line-dur:.28s;
       font-size: clamp(25px, 3.3vw, 34px);
       line-height: .96;
       letter-spacing:.025em;
@@ -2004,6 +2010,8 @@ html.tk-loader-preboot #tkLoader::after{
         0 0 18px rgba(255,226,150,.18);
     }
     #tkCatStart .tk-cat-launch__line--play{
+      --line-delay:.58s;
+      --line-dur:.34s;
       margin-top: 1px;
       font-size: clamp(22px, 3.05vw, 30px);
       line-height: .98;
@@ -2015,16 +2023,31 @@ html.tk-loader-preboot #tkLoader::after{
         0 0 18px rgba(120,230,255,.22),
         0 0 10px rgba(255,214,120,.12);
     }
-    #tkCatStart .tk-cat-launch__line--meow.is-complete,
-    #tkCatStart .tk-cat-launch__line--hero.is-complete,
-    #tkCatStart .tk-cat-launch__line--play.is-complete{
-      animation: tkCatTypedGlow 2.8s ease-in-out infinite;
-    }
     #tkCatStart .tk-cat-launch__typing{
       display:inline-block;
       min-height:1em;
       color:inherit;
       vertical-align:top;
+      white-space:nowrap;
+      clip-path: inset(0 100% 0 0);
+      opacity:0;
+      transform: translate3d(0,.05em,0);
+      will-change: clip-path, opacity, transform;
+      text-shadow: inherit;
+    }
+    #tkCatStart.is-typing .tk-cat-launch__typing{
+      animation:
+        tkCatTypeIn var(--line-dur, .26s) steps(var(--chars, 10), end) var(--line-delay, 0s) both,
+        tkCatTypeLift var(--line-dur, .26s) ease-out var(--line-delay, 0s) both,
+        tkCatTypedGlow 2.8s ease-in-out calc(var(--line-delay, 0s) + var(--line-dur, .26s)) infinite;
+    }
+    #tkCatStart .tk-cat-launch__typing.is-complete,
+    html.tk-cat-launch-opened #tkCatStart .tk-cat-launch__typing,
+    html.tk-cat-launch-opening #tkCatStart .tk-cat-launch__typing{
+      clip-path: inset(0 0 0 0);
+      opacity:1;
+      transform:none;
+      animation:none !important;
     }
     #tkCatStart .tk-cat-launch__text{
       display:none !important;
@@ -2032,6 +2055,19 @@ html.tk-loader-preboot #tkLoader::after{
     @keyframes tkCatTitleAura{
       0%,100%{ transform: translate3d(0,0,0) scale(1); opacity:.76; }
       50%{ transform: translate3d(6px,-2px,0) scale(1.04); opacity:1; }
+    }
+    @keyframes tkCatTypeIn{
+      0%{ clip-path: inset(0 100% 0 0); opacity:0; }
+      1%{ opacity:1; }
+      100%{ clip-path: inset(0 0 0 0); opacity:1; }
+    }
+    @keyframes tkCatTypeLift{
+      0%{ transform: translate3d(0,.14em,0); filter: blur(.8px) saturate(1.06); }
+      100%{ transform: translate3d(0,0,0); filter: blur(0) saturate(1); }
+    }
+    @keyframes tkCatLineCursor{
+      0%,14%,28%,42%,56%,70%,84%{ opacity:1; }
+      7%,21%,35%,49%,63%,77%,91%,100%{ opacity:0; }
     }
     @keyframes tkCatTypedGlow{
       0%,100%{ filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
@@ -14474,6 +14510,94 @@ html.tk-mobile-landscape-v341 .side-chip--phish-min .chip-btn{
 }
 </style>
 
+
+<style id="tk-cat-typing-v12-patch">
+  #tkCatStart .tk-cat-launch__typing{
+    display:inline-block !important;
+    min-height:1em;
+    color:inherit;
+    vertical-align:top;
+    white-space:nowrap;
+    clip-path:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    will-change:auto;
+    text-shadow: inherit;
+    animation:none !important;
+  }
+  #tkCatStart .tk-cat-launch__text{
+    display:none !important;
+  }
+  #tkCatStart .tk-cat-launch__line{
+    min-height:1em;
+  }
+  #tkCatStart .tk-cat-launch__line::after{
+    opacity:0;
+    animation:none !important;
+  }
+  #tkCatStart.is-typing .tk-cat-launch__line::after{
+    animation:none !important;
+  }
+  #tkCatStart .tk-cat-launch__line.is-active::after{
+    opacity:1;
+    animation: tkCatCaretBlink .68s steps(1,end) infinite !important;
+  }
+  #tkCatStart .tk-cat-launch__line.is-done::after,
+  html.tk-cat-launch-opening #tkCatStart .tk-cat-launch__line::after,
+  html.tk-cat-launch-opened #tkCatStart .tk-cat-launch__line::after{
+    opacity:0 !important;
+    animation:none !important;
+  }
+  #tkCatStart .tk-cat-launch__line.is-active .tk-cat-launch__typing{
+    filter:
+      drop-shadow(0 0 10px rgba(255,235,175,.18))
+      drop-shadow(0 0 14px rgba(120,230,255,.12));
+  }
+  #tkCatStart .tk-cat-launch__typing.is-complete{
+    animation: tkCatTypedGlow 2.6s ease-in-out infinite;
+  }
+  @keyframes tkCatCaretBlink{
+    0%, 49%{ opacity:1; }
+    50%, 100%{ opacity:0; }
+  }
+</style>
+
+
+<style id="tk-cat-typing-v14-hotfix">
+  #tkCatStart .tk-cat-launch__typing{
+    display:inline-flex !important;
+    align-items:flex-end;
+    flex-wrap:nowrap;
+    gap:0;
+    clip-path:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    animation:none !important;
+    min-height:1em;
+  }
+  #tkCatStart .tk-cat-char{
+    display:inline-block;
+    opacity:0;
+    transform:translate3d(0,.14em,0) scale(.96);
+    filter:blur(.55px);
+    will-change:opacity,transform,filter;
+    transition:
+      opacity .075s linear,
+      transform .11s cubic-bezier(.2,.8,.2,1),
+      filter .11s linear;
+  }
+  #tkCatStart .tk-cat-char.is-on{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+    filter:none;
+  }
+  #tkCatStart .tk-cat-char.is-space{
+    width:.32em;
+  }
+  #tkCatStart .tk-cat-launch__line.is-active .tk-cat-char.is-on:last-child{
+    filter:drop-shadow(0 0 8px rgba(255,241,188,.18)) drop-shadow(0 0 12px rgba(120,230,255,.14));
+  }
+</style>
 </head>
 <body>
 <div aria-label="Загрузка сайта" aria-live="polite" class="tk-loader" id="tkLoader">
@@ -14837,7 +14961,7 @@ html.tk-mobile-landscape-v341 .side-chip--phish-min .chip-btn{
 </div>
 </main>
 </div>
-<div aria-live="polite" class="tk-cat-launch" id="tkCatStart">
+<div aria-live="polite" class="tk-cat-launch is-typing" id="tkCatStart">
 <div aria-hidden="true" class="tk-cat-launch__pet">
 <img alt="" decoding="async" loading="lazy" src="kotik_game.png"/>
 </div>
@@ -14849,13 +14973,13 @@ html.tk-mobile-landscape-v341 .side-chip--phish-min .chip-btn{
 </div>
 <div class="tk-cat-launch__title tk-cat-launch__title--meow" id="tkCatTitle" aria-label="Мяу! Умный Герой! Поиграй со мной!">
 <span class="tk-cat-launch__line tk-cat-launch__line--meow" id="tkCatLine1">
-<span class="tk-cat-launch__typing" data-full-text="Мяу!" id="tkCatTypingLine1"></span>
+<span class="tk-cat-launch__typing" data-full-text="Мяу!" id="tkCatTypingLine1" style="--chars:4;--line-delay:.02s;--line-dur:.18s">Мяу!</span>
 </span>
 <span class="tk-cat-launch__line tk-cat-launch__line--hero" id="tkCatLine2">
-<span class="tk-cat-launch__typing" data-full-text="Умный Герой!" id="tkCatTypingLine2"></span>
+<span class="tk-cat-launch__typing" data-full-text="Умный Герой!" id="tkCatTypingLine2" style="--chars:13;--line-delay:.24s;--line-dur:.28s">Умный Герой!</span>
 </span>
 <span class="tk-cat-launch__line tk-cat-launch__line--play" id="tkCatLine3">
-<span class="tk-cat-launch__typing" data-full-text="Поиграй со мной!" id="tkCatTypingLine3"></span>
+<span class="tk-cat-launch__typing" data-full-text="Поиграй со мной!" id="tkCatTypingLine3" style="--chars:17;--line-delay:.58s;--line-dur:.34s">Поиграй со мной!</span>
 </span>
 </div>
 <div class="tk-cat-launch__actions">
@@ -23231,138 +23355,180 @@ explainBox.classList.toggle('ok', correct);
   const btn = document.getElementById('tkCatStartBtn');
   const chips = Array.from(document.querySelectorAll('.side-chip--it-min, .side-chip--infosec-min, .side-chip--phish-min'));
   const typingNodes = Array.from(document.querySelectorAll('#tkCatStart .tk-cat-launch__typing[data-full-text]'));
-  if(!start || !btn || !chips.length) return;
+  if(!start || !btn || !chips.length || !typingNodes.length) return;
 
   const OPEN_KEY = 'tk-cat-launch-unlocked';
   const reducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  let isRevealing = false;
-  let rafId = 0;
-  let pauseTimer = 0;
-  let typingRunId = 0;
+  const CHAR_MS = 20;
+  const LINE_GAP_MS = 46;
+  const SAFETY_MS = 1500;
 
-  const typingLines = typingNodes.map(function(node, idx){
+  let isRevealing = false;
+  let typingRunId = 0;
+  let typingRaf = 0;
+  let typingSafetyTimer = 0;
+  let prepared = false;
+
+  const lines = typingNodes.map(function(node, index){
     return {
-      idx,
       node,
       line: node.closest('.tk-cat-launch__line'),
-      text: (node.getAttribute('data-full-text') || '').trim(),
-      speed: idx === 0 ? 52 : idx === 1 ? 44 : 36,
-      pause: idx === 0 ? 150 : idx === 1 ? 180 : 0
+      text: node.getAttribute('data-full-text') || '',
+      chars: [],
+      startAt: index === 0 ? 0 : 0,
+      endAt: 0,
+      shown: -1
     };
-  }).filter(function(item){
-    return item.node && item.line && item.text;
   });
-
-  function clearTypingJobs(){
-    if(rafId){
-      cancelAnimationFrame(rafId);
-      rafId = 0;
-    }
-    if(pauseTimer){
-      clearTimeout(pauseTimer);
-      pauseTimer = 0;
-    }
-  }
 
   function isOpenedOrOpening(){
     return root.classList.contains('tk-cat-launch-opened') || root.classList.contains('tk-cat-launch-opening');
   }
 
-  function setActiveLine(index){
-    typingLines.forEach(function(item, idx){
-      item.line.classList.toggle('is-active', idx === index);
-    });
-  }
-
-  function completeTyping(){
-    clearTypingJobs();
-    typingLines.forEach(function(item){
-      item.node.textContent = item.text;
-      item.node.classList.add('is-complete');
-      item.line.classList.add('is-complete');
-      item.line.classList.remove('is-active');
-    });
-  }
-
-  function resetTyping(){
-    clearTypingJobs();
-    typingLines.forEach(function(item){
-      item.node.textContent = '';
-      item.node.classList.remove('is-complete');
-      item.line.classList.remove('is-complete', 'is-active');
-    });
-  }
-
-  function animateLine(runId, lineIndex){
-    if(runId !== typingRunId || isOpenedOrOpening()){
-      completeTyping();
-      return;
+  function clearTypingTimers(){
+    if(typingRaf){
+      window.cancelAnimationFrame(typingRaf);
+      typingRaf = 0;
     }
-    const item = typingLines[lineIndex];
-    if(!item) return;
+    if(typingSafetyTimer){
+      window.clearTimeout(typingSafetyTimer);
+      typingSafetyTimer = 0;
+    }
+  }
 
-    item.node.textContent = '';
-    setActiveLine(lineIndex);
-    const startedAt = performance.now();
+  function prepareCharacters(){
+    if(prepared) return;
 
-    const frame = function(now){
-      if(runId !== typingRunId || isOpenedOrOpening()){
-        completeTyping();
-        return;
-      }
-      const chars = Math.max(1, Math.min(item.text.length, Math.floor((now - startedAt) / item.speed) + 1));
-      item.node.textContent = item.text.slice(0, chars);
-
-      if(chars >= item.text.length){
-        item.node.classList.add('is-complete');
-        item.line.classList.add('is-complete');
-        item.line.classList.remove('is-active');
-        if(lineIndex >= typingLines.length - 1){
-          rafId = 0;
-          return;
+    lines.forEach(function(item){
+      item.node.textContent = '';
+      item.chars = [];
+      Array.from(item.text).forEach(function(ch){
+        const span = document.createElement('span');
+        span.className = 'tk-cat-char';
+        if(ch === ' '){
+          span.className += ' is-space';
+          span.innerHTML = '&nbsp;';
+        }else{
+          span.textContent = ch;
         }
-        pauseTimer = window.setTimeout(function(){
-          pauseTimer = 0;
-          animateLine(runId, lineIndex + 1);
-        }, item.pause);
-        rafId = 0;
-        return;
-      }
-      rafId = requestAnimationFrame(frame);
-    };
+        item.node.appendChild(span);
+        item.chars.push(span);
+      });
+    });
 
-    rafId = requestAnimationFrame(frame);
+    let cursor = 0;
+    lines.forEach(function(item, idx){
+      item.startAt = cursor;
+      item.endAt = cursor + Math.max(1, item.chars.length) * CHAR_MS;
+      cursor = item.endAt + (idx === lines.length - 1 ? 0 : LINE_GAP_MS);
+    });
+
+    prepared = true;
+  }
+
+  function resetTypingVisual(){
+    prepareCharacters();
+    lines.forEach(function(item){
+      item.shown = -1;
+      item.chars.forEach(function(charEl){ charEl.classList.remove('is-on'); });
+      if(item.line){ item.line.classList.remove('is-active', 'is-done'); }
+    });
+  }
+
+  function revealTo(item, visibleCount){
+    if(visibleCount === item.shown) return;
+    item.shown = visibleCount;
+    item.chars.forEach(function(charEl, idx){
+      charEl.classList.toggle('is-on', idx < visibleCount);
+    });
+  }
+
+  function showTypedInstant(){
+    clearTypingTimers();
+    typingRunId += 1;
+    prepareCharacters();
+    start.classList.remove('is-typing');
+    lines.forEach(function(item){
+      revealTo(item, item.chars.length);
+      if(item.line){
+        item.line.classList.remove('is-active');
+        item.line.classList.add('is-done');
+      }
+    });
   }
 
   function runTyping(){
-    if(!typingLines.length) return;
-    if(reducedMotion){
-      completeTyping();
+    if(reducedMotion || isOpenedOrOpening()){
+      showTypedInstant();
       return;
     }
-    typingRunId += 1;
-    resetTyping();
-    animateLine(typingRunId, 0);
+
+    clearTypingTimers();
+    prepareCharacters();
+    resetTypingVisual();
+    const runId = ++typingRunId;
+    const startedAt = performance.now();
+    const totalDuration = lines.length ? lines[lines.length - 1].endAt : 0;
+    start.classList.add('is-typing');
+
+    function frame(now){
+      if(runId !== typingRunId || isOpenedOrOpening()) return;
+
+      const elapsed = now - startedAt;
+      let completed = 0;
+
+      lines.forEach(function(item){
+        const localElapsed = elapsed - item.startAt;
+
+        if(localElapsed < 0){
+          revealTo(item, 0);
+          if(item.line) item.line.classList.remove('is-active', 'is-done');
+          return;
+        }
+
+        const visible = Math.min(item.chars.length, Math.floor(localElapsed / CHAR_MS) + 1);
+        revealTo(item, visible);
+
+        if(visible >= item.chars.length || elapsed >= item.endAt){
+          completed += 1;
+          if(item.line){
+            item.line.classList.remove('is-active');
+            item.line.classList.add('is-done');
+          }
+        }else if(item.line){
+          item.line.classList.add('is-active');
+          item.line.classList.remove('is-done');
+        }
+      });
+
+      if(completed >= lines.length || elapsed >= totalDuration){
+        start.classList.remove('is-typing');
+        showTypedInstant();
+        return;
+      }
+
+      typingRaf = window.requestAnimationFrame(frame);
+    }
+
+    typingRaf = window.requestAnimationFrame(frame);
+    typingSafetyTimer = window.setTimeout(function(){
+      if(runId !== typingRunId || isOpenedOrOpening()) return;
+      showTypedInstant();
+    }, Math.max(SAFETY_MS, totalDuration + 200));
   }
 
   function syncState(opened){
     root.classList.toggle('tk-cat-launch-opened', !!opened);
     root.classList.remove('tk-cat-launch-opening');
     if(opened){
-      completeTyping();
+      showTypedInstant();
       start.setAttribute('aria-hidden','true');
-      window.setTimeout(function(){
-        start.hidden = true;
-      }, 180);
+      window.setTimeout(function(){ start.hidden = true; }, 180);
     }else{
       start.hidden = false;
       start.removeAttribute('aria-hidden');
+      runTyping();
     }
-  }
-
-  function bootTyping(){
-    if(isOpenedOrOpening()) return;
-    window.setTimeout(runTyping, 120);
   }
 
   chips.forEach(function(chip, idx){
@@ -23381,44 +23547,33 @@ explainBox.classList.toggle('ok', correct);
     }
   }
 
-  if(document.readyState === 'complete'){
-    if(document.fonts && document.fonts.ready){
-      document.fonts.ready.then(bootTyping).catch(bootTyping);
-    }else{
-      bootTyping();
+  runTyping();
+
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted && !isOpenedOrOpening()){
+      runTyping();
     }
-  }else{
-    window.addEventListener('load', function(){
-      if(document.fonts && document.fonts.ready){
-        document.fonts.ready.then(bootTyping).catch(bootTyping);
-      }else{
-        bootTyping();
-      }
-    }, {once:true});
-  }
+  });
 
   function revealGames(){
     if(isRevealing || root.classList.contains('tk-cat-launch-opened')) return;
     isRevealing = true;
-    typingRunId += 1;
-    completeTyping();
+    showTypedInstant();
     btn.disabled = true;
     btn.setAttribute('aria-busy','true');
     root.classList.add('tk-cat-launch-opening');
-    try{ sessionStorage.setItem(OPEN_KEY, '1'); }catch(_){ }
+    try{ sessionStorage.setItem(OPEN_KEY, '1'); }catch(_){}
 
     const commit = function(){
       syncState(true);
       btn.disabled = false;
       btn.removeAttribute('aria-busy');
       isRevealing = false;
-      try{ window.dispatchEvent(new Event('resize')); }catch(_){ }
+      try{ window.dispatchEvent(new Event('resize')); }catch(_){}
     };
 
     if(window.requestAnimationFrame){
-      window.requestAnimationFrame(function(){
-        window.requestAnimationFrame(commit);
-      });
+      window.requestAnimationFrame(commit);
     }else{
       window.setTimeout(commit, 16);
     }
@@ -57227,6 +57382,605 @@ html.tk-mobile-landscape-v341 .side-chip .chip-card::after{
   }
 }
 </style>
+
+
+<style id="tk-cat-typing-v15-visual-override">
+  #tkCatStart .tk-cat-launch__typing{
+    display:inline-flex !important;
+    align-items:flex-end;
+    flex-wrap:nowrap;
+    gap:0;
+    clip-path:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    animation:none !important;
+    min-height:1em;
+  }
+  #tkCatStart .tk-cat-char{
+    display:inline-block;
+    opacity:0;
+    transform:translate3d(0,.18em,0) scale(.94);
+    filter:blur(.85px);
+    text-shadow:inherit;
+    transition:
+      opacity .06s linear,
+      transform .12s cubic-bezier(.2,.8,.2,1),
+      filter .12s linear,
+      text-shadow .14s ease;
+    will-change:opacity,transform,filter;
+  }
+  #tkCatStart .tk-cat-char.is-on{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+    filter:none;
+  }
+  #tkCatStart .tk-cat-char.is-space{
+    width:.32em;
+  }
+  #tkCatStart .tk-cat-launch__line.is-active .tk-cat-char.is-on:last-child{
+    text-shadow:
+      0 0 10px rgba(255,238,180,.34),
+      0 0 18px rgba(120,230,255,.24);
+  }
+  #tkCatStart .tk-cat-launch__line.is-done .tk-cat-char{
+    transition:
+      opacity .05s linear,
+      transform .1s cubic-bezier(.2,.8,.2,1),
+      filter .1s linear,
+      text-shadow .18s ease;
+  }
+</style>
+<script id="tk-cat-typing-v15-runtime-override">
+(function(){
+  const root = document.documentElement;
+  const start = document.getElementById('tkCatStart');
+  const licenseOverlay = document.getElementById('tkLicenseOverlay');
+  const typingNodes = Array.from(document.querySelectorAll('#tkCatStart .tk-cat-launch__typing[data-full-text]'));
+  if(!start || !typingNodes.length) return;
+
+  const OPEN_KEY = 'tk-cat-launch-unlocked';
+  const CHAR_MS = 15;
+  const LINE_GAP_MS = 28;
+  const START_DELAY_MS = 30;
+
+  let rafId = 0;
+  let pollTimer = 0;
+  let currentRun = 0;
+  let hasFinished = false;
+
+  const lines = typingNodes.map((node) => ({
+    node,
+    line: node.closest('.tk-cat-launch__line'),
+    text: node.getAttribute('data-full-text') || '',
+    chars: [],
+    startAt: 0,
+    endAt: 0,
+    shown: -1,
+  }));
+
+  function isOpened(){
+    if(root.classList.contains('tk-cat-launch-opened') || root.classList.contains('tk-cat-launch-opening')) return true;
+    try{ return sessionStorage.getItem(OPEN_KEY) === '1'; }catch(_){ return false; }
+  }
+
+  function isReadyToAnimate(){
+    if(isOpened()) return false;
+    if(start.hidden || start.getAttribute('aria-hidden') === 'true') return false;
+    if(document.visibilityState === 'hidden') return false;
+
+    const loader = document.getElementById('tkLoader');
+    if(loader && !loader.classList.contains('is-hidden') && loader.dataset.done !== '1') return false;
+
+    if(root.classList.contains('tk-license-open')) return false;
+    if(licenseOverlay && licenseOverlay.classList.contains('is-open')) return false;
+
+    const cs = window.getComputedStyle(start);
+    if(cs.display === 'none' || cs.visibility === 'hidden' || Number.parseFloat(cs.opacity || '1') < 0.05) return false;
+    return true;
+  }
+
+  function clearTimers(){
+    if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+    if(pollTimer){ clearTimeout(pollTimer); pollTimer = 0; }
+  }
+
+  function buildChars(){
+    lines.forEach((item) => {
+      item.node.textContent = '';
+      item.chars = [];
+      Array.from(item.text).forEach((ch) => {
+        const span = document.createElement('span');
+        span.className = 'tk-cat-char';
+        if(ch === ' '){
+          span.className += ' is-space';
+          span.innerHTML = '&nbsp;';
+        }else{
+          span.textContent = ch;
+        }
+        item.node.appendChild(span);
+        item.chars.push(span);
+      });
+    });
+
+    let cursor = 0;
+    lines.forEach((item, idx) => {
+      item.startAt = cursor;
+      item.endAt = cursor + Math.max(1, item.chars.length) * CHAR_MS;
+      cursor = item.endAt + (idx === lines.length - 1 ? 0 : LINE_GAP_MS);
+    });
+  }
+
+  function revealTo(item, count){
+    if(item.shown === count) return;
+    item.shown = count;
+    item.chars.forEach((charEl, idx) => {
+      charEl.classList.toggle('is-on', idx < count);
+    });
+  }
+
+  function setAllDone(){
+    start.classList.remove('is-typing');
+    lines.forEach((item) => {
+      revealTo(item, item.chars.length);
+      if(item.line){
+        item.line.classList.remove('is-active');
+        item.line.classList.add('is-done');
+      }
+    });
+    hasFinished = true;
+  }
+
+  function resetVisual(){
+    hasFinished = false;
+    start.classList.add('is-typing');
+    lines.forEach((item) => {
+      item.shown = -1;
+      revealTo(item, 0);
+      if(item.line){
+        item.line.classList.remove('is-active', 'is-done');
+      }
+    });
+  }
+
+  function animateNow(){
+    clearTimers();
+    if(!isReadyToAnimate()){
+      pollTimer = setTimeout(waitUntilVisibleThenAnimate, 60);
+      return;
+    }
+
+    buildChars();
+    resetVisual();
+
+    const totalDuration = lines.length ? lines[lines.length - 1].endAt : 0;
+    const runId = ++currentRun;
+    const startAt = performance.now() + START_DELAY_MS;
+
+    const frame = (now) => {
+      if(runId !== currentRun) return;
+      if(isOpened()){
+        setAllDone();
+        return;
+      }
+      if(document.visibilityState === 'hidden'){
+        pollTimer = setTimeout(waitUntilVisibleThenAnimate, 60);
+        return;
+      }
+
+      const elapsed = now - startAt;
+      if(elapsed < 0){
+        rafId = requestAnimationFrame(frame);
+        return;
+      }
+
+      let completed = 0;
+      lines.forEach((item) => {
+        const localElapsed = elapsed - item.startAt;
+        if(localElapsed < 0){
+          revealTo(item, 0);
+          if(item.line) item.line.classList.remove('is-active', 'is-done');
+          return;
+        }
+
+        const visible = Math.min(item.chars.length, Math.floor(localElapsed / CHAR_MS) + 1);
+        revealTo(item, visible);
+
+        if(visible >= item.chars.length){
+          completed += 1;
+          if(item.line){
+            item.line.classList.remove('is-active');
+            item.line.classList.add('is-done');
+          }
+        }else if(item.line){
+          item.line.classList.add('is-active');
+          item.line.classList.remove('is-done');
+        }
+      });
+
+      if(completed >= lines.length || elapsed >= totalDuration){
+        setAllDone();
+        return;
+      }
+      rafId = requestAnimationFrame(frame);
+    };
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function waitUntilVisibleThenAnimate(){
+    clearTimers();
+    if(hasFinished || isOpened()){
+      setAllDone();
+      return;
+    }
+    if(isReadyToAnimate()){
+      animateNow();
+      return;
+    }
+    pollTimer = setTimeout(waitUntilVisibleThenAnimate, 60);
+  }
+
+  if(licenseOverlay){
+    try{
+      const mo = new MutationObserver(() => {
+        if(!isOpened()){
+          hasFinished = false;
+          waitUntilVisibleThenAnimate();
+        }
+      });
+      mo.observe(licenseOverlay, { attributes:true, attributeFilter:['class','aria-hidden'] });
+    }catch(_){ }
+  }
+
+  window.addEventListener('tk:loaderhidden', () => {
+    if(!isOpened()){
+      hasFinished = false;
+      waitUntilVisibleThenAnimate();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && !isOpened()){
+      hasFinished = false;
+      waitUntilVisibleThenAnimate();
+    }
+  });
+
+  window.addEventListener('pageshow', () => {
+    if(!isOpened()){
+      hasFinished = false;
+      waitUntilVisibleThenAnimate();
+    }
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', waitUntilVisibleThenAnimate, { once:true });
+  }else{
+    waitUntilVisibleThenAnimate();
+  }
+})();
+</script>
+
+
+<style id="tk-cat-typing-v16-final-pass">
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line::after{
+    display:none !important;
+    animation:none !important;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__typing{
+    display:inline-flex !important;
+    align-items:flex-end;
+    flex-wrap:nowrap;
+    gap:0;
+    min-height:1em;
+    white-space:nowrap;
+    clip-path:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    animation:none !important;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-v16-char{
+    display:inline-block;
+    opacity:0;
+    transform:translate3d(0,.14em,0) scale(.97);
+    filter:blur(.42px);
+    text-shadow:inherit;
+    transition:
+      opacity .08s linear,
+      transform .12s cubic-bezier(.2,.8,.2,1),
+      filter .12s linear,
+      text-shadow .14s ease;
+    will-change:opacity,transform,filter;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-v16-char.is-on{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+    filter:none;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-v16-char.is-space{
+    width:.31em;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-v16-caret{
+    display:inline-block;
+    width:8px;
+    height:.90em;
+    margin-left:.10em;
+    border-radius:999px;
+    background:linear-gradient(180deg, rgba(255,251,242,.98), rgba(137,234,255,.92));
+    box-shadow:
+      0 0 10px rgba(255,230,156,.34),
+      0 0 16px rgba(120,230,255,.24);
+    opacity:0;
+    transform:translateY(.02em);
+    vertical-align:baseline;
+    flex:0 0 auto;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line.is-active .tk-cat-v16-caret,
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line.is-final .tk-cat-v16-caret{
+    opacity:1;
+    animation: tkCatV16CaretBlink .72s steps(1,end) infinite;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line.is-final .tk-cat-v16-caret{
+    box-shadow:
+      0 0 12px rgba(255,230,156,.42),
+      0 0 20px rgba(120,230,255,.34);
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line:not(.is-active):not(.is-final) .tk-cat-v16-caret{
+    opacity:0;
+    animation:none !important;
+  }
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line.is-active .tk-cat-v16-char.is-on:last-of-type,
+  #tkCatStart.tk-cat-v16 .tk-cat-launch__line.is-final .tk-cat-v16-char.is-on:last-of-type{
+    text-shadow:
+      0 0 10px rgba(255,241,188,.26),
+      0 0 16px rgba(120,230,255,.20);
+  }
+  @keyframes tkCatV16CaretBlink{
+    0%, 48%{ opacity:1; }
+    49%, 100%{ opacity:0; }
+  }
+</style>
+<script id="tk-cat-typing-v16-final-pass-runtime">
+(function(){
+  const root = document.documentElement;
+  const start = document.getElementById('tkCatStart');
+  const licenseOverlay = document.getElementById('tkLicenseOverlay');
+  const typingNodes = Array.from(document.querySelectorAll('#tkCatStart .tk-cat-launch__typing[data-full-text]'));
+  if(!start || !typingNodes.length) return;
+
+  start.classList.add('tk-cat-v16');
+
+  const OPEN_KEY = 'tk-cat-launch-unlocked';
+  const CHAR_MS = 36;
+  const LINE_GAP_MS = 84;
+  const START_DELAY_MS = 0;
+
+  let rafId = 0;
+  let pollTimer = 0;
+  let currentRun = 0;
+  let prepared = false;
+
+  const lines = typingNodes.map((node) => ({
+    node,
+    line: node.closest('.tk-cat-launch__line'),
+    text: node.getAttribute('data-full-text') || '',
+    chars: [],
+    caret: null,
+    startAt: 0,
+    endAt: 0,
+    shown: -1,
+  }));
+
+  function isOpened(){
+    if(root.classList.contains('tk-cat-launch-opened') || root.classList.contains('tk-cat-launch-opening')) return true;
+    try{ return sessionStorage.getItem(OPEN_KEY) === '1'; }catch(_){ return false; }
+  }
+
+  function isReadyToAnimate(){
+    if(isOpened()) return false;
+    if(start.hidden || start.getAttribute('aria-hidden') === 'true') return false;
+    if(document.visibilityState === 'hidden') return false;
+
+    const loader = document.getElementById('tkLoader');
+    if(loader && !loader.classList.contains('is-hidden') && loader.dataset.done !== '1') return false;
+
+    if(root.classList.contains('tk-license-open')) return false;
+    if(licenseOverlay && licenseOverlay.classList.contains('is-open')) return false;
+
+    const cs = window.getComputedStyle(start);
+    if(cs.display === 'none' || cs.visibility === 'hidden' || Number.parseFloat(cs.opacity || '1') < 0.05) return false;
+    return true;
+  }
+
+  function clearTimers(){
+    if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+    if(pollTimer){ clearTimeout(pollTimer); pollTimer = 0; }
+  }
+
+  function buildChars(){
+    prepared = true;
+    lines.forEach((item) => {
+      item.node.textContent = '';
+      item.chars = [];
+      item.caret = null;
+      Array.from(item.text).forEach((ch) => {
+        const span = document.createElement('span');
+        span.className = 'tk-cat-v16-char';
+        if(ch === ' '){
+          span.className += ' is-space';
+          span.innerHTML = '&nbsp;';
+        }else{
+          span.textContent = ch;
+        }
+        item.node.appendChild(span);
+        item.chars.push(span);
+      });
+      const caret = document.createElement('span');
+      caret.className = 'tk-cat-v16-caret';
+      caret.setAttribute('aria-hidden', 'true');
+      item.node.appendChild(caret);
+      item.caret = caret;
+    });
+
+    let cursor = 0;
+    lines.forEach((item, idx) => {
+      item.startAt = cursor;
+      item.endAt = cursor + Math.max(1, item.chars.length) * CHAR_MS;
+      cursor = item.endAt + (idx === lines.length - 1 ? 0 : LINE_GAP_MS);
+    });
+  }
+
+  function revealTo(item, count){
+    if(item.shown === count) return;
+    item.shown = count;
+    item.chars.forEach((charEl, idx) => {
+      charEl.classList.toggle('is-on', idx < count);
+    });
+  }
+
+  function resetVisual(){
+    start.classList.add('is-typing');
+    lines.forEach((item) => {
+      item.shown = -1;
+      revealTo(item, 0);
+      if(item.line){
+        item.line.classList.remove('is-active', 'is-done', 'is-final');
+      }
+    });
+  }
+
+  function showAllWithFinalCaret(){
+    clearTimers();
+    start.classList.remove('is-typing');
+    lines.forEach((item, idx) => {
+      revealTo(item, item.chars.length);
+      if(item.line){
+        item.line.classList.remove('is-active', 'is-final', 'is-done');
+        if(idx === lines.length - 1){
+          item.line.classList.add('is-final');
+        }else{
+          item.line.classList.add('is-done');
+        }
+      }
+    });
+  }
+
+  function animateNow(){
+    clearTimers();
+    if(!prepared) buildChars();
+    if(!isReadyToAnimate()){
+      pollTimer = setTimeout(waitUntilVisibleThenAnimate, 60);
+      return;
+    }
+
+    resetVisual();
+    const totalDuration = lines.length ? lines[lines.length - 1].endAt : 0;
+    const runId = ++currentRun;
+    const startedAt = performance.now() + START_DELAY_MS;
+
+    const frame = (now) => {
+      if(runId !== currentRun) return;
+      if(isOpened()){
+        showAllWithFinalCaret();
+        return;
+      }
+      if(!isReadyToAnimate()){
+        pollTimer = setTimeout(waitUntilVisibleThenAnimate, 60);
+        return;
+      }
+
+      const elapsed = now - startedAt;
+      if(elapsed < 0){
+        rafId = requestAnimationFrame(frame);
+        return;
+      }
+
+      let completed = 0;
+      let activeAssigned = false;
+
+      lines.forEach((item, idx) => {
+        const localElapsed = elapsed - item.startAt;
+
+        if(localElapsed < 0){
+          revealTo(item, 0);
+          if(item.line) item.line.classList.remove('is-active', 'is-done', 'is-final');
+          return;
+        }
+
+        const visible = Math.min(item.chars.length, Math.floor(localElapsed / CHAR_MS) + 1);
+        revealTo(item, visible);
+
+        if(visible >= item.chars.length){
+          completed += 1;
+          if(item.line){
+            item.line.classList.remove('is-active', 'is-final');
+            item.line.classList.add('is-done');
+          }
+          return;
+        }
+
+        if(!activeAssigned){
+          activeAssigned = true;
+          if(item.line){
+            item.line.classList.add('is-active');
+            item.line.classList.remove('is-done', 'is-final');
+          }
+        }else if(item.line){
+          item.line.classList.remove('is-active', 'is-done', 'is-final');
+        }
+      });
+
+      if(completed >= lines.length || elapsed >= totalDuration){
+        showAllWithFinalCaret();
+        return;
+      }
+      rafId = requestAnimationFrame(frame);
+    };
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function waitUntilVisibleThenAnimate(){
+    clearTimers();
+    if(isOpened()){
+      showAllWithFinalCaret();
+      return;
+    }
+    if(isReadyToAnimate()){
+      animateNow();
+      return;
+    }
+    pollTimer = setTimeout(waitUntilVisibleThenAnimate, 60);
+  }
+
+  if(licenseOverlay){
+    try{
+      const mo = new MutationObserver(() => {
+        if(!isOpened()) waitUntilVisibleThenAnimate();
+      });
+      mo.observe(licenseOverlay, { attributes:true, attributeFilter:['class','aria-hidden'] });
+    }catch(_){ }
+  }
+
+  window.addEventListener('tk:loaderhidden', () => {
+    if(!isOpened()) waitUntilVisibleThenAnimate();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && !isOpened()) waitUntilVisibleThenAnimate();
+  });
+
+  window.addEventListener('pageshow', () => {
+    if(!isOpened()) waitUntilVisibleThenAnimate();
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', waitUntilVisibleThenAnimate, { once:true });
+  }else{
+    waitUntilVisibleThenAnimate();
+  }
+})();
+</script>
 
 </body>
 </html>
