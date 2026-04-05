@@ -58760,563 +58760,384 @@ html.tk-tablet-stable.tk-tablet-landscape-compact .header{ overflow:hidden !impo
 </script>
 
 
-<style id="tk-tablet-polish-v6">
-html.tk-tablet-stable.tk-tablet-master-v6::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:999997;
-  background:#020814;
-  pointer-events:none;
-  opacity:0;
+<style id="tk-loader-anti-flash-v7">
+html.tk-loader-preboot body,
+html.tk-loader-ready body{
+  background:#040b17 !important;
 }
-html.tk-tablet-stable.tk-tablet-master-v6:not(.tk-loader-complete)::before,
-html.tk-loader-preboot.tk-tablet-stable.tk-tablet-master-v6::before{
-  opacity:1;
+html.tk-loader-ready body > :not(#tkLoader){
+  visibility:hidden !important;
 }
-html.tk-tablet-stable.tk-tablet-master-v6:not(.tk-loader-complete) .header__bg,
-html.tk-tablet-stable.tk-tablet-master-v6:not(.tk-loader-complete) .bg-main-pic,
-html.tk-tablet-stable.tk-tablet-master-v6:not(.tk-loader-complete) .bg-blur-pic{
-  opacity:0 !important;
+html.tk-loader-ready #tkLoader,
+html.tk-loader-ready #tkLoader *{
+  visibility:visible !important;
 }
-@media (hover:none) and (pointer:coarse) and (orientation:landscape){
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6{
-  --v6-gap: 10px;
-  --v6-nav-w: 210px;
-  --v6-right-w: 212px;
-  --v6-center-left: 230px;
-  --v6-center-top: 34px;
-  --v6-center-raw: 930px;
-  --v6-cinema-scale: .62;
-  --v6-chip-w: 116px;
-  --v6-chip-bottom: 10px;
-  --v6-cat-bottom: 78px;
-  --v6-cat-scale: .62;
-  --v6-roulette-scale: .60;
-  --v6-live-scale: .58;
-  --v6-rules-scale: .62;
-  --v6-live-top: 250px;
-  --v6-rules-top: 390px;
+html.tk-loader-done body > :not(#tkLoader){
+  visibility:visible !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 body{
+html.tk-loader-ready #tkLoader,
+html.tk-loader-preboot #tkLoader{
+  opacity:1 !important;
+}
+</style>
+<script id="tk-loader-anti-flash-v7-script">
+(function(){
+  var root = document.documentElement;
+  function release(){
+    root.classList.add('tk-loader-done');
+    root.classList.remove('tk-loader-ready');
+  }
+  window.addEventListener('tk:loaderhidden', release, {once:true});
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      var loader = document.getElementById('tkLoader');
+      if(!loader || loader.dataset.done === '1' || loader.classList.contains('is-hidden')){
+        release();
+      }
+    }, 400);
+  }, {once:true});
+  setTimeout(function(){
+    var loader = document.getElementById('tkLoader');
+    if(!loader) { release(); return; }
+    if(loader.dataset.done === '1' || loader.classList.contains('is-hidden')){ release(); return; }
+    if(document.readyState !== 'loading'){
+      loader.dataset.done = '1';
+      loader.classList.add('is-hidden');
+      release();
+      try{
+        window.dispatchEvent(new CustomEvent('tk:loaderhidden'));
+      }catch(_){ }
+    }
+  }, 15000);
+})();
+</script>
+<style id="tk-tablet-refined-v7">
+@media (min-width: 1000px) and (max-width: 1500px) and (orientation: landscape){
+html.tk-tablet-stable.tk-tablet-landscape-compact{
+  --tablet-gap: 8px !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .header{
   overflow:hidden !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-nav{
-  left: var(--v6-gap) !important;
-  top: 8px !important;
-  width: var(--v6-nav-w) !important;
-  max-width: none !important;
-  gap: 7px !important;
-  z-index: 11180 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact :is(.sparkles,.hero-soft,.roulette-spark,.roulette-burst,.wheel-glow,.wheel-ring,.tk-live-stats__orb){
+  animation:none !important;
+  display:none !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-nav__tab,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-nav__panel{
-  width: var(--v6-nav-w) !important;
-  max-width: none !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact :is(.side-nav__tab,.side-nav__panel,.hud-item,.roulette-card,.roulette-info,.tk-live-stats__panel,.rule-pill,.chip-card,#tkCatStart .tk-cat-launch__dialog,.movie-slide,.cinema-slider .cinema-banner){
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-nav__tab{
-  padding: 6px 7px !important;
-  border-radius: 16px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact :is(.cinema-slider *,.roulette-dock *,.tk-live-stats *,.rules *,.side-chip *,#tkCatStart *){
+  transition:none !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .menu-pill{
-  width: 100% !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  padding: 6px 9px !important;
-  border-radius: 13px !important;
-  font-size: 9px !important;
-  letter-spacing: .10em !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-nav{
+  left:8px !important;
+  top:8px !important;
+  width:var(--tablet-nav-w) !important;
+  max-width:var(--tablet-nav-w) !important;
+  gap:6px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .menu-pill svg{
-  width: 13px !important; height: 13px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-nav__tab,
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-nav__panel{
+  width:var(--tablet-nav-w) !important;
+  min-width:var(--tablet-nav-w) !important;
+  max-width:var(--tablet-nav-w) !important;
+  border-radius:16px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .back-btn{
-  width: 30px !important; height: 30px !important; border-radius: 10px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-nav__tab{ padding:6px 8px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-nav__panel{ padding:7px 7px 8px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .menu-pill{
+  font-size:9px !important;
+  padding:6px 8px !important;
+  border-radius:12px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .back-btn svg{
-  width: 15px !important; height: 15px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .menu-pill svg{ width:13px !important; height:13px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .back-btn{
+  width:30px !important; height:30px !important; border-radius:10px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-nav__panel{
-  padding: 7px !important;
-  border-radius: 16px !important;
-  max-height: calc(100vh - 92px) !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .back-btn svg{ width:15px !important; height:15px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-top10-menu-btn{
+  min-width:116px !important;
+  height:48px !important;
+  padding:8px 12px !important;
+  border-radius:14px !important;
+  font-size:11px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-nav__list{
-  gap: 7px !important; margin-top: 4px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-top10-menu-btn .tk-cup{ font-size:14px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-nav__list{ gap:7px !important; margin-top:6px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-item{
+  min-height:48px !important;
+  height:48px !important;
+  padding:7px 8px !important;
+  gap:8px !important;
+  border-radius:14px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-item{
-  height: 58px !important;
-  padding: 7px 8px !important;
-  border-radius: 15px !important;
-  gap: 8px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-ico{
+  width:32px !important; height:32px !important; border-radius:11px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-ico{
-  width: 32px !important; height: 32px !important; border-radius: 12px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-ico svg{ width:17px !important; height:17px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-title{ font-size:12px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-sub{ font-size:8px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-arrow{ width:22px !important; height:22px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .hud-arrow svg{ width:12px !important; height:12px !important; }
+
+html.tk-tablet-stable.tk-tablet-landscape-compact .ui-bottom{
+  left:var(--tablet-center-left) !important;
+  top:var(--tablet-center-top) !important;
+  width:var(--tablet-center-raw) !important;
+  transform:scale(var(--tablet-cinema-scale)) translateZ(0) !important;
+  transform-origin:top left !important;
+  gap:6px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-ico svg{
-  width: 16px !important; height: 16px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .cinema-head{ margin-bottom:8px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .cinema-kicker{
+  margin-bottom:4px !important;
+  padding:6px 10px !important;
+  font-size:10px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-title{
-  font-size: 10.5px !important; line-height: 1.04 !important; letter-spacing: .05em !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .cinema-banner{
+  padding:10px 12px !important;
+  border-radius:18px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-sub{
-  font-size: 7px !important; letter-spacing: .10em !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .cinema-banner-title{
+  font-size:clamp(18px, 2.2vw, 24px) !important;
+  line-height:1 !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-arrow{
-  width: 22px !important; height: 22px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .cinema-banner-sub{
+  font-size:10px !important;
+  margin-top:6px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .hud-arrow svg{
-  width: 12px !important; height: 12px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .slider-container{
+  max-width:none !important;
+  overflow:visible !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .slider-wrapper{
+  padding:6px 34px 8px !important;
+  gap:10px !important;
+  overflow:visible !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .slider-prev,
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .slider-next{
+  width:34px !important; height:34px !important; border-radius:12px !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .slider-prev{ left:4px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .slider-next{ right:4px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .movie-slide{
+  width:144px !important;
+  min-width:144px !important;
+  border-radius:16px !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .movie-img{
+  aspect-ratio:16/9 !important;
+  height:auto !important;
+  object-fit:cover !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .movie-info{ padding:9px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .movie-info h3{
+  font-size:12px !important;
+  line-height:1.08 !important;
+}
+html.tk-tablet-stable.tk-tablet-landscape-compact .cinema-slider .movie-btn{
+  min-width:96px !important;
+  padding:7px 10px !important;
+  font-size:9px !important;
+  border-radius:12px !important;
 }
 
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .ui-bottom{
-  left: var(--v6-center-left) !important;
-  right: calc(var(--v6-right-w) + var(--v6-gap) * 2) !important;
-  top: var(--v6-center-top) !important;
-  width: auto !important;
-  transform: scale(var(--v6-cinema-scale)) translateZ(0) !important;
-  transform-origin: top left !important;
-  gap: 6px !important;
-  z-index: 10990 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-dock{
+  right:8px !important;
+  top:8px !important;
+  width:var(--tablet-right-w) !important;
+  transform:scale(var(--tablet-roulette-scale)) translateZ(0) !important;
+  transform-origin:top right !important;
+  gap:6px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .cinema-slider{
-  width: var(--v6-center-raw) !important;
-  max-width: none !important;
-  margin: 0 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-card{
+  padding:8px !important;
+  gap:8px !important;
+  border-radius:18px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .cinema-kicker{
-  min-height: 48px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .wheel-wrap{ width:108px !important; height:108px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .wheel-center{ width:28px !important; height:28px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-title{ font-size:14px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-sub{ font-size:9px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-meter{ transform:scale(.86) !important; transform-origin:right center !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-btn{ padding:8px 10px !important; font-size:10px !important; border-radius:12px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-mini{ font-size:9px !important; line-height:1.2 !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-ghostBtn{ width:30px !important; height:30px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-info{
+  padding:10px !important;
+  border-radius:18px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .kino-badge-top-4k,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .kino-badge{
-  width: 170px !important;
-  max-width: 34% !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .cinema-title-art{
-  max-width: 430px !important;
-  width: 60% !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .cinema-banner-sub{
-  font-size: 11px !important;
-  padding: 7px 12px !important;
-  border-radius: 999px !important;
-  margin-top: 4px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-container{
-  max-width: 100% !important;
-  margin-top: 6px !important;
-  padding: 0 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-wrapper{
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  padding: 6px 56px 8px !important;
-  overflow: hidden !important;
-  scroll-behavior: auto !important;
-  scroll-snap-type: none !important;
-  justify-content: stretch !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-slide{
-  display: none !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  transform: none !important;
-  opacity: 1 !important;
-  filter: none !important;
-  transition: none !important;
-  animation: none !important;
-  will-change: auto !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-slide.tk-v6-show{
-  display: block !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-slide::before,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-slide::after,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-seam-gold::before,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-seam-gold::after{
-  display: none !important; content: none !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-img{
-  height: 166px !important;
-  aspect-ratio: auto !important;
-  object-fit: cover !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-info{
-  padding: 10px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-info h3{
-  font-size: 14px !important;
-  line-height: 1.12 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-badges{
-  gap: 6px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-ep,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-duration{
-  font-size: 8px !important;
-  padding: 4px 6px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .movie-btn{
-  min-width: 104px !important;
-  padding: 8px 12px !important;
-  font-size: 9px !important;
-  letter-spacing: .10em !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-prev,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-next{
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 12px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-prev{ left: 8px !important; }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-next{ right: 8px !important; }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-prev svg,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #cinema .slider-next svg{
-  width: 18px !important; height: 18px !important;
-}
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-infoTitle{ font-size:11px !important; line-height:1.16 !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-infoText{ font-size:8px !important; line-height:1.22 !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .roulette-infoActions{ gap:6px !important; }
 
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-dock{
-  left: auto !important;
-  right: var(--v6-gap) !important;
-  top: 8px !important;
-  bottom: auto !important;
-  width: 292px !important;
-  transform: scale(var(--v6-roulette-scale)) translateZ(0) !important;
-  transform-origin: top right !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  gap: 8px !important;
-  z-index: 11140 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats{
+  right:8px !important;
+  top:var(--tablet-live-top) !important;
+  transform:scale(var(--tablet-live-scale)) translateZ(0) !important;
+  transform-origin:top right !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-card{
-  padding: 8px !important; gap: 8px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__panel{
+  padding:10px !important;
+  border-radius:18px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .wheel-wrap{
-  width: 116px !important; height: 116px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__head{ margin-bottom:8px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__label{ font-size:10px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__sub{ font-size:8px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__badge{ font-size:11px !important; padding:5px 10px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__grid{ gap:6px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__card{
+  min-height:82px !important;
+  padding:8px 8px 9px !important;
+  border-radius:14px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-controls{
-  min-width: 0 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-title{
-  font-size: 15px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-sub,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-mini{
-  font-size: 10px !important; line-height: 1.18 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-btn{
-  padding: 8px 10px !important;
-  font-size: 10px !important;
-  border-radius: 12px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-ghostRow{
-  gap: 6px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-ghostBtn{
-  width: 34px !important; height: 34px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-info{
-  width: 100% !important;
-  min-width: 0 !important;
-  padding: 10px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-infoTitle{
-  font-size: 14px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-infoText{
-  font-size: 10px !important; line-height: 1.2 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-link,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .roulette-miniBtn{
-  padding: 7px 9px !important; font-size: 9px !important;
-}
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__metric{ font-size:10px !important; margin-bottom:6px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__value{ font-size:24px !important; line-height:1 !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .tk-live-stats__hint{ font-size:8px !important; line-height:1.15 !important; }
 
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats{
-  left: auto !important;
-  right: var(--v6-gap) !important;
-  top: var(--v6-live-top) !important;
-  bottom: auto !important;
-  transform: scale(var(--v6-live-scale)) translateZ(0) !important;
-  transform-origin: top right !important;
-  z-index: 11100 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .rules{
+  right:8px !important;
+  top:var(--tablet-rules-top) !important;
+  transform:scale(var(--tablet-rules-scale)) translateZ(0) !important;
+  transform-origin:top right !important;
+  gap:6px !important;
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__panel{
-  padding: 10px 10px 8px !important;
-  border-radius: 18px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .rule-pill{
+  min-width:var(--tablet-right-w) !important;
+  width:var(--tablet-right-w) !important;
+  height:50px !important;
+  padding:6px 10px !important;
+  border-radius:16px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__head{
-  margin-bottom: 8px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__label{
-  font-size: 9px !important; line-height: 1.08 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__sub{
-  font-size: 7px !important; line-height: 1.12 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__grid{
-  gap: 6px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__card{
-  padding: 8px !important; border-radius: 14px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__number{
-  font-size: 28px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .tk-live-stats__metric{
-  font-size: 7px !important; line-height: 1.08 !important;
-}
+html.tk-tablet-stable.tk-tablet-landscape-compact .rule-pill__icon{ width:34px !important; height:34px !important; border-radius:12px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .rule-pill__title{ font-size:13px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .rule-pill__badge{ width:30px !important; height:30px !important; border-radius:10px !important; }
 
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .rules{
-  left: auto !important;
-  right: var(--v6-gap) !important;
-  top: var(--v6-rules-top) !important;
-  bottom: auto !important;
-  transform: scale(var(--v6-rules-scale)) translateZ(0) !important;
-  transform-origin: top right !important;
-  gap: 7px !important;
-  z-index: 11070 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart{
+  left:var(--tablet-center-left) !important;
+  bottom:var(--tablet-cat-bottom) !important;
+  width:300px !important;
+  transform:scale(var(--tablet-cat-scale)) translateZ(0) !important;
+  transform-origin:bottom left !important;
+  z-index:10950 !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .rule-pill{
-  min-width: 292px !important;
-  height: 52px !important;
-  padding: 8px 10px !important;
-  border-radius: 18px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__pet{ width:58px !important; height:58px !important; border-radius:18px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__dialog{
+  width:232px !important;
+  padding:8px 10px 10px !important;
+  border-radius:18px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .rule-pill__icon{
-  width: 36px !important; height: 36px !important; border-radius: 13px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .rule-pill__title{
-  font-size: 13px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .rule-pill__badge{
-  width: 32px !important; height: 32px !important; border-radius: 12px !important;
-}
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__badge{ font-size:7px !important; padding:5px 7px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__line--meow{ font-size:11px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__line--hero{ font-size:18px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__line--play{ font-size:16px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__btn{ padding:8px 10px !important; font-size:9px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact #tkCatStart .tk-cat-launch__hint{ font-size:7px !important; }
 
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart{
-  left: var(--v6-center-left) !important;
-  right: auto !important;
-  bottom: var(--v6-cat-bottom) !important;
-  transform: scale(var(--v6-cat-scale)) translateZ(0) !important;
-  transform-origin: bottom left !important;
-  width: 376px !important;
-  max-width: none !important;
-  z-index: 10940 !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip{
+  bottom:10px !important;
+  width:var(--tablet-chip-w) !important;
+  display:block !important;
+  z-index:10920 !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__pet{
-  width: 64px !important; height: 64px !important; border-radius: 20px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip--it-min{ left:var(--tablet-center-left) !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip--infosec-min{ left:calc(var(--tablet-center-left) + var(--tablet-chip-w) + var(--tablet-gap)) !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip--phish-min{ left:calc(var(--tablet-center-left) + (var(--tablet-chip-w) + var(--tablet-gap)) * 2) !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip .avatar{ display:none !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip .chip-card{
+  min-width:0 !important;
+  width:100% !important;
+  padding:7px 8px 9px !important;
+  border-radius:14px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__dialog{
-  width: 296px !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  padding: 9px 10px 10px !important;
-  border-radius: 18px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip .chip-name{
+  font-size:11px !important;
+  margin-bottom:6px !important;
+  gap:4px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__badge{
-  font-size: 8px !important; padding: 5px 7px !important; margin-bottom: 5px !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip .chip-badge{ font-size:7px !important; padding:3px 5px !important; }
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip .chip-btn{
+  width:100% !important;
+  padding:7px 8px !important;
+  font-size:9px !important;
+  border-radius:12px !important;
 }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__presence{
-  margin-bottom: 5px !important; padding: 4px 7px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__line--meow{
-  font-size: 13px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__line--hero{
-  font-size: 21px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__line--play{
-  font-size: 18px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__btn{
-  min-width: 0 !important; width: 100% !important; padding: 9px 10px !important; font-size: 10px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 #tkCatStart .tk-cat-launch__hint{
-  font-size: 7px !important;
-}
+html.tk-tablet-stable.tk-tablet-landscape-compact .side-chip .chip-btn svg{ width:13px !important; height:13px !important; }
 
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip{
-  bottom: var(--v6-chip-bottom) !important;
-  width: var(--v6-chip-w) !important;
-  display: block !important;
-  z-index: 10910 !important;
-  transform: none !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip--it-min{ left: var(--v6-center-left) !important; }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip--infosec-min{ left: calc(var(--v6-center-left) + var(--v6-chip-w) + var(--v6-gap)) !important; }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip--phish-min{ left: calc(var(--v6-center-left) + (var(--v6-chip-w) + var(--v6-gap)) * 2) !important; }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip .avatar{ display:none !important; }
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip .chip-card{
-  width: 100% !important;
-  min-width: 0 !important;
-  padding: 8px 8px 9px !important;
-  border-radius: 15px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip .chip-name{
-  font-size: 10px !important;
-  gap: 4px !important;
-  margin-bottom: 6px !important;
-  line-height: 1.06 !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip .chip-badge{
-  font-size: 7px !important; padding: 3px 5px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip .chip-btn{
-  width: 100% !important;
-  padding: 7px 8px !important;
-  font-size: 9px !important;
-  border-radius: 12px !important;
-  letter-spacing: .08em !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip .chip-btn svg{
-  width: 13px !important; height: 13px !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip--it-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip--infosec-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6 .side-chip--phish-min{
-  transition: none !important; animation: none !important; filter: none !important;
-}
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6.tk-cat-launch-opening .side-chip--it-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6.tk-cat-launch-opening .side-chip--infosec-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6.tk-cat-launch-opening .side-chip--phish-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6.tk-cat-launch-opened .side-chip--it-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6.tk-cat-launch-opened .side-chip--infosec-min,
-html.tk-tablet-stable.tk-tablet-landscape-compact.tk-tablet-master-v6.tk-cat-launch-opened .side-chip--phish-min{
-  opacity:1 !important; visibility:visible !important; pointer-events:auto !important; transform:none !important;
+html.tk-tablet-stable.tk-tablet-landscape-compact.tk-cat-launch-opened .side-chip--it-min,
+html.tk-tablet-stable.tk-tablet-landscape-compact.tk-cat-launch-opened .side-chip--infosec-min,
+html.tk-tablet-stable.tk-tablet-landscape-compact.tk-cat-launch-opened .side-chip--phish-min{
+  animation:none !important;
+  filter:none !important;
+  opacity:1 !important;
+  transform:none !important;
 }
 }
 </style>
-<script id="tk-tablet-polish-v6-script">
+<script id="tk-tablet-refined-v7-script">
 (function(){
   var root = document.documentElement;
   function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-  function target(){
-    try{
-      var coarse = (matchMedia('(pointer:coarse)').matches || matchMedia('(hover:none)').matches || (navigator.maxTouchPoints||0) > 0);
-      var w = window.innerWidth || document.documentElement.clientWidth || 0;
-      var h = window.innerHeight || document.documentElement.clientHeight || 0;
-      return coarse && root.classList.contains('tk-tablet-stable') && root.classList.contains('tk-tablet-landscape-compact') && w > h && w >= 960 && w <= 1500;
-    }catch(_){ return false; }
+  function active(){
+    return root.classList.contains('tk-tablet-stable') && root.classList.contains('tk-tablet-landscape-compact');
   }
-  function syncVars(){
-    var active = target();
-    root.classList.toggle('tk-tablet-master-v6', active);
-    if(!active) return;
+  function sync(){
+    if(!active()) return;
     var w = window.innerWidth || document.documentElement.clientWidth || 0;
     var h = window.innerHeight || document.documentElement.clientHeight || 0;
-    var gap = clamp(Math.round(w * 0.0075), 8, 11);
-    var navW = clamp(Math.round(w * 0.165), 188, 218);
-    var rightW = clamp(Math.round(w * 0.168), 192, 220);
-    var centerW = Math.max(430, w - navW - rightW - gap * 4);
-    var centerScale = clamp(Math.min(centerW / 940, (h - 170) / 710), 0.56, 0.70);
-    var centerRaw = Math.round(centerW / centerScale);
-    var chipW = clamp(Math.floor((centerW - gap * 2) / 3), 98, 124);
-    var chipBottom = 10;
-    var catScale = clamp(Math.min((centerW * 0.40) / 376, (h * 0.115) / 180), 0.55, 0.68);
-    var catBottom = chipBottom + 66;
-    var rouletteScale = clamp(Math.min(rightW / 292, (h * 0.25) / 310), 0.52, 0.68);
-    var liveScale = clamp(Math.min(rightW / 220, (h * 0.14) / 170), 0.48, 0.64);
-    var rulesScale = clamp(Math.min(rightW / 292, (h * 0.17) / 180), 0.52, 0.68);
-    var rightTop = 8;
-    var liveTop = Math.round(rightTop + 310 * rouletteScale + 8);
-    var rulesTop = Math.round(liveTop + 170 * liveScale + 8);
-    var remaining = h - (rulesTop + 180 * rulesScale) - 10;
-    if(remaining < 0){
-      var k = clamp((h - 20) / (rulesTop + 180 * rulesScale), 0.80, 1);
-      rouletteScale *= k; liveScale *= k; rulesScale *= k;
-      liveTop = Math.round(rightTop + 310 * rouletteScale + 8);
-      rulesTop = Math.round(liveTop + 170 * liveScale + 8);
-    }
-    root.style.setProperty('--v6-gap', gap + 'px');
-    root.style.setProperty('--v6-nav-w', navW + 'px');
-    root.style.setProperty('--v6-right-w', rightW + 'px');
-    root.style.setProperty('--v6-center-left', (navW + gap * 2) + 'px');
-    root.style.setProperty('--v6-center-top', clamp(Math.round(h * 0.045), 28, 44) + 'px');
-    root.style.setProperty('--v6-center-raw', centerRaw + 'px');
-    root.style.setProperty('--v6-cinema-scale', centerScale.toFixed(4));
-    root.style.setProperty('--v6-chip-w', chipW + 'px');
-    root.style.setProperty('--v6-chip-bottom', chipBottom + 'px');
-    root.style.setProperty('--v6-cat-bottom', catBottom + 'px');
-    root.style.setProperty('--v6-cat-scale', catScale.toFixed(4));
-    root.style.setProperty('--v6-roulette-scale', rouletteScale.toFixed(4));
-    root.style.setProperty('--v6-live-scale', liveScale.toFixed(4));
-    root.style.setProperty('--v6-rules-scale', rulesScale.toFixed(4));
-    root.style.setProperty('--v6-live-top', liveTop + 'px');
-    root.style.setProperty('--v6-rules-top', rulesTop + 'px');
+    var gap = 8;
+    var navW = clamp(Math.round(w * 0.16), 176, 206);
+    var rightW = clamp(Math.round(w * 0.17), 184, 214);
+    var centerW = Math.max(420, w - navW - rightW - gap * 4);
+    var cinemaScale = clamp(Math.min(centerW / 980, (h - 210) / 760), 0.54, 0.68);
+    var centerRaw = Math.round(centerW / cinemaScale);
+    var rouletteScale = clamp(Math.min(rightW / 292, (h * 0.28) / 423), 0.48, 0.64);
+    var liveScale = clamp(Math.min(rightW / 214, (h * 0.16) / 228), 0.48, 0.62);
+    var rulesScale = clamp(Math.min(rightW / 214, (h * 0.17) / 214), 0.50, 0.66);
+    var chipW = clamp(Math.floor((centerW - gap * 2) / 3), 98, 128);
+    var centerLeft = navW + gap * 2;
+    var centerTop = clamp(Math.round(h * 0.05), 36, 52);
+    var liveTop = Math.round(8 + 423 * rouletteScale + 8);
+    var rulesTop = Math.round(liveTop + 228 * liveScale + 8);
+    var catScale = clamp(Math.min((centerW * 0.34) / 300, (h * 0.16) / 180), 0.74, 1.00);
+    var catBottom = 78;
+
+    root.style.setProperty('--tablet-gap', gap + 'px');
+    root.style.setProperty('--tablet-nav-w', navW + 'px');
+    root.style.setProperty('--tablet-right-w', rightW + 'px');
+    root.style.setProperty('--tablet-center-left', centerLeft + 'px');
+    root.style.setProperty('--tablet-center-raw', centerRaw + 'px');
+    root.style.setProperty('--tablet-center-top', centerTop + 'px');
+    root.style.setProperty('--tablet-cinema-scale', cinemaScale.toFixed(4));
+    root.style.setProperty('--tablet-roulette-scale', rouletteScale.toFixed(4));
+    root.style.setProperty('--tablet-live-scale', liveScale.toFixed(4));
+    root.style.setProperty('--tablet-rules-scale', rulesScale.toFixed(4));
+    root.style.setProperty('--tablet-live-top', liveTop + 'px');
+    root.style.setProperty('--tablet-rules-top', rulesTop + 'px');
+    root.style.setProperty('--tablet-chip-w', chipW + 'px');
+    root.style.setProperty('--tablet-cat-bottom', catBottom + 'px');
+    root.style.setProperty('--tablet-cat-scale', catScale.toFixed(4));
 
     var cat = document.getElementById('tkCatStart');
     if(cat && !root.classList.contains('tk-cat-launch-opened')){
       cat.hidden = false;
-      cat.style.display = '';
-      cat.style.visibility = '';
       cat.style.opacity = '';
+      cat.style.visibility = '';
     }
   }
-  function syncCinema(){
-    if(!target()) return;
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var track = cinema.querySelector('.slider-wrapper');
-    var prev = cinema.querySelector('.slider-prev');
-    var next = cinema.querySelector('.slider-next');
-    var slides = Array.prototype.slice.call(cinema.querySelectorAll('.movie-slide'));
-    if(!track || !prev || !next || slides.length < 2) return;
-    if(!cinema.__v6State){ cinema.__v6State = { start: 0, perView: 2 }; }
-    var state = cinema.__v6State;
-    var maxStart = Math.max(0, slides.length - state.perView);
-    state.start = Math.max(0, Math.min(state.start, maxStart));
-    slides.forEach(function(slide, idx){
-      var show = idx >= state.start && idx < state.start + state.perView;
-      slide.classList.toggle('tk-v6-show', show);
-      slide.classList.toggle('is-active', idx === state.start);
-    });
-    prev.disabled = state.start <= 0;
-    next.disabled = state.start >= maxStart;
-    if(!prev.__v6Bound){
-      prev.__v6Bound = true;
-      prev.addEventListener('click', function(e){ if(!target()) return; e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = Math.max(0, state.start - 1); syncCinema(); }, true);
-    }
-    if(!next.__v6Bound){
-      next.__v6Bound = true;
-      next.addEventListener('click', function(e){ if(!target()) return; e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = Math.min(maxStart, state.start + 1); syncCinema(); }, true);
-    }
-  }
-  function failSafeLoader(){
-    if(!root.classList.contains('tk-tablet-stable')) return;
-    var loader = document.getElementById('tkLoader');
-    if(root.classList.contains('tk-loader-complete')) return;
-    if(loader && (loader.dataset.done === '1' || loader.classList.contains('is-hidden') || getComputedStyle(loader).display === 'none' || getComputedStyle(loader).opacity === '0')){
-      root.classList.add('tk-loader-complete');
-      return;
-    }
-    setTimeout(function(){
-      if(root.classList.contains('tk-loader-complete')) return;
-      try{
-        if(loader){
-          loader.style.opacity = '0';
-          loader.style.pointerEvents = 'none';
-          loader.classList.add('is-hidden');
-          loader.dataset.done = '1';
-        }
-      }catch(_){ }
-      root.classList.add('tk-loader-complete');
-    }, 9000);
-  }
-  function syncAll(){ syncVars(); syncCinema(); failSafeLoader(); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncAll, {once:true}); else syncAll();
-  window.addEventListener('load', function(){ syncAll(); setTimeout(syncAll, 120); setTimeout(syncAll, 600); setTimeout(syncAll, 1400); }, {once:true});
-  window.addEventListener('resize', syncAll, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(syncAll,80); setTimeout(syncAll,280); }, {passive:true});
-  document.addEventListener('click', function(){ setTimeout(syncAll, 50); setTimeout(syncAll, 220); }, true);
-  document.addEventListener('keydown', function(){ setTimeout(syncAll, 60); }, true);
+  var kick = function(){ requestAnimationFrame(sync); };
+  kick();
+  window.addEventListener('resize', kick, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(kick, 80); setTimeout(kick, 260); }, {passive:true});
+  window.addEventListener('load', function(){ setTimeout(kick, 120); setTimeout(kick, 700); setTimeout(kick, 1800); }, {once:true});
+  window.addEventListener('tk:loaderhidden', function(){ setTimeout(kick, 60); setTimeout(kick, 400); });
 })();
 </script>
 
