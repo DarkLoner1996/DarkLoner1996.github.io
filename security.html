@@ -14598,41 +14598,6 @@ html.tk-mobile-landscape-v341 .side-chip--phish-min .chip-btn{
     filter:drop-shadow(0 0 8px rgba(255,241,188,.18)) drop-shadow(0 0 12px rgba(120,230,255,.14));
   }
 </style>
-
-<script id="tk-tablet-detect-early-v9">
-(function(){
-  try{
-    var coarse = false;
-    try{ coarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches; }catch(_){ coarse = false; }
-    coarse = coarse || ((navigator.maxTouchPoints || 0) > 1);
-    var landscape = false;
-    try{ landscape = window.matchMedia('(orientation: landscape)').matches; }catch(_){ landscape = false; }
-    landscape = landscape || ((window.screen && screen.width > screen.height) || (window.innerWidth > window.innerHeight));
-    var sw = Math.min((screen && screen.width) || 0, (screen && screen.height) || 0);
-    var lw = Math.max((screen && screen.width) || 0, (screen && screen.height) || 0);
-    if(coarse && landscape && sw >= 600 && lw <= 1600){
-      document.documentElement.classList.add('tk-tablet-landscape');
-    }
-  }catch(_e){}
-})();
-</script>
-<style id="tk-tablet-early-hide-v9">
-html.tk-tablet-landscape,
-html.tk-tablet-landscape body{
-  background:#040b16 !important;
-}
-html.tk-tablet-landscape body > :not(#tkLoader):not(#tkLicenseOverlay):not(script):not(style){
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-html.tk-tablet-landscape.tk-tablet-stage-visible body > :not(#tkLoader):not(script):not(style){
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-}
-</style>
-
 </head>
 <body>
 <div aria-label="Загрузка сайта" aria-live="polite" class="tk-loader" id="tkLoader">
@@ -42348,22 +42313,12 @@ html.tk-license-open body{
   var errorEl = document.getElementById('tkLicenseError');
   var root = document.documentElement;
   var body = document.body;
-  var shown = false;
   var isOpen = false;
-  var isTouchLike = false;
-  try{
-    isTouchLike = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ((navigator.maxTouchPoints || 0) > 0);
-  }catch(_){ }
+  var shown = false;
 
   function syncPageLock(flag){
-    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_){ }
-    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_){ }
-  }
-
-  function syncState(){
-    if(!acceptBtn || !checkbox) return;
-    acceptBtn.disabled = !checkbox.checked;
-    if(errorEl) errorEl.textContent = checkbox.checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
+    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_){}
+    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_){}
   }
 
   function setOpen(flag){
@@ -42372,19 +42327,7 @@ html.tk-license-open body{
     overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
     syncPageLock(isOpen);
     if(isOpen){
-      try{
-        var bodyEl = overlay.querySelector('.tk-license__body');
-        if(bodyEl) bodyEl.scrollTop = 0;
-      }catch(_){ }
-      if(!isTouchLike){
-        setTimeout(function(){
-          try{ (checkbox || acceptBtn).focus({ preventScroll:true }); }catch(_e){
-            try{ (checkbox || acceptBtn).focus(); }catch(__){}
-          }
-        }, 20);
-      } else {
-        try{ document.activeElement && document.activeElement.blur && document.activeElement.blur(); }catch(_){ }
-      }
+      setTimeout(function(){ try { (checkbox || acceptBtn).focus(); } catch(_){} }, 10);
     }
   }
 
@@ -42392,7 +42335,6 @@ html.tk-license-open body{
     if(shown) return;
     shown = true;
     setOpen(true);
-    syncState();
   }
 
   function openModalInstant(){
@@ -42406,18 +42348,15 @@ html.tk-license-open body{
     setOpen(false);
   }
 
-  function decline(){
-    if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
-    try{ checkbox && checkbox.focus && checkbox.focus({ preventScroll:true }); }catch(_){ }
+  function syncState(){
+    if(!acceptBtn || !checkbox) return;
+    acceptBtn.disabled = !checkbox.checked;
+    if(errorEl) errorEl.textContent = checkbox.checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
   }
 
-  function accept(){
-    if(checkbox && !checkbox.checked){
-      syncState();
-      return;
-    }
-    if(errorEl) errorEl.textContent = '';
-    closeModal();
+  function decline(){
+    if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
+    try{ checkbox && checkbox.focus(); }catch(_){}
   }
 
   function openIfLoaderDone(){
@@ -42428,22 +42367,21 @@ html.tk-license-open body{
   }
 
   if(checkbox){
-    ['change','input','click'].forEach(function(type){ checkbox.addEventListener(type, syncState, { passive:true }); });
+    checkbox.addEventListener('change', syncState);
     syncState();
   }
   if(acceptBtn){
-    acceptBtn.addEventListener('click', accept);
-    acceptBtn.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} accept(); }, { passive:false });
-    acceptBtn.addEventListener('pointerup', accept);
+    acceptBtn.addEventListener('click', function(){
+      if(checkbox && !checkbox.checked){
+        syncState();
+        return;
+      }
+      if(errorEl) errorEl.textContent = '';
+      closeModal();
+    });
   }
-  if(declineBtn){
-    declineBtn.addEventListener('click', decline);
-    declineBtn.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} decline(); }, { passive:false });
-  }
-  if(declineTop){
-    declineTop.addEventListener('click', decline);
-    declineTop.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} decline(); }, { passive:false });
-  }
+  if(declineBtn) declineBtn.addEventListener('click', decline);
+  if(declineTop) declineTop.addEventListener('click', decline);
   overlay.addEventListener('click', function(e){
     if(e.target === overlay) decline();
   });
@@ -42455,13 +42393,19 @@ html.tk-license-open body{
       return;
     }
     if(e.key === 'Enter' && document.activeElement === checkbox && checkbox.checked){
-      accept();
+      acceptBtn && acceptBtn.click();
     }
   }, true);
 
-  window.addEventListener('tk:loaderhidden', function(){ openModalInstant(); }, { once:true });
+  window.addEventListener('tk:loaderhidden', function(){
+    openModalInstant();
+  }, { once:true });
+
   setTimeout(openIfLoaderDone, 0);
-  window.addEventListener('load', function(){ setTimeout(openIfLoaderDone, 60); }, { once:true });
+
+  window.addEventListener('load', function(){
+    setTimeout(openIfLoaderDone, 60);
+  }, { once:true });
 })();
 </script>
 <script id="tk-license-lights-script-v53">
@@ -58039,836 +57983,281 @@ html.tk-mobile-landscape-v341 .side-chip .chip-card::after{
 </script>
 
 
-<style id="tk-tablet-overhaul-v9-style">
-html.tk-tablet-landscape{
-  --tk-tablet-left: clamp(212px, 18vw, 238px);
-  --tk-tablet-right: clamp(224px, 19vw, 256px);
-  --tk-tablet-gap: clamp(12px, 1.2vw, 16px);
-  --tk-tablet-bottom: 12px;
-}
+<style id="tk-tablet-clean-fix-v16-style">
 html.tk-tablet-landscape,
 html.tk-tablet-landscape body{
-  overflow:hidden !important;
+  background:#040b16 !important;
 }
-html.tk-tablet-landscape .intro,
-html.tk-tablet-landscape .page-transition,
-html.tk-tablet-landscape #tkTop10OpenBtnFloating{
+html.tk-tablet-landscape body.tk-license-open > :not(#tkLoader):not(#tkLicenseOverlay):not(script):not(style){
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-tablet-landscape body.tk-license-open #tkLicenseOverlay,
+html.tk-tablet-landscape body.tk-license-open #tkLoader{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay::before,
+html.tk-tablet-landscape #tkLicenseOverlay::after,
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license-bg-lights{
   display:none !important;
 }
-html.tk-tablet-landscape .sparkles,
-html.tk-tablet-landscape .hero-soft,
-html.tk-tablet-landscape .bg-blur-pic,
-html.tk-tablet-landscape .header__bg-blur,
-html.tk-tablet-landscape .tk-loader__noise,
-html.tk-tablet-landscape .tk-loader__particles,
-html.tk-tablet-landscape .roulette-spark,
-html.tk-tablet-landscape .roulette-burst,
-html.tk-tablet-landscape .side-nav__tab::after,
-html.tk-tablet-landscape .side-nav__panel::after,
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__dialog::after,
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__pet::before,
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__pet::after{
-  display:none !important;
-  animation:none !important;
-}
-html.tk-tablet-landscape .side-nav__tab,
-html.tk-tablet-landscape .side-nav__panel,
-html.tk-tablet-landscape .hud-item,
-html.tk-tablet-landscape .movie-slide,
-html.tk-tablet-landscape .movie-info,
-html.tk-tablet-landscape .roulette-card,
-html.tk-tablet-landscape .roulette-info,
-html.tk-tablet-landscape .rule-pill,
-html.tk-tablet-landscape .chip-card,
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__dialog,
-html.tk-tablet-landscape .tk-live-stats__panel,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__card,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__side,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__mini,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__check,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__alert{
+html.tk-tablet-landscape #tkLicenseOverlay{
+  padding:12px !important;
+  background:rgba(3,10,23,.96) !important;
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
 }
-html.tk-tablet-landscape .header{
-  overflow:hidden !important;
-  height:100vh !important;
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license{
+  max-width:min(1180px, calc(100vw - 24px)) !important;
+  max-height:calc(100dvh - 24px) !important;
+  background:linear-gradient(180deg, rgba(6,18,44,.98), rgba(4,12,30,.98)) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 }
-html.tk-tablet-landscape .header__bg,
-html.tk-tablet-landscape .bg-main-pic{
-  width:100vw !important;
-  height:100vh !important;
-  object-fit:cover !important;
-  object-position:center center !important;
-}
-html.tk-tablet-landscape .ui{
-  display:block !important;
-  position:absolute !important;
-  inset:0 !important;
-  padding:0 !important;
-}
-html.tk-tablet-landscape .ui-bottom{
-  position:static !important;
-  inset:auto !important;
-  transform:none !important;
-  display:block !important;
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__body{
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  scroll-behavior:auto !important;
 }
 html.tk-tablet-landscape .side-nav{
-  left:14px !important;
-  top:12px !important;
-  z-index:1400 !important;
-  width:var(--tk-tablet-left) !important;
-  gap:8px !important;
+  left:10px !important;
+  top:10px !important;
+  transform:scale(.72) !important;
+  transform-origin:top left !important;
 }
 html.tk-tablet-landscape .side-nav__tab,
 html.tk-tablet-landscape .side-nav__panel{
-  width:var(--tk-tablet-left) !important;
-  border-radius:18px !important;
+  width:250px !important;
 }
-html.tk-tablet-landscape .side-nav__tab{ padding:8px 10px !important; }
-html.tk-tablet-landscape .side-nav__panel{ padding:10px 10px 12px !important; }
-html.tk-tablet-landscape .side-nav__list{ gap:10px !important; margin-top:6px !important; }
-html.tk-tablet-landscape .menu-pill{
-  padding:7px 10px !important;
-  gap:8px !important;
-  font-size:10px !important;
-  letter-spacing:.08em !important;
-}
-html.tk-tablet-landscape .menu-pill svg{ width:14px !important; height:14px !important; }
-html.tk-tablet-landscape .back-btn{
-  width:34px !important;
-  height:34px !important;
-  border-radius:12px !important;
-}
-html.tk-tablet-landscape .back-btn svg{ width:16px !important; height:16px !important; }
-html.tk-tablet-landscape .hud-item{
-  height:58px !important;
-  padding:9px 11px !important;
-  border-radius:16px !important;
-  box-shadow:0 12px 24px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10) !important;
-}
-html.tk-tablet-landscape .hud-ico{
-  width:38px !important;
-  height:38px !important;
-  border-radius:13px !important;
-}
+html.tk-tablet-landscape .side-nav__panel{ padding:9px 9px 10px !important; }
+html.tk-tablet-landscape .side-nav__list{ gap:8px !important; }
+html.tk-tablet-landscape .hud-item{ min-height:58px !important; height:58px !important; padding:9px 10px !important; border-radius:16px !important; }
+html.tk-tablet-landscape .hud-ico{ width:38px !important; height:38px !important; border-radius:14px !important; }
 html.tk-tablet-landscape .hud-ico svg{ width:18px !important; height:18px !important; }
-html.tk-tablet-landscape .hud-title{
-  font-size:14px !important;
-  line-height:1.02 !important;
-  letter-spacing:.04em !important;
-}
-html.tk-tablet-landscape .hud-sub{
-  font-size:8px !important;
-  letter-spacing:.08em !important;
-}
-html.tk-tablet-landscape .hud-arrow{
-  width:28px !important;
-  height:28px !important;
-}
-html.tk-tablet-landscape .hud-arrow svg{ width:14px !important; height:14px !important; }
+html.tk-tablet-landscape .hud-title{ font-size:14px !important; }
+html.tk-tablet-landscape .hud-sub{ font-size:8px !important; }
+html.tk-tablet-landscape .hud-arrow{ width:28px !important; height:28px !important; }
 
 html.tk-tablet-landscape #cinema{
   position:fixed !important;
-  top:14px !important;
-  left:calc(var(--tk-tablet-left) + 28px) !important;
-  right:calc(var(--tk-tablet-right) + 18px) !important;
-  bottom:auto !important;
-  width:auto !important;
-  max-width:none !important;
+  left:210px !important;
+  right:240px !important;
+  top:28px !important;
+  bottom:140px !important;
+  transform:none !important;
   margin:0 !important;
-  z-index:1100 !important;
-  pointer-events:auto !important;
 }
-html.tk-tablet-landscape #cinema .cinema-head{
-  width:100% !important;
-  max-width:520px !important;
-  margin:0 auto 8px !important;
-}
-html.tk-tablet-landscape #cinema .kino-badge-top-4k{
-  width:108px !important;
-  max-width:108px !important;
-  margin:4px auto -4px !important;
-}
+html.tk-tablet-landscape #cinema .cinema-head{ margin-bottom:8px !important; }
 html.tk-tablet-landscape #cinema .cinema-banner-title img.cinema-title-art{
-  max-width:330px !important;
-  max-height:110px !important;
+  max-width:320px !important;
+  max-height:108px !important;
 }
 html.tk-tablet-landscape #cinema .cinema-banner-sub{
-  padding:6px 12px !important;
-  font-size:10px !important;
+  font-size:11px !important;
+  padding:7px 12px !important;
   letter-spacing:.08em !important;
-  margin-top:4px !important;
 }
-html.tk-tablet-landscape #cinema .slider-container{
-  padding:0 !important;
-  margin:0 auto !important;
-}
-html.tk-tablet-landscape #cinema .slider-prev,
-html.tk-tablet-landscape #cinema .slider-next{
-  display:none !important;
-}
+html.tk-tablet-landscape #cinema .slider-container{ overflow:hidden !important; }
 html.tk-tablet-landscape #cinema .slider-wrapper{
-  display:grid !important;
-  grid-auto-flow:column !important;
-  grid-auto-columns:calc((100% - 12px) / 2) !important;
-  gap:12px !important;
-  overflow-x:auto !important;
-  overflow-y:hidden !important;
-  padding:2px 2px 8px !important;
-  scrollbar-width:none !important;
-  -ms-overflow-style:none !important;
+  gap:10px !important;
+  grid-auto-columns:calc((100% - 10px) / 2) !important;
   scroll-snap-type:x mandatory !important;
-  scroll-padding-inline:2px !important;
-  transform:none !important;
-  transition:none !important;
-  will-change:auto !important;
 }
-html.tk-tablet-landscape #cinema .slider-wrapper::-webkit-scrollbar{ display:none !important; }
 html.tk-tablet-landscape #cinema .movie-slide,
-html.tk-tablet-landscape #cinema .movie-slide *,
-html.tk-tablet-landscape #cinema .slider-wrapper,
-html.tk-tablet-landscape #cinema .slider-container{
+html.tk-tablet-landscape #cinema .movie-slide *{
   animation:none !important;
   transition:none !important;
 }
-html.tk-tablet-landscape #cinema .movie-slide{
-  width:auto !important;
-  min-width:0 !important;
-  max-width:none !important;
-  transform:none !important;
-  opacity:1 !important;
-  filter:none !important;
-  scroll-snap-align:start !important;
-  border-radius:18px !important;
-  box-shadow:0 14px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.12) !important;
-}
-html.tk-tablet-landscape #cinema .movie-img{
-  width:100% !important;
-  height:176px !important;
-  object-fit:cover !important;
-}
+html.tk-tablet-landscape #cinema .movie-slide{ border-radius:18px !important; }
+html.tk-tablet-landscape #cinema .movie-img{ height:150px !important; }
 html.tk-tablet-landscape #cinema .movie-info{ padding:10px !important; }
-html.tk-tablet-landscape #cinema .movie-text h3{
-  font-size:14px !important;
-  line-height:1.06 !important;
-}
+html.tk-tablet-landscape #cinema .movie-text h3{ font-size:14px !important; }
 html.tk-tablet-landscape #cinema .movie-ep,
-html.tk-tablet-landscape #cinema .movie-duration{
-  font-size:9px !important;
-}
-html.tk-tablet-landscape #cinema .movie-btn{
-  min-width:114px !important;
-  padding:8px 12px !important;
-  border-radius:14px !important;
-  font-size:10px !important;
-}
+html.tk-tablet-landscape #cinema .movie-duration{ font-size:9px !important; }
+html.tk-tablet-landscape #cinema .movie-btn{ min-width:118px !important; font-size:9px !important; padding:9px 10px !important; }
 
-html.tk-tablet-landscape #tkTabletRightRail{
+html.tk-tablet-landscape #rouletteDock{
   position:fixed !important;
-  top:12px !important;
   right:12px !important;
-  width:var(--tk-tablet-right) !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:10px !important;
-  z-index:1450 !important;
-}
-html.tk-tablet-landscape #tkTabletRightRail > #rouletteDock,
-html.tk-tablet-landscape #tkTabletRightRail > #tkLiveStats,
-html.tk-tablet-landscape #tkTabletRightRail > .rules{
-  position:relative !important;
-  top:auto !important;
-  right:auto !important;
-  bottom:auto !important;
+  top:18px !important;
   left:auto !important;
-  width:100% !important;
-  min-width:0 !important;
-  max-width:none !important;
-  margin:0 !important;
+  bottom:auto !important;
+  width:216px !important;
   transform:none !important;
-  z-index:auto !important;
-}
-html.tk-tablet-landscape #tkTabletRightRail > #rouletteDock{
-  display:flex !important;
-  flex-direction:column !important;
-  gap:10px !important;
-}
-html.tk-tablet-landscape #rouletteDock .roulette-card{
-  padding:10px !important;
-  gap:10px !important;
-  border-radius:18px !important;
-  background:linear-gradient(180deg, rgba(10,55,90,.94), rgba(8,35,60,.92)) !important;
-}
-html.tk-tablet-landscape #rouletteDock .wheel-wrap{
-  width:96px !important;
-  height:96px !important;
-  flex:0 0 auto !important;
-}
-html.tk-tablet-landscape #rouletteDock .wheel-center{
-  width:28px !important;
-  height:28px !important;
-}
-html.tk-tablet-landscape #rouletteDock .wheel-pointer{ transform:scale(.9) !important; transform-origin:center center !important; }
-html.tk-tablet-landscape #rouletteDock .roulette-controls{
-  min-width:0 !important;
-  gap:8px !important;
-}
-html.tk-tablet-landscape #rouletteDock .roulette-title{ font-size:14px !important; }
-html.tk-tablet-landscape #rouletteDock .roulette-sub,
-html.tk-tablet-landscape #rouletteDock .roulette-mini{
-  font-size:10px !important;
-  line-height:1.22 !important;
-}
-html.tk-tablet-landscape #rouletteDock .roulette-meter{
-  width:42px !important;
-  height:42px !important;
-}
-html.tk-tablet-landscape #rouletteDock .meter-text{ font-size:10px !important; }
-html.tk-tablet-landscape #rouletteDock .roulette-btn,
-html.tk-tablet-landscape #rouletteDock .roulette-link{
-  min-height:0 !important;
-  padding:10px 12px !important;
-  font-size:10px !important;
-  border-radius:14px !important;
-}
-html.tk-tablet-landscape #rouletteDock .roulette-btn svg,
-html.tk-tablet-landscape #rouletteDock .roulette-link svg{ width:14px !important; height:14px !important; }
-html.tk-tablet-landscape #rouletteDock .roulette-info{
-  padding:10px !important;
-  border-radius:18px !important;
-  background:linear-gradient(180deg, rgba(10,55,90,.96), rgba(8,35,60,.94)) !important;
-}
-html.tk-tablet-landscape #rouletteDock .roulette-infoTitle{ font-size:14px !important; }
-html.tk-tablet-landscape #rouletteDock .roulette-infoText{ font-size:11px !important; line-height:1.24 !important; }
-html.tk-tablet-landscape #rouletteDock .roulette-history{ min-height:0 !important; }
-
-html.tk-tablet-landscape #tkLiveStats{
   display:block !important;
 }
-html.tk-tablet-landscape #tkLiveStats .tk-live-stats__panel{
-  padding:10px !important;
-  border-radius:18px !important;
-  background:linear-gradient(180deg, rgba(10,55,90,.96), rgba(8,35,60,.94)) !important;
-  box-shadow:0 16px 34px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12) !important;
+html.tk-tablet-landscape #rouletteDock .roulette-card{ padding:8px !important; gap:8px !important; }
+html.tk-tablet-landscape #rouletteDock .wheel-wrap{ width:104px !important; height:104px !important; }
+html.tk-tablet-landscape #rouletteDock .roulette-controls{ gap:8px !important; }
+html.tk-tablet-landscape #rouletteDock .roulette-title{ font-size:13px !important; }
+html.tk-tablet-landscape #rouletteDock .roulette-sub,
+html.tk-tablet-landscape #rouletteDock .roulette-mini,
+html.tk-tablet-landscape #rouletteDock .roulette-infoText{ font-size:10px !important; line-height:1.28 !important; }
+html.tk-tablet-landscape #rouletteDock .roulette-btn,
+html.tk-tablet-landscape #rouletteDock .roulette-link{ padding:9px 10px !important; font-size:10px !important; }
+html.tk-tablet-landscape #rouletteDock .roulette-info{ margin-top:8px !important; padding:10px !important; }
+
+html.tk-tablet-landscape #tkLiveStats{
+  position:fixed !important;
+  right:12px !important;
+  top:360px !important;
+  bottom:auto !important;
+  width:216px !important;
+  left:auto !important;
+  transform:none !important;
 }
+html.tk-tablet-landscape #tkLiveStats .tk-live-stats__panel{ padding:10px !important; border-radius:18px !important; }
 html.tk-tablet-landscape #tkLiveStats .tk-live-stats__head{ margin-bottom:8px !important; }
-html.tk-tablet-landscape #tkLiveStats .tk-live-stats__label{ font-size:13px !important; }
+html.tk-tablet-landscape #tkLiveStats .tk-live-stats__label{ font-size:12px !important; }
 html.tk-tablet-landscape #tkLiveStats .tk-live-stats__sub{ font-size:10px !important; }
 html.tk-tablet-landscape #tkLiveStats .tk-live-stats__badge{ font-size:10px !important; padding:6px 10px !important; }
 html.tk-tablet-landscape #tkLiveStats .tk-live-stats__grid{ gap:8px !important; }
-html.tk-tablet-landscape #tkLiveStats .tk-live-stats__card{ min-height:92px !important; padding:10px !important; border-radius:16px !important; }
-html.tk-tablet-landscape #tkLiveStats .tk-live-stats__metric{ font-size:10px !important; }
-html.tk-tablet-landscape #tkLiveStats .tk-live-stats__value{ font-size:28px !important; line-height:1 !important; }
-html.tk-tablet-landscape #tkLiveStats .tk-live-stats__hint{ font-size:9px !important; }
+html.tk-tablet-landscape #tkLiveStats .tk-live-stats__card{ min-height:86px !important; padding:9px !important; }
+html.tk-tablet-landscape #tkLiveStats .tk-live-stats__metric{ font-size:9px !important; }
+html.tk-tablet-landscape #tkLiveStats .tk-live-stats__value{ font-size:26px !important; }
+html.tk-tablet-landscape #tkLiveStats .tk-live-stats__hint{ font-size:8px !important; }
 
-html.tk-tablet-landscape #tkTabletRightRail > .rules{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
+html.tk-tablet-landscape .rules{
+  right:12px !important;
+  top:590px !important;
+  bottom:auto !important;
+  transform:scale(.76) !important;
+  transform-origin:top right !important;
   gap:8px !important;
 }
-html.tk-tablet-landscape #tkTabletRightRail > .rules .rule-pill{
-  min-width:0 !important;
-  height:56px !important;
-  padding:8px 10px !important;
-  border-radius:18px !important;
-}
-html.tk-tablet-landscape #tkTabletRightRail > .rules .rule-pill__icon{
-  width:38px !important;
-  height:38px !important;
-  border-radius:14px !important;
-  font-size:20px !important;
-}
-html.tk-tablet-landscape #tkTabletRightRail > .rules .rule-pill__title{
-  font-size:14px !important;
-}
-html.tk-tablet-landscape #tkTabletRightRail > .rules .rule-pill__badge{
-  width:34px !important;
-  height:34px !important;
-  border-radius:12px !important;
-}
+html.tk-tablet-landscape .rule-pill{ min-width:188px !important; height:58px !important; padding:8px 10px !important; }
+html.tk-tablet-landscape .rule-pill__icon{ width:40px !important; height:40px !important; border-radius:14px !important; }
+html.tk-tablet-landscape .rule-pill__title{ font-size:14px !important; }
+html.tk-tablet-landscape .rule-pill__badge{ width:34px !important; height:34px !important; border-radius:12px !important; }
 
 html.tk-tablet-landscape #tkCatStart{
-  left:calc(var(--tk-tablet-left) + 24px) !important;
-  right:auto !important;
-  bottom:var(--tk-tablet-bottom) !important;
-  top:auto !important;
-  gap:8px !important;
-  transform:none !important;
-  filter:none !important;
-  z-index:1440 !important;
+  left:240px !important;
+  bottom:118px !important;
+  transform:scale(.72) !important;
+  transform-origin:left bottom !important;
 }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__pet{
-  width:56px !important;
-  height:56px !important;
-  border-radius:18px !important;
-  animation:none !important;
-}
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__dialog{
-  width:min(290px, calc(100vw - var(--tk-tablet-left) - var(--tk-tablet-right) - 56px)) !important;
-  max-width:none !important;
-  min-width:0 !important;
-  padding:10px 12px 11px !important;
-  border-radius:18px !important;
-}
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__badge{ margin-bottom:6px !important; font-size:8px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__presence{ margin-bottom:5px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__presence-label{ font-size:7px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__line--meow{ font-size:12px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__line--hero{ font-size:18px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__line--play{ font-size:16px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__typing,
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__line::after{
-  animation:none !important;
-  clip-path:inset(0 0 0 0) !important;
-  opacity:1 !important;
-  transform:none !important;
-}
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__actions{ margin-top:8px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__btn{ min-width:140px !important; padding:9px 11px !important; font-size:10px !important; }
-html.tk-tablet-landscape #tkCatStart .tk-cat-launch__hint{ font-size:8px !important; }
+html.tk-tablet-landscape #tkCatStart .tk-cat-launch__dialog{ width:280px !important; }
 
-html.tk-tablet-landscape #tkTabletGamesRow{
-  position:fixed !important;
-  left:calc(var(--tk-tablet-left) + 24px) !important;
-  right:calc(var(--tk-tablet-right) + 18px) !important;
+html.tk-tablet-landscape .side-chip--it-min,
+html.tk-tablet-landscape .side-chip--infosec-min,
+html.tk-tablet-landscape .side-chip--phish-min{
+  transform:scale(.7) !important;
+  transform-origin:left bottom !important;
   bottom:10px !important;
-  display:grid !important;
-  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
-  gap:10px !important;
-  z-index:1438 !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-  transform:translateY(8px) !important;
-  transition:opacity .18s ease, transform .18s ease !important;
 }
-html.tk-tablet-landscape.tk-cat-launch-opened #tkTabletGamesRow{
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-  transform:none !important;
-}
-html.tk-tablet-landscape #tkTabletGamesRow .side-chip{
-  position:relative !important;
-  left:auto !important;
-  right:auto !important;
-  bottom:auto !important;
-  top:auto !important;
-  display:block !important;
-  align-items:stretch !important;
-  gap:0 !important;
-  z-index:auto !important;
-  transform:none !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  filter:none !important;
-  animation:none !important;
-}
-html.tk-tablet-landscape #tkTabletGamesRow .avatar{ display:none !important; }
-html.tk-tablet-landscape #tkTabletGamesRow .chip-card{
-  min-width:0 !important;
-  padding:8px 10px !important;
-  border-radius:18px !important;
-  background:linear-gradient(180deg, rgba(10,55,90,.96), rgba(8,35,60,.94)) !important;
-}
-html.tk-tablet-landscape #tkTabletGamesRow .chip-name{
-  font-size:13px !important;
-  margin-bottom:8px !important;
-  gap:8px !important;
-}
-html.tk-tablet-landscape #tkTabletGamesRow .chip-badge{ font-size:8px !important; padding:4px 6px !important; }
-html.tk-tablet-landscape #tkTabletGamesRow .chip-actions{ gap:0 !important; }
-html.tk-tablet-landscape #tkTabletGamesRow .chip-btn{
-  width:100% !important;
-  justify-content:center !important;
-  padding:9px 10px !important;
-  border-radius:14px !important;
-  font-size:10px !important;
-}
-html.tk-tablet-landscape #tkTabletGamesRow .chip-btn svg{ width:14px !important; height:14px !important; }
+html.tk-tablet-landscape .side-chip--it-min{ left:250px !important; }
+html.tk-tablet-landscape .side-chip--infosec-min{ left:485px !important; }
+html.tk-tablet-landscape .side-chip--phish-min{ left:720px !important; }
 
-html.tk-tablet-landscape.tk-license-open .side-nav,
-html.tk-tablet-landscape.tk-license-open .header,
-html.tk-tablet-landscape.tk-license-open #tkCatStart,
-html.tk-tablet-landscape.tk-license-open .side-chip,
-html.tk-tablet-landscape.tk-license-open .rules,
-html.tk-tablet-landscape.tk-license-open #rouletteDock,
-html.tk-tablet-landscape.tk-license-open #tkLiveStats,
-html.tk-tablet-landscape.tk-license-open #tkTabletRightRail,
-html.tk-tablet-landscape.tk-license-open #tkTabletGamesRow{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay{
-  padding:10px !important;
-  background:
-    radial-gradient(900px 560px at 50% 30%, rgba(20,78,140,.18), transparent 55%),
-    linear-gradient(180deg, rgba(3,9,20,.98) 0%, rgba(4,10,20,.98) 100%) !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay::before,
-html.tk-tablet-landscape #tkLicenseOverlay::after{
-  opacity:.72 !important;
-  filter:none !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license-bg-lights{
-  opacity:.45 !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license{
-  width:min(94vw, 1040px) !important;
-  max-height:calc(100vh - 20px) !important;
-  background:linear-gradient(180deg, rgba(6,18,38,.98), rgba(6,16,32,.98)) !important;
-  border-radius:22px !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__head{ padding:18px 20px 14px !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__title{ font-size:28px !important; line-height:1.08 !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__subtitle{ font-size:13px !important; line-height:1.45 !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__body{
-  padding:0 20px 10px !important;
-  background:transparent !important;
-  overflow:auto !important;
-  overscroll-behavior:contain !important;
-  -webkit-overflow-scrolling:touch !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__grid{
-  grid-template-columns:minmax(0, 1.25fr) minmax(280px, .75fr) !important;
-  gap:14px !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__card,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__side{ background:rgba(8,21,46,.86) !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__section + .tk-license__section{ margin-top:14px !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__section h3{ font-size:15px !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__section p,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__list li,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__mini span,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__alert{ font-size:12px !important; line-height:1.42 !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__foot{ padding:14px 20px 16px !important; }
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__btn{ min-width:180px !important; padding:12px 16px !important; }
-
-html.tk-tablet-landscape .tk-loader__bg{ animation:none !important; }
-html.tk-tablet-landscape .tk-loader__panel{
-  width:min(88vw, 720px) !important;
-  padding:28px 20px 22px !important;
-  background:linear-gradient(180deg, rgba(6,18,38,.98), rgba(6,16,32,.98)) !important;
-}
-html.tk-tablet-landscape .tk-loader__core{ width:116px !important; height:116px !important; }
-html.tk-tablet-landscape .tk-loader__badge{ inset:34px !important; font-size:34px !important; }
-html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !important; }
-
-@media (max-width: 1180px){
-  html.tk-tablet-landscape{
-    --tk-tablet-left: 204px;
-    --tk-tablet-right: 228px;
-  }
-  html.tk-tablet-landscape #cinema .cinema-banner-title img.cinema-title-art{ max-width:300px !important; max-height:100px !important; }
-  html.tk-tablet-landscape #cinema .movie-img{ height:160px !important; }
-  html.tk-tablet-landscape #tkCatStart .tk-cat-launch__dialog{ width:min(268px, calc(100vw - var(--tk-tablet-left) - var(--tk-tablet-right) - 48px)) !important; }
-}
-@media (max-width: 1080px){
-  html.tk-tablet-landscape{
-    --tk-tablet-left: 196px;
-    --tk-tablet-right: 218px;
-  }
-  html.tk-tablet-landscape .hud-title{ font-size:13px !important; }
-  html.tk-tablet-landscape .hud-sub{ font-size:7px !important; }
-  html.tk-tablet-landscape #cinema{ left:calc(var(--tk-tablet-left) + 18px) !important; right:calc(var(--tk-tablet-right) + 12px) !important; }
-  html.tk-tablet-landscape #cinema .slider-wrapper{ gap:10px !important; grid-auto-columns:calc((100% - 10px) / 2) !important; }
-  html.tk-tablet-landscape #rouletteDock .wheel-wrap{ width:90px !important; height:90px !important; }
-  html.tk-tablet-landscape #tkTabletGamesRow{ gap:8px !important; }
-  html.tk-tablet-landscape #tkTabletGamesRow .chip-card{ padding:7px 8px !important; }
-  html.tk-tablet-landscape #tkTabletGamesRow .chip-name{ font-size:12px !important; }
+@media (max-width: 1280px){
+  html.tk-tablet-landscape .side-nav{ transform:scale(.66) !important; }
+  html.tk-tablet-landscape #cinema{ left:190px !important; right:228px !important; }
+  html.tk-tablet-landscape #cinema .cinema-banner-title img.cinema-title-art{ max-width:286px !important; max-height:94px !important; }
+  html.tk-tablet-landscape #tkCatStart{ left:214px !important; transform:scale(.67) !important; }
+  html.tk-tablet-landscape .side-chip--it-min,
+  html.tk-tablet-landscape .side-chip--infosec-min,
+  html.tk-tablet-landscape .side-chip--phish-min{ transform:scale(.65) !important; }
+  html.tk-tablet-landscape .side-chip--it-min{ left:218px !important; }
+  html.tk-tablet-landscape .side-chip--infosec-min{ left:430px !important; }
+  html.tk-tablet-landscape .side-chip--phish-min{ left:642px !important; }
 }
 </style>
-<script id="tk-tablet-license-stability-v10-style">
-(function(){
-  var style = document.createElement('style');
-  style.id = 'tk-tablet-license-stability-v10';
-  style.textContent = `
-html.tk-tablet-landscape #tkLicenseOverlay::before{
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license-bg-lights{
-  display:none !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license{
-  width:min(94vw, 1040px) !important;
-  height:min(calc(100dvh - 20px), 860px) !important;
-  max-height:calc(100dvh - 20px) !important;
-  grid-template-rows:auto minmax(0,1fr) auto !important;
-  contain:layout paint style !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__body{
-  min-height:0 !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  overscroll-behavior-y:contain !important;
-  -webkit-overflow-scrolling:touch !important;
-  touch-action:pan-y !important;
-  scroll-behavior:auto !important;
-  transform:none !important;
-  will-change:auto !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__head,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__foot{
-  position:relative !important;
-  z-index:2 !important;
-}
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__actions,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__btn,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__checkbox,
-html.tk-tablet-landscape #tkLicenseOverlay .tk-license__close{
-  touch-action:manipulation !important;
-}
-html.tk-tablet-landscape.tk-license-open,
-html.tk-tablet-landscape.tk-license-open body{
-  overscroll-behavior:none !important;
-}
-`;
-  document.head.appendChild(style);
-})();
-</script>
-<script id="tk-tablet-overhaul-v10-script">
+<script id="tk-tablet-clean-fix-v16-script">
 (function(){
   var root = document.documentElement;
-  if(!root.classList.contains('tk-tablet-landscape')) return;
-  var body = document.body;
-  function q(sel){ return document.querySelector(sel); }
-  function ensure(id){
-    var el = document.getElementById(id);
-    if(!el){ el = document.createElement('div'); el.id = id; body.appendChild(el); }
-    return el;
+  function isTabletLandscape(){
+    try{
+      var w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+      var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+      var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+      var touch = ((navigator.maxTouchPoints || 0) > 0) || coarse;
+      return touch && w >= 1024 && w <= 1400 && w > h;
+    }catch(_){ return false; }
   }
-  function setImportant(el, map){
-    if(!el) return;
-    Object.keys(map).forEach(function(k){
-      try{ el.style.setProperty(k, map[k], 'important'); }catch(_e){}
-    });
+  function applyClass(){
+    root.classList.toggle('tk-tablet-landscape', isTabletLandscape());
   }
-  function stripPlacement(el){
-    if(!el) return;
-    ['left','right','top','bottom','width','min-width','max-width','transform','margin','position','z-index','visibility','opacity','display','filter']
-      .forEach(function(prop){ try{ el.style.removeProperty(prop); }catch(_e){} });
-  }
-  function mountRightRail(){
-    var rail = ensure('tkTabletRightRail');
-    var roulette = document.getElementById('rouletteDock');
-    var live = document.getElementById('tkLiveStats');
-    var rules = document.querySelector('.rules');
-    [roulette, live, rules].forEach(function(el){ if(el && el.parentNode !== rail) rail.appendChild(el); });
-    if(live){
-      live.classList.remove('tk-live-stats--rules-left-embed','tk-live-stats--inline-rail','tk-live-stats--rail-left','tk-live-stats--anchored-left-of-rules','tk-live-stats--hard-next-to-rules');
-      stripPlacement(live);
-      setImportant(live, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0' });
-    }
-    if(roulette){
-      roulette.classList.remove('roulette-merged-v20');
-      stripPlacement(roulette);
-      setImportant(roulette, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0' });
-    }
-    if(rules){
-      stripPlacement(rules);
-      setImportant(rules, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0', display:'flex' });
-    }
-  }
-  function mountGames(){
-    var row = ensure('tkTabletGamesRow');
-    ['.side-chip--it-min','.side-chip--infosec-min','.side-chip--phish-min'].forEach(function(sel){
-      var el = q(sel);
-      if(el && el.parentNode !== row) row.appendChild(el);
-      if(el){
-        stripPlacement(el);
-        setImportant(el, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', transform:'none', margin:'0' });
-      }
-    });
-    row.classList.toggle('is-open', root.classList.contains('tk-cat-launch-opened') || root.classList.contains('tk-cat-launch-opening'));
-  }
-  function tuneCat(){
-    var cat = document.getElementById('tkCatStart');
-    if(!cat) return;
-    cat.classList.remove('is-typing');
-    cat.querySelectorAll('.tk-cat-launch__typing').forEach(function(el){ el.classList.add('is-complete'); });
-  }
-  function licenseOpen(){
+  function closeLicense(){
     var overlay = document.getElementById('tkLicenseOverlay');
-    return !!((overlay && overlay.classList.contains('is-open')) || root.classList.contains('tk-license-open'));
+    if(!overlay) return;
+    overlay.classList.remove('is-open','tk-license--instant');
+    overlay.setAttribute('aria-hidden','true');
+    if(document.body) document.body.classList.remove('tk-license-open');
+    root.classList.remove('tk-license-open');
+    try{ overlay.style.removeProperty('display'); overlay.style.removeProperty('pointer-events'); }catch(_e){}
   }
-  function syncStage(){
-    var accept = document.getElementById('tkLicenseAccept');
-    if(licenseOpen()){
-      root.classList.remove('tk-tablet-stage-visible');
-    } else if(accept && !accept.disabled) {
-      root.classList.add('tk-tablet-stage-visible');
-    }
-  }
-  function showStage(){
-    root.classList.add('tk-tablet-stage-visible');
-    root.classList.add('tk-cat-launch-ready');
-    mountRightRail();
-    mountGames();
-    tuneCat();
-  }
-  function installAcceptHook(){
-    var accept = document.getElementById('tkLicenseAccept');
-    if(!accept || accept.dataset.tkTabletHook === '1') return;
-    accept.dataset.tkTabletHook = '1';
-    var fire = function(){
-      setTimeout(showStage, 30);
-      setTimeout(showStage, 180);
-      setTimeout(showStage, 600);
-    };
-    accept.addEventListener('click', fire, true);
-    accept.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} fire(); }, { capture:true, passive:false });
-  }
-  function apply(force){
-    installAcceptHook();
-    tuneCat();
-    if(licenseOpen() && !force){
-      syncStage();
-      return;
-    }
-    mountRightRail();
-    mountGames();
-    syncStage();
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    apply(true);
-    setTimeout(function(){ apply(true); }, 120);
-  }, { once:true });
-  window.addEventListener('load', function(){
-    apply(true);
-    setTimeout(function(){ apply(true); }, 120);
-    setTimeout(function(){ apply(true); }, 600);
-    setTimeout(function(){ apply(true); }, 1400);
-  }, { once:true });
-  var resizeTimer;
-  window.addEventListener('resize', function(){
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function(){ apply(false); }, licenseOpen() ? 260 : 90);
-  }, { passive:true });
-  window.addEventListener('orientationchange', function(){ setTimeout(function(){ apply(true); }, 120); }, { passive:true });
-  window.addEventListener('tk:loaderhidden', function(){ setTimeout(function(){ apply(false); }, 60); });
-  ['openComicMenu','openRuleGame','openPcPartsGameLaunch','openItGame','openInfoSecGame','openPhishGame','menuToggle'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el){ el.addEventListener('click', function(){ setTimeout(function(){ apply(true); }, 80); }, true); }
-  });
-})();
-</script>
-
-<style id="tk-tablet-license-accept-fix-style-v15">
-html.tk-tablet-landscape #tkLicenseAccept[disabled]{
-  opacity:1 !important;
-  filter:none !important;
-  cursor:pointer !important;
-}
-</style>
-<script id="tk-tablet-license-accept-fix-v15">
-(function(){
-  function whenTabletReady(cb){
-    var tries = 0;
-    (function tick(){
-      var root = document.documentElement;
-      if(root.classList.contains('tk-tablet-landscape')) return cb();
-      tries += 1;
-      if(tries < 120) setTimeout(tick, 50);
-    })();
-  }
-
-  function init(){
-    var root = document.documentElement;
-    var body = document.body;
+  function initTabletLicenseHelpers(){
+    if(!root.classList.contains('tk-tablet-landscape')) return;
     var overlay = document.getElementById('tkLicenseOverlay');
-    var accept = document.getElementById('tkLicenseAccept');
     var checkbox = document.getElementById('tkLicenseAgree');
+    var accept = document.getElementById('tkLicenseAccept');
+    var decline = document.getElementById('tkLicenseDecline');
+    var declineTop = document.getElementById('tkLicenseDeclineTop');
     var errorEl = document.getElementById('tkLicenseError');
-    if(!overlay || !accept) return;
+    if(!overlay || !checkbox || !accept) return;
+    if(accept.dataset.tkTabletFix === '1') return;
+    accept.dataset.tkTabletFix = '1';
+    var label = checkbox.closest('label');
+    var lastToggleTs = 0;
 
-    function forceEnable(){
-      try{ accept.disabled = false; }catch(_){ }
-      try{ accept.removeAttribute('disabled'); }catch(_){ }
-      try{ accept.setAttribute('aria-disabled','false'); }catch(_){ }
+    function sync(){
+      accept.disabled = !checkbox.checked;
+      accept.toggleAttribute('data-enabled', checkbox.checked);
+      if(errorEl && checkbox.checked) errorEl.textContent = '';
     }
-
-    function revealMain(){
-      try{ root.classList.remove('tk-license-open'); }catch(_){ }
-      try{ body && body.classList.remove('tk-license-open'); }catch(_){ }
-      try{ overlay.classList.remove('is-open','tk-license--instant'); }catch(_){ }
-      try{ overlay.setAttribute('aria-hidden','true'); }catch(_){ }
-      try{ overlay.hidden = true; }catch(_){ }
-      try{ overlay.style.setProperty('display','none','important'); }catch(_){ }
-      try{ overlay.style.setProperty('pointer-events','none','important'); }catch(_){ }
-      try{ root.classList.add('tk-tablet-stage-visible','tk-cat-launch-ready'); }catch(_){ }
-      ['.side-nav','.header','#tkCatStart','#rouletteDock','#tkLiveStats','#tkTabletRightRail','#tkTabletGamesRow','.rules','.side-chip'].forEach(function(sel){
-        document.querySelectorAll(sel).forEach(function(el){
-          try{ el.style.removeProperty('display'); }catch(_){ }
-          try{ el.style.removeProperty('visibility'); }catch(_){ }
-          try{ el.style.removeProperty('opacity'); }catch(_){ }
-          try{ el.style.removeProperty('pointer-events'); }catch(_){ }
-        });
-      });
-      try{ sessionStorage.setItem('tk-license-accepted-tablet','1'); }catch(_){ }
-      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30);
-      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 180);
-      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 480);
+    function toggleCheckbox(evt){
+      var now = Date.now();
+      if(now - lastToggleTs < 250) return;
+      lastToggleTs = now;
+      if(evt){ try{ evt.preventDefault(); }catch(_){ } }
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event('change', { bubbles:true }));
+      sync();
     }
-
     function acceptNow(evt){
-      if(evt){
-        try{ evt.preventDefault(); }catch(_){ }
-        try{ evt.stopPropagation(); }catch(_){ }
-        try{ evt.stopImmediatePropagation(); }catch(_){ }
+      if(evt){ try{ evt.preventDefault(); evt.stopPropagation(); }catch(_){ } }
+      if(!checkbox.checked){
+        if(errorEl) errorEl.textContent = 'Чтобы войти на сайт, подтвердите принятие условий.';
+        sync();
+        return false;
       }
-      if(checkbox){
-        try{ checkbox.checked = true; }catch(_){ }
-        try{ checkbox.dispatchEvent(new Event('change', { bubbles:true })); }catch(_){ }
-      }
-      forceEnable();
-      if(errorEl) errorEl.textContent = '';
-      revealMain();
+      sync();
+      closeLicense();
+      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30);
       return false;
     }
-
-    forceEnable();
-    setTimeout(forceEnable, 80);
-    setTimeout(forceEnable, 300);
-    setInterval(function(){
-      if((overlay.classList.contains('is-open') || root.classList.contains('tk-license-open')) && document.documentElement.classList.contains('tk-tablet-landscape')){
-        forceEnable();
-      }
-    }, 500);
-
-    accept.addEventListener('click', acceptNow, true);
-    accept.addEventListener('pointerdown', function(e){ forceEnable(); }, true);
-    accept.addEventListener('pointerup', acceptNow, true);
-    accept.addEventListener('touchstart', function(){ forceEnable(); }, { capture:true, passive:true });
-    accept.addEventListener('touchend', acceptNow, { capture:true, passive:false });
-
-    if(checkbox){
-      checkbox.addEventListener('change', function(){ forceEnable(); }, true);
-      var label = checkbox.closest('label');
-      if(label){
-        label.addEventListener('touchend', function(){
-          setTimeout(forceEnable, 0);
-          setTimeout(forceEnable, 60);
-        }, { capture:true, passive:true });
-      }
+    function declineNow(evt){
+      if(evt){ try{ evt.preventDefault(); evt.stopPropagation(); }catch(_){ } }
+      if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
+      return false;
     }
-
-    try{
-      if(sessionStorage.getItem('tk-license-accepted-tablet') === '1'){
-        revealMain();
-      }
-    }catch(_){ }
+    checkbox.addEventListener('change', sync, true);
+    checkbox.addEventListener('input', sync, true);
+    if(label){
+      label.addEventListener('touchend', toggleCheckbox, { capture:true, passive:false });
+    }
+    accept.addEventListener('touchend', acceptNow, { capture:true, passive:false });
+    accept.addEventListener('pointerup', function(e){ if(e.pointerType !== 'mouse') acceptNow(e); }, true);
+    accept.addEventListener('click', acceptNow, true);
+    if(decline){
+      decline.addEventListener('touchend', declineNow, { capture:true, passive:false });
+      decline.addEventListener('click', declineNow, true);
+    }
+    if(declineTop){
+      declineTop.addEventListener('touchend', declineNow, { capture:true, passive:false });
+      declineTop.addEventListener('click', declineNow, true);
+    }
+    overlay.addEventListener('touchmove', function(e){ e.stopPropagation(); }, { capture:true, passive:true });
+    sync();
   }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ whenTabletReady(init); }, { once:true });
-  }else{
-    whenTabletReady(init);
-  }
+  applyClass();
+  document.addEventListener('DOMContentLoaded', function(){ applyClass(); initTabletLicenseHelpers(); }, { once:true });
+  window.addEventListener('load', function(){ applyClass(); initTabletLicenseHelpers(); }, { once:true });
+  window.addEventListener('resize', applyClass, { passive:true });
+  window.addEventListener('orientationchange', function(){ setTimeout(function(){ applyClass(); initTabletLicenseHelpers(); }, 120); }, { passive:true });
 })();
 </script>
 
