@@ -42348,12 +42348,22 @@ html.tk-license-open body{
   var errorEl = document.getElementById('tkLicenseError');
   var root = document.documentElement;
   var body = document.body;
-  var isOpen = false;
   var shown = false;
+  var isOpen = false;
+  var isTouchLike = false;
+  try{
+    isTouchLike = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ((navigator.maxTouchPoints || 0) > 0);
+  }catch(_){ }
 
   function syncPageLock(flag){
-    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_){}
-    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_){}
+    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_){ }
+    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_){ }
+  }
+
+  function syncState(){
+    if(!acceptBtn || !checkbox) return;
+    acceptBtn.disabled = !checkbox.checked;
+    if(errorEl) errorEl.textContent = checkbox.checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
   }
 
   function setOpen(flag){
@@ -42362,7 +42372,19 @@ html.tk-license-open body{
     overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
     syncPageLock(isOpen);
     if(isOpen){
-      setTimeout(function(){ try { (checkbox || acceptBtn).focus(); } catch(_){} }, 10);
+      try{
+        var bodyEl = overlay.querySelector('.tk-license__body');
+        if(bodyEl) bodyEl.scrollTop = 0;
+      }catch(_){ }
+      if(!isTouchLike){
+        setTimeout(function(){
+          try{ (checkbox || acceptBtn).focus({ preventScroll:true }); }catch(_e){
+            try{ (checkbox || acceptBtn).focus(); }catch(__){}
+          }
+        }, 20);
+      } else {
+        try{ document.activeElement && document.activeElement.blur && document.activeElement.blur(); }catch(_){ }
+      }
     }
   }
 
@@ -42370,6 +42392,7 @@ html.tk-license-open body{
     if(shown) return;
     shown = true;
     setOpen(true);
+    syncState();
   }
 
   function openModalInstant(){
@@ -42383,15 +42406,18 @@ html.tk-license-open body{
     setOpen(false);
   }
 
-  function syncState(){
-    if(!acceptBtn || !checkbox) return;
-    acceptBtn.disabled = !checkbox.checked;
-    if(errorEl) errorEl.textContent = checkbox.checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
-  }
-
   function decline(){
     if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
-    try{ checkbox && checkbox.focus(); }catch(_){}
+    try{ checkbox && checkbox.focus && checkbox.focus({ preventScroll:true }); }catch(_){ }
+  }
+
+  function accept(){
+    if(checkbox && !checkbox.checked){
+      syncState();
+      return;
+    }
+    if(errorEl) errorEl.textContent = '';
+    closeModal();
   }
 
   function openIfLoaderDone(){
@@ -42402,21 +42428,22 @@ html.tk-license-open body{
   }
 
   if(checkbox){
-    checkbox.addEventListener('change', syncState);
+    ['change','input','click'].forEach(function(type){ checkbox.addEventListener(type, syncState, { passive:true }); });
     syncState();
   }
   if(acceptBtn){
-    acceptBtn.addEventListener('click', function(){
-      if(checkbox && !checkbox.checked){
-        syncState();
-        return;
-      }
-      if(errorEl) errorEl.textContent = '';
-      closeModal();
-    });
+    acceptBtn.addEventListener('click', accept);
+    acceptBtn.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} accept(); }, { passive:false });
+    acceptBtn.addEventListener('pointerup', accept);
   }
-  if(declineBtn) declineBtn.addEventListener('click', decline);
-  if(declineTop) declineTop.addEventListener('click', decline);
+  if(declineBtn){
+    declineBtn.addEventListener('click', decline);
+    declineBtn.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} decline(); }, { passive:false });
+  }
+  if(declineTop){
+    declineTop.addEventListener('click', decline);
+    declineTop.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} decline(); }, { passive:false });
+  }
   overlay.addEventListener('click', function(e){
     if(e.target === overlay) decline();
   });
@@ -42428,19 +42455,13 @@ html.tk-license-open body{
       return;
     }
     if(e.key === 'Enter' && document.activeElement === checkbox && checkbox.checked){
-      acceptBtn && acceptBtn.click();
+      accept();
     }
   }, true);
 
-  window.addEventListener('tk:loaderhidden', function(){
-    openModalInstant();
-  }, { once:true });
-
+  window.addEventListener('tk:loaderhidden', function(){ openModalInstant(); }, { once:true });
   setTimeout(openIfLoaderDone, 0);
-
-  window.addEventListener('load', function(){
-    setTimeout(openIfLoaderDone, 60);
-  }, { once:true });
+  window.addEventListener('load', function(){ setTimeout(openIfLoaderDone, 60); }, { once:true });
 })();
 </script>
 <script id="tk-license-lights-script-v53">
@@ -58561,7 +58582,56 @@ html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !
   html.tk-tablet-landscape #tkTabletGamesRow .chip-name{ font-size:12px !important; }
 }
 </style>
-<script id="tk-tablet-overhaul-v9-script">
+<script id="tk-tablet-license-stability-v10-style">
+(function(){
+  var style = document.createElement('style');
+  style.id = 'tk-tablet-license-stability-v10';
+  style.textContent = `
+html.tk-tablet-landscape #tkLicenseOverlay::before{
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license-bg-lights{
+  display:none !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license{
+  width:min(94vw, 1040px) !important;
+  height:min(calc(100dvh - 20px), 860px) !important;
+  max-height:calc(100dvh - 20px) !important;
+  grid-template-rows:auto minmax(0,1fr) auto !important;
+  contain:layout paint style !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__body{
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior-y:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-y !important;
+  scroll-behavior:auto !important;
+  transform:none !important;
+  will-change:auto !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__head,
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__foot{
+  position:relative !important;
+  z-index:2 !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__actions,
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__btn,
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__checkbox,
+html.tk-tablet-landscape #tkLicenseOverlay .tk-license__close{
+  touch-action:manipulation !important;
+}
+html.tk-tablet-landscape.tk-license-open,
+html.tk-tablet-landscape.tk-license-open body{
+  overscroll-behavior:none !important;
+}
+`;
+  document.head.appendChild(style);
+})();
+</script>
+<script id="tk-tablet-overhaul-v10-script">
 (function(){
   var root = document.documentElement;
   if(!root.classList.contains('tk-tablet-landscape')) return;
@@ -58580,10 +58650,8 @@ html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !
   }
   function stripPlacement(el){
     if(!el) return;
-    [
-      'left','right','top','bottom','width','min-width','max-width','transform','margin',
-      'position','z-index','visibility','opacity','display','filter'
-    ].forEach(function(prop){ try{ el.style.removeProperty(prop); }catch(_e){} });
+    ['left','right','top','bottom','width','min-width','max-width','transform','margin','position','z-index','visibility','opacity','display','filter']
+      .forEach(function(prop){ try{ el.style.removeProperty(prop); }catch(_e){} });
   }
   function mountRightRail(){
     var rail = ensure('tkTabletRightRail');
@@ -58594,25 +58662,16 @@ html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !
     if(live){
       live.classList.remove('tk-live-stats--rules-left-embed','tk-live-stats--inline-rail','tk-live-stats--rail-left','tk-live-stats--anchored-left-of-rules','tk-live-stats--hard-next-to-rules');
       stripPlacement(live);
-      setImportant(live, {
-        position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto',
-        width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0'
-      });
+      setImportant(live, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0' });
     }
     if(roulette){
       roulette.classList.remove('roulette-merged-v20');
       stripPlacement(roulette);
-      setImportant(roulette, {
-        position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto',
-        width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0'
-      });
+      setImportant(roulette, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0' });
     }
     if(rules){
       stripPlacement(rules);
-      setImportant(rules, {
-        position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto',
-        width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0', display:'flex'
-      });
+      setImportant(rules, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', width:'100%', 'min-width':'0', 'max-width':'none', transform:'none', margin:'0', display:'flex' });
     }
   }
   function mountGames(){
@@ -58622,9 +58681,7 @@ html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !
       if(el && el.parentNode !== row) row.appendChild(el);
       if(el){
         stripPlacement(el);
-        setImportant(el, {
-          position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', transform:'none', margin:'0'
-        });
+        setImportant(el, { position:'relative', left:'auto', right:'auto', top:'auto', bottom:'auto', transform:'none', margin:'0' });
       }
     });
     row.classList.toggle('is-open', root.classList.contains('tk-cat-launch-opened') || root.classList.contains('tk-cat-launch-opening'));
@@ -58635,23 +58692,16 @@ html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !
     cat.classList.remove('is-typing');
     cat.querySelectorAll('.tk-cat-launch__typing').forEach(function(el){ el.classList.add('is-complete'); });
   }
-  function keepLicenseAtTop(){
+  function licenseOpen(){
     var overlay = document.getElementById('tkLicenseOverlay');
-    if(!overlay || !root.classList.contains('tk-license-open')) return;
-    var bodyEl = overlay.querySelector('.tk-license__body');
-    var card = overlay.querySelector('.tk-license');
-    [bodyEl, card, overlay].forEach(function(el){ if(el) try{ el.scrollTop = 0; }catch(_e){} });
-    try{ window.scrollTo(0,0); }catch(_e){}
+    return !!((overlay && overlay.classList.contains('is-open')) || root.classList.contains('tk-license-open'));
   }
   function syncStage(){
     var accept = document.getElementById('tkLicenseAccept');
-    var overlay = document.getElementById('tkLicenseOverlay');
-    var isOpen = !!(overlay && overlay.classList.contains('is-open')) || root.classList.contains('tk-license-open');
-    if(isOpen){
+    if(licenseOpen()){
       root.classList.remove('tk-tablet-stage-visible');
-      keepLicenseAtTop();
     } else if(accept && !accept.disabled) {
-      // wait for explicit accept click handler below
+      root.classList.add('tk-tablet-stage-visible');
     }
   }
   function showStage(){
@@ -58665,50 +58715,47 @@ html.tk-tablet-landscape .tk-loader__title{ font-size:clamp(28px, 4.2vw, 52px) !
     var accept = document.getElementById('tkLicenseAccept');
     if(!accept || accept.dataset.tkTabletHook === '1') return;
     accept.dataset.tkTabletHook = '1';
-    accept.addEventListener('click', function(){
+    var fire = function(){
       setTimeout(showStage, 30);
       setTimeout(showStage, 180);
       setTimeout(showStage, 600);
-    }, true);
+    };
+    accept.addEventListener('click', fire, true);
+    accept.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){} fire(); }, { capture:true, passive:false });
   }
-  function apply(){
+  function apply(force){
+    installAcceptHook();
+    tuneCat();
+    if(licenseOpen() && !force){
+      syncStage();
+      return;
+    }
     mountRightRail();
     mountGames();
-    tuneCat();
-    installAcceptHook();
     syncStage();
   }
   document.addEventListener('DOMContentLoaded', function(){
-    apply();
-    setTimeout(apply, 100);
-    setTimeout(keepLicenseAtTop, 160);
-    setTimeout(keepLicenseAtTop, 420);
+    apply(true);
+    setTimeout(function(){ apply(true); }, 120);
   }, { once:true });
   window.addEventListener('load', function(){
-    apply();
-    setTimeout(apply, 120);
-    setTimeout(apply, 600);
-    setTimeout(apply, 1400);
-    setTimeout(keepLicenseAtTop, 60);
-    setTimeout(keepLicenseAtTop, 280);
-    setTimeout(keepLicenseAtTop, 700);
+    apply(true);
+    setTimeout(function(){ apply(true); }, 120);
+    setTimeout(function(){ apply(true); }, 600);
+    setTimeout(function(){ apply(true); }, 1400);
   }, { once:true });
-  window.addEventListener('resize', apply, { passive:true });
-  window.addEventListener('orientationchange', function(){ setTimeout(apply, 80); }, { passive:true });
-  window.addEventListener('tk:loaderhidden', function(){
-    keepLicenseAtTop();
-    setTimeout(apply, 60);
-    setTimeout(keepLicenseAtTop, 160);
-    setTimeout(keepLicenseAtTop, 420);
-  });
+  var resizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){ apply(false); }, licenseOpen() ? 260 : 90);
+  }, { passive:true });
+  window.addEventListener('orientationchange', function(){ setTimeout(function(){ apply(true); }, 120); }, { passive:true });
+  window.addEventListener('tk:loaderhidden', function(){ setTimeout(function(){ apply(false); }, 60); });
   ['openComicMenu','openRuleGame','openPcPartsGameLaunch','openItGame','openInfoSecGame','openPhishGame','menuToggle'].forEach(function(id){
     var el = document.getElementById(id);
-    if(el){ el.addEventListener('click', function(){ setTimeout(apply, 60); setTimeout(apply, 220); }, true); }
+    if(el){ el.addEventListener('click', function(){ setTimeout(function(){ apply(true); }, 80); }, true); }
   });
-  setTimeout(apply, 2400);
-  setTimeout(apply, 4200);
 })();
 </script>
-
 </body>
 </html>
