@@ -58757,5 +58757,110 @@ html.tk-tablet-landscape.tk-license-open body{
   });
 })();
 </script>
+
+<style id="tk-license-accept-hide-fix-v11">
+#tkLicenseOverlay[aria-hidden="true"]{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay[aria-hidden="true"]{
+  display:none !important;
+}
+html.tk-tablet-landscape #tkLicenseOverlay.is-open{
+  display:flex !important;
+}
+</style>
+<script id="tk-license-accept-fix-v11">
+(function(){
+  var overlay = document.getElementById('tkLicenseOverlay');
+  var checkbox = document.getElementById('tkLicenseAgree');
+  var acceptBtn = document.getElementById('tkLicenseAccept');
+  var errorEl = document.getElementById('tkLicenseError');
+  var root = document.documentElement;
+  var body = document.body;
+  if(!overlay || !checkbox || !acceptBtn) return;
+
+  function stageOn(){
+    try{ root.classList.add('tk-tablet-stage-visible'); }catch(_){ }
+    try{ root.classList.add('tk-cat-launch-ready'); }catch(_){ }
+  }
+
+  function syncAcceptState(){
+    var checked = !!checkbox.checked;
+    try{ acceptBtn.disabled = !checked; }catch(_){ }
+    if(errorEl){
+      errorEl.textContent = checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
+    }
+  }
+
+  function hardCloseLicense(){
+    try{ overlay.classList.remove('is-open'); }catch(_){ }
+    try{ overlay.classList.remove('tk-license--instant'); }catch(_){ }
+    try{ overlay.setAttribute('aria-hidden','true'); }catch(_){ }
+    try{ root.classList.remove('tk-license-open'); }catch(_){ }
+    try{ body && body.classList.remove('tk-license-open'); }catch(_){ }
+    try{ overlay.style.display = 'none'; }catch(_){ }
+    try{ overlay.style.opacity = '0'; }catch(_){ }
+    try{ overlay.style.visibility = 'hidden'; }catch(_){ }
+    try{ overlay.style.pointerEvents = 'none'; }catch(_){ }
+    stageOn();
+    setTimeout(stageOn, 30);
+    setTimeout(stageOn, 180);
+    setTimeout(stageOn, 500);
+  }
+
+  function acceptNow(e){
+    if(e){
+      try{ e.preventDefault(); }catch(_){ }
+      try{ e.stopPropagation(); }catch(_){ }
+      try{ e.stopImmediatePropagation && e.stopImmediatePropagation(); }catch(_){ }
+    }
+    syncAcceptState();
+    if(!checkbox.checked){
+      try{ checkbox.focus({ preventScroll:true }); }catch(_){ }
+      return false;
+    }
+    if(errorEl) errorEl.textContent = '';
+    hardCloseLicense();
+    return false;
+  }
+
+  ['change','input','click','touchend','pointerup'].forEach(function(type){
+    checkbox.addEventListener(type, function(){
+      setTimeout(syncAcceptState, 0);
+      setTimeout(syncAcceptState, 60);
+    }, { passive: type !== 'touchend' });
+  });
+
+  var label = checkbox.closest('.tk-license__checkbox');
+  if(label && !label.dataset.v11Fix){
+    label.dataset.v11Fix = '1';
+    label.addEventListener('touchend', function(e){
+      if(e.target === acceptBtn) return;
+      if(e.target !== checkbox){
+        try{ e.preventDefault(); }catch(_){ }
+        checkbox.checked = !checkbox.checked;
+        syncAcceptState();
+      }
+    }, { passive:false });
+  }
+
+  ['click','touchend','pointerup','pointerdown','touchstart'].forEach(function(type){
+    acceptBtn.addEventListener(type, acceptNow, { capture:true, passive:false });
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && overlay.classList.contains('is-open')){
+      if(document.activeElement === acceptBtn || document.activeElement === checkbox){
+        acceptNow(e);
+      }
+    }
+  }, true);
+
+  syncAcceptState();
+})();
+</script>
+
 </body>
 </html>
