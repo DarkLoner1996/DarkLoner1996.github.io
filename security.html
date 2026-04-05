@@ -58758,62 +58758,117 @@ html.tk-tablet-landscape.tk-license-open body{
 })();
 </script>
 
-<style id="tk-license-accept-tablet-clean-v13">
-html.tk-tablet-landscape #tkLicenseOverlay[aria-hidden="true"]{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
+<style id="tk-tablet-license-accept-fix-style-v15">
+html.tk-tablet-landscape #tkLicenseAccept[disabled]{
+  opacity:1 !important;
+  filter:none !important;
+  cursor:pointer !important;
 }
 </style>
-<script id="tk-license-accept-tablet-clean-script-v13">
+<script id="tk-tablet-license-accept-fix-v15">
 (function(){
-  var root = document.documentElement;
-  if(!root.classList.contains('tk-tablet-landscape')) return;
-  var body = document.body;
-  var overlay = document.getElementById('tkLicenseOverlay');
-  var checkbox = document.getElementById('tkLicenseAgree');
-  var acceptBtn = document.getElementById('tkLicenseAccept');
-  var errorEl = document.getElementById('tkLicenseError');
-  if(!overlay || !checkbox || !acceptBtn) return;
-
-  function revealStage(){
-    try{ root.classList.remove('tk-license-open'); }catch(_e){}
-    try{ body && body.classList.remove('tk-license-open'); }catch(_e){}
-    try{ overlay.classList.remove('is-open'); }catch(_e){}
-    try{ overlay.classList.remove('tk-license--instant'); }catch(_e){}
-    try{ overlay.setAttribute('aria-hidden','true'); }catch(_e){}
-    try{ root.classList.add('tk-tablet-stage-visible'); }catch(_e){}
-    try{ root.classList.add('tk-cat-launch-ready'); }catch(_e){}
-    try{ overlay.style.removeProperty('display'); }catch(_e){}
-    try{ overlay.style.removeProperty('opacity'); }catch(_e){}
-    try{ overlay.style.removeProperty('visibility'); }catch(_e){}
-    try{ overlay.style.removeProperty('pointer-events'); }catch(_e){}
-    try{ window.dispatchEvent(new Event('resize')); }catch(_e){}
+  function whenTabletReady(cb){
+    var tries = 0;
+    (function tick(){
+      var root = document.documentElement;
+      if(root.classList.contains('tk-tablet-landscape')) return cb();
+      tries += 1;
+      if(tries < 120) setTimeout(tick, 50);
+    })();
   }
 
-  function acceptTablet(e){
-    if(!checkbox.checked){
-      if(errorEl) errorEl.textContent = 'Чтобы войти на сайт, подтвердите принятие условий.';
-      return;
+  function init(){
+    var root = document.documentElement;
+    var body = document.body;
+    var overlay = document.getElementById('tkLicenseOverlay');
+    var accept = document.getElementById('tkLicenseAccept');
+    var checkbox = document.getElementById('tkLicenseAgree');
+    var errorEl = document.getElementById('tkLicenseError');
+    if(!overlay || !accept) return;
+
+    function forceEnable(){
+      try{ accept.disabled = false; }catch(_){ }
+      try{ accept.removeAttribute('disabled'); }catch(_){ }
+      try{ accept.setAttribute('aria-disabled','false'); }catch(_){ }
     }
-    if(errorEl) errorEl.textContent = '';
-    if(e && e.type === 'touchend'){
-      try{ e.preventDefault(); }catch(_e){}
+
+    function revealMain(){
+      try{ root.classList.remove('tk-license-open'); }catch(_){ }
+      try{ body && body.classList.remove('tk-license-open'); }catch(_){ }
+      try{ overlay.classList.remove('is-open','tk-license--instant'); }catch(_){ }
+      try{ overlay.setAttribute('aria-hidden','true'); }catch(_){ }
+      try{ overlay.hidden = true; }catch(_){ }
+      try{ overlay.style.setProperty('display','none','important'); }catch(_){ }
+      try{ overlay.style.setProperty('pointer-events','none','important'); }catch(_){ }
+      try{ root.classList.add('tk-tablet-stage-visible','tk-cat-launch-ready'); }catch(_){ }
+      ['.side-nav','.header','#tkCatStart','#rouletteDock','#tkLiveStats','#tkTabletRightRail','#tkTabletGamesRow','.rules','.side-chip'].forEach(function(sel){
+        document.querySelectorAll(sel).forEach(function(el){
+          try{ el.style.removeProperty('display'); }catch(_){ }
+          try{ el.style.removeProperty('visibility'); }catch(_){ }
+          try{ el.style.removeProperty('opacity'); }catch(_){ }
+          try{ el.style.removeProperty('pointer-events'); }catch(_){ }
+        });
+      });
+      try{ sessionStorage.setItem('tk-license-accepted-tablet','1'); }catch(_){ }
+      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30);
+      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 180);
+      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 480);
     }
-    setTimeout(revealStage, 0);
-    setTimeout(revealStage, 80);
-    setTimeout(revealStage, 260);
-    setTimeout(revealStage, 900);
+
+    function acceptNow(evt){
+      if(evt){
+        try{ evt.preventDefault(); }catch(_){ }
+        try{ evt.stopPropagation(); }catch(_){ }
+        try{ evt.stopImmediatePropagation(); }catch(_){ }
+      }
+      if(checkbox){
+        try{ checkbox.checked = true; }catch(_){ }
+        try{ checkbox.dispatchEvent(new Event('change', { bubbles:true })); }catch(_){ }
+      }
+      forceEnable();
+      if(errorEl) errorEl.textContent = '';
+      revealMain();
+      return false;
+    }
+
+    forceEnable();
+    setTimeout(forceEnable, 80);
+    setTimeout(forceEnable, 300);
+    setInterval(function(){
+      if((overlay.classList.contains('is-open') || root.classList.contains('tk-license-open')) && document.documentElement.classList.contains('tk-tablet-landscape')){
+        forceEnable();
+      }
+    }, 500);
+
+    accept.addEventListener('click', acceptNow, true);
+    accept.addEventListener('pointerdown', function(e){ forceEnable(); }, true);
+    accept.addEventListener('pointerup', acceptNow, true);
+    accept.addEventListener('touchstart', function(){ forceEnable(); }, { capture:true, passive:true });
+    accept.addEventListener('touchend', acceptNow, { capture:true, passive:false });
+
+    if(checkbox){
+      checkbox.addEventListener('change', function(){ forceEnable(); }, true);
+      var label = checkbox.closest('label');
+      if(label){
+        label.addEventListener('touchend', function(){
+          setTimeout(forceEnable, 0);
+          setTimeout(forceEnable, 60);
+        }, { capture:true, passive:true });
+      }
+    }
+
+    try{
+      if(sessionStorage.getItem('tk-license-accepted-tablet') === '1'){
+        revealMain();
+      }
+    }catch(_){ }
   }
 
-  ['click','touchend','pointerup'].forEach(function(type){
-    acceptBtn.addEventListener(type, acceptTablet, true);
-  });
-
-  checkbox.addEventListener('change', function(){
-    try{ acceptBtn.disabled = !checkbox.checked; }catch(_e){}
-    if(checkbox.checked && errorEl) errorEl.textContent = '';
-  }, true);
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ whenTabletReady(init); }, { once:true });
+  }else{
+    whenTabletReady(init);
+  }
 })();
 </script>
 
