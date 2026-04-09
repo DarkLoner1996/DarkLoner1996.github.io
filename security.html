@@ -14936,6 +14936,26 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
   };
 })();
 </script>
+<button aria-controls="rouletteDock" aria-expanded="false" aria-haspopup="dialog" aria-label="Открыть: Рулетка заданий" class="rule-pill rule-pill--roulette-launch" id="openRouletteDockPopover" type="button">
+<span aria-hidden="true" class="rule-pill__icon">
+<svg fill="none" height="28" stroke="rgba(245,250,255,.95)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="width:28px;height:28px;display:block" viewBox="0 0 24 24" width="28">
+<circle cx="12" cy="12" r="8"></circle>
+<circle cx="12" cy="12" r="2.2"></circle>
+<path d="M12 4v3.2"></path>
+<path d="M12 16.8V20"></path>
+<path d="M4 12h3.2"></path>
+<path d="M16.8 12H20"></path>
+<path d="M6.4 6.4l2.2 2.2"></path>
+<path d="M15.4 15.4l2.2 2.2"></path>
+<path d="M17.6 6.4l-2.2 2.2"></path>
+<path d="M8.6 15.4l-2.2 2.2"></path>
+</svg>
+</span>
+<span class="rule-pill__title">Рулетка заданий</span>
+<span aria-hidden="true" class="rule-pill__badge">
+<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
 <button aria-controls="comicMenu" aria-haspopup="dialog" aria-label="Открыть: Комикс" class="rule-pill" id="openComicMenu" onclick="return window.tkOpenComicMenu &amp;&amp; window.tkOpenComicMenu(event)" type="button">
 <span aria-hidden="true" class="rule-pill__icon">
 <svg fill="none" height="28" stroke="rgba(245,250,255,.95)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="width:28px;height:28px;display:block" viewbox="0 0 24 24" width="28">
@@ -14973,7 +14993,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
   </span>
 </button>
 <button id="openPcPartsGame" type="button" hidden aria-hidden="true" tabindex="-1" style="display:none !important; width:0 !important; height:0 !important; overflow:hidden !important; pointer-events:none !important; opacity:0 !important; position:absolute !important; left:-9999px !important; top:-9999px !important;">Прокси кнопка ПК</button>
-</div><section aria-label="Рулетка безопасности" class="roulette-dock" id="rouletteDock">
+</div><section aria-label="Рулетка безопасности" class="roulette-dock" hidden id="rouletteDock" style="position:fixed;left:12px;top:12px;right:auto;bottom:auto;opacity:0;visibility:hidden;pointer-events:none;">
 <div aria-hidden="true" class="roulette-spark"></div>
 <div aria-hidden="true" class="roulette-burst" id="rouletteBurst"></div>
 <div aria-label="Рулетка" class="roulette-card">
@@ -54850,6 +54870,519 @@ html.tk-physical-4k #tkLiveStats:not(.is-collapsed){
   window.addEventListener('load', function(){ sync(); setTimeout(sync, 120); setTimeout(sync, 600); }, {once:true});
   window.addEventListener('resize', sync, {passive:true});
   window.addEventListener('orientationchange', sync, {passive:true});
+})();
+</script>
+
+
+<style id="tk-roulette-popover-launch-v1">
+#openRouletteDockPopover.rule-pill--roulette-launch{
+  width:auto;
+}
+#rouletteDock[hidden]{
+  display:none !important;
+}
+#rouletteDock.tk-roulette-popover-mode{
+  position:fixed !important;
+  left:12px !important;
+  top:12px !important;
+  right:auto !important;
+  bottom:auto !important;
+  margin:0 !important;
+  width:min(348px, calc(100vw - 24px)) !important;
+  min-width:min(348px, calc(100vw - 24px)) !important;
+  max-width:calc(100vw - 24px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  z-index:14050 !important;
+  pointer-events:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  transform: translate3d(14px,0,0) scale(.98) !important;
+  transform-origin: top right !important;
+  transition:
+    opacity .18s ease,
+    transform .22s cubic-bezier(.22,1,.36,1),
+    visibility 0s linear .22s !important;
+}
+#rouletteDock.tk-roulette-popover-mode.tk-roulette-popover-open{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transform: translate3d(0,0,0) scale(1) !important;
+  transition:
+    opacity .18s ease,
+    transform .22s cubic-bezier(.22,1,.36,1),
+    visibility 0s linear 0s !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-card{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  padding:16px 16px 12px !important;
+  gap:12px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+}
+#rouletteDock.tk-roulette-popover-mode .wheel-wrap,
+#rouletteDock.tk-roulette-popover-mode .wheel-rot{
+  width:178px !important;
+  height:178px !important;
+  min-width:178px !important;
+  min-height:178px !important;
+  flex:0 0 178px !important;
+  margin:0 auto !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-controls{
+  width:100% !important;
+  min-width:0 !important;
+  padding-right:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-head{
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-btn{
+  width:100% !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-info{
+  width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  padding:12px 14px 14px !important;
+  gap:10px !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-infoActions{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  gap:8px !important;
+  width:100% !important;
+  margin-top:2px !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-link,
+#rouletteDock.tk-roulette-popover-mode .roulette-miniBtn{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  justify-content:center !important;
+}
+#rouletteDock.tk-roulette-popover-mode #rouletteSound{
+  flex:0 0 44px !important;
+  width:44px !important;
+  height:44px !important;
+  min-width:44px !important;
+  padding:0 !important;
+}
+#rouletteDock.tk-roulette-popover-mode .roulette-link,
+#rouletteDock.tk-roulette-popover-mode .roulette-btn,
+#rouletteDock.tk-roulette-popover-mode .roulette-miniBtn{
+  min-height:44px !important;
+  padding:10px 12px !important;
+  border-radius:16px !important;
+}
+@media (max-width: 520px){
+  #rouletteDock.tk-roulette-popover-mode{
+    width:min(340px, calc(100vw - 20px)) !important;
+    min-width:min(340px, calc(100vw - 20px)) !important;
+    max-width:calc(100vw - 20px) !important;
+  }
+  #rouletteDock.tk-roulette-popover-mode .wheel-wrap,
+  #rouletteDock.tk-roulette-popover-mode .wheel-rot{
+    width:166px !important;
+    height:166px !important;
+    min-width:166px !important;
+    min-height:166px !important;
+    flex-basis:166px !important;
+  }
+}
+</style>
+<script id="tk-roulette-popover-launch-script-v1">
+(function(){
+  var trigger = document.getElementById('openRouletteDockPopover');
+  var refBtn = document.getElementById('openPcPartsGameLaunch');
+  var dock = document.getElementById('rouletteDock');
+  var link = document.getElementById('rLink');
+  if(!trigger || !dock) return;
+
+  var isOpen = false;
+  var closeTimer = 0;
+  dock.classList.add('tk-roulette-popover-mode');
+  dock.hidden = true;
+  dock.setAttribute('aria-hidden', 'true');
+
+  function syncTriggerSize(){
+    if(!refBtn) return;
+    var rect = refBtn.getBoundingClientRect();
+    var w = Math.round(rect.width || 0);
+    if(w > 0){
+      trigger.style.setProperty('width', w + 'px');
+      trigger.style.setProperty('min-width', w + 'px');
+      trigger.style.setProperty('max-width', w + 'px');
+    }
+  }
+
+  function clamp(v, min, max){
+    return Math.min(Math.max(v, min), max);
+  }
+
+  function placeDock(){
+    var btnRect = trigger.getBoundingClientRect();
+    var dockRect = dock.getBoundingClientRect();
+    var gap = 14;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    var width = Math.min(dockRect.width || 348, vw - 24);
+    var height = Math.min(dockRect.height || 520, vh - 24);
+
+    var left = btnRect.left - gap - width;
+    if(left < 12){
+      left = Math.min(vw - width - 12, Math.max(12, btnRect.right - width));
+    }
+    left = clamp(left, 12, Math.max(12, vw - width - 12));
+
+    var top = btnRect.top + (btnRect.height - height) / 2;
+    top = clamp(top, 12, Math.max(12, vh - height - 12));
+
+    dock.style.setProperty('left', Math.round(left) + 'px', 'important');
+    dock.style.setProperty('top', Math.round(top) + 'px', 'important');
+    dock.style.setProperty('right', 'auto', 'important');
+    dock.style.setProperty('bottom', 'auto', 'important');
+  }
+
+  function openDock(){
+    if(closeTimer){
+      clearTimeout(closeTimer);
+      closeTimer = 0;
+    }
+    dock.hidden = false;
+    dock.style.removeProperty('display');
+    dock.style.removeProperty('opacity');
+    dock.style.removeProperty('visibility');
+    dock.style.removeProperty('pointer-events');
+    syncTriggerSize();
+    placeDock();
+    void dock.offsetWidth;
+    dock.classList.add('tk-roulette-popover-open');
+    dock.setAttribute('aria-hidden', 'false');
+    trigger.setAttribute('aria-expanded', 'true');
+    isOpen = true;
+  }
+
+  function closeDock(){
+    if(closeTimer){
+      clearTimeout(closeTimer);
+      closeTimer = 0;
+    }
+    dock.classList.remove('tk-roulette-popover-open');
+    dock.setAttribute('aria-hidden', 'true');
+    trigger.setAttribute('aria-expanded', 'false');
+    isOpen = false;
+    closeTimer = setTimeout(function(){
+      dock.hidden = true;
+      closeTimer = 0;
+    }, 220);
+  }
+
+  function toggleDock(ev){
+    if(ev){
+      try{ ev.preventDefault(); }catch(_e){}
+      try{ ev.stopPropagation(); }catch(_e){}
+    }
+    if(isOpen) closeDock();
+    else openDock();
+    return false;
+  }
+
+  trigger.addEventListener('click', toggleDock);
+
+  document.addEventListener('click', function(ev){
+    if(!isOpen) return;
+    var t = ev.target;
+    if((trigger && trigger.contains(t)) || (dock && dock.contains(t))) return;
+    closeDock();
+  }, true);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape' && isOpen){
+      closeDock();
+    }
+  });
+
+  if(link){
+    link.addEventListener('click', function(){
+      setTimeout(closeDock, 0);
+    });
+  }
+
+  var schedule = 0;
+  function schedulePlace(){
+    syncTriggerSize();
+    if(!isOpen) return;
+    if(schedule) cancelAnimationFrame(schedule);
+    schedule = requestAnimationFrame(function(){
+      schedule = 0;
+      placeDock();
+    });
+  }
+
+  var mo = new MutationObserver(schedulePlace);
+  mo.observe(dock, {subtree:true, childList:true, characterData:true, attributes:true});
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', syncTriggerSize, {once:true});
+  } else {
+    syncTriggerSize();
+  }
+
+  window.addEventListener('load', function(){
+    syncTriggerSize();
+    setTimeout(syncTriggerSize, 120);
+    setTimeout(syncTriggerSize, 600);
+  }, {once:true});
+  window.addEventListener('resize', schedulePlace, {passive:true});
+  window.addEventListener('orientationchange', schedulePlace, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedulePlace, {passive:true});
+  }
+})();
+</script>
+
+
+<style id="tk-roulette-hard-hide-until-user-open-v1">
+/* Жёстко скрываем рулетку до первого реального клика по кнопке запуска. */
+#rouletteDock.tk-roulette-popover-mode{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-roulette-user-opened #rouletteDock.tk-roulette-popover-mode{
+  display:flex !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-roulette-user-opened #rouletteDock.tk-roulette-popover-mode.tk-roulette-popover-open{
+  display:flex !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+}
+</style>
+<script id="tk-roulette-hard-hide-until-user-open-script-v1">
+(function(){
+  var root = document.documentElement;
+  var trigger = document.getElementById('openRouletteDockPopover');
+  var dock = document.getElementById('rouletteDock');
+  if(!trigger || !dock) return;
+
+  function clearForcedInlineState(){
+    dock.style.removeProperty('display');
+    dock.style.removeProperty('opacity');
+    dock.style.removeProperty('visibility');
+    dock.style.removeProperty('pointer-events');
+  }
+
+  function forceClosedState(){
+    if(root.classList.contains('tk-roulette-user-opened')) return;
+    dock.hidden = true;
+    dock.classList.remove('tk-roulette-popover-open');
+    dock.setAttribute('aria-hidden', 'true');
+    clearForcedInlineState();
+  }
+
+  forceClosedState();
+
+  trigger.addEventListener('click', function(){
+    root.classList.add('tk-roulette-user-opened');
+    clearForcedInlineState();
+  }, true);
+
+  var mo = new MutationObserver(function(){
+    if(root.classList.contains('tk-roulette-user-opened')) return;
+    if(!dock.hidden || dock.classList.contains('tk-roulette-popover-open') || dock.getAttribute('aria-hidden') === 'false'){
+      forceClosedState();
+    }
+  });
+  mo.observe(dock, {attributes:true, attributeFilter:['hidden','class','style','aria-hidden']});
+
+  window.addEventListener('pageshow', function(){
+    if(!root.classList.contains('tk-roulette-user-opened')){
+      forceClosedState();
+    }
+  });
+})();
+</script>
+
+
+<style id="tk-roulette-popover-final-override-v1">
+#rouletteDock.tk-roulette-popover-mode.tk-final-popover-control{
+  transition: opacity .18s ease, transform .22s cubic-bezier(.22,1,.36,1) !important;
+}
+</style>
+<script id="tk-roulette-popover-final-override-script-v1">
+(function(){
+  var root = document.documentElement;
+  var oldTrigger = document.getElementById('openRouletteDockPopover');
+  var dock = document.getElementById('rouletteDock');
+  if(!oldTrigger || !dock) return;
+
+  // Отключаем прошлую логику через замену кнопки на клон без старых listeners.
+  var trigger = oldTrigger.cloneNode(true);
+  oldTrigger.parentNode.replaceChild(trigger, oldTrigger);
+
+  // Разрешаем управлять рулеткой только нашей логикой.
+  root.classList.add('tk-roulette-user-opened');
+  dock.classList.add('tk-final-popover-control');
+
+  var isOpen = false;
+  var raf = 0;
+  var link = document.getElementById('rLink');
+
+  function setStyle(prop, value){
+    dock.style.setProperty(prop, value, 'important');
+  }
+
+  function forceClosed(){
+    isOpen = false;
+    dock.hidden = true;
+    dock.classList.remove('tk-roulette-popover-open');
+    dock.setAttribute('aria-hidden', 'true');
+    trigger.setAttribute('aria-expanded', 'false');
+    setStyle('display', 'none');
+    setStyle('opacity', '0');
+    setStyle('visibility', 'hidden');
+    setStyle('pointer-events', 'none');
+    setStyle('left', '-9999px');
+    setStyle('top', '12px');
+    setStyle('right', 'auto');
+    setStyle('bottom', 'auto');
+    setStyle('transform', 'translate3d(0,0,0) scale(1)');
+  }
+
+  function measureOpenBox(){
+    dock.hidden = false;
+    dock.classList.add('tk-roulette-popover-open');
+    dock.setAttribute('aria-hidden', 'false');
+    setStyle('display', 'flex');
+    setStyle('visibility', 'hidden');
+    setStyle('opacity', '0');
+    setStyle('pointer-events', 'none');
+    setStyle('left', '-9999px');
+    setStyle('top', '12px');
+    setStyle('right', 'auto');
+    setStyle('bottom', 'auto');
+    setStyle('transform', 'translate3d(0,0,0) scale(1)');
+    return {
+      width: Math.max(dock.offsetWidth || 0, dock.getBoundingClientRect().width || 0),
+      height: Math.max(dock.offsetHeight || 0, dock.getBoundingClientRect().height || 0)
+    };
+  }
+
+  function clamp(v, min, max){
+    return Math.min(Math.max(v, min), max);
+  }
+
+  function placeDock(){
+    var btnRect = trigger.getBoundingClientRect();
+    var box = measureOpenBox();
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    var gap = 14;
+
+    var width = Math.min(box.width || 348, Math.max(260, vw - 24));
+    var height = Math.min(box.height || 520, Math.max(180, vh - 24));
+
+    var left = btnRect.left - gap - width;
+    left = clamp(left, 12, Math.max(12, vw - width - 12));
+
+    var top = btnRect.top + (btnRect.height - height) / 2;
+    top = clamp(top, 12, Math.max(12, vh - height - 12));
+
+    setStyle('left', Math.round(left) + 'px');
+    setStyle('top', Math.round(top) + 'px');
+    setStyle('right', 'auto');
+    setStyle('bottom', 'auto');
+  }
+
+  function openDock(){
+    isOpen = true;
+    placeDock();
+    dock.hidden = false;
+    dock.classList.add('tk-roulette-popover-open');
+    dock.setAttribute('aria-hidden', 'false');
+    trigger.setAttribute('aria-expanded', 'true');
+    setStyle('display', 'flex');
+    setStyle('visibility', 'visible');
+    setStyle('opacity', '1');
+    setStyle('pointer-events', 'auto');
+    setStyle('transform', 'translate3d(0,0,0) scale(1)');
+  }
+
+  function closeDock(){
+    forceClosed();
+  }
+
+  function toggleDock(ev){
+    if(ev){
+      try{ ev.preventDefault(); }catch(_e){}
+      try{ ev.stopPropagation(); }catch(_e){}
+      try{ ev.stopImmediatePropagation(); }catch(_e){}
+    }
+    if(isOpen) closeDock();
+    else openDock();
+    return false;
+  }
+
+  forceClosed();
+
+  trigger.addEventListener('click', toggleDock);
+
+  document.addEventListener('pointerdown', function(ev){
+    if(!isOpen) return;
+    var t = ev.target;
+    if(trigger.contains(t) || dock.contains(t)) return;
+    closeDock();
+  }, true);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape' && isOpen){
+      closeDock();
+    }
+  });
+
+  if(link){
+    link.addEventListener('click', function(){
+      setTimeout(closeDock, 0);
+    });
+  }
+
+  function schedulePlace(){
+    if(!isOpen) return;
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      openDock();
+    });
+  }
+
+  window.addEventListener('resize', schedulePlace, {passive:true});
+  window.addEventListener('orientationchange', schedulePlace, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedulePlace, {passive:true});
+  }
+  window.addEventListener('pageshow', function(){
+    if(!isOpen) forceClosed();
+  });
 })();
 </script>
 
