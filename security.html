@@ -15018,7 +15018,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
     <button aria-controls="pcPartsGame" aria-haspopup="dialog" class="rule-pill" id="openPcPartsGameLaunch" type="button" title="Открыть мини-игру" aria-label="Открыть: Из чего состоит ПК" onclick="return window.tkOpenPcPartsGame && window.tkOpenPcPartsGame(event)"></button>
     <button id="openPcPartsGame" type="button" hidden aria-hidden="true" tabindex="-1" style="display:none !important; width:0 !important; height:0 !important; overflow:hidden !important; pointer-events:none !important; opacity:0 !important; position:absolute !important; left:-9999px !important; top:-9999px !important;">Прокси кнопка ПК</button>
   </div>
-</div><section aria-label="Рулетка безопасности" class="roulette-dock" hidden id="rouletteDock" style="position:fixed;left:12px;top:12px;right:auto;bottom:auto;opacity:0;visibility:hidden;pointer-events:none;">
+</div><section aria-label="Рулетка безопасности" class="roulette-dock" hidden id="rouletteDock" style="position:fixed;left:-9999px;top:12px;right:auto;bottom:auto;display:none;opacity:0;visibility:hidden;pointer-events:none;">
 <div aria-hidden="true" class="roulette-spark"></div>
 <div aria-hidden="true" class="roulette-burst" id="rouletteBurst"></div>
 <div aria-label="Рулетка" class="roulette-card">
@@ -55267,21 +55267,19 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   z-index:15050 !important;
 }
 </style>
-<script id="tk-roulette-popover-final-override-script-v2">
+<script id="tk-roulette-popover-final-override-script-v3">
 (function(){
-  var root = document.documentElement;
   var legacyTrigger = document.getElementById('openRouletteDockPopover');
-  var trigger = document.getElementById('tkqaOpenRoulette') || legacyTrigger;
+  var trigger = document.getElementById('tkqaOpenRoulette');
   var anchor = document.querySelector('.rules.tkqa-wrap') || document.querySelector('.tkqa-dock') || trigger;
   var dock = document.getElementById('rouletteDock');
-  if(!trigger || !dock) return;
+  var menuToggle = document.getElementById('menuToggle');
+  var link = document.getElementById('rLink');
 
-  root.classList.add('tk-roulette-user-opened');
-  dock.classList.add('tk-final-popover-control');
+  if(!trigger || !dock) return;
 
   var isOpen = false;
   var raf = 0;
-  var link = document.getElementById('rLink');
 
   function setStyle(prop, value){
     dock.style.setProperty(prop, value, 'important');
@@ -55291,53 +55289,65 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
     return Math.min(Math.max(v, min), max);
   }
 
-  function forceClosed(){
+  function getAnchorRect(){
+    var rect = anchor && anchor.getBoundingClientRect ? anchor.getBoundingClientRect() : null;
+    if(!rect || (!rect.width && !rect.height)){
+      rect = trigger.getBoundingClientRect();
+    }
+    return rect;
+  }
+
+  function hardClose(){
     isOpen = false;
     dock.hidden = true;
     dock.classList.remove('tk-roulette-popover-open');
     dock.setAttribute('aria-hidden', 'true');
-    try{ trigger.setAttribute('aria-expanded', 'false'); }catch(_){}
-    if(legacyTrigger && legacyTrigger !== trigger){
+    trigger.setAttribute('aria-expanded', 'false');
+    if(legacyTrigger){
       try{ legacyTrigger.setAttribute('aria-expanded', 'false'); }catch(_){}
     }
+
     setStyle('position', 'fixed');
     setStyle('display', 'none');
-    setStyle('opacity', '0');
-    setStyle('visibility', 'hidden');
-    setStyle('pointer-events', 'none');
     setStyle('left', '-9999px');
     setStyle('top', '12px');
     setStyle('right', 'auto');
     setStyle('bottom', 'auto');
+    setStyle('opacity', '0');
+    setStyle('visibility', 'hidden');
+    setStyle('pointer-events', 'none');
     setStyle('transform', 'translate3d(0,0,0) scale(1)');
   }
 
   function measureOpenBox(){
+    var wasHidden = dock.hidden;
+    var hadOpen = dock.classList.contains('tk-roulette-popover-open');
+
     dock.hidden = false;
     dock.classList.add('tk-roulette-popover-open');
     dock.setAttribute('aria-hidden', 'false');
+
     setStyle('position', 'fixed');
     setStyle('display', 'flex');
-    setStyle('visibility', 'hidden');
-    setStyle('opacity', '0');
-    setStyle('pointer-events', 'none');
     setStyle('left', '-9999px');
     setStyle('top', '12px');
     setStyle('right', 'auto');
     setStyle('bottom', 'auto');
+    setStyle('opacity', '0');
+    setStyle('visibility', 'hidden');
+    setStyle('pointer-events', 'none');
     setStyle('transform', 'translate3d(0,0,0) scale(1)');
-    return {
-      width: Math.max(dock.offsetWidth || 0, dock.getBoundingClientRect().width || 0),
-      height: Math.max(dock.offsetHeight || 0, dock.getBoundingClientRect().height || 0)
-    };
-  }
 
-  function getAnchorRect(){
-    var el = anchor && anchor.getBoundingClientRect ? anchor : trigger;
-    if(!el || !el.getBoundingClientRect) return trigger.getBoundingClientRect();
-    var rect = el.getBoundingClientRect();
-    if(!rect || (!rect.width && !rect.height)) return trigger.getBoundingClientRect();
-    return rect;
+    var rect = dock.getBoundingClientRect();
+    var box = {
+      width: Math.max(dock.offsetWidth || 0, rect.width || 0),
+      height: Math.max(dock.offsetHeight || 0, rect.height || 0)
+    };
+
+    if(!hadOpen) dock.classList.remove('tk-roulette-popover-open');
+    if(wasHidden) dock.hidden = true;
+
+    return box;
   }
 
   function placeDock(){
@@ -55363,59 +55373,38 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   }
 
   function openDock(){
-    isOpen = true;
     placeDock();
     dock.hidden = false;
     dock.classList.add('tk-roulette-popover-open');
     dock.setAttribute('aria-hidden', 'false');
-    try{ trigger.setAttribute('aria-expanded', 'true'); }catch(_){}
-    if(legacyTrigger && legacyTrigger !== trigger){
+    trigger.setAttribute('aria-expanded', 'true');
+    if(legacyTrigger){
       try{ legacyTrigger.setAttribute('aria-expanded', 'true'); }catch(_){}
     }
+
     setStyle('position', 'fixed');
     setStyle('display', 'flex');
-    setStyle('visibility', 'visible');
     setStyle('opacity', '1');
+    setStyle('visibility', 'visible');
     setStyle('pointer-events', 'auto');
     setStyle('transform', 'translate3d(0,0,0) scale(1)');
-  }
 
-  function closeDock(){
-    forceClosed();
+    isOpen = true;
   }
 
   function toggleDock(ev){
     if(ev){
-      try{ ev.preventDefault(); }catch(_e){}
-      try{ ev.stopPropagation(); }catch(_e){}
-      try{ ev.stopImmediatePropagation(); }catch(_e){}
+      try{ ev.preventDefault(); }catch(_){}
+      try{ ev.stopPropagation(); }catch(_){}
+      try{ ev.stopImmediatePropagation(); }catch(_){}
     }
-    if(isOpen) closeDock();
-    else openDock();
+
+    if(isOpen){
+      hardClose();
+    }else{
+      openDock();
+    }
     return false;
-  }
-
-  forceClosed();
-
-  trigger.addEventListener('click', toggleDock, true);
-
-  document.addEventListener('pointerdown', function(ev){
-    if(!isOpen) return;
-    var t = ev.target;
-    if((trigger && trigger.contains && trigger.contains(t)) || (dock && dock.contains && dock.contains(t))) return;
-    closeDock();
-  }, true);
-
-  document.addEventListener('keydown', function(ev){
-    if(ev.key === 'Escape' && isOpen){
-      closeDock();
-    }
-  });
-
-  if(link){
-    link.addEventListener('click', function(){
-      setTimeout(closeDock, 0);
-    });
   }
 
   function schedulePlace(){
@@ -55423,15 +55412,37 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
     if(raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(function(){
       raf = 0;
-      openDock();
+      if(isOpen) placeDock();
     });
   }
 
-  if(anchor){
-    try{
-      var mo = new MutationObserver(schedulePlace);
-      mo.observe(anchor, {attributes:true, childList:true, subtree:true});
-    }catch(_){}
+  hardClose();
+
+  trigger.addEventListener('click', toggleDock, true);
+
+  document.addEventListener('click', function(ev){
+    if(!isOpen) return;
+    var t = ev.target;
+    if((trigger && trigger.contains && trigger.contains(t)) || (dock && dock.contains && dock.contains(t))) return;
+    hardClose();
+  }, true);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape' && isOpen){
+      hardClose();
+    }
+  }, true);
+
+  if(menuToggle){
+    menuToggle.addEventListener('click', function(){
+      if(isOpen) hardClose();
+    }, true);
+  }
+
+  if(link){
+    link.addEventListener('click', function(){
+      setTimeout(hardClose, 0);
+    });
   }
 
   window.addEventListener('resize', schedulePlace, {passive:true});
@@ -55442,7 +55453,7 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   }
   window.addEventListener('scroll', schedulePlace, {passive:true});
   window.addEventListener('pageshow', function(){
-    if(!isOpen) forceClosed();
+    if(!isOpen) hardClose();
   });
 })();
 </script>
@@ -56027,16 +56038,6 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
   else bind();
   window.addEventListener('load', bind, {once:true});
-})();
-</script>
-
-<script id="tkqa-roulette-direct-launch-guard-v1">
-(function(){
-  var btn = document.getElementById('tkqaOpenRoulette');
-  if(!btn) return;
-  btn.addEventListener('click', function(ev){
-    try{ ev.stopImmediatePropagation(); }catch(_){}
-  }, true);
 })();
 </script>
 
