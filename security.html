@@ -14949,7 +14949,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
           </div>
           <div class="tkqa-tag">миссии</div>
         </div>
-        <h3 class="tkqa-card-title">Рулетка заданий</h3>
+        <h3 class="tkqa-card-title tkqa-card-title--roulette"><span class="tkqa-title-line">Рулетка</span><span class="tkqa-title-line">заданий</span></h3>
         <span class="tkqa-corner" aria-hidden="true"></span>
       </button>
 
@@ -15031,7 +15031,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </div>
 <div aria-label="Центр рулетки" class="wheel-center" title="Рулетка"><span aria-hidden="true" class="wheel-center__glyph"></span></div>
 <div aria-hidden="true" class="wheel-glow"></div>
-<button aria-pressed="false" class="roulette-sound-on-wheel" id="rouletteSound" title="Звук" type="button">
+<button aria-pressed="true" class="roulette-sound-on-wheel" id="rouletteSound" title="Выключить звук рулетки" type="button">
 <span aria-hidden="true">🔊</span>
 <span class="sr-only">Звук</span>
 </button>
@@ -15040,7 +15040,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 <div class="roulette-head">
 <div>
 <div class="roulette-title">Рулетка</div>
-<div class="roulette-sub">выбери задание</div>
+<div class="roulette-sub">выбери миссию</div>
 </div>
 <div aria-label="Прогресс выполненных миссий" class="roulette-meter" id="rouletteMeter">
 <div aria-hidden="true" class="meter-ring"></div>
@@ -15076,7 +15076,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
     </div>
 <div class="roulette-infoActions">
 <a aria-label="Открыть миссию рулетки" class="roulette-link" href="#roulette-mission" id="rLink">
-        Задание
+        Миссия
         <svg aria-hidden="true" viewbox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>
 </a>
 </div>
@@ -15091,7 +15091,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 <div class="rm-head">
 <div>
 <div class="rm-title" id="rmTitle">Миссия</div>
-<div class="rm-sub" id="rmSub">Выполни мини-задание — и миссия засчитается автоматически.</div>
+<div class="rm-sub" id="rmSub">Выполни мини-миссию — и она засчитается автоматически.</div>
 </div>
 <div class="rm-badges">
 <div class="rm-badge" id="rmLabelBadge">🎯 —</div>
@@ -18660,7 +18660,7 @@ function renderCard() {
         }, 1100);
       }
 
-      let soundOn = !!loadJSON(SOUND_KEY, false);
+      let soundOn = !!loadJSON(SOUND_KEY, true);
       if(soundBtn){
         soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
       }
@@ -19089,7 +19089,7 @@ function renderCard() {
 
         const svg = rLink.querySelector('svg') ? rLink.querySelector('svg').outerHTML : '';
         rLink.href = '#roulette-mission';
-        rLink.innerHTML = 'Задание\n' + svg;
+        rLink.innerHTML = 'Миссия\n' + svg;
         rLink.onclick = (e) => {
           e.preventDefault();
           openMission(item);
@@ -19121,12 +19121,12 @@ function renderCard() {
 
         const meta = GUIDE_META[item.label] || {};
         const steps = Array.isArray(meta.steps) && meta.steps.length ? meta.steps : [
-          'Сначала спокойно прочитай задание.',
+          'Сначала спокойно прочитай описание миссии.',
           'Если есть сомнение — проверь вместе со взрослым.',
           'Только потом открывай материал или переходи дальше.'
         ];
 
-        rmTitle.textContent = 'Брифинг: ' + (meta.head || item.label || 'задание');
+        rmTitle.textContent = 'Брифинг: ' + (meta.head || item.label || 'миссия');
         if(rmLabelBadge) rmLabelBadge.textContent = '🧭 ' + (item.label || 'Маршрут');
         if(rmStepBadge) rmStepBadge.textContent = steps.length + ' шага';
         rmSub.textContent = meta.sub || 'Сначала короткая инструкция, потом безопасный переход в новой вкладке.';
@@ -19187,7 +19187,7 @@ function renderCard() {
         if(rmCheck){
           rmCheck.textContent = 'Открыть ↗';
           rmCheck.onclick = () => {
-            showExplain('В этой версии рулетки все задания проходят прямо на странице — без внешних переходов. Нажми «Понял ✓», чтобы вернуться к колесу.', true);
+            showExplain('В этой версии рулетки все миссии проходят прямо на странице — без внешних переходов. Нажми «Понял ✓», чтобы вернуться к колесу.', true);
           };
         }
         if(rmFinish){
@@ -19209,7 +19209,7 @@ function renderCard() {
         rmTitle.textContent = "Мини-игра: " + lab;
         if(rmLabelBadge) rmLabelBadge.textContent = "🎯 " + lab;
         if(rmStepBadge) rmStepBadge.textContent = "Шаг 1/1";
-        if(rmSub) rmSub.textContent = (item.text || "Выполни задание — и миссия засчитается автоматически.");
+        if(rmSub) rmSub.textContent = (item.text || "Выполни миссию — и она засчитается автоматически.");
         rmBody.innerHTML = "";
         setMissionComplete(false);
 
@@ -19223,7 +19223,7 @@ function renderCard() {
             <div class="rm-phrase" style="margin-top:10px;"><b>Шифр штаба:</b> ${meta.line || 'Сначала подумай, потом нажимай.'}</div>
           </div>
           <div class="rm-guideKpi">
-            <div class="rm-guidePill">🎯 <div><b>Цель:</b><br>${meta.goal || 'Выполни задание ниже'}</div></div>
+            <div class="rm-guidePill">🎯 <div><b>Цель:</b><br>${meta.goal || 'Выполни миссию ниже'}</div></div>
             <div class="rm-guidePill">🛡️ <div><b>Почему важно:</b><br>${meta.why || 'Чтобы действовать безопасно и спокойно.'}</div></div>
             <div class="rm-guidePill">⭐ <div><b>Награда:</b><br>${meta.reward || 'звезда в прогрессе рулетки'}</div></div>
           </div>
@@ -19232,7 +19232,7 @@ function renderCard() {
 
         const stageCard = document.createElement('div');
         stageCard.className = "rm-card";
-        stageCard.innerHTML = `<div class="rm-small"><b>Этап миссии:</b> ${meta.stage || 'Справься с заданием ниже и нажми «Проверить».'}</div>`;
+        stageCard.innerHTML = `<div class="rm-small"><b>Этап миссии:</b> ${meta.stage || 'Справься с миссией ниже и нажми «Проверить».'}</div>`;
         rmBody.appendChild(stageCard);
 
         const explain = document.createElement('div');
@@ -19668,7 +19668,7 @@ function renderCard() {
         if(rmFinish){
           rmFinish.onclick = () => {
             if(!currentMission) return;
-            if(!missionComplete) return showExplain("Сначала выполни задание 🙂", false);
+            if(!missionComplete) return showExplain("Сначала выполни миссию 🙂", false);
             markDone(currentMission.label);
             closeMission();
           };
@@ -19839,7 +19839,7 @@ function renderCard() {
 
             try{ drawWheel(landedIndex); }catch(_){ }
             setResult(item, { push:true });
-            if(mini) mini.textContent = "✨ Выпало: " + item.label + " — нажми «Задание», чтобы начать миссию.";
+            if(mini) mini.textContent = "✨ Выпало: " + item.label + " — нажми «Миссия», чтобы начать миссию.";
           })
           .catch(() => {
           })
@@ -56934,12 +56934,12 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 
   const spinBtn = document.getElementById('spinBtn');
   if(spinBtn){
-    spinBtn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.4 5.2L20 10l-4 3.9.9 5.6L12 16.8 7.1 19.5 8 13.9 4 10l5.6-1.8L12 3z"></path></svg> Запустить';
+    spinBtn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.4 5.2L20 10l-4 3.9.9 5.6L12 16.8 7.1 19.5 8 13.9 4 10l5.6-1.8L12 3z"></path></svg> Крутить рулетку';
   }
 
   const link = document.getElementById('rLink');
   if(link){
-    link.innerHTML = 'Открыть задание <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>';
+    link.innerHTML = 'Открыть миссию <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>';
   }
 
   const reset = document.getElementById('rouletteReset');
@@ -57293,5 +57293,1066 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 })();
 </script>
 
+
+<style id="tk-roulette-legend-v1-style">
+#rouletteDock.tk-roulette-legend-v1{
+  --tk-roulette-accent:#7de7ff;
+  --tk-roulette-accent-rgb:125,231,255;
+  --tk-roulette-accent-2:#ffd782;
+  --tk-roulette-gold:#ffe7a8;
+  --tk-roulette-ink:rgba(242,249,255,.98);
+  isolation:isolate !important;
+}
+#rouletteDock.tk-roulette-legend-v1::after{
+  content:"";
+  position:absolute;
+  inset:-18px;
+  border-radius:34px;
+  pointer-events:none;
+  background:
+    radial-gradient(340px 180px at 50% 12%, rgba(var(--tk-roulette-accent-rgb),.16), transparent 56%),
+    radial-gradient(260px 220px at 50% 100%, rgba(255,215,130,.12), transparent 62%);
+  filter: blur(10px);
+  opacity:.92;
+  z-index:0;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-card,
+#rouletteDock.tk-roulette-legend-v1 .roulette-info{
+  overflow:visible !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-card{
+  position:relative !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-wrap{
+  width: 194px !important;
+  height: 194px !important;
+  min-width: 194px !important;
+  min-height: 194px !important;
+  border-radius:999px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(8,31,66,.96), rgba(4,12,28,1) 66%) !important;
+  box-shadow:
+    0 0 0 8px rgba(7,18,42,.94),
+    0 0 0 9px rgba(255,255,255,.05),
+    0 18px 38px rgba(0,0,0,.34),
+    0 0 34px rgba(var(--tk-roulette-accent-rgb),.18),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -18px 30px rgba(3,8,22,.36) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-wrap::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:-16px !important;
+  border-radius:inherit !important;
+  pointer-events:none !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--tk-roulette-accent-rgb),.20), transparent 52%),
+    radial-gradient(circle at 50% 50%, rgba(255,214,124,.14), transparent 74%) !important;
+  filter: blur(14px) !important;
+  opacity:.95 !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-wrap::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:inherit;
+  border:1px solid rgba(var(--tk-roulette-accent-rgb),.22);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 0 18px rgba(var(--tk-roulette-accent-rgb),.14),
+    0 0 24px rgba(255,214,124,.10);
+  pointer-events:none;
+  opacity:.95;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-ring{
+  inset:8px !important;
+  opacity:.56 !important;
+  display:block !important;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 70%, rgba(255,255,255,.12) 72%, transparent 74%),
+    repeating-conic-gradient(from -90deg, rgba(255,255,255,.16) 0 3deg, transparent 3deg 15deg),
+    conic-gradient(from -90deg, rgba(var(--tk-roulette-accent-rgb),.18), rgba(255,214,124,.16), rgba(var(--tk-roulette-accent-rgb),.18)) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-glow{
+  display:block !important;
+  inset:-14px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--tk-roulette-accent-rgb),.16), transparent 58%),
+    radial-gradient(circle at 50% 50%, rgba(255,214,124,.12), transparent 72%) !important;
+  opacity:.68 !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-pointer{
+  top:-14px !important;
+  width:32px !important;
+  height:42px !important;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,.28)) drop-shadow(0 0 12px rgba(var(--tk-roulette-accent-rgb),.18)) !important;
+  transform-origin:50% 22% !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-pointer::before{
+  width:28px !important;
+  height:34px !important;
+  border-radius:10px !important;
+  clip-path: polygon(50% 0%, 96% 28%, 72% 68%, 50% 98%, 28% 68%, 4% 28%) !important;
+  background:
+    radial-gradient(64% 42% at 50% 16%, rgba(255,255,255,.70), rgba(255,255,255,0) 74%),
+    linear-gradient(180deg, rgba(255,250,238,.99), rgba(255,229,162,.98) 36%, rgba(208,141,44,.98) 100%) !important;
+  border:1px solid rgba(255,248,226,.68) !important;
+  box-shadow:
+    0 8px 14px rgba(117,69,18,.24),
+    0 0 18px rgba(255,214,124,.20),
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -8px 14px rgba(115,60,12,.18) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-pointer::after{
+  top:16px !important;
+  width:12px !important;
+  height:12px !important;
+  border-radius:4px !important;
+  background:linear-gradient(180deg, rgba(255,251,244,.98), rgba(214,244,255,.98) 42%, rgba(var(--tk-roulette-accent-rgb),.92)) !important;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.16),
+    0 0 16px rgba(var(--tk-roulette-accent-rgb),.24),
+    0 2px 10px rgba(0,0,0,.18) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-center{
+  width:50px !important;
+  height:50px !important;
+  box-shadow:
+    0 0 0 4px rgba(255,229,158,.10),
+    0 0 0 1px rgba(255,255,255,.12) inset,
+    0 0 22px rgba(var(--tk-roulette-accent-rgb),.36),
+    0 14px 24px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.44) !important;
+  background:
+    radial-gradient(circle at 35% 26%, rgba(255,255,255,.98), rgba(225,245,255,.96) 34%, rgba(var(--tk-roulette-accent-rgb),.94) 74%, rgba(33,108,216,.98) 100%) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .wheel-center::before{
+  inset:11px !important;
+  box-shadow:0 0 0 2px rgba(255,250,236,.48), 0 0 18px rgba(var(--tk-roulette-accent-rgb),.28), inset 0 1px 0 rgba(255,255,255,.30) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-card{
+  padding:14px 14px 12px !important;
+  gap:10px !important;
+  background:
+    radial-gradient(160% 120% at 18% 10%, rgba(255,255,255,.14), transparent 30%),
+    radial-gradient(140% 140% at 84% 18%, rgba(var(--tk-roulette-accent-rgb),.14), transparent 32%),
+    linear-gradient(180deg, rgba(10,32,64,.82), rgba(5,14,32,.92)) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-controls{
+  width:100% !important;
+  gap:8px !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-title{
+  text-shadow:0 10px 22px rgba(0,0,0,.28), 0 0 18px rgba(var(--tk-roulette-accent-rgb),.12) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-sub{
+  color: rgba(231,245,255,.88) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-btn{
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:17px !important;
+  background:
+    radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.24), transparent 54%),
+    linear-gradient(135deg, rgba(var(--tk-roulette-accent-rgb),.98), rgba(52,151,255,.96) 54%, rgba(15,92,221,.98)) !important;
+  box-shadow:
+    0 18px 28px rgba(0,0,0,.26),
+    0 0 28px rgba(var(--tk-roulette-accent-rgb),.14),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-btn::before,
+#rouletteDock.tk-roulette-legend-v1 .roulette-link::before{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  background:linear-gradient(110deg, transparent 30%, rgba(255,255,255,.22) 48%, rgba(255,255,255,.34) 50%, transparent 70%);
+  transform: translateX(-110%);
+  pointer-events:none;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-btn:hover::before,
+#rouletteDock.tk-roulette-legend-v1 .roulette-link:hover::before,
+#rouletteDock.tk-roulette-legend-v1.is-spinning .roulette-btn::before{
+  animation: tkRouletteLegendSweep 1.15s ease forwards;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-info{
+  position:relative !important;
+  overflow:hidden !important;
+  min-width:0 !important;
+  padding:13px 13px 14px !important;
+  gap:9px !important;
+  background:
+    radial-gradient(160% 120% at 20% 10%, rgba(255,255,255,.16), transparent 28%),
+    radial-gradient(120% 120% at 88% 14%, rgba(var(--tk-roulette-accent-rgb),.16), transparent 32%),
+    linear-gradient(180deg, rgba(7,21,42,.97), rgba(4,11,26,.99)) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-info::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:auto -12% -20px -12% !important;
+  height:110px !important;
+  pointer-events:none !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--tk-roulette-accent-rgb),.22), transparent 54%),
+    radial-gradient(circle at 50% 0%, rgba(255,214,124,.12), transparent 72%) !important;
+  mix-blend-mode:screen !important;
+  opacity:.82 !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-infoTitle{
+  position:relative !important;
+  z-index:2 !important;
+  font-size:15.5px !important;
+  line-height:1.16 !important;
+  color:var(--tk-roulette-ink) !important;
+  text-shadow:0 10px 22px rgba(0,0,0,.30), 0 0 16px rgba(var(--tk-roulette-accent-rgb),.12) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-infoText{
+  position:relative !important;
+  z-index:2 !important;
+  padding:11px 12px !important;
+  border-radius:15px !important;
+  border: 1px solid rgba(190,232,255,.12) !important;
+  background:
+    linear-gradient(180deg, rgba(12,34,68,.76), rgba(6,17,37,.90)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 12px 20px rgba(0,0,0,.14),
+    0 0 18px rgba(var(--tk-roulette-accent-rgb),.05) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-link{
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:16px !important;
+  background:
+    radial-gradient(120% 120% at 18% 18%, rgba(255,255,255,.22), transparent 58%),
+    linear-gradient(135deg, rgba(84,232,185,.98), rgba(39,192,134,.95) 52%, rgba(22,147,96,.98)) !important;
+  box-shadow:
+    0 16px 24px rgba(0,0,0,.22),
+    0 0 22px rgba(76,228,178,.12),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-kicker{
+  position:relative;
+  z-index:2;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  max-width:100%;
+  min-height:28px;
+  padding:6px 11px;
+  border-radius:999px;
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.12), transparent 62%),
+    linear-gradient(180deg, rgba(18,47,92,.88), rgba(9,23,48,.92));
+  border:1px solid rgba(205,237,255,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 18px rgba(0,0,0,.16);
+  color:rgba(244,249,255,.96);
+  font: 800 9.5px/1 Inter, system-ui, sans-serif;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-kicker__dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.96), rgba(var(--tk-roulette-accent-rgb),.92));
+  box-shadow: 0 0 10px rgba(var(--tk-roulette-accent-rgb),.38), 0 0 18px rgba(255,214,124,.14);
+  flex:0 0 auto;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-kicker__text{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-accent-line{
+  position:absolute;
+  left:16px;
+  right:16px;
+  top:0;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,214,124,0), rgba(255,214,124,.96), rgba(var(--tk-roulette-accent-rgb),.96), rgba(var(--tk-roulette-accent-rgb),0));
+  box-shadow:0 0 18px rgba(var(--tk-roulette-accent-rgb),.22);
+  opacity:.95;
+  pointer-events:none;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-rewardGlow{
+  position:absolute;
+  inset:auto -14% -28px -14%;
+  height:130px;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--tk-roulette-accent-rgb),.22), transparent 48%),
+    radial-gradient(circle at 50% 0%, rgba(255,214,124,.12), transparent 70%);
+  filter: blur(8px);
+  opacity:.72;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown{
+  position:absolute;
+  left:50%;
+  top:-24px;
+  transform:translateX(-50%);
+  width:122px;
+  height:34px;
+  pointer-events:none;
+  z-index:4;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:15px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,214,124,0), rgba(255,214,124,.86), rgba(var(--tk-roulette-accent-rgb),.82), rgba(255,214,124,0));
+  box-shadow:0 0 12px rgba(var(--tk-roulette-accent-rgb),.20);
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__gem,
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__wing{
+  position:absolute;
+  display:block;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__gem{
+  left:50%;
+  top:0;
+  width:22px;
+  height:22px;
+  transform:translateX(-50%) rotate(45deg);
+  border-radius:6px;
+  background:
+    linear-gradient(180deg, rgba(255,250,240,.98), rgba(210,244,255,.96) 42%, rgba(var(--tk-roulette-accent-rgb),.92));
+  border:1px solid rgba(255,250,230,.62);
+  box-shadow:0 0 14px rgba(var(--tk-roulette-accent-rgb),.24), 0 8px 14px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.46);
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__wing{
+  top:6px;
+  width:30px;
+  height:12px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,214,124,0), rgba(255,214,124,.86), rgba(var(--tk-roulette-accent-rgb),.62));
+  filter: blur(.2px);
+  opacity:.88;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__wing.is-left{ left:8px; transform:skewX(-26deg); }
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__wing.is-right{ right:8px; transform:scaleX(-1) skewX(-26deg); }
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiters{
+  position:absolute;
+  inset:-14px;
+  border-radius:999px;
+  pointer-events:none;
+  z-index:3;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiter{
+  position:absolute;
+  width:11px;
+  height:11px;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,.96), rgba(var(--tk-roulette-accent-rgb),.92));
+  box-shadow:0 0 14px rgba(var(--tk-roulette-accent-rgb),.30), 0 0 22px rgba(255,214,124,.12);
+  opacity:.9;
+  animation: tkRouletteLegendOrbit 8s linear infinite;
+}
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiter:nth-child(1){ top:8px; left:50%; animation-duration:8s; animation-delay:-1.2s; }
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiter:nth-child(2){ top:50%; right:2px; width:9px; height:9px; animation-duration:10s; animation-delay:-3.3s; }
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiter:nth-child(3){ bottom:8px; left:50%; width:8px; height:8px; animation-duration:12s; animation-delay:-4.5s; }
+#rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiter:nth-child(4){ top:50%; left:2px; width:10px; height:10px; animation-duration:9.5s; animation-delay:-6.2s; }
+#rouletteDock.tk-roulette-legend-v1.is-spinning .wheel-wrap,
+#rouletteDock.tk-roulette-legend-v1.is-energizing .wheel-wrap{
+  animation: tkRouletteLegendCharge 1.2s ease-in-out infinite;
+}
+#rouletteDock.tk-roulette-legend-v1.is-spinning .tk-roulette-orbiter,
+#rouletteDock.tk-roulette-legend-v1.is-energizing .tk-roulette-orbiter{
+  animation-duration: 2.8s;
+}
+#rouletteDock.tk-roulette-legend-v1.is-win .tk-roulette-rewardGlow,
+#rouletteDock.tk-roulette-legend-v1.is-win .tk-roulette-crown__gem{
+  animation: tkRouletteLegendPulse .8s ease both;
+}
+#rouletteDock.tk-roulette-legend-v1.is-win .roulette-infoTitle{
+  animation: tkRouletteLegendFlash .72s ease both;
+}
+#rouletteDock.tk-roulette-legend-v1 .roulette-sound-on-wheel{
+  box-shadow:0 12px 18px rgba(0,0,0,.20), 0 0 18px rgba(var(--tk-roulette-accent-rgb),.10), inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+@keyframes tkRouletteLegendSweep{
+  0%{ transform:translateX(-120%) rotate(10deg); }
+  100%{ transform:translateX(120%) rotate(10deg); }
+}
+@keyframes tkRouletteLegendCharge{
+  0%,100%{ transform:translateZ(0) scale(1); box-shadow:0 0 0 8px rgba(7,18,42,.94), 0 0 0 9px rgba(255,255,255,.05), 0 18px 38px rgba(0,0,0,.34), 0 0 34px rgba(var(--tk-roulette-accent-rgb),.18), inset 0 1px 0 rgba(255,255,255,.08), inset 0 -18px 30px rgba(3,8,22,.36); }
+  50%{ transform:translateZ(0) scale(1.018); box-shadow:0 0 0 8px rgba(7,18,42,.94), 0 0 0 9px rgba(255,255,255,.05), 0 20px 42px rgba(0,0,0,.36), 0 0 42px rgba(var(--tk-roulette-accent-rgb),.24), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -18px 30px rgba(3,8,22,.36); }
+}
+@keyframes tkRouletteLegendOrbit{
+  from{ transform:translate(-50%, -50%) rotate(0deg) translateY(-100px) rotate(0deg); }
+  to{ transform:translate(-50%, -50%) rotate(360deg) translateY(-100px) rotate(-360deg); }
+}
+@keyframes tkRouletteLegendPulse{
+  0%{ transform:scale(.92) rotate(45deg); opacity:.8; }
+  50%{ transform:scale(1.12) rotate(45deg); opacity:1; }
+  100%{ transform:scale(1) rotate(45deg); opacity:1; }
+}
+@keyframes tkRouletteLegendFlash{
+  0%{ filter:brightness(1); }
+  40%{ filter:brightness(1.16); }
+  100%{ filter:brightness(1); }
+}
+@media (max-width: 620px){
+  #rouletteDock.tk-roulette-legend-v1 .wheel-wrap{
+    width:176px !important;
+    height:176px !important;
+    min-width:176px !important;
+    min-height:176px !important;
+  }
+  #rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown{
+    top:-22px;
+    width:110px;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  #rouletteDock.tk-roulette-legend-v1::after,
+  #rouletteDock.tk-roulette-legend-v1 .wheel-wrap,
+  #rouletteDock.tk-roulette-legend-v1 .tk-roulette-orbiter,
+  #rouletteDock.tk-roulette-legend-v1 .tk-roulette-crown__gem,
+  #rouletteDock.tk-roulette-legend-v1 .roulette-infoTitle,
+  #rouletteDock.tk-roulette-legend-v1 .roulette-btn::before,
+  #rouletteDock.tk-roulette-legend-v1 .roulette-link::before{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+<script id="tk-roulette-legend-v1-script">
+(function(){
+  var dock = document.getElementById('rouletteDock');
+  if(!dock) return;
+  dock.classList.add('tk-roulette-legend-v1');
+
+  var wheelWrap = dock.querySelector('.wheel-wrap');
+  var info = dock.querySelector('.roulette-info');
+  var title = document.getElementById('rTitle');
+  var text = document.getElementById('rText');
+  var spinBtn = document.getElementById('spinBtn');
+  var center = dock.querySelector('.wheel-center');
+  if(!wheelWrap || !info || !title || !text) return;
+
+  if(!wheelWrap.querySelector('.tk-roulette-crown')){
+    var crown = document.createElement('div');
+    crown.className = 'tk-roulette-crown';
+    crown.setAttribute('aria-hidden', 'true');
+    crown.innerHTML = '<span class="tk-roulette-crown__wing is-left"></span><span class="tk-roulette-crown__gem"></span><span class="tk-roulette-crown__wing is-right"></span>';
+    wheelWrap.appendChild(crown);
+  }
+
+  if(!wheelWrap.querySelector('.tk-roulette-orbiters')){
+    var orbit = document.createElement('div');
+    orbit.className = 'tk-roulette-orbiters';
+    orbit.setAttribute('aria-hidden', 'true');
+    orbit.innerHTML = '<span class="tk-roulette-orbiter"></span><span class="tk-roulette-orbiter"></span><span class="tk-roulette-orbiter"></span><span class="tk-roulette-orbiter"></span>';
+    wheelWrap.appendChild(orbit);
+  }
+
+  if(!info.querySelector('.tk-roulette-accent-line')){
+    var accentLine = document.createElement('div');
+    accentLine.className = 'tk-roulette-accent-line';
+    accentLine.setAttribute('aria-hidden', 'true');
+    info.prepend(accentLine);
+  }
+
+  if(!info.querySelector('.tk-roulette-rewardGlow')){
+    var rewardGlow = document.createElement('div');
+    rewardGlow.className = 'tk-roulette-rewardGlow';
+    rewardGlow.setAttribute('aria-hidden', 'true');
+    info.appendChild(rewardGlow);
+  }
+
+  if(!info.querySelector('.tk-roulette-kicker')){
+    var kicker = document.createElement('div');
+    kicker.className = 'tk-roulette-kicker';
+    kicker.setAttribute('aria-hidden', 'true');
+    kicker.innerHTML = '<span class="tk-roulette-kicker__dot"></span><span class="tk-roulette-kicker__text">Портал миссий</span>';
+    info.insertBefore(kicker, title);
+  }
+
+  var kickerText = info.querySelector('.tk-roulette-kicker__text');
+  var missionColors = {
+    'Пароль': { accent:'#7ee5ff', accent2:'#ffd87d', rgb:'126,229,255' },
+    'Ссылки': { accent:'#79f4d5', accent2:'#ffe18d', rgb:'121,244,213' },
+    'Коды':   { accent:'#8ab0ff', accent2:'#ffd59a', rgb:'138,176,255' },
+    'Файлы':  { accent:'#ffb68a', accent2:'#ffe191', rgb:'255,182,138' },
+    'Профиль':{ accent:'#ff93da', accent2:'#ffd7a5', rgb:'255,147,218' },
+    'Фишинг': { accent:'#ff8d8d', accent2:'#ffd17d', rgb:'255,141,141' },
+    'Пауза':  { accent:'#cda3ff', accent2:'#ffe0a8', rgb:'205,163,255' },
+    '2FA':    { accent:'#a2ffbf', accent2:'#ffe08b', rgb:'162,255,191' }
+  };
+  var defaultTheme = { accent:'#7de7ff', accent2:'#ffd782', rgb:'125,231,255' };
+
+  function applyTheme(label){
+    var theme = missionColors[label] || defaultTheme;
+    dock.style.setProperty('--tk-roulette-accent', theme.accent);
+    dock.style.setProperty('--tk-roulette-accent-2', theme.accent2);
+    dock.style.setProperty('--tk-roulette-accent-rgb', theme.rgb);
+  }
+
+  function normalizeLabel(raw){
+    var value = String(raw || '').replace(/^[^:—-]+[:—-]\s*/,'').trim();
+    value = value.replace(/^миссия\s*/i,'').trim();
+    value = value.replace(/^[:—-]\s*/,'').trim();
+    if(missionColors[value]) return value;
+    return '';
+  }
+
+  function syncState(){
+    var label = normalizeLabel(title.textContent);
+    if(label){
+      applyTheme(label);
+      dock.setAttribute('data-roulette-label', label);
+      if(kickerText) kickerText.textContent = 'Артефакт • ' + label;
+    }else{
+      applyTheme('');
+      dock.removeAttribute('data-roulette-label');
+      if(kickerText) kickerText.textContent = 'Портал миссий';
+    }
+  }
+
+  var energyTimer = 0;
+  function energize(){
+    dock.classList.add('is-energizing');
+    clearTimeout(energyTimer);
+    energyTimer = setTimeout(function(){ dock.classList.remove('is-energizing'); }, 720);
+  }
+
+  if(spinBtn){ spinBtn.addEventListener('click', energize, { passive:true }); }
+  if(center){ center.addEventListener('click', energize, { passive:true }); }
+
+  var observer = new MutationObserver(syncState);
+  observer.observe(title, { childList:true, characterData:true, subtree:true });
+  observer.observe(text, { childList:true, characterData:true, subtree:true });
+  syncState();
+})();
+</script>
+
+
+<script id="tk-roulette-sound-restore-patch">
+(function(){
+  var KEY = 'tk_roulette_sound_v1';
+  var ctx = null;
+  var unlocked = false;
+
+  function getCtx(){
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return null;
+      if(!ctx) ctx = new Ctx();
+      if(ctx && ctx.state === 'suspended'){
+        try{ ctx.resume(); }catch(_e){}
+      }
+      return ctx;
+    }catch(_e){
+      return null;
+    }
+  }
+
+  function ping(){
+    var c = getCtx();
+    if(!c) return;
+    try{
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(880, c.currentTime);
+      g.gain.setValueAtTime(0.0001, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.035, c.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.07);
+      o.connect(g);
+      g.connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.075);
+    }catch(_e){}
+  }
+
+  function isOn(btn){
+    return !!btn && btn.getAttribute('aria-pressed') === 'true';
+  }
+
+  function syncSoundButton(){
+    var btn = document.getElementById('rouletteSound');
+    if(!btn) return;
+    var on = isOn(btn);
+    btn.dataset.sound = on ? 'on' : 'off';
+    btn.title = on ? 'Выключить звук рулетки' : 'Включить звук рулетки';
+    btn.setAttribute('aria-label', on ? 'Выключить звук рулетки' : 'Включить звук рулетки');
+    var icon = btn.querySelector('span[aria-hidden]');
+    if(icon) icon.textContent = on ? '🔊' : '🔇';
+    try{
+      localStorage.setItem(KEY, on ? 'true' : 'false');
+    }catch(_e){}
+  }
+
+  function forceSoundOn(btn){
+    if(!btn) return;
+    try{
+      localStorage.setItem(KEY, 'true');
+    }catch(_e){}
+    if(btn.getAttribute('aria-pressed') === 'false'){
+      try{ btn.click(); }catch(_e){}
+    }else{
+      btn.setAttribute('aria-pressed', 'true');
+    }
+    syncSoundButton();
+  }
+
+  function unlockAudio(){
+    var btn = document.getElementById('rouletteSound');
+    if(!btn || !isOn(btn)) return;
+    getCtx();
+    if(!unlocked){
+      unlocked = true;
+      ping();
+    }
+  }
+
+  function bindUnlock(el){
+    if(!el) return;
+    el.addEventListener('pointerdown', unlockAudio, true);
+    el.addEventListener('mousedown', unlockAudio, true);
+    el.addEventListener('touchstart', unlockAudio, { capture:true, passive:true });
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){
+        unlockAudio();
+      }
+    }, true);
+  }
+
+  function init(){
+    var btn = document.getElementById('rouletteSound');
+    var spin = document.getElementById('spinBtn');
+    var center = document.querySelector('#rouletteDock .wheel-center');
+    if(!btn) return;
+
+    forceSoundOn(btn);
+
+    btn.addEventListener('click', function(){
+      setTimeout(function(){
+        syncSoundButton();
+        if(isOn(btn)){
+          unlockAudio();
+        }
+      }, 0);
+    }, true);
+
+    try{
+      new MutationObserver(syncSoundButton).observe(btn, {
+        attributes:true,
+        attributeFilter:['aria-pressed']
+      });
+    }catch(_e){}
+
+    bindUnlock(document);
+    bindUnlock(spin);
+    bindUnlock(center);
+    syncSoundButton();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init, { once:true });
+  }else{
+    init();
+  }
+})();
+</script>
+
+<script id="tk-roulette-audio-engine-v6">
+(function(){
+  var KEY = 'tk_roulette_sound_v1';
+  var dock = document.getElementById('rouletteDock');
+  var btn = document.getElementById('rouletteSound');
+  var spinBtn = document.getElementById('spinBtn');
+  var center = document.querySelector('#rouletteDock .wheel-center');
+  if(!dock || !btn) return;
+
+  var ctx = null;
+  var master = null;
+  var loopTimer = 0;
+  var wasSpinning = dock.classList.contains('is-spinning');
+
+  function readStored(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(raw === null || raw === undefined || raw === '') return null;
+      if(raw === 'true' || raw === '1') return true;
+      if(raw === 'false' || raw === '0') return false;
+      return !!JSON.parse(raw);
+    }catch(_e){
+      return null;
+    }
+  }
+
+  function writeStored(on){
+    try{ localStorage.setItem(KEY, on ? 'true' : 'false'); }catch(_e){}
+  }
+
+  function isSoundOn(){
+    return btn.getAttribute('aria-pressed') !== 'false';
+  }
+
+  function syncButton(force){
+    var stored = readStored();
+    var on = isSoundOn();
+    if(force === true && stored !== null){
+      on = !!stored;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }else if(stored === null && btn.getAttribute('aria-pressed') == null){
+      on = true;
+      btn.setAttribute('aria-pressed', 'true');
+    }
+    on = isSoundOn();
+    btn.dataset.sound = on ? 'on' : 'off';
+    btn.title = on ? 'Выключить звук рулетки' : 'Включить звук рулетки';
+    btn.setAttribute('aria-label', on ? 'Выключить звук рулетки' : 'Включить звук рулетки');
+    var icon = btn.querySelector('span[aria-hidden]');
+    if(icon) icon.textContent = on ? '🔊' : '🔇';
+    writeStored(on);
+    return on;
+  }
+
+  function ensureAudio(){
+    if(!isSoundOn()) return null;
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return null;
+      if(!ctx) ctx = new Ctx();
+      if(!master){
+        master = ctx.createGain();
+        master.gain.value = 0.11;
+        master.connect(ctx.destination);
+      }
+      if(ctx.state === 'suspended'){
+        try{ ctx.resume(); }catch(_e){}
+      }
+      return ctx;
+    }catch(_e){
+      return null;
+    }
+  }
+
+  function safeEnv(freqStart, freqEnd, dur, type, vol){
+    var c = ensureAudio();
+    if(!c) return;
+    try{
+      var now = c.currentTime;
+      var osc = c.createOscillator();
+      var gain = c.createGain();
+      osc.type = type || 'triangle';
+      osc.frequency.setValueAtTime(freqStart, now);
+      if(typeof freqEnd === 'number' && freqEnd !== freqStart){
+        osc.frequency.exponentialRampToValueAtTime(Math.max(40, freqEnd), now + dur);
+      }
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol || 0.03), now + Math.min(0.012, dur * 0.28));
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain);
+      gain.connect(master || c.destination);
+      osc.start(now);
+      osc.stop(now + dur + 0.01);
+    }catch(_e){}
+  }
+
+  function playTick(){
+    safeEnv(1180, 860, 0.055, 'triangle', 0.045);
+  }
+
+  function playFinal(){
+    var c = ensureAudio();
+    if(!c) return;
+    safeEnv(780, 1180, 0.11, 'sine', 0.045);
+    setTimeout(function(){ safeEnv(1180, 1560, 0.12, 'triangle', 0.032); }, 60);
+  }
+
+  function stopLoop(playEnd){
+    if(loopTimer){
+      clearTimeout(loopTimer);
+      loopTimer = 0;
+    }
+    if(playEnd && isSoundOn()) playFinal();
+  }
+
+  function startLoop(){
+    stopLoop(false);
+    var stepIndex = 0;
+    function step(){
+      if(!dock.classList.contains('is-spinning')){
+        loopTimer = 0;
+        return;
+      }
+      playTick();
+      stepIndex += 1;
+      var delay = Math.min(170, 48 + stepIndex * 4.8);
+      loopTimer = setTimeout(step, delay);
+    }
+    step();
+  }
+
+  function onSpinStateMaybeChanged(){
+    var spinning = dock.classList.contains('is-spinning');
+    if(spinning === wasSpinning) return;
+    wasSpinning = spinning;
+    if(spinning){
+      ensureAudio();
+      startLoop();
+    }else{
+      stopLoop(true);
+    }
+  }
+
+  function unlockAudio(){
+    ensureAudio();
+  }
+
+  btn.addEventListener('click', function(){
+    setTimeout(function(){
+      syncButton(false);
+      if(isSoundOn()) unlockAudio();
+      else stopLoop(false);
+    }, 0);
+  }, true);
+
+  [document, spinBtn, center, dock].forEach(function(el){
+    if(!el) return;
+    el.addEventListener('pointerdown', unlockAudio, true);
+    el.addEventListener('mousedown', unlockAudio, true);
+    el.addEventListener('touchstart', unlockAudio, { capture:true, passive:true });
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' ') unlockAudio();
+    }, true);
+  });
+
+  try{
+    new MutationObserver(function(){
+      syncButton(false);
+      onSpinStateMaybeChanged();
+    }).observe(dock, {
+      attributes:true,
+      attributeFilter:['class']
+    });
+  }catch(_e){}
+
+  try{
+    new MutationObserver(function(){
+      syncButton(false);
+    }).observe(btn, {
+      attributes:true,
+      attributeFilter:['aria-pressed']
+    });
+  }catch(_e){}
+
+  syncButton(true);
+  onSpinStateMaybeChanged();
+})();
+</script>
+
+
+<style id="tkqa-ruslan-card-title-v1">
+/* Переносим только шрифт названий карточек доп. модулей на тот же, что у заставки "ТехноКрыльяРоссии".
+   Не затрагиваем заголовок блока и бейдж GAME. */
+.rules.tkqa-wrap .tkqa-card-title{
+  font-family:"Ruslan Display", "Times New Roman", serif !important;
+  font-weight:400 !important;
+  letter-spacing:.01em !important;
+  line-height:.96 !important;
+  text-wrap:balance;
+  text-rendering:geometricPrecision;
+}
+</style>
+
+
+<style id="tkqa-handjet-title-final-v8">
+/* Финальный оверрайд: только игровые названия карточек справа */
+.rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-card-title{
+  font-family:"Handjet", "Russo One", system-ui, sans-serif !important;
+  font-weight:900 !important;
+  font-size:clamp(17px, 1.65vw, 20px) !important;
+  line-height:.84 !important;
+  letter-spacing:.018em !important;
+  text-transform:none !important;
+  font-kerning:none !important;
+  text-rendering:geometricPrecision !important;
+  max-width:12ch !important;
+  margin:0 !important;
+  color:inherit !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.06),
+    0 3px 0 rgba(0,0,0,.22),
+    0 12px 22px rgba(0,0,0,.34),
+    0 0 14px rgba(255,255,255,.05) !important;
+}
+.rules.tkqa-wrap .tkqa-grid .tkqa-card:hover .tkqa-card-title{
+  transform:translateY(-.5px);
+  filter:drop-shadow(0 0 8px rgba(255,255,255,.08));
+}
+@media (max-width: 640px){
+  .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-card-title{
+    font-size:clamp(15px, 4vw, 18px) !important;
+    line-height:.84 !important;
+    letter-spacing:.015em !important;
+    max-width:11ch !important;
+  }
+}
+</style>
+
+<style id="tkqa-handjet-title-arcade-v9">
+/* Делаем названия 4 карточек максимально близкими по духу к тексту у котика:
+   Handjet + плотный аркадный объём + многослойная тень. Не трогаем GAME и заголовок блока. */
+.rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-card-title{
+  font-family:"Handjet", "Russo One", system-ui, sans-serif !important;
+  font-weight:900 !important;
+  font-size:clamp(19px, 1.85vw, 23px) !important;
+  line-height:.76 !important;
+  letter-spacing:.012em !important;
+  text-transform:none !important;
+  text-wrap:balance !important;
+  max-width:11.8ch !important;
+  margin:0 !important;
+  color:#f7fbff !important;
+  font-kerning:none !important;
+  font-feature-settings:"liga" 0, "kern" 0 !important;
+  -webkit-font-smoothing:antialiased !important;
+  text-rendering:geometricPrecision !important;
+  transform:translateZ(0) !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.10),
+    1px 1px 0 rgba(8,18,34,.96),
+    2px 2px 0 rgba(8,18,34,.88),
+    3px 3px 0 rgba(8,18,34,.72),
+    0 0 10px rgba(255,255,255,.05),
+    0 10px 22px rgba(0,0,0,.34) !important;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.18)) !important;
+}
+.rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-roulette .tkqa-card-title{
+  color:#effcff !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    1px 1px 0 rgba(7,18,34,.96),
+    2px 2px 0 rgba(7,18,34,.88),
+    3px 3px 0 rgba(7,18,34,.72),
+    0 0 14px rgba(120,230,255,.16),
+    0 10px 22px rgba(0,0,0,.34) !important;
+}
+.rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-pc .tkqa-card-title{
+  color:#fff7fb !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.10),
+    1px 1px 0 rgba(18,16,28,.96),
+    2px 2px 0 rgba(18,16,28,.88),
+    3px 3px 0 rgba(18,16,28,.72),
+    0 0 12px rgba(255,134,163,.14),
+    0 10px 22px rgba(0,0,0,.34) !important;
+}
+.rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-rules .tkqa-card-title{
+  color:#f4fff9 !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.10),
+    1px 1px 0 rgba(9,24,22,.96),
+    2px 2px 0 rgba(9,24,22,.88),
+    3px 3px 0 rgba(9,24,22,.72),
+    0 0 12px rgba(132,255,196,.12),
+    0 10px 22px rgba(0,0,0,.34) !important;
+}
+.rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-comic .tkqa-card-title{
+  color:#fff9ec !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.10),
+    1px 1px 0 rgba(28,20,8,.96),
+    2px 2px 0 rgba(28,20,8,.88),
+    3px 3px 0 rgba(28,20,8,.72),
+    0 0 12px rgba(255,207,116,.14),
+    0 10px 22px rgba(0,0,0,.34) !important;
+}
+.rules.tkqa-wrap .tkqa-grid .tkqa-card:hover .tkqa-card-title{
+  transform:translateY(-1px) scale(1.015) !important;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.24)) drop-shadow(0 0 8px rgba(255,255,255,.06)) !important;
+}
+@media (max-width: 640px){
+  .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-card-title{
+    font-size:clamp(16px, 4.25vw, 20px) !important;
+    line-height:.78 !important;
+    letter-spacing:.01em !important;
+    max-width:11.5ch !important;
+    text-shadow:
+      0 1px 0 rgba(255,255,255,.10),
+      1px 1px 0 rgba(8,18,34,.95),
+      2px 2px 0 rgba(8,18,34,.82),
+      0 8px 18px rgba(0,0,0,.30) !important;
+  }
+}
+</style>
+
+
+<style id="tkqa-roulette-title-spacing-v11">
+.rules.tkqa-wrap .tkqa-roulette .tkqa-card-title{
+  line-height:1.12 !important;
+  letter-spacing:.01em !important;
+}
+</style>
+
+<style id="tkqa-roulette-title-detached-v12">
+.rules.tkqa-wrap .tkqa-roulette .tkqa-card-title.tkqa-card-title--roulette{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:.10em !important;
+  line-height:.84 !important;
+  max-width:none !important;
+}
+.rules.tkqa-wrap .tkqa-roulette .tkqa-card-title.tkqa-card-title--roulette .tkqa-title-line{
+  display:block !important;
+  white-space:nowrap !important;
+}
+.rules.tkqa-wrap .tkqa-roulette .tkqa-card-title.tkqa-card-title--roulette .tkqa-title-line + .tkqa-title-line{
+  margin-top:.02em !important;
+}
+@media (max-width: 640px){
+  .rules.tkqa-wrap .tkqa-roulette .tkqa-card-title.tkqa-card-title--roulette{
+    gap:.12em !important;
+    line-height:.86 !important;
+  }
+}
+</style>
+
+<style id="tkqa-icon-balance-v13">
+.rules.tkqa-wrap .tkqa-icon-chip{
+  width:31px !important;
+  height:31px !important;
+  border-radius:13px !important;
+}
+.rules.tkqa-wrap .tkqa-icon-chip svg{
+  width:17.5px !important;
+  height:17.5px !important;
+  stroke-width:2.02 !important;
+  vector-effect: non-scaling-stroke;
+  transform-origin:center center;
+}
+.rules.tkqa-wrap .tkqa-roulette .tkqa-icon-chip svg{
+  width:18.75px !important;
+  height:18.75px !important;
+  transform:scale(1.08);
+}
+.rules.tkqa-wrap .tkqa-pc .tkqa-icon-chip svg{
+  width:17.8px !important;
+  height:17.8px !important;
+}
+.rules.tkqa-wrap .tkqa-rules .tkqa-icon-chip svg{
+  width:17.7px !important;
+  height:17.7px !important;
+}
+.rules.tkqa-wrap .tkqa-comic .tkqa-icon-chip svg{
+  width:17.7px !important;
+  height:17.7px !important;
+}
+</style>
 </body>
 </html>
