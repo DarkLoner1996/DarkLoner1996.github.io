@@ -9637,6 +9637,7 @@ body.menu-collapsed .side-nav__panel{
     display:none !important;
   }
 </style>
+
 <style id="tk-v183-fhd-stability">
 @media (min-width: 900px) and (max-width: 1920px){
   .header{
@@ -15030,6 +15031,10 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </div>
 <div aria-label="Центр рулетки" class="wheel-center" title="Рулетка"><span aria-hidden="true" class="wheel-center__glyph"></span></div>
 <div aria-hidden="true" class="wheel-glow"></div>
+<button aria-pressed="false" class="roulette-sound-on-wheel" id="rouletteSound" title="Звук" type="button">
+<span aria-hidden="true">🔊</span>
+<span class="sr-only">Звук</span>
+</button>
 </div>
 <div class="roulette-controls">
 <div class="roulette-head">
@@ -15050,10 +15055,6 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
         Подсказка: крути — получай миссию и выполняй вместе с родителями.
       </div>
 <div aria-label="Настройки рулетки" class="roulette-ghostRow">
-<button aria-pressed="false" class="roulette-ghostBtn" id="rouletteSound" title="Звук" type="button">
-<span aria-hidden="true">🔊</span>
-<span class="sr-only">Звук</span>
-</button>
 <button class="roulette-ghostBtn" id="rouletteReset" title="Сбросить прогресс" type="button">
 <span aria-hidden="true">↺</span>
 <span class="sr-only">Сбросить</span>
@@ -18266,6 +18267,13 @@ function renderCard() {
 
       const soundBtn= document.getElementById('rouletteSound');
       const resetBtn= document.getElementById('rouletteReset');
+      if(resetBtn){
+        try{
+          resetBtn.hidden = true;
+          resetBtn.setAttribute('aria-hidden','true');
+          resetBtn.style.display = 'none';
+        }catch(_){ }
+      }
 
       const rmBack  = document.getElementById('rouletteMission');
       const rmTitle = document.getElementById('rmTitle');
@@ -18747,6 +18755,11 @@ function renderCard() {
       let angle = 0; // degrees
       let spinning = false;
       let selectedWheelIndex = null;
+      let spinRaf = 0;
+      let spinToken = 0;
+      let spinEndTimer = 0;
+      let spinTickTimer = 0;
+      let spinCleanup = null;
 
       function readWheelSize(){
         const st = getComputedStyle(rot);
@@ -18772,216 +18785,290 @@ function renderCard() {
 
         const w = canvas.width;
         const h = canvas.height;
-        const cx = w/2, cy = h/2;
-        const radius = Math.min(w,h) * 0.472;
-
-        ctx.clearRect(0,0,w,h);
-
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = Math.min(w, h) * 0.468;
+        const outerR = radius * 0.92;
+        const innerR = radius * 0.30;
         const step = (Math.PI * 2) / n;
-        const start0 = -Math.PI/2 - step/2;
+        const start0 = -Math.PI / 2 - step / 2;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const bgGlow = ctx.createRadialGradient(cx, cy, innerR * 0.3, cx, cy, outerR * 1.28);
+        bgGlow.addColorStop(0, 'rgba(92,214,255,.12)');
+        bgGlow.addColorStop(.58, 'rgba(92,214,255,.06)');
+        bgGlow.addColorStop(.78, 'rgba(255,214,124,.05)');
+        bgGlow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR * 1.22, 0, Math.PI * 2);
+        ctx.fillStyle = bgGlow;
+        ctx.fill();
 
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy + radius*0.045, radius*1.01, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(5,12,24,.12)';
-        ctx.shadowColor = 'rgba(0,0,0,.18)';
-        ctx.shadowBlur = 18 * dpr;
+        ctx.arc(cx, cy + outerR * 0.06, outerR * 1.02, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,.18)';
+        ctx.shadowColor = 'rgba(0,0,0,.34)';
+        ctx.shadowBlur = 22 * dpr;
         ctx.fill();
         ctx.restore();
 
-        const halo = ctx.createRadialGradient(cx, cy, radius*0.20, cx, cy, radius*1.12);
-        halo.addColorStop(0, 'rgba(255,255,255,.10)');
-        halo.addColorStop(.72, 'rgba(255,255,255,.02)');
-        halo.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = halo;
+        const darkBezel = ctx.createLinearGradient(cx - outerR, cy - outerR, cx + outerR, cy + outerR);
+        darkBezel.addColorStop(0, 'rgba(6,18,52,.98)');
+        darkBezel.addColorStop(.48, 'rgba(16,46,112,.98)');
+        darkBezel.addColorStop(1, 'rgba(3,11,32,.99)');
         ctx.beginPath();
-        ctx.arc(cx, cy, radius*1.07, 0, Math.PI*2);
+        ctx.arc(cx, cy, outerR * 1.03, 0, Math.PI * 2);
+        ctx.fillStyle = darkBezel;
         ctx.fill();
 
-        function labelMetrics(label){
+        const outerMetal = ctx.createLinearGradient(cx - outerR, cy - outerR, cx + outerR, cy + outerR);
+        outerMetal.addColorStop(0, 'rgba(255,254,246,.98)');
+        outerMetal.addColorStop(.18, 'rgba(255,232,162,.98)');
+        outerMetal.addColorStop(.52, 'rgba(189,234,255,.96)');
+        outerMetal.addColorStop(.82, 'rgba(124,145,182,.98)');
+        outerMetal.addColorStop(1, 'rgba(255,255,255,.98)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR * 0.996, 0, Math.PI * 2);
+        ctx.strokeStyle = outerMetal;
+        ctx.lineWidth = Math.max(5.5, 6.4 * dpr);
+        ctx.shadowColor = 'rgba(99,224,255,.22)';
+        ctx.shadowBlur = 14 * dpr;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR * 0.962, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,.28)';
+        ctx.lineWidth = Math.max(1.2, 1.6 * dpr);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR * 0.935, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(61,165,255,.30)';
+        ctx.lineWidth = Math.max(2.0, 2.4 * dpr);
+        ctx.stroke();
+
+        function fitLabel(label){
           const len = (label || '').length || 1;
-          let textRadius = radius * 0.67;
-          if(len >= 7) textRadius = radius * 0.64;
-          if(len >= 8) textRadius = radius * 0.615;
-          if(label === '2FA') textRadius = radius * 0.64;
-
-          let fontSize = clamp(cssSize * 0.108, 16, 31) * dpr;
-          if(len >= 8) fontSize *= 0.78;
-          else if(len >= 7) fontSize *= 0.84;
+          let fontSize = clamp(cssSize * 0.105, 15, 28) * dpr;
+          if(len >= 8) fontSize *= 0.74;
+          else if(len >= 7) fontSize *= 0.81;
           else if(len >= 6) fontSize *= 0.90;
-          if(label === '2FA') fontSize *= 1.16;
-
-          const maxWidth = Math.max(radius * 0.28, textRadius * step * 0.90);
-          return { textRadius, fontSize, maxWidth };
+          if(label === '2FA') fontSize *= 1.12;
+          return fontSize;
         }
 
-        for(let i=0;i<n;i++){
-          const a0 = start0 + i*step;
+        for(let i = 0; i < n; i++){
+          const a0 = start0 + i * step;
           const a1 = a0 + step;
-          const mid = (a0+a1)/2;
+          const mid = (a0 + a1) / 2;
           const isGold = (i % 2 === 0);
 
           ctx.beginPath();
-          ctx.moveTo(cx,cy);
-          ctx.arc(cx,cy,radius,a0,a1,false);
+          ctx.arc(cx, cy, outerR * 0.90, a0, a1, false);
+          ctx.arc(cx, cy, innerR, a1, a0, true);
           ctx.closePath();
 
-          const x0 = cx + Math.cos(mid) * radius * 0.08;
-          const y0 = cy + Math.sin(mid) * radius * 0.08;
-          const x1 = cx + Math.cos(mid) * radius;
-          const y1 = cy + Math.sin(mid) * radius;
-          const grad = ctx.createLinearGradient(x0, y0, x1, y1);
-
+          const gx0 = cx + Math.cos(mid) * innerR;
+          const gy0 = cy + Math.sin(mid) * innerR;
+          const gx1 = cx + Math.cos(mid) * outerR * 0.92;
+          const gy1 = cy + Math.sin(mid) * outerR * 0.92;
+          const fill = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
           if(isGold){
-            grad.addColorStop(0.00, 'rgba(252,243,211,.99)');
-            grad.addColorStop(0.42, 'rgba(234,205,132,.97)');
-            grad.addColorStop(0.78, 'rgba(204,156,79,.94)');
-            grad.addColorStop(1.00, 'rgba(139,100,46,.95)');
+            fill.addColorStop(0.00, 'rgba(255,251,228,1)');
+            fill.addColorStop(0.24, 'rgba(255,231,157,.99)');
+            fill.addColorStop(0.54, 'rgba(230,185,88,.99)');
+            fill.addColorStop(0.82, 'rgba(170,113,27,.99)');
+            fill.addColorStop(1.00, 'rgba(96,60,12,.99)');
           }else{
-            grad.addColorStop(0.00, 'rgba(163,227,255,.99)');
-            grad.addColorStop(0.44, 'rgba(91,184,246,.98)');
-            grad.addColorStop(0.78, 'rgba(44,111,213,.96)');
-            grad.addColorStop(1.00, 'rgba(27,66,154,.96)');
+            fill.addColorStop(0.00, 'rgba(223,248,255,1)');
+            fill.addColorStop(0.24, 'rgba(127,222,255,1)');
+            fill.addColorStop(0.56, 'rgba(52,151,255,.99)');
+            fill.addColorStop(0.84, 'rgba(24,80,212,.99)');
+            fill.addColorStop(1.00, 'rgba(10,31,118,.99)');
           }
-
-          ctx.fillStyle = grad;
+          ctx.fillStyle = fill;
           ctx.fill();
 
           ctx.save();
           ctx.beginPath();
-          ctx.moveTo(cx,cy);
-          ctx.arc(cx,cy,radius,a0,a1,false);
+          ctx.arc(cx, cy, outerR * 0.90, a0, a1, false);
+          ctx.arc(cx, cy, innerR, a1, a0, true);
           ctx.closePath();
           ctx.clip();
 
-          const gloss = ctx.createLinearGradient(cx, cy - radius, cx, cy + radius);
-          gloss.addColorStop(0, 'rgba(255,255,255,.26)');
-          gloss.addColorStop(.28, 'rgba(255,255,255,.08)');
-          gloss.addColorStop(.65, 'rgba(255,255,255,.02)');
-          gloss.addColorStop(1, 'rgba(8,16,30,.08)');
+          const gloss = ctx.createLinearGradient(cx, cy - outerR, cx, cy + outerR);
+          gloss.addColorStop(0.00, 'rgba(255,255,255,.42)');
+          gloss.addColorStop(0.18, 'rgba(255,255,255,.18)');
+          gloss.addColorStop(0.48, 'rgba(255,255,255,.03)');
+          gloss.addColorStop(1.00, 'rgba(4,12,26,.14)');
           ctx.fillStyle = gloss;
-          ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
+          ctx.fillRect(cx - outerR, cy - outerR, outerR * 2, outerR * 2);
 
-          const rimFade = ctx.createRadialGradient(cx, cy, radius*0.28, cx, cy, radius);
-          rimFade.addColorStop(0, 'rgba(255,255,255,0)');
-          rimFade.addColorStop(.76, 'rgba(255,255,255,0)');
-          rimFade.addColorStop(1, 'rgba(9,16,28,.18)');
-          ctx.fillStyle = rimFade;
-          ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
+          const radialSheen = ctx.createRadialGradient(cx, cy, innerR * 0.7, cx, cy, outerR * 0.95);
+          radialSheen.addColorStop(0, 'rgba(255,255,255,.10)');
+          radialSheen.addColorStop(.58, 'rgba(255,255,255,0)');
+          radialSheen.addColorStop(1, 'rgba(0,0,0,.16)');
+          ctx.fillStyle = radialSheen;
+          ctx.fillRect(cx - outerR, cy - outerR, outerR * 2, outerR * 2);
           ctx.restore();
 
-          ctx.strokeStyle = isGold ? 'rgba(255,247,225,.54)' : 'rgba(226,246,255,.40)';
-          ctx.lineWidth = Math.max(1.5, 1.7*dpr);
+          ctx.beginPath();
+          ctx.arc(cx, cy, outerR * 0.90, a0, a1, false);
+          ctx.strokeStyle = isGold ? 'rgba(255,247,220,.50)' : 'rgba(234,249,255,.42)';
+          ctx.lineWidth = Math.max(1.2, 1.5 * dpr);
           ctx.stroke();
 
+          if(typeof highlightIndex === 'number' && highlightIndex === i){
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, outerR * 0.90, a0, a1, false);
+            ctx.arc(cx, cy, innerR, a1, a0, true);
+            ctx.closePath();
+            ctx.clip();
+
+            const hi = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
+            hi.addColorStop(0.00, 'rgba(230,255,236,.28)');
+            hi.addColorStop(0.24, 'rgba(135,255,198,.38)');
+            hi.addColorStop(0.52, 'rgba(46,243,142,.54)');
+            hi.addColorStop(0.76, 'rgba(12,196,108,.58)');
+            hi.addColorStop(1.00, 'rgba(7,102,58,.68)');
+            ctx.fillStyle = hi;
+            ctx.fillRect(cx - outerR, cy - outerR, outerR * 2, outerR * 2);
+
+            ctx.globalCompositeOperation = 'screen';
+            const hg = ctx.createRadialGradient(cx, cy, innerR * 0.6, cx, cy, outerR);
+            hg.addColorStop(0, 'rgba(255,255,255,0)');
+            hg.addColorStop(.6, 'rgba(165,255,204,.10)');
+            hg.addColorStop(1, 'rgba(56,255,142,.34)');
+            ctx.fillStyle = hg;
+            ctx.fillRect(cx - outerR, cy - outerR, outerR * 2, outerR * 2);
+            ctx.restore();
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, outerR * 0.90, a0, a1, false);
+            ctx.arc(cx, cy, innerR, a1, a0, true);
+            ctx.closePath();
+            ctx.strokeStyle = 'rgba(158,255,200,.98)';
+            ctx.lineWidth = Math.max(3.2, 3.8 * dpr);
+            ctx.shadowColor = 'rgba(46,243,142,.66)';
+            ctx.shadowBlur = 16 * dpr;
+            ctx.stroke();
+            ctx.restore();
+          }
+
           const label = String(ROULETTE_ITEMS[i].label || '').trim();
-          const m = labelMetrics(label);
-          let fontSize = m.fontSize;
-          const family = 'Inter, "Segoe UI", "Arial Narrow", Arial, sans-serif';
+          let fontSize = fitLabel(label);
+          const family = '"Russo One", Inter, "Segoe UI", Arial, sans-serif';
+          const textR = innerR + (outerR - innerR) * 0.54;
+          const maxWidth = Math.max(outerR * 0.26, textR * step * 0.88);
 
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(mid);
-          ctx.translate(m.textRadius, 0);
+          ctx.translate(textR, 0);
           if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
-          ctx.rotate(Math.PI/2);
+          ctx.rotate(Math.PI / 2);
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.lineJoin = 'round';
           ctx.miterLimit = 2;
           ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
-
-          while(fontSize > 11*dpr && ctx.measureText(label).width > m.maxWidth){
+          while(fontSize > 10.5 * dpr && ctx.measureText(label).width > maxWidth){
             fontSize -= 0.5;
             ctx.font = `900 ${Math.round(fontSize)}px ${family}`;
           }
-
           if(isGold){
-            ctx.fillStyle = 'rgba(63,38,13,.96)';
-            ctx.strokeStyle = 'rgba(255,248,231,.68)';
-            ctx.lineWidth = Math.max(1.6, 1.85*dpr);
-            ctx.shadowColor = 'rgba(255,255,255,.08)';
+            ctx.strokeStyle = 'rgba(255,248,236,.82)';
+            ctx.fillStyle = 'rgba(69,41,10,.98)';
+            ctx.lineWidth = Math.max(1.7, 2.0 * dpr);
+            ctx.shadowColor = 'rgba(255,248,232,.12)';
             ctx.shadowBlur = 1.6 * dpr;
-            ctx.shadowOffsetY = 0;
           }else{
-            ctx.fillStyle = 'rgba(252,252,255,.99)';
-            ctx.strokeStyle = 'rgba(18,35,68,.86)';
-            ctx.lineWidth = Math.max(2.2, 2.45*dpr);
-            ctx.shadowColor = 'rgba(7,16,32,.26)';
+            ctx.strokeStyle = 'rgba(14,32,78,.94)';
+            ctx.fillStyle = 'rgba(255,255,255,.99)';
+            ctx.lineWidth = Math.max(2.0, 2.35 * dpr);
+            ctx.shadowColor = 'rgba(7,18,42,.30)';
             ctx.shadowBlur = 2.6 * dpr;
-            ctx.shadowOffsetY = 1.0 * dpr;
           }
-
-          ctx.strokeText(label, 0, 0, m.maxWidth);
-          ctx.fillText(label, 0, 0, m.maxWidth);
+          ctx.strokeText(label, 0, 0, maxWidth);
+          ctx.fillText(label, 0, 0, maxWidth);
           ctx.restore();
-
-          if(typeof highlightIndex === 'number' && highlightIndex === i){
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(cx,cy);
-            ctx.arc(cx,cy,radius,a0,a1,false);
-            ctx.closePath();
-            ctx.clip();
-
-            const greenGlow = ctx.createLinearGradient(x0, y0, x1, y1);
-            greenGlow.addColorStop(0.00, 'rgba(218,255,228,.28)');
-            greenGlow.addColorStop(0.34, 'rgba(118,255,162,.34)');
-            greenGlow.addColorStop(0.72, 'rgba(40,208,113,.44)');
-            greenGlow.addColorStop(1.00, 'rgba(12,136,72,.52)');
-            ctx.fillStyle = greenGlow;
-            ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
-
-            const greenRadial = ctx.createRadialGradient(cx, cy, radius*0.18, cx, cy, radius*1.05);
-            greenRadial.addColorStop(0, 'rgba(255,255,255,0)');
-            greenRadial.addColorStop(.56, 'rgba(156,255,196,.08)');
-            greenRadial.addColorStop(1, 'rgba(20,200,96,.26)');
-            ctx.globalCompositeOperation = 'screen';
-            ctx.fillStyle = greenRadial;
-            ctx.fillRect(cx - radius, cy - radius, radius*2, radius*2);
-            ctx.restore();
-
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(cx,cy);
-            ctx.arc(cx,cy,radius,a0,a1,false);
-            ctx.closePath();
-            ctx.strokeStyle = 'rgba(134,255,177,.98)';
-            ctx.lineWidth = Math.max(3.0, 3.4*dpr);
-            ctx.shadowColor = 'rgba(52,230,122,.55)';
-            ctx.shadowBlur = 12 * dpr;
-            ctx.stroke();
-            ctx.restore();
-          }
         }
 
+        for(let i = 0; i < n; i++){
+          const a = start0 + i * step;
+          const x0 = cx + Math.cos(a) * innerR;
+          const y0 = cy + Math.sin(a) * innerR;
+          const x1 = cx + Math.cos(a) * outerR * 0.90;
+          const y1 = cy + Math.sin(a) * outerR * 0.90;
+          ctx.beginPath();
+          ctx.moveTo(x0, y0);
+          ctx.lineTo(x1, y1);
+          ctx.strokeStyle = 'rgba(255,255,255,.20)';
+          ctx.lineWidth = Math.max(1.0, 1.2 * dpr);
+          ctx.stroke();
+        }
+
+        const dots = n * 2;
+        for(let i = 0; i < dots; i++){
+          const a = -Math.PI / 2 + i * ((Math.PI * 2) / dots);
+          const rr = outerR * 0.82;
+          const x = cx + Math.cos(a) * rr;
+          const y = cy + Math.sin(a) * rr;
+          const rDot = (i % 2 === 0 ? 2.1 : 1.45) * dpr;
+          const fill = ctx.createRadialGradient(x - rDot*.25, y - rDot*.35, rDot*.18, x, y, rDot*1.45);
+          if(i % 2 === 0){
+            fill.addColorStop(0, 'rgba(255,255,255,.98)');
+            fill.addColorStop(.56, 'rgba(255,227,152,.98)');
+            fill.addColorStop(1, 'rgba(193,127,30,.96)');
+          }else{
+            fill.addColorStop(0, 'rgba(255,255,255,.98)');
+            fill.addColorStop(.56, 'rgba(157,231,255,.96)');
+            fill.addColorStop(1, 'rgba(30,128,248,.95)');
+          }
+          ctx.beginPath();
+          ctx.arc(x, y, rDot, 0, Math.PI * 2);
+          ctx.fillStyle = fill;
+          ctx.shadowColor = i % 2 === 0 ? 'rgba(255,214,124,.26)' : 'rgba(99,224,255,.24)';
+          ctx.shadowBlur = 5 * dpr;
+          ctx.fill();
+        }
+
+        const innerMetal = ctx.createLinearGradient(cx - innerR, cy - innerR, cx + innerR, cy + innerR);
+        innerMetal.addColorStop(0, 'rgba(255,255,255,.22)');
+        innerMetal.addColorStop(.42, 'rgba(255,230,170,.18)');
+        innerMetal.addColorStop(1, 'rgba(20,44,96,.24)');
         ctx.beginPath();
-        ctx.arc(cx,cy,radius*0.83,0,Math.PI*2);
-        const innerRing = ctx.createLinearGradient(cx-radius, cy-radius, cx+radius, cy+radius);
-        innerRing.addColorStop(0, 'rgba(255,255,255,.18)');
-        innerRing.addColorStop(1, 'rgba(17,33,59,.22)');
-        ctx.strokeStyle = innerRing;
-        ctx.lineWidth = Math.max(1.0, 1.15*dpr);
+        ctx.arc(cx, cy, innerR * 1.03, 0, Math.PI * 2);
+        ctx.strokeStyle = innerMetal;
+        ctx.lineWidth = Math.max(1.8, 2.2 * dpr);
         ctx.stroke();
 
+        const hub = ctx.createRadialGradient(cx - innerR*0.15, cy - innerR*0.18, innerR*0.08, cx, cy, innerR*0.92);
+        hub.addColorStop(0, 'rgba(255,255,255,.94)');
+        hub.addColorStop(.18, 'rgba(227,245,255,.98)');
+        hub.addColorStop(.42, 'rgba(162,230,255,.98)');
+        hub.addColorStop(.74, 'rgba(74,174,255,.98)');
+        hub.addColorStop(1, 'rgba(20,78,186,.98)');
         ctx.beginPath();
-        ctx.arc(cx,cy,radius*0.995,0,Math.PI*2);
-        const rim = ctx.createLinearGradient(cx-radius, cy-radius, cx+radius, cy+radius);
-        rim.addColorStop(0, 'rgba(255,252,238,.96)');
-        rim.addColorStop(.32, 'rgba(226,219,198,.94)');
-        rim.addColorStop(.68, 'rgba(121,140,164,.90)');
-        rim.addColorStop(1, 'rgba(255,255,255,.82)');
-        ctx.strokeStyle = rim;
-        ctx.lineWidth = Math.max(4.2, 4.8*dpr);
-        ctx.shadowColor = 'rgba(0,0,0,.20)';
-        ctx.shadowBlur = 10 * dpr;
-        ctx.stroke();
+        ctx.arc(cx, cy, innerR * 0.82, 0, Math.PI * 2);
+        ctx.fillStyle = hub;
+        ctx.shadowColor = 'rgba(92,214,255,.20)';
+        ctx.shadowBlur = 12 * dpr;
+        ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(cx,cy,radius*0.955,0,Math.PI*2);
-        ctx.strokeStyle = 'rgba(255,255,255,.34)';
-        ctx.lineWidth = Math.max(1.2, 1.4*dpr);
-        ctx.stroke();
+        ctx.arc(cx, cy, innerR * 0.54, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,.18)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, innerR * 0.28, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,.26)';
+        ctx.fill();
       }
 
       function pickIndex(finalAngle){
@@ -19605,81 +19692,160 @@ function renderCard() {
         };
       }
 
-      function animateSpin(toDeg, duration){
-        const fromDeg = angle;
-        const start = performance.now();
-        const seg = 360 / n;
+      function clearSpinTimers(){
+        if(spinTickTimer){
+          clearTimeout(spinTickTimer);
+          spinTickTimer = 0;
+        }
+        if(spinEndTimer){
+          clearTimeout(spinEndTimer);
+          spinEndTimer = 0;
+        }
+        if(typeof spinCleanup === 'function'){
+          try{ spinCleanup(); }catch(_){ }
+          spinCleanup = null;
+        }
+        if(spinRaf){
+          try{ cancelAnimationFrame(spinRaf); }catch(_){ }
+          spinRaf = 0;
+        }
+      }
 
-        let lastTick = Math.floor(normalizeDeg(fromDeg) / seg);
-        let lastTickTime = 0;
-        let lastVibeTime = 0;
+      function pulseTicks(duration, turns){
+        if(reduce) return;
+        const totalTurns = Math.max(1, turns || 1);
+        const totalTicks = Math.max(n * totalTurns, n * 3);
+        let left = totalTicks;
+        let delay = Math.max(34, Math.min(84, duration / Math.max(totalTicks, 1)));
 
-        function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-
-        return new Promise((resolve) => {
-          function frame(now){
-            const p = clamp((now - start) / duration, 0, 1);
-            const eased = reduce ? 1 : easeOutCubic(p);
-            angle = fromDeg + (toDeg - fromDeg) * eased;
-
-            rot.style.transform = `rotate(${angle}deg)`;
-
-            const curTick = Math.floor(normalizeDeg(angle) / seg);
-            if(curTick !== lastTick && (now - lastTickTime) > 28){
-              lastTick = curTick;
-              lastTickTime = now;
-              pointerTick();
-              playTick();
-              if(!reduce && navigator.vibrate && (now - lastVibeTime) > 110){
-                lastVibeTime = now;
-                try{ navigator.vibrate(8); }catch(_){}
-              }
-            }
-
-            if(p < 1) requestAnimationFrame(frame);
-            else resolve();
+        function step(){
+          if(!spinning || left <= 0){
+            spinTickTimer = 0;
+            return;
           }
-          requestAnimationFrame(frame);
+          left -= 1;
+          try{ pointerTick(); }catch(_){ }
+          try{ playTick(); }catch(_){ }
+          if(!reduce && navigator.vibrate && left < totalTicks - 2){
+            try{ navigator.vibrate(7); }catch(_){ }
+          }
+          const progress = 1 - (left / totalTicks);
+          const easeSlow = 1 + progress * progress * 1.9;
+          delay = Math.max(38, Math.min(155, delay * (left < (n * 1.6) ? 1.12 : easeSlow * 0.995)));
+          spinTickTimer = setTimeout(step, delay);
+        }
+
+        spinTickTimer = setTimeout(step, delay);
+      }
+
+      function animateSpin(toDeg, duration, token){
+        clearSpinTimers();
+
+        const fromDeg = normalizeDeg(angle);
+        const finalVisual = toDeg;
+        const durationMs = Math.max(240, Math.round(duration || 0));
+        const totalTurns = Math.max(1, Math.round((finalVisual - fromDeg) / 360));
+        pulseTicks(durationMs, totalTurns);
+
+        rot.style.willChange = 'transform';
+        rot.style.transition = 'none';
+        rot.style.transform = `rotate(${fromDeg}deg)`;
+        void rot.offsetWidth;
+
+        return new Promise((resolve, reject) => {
+          let settled = false;
+
+          function finish(){
+            if(settled) return;
+            settled = true;
+            clearSpinTimers();
+            rot.style.willChange = '';
+            if(token !== spinToken){
+              reject(new Error('stale_spin'));
+              return;
+            }
+            try{
+              rot.style.transition = 'none';
+              rot.style.transform = `rotate(${normalizeDeg(finalVisual)}deg)`;
+            }catch(_){ }
+            resolve();
+          }
+
+          const onDone = (ev) => {
+            if(ev && ev.target !== rot) return;
+            finish();
+          };
+
+          spinCleanup = () => {
+            rot.removeEventListener('transitionend', onDone);
+            rot.removeEventListener('transitioncancel', onDone);
+          };
+
+          rot.addEventListener('transitionend', onDone);
+          rot.addEventListener('transitioncancel', onDone);
+          spinEndTimer = setTimeout(finish, durationMs + 220);
+
+          spinRaf = requestAnimationFrame(() => {
+            if(token !== spinToken){
+              finish();
+              return;
+            }
+            rot.style.transition = `transform ${durationMs}ms cubic-bezier(.12,.78,.12,1)`;
+            rot.style.transform = `rotate(${finalVisual}deg)`;
+          });
         });
       }
 
       function spin(){
         if(spinning) return;
+
         spinning = true;
+        spinToken += 1;
+        const token = spinToken;
         selectedWheelIndex = null;
+        dock.classList.remove('is-win');
         dock.classList.add('is-spinning');
         spinBtn.disabled = true;
 
-        try{ drawWheel(null); }catch(_){}
+        try{
+          clearSpinTimers();
+          rot.style.transition = 'none';
+          rot.style.transform = `rotate(${normalizeDeg(angle)}deg)`;
+          drawWheel(null);
+        }catch(_){ }
 
-        ensureAudio();
+        try{ ensureAudio(); }catch(_){ }
 
-        const targetIndex = Math.floor(Math.random() * n);
         const seg = 360 / n;
-
-        const desiredShift = (n - targetIndex) % n;
-
-        const minRot = desiredShift*seg - seg/2;
-        const maxRot = (desiredShift+1)*seg - seg/2;
-
-        const jitter = (Math.random()*0.76 + 0.12); // 0.12..0.88
-        let baseRot = minRot + (maxRot - minRot) * jitter;
-
-        const extraTurns = reduce ? 1 : (6 + Math.floor(Math.random()*3)); // 6..8
+        const targetIndex = Math.floor(Math.random() * n);
         const currentNorm = normalizeDeg(angle);
-        const deltaToBase = normalizeDeg(baseRot - currentNorm);
+        const targetDeg = normalizeDeg(((n - targetIndex) % n) * seg);
+        const deltaToTarget = normalizeDeg(targetDeg - currentNorm);
+        const extraTurns = reduce ? 1 : (5 + Math.floor(Math.random() * 3));
+        const finalVisual = currentNorm + (extraTurns * 360) + deltaToTarget;
+        const dur = reduce ? 260 : (2100 + Math.random() * 450);
 
-        const final = angle + (extraTurns * 360) + deltaToBase;
-        const dur = reduce ? 250 : (2400 + Math.random()*650);
-
-        animateSpin(final, dur)
+        animateSpin(finalVisual, dur, token)
           .then(() => {
-            const idx = pickIndex(angle);
-            const item = ROULETTE_ITEMS[idx];
+            if(token !== spinToken) return;
+
+            angle = normalizeDeg(finalVisual);
+            rot.style.transition = 'none';
+            rot.style.transform = `rotate(${angle}deg)`;
+
+            const landedIndex = pickIndex(angle);
+            selectedWheelIndex = landedIndex;
+            const item = ROULETTE_ITEMS[landedIndex] || ROULETTE_ITEMS[targetIndex] || ROULETTE_ITEMS[0];
+
+            try{ drawWheel(landedIndex); }catch(_){ }
             setResult(item, { push:true });
             if(mini) mini.textContent = "✨ Выпало: " + item.label + " — нажми «Задание», чтобы начать миссию.";
           })
+          .catch(() => {
+          })
           .finally(() => {
+            if(token !== spinToken) return;
+            clearSpinTimers();
             spinning = false;
             dock.classList.remove('is-spinning');
             spinBtn.disabled = false;
@@ -56248,6 +56414,884 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   }
 }
 </style>
+
+
+<style id="tk-roulette-stable-rebuild-v6">
+  #rouletteDock.roulette-dock{
+    width: min(330px, calc(100vw - 24px)) !important;
+    gap: 8px !important;
+    right: 18px !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: 14px !important;
+    transform: none !important;
+    z-index: 9800 !important;
+  }
+  #rouletteDock .roulette-card,
+  #rouletteDock .roulette-info{
+    border-radius: 24px !important;
+    background:
+      radial-gradient(140% 140% at 12% 10%, rgba(255,255,255,.12), transparent 40%),
+      radial-gradient(120% 120% at 88% 18%, rgba(255,208,116,.10), transparent 42%),
+      linear-gradient(180deg, rgba(10,30,56,.62), rgba(7,18,34,.54)) !important;
+    backdrop-filter: blur(16px) saturate(1.06) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.06) !important;
+    border: 1px solid rgba(170,220,255,.18) !important;
+    box-shadow: 0 22px 52px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.12) !important;
+  }
+  #rouletteDock .roulette-card{ padding: 12px !important; gap: 10px !important; }
+  #rouletteDock .wheel-wrap{
+    width: 152px !important;
+    height: 152px !important;
+    padding: 4px !important;
+    margin: 0 auto !important;
+    background:
+      radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.14), transparent 62%),
+      linear-gradient(180deg, rgba(12,55,95,.48), rgba(8,35,60,.36)) !important;
+  }
+  #rouletteDock canvas#wheel{ transform: none !important; }
+  #rouletteDock .wheel-pointer{
+    top: -7px !important;
+    width: 20px !important;
+    height: 24px !important;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.28)) !important;
+  }
+  #rouletteDock .wheel-center{
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 999px !important;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,.96), rgba(182,236,255,.88) 35%, rgba(92,176,255,.88) 64%, rgba(27,86,194,.96) 100%) !important;
+    border: 1px solid rgba(255,255,255,.38) !important;
+    box-shadow:
+      0 0 0 3px rgba(255,233,170,.18),
+      0 0 22px rgba(108,220,255,.40),
+      inset 0 1px 0 rgba(255,255,255,.44) !important;
+  }
+  #rouletteDock .wheel-center__glyph,
+  #rouletteDock .wheel-center::after{
+    display:none !important;
+    content:none !important;
+  }
+  #rouletteDock .roulette-controls{
+    min-width: 0 !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  #rouletteDock .roulette-head{ gap: 2px !important; }
+  #rouletteDock .roulette-title{
+    font-size: 15px !important;
+    line-height: 1.05 !important;
+    letter-spacing: .08em !important;
+  }
+  #rouletteDock .roulette-sub{
+    font-size: 10px !important;
+    letter-spacing: .14em !important;
+    opacity: .92 !important;
+  }
+  #rouletteDock .roulette-btn,
+  #rouletteDock .roulette-link,
+  #rouletteDock .roulette-miniBtn{
+    min-height: 42px !important;
+    border-radius: 16px !important;
+    font-size: 12px !important;
+    letter-spacing: .06em !important;
+    font-family: Inter, "Segoe UI", system-ui, sans-serif !important;
+  }
+  #rouletteDock .roulette-btn{ padding: 10px 12px !important; }
+  #rouletteDock .roulette-mini{ font-size: 11px !important; }
+  #rouletteDock .roulette-ghostRow,
+  #rouletteDock .roulette-history,
+  #rouletteDock #rouletteReset,
+  #rouletteDock #rCopy,
+  #rouletteDock #rDone{ display: none !important; }
+  #rouletteDock .roulette-info{
+    min-width: 0 !important;
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+  #rouletteDock .roulette-infoHead{ gap: 8px !important; }
+  #rouletteDock .roulette-infoBadge,
+  #rouletteDock .roulette-streak{
+    font-family: Inter, "Segoe UI", system-ui, sans-serif !important;
+    font-size: 10px !important;
+  }
+  #rouletteDock .roulette-infoTitle{
+    font-family: Inter, "Segoe UI", system-ui, sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.16 !important;
+    letter-spacing: 0 !important;
+    color: rgba(255,255,255,.98) !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,.22) !important;
+  }
+  #rouletteDock .roulette-infoText{
+    font-family: Inter, "Segoe UI", system-ui, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.34 !important;
+    letter-spacing: 0 !important;
+    color: rgba(241,248,255,.96) !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, rgba(13,24,46,.54), rgba(9,18,34,.62)) !important;
+    border: 1px solid rgba(170,220,255,.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+  #rouletteDock .roulette-infoActions{
+    display: grid !important;
+    grid-template-columns: 1fr 46px !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+  #rouletteDock #rLink{ grid-column: 1 / 2 !important; }
+  #rouletteDock #rouletteSound{
+    width: 46px !important;
+    min-width: 46px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #rouletteDock #rouletteSound span:last-child{ display:none !important; }
+  @media (max-width: 1200px){
+    #rouletteDock.roulette-dock{ width: min(310px, calc(100vw - 22px)) !important; right: 12px !important; bottom: 10px !important; }
+    #rouletteDock .wheel-wrap{ width: 142px !important; height: 142px !important; }
+  }
+</style>
+<style id="tk-roulette-wow-finale">
+#rouletteDock.tk-roulette-wow{
+  width: 328px !important;
+  min-width: 328px !important;
+  max-width: 328px !important;
+  gap: 10px !important;
+  isolation:isolate !important;
+  --tkrw-gold1:#fff6d2;
+  --tkrw-gold2:#ffd788;
+  --tkrw-gold3:#b67828;
+  --tkrw-blue1:#9ce8ff;
+  --tkrw-blue2:#45c0ff;
+  --tkrw-blue3:#1c64e6;
+}
+#rouletteDock.tk-roulette-wow::before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:30px;
+  pointer-events:none;
+  background:
+    radial-gradient(420px 200px at 12% 12%, rgba(255,255,255,.14), transparent 55%),
+    radial-gradient(320px 180px at 88% 16%, rgba(99,224,255,.14), transparent 58%),
+    radial-gradient(320px 220px at 50% 100%, rgba(255,214,124,.10), transparent 64%);
+  filter: blur(6px);
+  opacity:.9;
+  z-index:0;
+}
+#rouletteDock.tk-roulette-wow .roulette-card,
+#rouletteDock.tk-roulette-wow .roulette-info{
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(160% 140% at 18% 14%, rgba(255,255,255,.16), transparent 34%),
+    radial-gradient(140% 140% at 84% 18%, rgba(99,224,255,.12), transparent 36%),
+    linear-gradient(180deg, rgba(13,44,84,.62), rgba(7,22,43,.76)) !important;
+  border:1px solid rgba(202,236,255,.16) !important;
+  box-shadow:
+    0 22px 52px rgba(0,0,0,.26),
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    inset 0 1px 0 rgba(255,255,255,.12) !important;
+  backdrop-filter: blur(18px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
+  z-index:1;
+}
+#rouletteDock.tk-roulette-wow .roulette-card::before,
+#rouletteDock.tk-roulette-wow .roulette-info::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  padding:1px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.04)),
+    linear-gradient(90deg, rgba(255,214,124,.68), rgba(99,224,255,.42), rgba(255,214,124,.68));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;
+  opacity:.92;
+}
+#rouletteDock.tk-roulette-wow .roulette-card::after,
+#rouletteDock.tk-roulette-wow .roulette-info::after{
+  content:"";
+  position:absolute;
+  inset:-24%;
+  pointer-events:none;
+  background:
+    radial-gradient(5px 5px at 16% 22%, rgba(255,255,255,.32), transparent 72%),
+    radial-gradient(4px 4px at 26% 70%, rgba(255,255,255,.18), transparent 72%),
+    radial-gradient(5px 5px at 78% 24%, rgba(255,255,255,.22), transparent 72%),
+    linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  mix-blend-mode:screen;
+  opacity:.7;
+}
+#rouletteDock.tk-roulette-wow .roulette-card{ padding: 12px 12px 10px !important; gap: 9px !important; }
+#rouletteDock.tk-roulette-wow .roulette-controls{ min-width:0 !important; width:100% !important; gap:8px !important; }
+#rouletteDock.tk-roulette-wow .roulette-head{ display:flex !important; align-items:center !important; justify-content:space-between !important; gap:10px !important; }
+#rouletteDock.tk-roulette-wow .roulette-title{
+  font-family:"Russo One", Inter, system-ui, sans-serif !important;
+  font-size: 13px !important;
+  letter-spacing: .12em !important;
+  line-height:1.04 !important;
+  color: #f4fbff !important;
+  text-shadow:0 8px 18px rgba(0,0,0,.28), 0 0 14px rgba(92,214,255,.18) !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-sub{
+  margin-top: 3px !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  color: rgba(210,239,255,.82) !important;
+  text-transform: uppercase !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-meter{ width: 44px !important; height: 44px !important; }
+#rouletteDock.tk-roulette-wow .roulette-meter .meter-ring{ inset:4px !important; }
+#rouletteDock.tk-roulette-wow .roulette-meter::after{ inset:10px !important; }
+#rouletteDock.tk-roulette-wow .roulette-meter .meter-text{ font: 800 9px/1 Inter,system-ui,sans-serif !important; color:rgba(245,250,255,.96) !important; }
+#rouletteDock.tk-roulette-wow .wheel-wrap{
+  width: 170px !important;
+  height: 170px !important;
+  min-width: 170px !important;
+  min-height: 170px !important;
+  margin-top:0 !important;
+  border-radius:999px !important;
+  overflow:visible !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(8,24,52,.98), rgba(3,13,32,1)) !important;
+  box-shadow:
+    0 0 0 5px rgba(10,29,64,.88),
+    0 0 0 6px rgba(255,255,255,.05),
+    0 18px 34px rgba(0,0,0,.30),
+    0 0 26px rgba(82,202,255,.12) !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-wrap::before{
+  content:"";
+  position:absolute;
+  inset:-12px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(99,224,255,.16), transparent 58%),
+    radial-gradient(circle at 50% 50%, rgba(255,214,124,.10), transparent 76%);
+  filter:blur(8px);
+  opacity:.72;
+}
+#rouletteDock.tk-roulette-wow .wheel-wrap::after{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius:inherit;
+  pointer-events:none;
+  border:1px solid rgba(202,236,255,.12);
+  box-shadow:0 0 18px rgba(99,224,255,.10), 0 0 10px rgba(255,214,124,.08);
+  opacity:.92;
+}
+#rouletteDock.tk-roulette-wow .wheel-rot{ transform-origin:50% 50% !important; }
+#rouletteDock.tk-roulette-wow canvas#wheel{
+  position:relative !important;
+  z-index:1 !important;
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  transform: translateZ(0) scale(1.02) !important;
+  filter: saturate(1.14) contrast(1.04) brightness(1.02)
+          drop-shadow(0 0 12px rgba(99,224,255,.08)) !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-ring,
+#rouletteDock.tk-roulette-wow .wheel-glow{ display:block !important; }
+#rouletteDock.tk-roulette-wow .wheel-ring{
+  position:absolute !important;
+  inset:4px !important;
+  border-radius:inherit !important;
+  pointer-events:none !important;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 70%, rgba(255,255,255,.12) 72%, transparent 74%),
+    repeating-conic-gradient(from -90deg, rgba(255,255,255,.12) 0 4deg, transparent 4deg 16deg) !important;
+  opacity:.52 !important;
+  mix-blend-mode:screen !important;
+  animation: tkRouletteOrbitReverse 24s linear infinite !important;
+  z-index:2 !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-glow{
+  position:absolute !important;
+  inset:-10px !important;
+  border-radius:inherit !important;
+  pointer-events:none !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(99,224,255,.22), transparent 52%),
+    radial-gradient(circle at 50% 50%, rgba(255,214,124,.12), transparent 70%) !important;
+  mix-blend-mode:screen !important;
+  filter:blur(8px) !important;
+  opacity:.58 !important;
+  transition:opacity .18s ease !important;
+  z-index:1 !important;
+}
+#rouletteDock.tk-roulette-wow.is-spinning .wheel-glow{ opacity:.92 !important; }
+#rouletteDock.tk-roulette-wow .wheel-pointer{
+  top: -10px !important;
+  width: 22px !important;
+  height: 30px !important;
+  border:0 !important;
+  background:transparent !important;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,.26)) !important;
+  z-index:12 !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-pointer::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  clip-path: polygon(50% 0%, 100% 28%, 72% 58%, 50% 72%, 28% 58%, 0 28%) !important;
+  border-radius: 7px !important;
+  background:
+    radial-gradient(60% 40% at 50% 18%, rgba(255,255,255,.46), rgba(255,255,255,0) 74%),
+    linear-gradient(180deg, rgba(255,248,232,.98), rgba(255,220,150,.98) 42%, rgba(223,150,56,.98)) !important;
+  border:1px solid rgba(255,248,232,.55) !important;
+  box-shadow:0 0 12px rgba(255,214,124,.18), inset 0 -6px 10px rgba(125,68,16,.16) !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-pointer::after{
+  content:"" !important;
+  position:absolute !important;
+  left: 50% !important;
+  top: 15px !important;
+  width: 10px !important;
+  height: 12px !important;
+  transform: translateX(-50%) !important;
+  clip-path: polygon(50% 100%, 0 0, 100% 0) !important;
+  border-radius:0 !important;
+  background: linear-gradient(180deg, rgba(255,248,232,.98), rgba(223,150,56,.98)) !important;
+  box-shadow: 0 0 10px rgba(255,214,124,.22) !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-center{
+  width: 42px !important;
+  height: 42px !important;
+  border-radius:999px !important;
+  background:
+    radial-gradient(130% 130% at 36% 28%, rgba(255,255,255,.68), rgba(255,255,255,0) 44%),
+    linear-gradient(180deg, rgba(255,228,156,.98), rgba(123,220,255,.96) 68%, rgba(55,152,255,.98)) !important;
+  border: 1px solid rgba(255,247,228,.72) !important;
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,.06),
+    0 0 18px rgba(95,222,255,.18),
+    0 10px 18px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 -8px 14px rgba(32,88,170,.18) !important;
+  color:transparent !important;
+  font-size:0 !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-center::before{
+  content:"" !important;
+  position:absolute !important;
+  inset: 11px !important;
+  border-radius:inherit !important;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,.98), rgba(223,246,255,.98) 34%, rgba(114,219,255,.96) 74%, rgba(36,120,220,.98) 100%) !important;
+  box-shadow:0 0 0 2px rgba(255,250,236,.46), 0 0 14px rgba(99,224,255,.22), inset 0 1px 0 rgba(255,255,255,.30) !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-center::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:-8px !important;
+  border-radius:inherit !important;
+  border:1px solid rgba(96,224,255,.22) !important;
+  box-shadow:0 0 18px rgba(96,224,255,.14), 0 0 10px rgba(255,214,124,.08) !important;
+  opacity:.82 !important;
+  animation: tkRouletteCenterPulse 2.8s ease-in-out infinite !important;
+}
+#rouletteDock.tk-roulette-wow .wheel-center .wheel-center__glyph{ display:none !important; }
+#rouletteDock.tk-roulette-wow .roulette-btn,
+#rouletteDock.tk-roulette-wow .roulette-link,
+#rouletteDock.tk-roulette-wow .roulette-miniBtn,
+#rouletteDock.tk-roulette-wow .roulette-ghostBtn,
+#rouletteDock.tk-roulette-wow .roulette-infoBadge,
+#rouletteDock.tk-roulette-wow .roulette-streak,
+#rouletteDock.tk-roulette-wow .roulette-mini,
+#rouletteDock.tk-roulette-wow .roulette-history .hist,
+#rouletteDock.tk-roulette-wow .roulette-meter .meter-text,
+#rouletteDock.tk-roulette-wow .roulette-infoText,
+#rouletteDock.tk-roulette-wow .roulette-infoTitle{ font-family: Inter, system-ui, sans-serif !important; }
+#rouletteDock.tk-roulette-wow .roulette-btn,
+#rouletteDock.tk-roulette-wow .roulette-link{
+  min-height: 42px !important;
+  padding: 10px 12px !important;
+  border-radius: 16px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: .08em !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-btn svg,
+#rouletteDock.tk-roulette-wow .roulette-link svg{ width:14px !important; height:14px !important; }
+#rouletteDock.tk-roulette-wow .roulette-mini{ display:none !important; }
+#rouletteDock.tk-roulette-wow .roulette-ghostRow,
+#rouletteDock.tk-roulette-wow .roulette-history{ display:none !important; }
+#rouletteDock.tk-roulette-wow #rouletteReset{ display:none !important; }
+#rouletteDock.tk-roulette-wow .roulette-info{
+  position: relative !important;
+  padding: 12px !important;
+  gap: 9px !important;
+  background:
+    radial-gradient(140% 120% at 16% 10%, rgba(255,255,255,.14), transparent 32%),
+    radial-gradient(120% 120% at 85% 14%, rgba(97,224,255,.12), transparent 32%),
+    linear-gradient(180deg, rgba(8,24,48,.94), rgba(4,13,30,.96)) !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-infoHead{ align-items:center !important; gap:8px !important; }
+#rouletteDock.tk-roulette-wow .roulette-infoBadge,
+#rouletteDock.tk-roulette-wow .roulette-streak{
+  min-height: 26px !important;
+  padding: 5px 9px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(205,237,255,.16) !important;
+  background: linear-gradient(180deg, rgba(18,47,92,.88), rgba(9,23,48,.92)) !important;
+  color: rgba(238,248,255,.94) !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 18px rgba(0,0,0,.18) !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-infoTitle{
+  display:block !important;
+  margin:0 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  color: rgba(247,251,255,.98) !important;
+  text-transform:none !important;
+  text-shadow:0 10px 22px rgba(0,0,0,.24), 0 0 12px rgba(92,214,255,.10) !important;
+  white-space:normal !important;
+  overflow:visible !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-infoText{
+  display:block !important;
+  padding: 10px 11px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(190,232,255,.12) !important;
+  background: linear-gradient(180deg, rgba(10,34,70,.72), rgba(5,17,38,.86)) !important;
+  color: rgba(234,245,255,.93) !important;
+  font-size: 11.8px !important;
+  font-weight: 700 !important;
+  line-height: 1.42 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 10px 18px rgba(0,0,0,.14) !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-infoActions{ gap:8px !important; }
+#rouletteDock.tk-roulette-wow .roulette-link{
+  width:100% !important;
+  min-height: 38px !important;
+  padding: 10px 12px !important;
+  border-radius: 15px !important;
+  background:
+    radial-gradient(120% 120% at 18% 18%, rgba(255,255,255,.22), transparent 58%),
+    linear-gradient(135deg, rgba(73,219,170,.96), rgba(32,188,128,.92) 52%, rgba(26,151,101,.96)) !important;
+  box-shadow:0 14px 24px rgba(0,0,0,.22), 0 0 18px rgba(72,219,170,.10), inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+#rouletteDock.tk-roulette-wow .roulette-link svg{ width:14px !important; height:14px !important; }
+#rouletteDock.tk-roulette-wow .roulette-btn{ max-width:none !important; }
+#rouletteDock.tk-roulette-wow .roulette-dock.is-spinning .roulette-btn{ box-shadow:0 18px 38px rgba(0,0,0,.24), 0 0 32px rgba(82,202,255,.24), inset 0 1px 0 rgba(255,255,255,.22) !important; }
+@keyframes tkRouletteOrbitReverse{ from{ transform: rotate(360deg);} to{ transform: rotate(0deg);} }
+@keyframes tkRouletteCenterPulse{ 0%,100%{ transform: scale(.96); opacity:.58;} 50%{ transform: scale(1.04); opacity:.92;} }
+html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-wow{ width:304px !important; min-width:304px !important; max-width:304px !important; }
+html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-wow{ width:288px !important; min-width:288px !important; max-width:288px !important; }
+@media (max-width: 620px){
+  #rouletteDock.tk-roulette-wow{ width:min(300px, calc(100vw - 14px)) !important; max-width:min(300px, calc(100vw - 14px)) !important; }
+  #rouletteDock.tk-roulette-wow .wheel-wrap{ width:156px !important; height:156px !important; min-width:156px !important; min-height:156px !important; }
+  #rouletteDock.tk-roulette-wow .roulette-infoTitle{ font-size:13.5px !important; }
+  #rouletteDock.tk-roulette-wow .roulette-infoText{ font-size:11.4px !important; }
+}
+@media (max-width: 440px){
+  #rouletteDock.tk-roulette-wow{ width:min(286px, calc(100vw - 10px)) !important; max-width:min(286px, calc(100vw - 10px)) !important; gap:8px !important; }
+  #rouletteDock.tk-roulette-wow .roulette-card{ padding:9px 9px 7px !important; }
+  #rouletteDock.tk-roulette-wow .wheel-wrap{ width:146px !important; height:146px !important; min-width:146px !important; min-height:146px !important; }
+  #rouletteDock.tk-roulette-wow .wheel-pointer{ top:-9px !important; width:20px !important; height:28px !important; }
+  #rouletteDock.tk-roulette-wow .wheel-pointer::after{ top:14px !important; width:9px !important; height:11px !important; }
+}
+</style>
+<script id="tk-roulette-stable-premium-v9">
+(function(){
+  const dock = document.getElementById('rouletteDock');
+  if(!dock) return;
+  dock.classList.add('tk-roulette-wow');
+
+  const glyph = dock.querySelector('.wheel-center__glyph');
+  if(glyph){
+    glyph.textContent = '';
+    glyph.setAttribute('aria-hidden','true');
+  }
+
+  const spinBtn = document.getElementById('spinBtn');
+  if(spinBtn){
+    spinBtn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.4 5.2L20 10l-4 3.9.9 5.6L12 16.8 7.1 19.5 8 13.9 4 10l5.6-1.8L12 3z"></path></svg> Запустить';
+  }
+
+  const link = document.getElementById('rLink');
+  if(link){
+    link.innerHTML = 'Открыть задание <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>';
+  }
+
+  const reset = document.getElementById('rouletteReset');
+  if(reset) reset.remove();
+
+  const info = document.querySelector('#rouletteDock .roulette-info');
+  if(info && !info.querySelector('.tk-roulette-topline')){
+    const line = document.createElement('div');
+    line.className = 'tk-roulette-topline';
+    line.setAttribute('aria-hidden', 'true');
+    line.style.cssText = 'position:absolute;left:18px;right:18px;top:0;height:2px;border-radius:999px;background:linear-gradient(90deg, rgba(255,214,124,0), rgba(255,214,124,.92), rgba(99,224,255,.96), rgba(99,224,255,0));box-shadow:0 0 18px rgba(99,224,255,.18);opacity:.95;pointer-events:none;';
+    info.prepend(line);
+  }
+
+  function safeNormalize(){
+    const title = document.getElementById('rTitle');
+    const text = document.getElementById('rText');
+    const streak = document.getElementById('rouletteStreak');
+    if(title){
+      const next = title.textContent.replace(/^🎯\s*/, '').replace(/^Выпала миссия:/, 'Выпала миссия —');
+      if(next !== title.textContent) title.textContent = next;
+    }
+    if(text){
+      const next = text.textContent.replace(/\s{2,}/g, ' ').trim();
+      if(next !== text.textContent) text.textContent = next;
+    }
+    if(streak){
+      const next = streak.textContent.replace(/^⭐\s*/, '★ ');
+      if(next !== streak.textContent) streak.textContent = next;
+    }
+  }
+
+  safeNormalize();
+  if(spinBtn){
+    spinBtn.addEventListener('click', () => {
+      setTimeout(safeNormalize, 2800);
+      setTimeout(safeNormalize, 3400);
+    }, { passive:true });
+  }
+  const center = dock.querySelector('.wheel-center');
+  if(center){
+    center.addEventListener('click', () => {
+      setTimeout(safeNormalize, 2800);
+      setTimeout(safeNormalize, 3400);
+    }, { passive:true });
+  }
+
+  try{
+    const ping = function(){ window.dispatchEvent(new Event('resize')); };
+    setTimeout(ping, 40);
+    setTimeout(ping, 180);
+  }catch(_){ }
+})();
+</script>
+
+
+<style id="tk-roulette-neo-v11">
+#rouletteDock.tk-roulette-wow.tk-roulette-neo{
+  width:316px !important;
+  min-width:316px !important;
+  max-width:316px !important;
+  gap:8px !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-card{
+  padding:12px 12px 10px !important;
+  gap:8px !important;
+  background:
+    radial-gradient(180% 120% at 18% 10%, rgba(255,255,255,.15), transparent 28%),
+    radial-gradient(120% 120% at 86% 14%, rgba(82,202,255,.14), transparent 30%),
+    linear-gradient(180deg, rgba(10,34,68,.76), rgba(6,18,37,.86)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-head{
+  margin-top:2px !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-title{
+  font-size:12px !important;
+  letter-spacing:.13em !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-sub{
+  font-size:8.5px !important;
+  letter-spacing:.16em !important;
+  opacity:.92 !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-wrap{
+  width:182px !important;
+  height:182px !important;
+  min-width:182px !important;
+  min-height:182px !important;
+  box-shadow:
+    0 0 0 7px rgba(8,24,58,.94),
+    0 0 0 8px rgba(255,255,255,.05),
+    0 16px 34px rgba(0,0,0,.30),
+    0 0 30px rgba(72,214,255,.14),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+  background: radial-gradient(circle at 50% 50%, rgba(8,26,60,.98), rgba(3,11,28,1)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-wrap::before{
+  inset:-13px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(82,202,255,.18), transparent 54%),
+    radial-gradient(circle at 50% 50%, rgba(255,214,124,.14), transparent 72%) !important;
+  filter:blur(10px) !important;
+  opacity:.92 !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-ring{
+  inset:7px !important;
+  opacity:.38 !important;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 71%, rgba(255,255,255,.12) 73%, transparent 75%),
+    repeating-conic-gradient(from -90deg, rgba(255,255,255,.12) 0 3deg, transparent 3deg 16deg) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-glow{
+  inset:-12px !important;
+  opacity:.74 !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-pointer{
+  top:-11px !important;
+  width:26px !important;
+  height:34px !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-pointer::before{
+  clip-path: polygon(50% 0%, 98% 28%, 72% 62%, 50% 78%, 28% 62%, 2% 28%) !important;
+  border-radius:9px !important;
+  background:
+    radial-gradient(64% 42% at 50% 16%, rgba(255,255,255,.58), rgba(255,255,255,0) 74%),
+    linear-gradient(180deg, rgba(255,250,236,.99), rgba(255,224,150,.98) 42%, rgba(216,138,42,.98)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-pointer::after{
+  top:18px !important;
+  width:12px !important;
+  height:13px !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-center{
+  width:46px !important;
+  height:46px !important;
+  background:
+    radial-gradient(130% 130% at 34% 26%, rgba(255,255,255,.70), rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, rgba(255,238,182,.98), rgba(120,224,255,.96) 62%, rgba(48,145,255,.98)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-center::before{
+  inset:10px !important;
+  box-shadow:0 0 0 2px rgba(255,250,236,.46), 0 0 16px rgba(99,224,255,.28), inset 0 1px 0 rgba(255,255,255,.34) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-meter{
+  width:42px !important;
+  height:42px !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-btn{
+  min-height:40px !important;
+  padding:9px 12px !important;
+  border-radius:15px !important;
+  font-size:11px !important;
+  background:
+    radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.24), transparent 54%),
+    linear-gradient(135deg, rgba(82,202,255,.98), rgba(42,150,255,.96) 54%, rgba(14,95,230,.98)) !important;
+  box-shadow:0 16px 28px rgba(0,0,0,.24), 0 0 24px rgba(82,202,255,.14), inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-info{
+  padding:11px !important;
+  gap:8px !important;
+  background:
+    radial-gradient(140% 120% at 16% 10%, rgba(255,255,255,.14), transparent 28%),
+    radial-gradient(120% 120% at 85% 14%, rgba(97,224,255,.10), transparent 28%),
+    linear-gradient(180deg, rgba(7,20,40,.96), rgba(4,12,28,.98)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-infoHead{
+  margin-bottom:2px !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-infoTitle{
+  font-size:13.5px !important;
+  line-height:1.18 !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-infoText{
+  padding:10px 11px !important;
+  border-radius:14px !important;
+  font-size:11.6px !important;
+  line-height:1.4 !important;
+  background:linear-gradient(180deg, rgba(12,35,71,.76), rgba(6,18,38,.90)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-link{
+  min-height:40px !important;
+  border-radius:15px !important;
+  background:
+    radial-gradient(120% 120% at 18% 18%, rgba(255,255,255,.22), transparent 58%),
+    linear-gradient(135deg, rgba(76,228,178,.98), rgba(36,192,134,.95) 52%, rgba(22,147,96,.98)) !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-ghostRow,
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-history,
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-mini{
+  display:none !important;
+}
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-infoText,
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-infoTitle,
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-btn,
+#rouletteDock.tk-roulette-wow.tk-roulette-neo .roulette-link{
+  text-wrap:balance;
+}
+@media (max-width: 620px){
+  #rouletteDock.tk-roulette-wow.tk-roulette-neo{ width:min(302px, calc(100vw - 14px)) !important; max-width:min(302px, calc(100vw - 14px)) !important; }
+  #rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-wrap{ width:166px !important; height:166px !important; min-width:166px !important; min-height:166px !important; }
+}
+</style>
+<script id="tk-roulette-neo-v11-script">(function(){const dock=document.getElementById('rouletteDock');if(!dock)return;dock.classList.add('tk-roulette-neo');const title=document.getElementById('rTitle');if(title&&/^Выпала миссия —/.test(title.textContent))title.textContent=title.textContent.replace('Выпала миссия —','Выпала миссия:');})();</script>
+
+
+
+<style id="tk-v19-sound-counter-slot-clean">
+  #rouletteDock .roulette-ghostRow,
+  #rouletteDock #rouletteReset,
+  #rouletteDock #tkRouletteWheelHud,
+  #rouletteDock #tkRouletteWheelHudFinal,
+  #rouletteDock #tkSoundArrowSlot{
+    display:none !important;
+  }
+
+  #rouletteDock .roulette-head{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+  }
+
+  #rouletteDock .roulette-head > div:first-child{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+  }
+
+  #rouletteDock .tk-sound-meter-group{
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    flex:0 0 auto !important;
+    margin-left:auto !important;
+  }
+
+  #rouletteDock #rouletteSound{
+    position:relative !important;
+    inset:auto !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    transform:none !important;
+    margin:0 !important;
+    width:40px !important;
+    min-width:40px !important;
+    height:40px !important;
+    min-height:40px !important;
+    padding:0 !important;
+    border-radius:14px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    z-index:3 !important;
+    background:
+      radial-gradient(140% 120% at 18% 18%, rgba(255,255,255,.18), transparent 62%),
+      linear-gradient(180deg, rgba(52,210,140,.94), rgba(24,146,94,.88)) !important;
+    border:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:
+      0 12px 28px rgba(0,0,0,.24),
+      0 0 18px rgba(82,255,182,.20),
+      inset 0 1px 0 rgba(255,255,255,.18) !important;
+    backdrop-filter: blur(10px) saturate(1.08) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(1.08) !important;
+  }
+
+  #rouletteDock #rouletteSound:hover{
+    transform:translateY(-1px) scale(1.02) !important;
+    box-shadow:
+      0 16px 34px rgba(0,0,0,.28),
+      0 0 22px rgba(82,255,182,.28),
+      inset 0 1px 0 rgba(255,255,255,.18) !important;
+  }
+
+  #rouletteDock #rouletteSound span[aria-hidden="true"]{
+    font-size:18px !important;
+    line-height:1 !important;
+    transform:translateY(1px) !important;
+  }
+
+  #rouletteDock #rouletteMeter{
+    margin:0 !important;
+    flex:0 0 auto !important;
+  }
+</style>
+<script id="tk-v19-sound-counter-slot-clean-script">
+(function(){
+  function placeSound(){
+    try{
+      var dock = document.getElementById('rouletteDock');
+      if(!dock) return;
+      var head = dock.querySelector('.roulette-head');
+      var meter = dock.querySelector('#rouletteMeter');
+      var sound = document.getElementById('rouletteSound');
+      var ghost = dock.querySelector('.roulette-ghostRow');
+      var reset = document.getElementById('rouletteReset');
+      var hud1 = document.getElementById('tkRouletteWheelHud');
+      var hud2 = document.getElementById('tkRouletteWheelHudFinal');
+      var hud3 = document.getElementById('tkSoundArrowSlot');
+      if(!head || !meter || !sound) return;
+
+      if(hud1 && hud1.parentNode) hud1.parentNode.removeChild(hud1);
+      if(hud2 && hud2.parentNode) hud2.parentNode.removeChild(hud2);
+      if(hud3 && hud3.parentNode) hud3.parentNode.removeChild(hud3);
+
+      var group = head.querySelector('.tk-sound-meter-group');
+      if(!group){
+        group = document.createElement('div');
+        group.className = 'tk-sound-meter-group';
+      }
+
+      if(group.parentNode !== head) head.appendChild(group);
+      if(sound.parentNode !== group) group.appendChild(sound);
+      if(meter.parentNode !== group) group.appendChild(meter);
+
+      sound.className = (sound.className || '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .filter(function(cls){
+          return cls !== 'roulette-sound-float' && cls !== 'tk-sound-in-head-final';
+        })
+        .join(' ');
+
+      if(ghost) ghost.style.setProperty('display','none','important');
+      if(reset) reset.style.setProperty('display','none','important');
+    }catch(e){}
+  }
+
+  function kick(){
+    placeSound();
+    setTimeout(placeSound, 0);
+    setTimeout(placeSound, 120);
+    setTimeout(placeSound, 600);
+    setTimeout(placeSound, 1400);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', kick, { once:true });
+  } else {
+    kick();
+  }
+  window.addEventListener('load', kick, { once:true });
+  window.addEventListener('resize', placeSound, { passive:true });
+
+  var ticks = 0;
+  var iv = setInterval(function(){
+    placeSound();
+    ticks += 1;
+    if(ticks > 20) clearInterval(iv);
+  }, 300);
+})();
+</script>
 
 </body>
 </html>
