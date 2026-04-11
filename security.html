@@ -17483,12 +17483,556 @@ function renderCard() {
         </div>
 </div>
 </div></section></div>
-<div aria-hidden="true" class="mg-backdrop" id="ruleGame">
-<section aria-labelledby="rgTitle" aria-modal="true" class="mg-modal" role="dialog">
-<div class="mg-top">
-<div class="mg-title">
+
+<style id="tk-rulegame-wow-redesign">
+#ruleGame{
+  background:
+    radial-gradient(1200px 620px at 50% 15%, rgba(88,186,255,.18), transparent 58%),
+    radial-gradient(900px 520px at 20% 85%, rgba(255,196,92,.12), transparent 56%),
+    radial-gradient(900px 520px at 85% 18%, rgba(84,255,205,.10), transparent 54%),
+    linear-gradient(180deg, rgba(1,8,20,.72), rgba(1,6,18,.90));
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+}
+#ruleGame::before,
+#ruleGame::after{
+  content:"";
+  position:absolute;
+  inset:-14%;
+  pointer-events:none;
+}
+#ruleGame::before{
+  background:
+    radial-gradient(620px 220px at 50% 0%, rgba(126,229,255,.16), transparent 65%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 68px),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 68px);
+  opacity:.42;
+  mix-blend-mode: screen;
+}
+#ruleGame::after{
+  inset:0;
+  background: radial-gradient(circle at 50% 50%, rgba(90,180,255,.10), transparent 44%);
+  filter: blur(32px);
+  opacity:.95;
+}
+#ruleGame .rg-modal{
+  width:min(920px, 100%);
+  border-radius:30px;
+  border:1px solid rgba(185,235,255,.20);
+  background:
+    linear-gradient(135deg, rgba(5,28,54,.95) 0%, rgba(8,38,77,.90) 38%, rgba(8,26,58,.94) 100%);
+  box-shadow:
+    0 48px 120px rgba(0,0,0,.52),
+    0 0 0 1px rgba(255,214,122,.10) inset,
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -40px 80px rgba(3,10,24,.36);
+  overflow:hidden;
+  isolation:isolate;
+}
+#ruleGame .rg-modal::before,
+#ruleGame .rg-modal::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+#ruleGame .rg-modal::before{
+  inset:0;
+  background:
+    radial-gradient(900px 320px at 50% -2%, rgba(110,208,255,.18), transparent 60%),
+    radial-gradient(620px 420px at 88% 14%, rgba(255,209,110,.12), transparent 52%),
+    radial-gradient(700px 460px at 12% 88%, rgba(82,245,214,.08), transparent 56%);
+  z-index:0;
+}
+#ruleGame .rg-modal::after{
+  inset:1px;
+  border-radius:29px;
+  border:1px solid rgba(255,255,255,.06);
+  z-index:0;
+}
+#ruleGame .rg-ambient-layer{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+#ruleGame .rg-gridGlow,
+#ruleGame .rg-shieldPulse,
+#ruleGame .rg-scanLine,
+#ruleGame .rg-particles{
+  position:absolute;
+  pointer-events:none;
+}
+#ruleGame .rg-gridGlow{
+  inset:-10% -4% auto;
+  height:48%;
+  background:
+    radial-gradient(ellipse at top, rgba(120,225,255,.18), transparent 58%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 80px),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 62px);
+  mask-image: linear-gradient(180deg, rgba(0,0,0,1), rgba(0,0,0,.25), transparent 100%);
+  opacity:.55;
+}
+#ruleGame .rg-shieldPulse{
+  right:-100px;
+  top:-70px;
+  width:340px;
+  height:340px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle, rgba(120,220,255,.26) 0%, rgba(120,220,255,.10) 36%, transparent 66%);
+  filter: blur(10px);
+  animation: rgPulse 5.6s ease-in-out infinite;
+}
+#ruleGame .rg-scanLine{
+  left:-20%;
+  top:140px;
+  width:140%;
+  height:2px;
+  background: linear-gradient(90deg, transparent, rgba(120,240,255,.92), transparent);
+  box-shadow: 0 0 18px rgba(120,240,255,.52);
+  opacity:.65;
+  animation: rgScan 6s linear infinite;
+}
+#ruleGame .rg-particles{
+  inset:0;
+  background:
+    radial-gradient(4px 4px at 14% 20%, rgba(255,255,255,.55), transparent 72%),
+    radial-gradient(4px 4px at 28% 68%, rgba(255,255,255,.22), transparent 72%),
+    radial-gradient(5px 5px at 72% 24%, rgba(255,225,150,.30), transparent 72%),
+    radial-gradient(5px 5px at 82% 58%, rgba(120,230,255,.26), transparent 72%),
+    radial-gradient(4px 4px at 64% 80%, rgba(255,255,255,.18), transparent 72%);
+  opacity:.9;
+  animation: rgStars 9s ease-in-out infinite;
+}
+#ruleGame .rg-modal > *:not(.rg-ambient-layer){ position:relative; z-index:1; }
+#ruleGame .rg-top{ padding: 20px 22px 10px; }
+#ruleGame .rg-title{ display:flex; flex-direction:column; gap:6px; }
+#ruleGame .rg-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  align-self:flex-start;
+  padding:8px 12px;
+  border-radius:999px;
+  background:
+    linear-gradient(180deg, rgba(255,190,92,.95), rgba(204,118,30,.90));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow: 0 12px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
+  color:#311a06;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+#ruleGame .rg-kicker::before{ content:"✦"; font-size:12px; }
+#ruleGame .rg-title .mg-h1{
+  font-size: clamp(28px, 4.2vw, 42px);
+  letter-spacing:.02em;
+  line-height:1;
+  color:#fff0bf;
+  text-shadow:
+    0 2px 0 rgba(102,62,14,.42),
+    0 18px 42px rgba(0,0,0,.38),
+    0 0 26px rgba(255,205,120,.14);
+}
+#ruleGame .rg-title .mg-sub{
+  margin-top:0;
+  max-width:560px;
+  font-size:12px;
+  line-height:1.45;
+  letter-spacing:.16em;
+  color:rgba(226,244,255,.88);
+}
+#ruleGame .rg-headMeta{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  padding: 0 22px 14px;
+}
+#ruleGame .rg-stat{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.18), transparent 62%),
+    linear-gradient(180deg, rgba(11,67,116,.46), rgba(8,35,60,.28));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 16px 28px rgba(0,0,0,.16);
+  color:rgba(240,248,255,.92);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+#ruleGame .rg-stat--live{ color:#dbfff1; }
+#ruleGame .rg-progress{
+  padding: 0 22px 14px;
+  gap:10px;
+  align-items:center;
+}
+#ruleGame .rg-progress .mg-dot{
+  width:12px;
+  height:12px;
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.08);
+}
+#ruleGame .rg-progress .mg-dot.is-on{
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(120,235,255,.85));
+  box-shadow: 0 0 18px rgba(120,235,255,.56), 0 0 34px rgba(120,235,255,.22);
+}
+#ruleGame .rg-progressLabel{
+  margin-left:8px;
+  color:rgba(220,240,255,.78);
+  font-size:10px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+#ruleGame .rg-body{ padding: 0 22px 22px; gap:14px; }
+#ruleGame .rg-card{
+  padding:18px 18px 18px;
+  border-radius:26px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.10)),
+    radial-gradient(140% 180% at 10% 10%, rgba(120,224,255,.18), transparent 58%);
+  border:1px solid rgba(195,235,255,.18);
+  box-shadow:
+    0 24px 54px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 0 32px rgba(98,194,255,.08);
+}
+#ruleGame .rg-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:26px;
+  padding:1px;
+  background: linear-gradient(135deg, rgba(255,255,255,.28), rgba(120,228,255,.20), rgba(255,214,122,.22));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity:.85;
+  pointer-events:none;
+}
+#ruleGame .rg-cardHead{
+  align-items:flex-start;
+  margin-bottom:16px;
+}
+#ruleGame .rg-labelStack{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+#ruleGame .rg-cardTag{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#cfefff;
+}
+#ruleGame .rg-cardScope{
+  font-size:11px;
+  color:rgba(255,242,205,.76);
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+#ruleGame .rg-date{
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+    linear-gradient(180deg, rgba(22,92,150,.72), rgba(10,45,86,.52));
+  border-color: rgba(177,228,255,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 24px rgba(0,0,0,.16);
+  color:#ecf8ff;
+  padding:8px 12px;
+  font-size:11px;
+}
+#ruleGame .rg-ruleShell{
+  display:grid;
+  grid-template-columns: 76px 1fr;
+  gap:16px;
+  align-items:flex-start;
+}
+#ruleGame .rg-ruleIcon{
+  width:76px;
+  height:76px;
+  border-radius:24px;
+  display:grid;
+  place-items:center;
+  font-size:34px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.30), transparent 48%),
+    linear-gradient(180deg, rgba(22,111,171,.96), rgba(7,56,102,.88));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.22),
+    0 0 0 1px rgba(255,214,122,.08) inset,
+    inset 0 1px 0 rgba(255,255,255,.14);
+}
+#ruleGame .rg-msg{
+  font-size:17px;
+  line-height:1.42;
+  color:rgba(242,248,255,.98);
+}
+#ruleGame .rg-ruleLine{
+  font-size: clamp(19px, 2.4vw, 28px);
+  line-height:1.15;
+  font-weight:900;
+  color:#fff6d7;
+  text-shadow: 0 10px 28px rgba(0,0,0,.30), 0 0 22px rgba(255,214,120,.12);
+  margin-bottom:12px;
+}
+#ruleGame .rg-scenario{
+  padding:16px 18px;
+  border-radius:20px;
+  background:
+    linear-gradient(180deg, rgba(8,22,44,.56), rgba(5,15,30,.46));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.16);
+  color:rgba(226,243,255,.90);
+}
+#ruleGame .rg-actions{
+  gap:14px;
+}
+#ruleGame .rg-answer{
+  min-height:94px;
+  border-radius:24px;
+  padding:16px 18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  text-align:left;
+  position:relative;
+  overflow:hidden;
+}
+#ruleGame .rg-answer::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(120deg, rgba(255,255,255,.14), transparent 36%, transparent 64%, rgba(255,255,255,.08));
+  opacity:.75;
+  pointer-events:none;
+}
+#ruleGame .rg-answer__icon{
+  width:52px;
+  height:52px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  background: rgba(6,16,28,.28);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 10px 20px rgba(0,0,0,.16);
+  font-size:22px;
+}
+#ruleGame .rg-answer__txt{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+}
+#ruleGame .rg-answer__txt strong{
+  font-size:15px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+#ruleGame .rg-answer__txt small{
+  font-size:11px;
+  line-height:1.35;
+  letter-spacing:.04em;
+  text-transform:none;
+  color:rgba(255,255,255,.84);
+}
+#ruleGame .rg-answer.is-picked{
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 28px 56px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.18), 0 0 0 1px rgba(255,255,255,.14);
+}
+#ruleGame .rg-answer.is-correct{
+  box-shadow: 0 0 0 1px rgba(125,255,208,.30), 0 26px 54px rgba(26,174,108,.18), inset 0 1px 0 rgba(255,255,255,.18);
+}
+#ruleGame .rg-answer.is-wrong{
+  box-shadow: 0 0 0 1px rgba(255,132,148,.26), 0 22px 44px rgba(181,34,65,.18), inset 0 1px 0 rgba(255,255,255,.16);
+}
+#ruleGame .rg-explain{
+  border-radius:24px;
+  padding:16px 18px 16px;
+  background:
+    linear-gradient(180deg, rgba(8,28,54,.74), rgba(4,14,28,.54));
+  border:1px solid rgba(194,232,255,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 20px 44px rgba(0,0,0,.16);
+}
+#ruleGame .rg-explain::before{
+  content:"Разбор ситуации";
+  display:block;
+  margin-bottom:10px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(255,232,165,.86);
+}
+#ruleGame[data-rg-state="good"] .rg-explain{
+  border-color: rgba(114,255,204,.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 22px 44px rgba(14,170,112,.14), 0 0 0 1px rgba(114,255,204,.08);
+}
+#ruleGame[data-rg-state="bad"] .rg-explain{
+  border-color: rgba(255,146,161,.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 22px 44px rgba(190,46,84,.14), 0 0 0 1px rgba(255,146,161,.08);
+}
+#ruleGame .rg-nextRow{ align-items:stretch; gap:14px; }
+#ruleGame .rg-hint{
+  min-width: 280px;
+  padding:14px 16px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(8,22,44,.44), rgba(4,14,28,.38));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.14);
+  font-size:11px;
+  line-height:1.45;
+  letter-spacing:.12em;
+}
+#ruleGame .rg-hint::before{
+  content:"Подсказка";
+  display:block;
+  margin-bottom:7px;
+  color:rgba(117,233,255,.92);
+  font-size:10px;
+  letter-spacing:.18em;
+}
+#ruleGame .rg-next{
+  min-width:170px;
+  border-radius:20px;
+  padding: 14px 16px;
+  box-shadow: 0 20px 38px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
+}
+#ruleGame .rg-finish{
+  border-radius:26px;
+  padding:18px 18px 16px;
+  background:
+    linear-gradient(180deg, rgba(10,36,68,.84), rgba(4,14,28,.60));
+  border:1px solid rgba(255,226,154,.16);
+  box-shadow:
+    0 26px 56px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 0 42px rgba(255,214,120,.08);
+}
+#ruleGame .rg-finishHead{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+#ruleGame .rg-finishHead i{
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  background: linear-gradient(180deg, rgba(255,198,90,.96), rgba(207,128,28,.90));
+  color:#311805;
+  font-style:normal;
+  font-size:24px;
+  box-shadow: 0 16px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
+}
+#ruleGame .rg-finishTitle{
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:#fff0bc;
+  text-transform:uppercase;
+}
+#ruleGame .rg-finishNote{
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(223,244,255,.72);
+  margin-top:4px;
+}
+#ruleGame .rg-status{
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+    linear-gradient(180deg, rgba(32,147,95,.78), rgba(18,100,64,.70));
+  border-color: rgba(191,255,221,.16);
+  color:#effff7;
+}
+#ruleGame .chip-btn{
+  border-radius:18px;
+  padding: 11px 14px;
+}
+#ruleGame .mg-close{
+  width:46px;
+  height:46px;
+  border-radius:18px;
+  background:
+    radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.18), transparent 60%),
+    linear-gradient(180deg, rgba(14,70,120,.66), rgba(8,35,60,.52));
+}
+#ruleGame[data-rg-state="done"] .rg-modal{
+  box-shadow:
+    0 48px 120px rgba(0,0,0,.52),
+    0 0 0 1px rgba(255,214,122,.12) inset,
+    0 0 60px rgba(255,214,122,.10),
+    inset 0 1px 0 rgba(255,255,255,.14);
+}
+@keyframes rgPulse{
+  0%,100%{ transform: scale(.96); opacity:.72; }
+  50%{ transform: scale(1.07); opacity:1; }
+}
+@keyframes rgScan{
+  0%{ transform: translateY(-20px); opacity:.0; }
+  10%{ opacity:.66; }
+  50%{ opacity:.66; }
+  100%{ transform: translateY(360px); opacity:0; }
+}
+@keyframes rgStars{
+  0%,100%{ transform: translate3d(0,0,0); opacity:.76; }
+  50%{ transform: translate3d(10px,-8px,0); opacity:1; }
+}
+@media (max-width: 760px){
+  #ruleGame .rg-top{ padding: 16px 16px 10px; }
+  #ruleGame .rg-headMeta,
+  #ruleGame .rg-progress,
+  #ruleGame .rg-body{ padding-left:16px; padding-right:16px; }
+  #ruleGame .rg-ruleShell{ grid-template-columns: 1fr; }
+  #ruleGame .rg-ruleIcon{ width:64px; height:64px; border-radius:20px; }
+  #ruleGame .rg-actions{ grid-template-columns: 1fr; }
+  #ruleGame .rg-answer{ min-height:82px; }
+}
+@media (max-width: 520px){
+  #ruleGame .rg-modal{ border-radius:24px; }
+  #ruleGame .rg-title .mg-h1{ font-size: clamp(24px, 8.4vw, 34px); }
+  #ruleGame .rg-title .mg-sub{ letter-spacing:.10em; font-size:11px; }
+  #ruleGame .rg-headMeta{ gap:8px; }
+  #ruleGame .rg-stat{ width:100%; justify-content:center; }
+  #ruleGame .rg-progressLabel{ margin-left:0; width:100%; }
+  #ruleGame .rg-card{ padding:15px 14px 14px; }
+  #ruleGame .rg-ruleLine{ font-size:22px; }
+  #ruleGame .rg-scenario{ padding:14px; }
+  #ruleGame .rg-hint{ min-width:0; width:100%; }
+  #ruleGame .rg-next{ width:100%; justify-content:center; }
+  #ruleGame .rg-finishHead i{ width:46px; height:46px; border-radius:16px; font-size:21px; }
+  #ruleGame .rg-finishTitle{ font-size:16px; }
+}
+@media (prefers-reduced-motion: reduce){
+  #ruleGame::before,
+  #ruleGame .rg-gridGlow,
+  #ruleGame .rg-shieldPulse,
+  #ruleGame .rg-scanLine,
+  #ruleGame .rg-particles{
+    animation:none !important;
+  }
+}
+</style>
+
+<div aria-hidden="true" class="mg-backdrop" data-rg-state="idle" id="ruleGame">
+<section aria-labelledby="rgTitle" aria-modal="true" class="mg-modal rg-modal" role="dialog">
+<div aria-hidden="true" class="rg-ambient-layer">
+<span class="rg-gridGlow"></span>
+<span class="rg-shieldPulse"></span>
+<span class="rg-scanLine"></span>
+<span class="rg-particles"></span>
+</div>
+<div class="mg-top rg-top">
+<div class="mg-title rg-title">
+<div class="rg-kicker">Ежедневный cyber-челлендж</div>
 <div class="mg-h1" id="rgTitle">Правило дня</div>
-<div class="mg-sub" id="rgSub">1 день — 1 правило: проживи ситуацию и запомни</div>
+<div class="mg-sub" id="rgSub">1 день — 1 правило: проживи ситуацию, почувствуй риск и выбери сильное решение</div>
 </div>
 <button aria-label="Закрыть правило дня" class="mg-close" id="closeRuleGame" type="button">
 <svg aria-hidden="true" viewbox="0 0 24 24">
@@ -17497,45 +18041,70 @@ function renderCard() {
 </svg>
 </button>
 </div>
-<div aria-label="Прогресс правила" class="mg-progress">
+<div class="rg-headMeta">
+<div class="rg-stat">🛡 Щит знаний активен</div>
+<div class="rg-stat rg-stat--live">⚡ 1 правило · 1 сильное решение</div>
+</div>
+<div aria-label="Прогресс правила" class="mg-progress rg-progress">
 <span aria-hidden="true" class="mg-dot is-on"></span>
+<span aria-hidden="true" class="mg-dot is-on"></span>
+<span aria-hidden="true" class="mg-dot"></span>
+<div class="rg-progressLabel">Сканирование ситуации и выбор безопасного действия</div>
 </div>
-<div class="mg-body">
-<div aria-label="Правило и ситуация" class="mg-card">
-<div class="mg-cardHead">
-<div id="rgCardNo">Правило</div>
-<div class="mg-level" id="rgDatePill">сегодня</div>
+<div class="mg-body rg-body">
+<div aria-label="Правило и ситуация" class="mg-card rg-card">
+<div class="mg-cardHead rg-cardHead">
+<div class="rg-labelStack">
+<div id="rgCardNo" class="rg-cardTag">Правило дня</div>
+<div class="rg-cardScope">Твой ежедневный апгрейд цифровой защиты</div>
 </div>
-<div class="mg-msg">
-<div id="rgRuleLine" style="font-weight:900; letter-spacing:.02em; margin-bottom:10px;">...</div>
-<div id="rgScenario">...</div>
+<div class="mg-level rg-date" id="rgDatePill">сегодня</div>
+</div>
+<div class="rg-ruleShell">
+<div aria-hidden="true" class="rg-ruleIcon">🛡️</div>
+<div class="mg-msg rg-msg">
+<div id="rgRuleLine" class="rg-ruleLine">...</div>
+<div id="rgScenario" class="rg-scenario">...</div>
 </div>
 </div>
-<div aria-label="Выбор" class="mg-actions">
-<button class="mg-btn is-red" id="rgBtnBad" type="button">Опасно</button>
-<button class="mg-btn is-green" id="rgBtnGood" type="button">Безопасно</button>
 </div>
-<div aria-live="polite" class="mg-explain" id="rgExplain"></div>
-<div class="mg-nextRow">
-<div class="mg-miniHint" id="rgHint">Подсказка: если просят пароль/код/личные данные — это опасно</div>
-<button class="mg-next" id="rgDone" type="button">
-            Понятно
+<div aria-label="Выбор" class="mg-actions rg-actions">
+<button class="mg-btn is-red rg-answer rg-answer--danger" id="rgBtnBad" type="button">
+<span aria-hidden="true" class="rg-answer__icon">⚠️</span>
+<span class="rg-answer__txt"><strong>Опасно</strong><small>Остановиться, не вводить данные и проверить источник</small></span>
+</button>
+<button class="mg-btn is-green rg-answer rg-answer--safe" id="rgBtnGood" type="button">
+<span aria-hidden="true" class="rg-answer__icon">🟢</span>
+<span class="rg-answer__txt"><strong>Безопасно</strong><small>Действие защищает аккаунт, устройство и личные данные</small></span>
+</button>
+</div>
+<div aria-live="polite" class="mg-explain rg-explain" id="rgExplain"></div>
+<div class="mg-nextRow rg-nextRow">
+<div class="mg-miniHint rg-hint" id="rgHint">Если просят пароль, код подтверждения, личные данные или торопят — это красный флаг.</div>
+<button class="mg-next rg-next" id="rgDone" type="button">
+            Закрепить правило
             <svg aria-hidden="true" viewbox="0 0 24 24">
 <path d="M10 7l6 5-6 5"></path>
 </svg>
 </button>
 </div>
-<div class="mg-finish" id="rgFinish">
-<div style="font-weight:900; letter-spacing:.06em; margin-bottom:8px;">Готово! Правило дня закреплено ✅</div>
+<div class="mg-finish rg-finish" id="rgFinish">
+<div class="rg-finishHead">
+<i aria-hidden="true">🏆</i>
+<div>
+<div class="rg-finishTitle">Правило дня закреплено</div>
+<div class="rg-finishNote">Ещё один уровень цифровой защиты открыт</div>
+</div>
+</div>
 <div id="rgFinishText"></div>
 <div class="mg-scoreRow">
-<div class="mg-scorePill" id="rgStatus">Статус: пройдено</div>
+<div class="mg-scorePill rg-status" id="rgStatus">Статус: пройдено</div>
 <button class="chip-btn" id="rgAgain" type="button">
 <svg viewbox="0 0 24 24">
 <path d="M21 12a9 9 0 1 1-3-6.7"></path>
 <path d="M21 3v6h-6"></path>
 </svg>
-              Повторить
+              Повторить миссию
             </button>
 </div>
 </div>
@@ -17752,10 +18321,13 @@ function renderCard() {
       }
 
       function resetUI(){
+        backdrop.dataset.rgState = 'idle';
         rgExplain.classList.remove('is-on');
         rgExplain.innerHTML = "";
         doneBtn.classList.remove('is-on');
         rgFinish.classList.remove('is-on');
+        btnBad.classList.remove('is-picked','is-correct','is-wrong');
+        btnGood.classList.remove('is-picked','is-correct','is-wrong');
         setLocked(false);
       }
 
@@ -17778,7 +18350,7 @@ function renderCard() {
         rgRuleLine.textContent = "🛡️ " + r.title;
         rgScenario.textContent = r.scenario;
 
-        rgHint.textContent = "Подсказка: если просят пароль/код/личные данные — это опасно";
+        rgHint.textContent = "Если просят пароль, код подтверждения, личные данные или торопят — это красный флаг.";
         resetUI();
 
         if(isDone(dKey)){
@@ -17786,8 +18358,9 @@ function renderCard() {
             Сегодняшнее правило уже пройдено 🎉<br>
             <b>Правило:</b> ${r.title}
             <br><br>
-            Хочешь — нажми «Повторить», чтобы ещё раз закрепить.
+            Хочешь — нажми «Повторить миссию», чтобы ещё раз закрепить реакцию.
           `;
+          backdrop.dataset.rgState = 'done';
           rgStatus.textContent = "Статус: пройдено";
           rgFinish.classList.add('is-on');
           setLocked(true);
@@ -17798,18 +18371,20 @@ function renderCard() {
       function open(){
         lastFocus = document.activeElement;
 
+        backdrop.dataset.rgState = 'idle';
         backdrop.classList.add('is-open');
         backdrop.setAttribute('aria-hidden', 'false');
 
         document.documentElement.style.overflow = 'hidden';
         document.body.style.overflow = 'hidden';
 
-        render(false);
+        render();
         setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
       }
 
       function close(){
         backdrop.classList.remove('is-open');
+        backdrop.dataset.rgState = 'idle';
         backdrop.setAttribute('aria-hidden', 'true');
 
         document.documentElement.style.overflow = '';
@@ -17827,24 +18402,37 @@ function renderCard() {
         const r = rules[dayIndex(dKey)];
 
         setLocked(true);
+        btnBad.classList.remove('is-picked','is-correct','is-wrong');
+        btnGood.classList.remove('is-picked','is-correct','is-wrong');
 
         const correct = (choice === r.correct);
         const topLine = correct ? "✅ Верно!" : "❌ Почти!";
 
         const rightText = (r.correct === "bad") ? "Опасно" : "Безопасно";
+        const pickedBtn = (choice === 'bad') ? btnBad : btnGood;
+        const correctBtn = (r.correct === 'bad') ? btnBad : btnGood;
+
+        pickedBtn.classList.add('is-picked');
+        if(correct){
+          pickedBtn.classList.add('is-correct');
+        }else{
+          pickedBtn.classList.add('is-wrong');
+          correctBtn.classList.add('is-correct');
+        }
 
         const lines = [
           `<div style="margin:6px 0;"><b>${topLine}</b> Правильный ответ: <b>${rightText}</b>.</div>`,
           ...r.explain.map(s => `<div style="margin:6px 0;">${s}</div>`)
         ].join("");
 
+        backdrop.dataset.rgState = correct ? 'good' : 'bad';
         rgExplain.innerHTML = lines;
         rgExplain.classList.add('is-on');
         doneBtn.classList.add('is-on');
 
         rgHint.textContent = correct
-          ? "Круто! Ты укрепляешь свой цифровой щит."
-          : "Нормально — так и учатся. Главное: запомни признак и действуй спокойно.";
+          ? "Круто! Ты укрепляешь цифровой щит и быстрее считываешь риск."
+          : "Отлично для тренировки: теперь ты знаешь признак и сможешь среагировать увереннее.";
 
         doneBtn.focus({ preventScroll:true });
       }
@@ -17857,8 +18445,9 @@ function renderCard() {
 
         rgFinishText.innerHTML = `
           <b>Правило дня:</b> ${r.title}<br><br>
-          Завтра будет новое правило — заходи снова ✅
+          Завтра тебя будет ждать новая ситуация и новое усиление цифровой защиты ✅
         `;
+        backdrop.dataset.rgState = 'done';
         rgStatus.textContent = "Статус: пройдено";
         rgFinish.classList.add('is-on');
 
@@ -17871,7 +18460,7 @@ function renderCard() {
       function again(){
         const dKey = todayKey();
         clearDone(dKey);
-        render(false);
+        render();
         setTimeout(() => btnBad.focus({ preventScroll:true }), 0);
       }
 
