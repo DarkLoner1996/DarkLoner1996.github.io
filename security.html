@@ -7334,9 +7334,10 @@ body.tk-info-map-open{
   height:100%;
 }
 #pcPartsGame .cool-phish-close{
-  position:fixed;
-  top: 14px;
-  right: 14px;
+  position:absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  left: auto !important;
   z-index: 20050;
   width: 44px;
   height: 44px;
@@ -7344,7 +7345,9 @@ body.tk-info-map-open{
   border: 1px solid rgba(255,255,255,.18);
   background: rgba(10,20,35,.55);
   color: rgba(255,255,255,.92);
-  display:flex;
+  display:flex !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
   align-items:center;
   justify-content:center;
   cursor:pointer;
@@ -8197,6 +8200,56 @@ body.tk-info-map-open{
     radial-gradient(520px 260px at 85% 80%, rgba(155,107,255,.14), transparent 64%);
   opacity:.85;
   pointer-events:none;
+}
+#pcPartsGame .pc-start-close{
+  position:absolute;
+  top: 52px;
+  right: 72px;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  display:grid;
+  place-items:center;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.20);
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
+    linear-gradient(180deg, rgba(18,44,78,.88), rgba(8,24,44,.84));
+  color: rgba(245,250,255,.96);
+  cursor:pointer;
+  box-shadow: 0 12px 28px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
+}
+#pcPartsGame .pc-start-close:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,.30);
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.20), transparent 62%),
+    linear-gradient(180deg, rgba(26,58,98,.92), rgba(10,28,50,.90));
+  box-shadow: 0 16px 34px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.14);
+}
+#pcPartsGame .pc-start-close:active{ transform: translateY(0) scale(.985); }
+#pcPartsGame .pc-start-close svg{
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#pcPartsGame .pc-start-close:focus-visible{
+  outline: 2px solid rgba(94,231,255,.65);
+  outline-offset: 3px;
+}
+@media (max-width: 520px){
+  #pcPartsGame .pc-start-close{
+    top: 28px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
 }
 #pcPartsGame .pc-start-media{
   position:relative;
@@ -14434,6 +14487,12 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 }
 </style>
 
+
+<style id="pcpartsCloseForceRight">
+#pcPartsGame #closePcPartsGame.cool-phish-close{
+  display:none !important;
+}
+</style>
 </head>
 <body>
 <div aria-label="Загрузка сайта" aria-live="polite" class="tk-loader" id="tkLoader">
@@ -15034,6 +15093,9 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
     <button id="openPcPartsGame" type="button" hidden aria-hidden="true" tabindex="-1" style="display:none !important; width:0 !important; height:0 !important; overflow:hidden !important; pointer-events:none !important; opacity:0 !important; position:absolute !important; left:-9999px !important; top:-9999px !important;">Прокси кнопка ПК</button>
   </div>
 </div><section aria-label="Рулетка безопасности" class="roulette-dock" hidden id="rouletteDock" style="position:fixed;left:-9999px;top:12px;right:auto;bottom:auto;display:none;opacity:0;visibility:hidden;pointer-events:none;">
+<button aria-label="Закрыть рулетку" class="roulette-close-x" id="closeRouletteDock" type="button">
+<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+</button>
 <div aria-hidden="true" class="roulette-spark"></div>
 <div aria-hidden="true" class="roulette-burst" id="rouletteBurst"></div>
 <div aria-label="Рулетка" class="roulette-card">
@@ -15136,7 +15198,10 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
                 <span class="pill"><b>Из чего состоит ПК</b></span>
                 <span class="tag">мини‑игра</span>
               </div>
-              <span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="pill" title="Локально, без интернета">offline • 1 файл</span>
+                
+              </div>
             </div>
 
             <div class="menu-body">
@@ -15204,6 +15269,9 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 
             <div class="pc-start" id="pcStartLayer" aria-hidden="true">
               <div class="pc-start-card" role="dialog" aria-modal="true" aria-label="Старт игры">
+                <button aria-label="Закрыть игру" class="pc-start-close" onclick="document.getElementById('closePcPartsGame')?.click();" title="Закрыть игру" type="button">
+                  <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+                </button>
                 <div class="pc-start-media">
                   <img class="pc-start-img" id="pcStartImg" src="start_pk_pec.png" alt="Старт: Из чего состоит ПК" loading="eager" decoding="async"/>
                 </div>
@@ -55456,6 +55524,7 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   var dock = document.getElementById('rouletteDock');
   var menuToggle = document.getElementById('menuToggle');
   var link = document.getElementById('rLink');
+  var closeBtn = document.getElementById('closeRouletteDock');
 
   if(!trigger || !dock) return;
 
@@ -55499,6 +55568,8 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
     setStyle('pointer-events', 'none');
     setStyle('transform', 'translate3d(0,0,0) scale(1)');
   }
+
+  window.tkCloseRouletteDock = hardClose;
 
   function measureOpenBox(){
     var wasHidden = dock.hidden;
@@ -55599,6 +55670,14 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
 
   hardClose();
 
+  if(closeBtn){
+    closeBtn.addEventListener('click', function(ev){
+      try{ ev.preventDefault(); }catch(_){ }
+      try{ ev.stopPropagation(); }catch(_){ }
+      hardClose();
+    }, true);
+  }
+
   trigger.addEventListener('click', toggleDock, true);
 
   document.addEventListener('click', function(ev){
@@ -55639,6 +55718,68 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
 })();
 </script>
 
+<style id="tk-roulette-close-x-style">
+#rouletteDock{
+  position:fixed;
+}
+#rouletteDock .roulette-close-x{
+  position:absolute;
+  top:18px;
+  right:22px;
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  cursor:pointer;
+  z-index:12;
+  color:rgba(245,250,255,.96);
+  border:1px solid rgba(255,255,255,.18);
+  background:
+    radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.18), transparent 60%),
+    linear-gradient(180deg, rgba(12,55,95,.62), rgba(8,35,60,.58));
+  box-shadow:
+    0 16px 32px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.14);
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+  -webkit-appearance:none;
+  appearance:none;
+}
+#rouletteDock .roulette-close-x:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.06);
+  box-shadow:
+    0 22px 40px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.16);
+}
+#rouletteDock .roulette-close-x:active{
+  transform:translateY(0) scale(.98);
+}
+#rouletteDock .roulette-close-x svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  pointer-events:none;
+}
+@media (max-width: 520px){
+  #rouletteDock .roulette-close-x{
+    top:14px;
+    right:16px;
+    width:38px;
+    height:38px;
+    border-radius:12px;
+  }
+  #rouletteDock .roulette-close-x svg{
+    width:16px;
+    height:16px;
+  }
+}
+</style>
 
 <style id="tk-square-launch-v25-style">
 .rules[data-launch-style="v25"]{
@@ -58738,6 +58879,133 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 .rules.tkqa-wrap.tkqa-collapsible.is-open .tkqa-card:hover,
 .rules.tkqa-wrap.tkqa-collapsible.is-open .tkqa-card:focus-visible{
   z-index: 4 !important;
+}
+</style>
+
+
+<style id="pcparts-close-rightfix-v2">
+#pcPartsGame .pc-start-card{
+  position:relative;
+}
+#pcPartsGame .pc-start-close{
+  inset: 12px 12px auto auto !important;
+  left: auto !important;
+  right: 12px !important;
+  top: 12px !important;
+  transform: none !important;
+}
+@media (max-width: 520px){
+  #pcPartsGame .pc-start-close{
+    inset: 10px 10px auto auto !important;
+    left: auto !important;
+    right: 10px !important;
+    top: 10px !important;
+  }
+}
+</style>
+
+
+<style id="pcparts-close-clean-right-v3">
+#pcPartsGame #closePcPartsGame.cool-phish-close{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+#pcPartsGame .pc-start-card{
+  position:relative !important;
+  overflow:visible !important;
+  padding-top:24px !important;
+}
+#pcPartsGame .pc-start-close{
+  position:absolute !important;
+  inset:auto 18px auto auto !important;
+  top:18px !important;
+  right:18px !important;
+  left:auto !important;
+  bottom:auto !important;
+  z-index:50 !important;
+  width:46px !important;
+  height:46px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  border-radius:16px !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.22), transparent 62%),
+    linear-gradient(180deg, rgba(28,64,112,.96), rgba(10,28,52,.94)) !important;
+  color:rgba(255,255,255,.97) !important;
+  box-shadow:
+    0 16px 34px rgba(0,0,0,.34),
+    0 0 0 1px rgba(120,230,255,.08) inset,
+    inset 0 1px 0 rgba(255,255,255,.16) !important;
+  transform:none !important;
+}
+#pcPartsGame .pc-start-close:hover{
+  transform:translateY(-1px) !important;
+  border-color:rgba(255,255,255,.34) !important;
+  background:
+    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.28), transparent 62%),
+    linear-gradient(180deg, rgba(36,82,140,.98), rgba(12,34,64,.96)) !important;
+  box-shadow:
+    0 22px 42px rgba(0,0,0,.40),
+    0 0 24px rgba(120,230,255,.12),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+#pcPartsGame .pc-start-close svg{
+  width:18px !important;
+  height:18px !important;
+  stroke-width:2.7 !important;
+}
+@media (max-width: 520px){
+  #pcPartsGame .pc-start-card{
+    padding-top:20px !important;
+  }
+  #pcPartsGame .pc-start-close{
+    top:12px !important;
+    right:12px !important;
+    inset:auto 12px auto auto !important;
+    width:42px !important;
+    height:42px !important;
+    border-radius:15px !important;
+  }
+}
+</style>
+
+
+<style id="pcparts-close-final-v4">
+#pcPartsGame #closePcPartsGame.cool-phish-close{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+#pcPartsGame .pc-start-card{
+  position:relative !important;
+  overflow:visible !important;
+}
+#pcPartsGame .pc-start-close{
+  position:absolute !important;
+  top:42px !important;
+  right:42px !important;
+  left:auto !important;
+  bottom:auto !important;
+  inset:auto 42px auto auto !important;
+  z-index:999 !important;
+  transform:none !important;
+}
+@media (max-width: 520px){
+  #pcPartsGame .pc-start-close{
+    top:22px !important;
+    right:20px !important;
+    left:auto !important;
+    bottom:auto !important;
+    inset:auto 20px auto auto !important;
+  }
 }
 </style>
 
