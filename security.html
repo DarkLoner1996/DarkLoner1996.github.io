@@ -19426,6 +19426,7 @@ function renderCard() {
       let angle = 0; // degrees
       let spinning = false;
       let selectedWheelIndex = null;
+      let pendingSetup = false;
       let spinRaf = 0;
       let spinToken = 0;
       let spinEndTimer = 0;
@@ -20477,6 +20478,11 @@ function renderCard() {
         dock.classList.remove('is-win');
         dock.classList.add('is-spinning');
         spinBtn.disabled = true;
+        try{ dock.dataset.spinState = 'spinning'; }catch(_){ }
+        try{
+          rLink.setAttribute('aria-disabled','true');
+          rLink.style.pointerEvents = 'none';
+        }catch(_){ }
 
         try{
           clearSpinTimers();
@@ -20494,7 +20500,8 @@ function renderCard() {
         const deltaToTarget = normalizeDeg(targetDeg - currentNorm);
         const extraTurns = reduce ? 1 : (5 + Math.floor(Math.random() * 3));
         const finalVisual = currentNorm + (extraTurns * 360) + deltaToTarget;
-        const dur = reduce ? 260 : (2100 + Math.random() * 450);
+        const isFhdRails = document.documentElement.classList.contains('tk-fhd-clean-fixedrails');
+        const dur = reduce ? 260 : ((isFhdRails ? 2380 : 2100) + Math.random() * (isFhdRails ? 220 : 420));
 
         animateSpin(finalVisual, dur, token)
           .then(() => {
@@ -20520,6 +20527,14 @@ function renderCard() {
             spinning = false;
             dock.classList.remove('is-spinning');
             spinBtn.disabled = false;
+            try{ dock.dataset.spinState = 'idle'; }catch(_){ }
+            try{
+              rLink.removeAttribute('aria-disabled');
+              rLink.style.pointerEvents = '';
+            }catch(_){ }
+            if(pendingSetup){
+              setTimeout(() => safeSetup(true), 0);
+            }
           });
       }
 
@@ -20626,6 +20641,10 @@ ${currentItem.text}`;
         dock.addEventListener('pointermove', (e) => {
           if(!hovering) return;
           if(e.pointerType !== 'mouse') return;
+          if(document.documentElement.classList.contains('tk-fhd-clean-fixedrails') || dock.dataset.spinState === 'spinning'){
+            setTilt(0,0);
+            return;
+          }
 
           const r = dock.getBoundingClientRect();
           const x = (e.clientX - r.left) / r.width;   
@@ -20637,7 +20656,12 @@ ${currentItem.text}`;
         }, { passive:true });
       }
 
-      function safeSetup(){
+      function safeSetup(force){
+        if(spinning && !force){
+          pendingSetup = true;
+          return;
+        }
+        pendingSetup = false;
         try{ setupCanvas(); }catch(_){}
         rot.style.transform = `rotate(${angle}deg)`;
       }
@@ -27707,6 +27731,8 @@ html.tk-v102-menu-ready .side-nav{
         if(w === prevW && h === prevH) return;
         prevW = w; prevH = h;
         try{
+          const dock = document.getElementById('rouletteDock');
+          if(dock && dock.dataset && dock.dataset.spinState === 'spinning') return;
           if(typeof window.__tkRouletteRedraw === 'function') window.__tkRouletteRedraw();
           else window.dispatchEvent(new Event('resize'));
         }catch(_){}
@@ -27718,8 +27744,6 @@ html.tk-v102-menu-ready .side-nav{
     }
     setTimeout(redraw, 0);
     setTimeout(redraw, 120);
-    setTimeout(redraw, 600);
-    setTimeout(redraw, 1200);
     window.addEventListener('load', redraw, {once:true});
   }catch(_){}
 })();
@@ -27901,17 +27925,17 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
       const el=document.getElementById(id);
       if(el){ el.style.setProperty('display','none','important'); el.style.setProperty('pointer-events','none','important'); }
     });
-    setTimeout(redraw, 0); setTimeout(redraw, 120); setTimeout(redraw, 500);
+    setTimeout(redraw, 0); setTimeout(redraw, 120);
   }
   function schedule(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 200); setTimeout(schedule, 800); }, {once:true});
+  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 180); }, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
   document.addEventListener('click', function(e){
     if(e.target && (e.target.id === 'spinBtn' || (e.target.closest && e.target.closest('#spinBtn')))){
-      setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 1200);
+      setTimeout(schedule, 90);
     }
   }, true);
 })();
@@ -59598,311 +59622,883 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 }
 </style>
 
-</body>
-</html>
 
+<style id="tk-fhd-roulette-4k-parity-v6">
+@media (min-width: 1180px) and (max-width: 1920px){
+  html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode,
+  html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-popover-control,
+  html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-wow,
+  html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-wow.tk-roulette-neo{
+    width: 378px !important;
+    min-width: 378px !important;
+    max-width: 378px !important;
+    gap: 12px !important;
+  }
 
-<!-- ChatGPT surgical bridge patch: preserve original FHD/4K design, route QHD/15" into stable FHD-like mode -->
-<style id="tk-surgical-qhd-fhd-bridge-style">
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) #tkLiveStats{
-  position:fixed !important;
-  top:14px !important;
-  right:38px !important;
-  left:auto !important;
-  bottom:auto !important;
-  z-index:120 !important;
-  transform:none !important;
-  margin:0 !important;
-}
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) #tkLiveStats.is-collapsed{
-  right:6px !important;
-}
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) .rules{
-  right:18px !important;
-  bottom:14px !important;
-  left:auto !important;
-  z-index:9500 !important;
-  transform:translateZ(0) !important;
-}
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) .side-chip{
-  left:18px !important;
-  bottom:14px !important;
-  right:auto !important;
-  z-index:9500 !important;
-  transform:translateZ(0) !important;
-}
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) #tkCatStart{
-  left:18px !important;
-  bottom:18px !important;
-  right:auto !important;
-  z-index:13150 !important;
-}
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) #rouletteDock.roulette-dock,
-html.tk-fhd-bridge-safe:not(.chatgpt-4k-v40) .roulette-dock{
-  left:50% !important;
-  right:auto !important;
-  top:auto !important;
-  bottom:14px !important;
-  margin:0 !important;
-  transform:translateX(-50%) translateZ(0) scale(var(--tk-bridge-roulette-scale,1)) !important;
-  transform-origin:center bottom !important;
-  z-index:9450 !important;
-  pointer-events:auto !important;
-}
-html.tk-fhd-bridge-safe #rouletteDock[hidden]{
-  display:flex !important;
-}
-html.tk-fhd-bridge-safe #tkLicenseOverlay{
-  z-index:1000000 !important;
-}
-html.tk-fhd-bridge-safe #tkLicenseOverlay .tk-license{
-  z-index:1000001 !important;
-}
-html.tk-fhd-bridge-safe #tkLoader{
-  z-index:1000002 !important;
-}
-html.tk-fhd-bridge-safe.tk-license-open #tkLiveStats,
-html.tk-fhd-bridge-safe.tk-license-open .rules,
-html.tk-fhd-bridge-safe.tk-license-open .side-chip,
-html.tk-fhd-bridge-safe.tk-license-open #rouletteDock,
-body.tk-license-open #tkLiveStats,
-body.tk-license-open .rules,
-body.tk-license-open .side-chip,
-body.tk-license-open #rouletteDock{
-  pointer-events:none !important;
-}
-html.tk-fhd-bridge-safe #cinema.tk-fhd-cinema-force-closed .slider-container{
-  display:none !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  pointer-events:none !important;
-}
-html.tk-fhd-bridge-safe #cinema.tk-fhd-cinema-force-open .slider-container{
-  display:grid !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  pointer-events:auto !important;
-}
-html.tk-fhd-bridge-safe #cinema.tk-fhd-cinema-force-closed .tk-cinema-callout{
-  opacity:1 !important;
-  transform:none !important;
-}
-html.tk-fhd-bridge-safe #cinema.tk-fhd-cinema-force-open .tk-cinema-callout{
-  opacity:0 !important;
-  pointer-events:none !important;
-  transform:translateY(-8px) scale(.96) !important;
-  height:0 !important;
-  overflow:hidden !important;
-  margin:0 !important;
-  padding-top:0 !important;
-  padding-bottom:0 !important;
-  border-width:0 !important;
-}
-html.tk-fhd-bridge-safe #cinema .cinema-banner,
-html.tk-fhd-bridge-safe #cinema .cinema-banner-title,
-html.tk-fhd-bridge-safe #cinema .cinema-title-art,
-html.tk-fhd-bridge-safe #cinema .tk-cinema-callout,
-html.tk-fhd-bridge-safe #cinema .tk-cinema-callout__img{
-  cursor:pointer !important;
-  pointer-events:auto !important;
+  html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-popover-mode,
+  html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-popover-mode.tk-final-popover-control,
+  html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-wow,
+  html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-wow.tk-roulette-neo{
+    width: 358px !important;
+    min-width: 358px !important;
+    max-width: 358px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-card{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 16px 16px 12px !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-wrap,
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-rot{
+    width: 194px !important;
+    height: 194px !important;
+    min-width: 194px !important;
+    min-height: 194px !important;
+    flex: 0 0 194px !important;
+    margin: 0 auto !important;
+  }
+
+  html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .wheel-wrap,
+  html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock .wheel-rot{
+    width: 184px !important;
+    height: 184px !important;
+    min-width: 184px !important;
+    min-height: 184px !important;
+    flex-basis: 184px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-wrap{
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-pointer{
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-center{
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock canvas#wheel{
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-controls{
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 46px 46px !important;
+    grid-template-areas:
+      "title meter sound"
+      "spin spin spin" !important;
+    align-items: end !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-head{
+    display: contents !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .tk-fhd-titlebox{
+    grid-area: title !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-self: end !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-title{
+    font-size: 13px !important;
+    line-height: 1.02 !important;
+    letter-spacing: .08em !important;
+    margin: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-sub{
+    font-size: 9px !important;
+    line-height: 1.05 !important;
+    letter-spacing: .13em !important;
+    margin: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-meter{
+    grid-area: meter !important;
+    justify-self: center !important;
+    align-self: end !important;
+    width: 46px !important;
+    height: 46px !important;
+    margin: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock #rouletteSound{
+    grid-area: sound !important;
+    position: static !important;
+    right: auto !important;
+    bottom: auto !important;
+    justify-self: center !important;
+    align-self: end !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    z-index: auto !important;
+    flex: 0 0 46px !important;
+    margin: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock #spinBtn{
+    grid-area: spin !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 14px !important;
+    border-radius: 15px !important;
+    margin: 0 !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    letter-spacing: .08em !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-mini,
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-ghostRow,
+  html.tk-fhd-clean-fixedrails #rouletteDock #rouletteReset,
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-history{
+    display: none !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-info{
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 12px 14px 14px !important;
+    gap: 10px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoTitle{
+    font-size: 16px !important;
+    line-height: 1.14 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoText{
+    font-size: 13px !important;
+    line-height: 1.33 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoActions,
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoActions.tk-v104-inline{
+    display: flex !important;
+    width: 100% !important;
+    gap: 0 !important;
+    align-items: stretch !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock #rLink{
+    width: 100% !important;
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    border-radius: 16px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    letter-spacing: .05em !important;
+    margin: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoActions > :not(#rLink){
+    display: none !important;
+  }
 }
 </style>
-<script id="tk-surgical-qhd-fhd-bridge-script">
+<script id="tk-fhd-roulette-4k-parity-script-v6">
 (function(){
   var root = document.documentElement;
-  var body = document.body;
+  var dock = document.getElementById('rouletteDock');
+  var trigger = document.getElementById('tkqaOpenRoulette');
+  var legacyTrigger = document.getElementById('openRouletteDockPopover');
+  var spin = document.getElementById('spinBtn');
+  var sound = document.getElementById('rouletteSound');
+  var link = document.getElementById('rLink');
+  var meter = document.getElementById('rouletteMeter');
+  if(!dock) return;
 
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function imp(el, prop, val){ if(!el) return; try{ el.style.setProperty(prop, val, 'important'); }catch(_e){} }
-  function remCls(list){
-    list.forEach(function(cls){
-      try{ root.classList.remove(cls); }catch(_e){}
-      try{ body && body.classList.remove(cls); }catch(_e){}
+  dock.classList.add('tk-roulette-popover-mode');
+  dock.classList.add('tk-final-popover-control');
+
+  function isFhd(){
+    return root.classList.contains('tk-fhd-clean-fixedrails');
+  }
+
+  function clearForcedInlineState(){
+    dock.style.removeProperty('display');
+    dock.style.removeProperty('opacity');
+    dock.style.removeProperty('visibility');
+    dock.style.removeProperty('pointer-events');
+  }
+
+  function unlock(){
+    root.classList.add('tk-roulette-user-opened');
+    clearForcedInlineState();
+  }
+
+  [trigger, legacyTrigger].filter(Boolean).forEach(function(btn){
+    ['pointerdown','mousedown','touchstart','click'].forEach(function(type){
+      btn.addEventListener(type, unlock, true);
     });
-  }
-  function metrics(){
-    var iw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-    var ih = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-    var sw = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.availWidth) || 0);
-    var sh = Math.max((window.screen && window.screen.height) || 0, (window.screen && window.screen.availHeight) || 0);
-    var shortSide = Math.min(sw || iw, sh || ih);
-    var longSide = Math.max(sw || iw, sh || ih);
-    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    var physW = Math.max(longSide, Math.round(iw * dpr));
-    var physH = Math.max(shortSide, Math.round(ih * dpr));
-    return {iw:iw, ih:ih, sw:longSide, sh:shortSide, dpr:dpr, physW:physW, physH:physH};
-  }
-  function isTrue4k(m){
-    return (m.iw >= 3000 && m.ih >= 1600) || (m.sw >= 3200 && m.sh >= 1700) || (m.physW >= 3300 && m.physH >= 1800);
-  }
-  function isQhdLike(m){
-    if(isTrue4k(m)) return false;
-    var byViewport = m.iw >= 2200 && m.iw <= 2800 && m.ih >= 1200 && m.ih <= 1700;
-    var byScreen = m.sw >= 2400 && m.sw <= 2800 && m.sh >= 1350 && m.sh <= 1800;
-    var byPhysical = m.physW >= 2400 && m.physW <= 3200 && m.physH >= 1400 && m.physH <= 2100 && m.dpr <= 1.6;
-    return byViewport || byScreen || byPhysical;
-  }
-  function isLaptop15Like(m){
-    if(isTrue4k(m) || isQhdLike(m)) return false;
-    var logical = m.iw >= 1180 && m.iw <= 1600 && m.ih >= 720 && m.ih <= 1030;
-    var retina = m.sw >= 1400 && m.sw <= 1800 && m.sh >= 850 && m.sh <= 1200 && m.dpr >= 1.2;
-    var physical = m.physW >= 2200 && m.physW <= 3400 && m.physH >= 1400 && m.physH <= 2200 && m.dpr >= 1.25;
-    return logical || (retina && physical);
-  }
+    btn.addEventListener('keydown', function(ev){
+      if(ev.key === 'Enter' || ev.key === ' ' || ev.code === 'Space') unlock();
+    }, true);
+  });
 
-  function restoreCinemaPlacement(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var portal = document.getElementById('chatgpt4kCinemaPortal');
-    var uiBottom = q('.ui-bottom');
-    if(portal && cinema.parentElement === portal && uiBottom){
-      try{ uiBottom.insertBefore(cinema, uiBottom.firstChild); }catch(_e){ try{ uiBottom.prepend(cinema); }catch(__){} }
+  function simplifyLabels(){
+    if(!isFhd()) return;
+    if(spin){
+      spin.setAttribute('aria-label', 'Крутить');
+      spin.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.4 5.2L20 10l-4 3.9.9 5.6L12 16.8 7.1 19.5 8 13.9 4 10l5.6-1.8L12 3z"></path></svg> Крутить';
     }
-    if(portal && !portal.querySelector('#cinema')){
-      try{ portal.remove(); }catch(_e){}
-    }
-    var rail = document.getElementById('gpt4kRail');
-    if(rail){ try{ rail.remove(); }catch(_e){} }
-    var stage = q('.slider-container', cinema);
-    if(stage) stage.classList.remove('gpt4k-proxy');
-    var oaiStage = q('.oai2600-stage', cinema);
-    if(stage && oaiStage){
-      var wrap = q('.slider-wrapper', oaiStage);
-      if(wrap && wrap.parentElement !== stage){
-        var legacyNext = q('.slider-next', stage);
-        try{
-          if(legacyNext) stage.insertBefore(wrap, legacyNext);
-          else stage.appendChild(wrap);
-        }catch(_e){}
-      }
-      try{ oaiStage.remove(); }catch(_e){}
+    if(link){
+      link.innerHTML = 'Миссия <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 7l6 5-6 5"></path></svg>';
     }
   }
 
-  function setupCinemaToggle(forceMode){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var banner = q('.cinema-banner', cinema);
-    var title = q('.cinema-banner-title', cinema);
-    var art = q('.cinema-title-art', cinema);
-    var callout = q('.tk-cinema-callout', cinema);
-    var calloutImg = q('.tk-cinema-callout__img', cinema);
-    var stage = q('.slider-container', cinema);
-    if(!banner || !stage) return;
+  function repairStructure(){
+    if(!isFhd()) return;
+    var controls = dock.querySelector('.roulette-controls');
+    var actions = dock.querySelector('.roulette-infoActions');
+    var title = dock.querySelector('.roulette-title');
+    var sub = dock.querySelector('.roulette-sub');
+    var head = dock.querySelector('.roulette-head');
+    if(!controls || !actions || !title || !sub || !meter || !spin || !sound || !link) return;
 
-    if(!cinema.__tkBridgeCinemaState){
-      cinema.__tkBridgeCinemaState = { open:false, booted:false };
+    var titleBox = controls.querySelector('.tk-fhd-titlebox');
+    if(!titleBox){
+      titleBox = document.createElement('div');
+      titleBox.className = 'tk-fhd-titlebox';
+      controls.insertBefore(titleBox, controls.firstChild || null);
     }
-    var state = cinema.__tkBridgeCinemaState;
+    if(title.parentNode !== titleBox) titleBox.appendChild(title);
+    if(sub.parentNode !== titleBox) titleBox.appendChild(sub);
+    if(meter.parentNode !== controls) controls.appendChild(meter);
+    if(sound.parentNode !== controls) controls.appendChild(sound);
+    if(spin.parentNode !== controls) controls.appendChild(spin);
+    if(link.parentNode !== actions) actions.insertBefore(link, actions.firstChild || null);
+    else if(actions.firstElementChild !== link) actions.insertBefore(link, actions.firstChild || null);
+    if(actions.classList && actions.classList.contains('tk-v104-inline')) actions.classList.remove('tk-v104-inline');
+    if(head) head.style.display = 'contents';
 
-    function setStage(open){
-      try{ stage.hidden = !open; }catch(_e){}
-      try{ stage.setAttribute('aria-hidden', open ? 'false' : 'true'); }catch(_e){}
-      imp(stage, 'display', open ? 'grid' : 'none');
-      imp(stage, 'visibility', open ? 'visible' : 'hidden');
-      imp(stage, 'opacity', open ? '1' : '0');
-      imp(stage, 'pointer-events', open ? 'auto' : 'none');
-    }
-    function sync(open){
-      cinema.classList.toggle('tk-fhd-cinema-force-open', !!open);
-      cinema.classList.toggle('tk-fhd-cinema-force-closed', !open);
-      cinema.classList.toggle('tk-fhd-cinema-open', !!open);
-      cinema.classList.toggle('tk-fhd-cinema-closed', !open);
-      cinema.classList.toggle('is-open', !!open);
-      try{ banner.setAttribute('aria-expanded', open ? 'true' : 'false'); }catch(_e){}
-      setStage(!!open);
-    }
-
-    if(!state.booted){
-      state.booted = true;
-      try{ banner.setAttribute('role', 'button'); banner.setAttribute('tabindex', '0'); }catch(_e){}
-      var toggle = function(ev){
-        if(!forceMode()) return;
-        if(ev){
-          try{ ev.preventDefault(); }catch(_e){}
-          try{ ev.stopPropagation(); }catch(_e){}
-          try{ ev.stopImmediatePropagation(); }catch(_e){}
-        }
-        state.open = !state.open;
-        sync(state.open);
-      };
-      [banner, title, art, callout, calloutImg].forEach(function(el){
-        if(!el || el.dataset.tkBridgeToggleBound === '1') return;
-        el.dataset.tkBridgeToggleBound = '1';
-        el.addEventListener('click', toggle, true);
-      });
-      banner.addEventListener('keydown', function(ev){
-        if(ev.key === 'Enter' || ev.key === ' ' || ev.code === 'Space') toggle(ev);
-      }, true);
-    }
-
-    if(!state.open) sync(false);
+    simplifyLabels();
   }
 
-  function forceDesktopStable(m){
-    root.classList.add('tk-fhd-bridge-safe');
-    root.classList.add('tk-fhd-clean-ui');
-    root.classList.remove('chatgpt-4k-v40');
-    root.classList.remove('gpt4k-cinema-open');
-    remCls([
-      'chatgpt-4k-v40',
-      'gpt4k-cinema-open',
-      'tk-2560x1600-opt',
-      'tk-2560x1600-premium-fix',
-      'tk-2560x1600-real-fix-v3',
-      'tk-2500x1600-three-slide-hardfix-v9',
-      'oai2600-clean-cinema',
-      'tk-v113-roulette-4k-comic-ready',
-      'tk-v292-4k-ok',
-      'tk-stable-4k-kino',
-      'tk-physical-4k'
-    ]);
-    root.style.setProperty('--tk-bridge-roulette-scale', isLaptop15Like(m) ? '0.92' : '1');
-    restoreCinemaPlacement();
-    setupCinemaToggle(function(){ return root.classList.contains('tk-fhd-bridge-safe'); });
-
-    var dock = document.getElementById('rouletteDock');
-    if(dock){
-      dock.hidden = false;
-      dock.classList.remove('tk-roulette-popover-mode','tk-roulette-popover-open');
-      imp(dock, 'display', 'flex');
-      imp(dock, 'visibility', 'visible');
-      imp(dock, 'opacity', '1');
-      imp(dock, 'pointer-events', 'auto');
-    }
-    var live = document.getElementById('tkLiveStats');
-    if(live){
-      imp(live, 'top', '14px');
-      imp(live, 'right', '38px');
-      imp(live, 'left', 'auto');
-      imp(live, 'bottom', 'auto');
-      imp(live, 'transform', 'none');
-    }
-    if(typeof window.__tkRouletteRedraw === 'function'){
-      try{ window.__tkRouletteRedraw(); }catch(_e){}
-      setTimeout(function(){ try{ window.__tkRouletteRedraw(); }catch(_e){} }, 120);
-      setTimeout(function(){ try{ window.__tkRouletteRedraw(); }catch(_e){} }, 500);
-    }
+  function scheduleRepair(){
+    setTimeout(repairStructure, 0);
+    if(typeof requestAnimationFrame === 'function') requestAnimationFrame(repairStructure);
+    setTimeout(repairStructure, 120);
+    setTimeout(repairStructure, 420);
+    setTimeout(repairStructure, 1200);
   }
 
-  function clearBridge(){
-    root.classList.remove('tk-fhd-bridge-safe');
-    root.style.removeProperty('--tk-bridge-roulette-scale');
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', scheduleRepair, {once:true});
+  } else {
+    scheduleRepair();
   }
 
-  function apply(){
-    var m = metrics();
-    if(isQhdLike(m) || isLaptop15Like(m)) forceDesktopStable(m);
-    else clearBridge();
+  window.addEventListener('load', function(){
+    scheduleRepair();
+    setTimeout(scheduleRepair, 250);
+    setTimeout(scheduleRepair, 900);
+  }, {once:true});
+
+  window.addEventListener('resize', scheduleRepair, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', scheduleRepair, {passive:true});
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:false});
-  else apply();
-  window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 500); setTimeout(apply, 1200); }, {once:false});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
-  [0, 80, 220, 500, 900, 1600, 2600, 3800].forEach(function(ms){ setTimeout(apply, ms); });
+  [trigger, legacyTrigger].filter(Boolean).forEach(function(btn){
+    btn.addEventListener('click', scheduleRepair, true);
+  });
 })();
 </script>
 
+
+<style id="tk-fhd-roulette-final-stability-v1">
+@media (min-width: 1180px) and (max-width: 1920px){
+  html.tk-fhd-clean-fixedrails #rouletteDock{
+    contain: layout paint style !important;
+  }
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-wrap,
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-rot{
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-infoActions{
+    position: relative !important;
+    z-index: 4 !important;
+  }
+  html.tk-fhd-clean-fixedrails #rouletteDock #rLink,
+  html.tk-fhd-clean-fixedrails #rouletteDock #spinBtn,
+  html.tk-fhd-clean-fixedrails #rouletteDock #rouletteSound{
+    position: relative !important;
+    z-index: 5 !important;
+    touch-action: manipulation;
+  }
+  html.tk-fhd-clean-fixedrails #rouletteDock[data-spin-state="spinning"] #rLink{
+    opacity: .76 !important;
+    filter: saturate(.9) !important;
+  }
+}
+</style>
+
+
+<style id="tk-fhd-wheel-recenter-v8">
+@media (min-width: 521px) and (max-width: 1920px){
+  #rouletteDock .roulette-card{
+    align-items: center !important;
+  }
+
+  #rouletteDock .wheel-wrap{
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    justify-self: center !important;
+    align-self: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+  }
+
+  #rouletteDock .wheel-rot{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: auto !important;
+    display: block !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+  }
+
+  #rouletteDock canvas#wheel{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: auto !important;
+    display: block !important;
+    transform: none !important;
+    transform-origin: center center !important;
+  }
+
+  #rouletteDock .wheel-center{
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: center center !important;
+    z-index: 7 !important;
+  }
+
+  #rouletteDock .wheel-center:active{
+    transform: translate(-50%, -50%) scale(.98) !important;
+  }
+
+  #rouletteDock .wheel-pointer{
+    left: 50% !important;
+    margin-left: 0 !important;
+    transform: translateX(-50%) !important;
+  }
+
+  #rouletteDock .tk-roulette-crown,
+  #rouletteDock .tk-roulette-orbiters,
+  #rouletteDock .wheel-glow{
+    pointer-events: none !important;
+  }
+}
+</style>
+<script id="tk-fhd-wheel-recenter-v8-script">
+(function(){
+  function redraw(){
+    try{
+      if(typeof window.__tkRouletteRedraw === 'function'){
+        window.__tkRouletteRedraw(true);
+      }else{
+        window.dispatchEvent(new Event('resize'));
+      }
+    }catch(_){ }
+  }
+
+  function queue(){
+    setTimeout(redraw, 40);
+    setTimeout(redraw, 180);
+    setTimeout(redraw, 420);
+  }
+
+  function bind(){
+    ['openRouletteDockPopover','tkqaOpenRoulette','spinBtn'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el || el.__tkV8WheelBound) return;
+      el.__tkV8WheelBound = true;
+      el.addEventListener('click', queue, { passive:true });
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ bind(); queue(); }, { once:true });
+  }else{
+    bind();
+    queue();
+  }
+
+  window.addEventListener('load', function(){ bind(); queue(); }, { passive:true });
+})();
+</script>
+
+
+<style id="tk-fhd-roulette-v10-final-fix">
+@media (min-width: 1180px) and (max-width: 1920px){
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-card{
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-wrap{
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    justify-self: center !important;
+    align-self: center !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    padding: 0 !important;
+    margin: 0 0 0 -3px !important;
+    transform: translateX(-3px) translateZ(0) !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-rot{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    display: block !important;
+    transform-origin: center center !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock canvas#wheel{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    display: block !important;
+    transform: none !important;
+    transform-origin: center center !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-pointer{
+    left: 50% !important;
+    margin-left: 0 !important;
+    transform: translateX(-50%) !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-center{
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 30px !important;
+    height: 30px !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: center center !important;
+    z-index: 8 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-center:active{
+    transform: translate(-50%, -50%) scale(.98) !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-center::before{
+    inset: 6px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-controls{
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 46px 46px !important;
+    grid-template-areas:
+      "title meter sound"
+      "spin spin spin" !important;
+    align-items: end !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-head{
+    display: contents !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .tk-fhd-titlebox,
+  html.tk-fhd-clean-fixedrails #rouletteDock .tk-fhd-titlebox-v10{
+    grid-area: title !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-self: end !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .roulette-meter{
+    grid-area: meter !important;
+    justify-self: center !important;
+    align-self: end !important;
+    width: 46px !important;
+    height: 46px !important;
+    margin: 0 !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock #rouletteSound{
+    grid-area: sound !important;
+    position: static !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 3 !important;
+    flex: 0 0 46px !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock #spinBtn{
+    grid-area: spin !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .tk-sound-meter-group{
+    display: contents !important;
+  }
+}
+</style>
+<script id="tk-fhd-roulette-v10-final-fix-script">
+(function(){
+  var root = document.documentElement;
+  var dock = document.getElementById('rouletteDock');
+  if(!dock) return;
+
+  var observer = null;
+  var queued = 0;
+
+  function isFhd(){
+    return root.classList.contains('tk-fhd-clean-fixedrails') && window.innerWidth >= 1180 && window.innerWidth <= 1920;
+  }
+
+  function setImp(el, prop, value){
+    if(el) el.style.setProperty(prop, value, 'important');
+  }
+
+  function repair(){
+    if(!isFhd()) return;
+
+    var controls = dock.querySelector('.roulette-controls');
+    var head = dock.querySelector('.roulette-head');
+    var title = dock.querySelector('.roulette-title');
+    var sub = dock.querySelector('.roulette-sub');
+    var meter = document.getElementById('rouletteMeter');
+    var sound = document.getElementById('rouletteSound');
+    var spin = document.getElementById('spinBtn');
+    var wrap = dock.querySelector('.wheel-wrap');
+    var center = dock.querySelector('.wheel-center');
+    var actions = dock.querySelector('.roulette-infoActions');
+    var link = document.getElementById('rLink');
+    if(!controls || !meter || !sound || !spin || !wrap || !center) return;
+
+    var box = controls.querySelector('.tk-fhd-titlebox-v10') || controls.querySelector('.tk-fhd-titlebox');
+    if(!box){
+      box = document.createElement('div');
+      box.className = 'tk-fhd-titlebox tk-fhd-titlebox-v10';
+      controls.insertBefore(box, controls.firstChild || null);
+    }
+    if(title && title.parentNode !== box) box.appendChild(title);
+    if(sub && sub.parentNode !== box) box.appendChild(sub);
+    if(meter.parentNode !== controls) controls.appendChild(meter);
+    if(sound.parentNode !== controls) controls.appendChild(sound);
+    if(spin.parentNode !== controls) controls.appendChild(spin);
+    if(actions && link && actions.firstElementChild !== link){
+      if(link.parentNode !== actions) actions.appendChild(link);
+      actions.insertBefore(link, actions.firstChild || null);
+    }
+    if(head) setImp(head, 'display', 'contents');
+
+    sound.hidden = false;
+    sound.removeAttribute('hidden');
+    setImp(sound, 'position', 'static');
+    setImp(sound, 'left', 'auto');
+    setImp(sound, 'right', 'auto');
+    setImp(sound, 'top', 'auto');
+    setImp(sound, 'bottom', 'auto');
+    setImp(sound, 'transform', 'none');
+    setImp(sound, 'opacity', '1');
+    setImp(sound, 'visibility', 'visible');
+    setImp(sound, 'pointer-events', 'auto');
+    setImp(sound, 'display', 'grid');
+    setImp(sound, 'place-items', 'center');
+    setImp(sound, 'width', '46px');
+    setImp(sound, 'min-width', '46px');
+    setImp(sound, 'max-width', '46px');
+    setImp(sound, 'height', '46px');
+    setImp(sound, 'min-height', '46px');
+    setImp(sound, 'margin', '0');
+    setImp(sound, 'z-index', '3');
+
+    setImp(wrap, 'margin-left', '-3px');
+    setImp(wrap, 'transform', 'translateX(-3px) translateZ(0)');
+    setImp(wrap, 'overflow', 'hidden');
+
+    setImp(center, 'left', '50%');
+    setImp(center, 'top', '50%');
+    setImp(center, 'right', 'auto');
+    setImp(center, 'bottom', 'auto');
+    setImp(center, 'margin', '0');
+    setImp(center, 'transform', 'translate(-50%, -50%)');
+    setImp(center, 'width', '30px');
+    setImp(center, 'height', '30px');
+  }
+
+  function queue(){
+    if(queued) cancelAnimationFrame(queued);
+    queued = requestAnimationFrame(function(){
+      queued = 0;
+      repair();
+    });
+    setTimeout(repair, 0);
+    setTimeout(repair, 120);
+    setTimeout(repair, 360);
+  }
+
+  function bind(){
+    ['openRouletteDockPopover','tkqaOpenRoulette','spinBtn','closeRouletteDock'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el || el.__tkV10FixBound) return;
+      el.__tkV10FixBound = true;
+      el.addEventListener('click', queue, true);
+      el.addEventListener('pointerdown', queue, true);
+    });
+    if(observer) return;
+    observer = new MutationObserver(function(list){
+      for(var i=0;i<list.length;i++){
+        var m = list[i];
+        if(m.type === 'attributes' || m.type === 'childList'){
+          queue();
+          break;
+        }
+      }
+    });
+    observer.observe(dock, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class','style','hidden','aria-pressed','data-spin-state']
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ bind(); queue(); }, { once:true });
+  }else{
+    bind();
+    queue();
+  }
+
+  window.addEventListener('load', function(){ bind(); queue(); }, { once:true });
+  window.addEventListener('resize', queue, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+})();
+</script>
+
+
+<style id="oai-fhd-roulette-v11-spin-restore">
+@media (min-width: 1180px) and (max-width: 1920px){
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-rot{
+    transition-property: transform !important;
+    transform-origin: 50% 50% !important;
+    will-change: transform !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-center{
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock #rouletteSound{
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+</style>
+<script id="oai-fhd-roulette-v11-spin-restore-script">
+(function(){
+  var root = document.documentElement;
+  var dock = document.getElementById('rouletteDock');
+  var rot = document.getElementById('wheelRot');
+  var center = dock && dock.querySelector('.wheel-center');
+  if(!dock || !rot) return;
+
+  function isFhd(){
+    return root.classList.contains('tk-fhd-clean-fixedrails') && window.innerWidth >= 1180 && window.innerWidth <= 1920;
+  }
+
+  function fix(){
+    if(!isFhd()) return;
+    rot.style.setProperty('transform-origin', '50% 50%', 'important');
+    rot.style.removeProperty('transform');
+    if(center){
+      center.style.setProperty('left', '50%', 'important');
+      center.style.setProperty('top', '50%', 'important');
+      center.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+    }
+  }
+
+  ['openRouletteDockPopover','tkqaOpenRoulette','closeRouletteDock'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el || el.__oaiV11Bound) return;
+    el.__oaiV11Bound = true;
+    el.addEventListener('click', function(){ setTimeout(fix, 30); setTimeout(fix, 180); }, true);
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', fix, {once:true});
+  }else{
+    fix();
+  }
+  window.addEventListener('load', fix, {once:true});
+})();
+</script>
+
+
+<style id="oai-fhd-roulette-v13-innerwheel-center">
+@media (min-width: 1180px) and (max-width: 1920px){
+  html.tk-fhd-clean-fixedrails #rouletteDock{
+    --oai-fhd-wheel-offset: 7px;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-wrap{
+    overflow: hidden !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-rot{
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 0 0 calc(var(--oai-fhd-wheel-offset) * -1) !important;
+    transform-origin: 50% 50% !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock canvas#wheel{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+    transform-origin: 50% 50% !important;
+  }
+
+  html.tk-fhd-clean-fixedrails #rouletteDock .wheel-center{
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+  }
+}
+</style>
+<script id="oai-fhd-roulette-v13-innerwheel-center-script">
+(function(){
+  var root = document.documentElement;
+  var dock = document.getElementById('rouletteDock');
+  if(!dock) return;
+
+  function isFhd(){
+    return root.classList.contains('tk-fhd-clean-fixedrails') && window.innerWidth >= 1180 && window.innerWidth <= 1920;
+  }
+
+  function fix(){
+    if(!isFhd()) return;
+    var center = dock.querySelector('.wheel-center');
+    if(center){
+      center.style.setProperty('left', '50%', 'important');
+      center.style.setProperty('top', '50%', 'important');
+      center.style.setProperty('right', 'auto', 'important');
+      center.style.setProperty('bottom', 'auto', 'important');
+      center.style.setProperty('margin', '0', 'important');
+      center.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+      center.style.setProperty('transform-origin', '50% 50%', 'important');
+    }
+  }
+
+  ['openRouletteDockPopover','tkqaOpenRoulette','spinBtn','closeRouletteDock'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el || el.__oaiV13CenterOnlyBound) return;
+    el.__oaiV13CenterOnlyBound = true;
+    el.addEventListener('click', function(){ setTimeout(fix, 0); setTimeout(fix, 80); setTimeout(fix, 220); }, true);
+    el.addEventListener('pointerdown', function(){ setTimeout(fix, 0); }, true);
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', fix, {once:true});
+  }else{
+    fix();
+  }
+  window.addEventListener('load', function(){ fix(); setTimeout(fix, 120); }, {once:true});
+  window.addEventListener('resize', fix, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', fix, {passive:true});
+})();
+</script>
+
+</body>
+</html>
