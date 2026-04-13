@@ -61130,7 +61130,37 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   __tkRun();
 })();
 </script>
-<style id="tk-2k-visual-restore-v12-style">
+
+<style id="tk-2k-ui-restore-v13-style">
+html.tk-2k-fhd-like .header,
+html.tk-2k-fhd-like #hero{
+  width:100% !important;
+  height:100vh !important;
+  max-height:100vh !important;
+}
+html.tk-2k-fhd-like .header__bg,
+html.tk-2k-fhd-like .header__bg-blur{
+  width:100vw !important;
+  height:100vh !important;
+  object-fit:cover !important;
+  object-position:50% 100% !important;
+}
+html.tk-2k-fhd-like .bg-main-pic,
+html.tk-2k-fhd-like .bg-blur-pic{
+  width:100% !important;
+  height:100% !important;
+}
+html.tk-2k-fhd-like #tkLiveStats{
+  position:fixed !important;
+  top:14px !important;
+  right:8px !important;
+  left:auto !important;
+  bottom:auto !important;
+  z-index:120 !important;
+  transform:none !important;
+  margin:0 !important;
+}
+html.tk-2k-fhd-like #tkLiveStats.is-collapsed{ right:8px !important; }
 html.tk-2k-fhd-like #cinema.tk-fhd-cinema-force-closed .slider-container{
   display:none !important;
   visibility:hidden !important;
@@ -61151,33 +61181,6 @@ html.tk-2k-fhd-like #cinema .tk-cinema-callout__img{
   cursor:pointer !important;
   pointer-events:auto !important;
 }
-html.tk-2k-fhd-like #tkLiveStats{
-  position:fixed !important;
-  top:14px !important;
-  right:8px !important;
-  left:auto !important;
-  bottom:auto !important;
-  z-index:120 !important;
-  transform:none !important;
-  margin:0 !important;
-}
-html.tk-2k-fhd-like #tkLiveStats.is-collapsed{ right:8px !important; }
-html.tk-2k-fhd-like .header,
-html.tk-2k-fhd-like #hero{
-  width:100% !important;
-  height:100vh !important;
-  max-height:100vh !important;
-}
-html.tk-2k-fhd-like .header__bg{
-  width:100vw !important;
-  height:100vh !important;
-  object-fit:cover !important;
-  object-position:50% 100% !important;
-}
-html.tk-2k-fhd-like .bg-main-pic{
-  width:100% !important;
-  height:100% !important;
-}
 html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
   max-height:0 !important;
   opacity:0 !important;
@@ -61186,10 +61189,10 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
   margin-top:0 !important;
 }
 </style>
-<script id="tk-2k-visual-restore-v12-script">
+<script id="tk-2k-ui-restore-v13-script">
 (function(){
   function px(n){ return Math.round(Number(n) || 0); }
-  function getMetrics(){
+  function metrics(){
     var dpr = Math.max(1, window.devicePixelRatio || 1);
     var iw = px(window.innerWidth || document.documentElement.clientWidth || 0);
     var ih = px(window.innerHeight || document.documentElement.clientHeight || 0);
@@ -61199,7 +61202,7 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
   }
   function isProblem2k(){
     try{
-      var m = getMetrics();
+      var m = metrics();
       var cssHi = Math.max(m.iw, m.ih), cssLo = Math.min(m.iw, m.ih);
       var phyHi = Math.max(m.effInnerW, m.effScreenW, m.effInnerH, m.effScreenH);
       var phyLo = Math.min(Math.max(m.effInnerW, m.effScreenW), Math.max(m.effInnerH, m.effScreenH));
@@ -61211,37 +61214,23 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
   if(!isProblem2k()) return;
 
   var root = document.documentElement;
-  root.classList.add('tk-2k-fhd-like','tk-fhd-clean-ui');
-  try{ sessionStorage.setItem('tkqa-dock-open','0'); }catch(_){ }
-  try{ sessionStorage.setItem('tk-live-stats-open-v3','0'); }catch(_){ }
-  try{ sessionStorage.removeItem('tk-wow-cinema-clicked'); }catch(_){ }
-
-  var wrappedScripts = Array.prototype.slice.call(document.querySelectorAll('script[data-tk-lateboot-wrapped="1"]'));
-  var queue = Array.isArray(window.__tkDeferredLateScripts) ? window.__tkDeferredLateScripts.slice() : [];
-  if(queue.length && wrappedScripts.length === queue.length){
-    var allowedIds = new Set([
-      'tk-live-stats-script','tk-cinema-final-clean-single-source-script','oaiInventoryToggleRestoreScript',
-      'tk-games-unify-v2-fix-script','tk-unified-all-games-v3-script','tk-force-unified-games-script','tk-it-phish-static-shell-fix-script','tk-hard-layout-fix-v6-script',
-      'tk-game-stage-desktop-chip-v1-script','pc-parts-asset-fallback-patch','tk-pcparts-launch-isolation-v1','tk-pcparts-clean-flow-v4-script',
-      'tk-v10-it-phish-flow-fix-script','tk-it-phish-map-cleanup-v11','tk-fhd-clean-final-script','tk-cinema-dev-placeholder-script',
-      'tk-fhd-cinema-gap-final-fix-v2','tk-fhd-scroll-stability-fix-v3','tk-global-wheel-relay-v4','oai-roulette-copyfit-v1-script',
-      'tk-rm-fhd-fit-script-v9','tk-rm-scroll-csssafe-script-v15','tk-rm-final-fix-script-v16','oa-menu-pill-toggle-unify-script-v1',
-      'oaiInfoQuickbarArtScrollScript','oaiInfoQuickbarImageRuntimePatch','oai-wow-menu-and-cinema-script-v2',
-      'chatgpt-remove-cinema-subtitle-all-screens-script','chatgpt-final-bg-deblur-script','chatgpt-fhd-cinema-safe-toggle-v3-script',
-      'tk-live-stats-top-right-final-script','tk-live-stats-compact-toggle-script','tk-roulette-popover-launch-script-v1',
-      'oai-fhd-roulette-v11-spin-restore-script','oai-fhd-roulette-v13-innerwheel-center-script'
-    ]);
-    var filtered = [];
-    for(var i=0;i<queue.length;i++){
-      var id = wrappedScripts[i] && wrappedScripts[i].id;
-      if(allowedIds.has(id)) filtered.push(queue[i]);
-    }
-    if(filtered.length) window.__tkDeferredLateScripts = filtered;
-  }
-
+  var activated = false;
+  var queued = 0;
   function q(sel, ctx){ return (ctx || document).querySelector(sel); }
   function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function clamp(v, a, b){ return Math.max(a, Math.min(v, b)); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(v, b)); }
+
+  function licenseHidden(){
+    var overlay = document.getElementById('tkLicenseOverlay');
+    if(!overlay) return true;
+    return overlay.getAttribute('aria-hidden') === 'true' || !overlay.classList.contains('is-open');
+  }
+
+  function killProblemClasses(){
+    ['tk-4k','chatgpt-4k-v40','chatgpt-4k-v41','tk-2560x1600-opt','tk-2560x1600-premium-fix','tk-2560x1600-real-fix-v3','tk-2560x1600-real-fix-v5','tk-2560x1600-real-fix-v6','tk-2560x1600-real-fix-v8','tk-2560x1600-real-fix-v9','tk-retina-16x10-three-slides-v18','tk-v206-laptop15','oai-right-rail-2600-only-fix','oai-right-rail-2600-v3','oai-right-rail-2600-v4','oai-right-rail-2600-v5-hard','oai-cinema-2600-corridor-fix','oai-cinema-2600-pocket-fix','oai-cinema-2600-left-hardfix','oai-2600-two-slide-clean','tk-tablet-landscape','tk-mobile-landscape-v341'].forEach(function(cls){ root.classList.remove(cls); });
+    root.style.setProperty('--cinema-head-shift','0px','important');
+  }
+
   var anchors = new WeakMap();
   function remember(el){
     if(!el || anchors.has(el) || !el.parentNode) return;
@@ -61254,12 +61243,7 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
     if(!el){ el = document.createElement('div'); el.id = id; document.body.appendChild(el); }
     return el;
   }
-  function killProblemClasses(){
-    ['tk-2560x1600-opt','tk-2560x1600-premium-fix','tk-2560x1600-real-fix-v3','tk-2560x1600-real-fix-v5','tk-2560x1600-real-fix-v6','tk-2560x1600-real-fix-v8','tk-2560x1600-real-fix-v9','tk-retina-16x10-three-slides-v18','tk-v206-laptop15','oai-right-rail-2600-only-fix','oai-right-rail-2600-v3','oai-right-rail-2600-v4','oai-right-rail-2600-v5-hard','oai-cinema-2600-corridor-fix','oai-cinema-2600-pocket-fix','oai-cinema-2600-left-hardfix','oai-2600-two-slide-clean','tk-tablet-landscape'].forEach(function(cls){ root.classList.remove(cls); });
-    root.style.setProperty('--cinema-head-shift','0px','important');
-  }
   function moveRails(){
-    killProblemClasses();
     var dock = document.getElementById('rouletteDock');
     var rules = document.querySelector('.rules.tkqa-wrap') || document.querySelector('.rules');
     var it = document.querySelector('.side-chip--it-min');
@@ -61278,6 +61262,7 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
     [it, info, phish].forEach(function(el){ if(el.parentNode !== left) left.appendChild(el); });
     ['tk18LeftRail','tk19LeftRail','tk23RightRail','tkV165RightRail','tkV205RightRail4k'].forEach(function(id){ var el = document.getElementById(id); if(el){ el.style.setProperty('display','none','important'); el.style.setProperty('pointer-events','none','important'); } });
   }
+
   function initLiveStats(){
     var live = document.getElementById('tkLiveStats');
     if(!live) return;
@@ -61288,17 +61273,9 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
     live.style.setProperty('right','8px','important');
     live.style.setProperty('left','auto','important');
     live.style.setProperty('bottom','auto','important');
-    var title = document.getElementById('tkLiveStatsToggle') || q('.tk-live-stats__title', live);
-    var badge = document.getElementById('tkLiveStatsBadge');
-    function setOpen(open){ live.classList.toggle('is-collapsed', !open); live.setAttribute('aria-expanded', open ? 'true' : 'false'); try{ sessionStorage.setItem('tk-live-stats-open-v3', open ? '1' : '0'); }catch(_){ } }
-    if(title && !title.__tk2kLiveBound){
-      var toggle = function(ev){ if(ev && ev.type === 'keydown'){ var key = ev.key || ev.code; if(!(key === 'Enter' || key === ' ' || key === 'Spacebar')) return; ev.preventDefault(); } setOpen(live.classList.contains('is-collapsed')); };
-      title.__tk2kLiveBound = true;
-      title.addEventListener('click', toggle); title.addEventListener('keydown', toggle);
-      if(badge && !badge.__tk2kLiveBound){ badge.__tk2kLiveBound = true; badge.addEventListener('click', toggle); badge.addEventListener('keydown', toggle); }
-    }
-    setOpen(false);
+    try{ sessionStorage.setItem('tk-live-stats-open-v3','0'); }catch(_){ }
   }
+
   function initTkqa(){
     var wrap = document.querySelector('.rules.tkqa-wrap');
     if(!wrap) return;
@@ -61307,34 +61284,116 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
     var grid = wrap.querySelector('.tkqa-grid');
     var line = wrap.querySelector('.tkqa-bottom-line');
     if(!dock || !head || !grid) return;
-    wrap.classList.add('tkqa-collapsible','is-collapsed'); wrap.classList.remove('is-open'); wrap.setAttribute('data-tkqa-open','0');
+    wrap.classList.add('tkqa-collapsible','is-collapsed');
+    wrap.classList.remove('is-open');
+    wrap.setAttribute('data-tkqa-open','0');
+    try{ sessionStorage.setItem('tkqa-dock-open','0'); }catch(_){ }
     var fold = dock.querySelector('.tkqa-fold');
-    if(!fold){ fold = document.createElement('div'); fold.className = 'tkqa-fold'; fold.id = 'tkqaFold'; dock.insertBefore(fold, line || null); fold.appendChild(grid); if(line) fold.appendChild(line); }
-    function updateHeight(){ var h = Math.ceil(fold.scrollHeight || 0); if(h > 0) wrap.style.setProperty('--tkqa-fold-h', h + 'px'); }
-    function setOpen(open){ wrap.classList.toggle('is-open', !!open); wrap.classList.toggle('is-collapsed', !open); head.setAttribute('aria-expanded', open ? 'true' : 'false'); wrap.setAttribute('data-tkqa-open', open ? '1' : '0'); try{ sessionStorage.setItem('tkqa-dock-open', open ? '1' : '0'); }catch(_){ } updateHeight(); }
-    if(!head.__tk2kQaBound){
-      var toggle = function(ev){ if(ev && ev.type === 'keydown'){ var key = ev.key || ev.code; if(!(key === 'Enter' || key === ' ' || key === 'Spacebar')) return; ev.preventDefault(); } else if(ev){ ev.preventDefault(); } setOpen(!wrap.classList.contains('is-open')); };
-      head.__tk2kQaBound = true; head.setAttribute('role','button'); head.setAttribute('tabindex','0'); head.setAttribute('aria-controls','tkqaFold'); head.addEventListener('click', toggle); head.addEventListener('keydown', toggle);
+    if(!fold){
+      fold = document.createElement('div');
+      fold.className = 'tkqa-fold';
+      fold.id = 'tkqaFold';
+      dock.insertBefore(fold, line || null);
+      fold.appendChild(grid);
+      if(line) fold.appendChild(line);
     }
-    updateHeight(); setOpen(false);
+    function updateHeight(){ var h = Math.ceil(fold.scrollHeight || 0); if(h > 0) wrap.style.setProperty('--tkqa-fold-h', h + 'px'); }
+    function setOpen(open){
+      wrap.classList.toggle('is-open', !!open);
+      wrap.classList.toggle('is-collapsed', !open);
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      wrap.setAttribute('data-tkqa-open', open ? '1' : '0');
+      try{ sessionStorage.setItem('tkqa-dock-open', open ? '1' : '0'); }catch(_){ }
+      updateHeight();
+    }
+    if(!head.__tk2kQaBound){
+      var toggle = function(ev){
+        if(ev && ev.type === 'keydown'){
+          var key = ev.key || ev.code;
+          if(!(key === 'Enter' || key === ' ' || key === 'Spacebar')) return;
+          ev.preventDefault();
+        }else if(ev){ ev.preventDefault(); }
+        setOpen(!wrap.classList.contains('is-open'));
+      };
+      head.__tk2kQaBound = true;
+      head.setAttribute('role','button');
+      head.setAttribute('tabindex','0');
+      head.setAttribute('aria-controls','tkqaFold');
+      head.addEventListener('click', toggle);
+      head.addEventListener('keydown', toggle);
+    }
+    updateHeight();
+    setOpen(false);
   }
-  function restoreCinemaTitle(cinema){ var title = q('.cinema-banner-title', cinema); if(title && !q('.cinema-title-art', title)){ title.innerHTML = '<img alt="Мультфильмы о цифровой безопасности" class="cinema-title-art" decoding="async" src="cartoon.png">'; } }
-  function unwrapFhdStage(cinema){ var container = q('.slider-container', cinema); if(!container) return; var stage = q('.oaiFhd-stage', container); if(stage){ var viewport = q('.oaiFhd-viewport', stage); var track = q('.slider-wrapper', viewport || stage); var next = q('.slider-next', container); if(track && track.parentNode !== container){ if(next) container.insertBefore(track, next); else container.appendChild(track); } try{ stage.remove(); }catch(_){ } } qa('.oaiFhd-nav', container).forEach(function(el){ try{ el.remove(); }catch(_){ } }); }
+
+  function restoreCinemaTitle(cinema){
+    var title = q('.cinema-banner-title', cinema);
+    if(title && !q('.cinema-title-art', title)){
+      title.innerHTML = '<img alt="Мультфильмы о цифровой безопасности" class="cinema-title-art" decoding="async" src="cartoon.png">';
+    }
+  }
+  function unwrapFhdStage(cinema){
+    var container = q('.slider-container', cinema);
+    if(!container) return;
+    var stage = q('.oaiFhd-stage', container);
+    if(stage){
+      var viewport = q('.oaiFhd-viewport', stage);
+      var track = q('.slider-wrapper', viewport || stage);
+      var next = q('.slider-next', container);
+      if(track && track.parentNode !== container){
+        if(next) container.insertBefore(track, next); else container.appendChild(track);
+      }
+      try{ stage.remove(); }catch(_){ }
+    }
+    qa('.oaiFhd-nav', container).forEach(function(el){ try{ el.remove(); }catch(_){ } });
+  }
   function initCinema(){
-    var cinema = document.getElementById('cinema'); if(!cinema) return;
-    moveRails(); killProblemClasses(); restoreCinemaTitle(cinema); unwrapFhdStage(cinema);
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    restoreCinemaTitle(cinema);
+    unwrapFhdStage(cinema);
     var head = q('.cinema-head', cinema);
     if(head && !q('.tk-cinema-callout', cinema)){
-      var bubble = document.createElement('div'); bubble.className = 'tk-cinema-callout tk-cinema-callout--image'; bubble.setAttribute('aria-hidden', 'true');
-      var bubbleImg = document.createElement('img'); bubbleImg.className = 'tk-cinema-callout__img'; bubbleImg.src = 'nashmi_menya.png'; bubbleImg.alt = ''; bubbleImg.decoding = 'async'; bubbleImg.loading = 'eager';
-      bubble.appendChild(bubbleImg); head.appendChild(bubble);
+      var bubble = document.createElement('div');
+      bubble.className = 'tk-cinema-callout tk-cinema-callout--image';
+      bubble.setAttribute('aria-hidden', 'true');
+      var bubbleImg = document.createElement('img');
+      bubbleImg.className = 'tk-cinema-callout__img';
+      bubbleImg.src = 'nashmi_menya.png';
+      bubbleImg.alt = '';
+      bubbleImg.decoding = 'async';
+      bubbleImg.loading = 'eager';
+      bubble.appendChild(bubbleImg);
+      head.appendChild(bubble);
     }
-    var banner = q('.cinema-banner', cinema), stage = q('.slider-container', cinema); if(!banner || !stage) return;
+    var banner = q('.cinema-banner', cinema), stage = q('.slider-container', cinema);
+    if(!banner || !stage) return;
     var title = q('.cinema-banner-title', cinema), art = q('.cinema-title-art', cinema), callout = q('.tk-cinema-callout', cinema), calloutImg = q('.tk-cinema-callout__img', cinema);
-    function setOpen(open){ cinema.classList.toggle('tk-fhd-cinema-force-open', !!open); cinema.classList.toggle('tk-fhd-cinema-force-closed', !open); cinema.classList.toggle('is-open', !!open); cinema.classList.toggle('is-primed', !open); banner.setAttribute('aria-expanded', open ? 'true' : 'false'); stage.hidden = !open; stage.setAttribute('aria-hidden', open ? 'false' : 'true'); stage.style.setProperty('display', open ? 'grid' : 'none', 'important'); stage.style.setProperty('visibility', open ? 'visible' : 'hidden', 'important'); stage.style.setProperty('opacity', open ? '1' : '0', 'important'); stage.style.setProperty('pointer-events', open ? 'auto' : 'none', 'important'); if(open){ var track = q('.slider-wrapper', cinema); if(track){ try{ track.scrollLeft = 0; }catch(_){ } try{ track.scrollTo({ left:0, behavior:'auto' }); }catch(_){ } } } }
+    function setOpen(open){
+      cinema.classList.toggle('tk-fhd-cinema-force-open', !!open);
+      cinema.classList.toggle('tk-fhd-cinema-force-closed', !open);
+      cinema.classList.toggle('is-open', !!open);
+      banner.setAttribute('aria-expanded', open ? 'true' : 'false');
+      stage.hidden = !open;
+      stage.setAttribute('aria-hidden', open ? 'false' : 'true');
+      stage.style.setProperty('display', open ? 'grid' : 'none', 'important');
+      stage.style.setProperty('visibility', open ? 'visible' : 'hidden', 'important');
+      stage.style.setProperty('opacity', open ? '1' : '0', 'important');
+      stage.style.setProperty('pointer-events', open ? 'auto' : 'none', 'important');
+      if(open){
+        var track = q('.slider-wrapper', cinema);
+        if(track){ try{ track.scrollLeft = 0; }catch(_){ } try{ track.scrollTo({ left:0, behavior:'auto' }); }catch(_){ } }
+      }
+    }
     if(cinema.dataset.tk2kCinemaBound !== '1'){
-      cinema.dataset.tk2kCinemaBound = '1'; banner.setAttribute('role','button'); banner.setAttribute('tabindex','0'); banner.setAttribute('aria-label','Нажмите, чтобы открыть или скрыть список мультфильмов');
-      var toggle = function(ev){ if(ev){ try{ ev.preventDefault(); }catch(_){ } try{ ev.stopPropagation(); }catch(_){ } try{ ev.stopImmediatePropagation(); }catch(_){ } } setOpen(!cinema.classList.contains('tk-fhd-cinema-force-open')); };
+      cinema.dataset.tk2kCinemaBound = '1';
+      banner.setAttribute('role','button');
+      banner.setAttribute('tabindex','0');
+      banner.setAttribute('aria-label','Нажмите, чтобы открыть или скрыть список мультфильмов');
+      var toggle = function(ev){
+        if(ev){ try{ ev.preventDefault(); }catch(_){ } try{ ev.stopPropagation(); }catch(_){ } try{ ev.stopImmediatePropagation(); }catch(_){ } }
+        setOpen(!cinema.classList.contains('tk-fhd-cinema-force-open'));
+      };
       [banner, title, art, callout, calloutImg].forEach(function(el){ if(el) el.addEventListener('click', toggle, true); });
       banner.addEventListener('keydown', function(ev){ if(ev.key === 'Enter' || ev.key === ' ' || ev.code === 'Space'){ toggle(ev); } }, true);
     }
@@ -61346,7 +61405,21 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
       if(slides.length >= 3){
         var maxStart = Math.max(0, slides.length - 3);
         var state = cinema.__tk2kCinemaState || { start:0, active:1 }; cinema.__tk2kCinemaState = state;
-        function render(){ restoreCinemaTitle(cinema); unwrapFhdStage(cinema); state.start = clamp(state.start, 0, maxStart); state.active = clamp(state.active, state.start, Math.min(state.start + 2, slides.length - 1)); slides.forEach(function(slide, idx){ var visible = idx >= state.start && idx < state.start + 3; slide.classList.toggle('tk-fhd-hidden', !visible); slide.classList.toggle('is-active', visible && idx === state.active); }); try{ track.scrollLeft = 0; }catch(_){ } try{ track.scrollTo({ left:0, behavior:'auto' }); }catch(_){ } prev.disabled = state.start <= 0; next.disabled = state.start >= maxStart; }
+        function render(){
+          restoreCinemaTitle(cinema);
+          unwrapFhdStage(cinema);
+          state.start = clamp(state.start, 0, maxStart);
+          state.active = clamp(state.active, state.start, Math.min(state.start + 2, slides.length - 1));
+          slides.forEach(function(slide, idx){
+            var visible = idx >= state.start && idx < state.start + 3;
+            slide.classList.toggle('tk-fhd-hidden', !visible);
+            slide.classList.toggle('is-active', visible && idx === state.active);
+          });
+          try{ track.scrollLeft = 0; }catch(_){ }
+          try{ track.scrollTo({ left:0, behavior:'auto' }); }catch(_){ }
+          prev.disabled = state.start <= 0;
+          next.disabled = state.start >= maxStart;
+        }
         prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = clamp(state.start - 1, 0, maxStart); if(state.active < state.start || state.active > state.start + 2) state.active = Math.min(state.start + 1, slides.length - 1); render(); }, true);
         next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = clamp(state.start + 1, 0, maxStart); if(state.active < state.start || state.active > state.start + 2) state.active = Math.min(state.start + 1, slides.length - 1); render(); }, true);
         slides.forEach(function(slide, idx){ slide.addEventListener('click', function(e){ if(e.target.closest('button') || e.target.closest('a') || slide.classList.contains('tk-fhd-hidden')) return; e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.active = idx; render(); }, true); });
@@ -61355,14 +61428,35 @@ html.tk-2k-fhd-like .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
     }
     setOpen(false);
   }
-  var queued = 0;
-  function polish(){ queued = 0; if(!isProblem2k()) return; root.classList.add('tk-2k-fhd-like','tk-fhd-clean-ui'); killProblemClasses(); moveRails(); initLiveStats(); initTkqa(); initCinema(); }
-  function schedule(){ if(queued) cancelAnimationFrame(queued); queued = requestAnimationFrame(polish); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true }); else schedule();
-  window.addEventListener('load', function(){ schedule(); setTimeout(schedule, 120); setTimeout(schedule, 600); setTimeout(schedule, 1800); }, { once:true });
-  window.addEventListener('resize', schedule, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, { passive:true });
-  window.addEventListener('tk:loaderhidden', function(){ setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 900); }, { capture:true });
+
+  function apply(){
+    if(!licenseHidden()) return;
+    activated = true;
+    root.classList.add('tk-2k-fhd-like','tk-fhd-clean-ui');
+    killProblemClasses();
+    moveRails();
+    initLiveStats();
+    initTkqa();
+    initCinema();
+  }
+  function schedule(){
+    if(!licenseHidden()) return;
+    if(queued) cancelAnimationFrame(queued);
+    queued = requestAnimationFrame(function(){ queued = 0; apply(); });
+  }
+
+  var overlay = document.getElementById('tkLicenseOverlay');
+  if(overlay && window.MutationObserver){
+    try{
+      var mo = new MutationObserver(function(){ if(licenseHidden()) schedule(); });
+      mo.observe(overlay, { attributes:true, attributeFilter:['class','aria-hidden'] });
+    }catch(_){ }
+  }
+  window.addEventListener('tk:loaderhidden', function(){ if(licenseHidden()) { setTimeout(schedule, 0); setTimeout(schedule, 120); setTimeout(schedule, 600); } }, { capture:true });
+  window.addEventListener('load', function(){ if(licenseHidden()) { schedule(); setTimeout(schedule, 120); setTimeout(schedule, 600); setTimeout(schedule, 1600); } }, { once:true });
+  window.addEventListener('resize', function(){ if(activated) schedule(); }, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if(activated) schedule(); }, { passive:true });
+  if(document.readyState !== 'loading' && licenseHidden()) schedule();
 })();
 </script>
 
