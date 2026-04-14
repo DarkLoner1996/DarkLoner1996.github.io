@@ -39253,8 +39253,6 @@ html.tk-license-open body{
   var body = document.body;
   var isOpen = false;
   var shown = false;
-  var processing = false;
-  var acceptLabel = acceptBtn ? acceptBtn.textContent : 'Принять и войти';
 
   function emit(name){
     try { window.dispatchEvent(new CustomEvent(name)); }
@@ -39282,101 +39280,34 @@ html.tk-license-open body{
   function openModalInstant(){ if(shown) return; overlay.classList.add('tk-license--instant'); openModal(); setTimeout(function(){ overlay.classList.remove('tk-license--instant'); }, 80); }
   function closeModal(){ setOpen(false); }
 
-  function setProcessing(flag){
-    processing = !!flag;
-    overlay.classList.toggle('tk-license--processing', processing);
-    if(label) label.style.pointerEvents = processing ? 'none' : 'auto';
-    if(checkbox) checkbox.disabled = processing;
-    if(declineBtn){
-      declineBtn.disabled = processing;
-      declineBtn.style.pointerEvents = processing ? 'none' : 'auto';
-      declineBtn.style.opacity = processing ? '.55' : '1';
-    }
-    if(declineTop){
-      declineTop.disabled = processing;
-      declineTop.style.pointerEvents = processing ? 'none' : 'auto';
-      declineTop.style.opacity = processing ? '.55' : '1';
-    }
-    if(acceptBtn){
-      acceptBtn.disabled = false;
-      acceptBtn.style.pointerEvents = processing ? 'none' : 'auto';
-      acceptBtn.setAttribute('aria-busy', processing ? 'true' : 'false');
-      acceptBtn.textContent = processing ? 'Подготавливаем интерфейс…' : acceptLabel;
-      acceptBtn.style.opacity = processing ? '.92' : (checkbox && checkbox.checked ? '1' : '.56');
-      acceptBtn.style.filter = processing ? 'saturate(1.04)' : (checkbox && checkbox.checked ? '' : 'grayscale(.12)');
-      acceptBtn.classList.toggle('is-disabled', !processing && checkbox && !checkbox.checked);
-    }
-    if(errorEl && processing){
-      errorEl.textContent = 'Активируем интерфейс. Это займёт всего мгновение…';
-    }
-  }
-
   function syncState(){
-    if(!acceptBtn || !checkbox || processing) return;
+    if(!acceptBtn || !checkbox) return;
     var checked = !!checkbox.checked;
     acceptBtn.disabled = false;
     acceptBtn.setAttribute('aria-disabled', checked ? 'false' : 'true');
     acceptBtn.classList.toggle('is-disabled', !checked);
     acceptBtn.style.opacity = checked ? '1' : '.56';
     acceptBtn.style.filter = checked ? '' : 'grayscale(.12)';
-    acceptBtn.textContent = acceptLabel;
     if(errorEl) errorEl.textContent = checked ? '' : (isOpen ? 'Чтобы войти на сайт, подтвердите принятие условий.' : '');
   }
 
   function decline(){
-    if(processing) return;
     if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
     try{ checkbox && checkbox.focus(); }catch(_e){}
   }
 
-  function finishAccept(){
-    setProcessing(false);
-    if(errorEl) errorEl.textContent = '';
-    closeModal();
-  }
-
   function acceptNow(){
-    if(processing) return;
     if(checkbox && !checkbox.checked){
       syncState();
       try{ checkbox.focus(); }catch(_e){}
       return;
     }
-
-    var managedState = window.__TK_MANAGED_STATE__ || null;
-    var needsRetinaFinalize = !!(managedState && managedState.targetRetina && !managedState.ready);
-
+    if(errorEl) errorEl.textContent = '';
+    closeModal();
     emit('tk:licenseaccepted');
     if(typeof window.__TK_RUN_MANAGED__ === 'function'){
       try{ window.__TK_RUN_MANAGED__(); }catch(_e){}
     }
-
-    if(!needsRetinaFinalize){
-      finishAccept();
-      return;
-    }
-
-    setProcessing(true);
-
-    var resolved = false;
-    function done(){
-      if(resolved) return;
-      resolved = true;
-      window.removeEventListener('tk:managedready', done);
-      finishAccept();
-    }
-
-    window.addEventListener('tk:managedready', done, { once:true });
-
-    setTimeout(function(){
-      try{
-        if(window.__TK_MANAGED_STATE__ && window.__TK_MANAGED_STATE__.ready){
-          done();
-        }
-      }catch(_e){}
-    }, 0);
-
-    setTimeout(done, 5000);
   }
 
   function openIfLoaderDone(){
@@ -56456,26 +56387,13 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 
   var targetRetina = isRetina2600Target();
   var queue = Array.prototype.slice.call(document.querySelectorAll('script[type="application/x-tk-managed"][data-managed-script="1"]'));
+  var started = false;
   var loaded = document.readyState === 'complete';
-  var scheduled = false;
-  var emittedReady = false;
-  var state = window.__TK_MANAGED_STATE__ = {
-    targetRetina: targetRetina,
-    total: queue.length,
-    executed: 0,
-    started: false,
-    ready: false,
-    flush: false,
-    prewarm: false
-  };
-
   window.addEventListener('load', function(){ loaded = true; }, { once:true });
 
-  function emit(name, detail){
-    try { window.dispatchEvent(new CustomEvent(name, { detail: detail || null })); }
-    catch(_){
-      try{ var evt=document.createEvent('Event'); evt.initEvent(name, true, true); evt.detail = detail || null; window.dispatchEvent(evt); }catch(__){}
-    }
+  function emit(name){
+    try { window.dispatchEvent(new CustomEvent(name)); }
+    catch(_){ try{ var evt=document.createEvent('Event'); evt.initEvent(name, true, true); window.dispatchEvent(evt); }catch(__){} }
   }
 
   function installLateEventShim(){
@@ -56486,11 +56404,8 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
     function schedule(listener, target, type){
       setTimeout(function(){
         try{
-          var ev;
-          try{ ev = new Event(type); }
-          catch(_){ ev = document.createEvent('Event'); ev.initEvent(type, true, true); }
-          if(typeof listener === 'function') listener.call(target, ev);
-          else if(listener && typeof listener.handleEvent === 'function') listener.handleEvent.call(listener, ev);
+          if(typeof listener === 'function') listener.call(target, new Event(type));
+          else if(listener && typeof listener.handleEvent === 'function') listener.handleEvent.call(listener, new Event(type));
         }catch(err){ try{ console.error(err); }catch(_){} }
       }, 0);
     }
@@ -56502,10 +56417,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
       if(type === 'load' && winLoaded && listener){ schedule(listener, window, type); return; }
       return origWinAdd.call(window, type, listener, options);
     };
-    return function restore(){
-      document.addEventListener = origDocAdd;
-      window.addEventListener = origWinAdd;
-    };
+    return function restore(){ document.addEventListener = origDocAdd; window.addEventListener = origWinAdd; };
   }
 
   function executeNode(node){
@@ -56516,85 +56428,43 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
       var s = document.createElement('script');
       s.type = 'text/javascript';
       if(node.id) s.setAttribute('data-origin-id', node.id);
-      s.text = (node.textContent || '') + '
-//# sourceURL=' + (node.id || 'tk-managed-inline');
+      s.text = (node.textContent || '') + '\n//# sourceURL=' + (node.id || 'tk-managed-inline');
       (document.body || document.documentElement).appendChild(s);
       s.parentNode.removeChild(s);
     } catch(err){ try{ console.error(err); }catch(_){} }
     restore();
-    state.executed += 1;
   }
 
-  function finish(){
-    if(state.ready) return;
-    state.ready = true;
-    state.flush = false;
-    scheduled = false;
-    try{ document.documentElement.classList.remove('tk-retina-managed-hold'); }catch(_e){}
-    if(!emittedReady){
-      emittedReady = true;
-      emit('tk:managedready', { executed: state.executed, total: state.total });
+  function runQueue(chunked){
+    if(started) return;
+    started = true;
+    emit('tk:loaderhidden');
+    var idx = 0;
+    function step(){
+      var begin = performance.now();
+      while(idx < queue.length){
+        executeNode(queue[idx++]);
+        if(chunked && (performance.now() - begin) > 22) break;
+      }
+      if(idx < queue.length){
+        if(window.requestIdleCallback) requestIdleCallback(step, { timeout: 120 });
+        else setTimeout(step, 16);
+      } else {
+        emit('tk:managedready');
+      }
     }
+    step();
   }
 
-  function scheduleNext(mode){
-    if(state.ready || scheduled) return;
-    scheduled = true;
-    var cb = function(){ scheduled = false; pump(mode); };
-    if(mode === 'flush'){
-      setTimeout(cb, 0);
-      return;
-    }
-    if(window.requestIdleCallback){ requestIdleCallback(cb, { timeout: 90 }); return; }
-    setTimeout(cb, 16);
-  }
-
-  function pump(mode){
-    if(state.ready) return;
-    state.started = true;
-    var budget = mode === 'flush' ? 42 : 6;
-    var begin = performance.now();
-    while(state.executed < queue.length){
-      executeNode(queue[state.executed]);
-      if((performance.now() - begin) > budget) break;
-    }
-    emit('tk:managedprogress', { executed: state.executed, total: state.total, mode: mode });
-    if(state.executed >= queue.length){ finish(); return; }
-    scheduleNext(state.flush ? 'flush' : 'warm');
-  }
-
-  function prewarm(){
-    if(state.ready) return;
-    state.prewarm = true;
-    scheduleNext(state.flush ? 'flush' : 'warm');
-  }
-
-  function flush(){
-    if(state.ready){ finish(); return; }
-    state.flush = true;
-    scheduleNext('flush');
-  }
-
-  window.__TK_PREWARM_MANAGED__ = prewarm;
-  window.__TK_RUN_MANAGED__ = flush;
-  window.__TK_MANAGED_READY__ = function(){ return !!state.ready; };
+  window.__TK_RUN_MANAGED__ = function(){ runQueue(targetRetina); };
 
   if(!targetRetina){
-    state.flush = true;
-    setTimeout(flush, 0);
+    setTimeout(function(){ runQueue(false); }, 0);
     return;
   }
 
-  try{ document.documentElement.classList.add('tk-retina-managed-hold'); }catch(_e){}
-
-  var loader = document.getElementById('tkLoader');
-  if(loader && (loader.dataset.done === '1' || loader.classList.contains('is-hidden'))){
-    setTimeout(prewarm, 0);
-  } else {
-    window.addEventListener('tk:loaderhidden', function(){ prewarm(); }, { once:true });
-  }
-
-  window.addEventListener('tk:licenseaccepted', function(){ flush(); });
+  document.documentElement.classList.add('tk-retina-managed-hold');
+  window.addEventListener('tk:licenseaccepted', function(){ runQueue(true); }, { once:true });
 })();
 </script>
 
