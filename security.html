@@ -39303,11 +39303,16 @@ html.tk-license-open body{
       return;
     }
     if(errorEl) errorEl.textContent = '';
+    try{ overlay.classList.add('tk-license--activating'); }catch(_e){}
+    try{ overlay.style.pointerEvents = 'none'; }catch(_e){}
+    try{
+      if(typeof window.__TK_RUN_MANAGED__ === 'function'){
+        window.__TK_RUN_MANAGED__('sync');
+      }
+    }catch(_e){}
     closeModal();
     emit('tk:licenseaccepted');
-    if(typeof window.__TK_RUN_MANAGED__ === 'function'){
-      try{ window.__TK_RUN_MANAGED__(); }catch(_e){}
-    }
+    try{ overlay.classList.remove('tk-license--activating'); }catch(_e){}
   }
 
   function openIfLoaderDone(){
@@ -56436,10 +56441,16 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 
   function runQueue(chunked){
-    if(started) return;
+    if(started) return true;
     started = true;
     emit('tk:loaderhidden');
     var idx = 0;
+    function done(){
+      try{ document.documentElement.classList.remove('tk-retina-managed-hold'); }catch(_e){}
+      try{ document.documentElement.classList.add('tk-retina-managed-ready'); }catch(_e){}
+      emit('tk:managedready');
+      return true;
+    }
     function step(){
       var begin = performance.now();
       while(idx < queue.length){
@@ -56450,13 +56461,20 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
         if(window.requestIdleCallback) requestIdleCallback(step, { timeout: 120 });
         else setTimeout(step, 16);
       } else {
-        emit('tk:managedready');
+        done();
       }
     }
+    if(!chunked){
+      while(idx < queue.length) executeNode(queue[idx++]);
+      return done();
+    }
     step();
+    return false;
   }
 
-  window.__TK_RUN_MANAGED__ = function(){ runQueue(targetRetina); };
+  window.__TK_RUN_MANAGED__ = function(mode){
+    return runQueue(mode === 'sync' ? false : targetRetina);
+  };
 
   if(!targetRetina){
     setTimeout(function(){ runQueue(false); }, 0);
@@ -56464,7 +56482,80 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 
   document.documentElement.classList.add('tk-retina-managed-hold');
-  window.addEventListener('tk:licenseaccepted', function(){ runQueue(true); }, { once:true });
+  window.addEventListener('tk:licenseaccepted', function(){ runQueue(false); }, { once:true });
+})();
+</script>
+<style id="tk-retina-2600-home-fill-style">
+html.tk-retina-guarded-boot,
+html.tk-retina-guarded-boot body{
+  min-height: 100%;
+}
+html.tk-retina-guarded-boot #hero.header{
+  position: relative !important;
+  width: 100% !important;
+  height: var(--tk-retina-vh, 100vh) !important;
+  min-height: var(--tk-retina-vh, 100vh) !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+html.tk-retina-guarded-boot #hero > .bg-main-pic{
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+}
+html.tk-retina-guarded-boot #hero > .bg-main-pic > .header__bg{
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: 50% 100% !important;
+}
+html.tk-retina-guarded-boot #hero > .ui{
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 5 !important;
+}
+html.tk-retina-guarded-boot body{
+  overflow: hidden !important;
+}
+</style>
+<script id="tk-retina-2600-home-fill-script">
+(function(){
+  function isRetina2600Target(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr);
+      var physH = Math.round(sh * dpr);
+      var innerPhysW = Math.round(iw * dpr);
+      var innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.6;
+      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
+      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
+      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
+    }catch(_e){ return false; }
+  }
+  if(!isRetina2600Target()) return;
+  var root = document.documentElement;
+  function sync(){
+    var h = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight || 0);
+    if(h > 0) root.style.setProperty('--tk-retina-vh', h + 'px');
+  }
+  sync();
+  window.addEventListener('resize', sync, { passive:true });
+  window.addEventListener('orientationchange', sync, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', sync, { passive:true });
+  setTimeout(sync, 0);
+  setTimeout(sync, 120);
+  setTimeout(sync, 500);
 })();
 </script>
 
