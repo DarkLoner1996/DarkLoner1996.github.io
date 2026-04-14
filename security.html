@@ -9,7 +9,7 @@
 <link href="embl.webp" rel="icon" sizes="72x72" type="image/webp"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ТехноКрыльяРоссии</title>
-<meta name="x-automerge-version" content="v43-retina-startup-optimizer"/>
+<meta name="x-automerge-version" content="v36-merged-loader-license-fix"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -32,6 +32,174 @@ document.documentElement.classList.add('tk-loader-preboot');
   }
 })();
 </script>
+
+<script id="tk-retina-boot-guard-v44">
+(function(){
+  var root = document.documentElement;
+  function metrics(){
+    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+    var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+    var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+    var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+    var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+    var physW = Math.round(sw * dpr);
+    var physH = Math.round(sh * dpr);
+    var innerPhysW = Math.round(iw * dpr);
+    var innerPhysH = Math.round(ih * dpr);
+    var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+    return { dpr:dpr, iw:iw, ih:ih, sw:sw, sh:sh, physW:physW, physH:physH, innerPhysW:innerPhysW, innerPhysH:innerPhysH, ratio:ratio };
+  }
+  function isSensitiveRetina(){
+    try{
+      var m = metrics();
+      var retina = m.dpr >= 1.45 && m.dpr <= 2.6;
+      var logicalBand = m.iw >= 1080 && m.iw <= 1720 && m.ih >= 680 && m.ih <= 1100;
+      var physBand = (
+        (m.physW >= 2450 && m.physW <= 3200 && m.physH >= 1450 && m.physH <= 2050) ||
+        (m.innerPhysW >= 2450 && m.innerPhysW <= 3200 && m.innerPhysH >= 1350 && m.innerPhysH <= 1900)
+      );
+      var not4k = !(m.physW >= 3600 || m.physH >= 2300 || m.innerPhysW >= 3600 || m.innerPhysH >= 2300 || m.iw >= 2200 || m.ih >= 1350);
+      return retina && logicalBand && physBand && m.ratio >= 1.42 && m.ratio <= 1.82 && not4k;
+    }catch(_e){ return false; }
+  }
+  if(!isSensitiveRetina()) return;
+
+  root.classList.add('tk-retina-boot-lite');
+  window.__TK_RETINA_BOOT_GUARD__ = true;
+  window.__TK_BOOT_RELEASED__ = false;
+
+  var deferred = [];
+  var allowIds = {
+    'oa-tk-game-loader-script':1,
+    'tk-license-modal-script':1,
+    'tk-2k-startup-safety-script-v36':1,
+    'tk-retina-boot-guard-v44':1
+  };
+
+  function currentScriptId(){
+    try{ return (document.currentScript && document.currentScript.id) || ''; }catch(_e){ return ''; }
+  }
+  function shouldDefer(type){
+    if(window.__TK_BOOT_RELEASED__) return false;
+    if(type !== 'load' && type !== 'DOMContentLoaded') return false;
+    var sid = currentScriptId();
+    return !allowIds[sid];
+  }
+
+  var winAdd = window.addEventListener.bind(window);
+  var docAdd = document.addEventListener.bind(document);
+  var rafNative = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : null;
+  var now = function(){ return (window.performance && typeof performance.now === 'function') ? performance.now() : Date.now(); };
+  var lastFrameTs = 0;
+
+  window.addEventListener = function(type, listener, options){
+    if(listener && shouldDefer(type)){
+      deferred.push({ target: window, type: type, listener: listener, options: options });
+      return;
+    }
+    return winAdd(type, listener, options);
+  };
+
+  document.addEventListener = function(type, listener, options){
+    if(listener && shouldDefer(type)){
+      deferred.push({ target: document, type: type, listener: listener, options: options });
+      return;
+    }
+    return docAdd(type, listener, options);
+  };
+
+  if(rafNative){
+    window.requestAnimationFrame = function(cb){
+      return rafNative(function(ts){
+        if(window.__TK_BOOT_RELEASED__){
+          cb(ts);
+          return;
+        }
+        if(ts - lastFrameTs >= 66){
+          lastFrameTs = ts;
+          cb(ts);
+          return;
+        }
+        window.setTimeout(function(){
+          rafNative(function(ts2){
+            lastFrameTs = ts2;
+            cb(ts2);
+          });
+        }, Math.max(16, 66 - Math.max(0, ts - lastFrameTs)));
+      });
+    };
+  }
+
+  window.__tkReleaseDeferredBoot = function(){
+    if(window.__TK_BOOT_RELEASED__) return;
+    window.__TK_BOOT_RELEASED__ = true;
+    try{ window.addEventListener = winAdd; }catch(_e){}
+    try{ document.addEventListener = docAdd; }catch(_e){}
+    root.classList.remove('tk-retina-boot-lite');
+    var queue = deferred.slice();
+    deferred.length = 0;
+    window.setTimeout(function(){
+      queue.forEach(function(item){
+        try{
+          var evt;
+          if(typeof Event === 'function') evt = new Event(item.type);
+          else {
+            evt = document.createEvent('Event');
+            evt.initEvent(item.type, false, false);
+          }
+          if(typeof item.listener === 'function') item.listener.call(item.target, evt);
+          else if(item.listener && typeof item.listener.handleEvent === 'function') item.listener.handleEvent(evt);
+        }catch(err){
+          window.setTimeout(function(){ throw err; }, 0);
+        }
+      });
+    }, 40);
+  };
+})();
+</script>
+<style id="tk-retina-boot-guard-style-v44">
+html.tk-retina-boot-lite #tkLoaderParticles,
+html.tk-retina-boot-lite #tkLicenseBgLights,
+html.tk-retina-boot-lite #tkLiveStats,
+html.tk-retina-boot-lite #rouletteDock,
+html.tk-retina-boot-lite #tkCatStart,
+html.tk-retina-boot-lite .side-chip{
+  display:none !important;
+}
+html.tk-retina-boot-lite #cinema .slider-wrapper,
+html.tk-retina-boot-lite #cinema .movie-track,
+html.tk-retina-boot-lite #cinema .slider-container,
+html.tk-retina-boot-lite #cinema .movie-slide,
+html.tk-retina-boot-lite #cinema .movie-slide *,
+html.tk-retina-boot-lite .hero-soft,
+html.tk-retina-boot-lite .tk-live-stats__orb{
+  animation:none !important;
+  transition:none !important;
+}
+html.tk-retina-boot-lite #tkLicenseOverlay::before,
+html.tk-retina-boot-lite #tkLicenseOverlay::after,
+html.tk-retina-boot-lite #tkLicenseOverlay .tk-license,
+html.tk-retina-boot-lite #tkLicenseOverlay .tk-license::before{
+  animation:none !important;
+  transition:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+html.tk-retina-boot-lite #tkLicenseOverlay,
+html.tk-retina-boot-lite #tkLicenseOverlay .tk-license,
+html.tk-retina-boot-lite #tkLicenseOverlay .tk-license__checkbox,
+html.tk-retina-boot-lite #tkLicenseOverlay .tk-license__btn,
+html.tk-retina-boot-lite #tkLicenseOverlay .tk-license__close{
+  touch-action: manipulation !important;
+}
+#tkLicenseOverlay .tk-license__btn--primary.is-disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+</style>
+
 <style id="tk-loader-preboot-style">
 html.tk-loader-preboot,
 html.tk-loader-preboot body{
@@ -38293,56 +38461,6 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__btn,
 html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   pointer-events:auto !important;
 }
-
-html.tk-2k-safe-runtime.tk-startup-lite #tkLoaderParticles,
-html.tk-2k-safe-runtime.tk-startup-lite #tkLicenseBgLights,
-html.tk-2k-safe-runtime.tk-startup-lite #tkLicenseOverlay .tk-license-bg-lights{
-  display:none !important;
-}
-html.tk-2k-safe-runtime.tk-startup-lite .header__bg-blur,
-html.tk-2k-safe-runtime.tk-startup-lite .hero-soft{
-  filter:none !important;
-  -webkit-filter:none !important;
-  transform:none !important;
-  opacity:.42 !important;
-}
-html.tk-2k-safe-runtime.tk-startup-lite #cinema,
-html.tk-2k-safe-runtime.tk-startup-lite #cinemaStage,
-html.tk-2k-safe-runtime.tk-startup-lite #tkLiveStats,
-html.tk-2k-safe-runtime.tk-startup-lite #rouletteDock,
-html.tk-2k-safe-runtime.tk-startup-lite #tkCatStart,
-html.tk-2k-safe-runtime.tk-startup-lite .side-chip{
-  animation:none !important;
-  transition:none !important;
-  filter:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #cinema,
-html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #cinema,
-html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #cinemaStage,
-html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #cinemaStage,
-html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #tkLiveStats,
-html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #tkLiveStats,
-html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #rouletteDock,
-html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #rouletteDock,
-html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #tkCatStart,
-html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #tkCatStart,
-html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open .side-chip,
-html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open .side-chip{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-#tkLicenseOverlay .tk-license__btn--primary[aria-disabled="true"]{
-  opacity:.45;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:none;
-}
-#tkLicenseOverlay .tk-license__btn--primary[aria-disabled="false"]{
-  opacity:1;
-}
 </style>
 <script id="tk-2k-startup-safety-script-v36">
 (function(){
@@ -38448,7 +38566,7 @@ html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open .side-chip{
   var phaseEl = document.getElementById('tkLoaderPhase');
   var steps = Array.prototype.slice.call(document.querySelectorAll('#tkLoaderSteps li'));
   var particlesHost = document.getElementById('tkLoaderParticles');
-  var safe = !!window.__TK_2K_SAFE__;
+  var safeMode = !!window.__TK_RETINA_BOOT_GUARD__;
   var statusPool = [
     'Инициализация интерфейса…',
     'Подключение игровых модулей…',
@@ -38463,36 +38581,33 @@ html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open .side-chip{
     'Проверка систем',
     'Финальный запуск'
   ];
-
-  var particleCount = safe ? 0 : 24;
-  if(particlesHost){
-    for(var i=0;i<particleCount;i++){
-      var p=document.createElement('span');
-      var x1=(Math.random()*100).toFixed(2)+'vw';
-      var y1=(Math.random()*100).toFixed(2)+'vh';
-      var x2=(Math.random()*100).toFixed(2)+'vw';
-      var y2=(Math.random()*100).toFixed(2)+'vh';
-      p.style.setProperty('--x1', x1);
-      p.style.setProperty('--y1', y1);
-      p.style.setProperty('--x2', x2);
-      p.style.setProperty('--y2', y2);
-      p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
-      p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
-      p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
-      p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
-      particlesHost.appendChild(p);
-    }
+  var particleCount = safeMode ? 0 : 24;
+  for(var i=0;i<particleCount;i++){
+    var p=document.createElement('span');
+    var x1=(Math.random()*100).toFixed(2)+'vw';
+    var y1=(Math.random()*100).toFixed(2)+'vh';
+    var x2=(Math.random()*100).toFixed(2)+'vw';
+    var y2=(Math.random()*100).toFixed(2)+'vh';
+    p.style.setProperty('--x1', x1);
+    p.style.setProperty('--y1', y1);
+    p.style.setProperty('--x2', x2);
+    p.style.setProperty('--y2', y2);
+    p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
+    p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
+    p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
+    p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
+    particlesHost.appendChild(p);
   }
 
-  var seen = false;
-  try{ seen = sessionStorage.getItem('tk_loader_seen') === '1'; }catch(_e){}
   var progress = 0;
   var target = 0;
   var started = performance.now();
-  var minDuration = safe ? (seen ? 900 : 1500) : (seen ? 1900 : 3400);
-  var fullReady = document.readyState === 'complete';
-  var domReady = document.readyState !== 'loading';
-  var fontsReady = !document.fonts || document.fonts.status === 'loaded';
+  var minDuration = safeMode ? (sessionStorage.getItem('tk_loader_seen') === '1' ? 980 : 1450) : 3400;
+  var isLoaded = false;
+  var readyCommitted = false;
+  var stepPlan = safeMode
+    ? [{t:90,p:10},{t:220,p:24},{t:380,p:39},{t:560,p:55},{t:760,p:72},{t:980,p:86},{t:1180,p:94}]
+    : [{t:180,p:18},{t:640,p:36},{t:1160,p:54},{t:1680,p:71},{t:2220,p:86},{t:2760,p:92}];
 
   function updateStage(pct){
     var idx = Math.min(steps.length - 1, Math.floor(pct / 20));
@@ -38500,24 +38615,14 @@ html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open .side-chip{
       step.classList.toggle('is-done', i < idx);
       step.classList.toggle('is-active', i === idx);
     });
-    if(statusEl) statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
-    if(phaseEl) phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
-  }
-
-  function markReady(){
-    fullReady = true;
-    domReady = true;
-    fontsReady = true;
-    target = 100;
-    if(statusEl) statusEl.textContent = 'Запуск игрового мира…';
-    if(phaseEl) phaseEl.textContent = 'Миссия готова';
-    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
+    statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
+    phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
   }
 
   function finish(){
-    if(!overlay || overlay.dataset.done === '1') return;
+    if (overlay.dataset.done === '1') return;
     overlay.dataset.done = '1';
-    try{ sessionStorage.setItem('tk_loader_seen', '1'); }catch(_e){}
+    sessionStorage.setItem('tk_loader_seen', '1');
     overlay.classList.add('is-hidden');
     try {
       window.dispatchEvent(new CustomEvent('tk:loaderhidden'));
@@ -38527,88 +38632,75 @@ html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open .side-chip{
       window.dispatchEvent(evt);
     }
     setTimeout(function(){
-      try{ if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }catch(_e){}
-    }, safe ? 240 : 900);
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, safeMode ? 260 : 900);
   }
 
-  function canFinish(){
-    var elapsed = performance.now() - started;
-    if(safe){
-      return domReady && fontsReady && progress >= 100 && elapsed >= minDuration;
-    }
-    return fullReady && progress >= 100 && elapsed >= minDuration;
+  function markReady(){
+    if(readyCommitted) return;
+    readyCommitted = true;
+    isLoaded = true;
+    target = 100;
+    statusEl.textContent = 'Запуск игрового мира…';
+    phaseEl.textContent = 'Миссия готова';
+    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
   }
 
   function draw(){
-    var factor = safe ? (target >= 100 ? 0.30 : 0.11) : (target >= 100 ? 0.18 : 0.072);
-    progress += (target - progress) * factor;
-    if (target - progress < (safe ? 0.18 : 0.25)) progress = target;
+    progress += (target - progress) * (target >= 100 ? (safeMode ? 0.28 : 0.18) : (safeMode ? 0.14 : 0.072));
+    if (Math.abs(target - progress) < 0.25) progress = target;
     var shown = Math.max(0, Math.min(100, Math.round(progress)));
-    if(fill) fill.style.width = shown + '%';
-    if(percentEl) percentEl.textContent = shown + '%';
+    fill.style.width = shown + '%';
+    percentEl.textContent = shown + '%';
     updateStage(shown);
-    if (canFinish()){
+    if (isLoaded && shown >= 100 && (performance.now() - started) > minDuration){
       finish();
       return;
     }
     requestAnimationFrame(draw);
   }
 
-  var staging = safe ? [14, 29, 45, 62, 79, 90, 96] : [18, 36, 54, 71, 86, 92];
-  var stageIndex = 0;
-  function bumpTarget(){
-    if (fullReady) return;
-    target = Math.max(target, staging[Math.min(stageIndex, staging.length - 1)]);
-    stageIndex += 1;
-    var elapsed = performance.now() - started;
-    if (!fullReady) {
-      var delay = safe ? (180 + Math.random() * 120) : (340 + Math.random() * 420);
-      if(!safe || elapsed < 1900){
-        setTimeout(bumpTarget, delay);
+  stepPlan.forEach(function(step){
+    setTimeout(function(){ if(overlay.dataset.done !== '1' && !isLoaded) target = Math.max(target, step.p); }, step.t);
+  });
+
+  if(safeMode){
+    if(document.readyState === 'interactive' || document.readyState === 'complete'){
+      setTimeout(markReady, 180);
+    }else{
+      document.addEventListener('DOMContentLoaded', function(){ setTimeout(markReady, 180); }, { once:true });
+    }
+    if(document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function'){
+      document.fonts.ready.then(function(){ setTimeout(markReady, 120); }).catch(function(){});
+    }
+    window.addEventListener('load', function(){ setTimeout(markReady, 60); }, { once:true });
+    setTimeout(markReady, sessionStorage.getItem('tk_loader_seen') === '1' ? 920 : 1500);
+    setTimeout(function(){ target = 100; markReady(); }, 2400);
+  }else{
+    var loadSeen = document.readyState === 'complete';
+    if(loadSeen){ markReady(); }
+    function bumpTarget(idx){
+      if (isLoaded) return;
+      target = Math.max(target, stepPlan[Math.min(idx, stepPlan.length - 1)].p);
+      if (idx + 1 < stepPlan.length && !isLoaded) {
+        setTimeout(function(){ bumpTarget(idx + 1); }, 340 + Math.random() * 420);
       }
     }
-  }
-
-  if(document.fonts && document.fonts.ready){
-    document.fonts.ready.then(function(){ fontsReady = true; if(safe && domReady){ target = Math.max(target, 100); } }).catch(function(){ fontsReady = true; });
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    domReady = true;
-    if(safe){
-      target = Math.max(target, 96);
-    }
-  }, { once:true });
-
-  window.addEventListener('load', function(){
-    markReady();
-  }, { once:true });
-
-  if (fullReady) {
-    markReady();
-  } else {
-    setTimeout(bumpTarget, safe ? 120 : 180);
-  }
-
-  setTimeout(function(){
-    if(!overlay || overlay.dataset.done === '1') return;
-    if(safe){
-      if(document.readyState === 'interactive' || document.readyState === 'complete'){
-        domReady = true;
-        target = 100;
-        fontsReady = true;
+    window.addEventListener('load', function(){ markReady(); }, { once:true });
+    if (!loadSeen) setTimeout(function(){ bumpTarget(0); }, 180);
+    setTimeout(function(){
+      if(overlay.dataset.done === '1') return;
+      if(document.readyState === 'interactive'){
+        markReady();
       }
-    } else if(document.readyState === 'interactive'){
-      fullReady = true;
+    }, 5200);
+    setTimeout(function(){
+      if(overlay.dataset.done === '1') return;
       target = 100;
-    }
-  }, safe ? 1600 : 5200);
-
-  setTimeout(function(){
-    if(!overlay || overlay.dataset.done === '1') return;
-    markReady();
-    finish();
-  }, safe ? 3600 : 9000);
+      markReady();
+      finish();
+    }, 9000);
+  }
 
   requestAnimationFrame(draw);
 })();
@@ -39363,17 +39455,18 @@ html.tk-license-open body{
   var errorEl = document.getElementById('tkLicenseError');
   var root = document.documentElement;
   var body = document.body;
+  var label = overlay.querySelector('label[for="tkLicenseAgree"]');
+  var safeMode = !!window.__TK_RETINA_BOOT_GUARD__;
   var isOpen = false;
   var shown = false;
-
-  function fire(name){
-    try{ window.dispatchEvent(new CustomEvent(name)); }
-    catch(_){ try{ var evt = document.createEvent('Event'); evt.initEvent(name, true, true); window.dispatchEvent(evt); }catch(__){} }
-  }
 
   function syncPageLock(flag){
     try{ root.classList.toggle('tk-license-open', !!flag); }catch(_e){}
     try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_e){}
+  }
+
+  function releaseBoot(){
+    try{ if(typeof window.__tkReleaseDeferredBoot === 'function') window.__tkReleaseDeferredBoot(); }catch(_e){}
   }
 
   function setOpen(flag){
@@ -39382,7 +39475,10 @@ html.tk-license-open body{
     overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
     syncPageLock(isOpen);
     if(isOpen){
-      setTimeout(function(){ try { (checkbox || acceptBtn).focus(); } catch(_){} }, 10);
+      overlay.style.pointerEvents = 'auto';
+      overlay.style.touchAction = 'manipulation';
+      if(body) body.style.touchAction = 'manipulation';
+      setTimeout(function(){ try { (checkbox || acceptBtn).focus({ preventScroll:true }); } catch(_e){} }, 10);
     }
   }
 
@@ -39399,38 +39495,35 @@ html.tk-license-open body{
     setTimeout(function(){ overlay.classList.remove('tk-license--instant'); }, 80);
   }
 
-  function closeModal(){
-    setOpen(false);
-  }
+  function closeModal(){ setOpen(false); }
 
   function syncState(){
     if(!acceptBtn || !checkbox) return;
     var enabled = !!checkbox.checked;
-    acceptBtn.disabled = false;
+    acceptBtn.classList.toggle('is-disabled', !enabled);
     acceptBtn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
-    acceptBtn.classList.toggle('is-enabled', enabled);
-    acceptBtn.classList.toggle('is-blocked', !enabled);
+    if(safeMode){
+      acceptBtn.disabled = false;
+    }else{
+      acceptBtn.disabled = !enabled;
+    }
     if(errorEl) errorEl.textContent = enabled ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
   }
 
   function decline(){
     if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
-    try{ checkbox && checkbox.focus(); }catch(_e){}
+    try{ checkbox && checkbox.focus({ preventScroll:true }); }catch(_e){}
   }
 
-  function accept(e){
-    if(e){
-      try{ e.preventDefault(); }catch(_e){}
-      try{ e.stopImmediatePropagation(); }catch(_e){}
-    }
+  function accept(){
     if(checkbox && !checkbox.checked){
       syncState();
-      return false;
+      try{ checkbox.focus({ preventScroll:true }); }catch(_e){}
+      return;
     }
     if(errorEl) errorEl.textContent = '';
-    fire('tk:licenseaccepted');
     closeModal();
-    return false;
+    releaseBoot();
   }
 
   function openIfLoaderDone(){
@@ -39440,22 +39533,49 @@ html.tk-license-open body{
     }
   }
 
+  function dispatchCheckboxChange(){
+    try{
+      var evt = new Event('change', { bubbles:true });
+      checkbox.dispatchEvent(evt);
+    }catch(_e){
+      var evtLegacy = document.createEvent('Event');
+      evtLegacy.initEvent('change', true, true);
+      checkbox.dispatchEvent(evtLegacy);
+    }
+    syncState();
+  }
+
   if(checkbox){
-    ['change','input','click','pointerup','touchend'].forEach(function(type){
+    ['change','input','click'].forEach(function(type){
       checkbox.addEventListener(type, function(){ setTimeout(syncState, 0); }, true);
     });
     syncState();
   }
+
+  if(label && safeMode){
+    var fastToggle = function(e){
+      var t = e.target;
+      if(t === checkbox || (t && t.closest && t.closest('input'))) return;
+      e.preventDefault();
+      e.stopPropagation();
+      checkbox.checked = !checkbox.checked;
+      dispatchCheckboxChange();
+    };
+    label.addEventListener('pointerup', fastToggle, { passive:false });
+    label.addEventListener('touchend', fastToggle, { passive:false });
+  }
+
   if(acceptBtn){
     ['click','pointerup','touchend'].forEach(function(type){
-      acceptBtn.addEventListener(type, accept, true);
+      acceptBtn.addEventListener(type, function(e){
+        if(type !== 'click') e.preventDefault();
+        accept();
+      }, true);
     });
   }
   if(declineBtn) declineBtn.addEventListener('click', decline);
   if(declineTop) declineTop.addEventListener('click', decline);
-  overlay.addEventListener('click', function(e){
-    if(e.target === overlay) decline();
-  });
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) decline(); });
   document.addEventListener('keydown', function(e){
     if(!isOpen) return;
     if(e.key === 'Escape'){
@@ -39464,167 +39584,21 @@ html.tk-license-open body{
       return;
     }
     if(e.key === 'Enter'){
-      if(document.activeElement === checkbox && checkbox && checkbox.checked){
-        accept();
-      }else if(document.activeElement === acceptBtn){
-        accept();
-      }
+      e.preventDefault();
+      accept();
     }
   }, true);
 
-  window.addEventListener('tk:loaderhidden', function(){
-    openModalInstant();
-  }, { once:true });
-
+  window.addEventListener('tk:loaderhidden', function(){ openModalInstant(); }, { once:true });
   setTimeout(openIfLoaderDone, 0);
-
-  window.addEventListener('load', function(){
-    setTimeout(openIfLoaderDone, 60);
-  }, { once:true });
+  window.addEventListener('load', function(){ setTimeout(openIfLoaderDone, 60); }, { once:true });
 })();
 </script>
-
-<script id="tk-retina-startup-barrier-v43">
-(function(){
-  if(!window.__TK_2K_SAFE__) return;
-  var root = document.documentElement;
-  var active = true;
-  var pageLoadFired = document.readyState === 'complete';
-  var domFired = document.readyState !== 'loading';
-  var heldWinLoad = [];
-  var heldDocDom = [];
-  var origWinAdd = window.addEventListener.bind(window);
-  var origWinRemove = window.removeEventListener.bind(window);
-  var origDocAdd = document.addEventListener.bind(document);
-  var origDocRemove = document.removeEventListener.bind(document);
-  var nativeRAF = window.requestAnimationFrame.bind(window);
-  var nativeCAF = window.cancelAnimationFrame.bind(window);
-  var nativeSetInterval = window.setInterval.bind(window);
-  var nativeClearInterval = window.clearInterval.bind(window);
-  var nativeSetTimeout = window.setTimeout.bind(window);
-  var nativeClearTimeout = window.clearTimeout.bind(window);
-  var rafMap = {};
-  var rafSeq = 1;
-
-  root.classList.add('tk-startup-lite');
-
-  function callListener(listener, target, evt){
-    try{
-      if(typeof listener === 'function') listener.call(target, evt);
-      else if(listener && typeof listener.handleEvent === 'function') listener.handleEvent(evt);
-    }catch(_e){}
-  }
-
-  function release(){
-    if(!active) return;
-    active = false;
-    root.classList.remove('tk-startup-lite');
-    window.addEventListener = origWinAdd;
-    window.removeEventListener = origWinRemove;
-    document.addEventListener = origDocAdd;
-    document.removeEventListener = origDocRemove;
-    window.requestAnimationFrame = nativeRAF;
-    window.cancelAnimationFrame = nativeCAF;
-    window.setInterval = nativeSetInterval;
-    window.clearInterval = nativeClearInterval;
-
-    var docQueue = heldDocDom.slice();
-    var winQueue = heldWinLoad.slice();
-    heldDocDom.length = 0;
-    heldWinLoad.length = 0;
-
-    docQueue.forEach(function(rec){
-      if(domFired){
-        nativeSetTimeout(function(){ callListener(rec.listener, document, new Event('DOMContentLoaded')); }, 0);
-      }else{
-        origDocAdd(rec.type, rec.listener, rec.options);
-      }
-    });
-    winQueue.forEach(function(rec){
-      if(pageLoadFired){
-        nativeSetTimeout(function(){ callListener(rec.listener, window, new Event('load')); }, 0);
-      }else{
-        origWinAdd(rec.type, rec.listener, rec.options);
-      }
-    });
-  }
-
-  window.__TK_RELEASE_STARTUP_BARRIER__ = function(){
-    nativeSetTimeout(release, 80);
-  };
-
-  origDocAdd('DOMContentLoaded', function(){ domFired = true; }, { once:true });
-  origWinAdd('load', function(){ pageLoadFired = true; }, { once:true });
-  origWinAdd('tk:licenseaccepted', function(){ nativeSetTimeout(release, 120); }, { once:true });
-
-  window.addEventListener = function(type, listener, options){
-    if(active && type === 'load' && listener){
-      heldWinLoad.push({ type:type, listener:listener, options:options });
-      return;
-    }
-    return origWinAdd(type, listener, options);
-  };
-  window.removeEventListener = function(type, listener, options){
-    if(active && type === 'load'){
-      heldWinLoad = heldWinLoad.filter(function(rec){ return !(rec.listener === listener); });
-      return;
-    }
-    return origWinRemove(type, listener, options);
-  };
-  document.addEventListener = function(type, listener, options){
-    if(active && type === 'DOMContentLoaded' && listener){
-      heldDocDom.push({ type:type, listener:listener, options:options });
-      return;
-    }
-    return origDocAdd(type, listener, options);
-  };
-  document.removeEventListener = function(type, listener, options){
-    if(active && type === 'DOMContentLoaded'){
-      heldDocDom = heldDocDom.filter(function(rec){ return !(rec.listener === listener); });
-      return;
-    }
-    return origDocRemove(type, listener, options);
-  };
-
-  window.requestAnimationFrame = function(cb){
-    if(!active) return nativeRAF(cb);
-    var id = rafSeq++;
-    var timer = nativeSetTimeout(function(){
-      if(!rafMap[id]) return;
-      rafMap[id].real = nativeRAF(function(ts){
-        delete rafMap[id];
-        try{ cb(ts); }catch(_e){}
-      });
-    }, 56);
-    rafMap[id] = { timer:timer, real:0 };
-    return id;
-  };
-  window.cancelAnimationFrame = function(id){
-    var rec = rafMap[id];
-    if(rec){
-      if(rec.timer) nativeClearTimeout(rec.timer);
-      if(rec.real) nativeCAF(rec.real);
-      delete rafMap[id];
-      return;
-    }
-    return nativeCAF(id);
-  };
-  window.setInterval = function(fn, delay){
-    if(active && (!(delay > 0) || delay < 120)) delay = 120;
-    return nativeSetInterval.apply(window, [fn, delay].concat([].slice.call(arguments, 2)));
-  };
-  window.clearInterval = function(id){ return nativeClearInterval(id); };
-
-  nativeSetTimeout(function(){
-    if(!root.classList.contains('tk-license-open')) release();
-  }, 12000);
-})();
-</script>
-
 <script id="tk-license-lights-script-v53">
 (function(){
   var host = document.getElementById('tkLicenseBgLights');
   if(!host) return;
+  if(window.__TK_RETINA_BOOT_GUARD__) return;
   host.innerHTML = '';
   var total = 72;
   for(var i=0;i<total;i++){
