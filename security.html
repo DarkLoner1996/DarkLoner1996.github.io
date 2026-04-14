@@ -9,7 +9,7 @@
 <link href="embl.webp" rel="icon" sizes="72x72" type="image/webp"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ТехноКрыльяРоссии</title>
-<meta name="x-automerge-version" content="v42-v36-base-real-fix"/>
+<meta name="x-automerge-version" content="v43-retina-startup-optimizer"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -38293,6 +38293,56 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__btn,
 html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   pointer-events:auto !important;
 }
+
+html.tk-2k-safe-runtime.tk-startup-lite #tkLoaderParticles,
+html.tk-2k-safe-runtime.tk-startup-lite #tkLicenseBgLights,
+html.tk-2k-safe-runtime.tk-startup-lite #tkLicenseOverlay .tk-license-bg-lights{
+  display:none !important;
+}
+html.tk-2k-safe-runtime.tk-startup-lite .header__bg-blur,
+html.tk-2k-safe-runtime.tk-startup-lite .hero-soft{
+  filter:none !important;
+  -webkit-filter:none !important;
+  transform:none !important;
+  opacity:.42 !important;
+}
+html.tk-2k-safe-runtime.tk-startup-lite #cinema,
+html.tk-2k-safe-runtime.tk-startup-lite #cinemaStage,
+html.tk-2k-safe-runtime.tk-startup-lite #tkLiveStats,
+html.tk-2k-safe-runtime.tk-startup-lite #rouletteDock,
+html.tk-2k-safe-runtime.tk-startup-lite #tkCatStart,
+html.tk-2k-safe-runtime.tk-startup-lite .side-chip{
+  animation:none !important;
+  transition:none !important;
+  filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #cinema,
+html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #cinema,
+html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #cinemaStage,
+html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #cinemaStage,
+html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #tkLiveStats,
+html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #tkLiveStats,
+html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #rouletteDock,
+html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #rouletteDock,
+html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open #tkCatStart,
+html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open #tkCatStart,
+html.tk-2k-safe-runtime.tk-startup-lite.tk-license-open .side-chip,
+html.tk-2k-safe-runtime.tk-startup-lite body.tk-license-open .side-chip{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#tkLicenseOverlay .tk-license__btn--primary[aria-disabled="true"]{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+#tkLicenseOverlay .tk-license__btn--primary[aria-disabled="false"]{
+  opacity:1;
+}
 </style>
 <script id="tk-2k-startup-safety-script-v36">
 (function(){
@@ -38398,6 +38448,7 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   var phaseEl = document.getElementById('tkLoaderPhase');
   var steps = Array.prototype.slice.call(document.querySelectorAll('#tkLoaderSteps li'));
   var particlesHost = document.getElementById('tkLoaderParticles');
+  var safe = !!window.__TK_2K_SAFE__;
   var statusPool = [
     'Инициализация интерфейса…',
     'Подключение игровых модулей…',
@@ -38412,32 +38463,36 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
     'Проверка систем',
     'Финальный запуск'
   ];
-  for(var i=0;i<24;i++){
-    var p=document.createElement('span');
-    var x1=(Math.random()*100).toFixed(2)+'vw';
-    var y1=(Math.random()*100).toFixed(2)+'vh';
-    var x2=(Math.random()*100).toFixed(2)+'vw';
-    var y2=(Math.random()*100).toFixed(2)+'vh';
-    p.style.setProperty('--x1', x1);
-    p.style.setProperty('--y1', y1);
-    p.style.setProperty('--x2', x2);
-    p.style.setProperty('--y2', y2);
-    p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
-    p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
-    p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
-    p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
-    particlesHost.appendChild(p);
+
+  var particleCount = safe ? 0 : 24;
+  if(particlesHost){
+    for(var i=0;i<particleCount;i++){
+      var p=document.createElement('span');
+      var x1=(Math.random()*100).toFixed(2)+'vw';
+      var y1=(Math.random()*100).toFixed(2)+'vh';
+      var x2=(Math.random()*100).toFixed(2)+'vw';
+      var y2=(Math.random()*100).toFixed(2)+'vh';
+      p.style.setProperty('--x1', x1);
+      p.style.setProperty('--y1', y1);
+      p.style.setProperty('--x2', x2);
+      p.style.setProperty('--y2', y2);
+      p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
+      p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
+      p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
+      p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
+      particlesHost.appendChild(p);
+    }
   }
 
+  var seen = false;
+  try{ seen = sessionStorage.getItem('tk_loader_seen') === '1'; }catch(_e){}
   var progress = 0;
   var target = 0;
   var started = performance.now();
-  var isSensitiveRuntime = !!(root.classList.contains('tk-2k-safe-runtime') || window.__TK_2K_SAFE__);
-  var minDuration = isSensitiveRuntime ? 1500 : 3400;
-  var isLoaded = document.readyState === 'complete';
-  if (sessionStorage.getItem('tk_loader_seen') === '1') {
-    minDuration = isSensitiveRuntime ? 700 : 1900;
-  }
+  var minDuration = safe ? (seen ? 900 : 1500) : (seen ? 1900 : 3400);
+  var fullReady = document.readyState === 'complete';
+  var domReady = document.readyState !== 'loading';
+  var fontsReady = !document.fonts || document.fonts.status === 'loaded';
 
   function updateStage(pct){
     var idx = Math.min(steps.length - 1, Math.floor(pct / 20));
@@ -38445,29 +38500,24 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
       step.classList.toggle('is-done', i < idx);
       step.classList.toggle('is-active', i === idx);
     });
-    statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
-    phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
+    if(statusEl) statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
+    if(phaseEl) phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
   }
 
-  function draw(){
-    progress += (target - progress) * (target >= 100 ? 0.18 : 0.072);
-    if (target - progress < 0.25) progress = target;
-    var shown = Math.max(0, Math.min(100, Math.round(progress)));
-    fill.style.width = shown + '%';
-    percentEl.textContent = shown + '%';
-    updateStage(shown);
-
-    if (isLoaded && shown >= 100 && (performance.now() - started) > minDuration){
-      finish();
-      return;
-    }
-    requestAnimationFrame(draw);
+  function markReady(){
+    fullReady = true;
+    domReady = true;
+    fontsReady = true;
+    target = 100;
+    if(statusEl) statusEl.textContent = 'Запуск игрового мира…';
+    if(phaseEl) phaseEl.textContent = 'Миссия готова';
+    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
   }
 
   function finish(){
-    if (overlay.dataset.done === '1') return;
+    if(!overlay || overlay.dataset.done === '1') return;
     overlay.dataset.done = '1';
-    sessionStorage.setItem('tk_loader_seen', '1');
+    try{ sessionStorage.setItem('tk_loader_seen', '1'); }catch(_e){}
     overlay.classList.add('is-hidden');
     try {
       window.dispatchEvent(new CustomEvent('tk:loaderhidden'));
@@ -38477,67 +38527,88 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
       window.dispatchEvent(evt);
     }
     setTimeout(function(){
-      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    }, 900);
+      try{ if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }catch(_e){}
+    }, safe ? 240 : 900);
   }
 
-  var staging = [18, 36, 54, 71, 86, 92];
+  function canFinish(){
+    var elapsed = performance.now() - started;
+    if(safe){
+      return domReady && fontsReady && progress >= 100 && elapsed >= minDuration;
+    }
+    return fullReady && progress >= 100 && elapsed >= minDuration;
+  }
+
+  function draw(){
+    var factor = safe ? (target >= 100 ? 0.30 : 0.11) : (target >= 100 ? 0.18 : 0.072);
+    progress += (target - progress) * factor;
+    if (target - progress < (safe ? 0.18 : 0.25)) progress = target;
+    var shown = Math.max(0, Math.min(100, Math.round(progress)));
+    if(fill) fill.style.width = shown + '%';
+    if(percentEl) percentEl.textContent = shown + '%';
+    updateStage(shown);
+    if (canFinish()){
+      finish();
+      return;
+    }
+    requestAnimationFrame(draw);
+  }
+
+  var staging = safe ? [14, 29, 45, 62, 79, 90, 96] : [18, 36, 54, 71, 86, 92];
   var stageIndex = 0;
   function bumpTarget(){
-    if (isLoaded) return;
+    if (fullReady) return;
     target = Math.max(target, staging[Math.min(stageIndex, staging.length - 1)]);
     stageIndex += 1;
-    if (!isLoaded) {
-      setTimeout(bumpTarget, 340 + Math.random() * 420);
+    var elapsed = performance.now() - started;
+    if (!fullReady) {
+      var delay = safe ? (180 + Math.random() * 120) : (340 + Math.random() * 420);
+      if(!safe || elapsed < 1900){
+        setTimeout(bumpTarget, delay);
+      }
     }
   }
 
-  function markLoaded(finalStatus, finalPhase){
-    isLoaded = true;
-    target = 100;
-    statusEl.textContent = finalStatus || 'Запуск игрового мира…';
-    phaseEl.textContent = finalPhase || 'Миссия готова';
-    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){ fontsReady = true; if(safe && domReady){ target = Math.max(target, 100); } }).catch(function(){ fontsReady = true; });
   }
-
-  window.addEventListener('load', function(){
-    markLoaded('Запуск игрового мира…', 'Миссия готова');
-  }, { once:true });
 
   document.addEventListener('DOMContentLoaded', function(){
-    if(isSensitiveRuntime){
-      setTimeout(function(){
-        if(overlay.dataset.done === '1' || isLoaded) return;
-        markLoaded('Открытие доступа…', 'Финальная проверка');
-      }, 140);
+    domReady = true;
+    if(safe){
+      target = Math.max(target, 96);
     }
   }, { once:true });
 
-  if (document.readyState === 'interactive' && isSensitiveRuntime) {
-    setTimeout(function(){
-      if(overlay.dataset.done === '1' || isLoaded) return;
-      markLoaded('Открытие доступа…', 'Финальная проверка');
-    }, 80);
-  }
+  window.addEventListener('load', function(){
+    markReady();
+  }, { once:true });
 
-  if (isLoaded) {
-    target = 100;
+  if (fullReady) {
+    markReady();
   } else {
-    setTimeout(bumpTarget, isSensitiveRuntime ? 90 : 180);
+    setTimeout(bumpTarget, safe ? 120 : 180);
   }
 
   setTimeout(function(){
-    if(overlay.dataset.done === '1' || isLoaded) return;
-    if(document.readyState === 'interactive'){
-      markLoaded('Открытие доступа…', 'Финальная проверка');
+    if(!overlay || overlay.dataset.done === '1') return;
+    if(safe){
+      if(document.readyState === 'interactive' || document.readyState === 'complete'){
+        domReady = true;
+        target = 100;
+        fontsReady = true;
+      }
+    } else if(document.readyState === 'interactive'){
+      fullReady = true;
+      target = 100;
     }
-  }, isSensitiveRuntime ? 1800 : 5200);
+  }, safe ? 1600 : 5200);
 
   setTimeout(function(){
-    if(overlay.dataset.done === '1') return;
-    markLoaded('Открытие доступа…', 'Финальная проверка');
+    if(!overlay || overlay.dataset.done === '1') return;
+    markReady();
     finish();
-  }, isSensitiveRuntime ? 4200 : 9000);
+  }, safe ? 3600 : 9000);
 
   requestAnimationFrame(draw);
 })();
@@ -39295,9 +39366,14 @@ html.tk-license-open body{
   var isOpen = false;
   var shown = false;
 
+  function fire(name){
+    try{ window.dispatchEvent(new CustomEvent(name)); }
+    catch(_){ try{ var evt = document.createEvent('Event'); evt.initEvent(name, true, true); window.dispatchEvent(evt); }catch(__){} }
+  }
+
   function syncPageLock(flag){
-    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_){}
-    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_){}
+    try{ root.classList.toggle('tk-license-open', !!flag); }catch(_e){}
+    try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_e){}
   }
 
   function setOpen(flag){
@@ -39329,13 +39405,32 @@ html.tk-license-open body{
 
   function syncState(){
     if(!acceptBtn || !checkbox) return;
-    acceptBtn.disabled = !checkbox.checked;
-    if(errorEl) errorEl.textContent = checkbox.checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
+    var enabled = !!checkbox.checked;
+    acceptBtn.disabled = false;
+    acceptBtn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+    acceptBtn.classList.toggle('is-enabled', enabled);
+    acceptBtn.classList.toggle('is-blocked', !enabled);
+    if(errorEl) errorEl.textContent = enabled ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
   }
 
   function decline(){
     if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
-    try{ checkbox && checkbox.focus(); }catch(_){}
+    try{ checkbox && checkbox.focus(); }catch(_e){}
+  }
+
+  function accept(e){
+    if(e){
+      try{ e.preventDefault(); }catch(_e){}
+      try{ e.stopImmediatePropagation(); }catch(_e){}
+    }
+    if(checkbox && !checkbox.checked){
+      syncState();
+      return false;
+    }
+    if(errorEl) errorEl.textContent = '';
+    fire('tk:licenseaccepted');
+    closeModal();
+    return false;
   }
 
   function openIfLoaderDone(){
@@ -39346,17 +39441,14 @@ html.tk-license-open body{
   }
 
   if(checkbox){
-    checkbox.addEventListener('change', syncState);
+    ['change','input','click','pointerup','touchend'].forEach(function(type){
+      checkbox.addEventListener(type, function(){ setTimeout(syncState, 0); }, true);
+    });
     syncState();
   }
   if(acceptBtn){
-    acceptBtn.addEventListener('click', function(){
-      if(checkbox && !checkbox.checked){
-        syncState();
-        return;
-      }
-      if(errorEl) errorEl.textContent = '';
-      closeModal();
+    ['click','pointerup','touchend'].forEach(function(type){
+      acceptBtn.addEventListener(type, accept, true);
     });
   }
   if(declineBtn) declineBtn.addEventListener('click', decline);
@@ -39371,8 +39463,12 @@ html.tk-license-open body{
       decline();
       return;
     }
-    if(e.key === 'Enter' && document.activeElement === checkbox && checkbox.checked){
-      acceptBtn && acceptBtn.click();
+    if(e.key === 'Enter'){
+      if(document.activeElement === checkbox && checkbox && checkbox.checked){
+        accept();
+      }else if(document.activeElement === acceptBtn){
+        accept();
+      }
     }
   }, true);
 
@@ -39387,6 +39483,144 @@ html.tk-license-open body{
   }, { once:true });
 })();
 </script>
+
+<script id="tk-retina-startup-barrier-v43">
+(function(){
+  if(!window.__TK_2K_SAFE__) return;
+  var root = document.documentElement;
+  var active = true;
+  var pageLoadFired = document.readyState === 'complete';
+  var domFired = document.readyState !== 'loading';
+  var heldWinLoad = [];
+  var heldDocDom = [];
+  var origWinAdd = window.addEventListener.bind(window);
+  var origWinRemove = window.removeEventListener.bind(window);
+  var origDocAdd = document.addEventListener.bind(document);
+  var origDocRemove = document.removeEventListener.bind(document);
+  var nativeRAF = window.requestAnimationFrame.bind(window);
+  var nativeCAF = window.cancelAnimationFrame.bind(window);
+  var nativeSetInterval = window.setInterval.bind(window);
+  var nativeClearInterval = window.clearInterval.bind(window);
+  var nativeSetTimeout = window.setTimeout.bind(window);
+  var nativeClearTimeout = window.clearTimeout.bind(window);
+  var rafMap = {};
+  var rafSeq = 1;
+
+  root.classList.add('tk-startup-lite');
+
+  function callListener(listener, target, evt){
+    try{
+      if(typeof listener === 'function') listener.call(target, evt);
+      else if(listener && typeof listener.handleEvent === 'function') listener.handleEvent(evt);
+    }catch(_e){}
+  }
+
+  function release(){
+    if(!active) return;
+    active = false;
+    root.classList.remove('tk-startup-lite');
+    window.addEventListener = origWinAdd;
+    window.removeEventListener = origWinRemove;
+    document.addEventListener = origDocAdd;
+    document.removeEventListener = origDocRemove;
+    window.requestAnimationFrame = nativeRAF;
+    window.cancelAnimationFrame = nativeCAF;
+    window.setInterval = nativeSetInterval;
+    window.clearInterval = nativeClearInterval;
+
+    var docQueue = heldDocDom.slice();
+    var winQueue = heldWinLoad.slice();
+    heldDocDom.length = 0;
+    heldWinLoad.length = 0;
+
+    docQueue.forEach(function(rec){
+      if(domFired){
+        nativeSetTimeout(function(){ callListener(rec.listener, document, new Event('DOMContentLoaded')); }, 0);
+      }else{
+        origDocAdd(rec.type, rec.listener, rec.options);
+      }
+    });
+    winQueue.forEach(function(rec){
+      if(pageLoadFired){
+        nativeSetTimeout(function(){ callListener(rec.listener, window, new Event('load')); }, 0);
+      }else{
+        origWinAdd(rec.type, rec.listener, rec.options);
+      }
+    });
+  }
+
+  window.__TK_RELEASE_STARTUP_BARRIER__ = function(){
+    nativeSetTimeout(release, 80);
+  };
+
+  origDocAdd('DOMContentLoaded', function(){ domFired = true; }, { once:true });
+  origWinAdd('load', function(){ pageLoadFired = true; }, { once:true });
+  origWinAdd('tk:licenseaccepted', function(){ nativeSetTimeout(release, 120); }, { once:true });
+
+  window.addEventListener = function(type, listener, options){
+    if(active && type === 'load' && listener){
+      heldWinLoad.push({ type:type, listener:listener, options:options });
+      return;
+    }
+    return origWinAdd(type, listener, options);
+  };
+  window.removeEventListener = function(type, listener, options){
+    if(active && type === 'load'){
+      heldWinLoad = heldWinLoad.filter(function(rec){ return !(rec.listener === listener); });
+      return;
+    }
+    return origWinRemove(type, listener, options);
+  };
+  document.addEventListener = function(type, listener, options){
+    if(active && type === 'DOMContentLoaded' && listener){
+      heldDocDom.push({ type:type, listener:listener, options:options });
+      return;
+    }
+    return origDocAdd(type, listener, options);
+  };
+  document.removeEventListener = function(type, listener, options){
+    if(active && type === 'DOMContentLoaded'){
+      heldDocDom = heldDocDom.filter(function(rec){ return !(rec.listener === listener); });
+      return;
+    }
+    return origDocRemove(type, listener, options);
+  };
+
+  window.requestAnimationFrame = function(cb){
+    if(!active) return nativeRAF(cb);
+    var id = rafSeq++;
+    var timer = nativeSetTimeout(function(){
+      if(!rafMap[id]) return;
+      rafMap[id].real = nativeRAF(function(ts){
+        delete rafMap[id];
+        try{ cb(ts); }catch(_e){}
+      });
+    }, 56);
+    rafMap[id] = { timer:timer, real:0 };
+    return id;
+  };
+  window.cancelAnimationFrame = function(id){
+    var rec = rafMap[id];
+    if(rec){
+      if(rec.timer) nativeClearTimeout(rec.timer);
+      if(rec.real) nativeCAF(rec.real);
+      delete rafMap[id];
+      return;
+    }
+    return nativeCAF(id);
+  };
+  window.setInterval = function(fn, delay){
+    if(active && (!(delay > 0) || delay < 120)) delay = 120;
+    return nativeSetInterval.apply(window, [fn, delay].concat([].slice.call(arguments, 2)));
+  };
+  window.clearInterval = function(id){ return nativeClearInterval(id); };
+
+  nativeSetTimeout(function(){
+    if(!root.classList.contains('tk-license-open')) release();
+  }, 12000);
+})();
+</script>
+
 <script id="tk-license-lights-script-v53">
 (function(){
   var host = document.getElementById('tkLicenseBgLights');
@@ -56393,112 +56627,5 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 })();
 </script>
 
-<script id="tk-license-accept-unlock-script-v42">
-(function(){
-  function next(fn){
-    try{ requestAnimationFrame(function(){ setTimeout(fn, 0); }); }
-    catch(_){ setTimeout(fn, 0); }
-  }
-
-  function boot(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    var checkbox = document.getElementById('tkLicenseAgree');
-    var accept = document.getElementById('tkLicenseAccept');
-    var decline = document.getElementById('tkLicenseDecline');
-    var declineTop = document.getElementById('tkLicenseDeclineTop');
-    var errorEl = document.getElementById('tkLicenseError');
-    var root = document.documentElement;
-    if(!overlay || !checkbox || !accept) return;
-    if(accept.dataset.tkAcceptFixBound === '1') return;
-    accept.dataset.tkAcceptFixBound = '1';
-
-    function sync(){
-      var checked = !!checkbox.checked;
-      accept.disabled = false;
-      accept.removeAttribute('disabled');
-      accept.setAttribute('aria-disabled', checked ? 'false' : 'true');
-      accept.setAttribute('data-enabled', checked ? 'true' : 'false');
-      accept.classList.toggle('is-disabled', !checked);
-      if(checked && errorEl) errorEl.textContent = '';
-    }
-
-    function closeLicense(){
-      overlay.classList.remove('is-open','tk-license--instant');
-      overlay.setAttribute('aria-hidden','true');
-      try{ overlay.style.removeProperty('display'); overlay.style.removeProperty('pointer-events'); }catch(_e){}
-      root.classList.remove('tk-license-open');
-      if(document.body) document.body.classList.remove('tk-license-open');
-      try{ window.dispatchEvent(new Event('resize')); }catch(_e){}
-    }
-
-    function acceptNow(evt){
-      if(evt){
-        try{ evt.preventDefault(); }catch(_e){}
-        try{ evt.stopPropagation(); }catch(_e){}
-        try{ evt.stopImmediatePropagation(); }catch(_e){}
-      }
-      sync();
-      if(!checkbox.checked){
-        if(errorEl) errorEl.textContent = 'Чтобы войти на сайт, подтвердите принятие условий.';
-        try{ checkbox.focus(); }catch(_e){}
-        return false;
-      }
-      if(errorEl) errorEl.textContent = '';
-      closeLicense();
-      return false;
-    }
-
-    function declineNow(evt){
-      if(evt){
-        try{ evt.preventDefault(); }catch(_e){}
-        try{ evt.stopPropagation(); }catch(_e){}
-      }
-      if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
-      return false;
-    }
-
-    var label = checkbox.closest('label') || overlay.querySelector('label[for="tkLicenseAgree"], .tk-license__checkbox');
-    ['change','input','click','keyup'].forEach(function(type){ checkbox.addEventListener(type, function(){ next(sync); }, true); });
-    if(label){
-      ['click','pointerup','touchend','mouseup'].forEach(function(type){ label.addEventListener(type, function(){ next(sync); }, true); });
-    }
-
-    ['click','pointerup','touchend','mouseup','keydown'].forEach(function(type){
-      accept.addEventListener(type, function(e){
-        if(type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
-        return acceptNow(e);
-      }, true);
-    });
-
-    if(decline){
-      decline.addEventListener('click', declineNow, true);
-      decline.addEventListener('touchend', declineNow, { capture:true, passive:false });
-    }
-    if(declineTop){
-      declineTop.addEventListener('click', declineNow, true);
-      declineTop.addEventListener('touchend', declineNow, { capture:true, passive:false });
-    }
-
-    if(window.MutationObserver){
-      try{
-        var mo = new MutationObserver(function(){ next(sync); });
-        mo.observe(overlay, { attributes:true, attributeFilter:['class','aria-hidden','style'] });
-      }catch(_e){}
-    }
-
-    sync();
-    setTimeout(sync, 0);
-    setTimeout(sync, 120);
-    setTimeout(sync, 400);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', boot, { once:true });
-  }else{
-    boot();
-  }
-  window.addEventListener('load', function(){ setTimeout(boot, 0); setTimeout(boot, 120); setTimeout(boot, 500); }, { once:true });
-})();
-</script>
 </body>
 </html>
