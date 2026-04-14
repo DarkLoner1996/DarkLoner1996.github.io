@@ -32,174 +32,6 @@ document.documentElement.classList.add('tk-loader-preboot');
   }
 })();
 </script>
-
-<script id="tk-retina-boot-guard-v44">
-(function(){
-  var root = document.documentElement;
-  function metrics(){
-    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-    var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-    var physW = Math.round(sw * dpr);
-    var physH = Math.round(sh * dpr);
-    var innerPhysW = Math.round(iw * dpr);
-    var innerPhysH = Math.round(ih * dpr);
-    var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-    return { dpr:dpr, iw:iw, ih:ih, sw:sw, sh:sh, physW:physW, physH:physH, innerPhysW:innerPhysW, innerPhysH:innerPhysH, ratio:ratio };
-  }
-  function isSensitiveRetina(){
-    try{
-      var m = metrics();
-      var retina = m.dpr >= 1.45 && m.dpr <= 2.6;
-      var logicalBand = m.iw >= 1080 && m.iw <= 1720 && m.ih >= 680 && m.ih <= 1100;
-      var physBand = (
-        (m.physW >= 2450 && m.physW <= 3200 && m.physH >= 1450 && m.physH <= 2050) ||
-        (m.innerPhysW >= 2450 && m.innerPhysW <= 3200 && m.innerPhysH >= 1350 && m.innerPhysH <= 1900)
-      );
-      var not4k = !(m.physW >= 3600 || m.physH >= 2300 || m.innerPhysW >= 3600 || m.innerPhysH >= 2300 || m.iw >= 2200 || m.ih >= 1350);
-      return retina && logicalBand && physBand && m.ratio >= 1.42 && m.ratio <= 1.82 && not4k;
-    }catch(_e){ return false; }
-  }
-  if(!isSensitiveRetina()) return;
-
-  root.classList.add('tk-retina-boot-lite');
-  window.__TK_RETINA_BOOT_GUARD__ = true;
-  window.__TK_BOOT_RELEASED__ = false;
-
-  var deferred = [];
-  var allowIds = {
-    'oa-tk-game-loader-script':1,
-    'tk-license-modal-script':1,
-    'tk-2k-startup-safety-script-v36':1,
-    'tk-retina-boot-guard-v44':1
-  };
-
-  function currentScriptId(){
-    try{ return (document.currentScript && document.currentScript.id) || ''; }catch(_e){ return ''; }
-  }
-  function shouldDefer(type){
-    if(window.__TK_BOOT_RELEASED__) return false;
-    if(type !== 'load' && type !== 'DOMContentLoaded') return false;
-    var sid = currentScriptId();
-    return !allowIds[sid];
-  }
-
-  var winAdd = window.addEventListener.bind(window);
-  var docAdd = document.addEventListener.bind(document);
-  var rafNative = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : null;
-  var now = function(){ return (window.performance && typeof performance.now === 'function') ? performance.now() : Date.now(); };
-  var lastFrameTs = 0;
-
-  window.addEventListener = function(type, listener, options){
-    if(listener && shouldDefer(type)){
-      deferred.push({ target: window, type: type, listener: listener, options: options });
-      return;
-    }
-    return winAdd(type, listener, options);
-  };
-
-  document.addEventListener = function(type, listener, options){
-    if(listener && shouldDefer(type)){
-      deferred.push({ target: document, type: type, listener: listener, options: options });
-      return;
-    }
-    return docAdd(type, listener, options);
-  };
-
-  if(rafNative){
-    window.requestAnimationFrame = function(cb){
-      return rafNative(function(ts){
-        if(window.__TK_BOOT_RELEASED__){
-          cb(ts);
-          return;
-        }
-        if(ts - lastFrameTs >= 66){
-          lastFrameTs = ts;
-          cb(ts);
-          return;
-        }
-        window.setTimeout(function(){
-          rafNative(function(ts2){
-            lastFrameTs = ts2;
-            cb(ts2);
-          });
-        }, Math.max(16, 66 - Math.max(0, ts - lastFrameTs)));
-      });
-    };
-  }
-
-  window.__tkReleaseDeferredBoot = function(){
-    if(window.__TK_BOOT_RELEASED__) return;
-    window.__TK_BOOT_RELEASED__ = true;
-    try{ window.addEventListener = winAdd; }catch(_e){}
-    try{ document.addEventListener = docAdd; }catch(_e){}
-    root.classList.remove('tk-retina-boot-lite');
-    var queue = deferred.slice();
-    deferred.length = 0;
-    window.setTimeout(function(){
-      queue.forEach(function(item){
-        try{
-          var evt;
-          if(typeof Event === 'function') evt = new Event(item.type);
-          else {
-            evt = document.createEvent('Event');
-            evt.initEvent(item.type, false, false);
-          }
-          if(typeof item.listener === 'function') item.listener.call(item.target, evt);
-          else if(item.listener && typeof item.listener.handleEvent === 'function') item.listener.handleEvent(evt);
-        }catch(err){
-          window.setTimeout(function(){ throw err; }, 0);
-        }
-      });
-    }, 40);
-  };
-})();
-</script>
-<style id="tk-retina-boot-guard-style-v44">
-html.tk-retina-boot-lite #tkLoaderParticles,
-html.tk-retina-boot-lite #tkLicenseBgLights,
-html.tk-retina-boot-lite #tkLiveStats,
-html.tk-retina-boot-lite #rouletteDock,
-html.tk-retina-boot-lite #tkCatStart,
-html.tk-retina-boot-lite .side-chip{
-  display:none !important;
-}
-html.tk-retina-boot-lite #cinema .slider-wrapper,
-html.tk-retina-boot-lite #cinema .movie-track,
-html.tk-retina-boot-lite #cinema .slider-container,
-html.tk-retina-boot-lite #cinema .movie-slide,
-html.tk-retina-boot-lite #cinema .movie-slide *,
-html.tk-retina-boot-lite .hero-soft,
-html.tk-retina-boot-lite .tk-live-stats__orb{
-  animation:none !important;
-  transition:none !important;
-}
-html.tk-retina-boot-lite #tkLicenseOverlay::before,
-html.tk-retina-boot-lite #tkLicenseOverlay::after,
-html.tk-retina-boot-lite #tkLicenseOverlay .tk-license,
-html.tk-retina-boot-lite #tkLicenseOverlay .tk-license::before{
-  animation:none !important;
-  transition:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-html.tk-retina-boot-lite #tkLicenseOverlay,
-html.tk-retina-boot-lite #tkLicenseOverlay .tk-license,
-html.tk-retina-boot-lite #tkLicenseOverlay .tk-license__checkbox,
-html.tk-retina-boot-lite #tkLicenseOverlay .tk-license__btn,
-html.tk-retina-boot-lite #tkLicenseOverlay .tk-license__close{
-  touch-action: manipulation !important;
-}
-#tkLicenseOverlay .tk-license__btn--primary.is-disabled{
-  opacity:.45;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:none;
-}
-</style>
-
 <style id="tk-loader-preboot-style">
 html.tk-loader-preboot,
 html.tk-loader-preboot body{
@@ -10187,7 +10019,7 @@ html.tk-clean-15inch-menufix #phishGame.tk-menu-open-15 .tip{
   }
 }
 </style>
-<script id="tk-clean-15inch-it-phish-like-infosec-v1">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-clean-15inch-it-phish-like-infosec-v1">
 (function(){
   var GAME_IDS = ['itGame','phishGame'];
 
@@ -13536,7 +13368,7 @@ body.tk-info-map-open .side-chip *{
 
 
 
-<script id="tk-fhd-clean-early-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-clean-early-script">
 (function(){
   try{
     var root = document.documentElement;
@@ -15107,7 +14939,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </div>
 </div>
 </div>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function(){
   const outer = document.getElementById('phishGame');
@@ -15245,7 +15077,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
   </div>
 
   <div class="tkqa-legacy-launches" aria-hidden="true">
-    <script>
+    <script type="application/x-tk-managed" data-managed-script="1">
     (()=>{ 
       window.tkOpenPcPartsGame = window.tkOpenPcPartsGame || function(ev){
         try{ ev && ev.preventDefault && ev.preventDefault(); }catch(_){}
@@ -16354,7 +16186,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </div>
 </section>
 </div>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function(){
 "use strict";
 
@@ -18282,7 +18114,7 @@ function renderCard() {
 </div>
 </section>
 </div>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
     (function ruleOfDayGame(){
       const openLink = document.getElementById('openRuleGame');
@@ -18660,7 +18492,7 @@ function renderCard() {
       window.__tkCloseRuleDay = close;
     })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
     (function introAnim(){
       const intro = document.getElementById('intro');
       if(!intro) return;
@@ -18892,7 +18724,7 @@ function renderCard() {
     })();
 
   </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 
 (function phishModalWrapper(){
@@ -18976,7 +18808,7 @@ function renderCard() {
 })();
 
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
     (function heroUiSnap(){
       const desktopMQ = matchMedia('(min-width: 521px)');
       if(!desktopMQ.matches) return;
@@ -19081,7 +18913,7 @@ function renderCard() {
       }
     })();
   </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
     (function roulette(){
       const dock = document.getElementById('rouletteDock');
       const canvas = document.getElementById('wheel');
@@ -20852,7 +20684,7 @@ ${currentItem.text}`;
       }
     })();
   </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
     
 (function(){
   const root = document.querySelector('.cinema-slider');
@@ -20935,7 +20767,7 @@ ${currentItem.text}`;
   setTimeout(() => centerOn(0, false), 0);
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function(){
   const root = document.querySelector('.cinema-slider.cinema-v2');
@@ -20956,7 +20788,7 @@ ${currentItem.text}`;
   });
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function positionInfoSecChip(){
   const phish = document.querySelector('.side-chip--phish-min');
@@ -20980,7 +20812,7 @@ ${currentItem.text}`;
   setTimeout(place, 260);
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function infoSecModalWrapper(){
   const openBtn = document.getElementById('openInfoSecGame');
   const outer = document.getElementById('infoSecGame');
@@ -21070,7 +20902,7 @@ ${currentItem.text}`;
   });
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function infoSecGame(){
   const outer = document.getElementById('infoSecGame');
@@ -22863,7 +22695,7 @@ explainBox.classList.toggle('ok', correct);
 
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function(){
   function openPhish(){
@@ -22920,7 +22752,7 @@ explainBox.classList.toggle('ok', correct);
   document.addEventListener('click', route, true);
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -23199,7 +23031,7 @@ explainBox.classList.toggle('ok', correct);
   }
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function(){
   "use strict";
 
@@ -24218,7 +24050,7 @@ explainBox.classList.toggle('ok', correct);
   window.addEventListener('resize', function(){ if(modal.classList.contains('is-open')) resizeFx(); });
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function(){
   const IDS = ['openItGame','openInfoSecGame','openPhishGame'];
 
@@ -24236,7 +24068,7 @@ explainBox.classList.toggle('ok', correct);
   });
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function(){
   const root = document.documentElement;
   const start = document.getElementById('tkCatStart');
@@ -24473,7 +24305,7 @@ explainBox.classList.toggle('ok', correct);
   });
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function(){
   const chips = {
@@ -24941,7 +24773,7 @@ explainBox.classList.toggle('ok', correct);
 }
 
 </style>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (()=>{"use strict";
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
   const hp = { phish:100, info:100, it:100 };
@@ -25114,7 +24946,7 @@ explainBox.classList.toggle('ok', correct);
 
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function pcPartsGame(){
   "use strict";
@@ -26189,7 +26021,7 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   renderLevelTabs();
 })();
 </script>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (()=>{"use strict";
   function resetGame(prefix){
     const c = CFG[prefix];
@@ -26481,7 +26313,7 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   }
 }
 </style>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 
 (function lockMiniGamesClose(){
   "use strict";
@@ -26605,7 +26437,7 @@ if(endCloseBtn) endCloseBtn.addEventListener('click', (e)=>{
   }, true);
 
 })();</script>
-<script id="tkRemoveTopRightCloseBtnRuntime">
+<script type="application/x-tk-managed" data-managed-script="1" id="tkRemoveTopRightCloseBtnRuntime">
 (function(){
   "use strict";
   try{
@@ -26885,7 +26717,7 @@ html.tk-non4k-balanced-v19 #tk19LeftRail #rouletteDock.roulette-merged-v20 #roul
   display:none !important;
 }
 </style>
-<script id="tk-roulette-compact-v20-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-compact-v20-script">
 (function(){return; })();
 </script>
 
@@ -27211,7 +27043,7 @@ html.tk-non4k-balanced-v19 #tk23RightRail #rouletteDock.roulette-merged-v20 .rou
   margin-right: 0 !important;
 }
 </style>
-<script id="tk-roulette-v49-hard-left-shift-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-v49-hard-left-shift-script">
 (function(){return; })();
 </script>
 
@@ -27295,7 +27127,7 @@ html.tk-games-scroll-compact .mg-body{
   overflow:visible !important;
 }
 </style>
-<script id="tk-small-screens-games-scroll-v81-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-small-screens-games-scroll-v81-script">
 (function(){
   function isCompactGameScreen(){
     var dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -27484,7 +27316,7 @@ html.tk-v102-menu-ready .side-nav{
   }
 }
 </style>
-<script id="tk-v102-menu-gamefont-clean-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v102-menu-gamefont-clean-script">
 (function(){
   function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
   function setVar(name, val){ document.documentElement.style.setProperty(name, val); }
@@ -27854,7 +27686,7 @@ html.tk-v102-menu-ready .side-nav{
   #rouletteDock .wheel-center::before{ inset: 5px !important; }
 }
 </style>
-<script id="tk-v175-roulette-crisp-center-pointer-refined-ping">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v175-roulette-crisp-center-pointer-refined-ping">
 (function(){
   try{
     var ping = function(){ window.dispatchEvent(new Event('resize')); };
@@ -27886,7 +27718,7 @@ html.tk-v102-menu-ready .side-nav{
   }
 }
 </style>
-<script id="tk-v176-roulette-resize-observer">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v176-roulette-resize-observer">
 (function(){
   try{
     const rot = document.getElementById('wheelRot');
@@ -27983,7 +27815,7 @@ html.tk-fhd-clean-fixedrails .side-chip .chip-btn{padding:9px 12px !important;fo
 html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] .side-chip .chip-btn{padding:8px 10px !important;font-size:9.5px !important;}
 html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
 </style>
-<script id="tk-v201-fhd-clean-rails-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v201-fhd-clean-rails-script">
 (function(){
   const root = document.documentElement;
   const anchors = new WeakMap();
@@ -28605,7 +28437,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v104-roulette-inline-row-compact-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v104-roulette-inline-row-compact-script">
 (function(){
   function apply(){
     var dock = document.getElementById('rouletteDock');
@@ -28678,7 +28510,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v124-roulette-remove-reset-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v124-roulette-remove-reset-script">
 (function(){
   function apply(){
     try{
@@ -28880,7 +28712,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v132-roulette-stable-smaller-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v132-roulette-stable-smaller-script">
 (function(){
   'use strict';
   function is4kLike(){
@@ -29139,7 +28971,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   html.tk-v143-fhd-roulette-over-comic #tk23RightRail #rouletteDock #rouletteSound span[aria-hidden]{ font-size:20px !important; }
 }
 </style>
-<script id="tk-v143-fhd-roulette-over-comic-rail-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v143-fhd-roulette-over-comic-rail-script">
 (function(){return; })();
 </script>
 <style id="tk-v145-fhd-exact-right-gap-style">
@@ -29152,7 +28984,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v145-fhd-exact-right-gap-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v145-fhd-exact-right-gap-script">
 (function(){return; })();
 </script>
 <style id="tk-v146-fhd-roulette-right-edge-lock-style">
@@ -29186,7 +29018,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v146-fhd-roulette-right-edge-lock-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v146-fhd-roulette-right-edge-lock-script">
 (function(){return; })();
 </script>
 <style id="tk-v147-fhd-roulette-nudge-right-style">
@@ -29203,7 +29035,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v147-fhd-roulette-nudge-right-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v147-fhd-roulette-nudge-right-script">
 (function(){return; })();
 </script>
 <style id="tk-v148-fhd-inline-actions-style">
@@ -29261,7 +29093,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v148-fhd-inline-actions-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v148-fhd-inline-actions-script">
 (function(){return; })();
 </script>
 <style id="tk-v149-fhd-inline-final-style">
@@ -29333,7 +29165,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v149-fhd-inline-final-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v149-fhd-inline-final-script">
 (function(){return; })();
 </script>
 <style id="tk-v150-fhd-buttons-inline-hard-style">
@@ -29357,7 +29189,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v150-fhd-buttons-inline-hard-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v150-fhd-buttons-inline-hard-script">
 (function(){return; })();
 </script>
 <style id="tk-v151-fhd-buttons-smaller-green-go-style">
@@ -29380,7 +29212,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v151-fhd-buttons-smaller-green-go-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v151-fhd-buttons-smaller-green-go-script">
 (function(){return; })();
 </script>
 <style id="tk-v152-fhd-roulette-polish-style">
@@ -29512,7 +29344,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v152-fhd-roulette-polish-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v152-fhd-roulette-polish-script">
 (function(){return; })();
 </script>
 <style id="tk-v156-fhd-roulette-taller-more-style">
@@ -29738,7 +29570,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v156-fhd-roulette-taller-more-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v156-fhd-roulette-taller-more-script">
 (function(){return; })();
 </script>
 <style id="tk-v154-fhd-roulette-refine-style">
@@ -29961,7 +29793,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v154-fhd-roulette-refine-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v154-fhd-roulette-refine-script">
 (function(){return; })();
 </script>
 <style id="tk-v160-fhd-roulette-readable-style">
@@ -30218,7 +30050,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v160-fhd-roulette-readable-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v160-fhd-roulette-readable-script">
 (function(){return; })();
 </script>
 <style id="tk-v165-roulette-stable-right-rail">
@@ -30588,7 +30420,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v165-roulette-stable-right-rail-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v165-roulette-stable-right-rail-script">
 (function(){return; })();
 </script>
 <style id="tk-v167-roulette-beauty">
@@ -30659,7 +30491,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v167-wheel-redraw-after-fonts">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v167-wheel-redraw-after-fonts">
 (function(){
   try{
     document.documentElement.classList.add('tk-v167-roulette-beauty');
@@ -30790,7 +30622,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v170-wheel-redraw-after-pointer-cleanup">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v170-wheel-redraw-after-pointer-cleanup">
 (function(){
   try{
     var ping = function(){ window.dispatchEvent(new Event('resize')); };
@@ -30845,7 +30677,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   #rouletteDock .wheel-pointer::after{ top:10px !important; width:10px !important; height:12px !important; }
 }
 </style>
-<script id="tk-v173-roulette-clean-crisp-final-ping">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v173-roulette-clean-crisp-final-ping">
 (function(){
   try{
     var ping = function(){ window.dispatchEvent(new Event('resize')); };
@@ -30892,7 +30724,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   #rouletteDock .wheel-center::before{ inset: 7px !important; }
 }
 </style>
-<script id="tk-v174-roulette-redraw-center-clean">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v174-roulette-redraw-center-clean">
 (function(){
   try{
     var ping = function(){ window.dispatchEvent(new Event('resize')); };
@@ -31012,7 +30844,7 @@ html.tk-fhd-clean-fixedrails .debug-tk19-badge{display:none !important;}
   }
 }
 </style>
-<script id="tk-v184-fhd-static-right-rail-lock-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v184-fhd-static-right-rail-lock-script">
 (function(){return; })();
 </script>
 
@@ -31304,7 +31136,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   html.tk-l15-cinema-static-clean #cinema .slider-next{ right:-32px !important; }
 }
 </style>
-<script id="tk-l15-cinema-static-clean-v6-hardlock-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-l15-cinema-static-clean-v6-hardlock-script">
 (function(){
   const root = document.documentElement;
   const TARGET_TOP = '-52px';
@@ -31956,7 +31788,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script id="tk-mobile-landscape-script-v341">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-script-v341">
 (function(){
   const mq = window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 1024px)');
   const nav = document.querySelector('.side-nav');
@@ -34433,7 +34265,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script id="tk-mobile-landscape-v350-menu-games-js">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-v350-menu-games-js">
 (function(){
   const mq = window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 1024px)');
   const html = document.documentElement;
@@ -35036,7 +34868,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script id="tk-mobile-landscape-v366-games-clean-js">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-v366-games-clean-js">
 (function(){
   const mq = window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 1024px)');
   function on(){
@@ -35410,7 +35242,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script id="tk-mobile-landscape-v373-answer-image-inline-fix-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-v373-answer-image-inline-fix-script">
 (function(){
   const rootMatch = () => document.documentElement.classList.contains('tk-mobile-landscape-v341');
   const isTarget = () => rootMatch() && window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 1024px)').matches;
@@ -35907,7 +35739,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script id="tk-mobile-landscape-v376-pcparts-open-top-fix">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-v376-pcparts-open-top-fix">
 (function(){
   function isMobileLandscape(){
     return window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 1024px)').matches;
@@ -36437,7 +36269,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   display: block;
 }
 </style>
-<script id="tk-gameover-scroll-fix-js-v2">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-gameover-scroll-fix-js-v2">
 (function(){
   const oldDamage = window.__tkHpDamage;
   if(typeof oldDamage !== 'function') return;
@@ -36462,7 +36294,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   };
 })();
 </script>
-<script id="tk-phish-it-avatar-slider-js">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-phish-it-avatar-slider-js">
 (function(){
   "use strict";
 
@@ -36908,7 +36740,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
 </div>
 </div>
 <!-- Google Apps Script leaderboard connected: https://script.google.com/macros/s/AKfycbwlTh7DGX0X_WUpDgylV-7arhdzJsoqf-QwJ5_v1kuBuKuaojHjdn1mNplBbGszW5ZY/exec -->
-<script id="tk-top10-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-top10-script">
 (function(){
   const LEADERBOARD_URL = window.TK_ONLINE_LEADERBOARD_URL || 'https://script.google.com/macros/s/AKfycbwlTh7DGX0X_WUpDgylV-7arhdzJsoqf-QwJ5_v1kuBuKuaojHjdn1mNplBbGszW5ZY/exec';
   const STORAGE_KEY = 'tk-top10-fallback-v1';
@@ -37298,7 +37130,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   background:linear-gradient(180deg, rgba(120,44,44,.16), rgba(58,20,20,.16));
 }
 </style>
-<script id="tk-attempts-ui-inline-script-v1">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-attempts-ui-inline-script-v1">
 (function(){
   const TTL = 10000;
   const cache = Object.create(null);
@@ -37725,7 +37557,7 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script id="tk-side-panel-width-trim-v2-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-side-panel-width-trim-v2-script">
 (function(){
   function px(v){ return parseFloat(v) || 0; }
   function fitPanel(){
@@ -37800,7 +37632,7 @@ html.tk-menu-toggleing #hero{
   overflow-anchor:none !important;
 }
 </style>
-<script id="tk-menu-toggle-preserve-scroll-v2">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-menu-toggle-preserve-scroll-v2">
 (function(){
   const html = document.documentElement;
   const body = document.body;
@@ -38462,94 +38294,7 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   pointer-events:auto !important;
 }
 </style>
-<script id="tk-2k-startup-safety-script-v36">
-(function(){
-  var root = document.documentElement;
-  function metrics(){
-    var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-    var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-    var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-    var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-    var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-    var physW = Math.round(sw * dpr);
-    var physH = Math.round(sh * dpr);
-    var innerPhysW = Math.round(iw * dpr);
-    var innerPhysH = Math.round(ih * dpr);
-    var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-    return { dpr:dpr, iw:iw, ih:ih, sw:sw, sh:sh, physW:physW, physH:physH, innerPhysW:innerPhysW, innerPhysH:innerPhysH, ratio:ratio };
-  }
-  function is2kSafeTarget(){
-    try{
-      var m = metrics();
-      var retina = m.dpr >= 1.25 && m.dpr <= 2.6;
-      var logicalBand = m.iw >= 1100 && m.iw <= 1800 && m.ih >= 680 && m.ih <= 1120;
-      var physBand = (
-        (m.physW >= 2300 && m.physW <= 3400 && m.physH >= 1400 && m.physH <= 2200) ||
-        (m.innerPhysW >= 2450 && m.innerPhysW <= 3000 && m.innerPhysH >= 1350 && m.innerPhysH <= 1900)
-      );
-      var not4k = !(m.physW >= 3600 || m.physH >= 2300 || m.innerPhysW >= 3600 || m.innerPhysH >= 2300 || m.iw >= 2200 || m.ih >= 1350);
-      return retina && logicalBand && physBand && m.ratio >= 1.45 && m.ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
-  }
-  if(!is2kSafeTarget()) return;
-  root.classList.add('tk-2k-safe-runtime');
-  window.__TK_2K_SAFE__ = true;
-
-  function overlayOpen(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(overlay && overlay.classList.contains('is-open') && overlay.getAttribute('aria-hidden') !== 'true');
-  }
-
-  function syncLicenseUI(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    var checkbox = document.getElementById('tkLicenseAgree');
-    var acceptBtn = document.getElementById('tkLicenseAccept');
-    var errorEl = document.getElementById('tkLicenseError');
-    var body = document.body;
-    var open = overlayOpen();
-    if(body) body.classList.toggle('tk-license-open', open);
-    root.classList.toggle('tk-license-open', open);
-    if(!overlay || !checkbox || !acceptBtn) return;
-    if(open){
-      overlay.style.pointerEvents = 'auto';
-      overlay.style.touchAction = 'manipulation';
-      if(body) body.style.touchAction = 'manipulation';
-    }
-    acceptBtn.disabled = !checkbox.checked;
-    acceptBtn.toggleAttribute('data-enabled', checkbox.checked);
-    if(errorEl && checkbox.checked) errorEl.textContent = '';
-  }
-
-  function bind(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    var checkbox = document.getElementById('tkLicenseAgree');
-    var acceptBtn = document.getElementById('tkLicenseAccept');
-    if(!overlay || !checkbox || !acceptBtn) return;
-    if(checkbox.dataset.tk2kSafeBound === '1') return;
-    checkbox.dataset.tk2kSafeBound = '1';
-    checkbox.addEventListener('change', syncLicenseUI, true);
-    checkbox.addEventListener('input', syncLicenseUI, true);
-    acceptBtn.addEventListener('click', function(){ setTimeout(syncLicenseUI, 0); }, true);
-    if(window.MutationObserver){
-      try{
-        var mo = new MutationObserver(syncLicenseUI);
-        mo.observe(overlay, { attributes:true, attributeFilter:['class','aria-hidden','style'] });
-      }catch(_e){}
-    }
-    syncLicenseUI();
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', bind, { once:true });
-  }else{
-    bind();
-  }
-  window.addEventListener('load', function(){ setTimeout(syncLicenseUI, 60); setTimeout(syncLicenseUI, 220); }, { once:true });
-  window.addEventListener('resize', syncLicenseUI, { passive:true });
-  window.addEventListener('orientationchange', function(){ setTimeout(syncLicenseUI, 120); }, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', syncLicenseUI, { passive:true });
-})();
-</script>
+<script id="tk-2k-startup-safety-script-v36" type="application/disabled">/* disabled in v46: replaced by managed boot */</script>
 <script id="oa-tk-game-loader-script">
 (function(){
   var root = document.documentElement;
@@ -38560,13 +38305,37 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   }
   root.classList.remove('tk-loader-preboot');
   root.classList.add('tk-loader-ready');
+
+  function isRetina2600Target(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr);
+      var physH = Math.round(sh * dpr);
+      var innerPhysW = Math.round(iw * dpr);
+      var innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.6;
+      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
+      var physBand = (
+        (physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) ||
+        (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900)
+      );
+      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
+    }catch(_e){ return false; }
+  }
+
+  var targetRetina = isRetina2600Target();
   var fill = document.getElementById('tkLoaderFill');
   var percentEl = document.getElementById('tkLoaderPercent');
   var statusEl = document.getElementById('tkLoaderStatus');
   var phaseEl = document.getElementById('tkLoaderPhase');
   var steps = Array.prototype.slice.call(document.querySelectorAll('#tkLoaderSteps li'));
   var particlesHost = document.getElementById('tkLoaderParticles');
-  var safeMode = !!window.__TK_RETINA_BOOT_GUARD__;
   var statusPool = [
     'Инициализация интерфейса…',
     'Подключение игровых модулей…',
@@ -38581,77 +38350,125 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
     'Проверка систем',
     'Финальный запуск'
   ];
-  var particleCount = safeMode ? 0 : 24;
-  for(var i=0;i<particleCount;i++){
-    var p=document.createElement('span');
-    var x1=(Math.random()*100).toFixed(2)+'vw';
-    var y1=(Math.random()*100).toFixed(2)+'vh';
-    var x2=(Math.random()*100).toFixed(2)+'vw';
-    var y2=(Math.random()*100).toFixed(2)+'vh';
-    p.style.setProperty('--x1', x1);
-    p.style.setProperty('--y1', y1);
-    p.style.setProperty('--x2', x2);
-    p.style.setProperty('--y2', y2);
-    p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
-    p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
-    p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
-    p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
-    particlesHost.appendChild(p);
+
+  if(particlesHost){
+    var totalParticles = targetRetina ? 8 : 24;
+    for(var i=0;i<totalParticles;i++){
+      var p=document.createElement('span');
+      var x1=(Math.random()*100).toFixed(2)+'vw';
+      var y1=(Math.random()*100).toFixed(2)+'vh';
+      var x2=(Math.random()*100).toFixed(2)+'vw';
+      var y2=(Math.random()*100).toFixed(2)+'vh';
+      p.style.setProperty('--x1', x1);
+      p.style.setProperty('--y1', y1);
+      p.style.setProperty('--x2', x2);
+      p.style.setProperty('--y2', y2);
+      p.style.setProperty('--s1', (0.5 + Math.random()*0.8).toFixed(2));
+      p.style.setProperty('--s2', (0.8 + Math.random()*1.4).toFixed(2));
+      p.style.animationDuration = (6 + Math.random()*7).toFixed(2) + 's';
+      p.style.animationDelay = (-Math.random()*8).toFixed(2) + 's';
+      particlesHost.appendChild(p);
+    }
+  }
+
+  function updateStage(pct){
+    var idx = Math.min(steps.length - 1, Math.floor(Math.max(0, pct) / 20));
+    steps.forEach(function(step, i){
+      step.classList.toggle('is-done', i < idx);
+      step.classList.toggle('is-active', i === idx && pct < 100);
+      if(pct >= 100){ step.classList.remove('is-active'); step.classList.add('is-done'); }
+    });
+    if(statusEl) statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
+    if(phaseEl) phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
+  }
+
+  function dispatchLoaderHidden(){
+    try { window.dispatchEvent(new CustomEvent('tk:loaderhidden')); }
+    catch(_){ try{ var evt = document.createEvent('Event'); evt.initEvent('tk:loaderhidden', true, true); window.dispatchEvent(evt); }catch(__){} }
+  }
+
+  function finish(){
+    if(overlay.dataset.done === '1') return;
+    overlay.dataset.done = '1';
+    try{ sessionStorage.setItem('tk_loader_seen', '1'); }catch(_e){}
+    overlay.classList.add('is-hidden');
+    dispatchLoaderHidden();
+    setTimeout(function(){ try{ if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }catch(_e){} }, targetRetina ? 180 : 900);
+  }
+
+  if(targetRetina){
+    root.classList.add('tk-retina-guarded-boot');
+    var seen = false;
+    try{ seen = sessionStorage.getItem('tk_loader_seen') === '1'; }catch(_e){}
+    var minDuration = seen ? 1400 : 2400;
+    var start = performance.now();
+    var raf = 0;
+    var plan = [
+      { t:0.00, p:0, s:'Инициализация интерфейса…', ph:'Подготовка ядра' },
+      { t:0.18, p:12, s:'Подключение игровых модулей…', ph:'Загрузка ресурсов' },
+      { t:0.36, p:27, s:'Загрузка героев и ролей…', ph:'Сборка сцены' },
+      { t:0.56, p:48, s:'Синхронизация миссий…', ph:'Проверка систем' },
+      { t:0.76, p:71, s:'Открытие штаба…', ph:'Финальный запуск' },
+      { t:0.92, p:89, s:'Открытие штаба…', ph:'Финальный запуск' },
+      { t:1.00, p:100, s:'Запуск игрового мира…', ph:'Миссия готова' }
+    ];
+
+    function lerp(a,b,t){ return a + (b-a)*t; }
+    function ease(t){ return 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3); }
+    function sampleProgress(ratio){
+      for(var i=1;i<plan.length;i++){
+        if(ratio <= plan[i].t){
+          var prev = plan[i-1], next = plan[i];
+          var local = (ratio - prev.t) / Math.max(0.0001, (next.t - prev.t));
+          return Math.round(lerp(prev.p, next.p, ease(local)));
+        }
+      }
+      return 100;
+    }
+    function sampleMeta(pct){
+      var idx = pct >= 100 ? 4 : Math.min(4, Math.floor(pct / 20));
+      return { status: pct >= 100 ? 'Запуск игрового мира…' : statusPool[idx], phase: pct >= 100 ? 'Миссия готова' : phasePool[idx] };
+    }
+    function frame(now){
+      var elapsed = now - start;
+      var ratio = Math.max(0, Math.min(1, elapsed / minDuration));
+      var shown = sampleProgress(ratio);
+      var meta = sampleMeta(shown);
+      if(fill) fill.style.width = shown + '%';
+      if(percentEl) percentEl.textContent = shown + '%';
+      if(statusEl) statusEl.textContent = meta.status;
+      if(phaseEl) phaseEl.textContent = meta.phase;
+      updateStage(shown);
+      if(ratio >= 1){
+        if(fill) fill.style.width = '100%';
+        if(percentEl) percentEl.textContent = '100%';
+        if(statusEl) statusEl.textContent = 'Запуск игрового мира…';
+        if(phaseEl) phaseEl.textContent = 'Миссия готова';
+        updateStage(100);
+        finish();
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+    return;
   }
 
   var progress = 0;
   var target = 0;
   var started = performance.now();
-  var minDuration = safeMode ? (sessionStorage.getItem('tk_loader_seen') === '1' ? 980 : 1450) : 3400;
-  var isLoaded = false;
-  var readyCommitted = false;
-  var stepPlan = safeMode
-    ? [{t:90,p:10},{t:220,p:24},{t:380,p:39},{t:560,p:55},{t:760,p:72},{t:980,p:86},{t:1180,p:94}]
-    : [{t:180,p:18},{t:640,p:36},{t:1160,p:54},{t:1680,p:71},{t:2220,p:86},{t:2760,p:92}];
-
-  function updateStage(pct){
-    var idx = Math.min(steps.length - 1, Math.floor(pct / 20));
-    steps.forEach(function(step, i){
-      step.classList.toggle('is-done', i < idx);
-      step.classList.toggle('is-active', i === idx);
-    });
-    statusEl.textContent = statusPool[Math.min(statusPool.length - 1, idx)];
-    phaseEl.textContent = phasePool[Math.min(phasePool.length - 1, idx)];
-  }
-
-  function finish(){
-    if (overlay.dataset.done === '1') return;
-    overlay.dataset.done = '1';
-    sessionStorage.setItem('tk_loader_seen', '1');
-    overlay.classList.add('is-hidden');
-    try {
-      window.dispatchEvent(new CustomEvent('tk:loaderhidden'));
-    } catch(_){
-      var evt = document.createEvent('Event');
-      evt.initEvent('tk:loaderhidden', true, true);
-      window.dispatchEvent(evt);
-    }
-    setTimeout(function(){
-      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    }, safeMode ? 260 : 900);
-  }
-
-  function markReady(){
-    if(readyCommitted) return;
-    readyCommitted = true;
-    isLoaded = true;
-    target = 100;
-    statusEl.textContent = 'Запуск игрового мира…';
-    phaseEl.textContent = 'Миссия готова';
-    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
-  }
+  var minDuration = 3400;
+  var isLoaded = document.readyState === 'complete';
+  try{
+    if (sessionStorage.getItem('tk_loader_seen') === '1') minDuration = 1900;
+  }catch(_e){}
 
   function draw(){
-    progress += (target - progress) * (target >= 100 ? (safeMode ? 0.28 : 0.18) : (safeMode ? 0.14 : 0.072));
-    if (Math.abs(target - progress) < 0.25) progress = target;
+    progress += (target - progress) * (target >= 100 ? 0.18 : 0.072);
+    if (target - progress < 0.25) progress = target;
     var shown = Math.max(0, Math.min(100, Math.round(progress)));
-    fill.style.width = shown + '%';
-    percentEl.textContent = shown + '%';
+    if(fill) fill.style.width = shown + '%';
+    if(percentEl) percentEl.textContent = shown + '%';
     updateStage(shown);
     if (isLoaded && shown >= 100 && (performance.now() - started) > minDuration){
       finish();
@@ -38660,48 +38477,26 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
     requestAnimationFrame(draw);
   }
 
-  stepPlan.forEach(function(step){
-    setTimeout(function(){ if(overlay.dataset.done !== '1' && !isLoaded) target = Math.max(target, step.p); }, step.t);
-  });
-
-  if(safeMode){
-    if(document.readyState === 'interactive' || document.readyState === 'complete'){
-      setTimeout(markReady, 180);
-    }else{
-      document.addEventListener('DOMContentLoaded', function(){ setTimeout(markReady, 180); }, { once:true });
-    }
-    if(document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function'){
-      document.fonts.ready.then(function(){ setTimeout(markReady, 120); }).catch(function(){});
-    }
-    window.addEventListener('load', function(){ setTimeout(markReady, 60); }, { once:true });
-    setTimeout(markReady, sessionStorage.getItem('tk_loader_seen') === '1' ? 920 : 1500);
-    setTimeout(function(){ target = 100; markReady(); }, 2400);
-  }else{
-    var loadSeen = document.readyState === 'complete';
-    if(loadSeen){ markReady(); }
-    function bumpTarget(idx){
-      if (isLoaded) return;
-      target = Math.max(target, stepPlan[Math.min(idx, stepPlan.length - 1)].p);
-      if (idx + 1 < stepPlan.length && !isLoaded) {
-        setTimeout(function(){ bumpTarget(idx + 1); }, 340 + Math.random() * 420);
-      }
-    }
-    window.addEventListener('load', function(){ markReady(); }, { once:true });
-    if (!loadSeen) setTimeout(function(){ bumpTarget(0); }, 180);
-    setTimeout(function(){
-      if(overlay.dataset.done === '1') return;
-      if(document.readyState === 'interactive'){
-        markReady();
-      }
-    }, 5200);
-    setTimeout(function(){
-      if(overlay.dataset.done === '1') return;
-      target = 100;
-      markReady();
-      finish();
-    }, 9000);
+  var staging = [18, 36, 54, 71, 86, 92];
+  var stageIndex = 0;
+  function bumpTarget(){
+    if (isLoaded) return;
+    target = Math.max(target, staging[Math.min(stageIndex, staging.length - 1)]);
+    stageIndex += 1;
+    if (!isLoaded) setTimeout(bumpTarget, 340 + Math.random() * 420);
   }
 
+  window.addEventListener('load', function(){
+    isLoaded = true;
+    target = 100;
+    if(statusEl) statusEl.textContent = 'Запуск игрового мира…';
+    if(phaseEl) phaseEl.textContent = 'Миссия готова';
+    steps.forEach(function(step){ step.classList.remove('is-active'); step.classList.add('is-done'); });
+  }, { once:true });
+
+  if (isLoaded) target = 100; else setTimeout(bumpTarget, 180);
+  setTimeout(function(){ if(overlay.dataset.done !== '1' && document.readyState === 'interactive'){ isLoaded = true; target = 100; } }, 5200);
+  setTimeout(function(){ if(overlay.dataset.done !== '1'){ target = 100; isLoaded = true; finish(); } }, 9000);
   requestAnimationFrame(draw);
 })();
 </script>
@@ -39453,20 +39248,22 @@ html.tk-license-open body{
   var declineBtn = document.getElementById('tkLicenseDecline');
   var declineTop = document.getElementById('tkLicenseDeclineTop');
   var errorEl = document.getElementById('tkLicenseError');
+  var label = overlay.querySelector('.tk-license__checkbox');
   var root = document.documentElement;
   var body = document.body;
-  var label = overlay.querySelector('label[for="tkLicenseAgree"]');
-  var safeMode = !!window.__TK_RETINA_BOOT_GUARD__;
   var isOpen = false;
   var shown = false;
+  var processing = false;
+  var acceptLabel = acceptBtn ? acceptBtn.textContent : 'Принять и войти';
+
+  function emit(name){
+    try { window.dispatchEvent(new CustomEvent(name)); }
+    catch(_){ try{ var evt=document.createEvent('Event'); evt.initEvent(name, true, true); window.dispatchEvent(evt); }catch(__){} }
+  }
 
   function syncPageLock(flag){
     try{ root.classList.toggle('tk-license-open', !!flag); }catch(_e){}
     try{ body && body.classList.toggle('tk-license-open', !!flag); }catch(_e){}
-  }
-
-  function releaseBoot(){
-    try{ if(typeof window.__tkReleaseDeferredBoot === 'function') window.__tkReleaseDeferredBoot(); }catch(_e){}
   }
 
   function setOpen(flag){
@@ -39477,128 +39274,158 @@ html.tk-license-open body{
     if(isOpen){
       overlay.style.pointerEvents = 'auto';
       overlay.style.touchAction = 'manipulation';
-      if(body) body.style.touchAction = 'manipulation';
-      setTimeout(function(){ try { (checkbox || acceptBtn).focus({ preventScroll:true }); } catch(_e){} }, 10);
+      setTimeout(function(){ try { (checkbox || acceptBtn).focus(); } catch(_){} }, 10);
     }
   }
 
-  function openModal(){
-    if(shown) return;
-    shown = true;
-    setOpen(true);
-  }
-
-  function openModalInstant(){
-    if(shown) return;
-    overlay.classList.add('tk-license--instant');
-    openModal();
-    setTimeout(function(){ overlay.classList.remove('tk-license--instant'); }, 80);
-  }
-
+  function openModal(){ if(shown) return; shown = true; setOpen(true); }
+  function openModalInstant(){ if(shown) return; overlay.classList.add('tk-license--instant'); openModal(); setTimeout(function(){ overlay.classList.remove('tk-license--instant'); }, 80); }
   function closeModal(){ setOpen(false); }
 
-  function syncState(){
-    if(!acceptBtn || !checkbox) return;
-    var enabled = !!checkbox.checked;
-    acceptBtn.classList.toggle('is-disabled', !enabled);
-    acceptBtn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
-    if(safeMode){
-      acceptBtn.disabled = false;
-    }else{
-      acceptBtn.disabled = !enabled;
+  function setProcessing(flag){
+    processing = !!flag;
+    overlay.classList.toggle('tk-license--processing', processing);
+    if(label) label.style.pointerEvents = processing ? 'none' : 'auto';
+    if(checkbox) checkbox.disabled = processing;
+    if(declineBtn){
+      declineBtn.disabled = processing;
+      declineBtn.style.pointerEvents = processing ? 'none' : 'auto';
+      declineBtn.style.opacity = processing ? '.55' : '1';
     }
-    if(errorEl) errorEl.textContent = enabled ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
+    if(declineTop){
+      declineTop.disabled = processing;
+      declineTop.style.pointerEvents = processing ? 'none' : 'auto';
+      declineTop.style.opacity = processing ? '.55' : '1';
+    }
+    if(acceptBtn){
+      acceptBtn.disabled = false;
+      acceptBtn.style.pointerEvents = processing ? 'none' : 'auto';
+      acceptBtn.setAttribute('aria-busy', processing ? 'true' : 'false');
+      acceptBtn.textContent = processing ? 'Подготавливаем интерфейс…' : acceptLabel;
+      acceptBtn.style.opacity = processing ? '.92' : (checkbox && checkbox.checked ? '1' : '.56');
+      acceptBtn.style.filter = processing ? 'saturate(1.04)' : (checkbox && checkbox.checked ? '' : 'grayscale(.12)');
+      acceptBtn.classList.toggle('is-disabled', !processing && checkbox && !checkbox.checked);
+    }
+    if(errorEl && processing){
+      errorEl.textContent = 'Активируем интерфейс. Это займёт всего мгновение…';
+    }
+  }
+
+  function syncState(){
+    if(!acceptBtn || !checkbox || processing) return;
+    var checked = !!checkbox.checked;
+    acceptBtn.disabled = false;
+    acceptBtn.setAttribute('aria-disabled', checked ? 'false' : 'true');
+    acceptBtn.classList.toggle('is-disabled', !checked);
+    acceptBtn.style.opacity = checked ? '1' : '.56';
+    acceptBtn.style.filter = checked ? '' : 'grayscale(.12)';
+    acceptBtn.textContent = acceptLabel;
+    if(errorEl) errorEl.textContent = checked ? '' : (isOpen ? 'Чтобы войти на сайт, подтвердите принятие условий.' : '');
   }
 
   function decline(){
+    if(processing) return;
     if(errorEl) errorEl.textContent = 'Для доступа к игровым миссиям нужно принять соглашение.';
-    try{ checkbox && checkbox.focus({ preventScroll:true }); }catch(_e){}
+    try{ checkbox && checkbox.focus(); }catch(_e){}
   }
 
-  function accept(){
-    if(checkbox && !checkbox.checked){
-      syncState();
-      try{ checkbox.focus({ preventScroll:true }); }catch(_e){}
-      return;
-    }
+  function finishAccept(){
+    setProcessing(false);
     if(errorEl) errorEl.textContent = '';
     closeModal();
-    releaseBoot();
+  }
+
+  function acceptNow(){
+    if(processing) return;
+    if(checkbox && !checkbox.checked){
+      syncState();
+      try{ checkbox.focus(); }catch(_e){}
+      return;
+    }
+
+    var managedState = window.__TK_MANAGED_STATE__ || null;
+    var needsRetinaFinalize = !!(managedState && managedState.targetRetina && !managedState.ready);
+
+    emit('tk:licenseaccepted');
+    if(typeof window.__TK_RUN_MANAGED__ === 'function'){
+      try{ window.__TK_RUN_MANAGED__(); }catch(_e){}
+    }
+
+    if(!needsRetinaFinalize){
+      finishAccept();
+      return;
+    }
+
+    setProcessing(true);
+
+    var resolved = false;
+    function done(){
+      if(resolved) return;
+      resolved = true;
+      window.removeEventListener('tk:managedready', done);
+      finishAccept();
+    }
+
+    window.addEventListener('tk:managedready', done, { once:true });
+
+    setTimeout(function(){
+      try{
+        if(window.__TK_MANAGED_STATE__ && window.__TK_MANAGED_STATE__.ready){
+          done();
+        }
+      }catch(_e){}
+    }, 0);
+
+    setTimeout(done, 5000);
   }
 
   function openIfLoaderDone(){
     var loader = document.getElementById('tkLoader');
     if(!shown && (!loader || loader.classList.contains('is-hidden') || loader.dataset.done === '1')){
       openModalInstant();
+      syncState();
     }
-  }
-
-  function dispatchCheckboxChange(){
-    try{
-      var evt = new Event('change', { bubbles:true });
-      checkbox.dispatchEvent(evt);
-    }catch(_e){
-      var evtLegacy = document.createEvent('Event');
-      evtLegacy.initEvent('change', true, true);
-      checkbox.dispatchEvent(evtLegacy);
-    }
-    syncState();
   }
 
   if(checkbox){
-    ['change','input','click'].forEach(function(type){
-      checkbox.addEventListener(type, function(){ setTimeout(syncState, 0); }, true);
+    ['change','input','click','pointerup','touchend'].forEach(function(evt){
+      checkbox.addEventListener(evt, function(){ setTimeout(syncState, 0); }, true);
     });
     syncState();
   }
-
-  if(label && safeMode){
-    var fastToggle = function(e){
-      var t = e.target;
-      if(t === checkbox || (t && t.closest && t.closest('input'))) return;
-      e.preventDefault();
-      e.stopPropagation();
-      checkbox.checked = !checkbox.checked;
-      dispatchCheckboxChange();
-    };
-    label.addEventListener('pointerup', fastToggle, { passive:false });
-    label.addEventListener('touchend', fastToggle, { passive:false });
+  if(label){
+    label.addEventListener('click', function(){ setTimeout(syncState, 0); }, true);
+    label.style.cursor = 'pointer';
+    label.style.pointerEvents = 'auto';
   }
-
   if(acceptBtn){
-    ['click','pointerup','touchend'].forEach(function(type){
-      acceptBtn.addEventListener(type, function(e){
-        if(type !== 'click') e.preventDefault();
-        accept();
+    ['click','pointerup','touchend'].forEach(function(evt){
+      acceptBtn.addEventListener(evt, function(e){
+        if(evt !== 'click') return;
+        e.preventDefault();
+        e.stopPropagation();
+        acceptNow();
       }, true);
     });
   }
-  if(declineBtn) declineBtn.addEventListener('click', decline);
-  if(declineTop) declineTop.addEventListener('click', decline);
-  overlay.addEventListener('click', function(e){ if(e.target === overlay) decline(); });
+  if(declineBtn) declineBtn.addEventListener('click', function(e){ e.preventDefault(); decline(); }, true);
+  if(declineTop) declineTop.addEventListener('click', function(e){ e.preventDefault(); decline(); }, true);
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) decline(); }, true);
   document.addEventListener('keydown', function(e){
     if(!isOpen) return;
-    if(e.key === 'Escape'){
-      e.preventDefault();
-      decline();
-      return;
-    }
-    if(e.key === 'Enter'){
-      e.preventDefault();
-      accept();
-    }
+    if(e.key === 'Escape'){ e.preventDefault(); decline(); return; }
+    if(e.key === 'Enter'){ e.preventDefault(); acceptNow(); }
   }, true);
 
-  window.addEventListener('tk:loaderhidden', function(){ openModalInstant(); }, { once:true });
+  window.addEventListener('tk:loaderhidden', function(){ openModalInstant(); syncState(); }, { once:true });
   setTimeout(openIfLoaderDone, 0);
   window.addEventListener('load', function(){ setTimeout(openIfLoaderDone, 60); }, { once:true });
 })();
 </script>
-<script id="tk-license-lights-script-v53">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-license-lights-script-v53">
 (function(){
   var host = document.getElementById('tkLicenseBgLights');
   if(!host) return;
-  if(window.__TK_RETINA_BOOT_GUARD__) return;
   host.innerHTML = '';
   var total = 72;
   for(var i=0;i<total;i++){
@@ -40048,7 +39875,7 @@ html.tk-license-open body{
 </div>
 </div>
 </div>
-<script id="tk-live-stats-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   var onlineEl = document.getElementById('tkLiveOnline');
@@ -40444,7 +40271,7 @@ html.tk-cinema-final-clean:not(.tk-cinema-final-4k) #cinema .cinema-head{
   margin:0 auto 10px !important;
 }
 </style>
-<script id="tk-cinema-final-clean-single-source-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-cinema-final-clean-single-source-script">
 (function(){
   var BTN_TEXT = '';
   var ticking = false;
@@ -40748,7 +40575,7 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
   pointer-events: none !important;
 }
 </style>
-<script id="tk-cinema-detached-arrows-final-v1-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-cinema-detached-arrows-final-v1-script">
 (function(){
   var root = document.documentElement;
   var prevBtn = null;
@@ -41006,7 +40833,7 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
 
 
 
-<script id="oaiInventoryToggleRestoreScript">
+<script type="application/x-tk-managed" data-managed-script="1" id="oaiInventoryToggleRestoreScript">
 (function(){
   function init(){
     const backdrop = document.querySelector('#infoSecGame #infoBackdrop');
@@ -41308,7 +41135,7 @@ html.tk-cinema-detached-arrows-final-v1 #cinema .slider-next{
   .tk-ambient-layer > span{ animation:none !important; }
 }
 </style>
-<script id="tk-games-unify-v2-fix-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-games-unify-v2-fix-script">
 (function(){
   const HOSTS = [
     {selector:'#phishGame .cool-phish-root .modal-inner', count:16, max:30},
@@ -41534,7 +41361,7 @@ html.tk-any-game-open .side-chip--it-min{
 @media (max-width:1220px){ :is(#itGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid{ grid-template-columns:360px 1fr !important; } .game-map-shell{ grid-template-columns:1fr; } .game-map-stage{ min-height:420px; } }
 @media (max-width:980px){ :is(#itGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid{ grid-template-columns:1fr !important; } :is(#itGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid > aside.profile, :is(#itGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid > .panel:last-child{ grid-column:1 !important; } .game-map-grid{ grid-template-columns:1fr; } }
 </style>
-<script id="tk-unified-all-games-v3-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-unified-all-games-v3-script">
 (function(){
 const CFGS={itGame:{prefix:'itx',mapImage:'karta-iT.png',mapFallback:'karta-ib.png',mapTitle:'Карта информатики',mapPill:'💻 Информатика',helpLead:'Сначала смотри на термин, смысл и контекст вопроса — отвечай спокойно и без спешки.',helpTips:['Верно — если определение или действие названы точно','Неверно — если перепутано понятие, деталь или роль устройства','Подсказка и дебаг-сканер помогут заметить ключевые слова'],items:[{key:'hint',title:'Подсказка',sub:'Намёк по термину',desc:'Даёт мягкий намёк по текущему вопросу информатики и помогает сузить ответ.',count:2,emoji:'💡',img:'podska-inf.png',active:true},{key:'scan',title:'Дебаг-сканер',sub:'Подсветка ключевых слов',desc:'Подсвечивает важные слова и действия в вопросе, чтобы быстрее увидеть суть.',count:1,emoji:'🧠',img:'debak-inf.png',active:true},{key:'shield',title:'Щит логики',sub:'Восстановление HP',desc:'Поднимает HP героя и даёт запас прочности перед серией вопросов.',count:1,emoji:'🛡️',img:'sheeat-inf.png',active:true},{key:'skiptoken',title:'Токен пропуска',sub:'Вернёт 1 пропуск',desc:'Пополняет запас пропуска и помогает пережить сложный термин.',count:1,emoji:'🎟️',img:'token-ing.png',active:true},{key:'memory',title:'ОЗУ-буст',sub:'Сжимает вопрос до ключевых слов',desc:'Подсвечивает смысловые опоры вопроса и помогает не утонуть в формулировке.',count:1,emoji:'🧩',img:'osy-inf.png',active:true},{key:'flash',title:'Флешка знаний',sub:'Даёт короткую справку по теме',desc:'Открывает короткую шпаргалку по текущей теме вопроса без раскрытия ответа целиком.',count:1,emoji:'💾',img:'flash-inf.png',active:true}],nodes:[{id:'start',label:'Старт · Штаб логики',x:20.5,y:38.5,lvl:'LVL 1',type:'СТАРТ',risk:'НИЗКАЯ УГРОЗА',sub:'Маршрут начинается с базовых понятий и уверенного старта.',goal:'Освоить первые термины и войти в ритм игры.',check:'Понимание базовых понятий, интерфейса и спокойного темпа.',reward:'Первый уровень контроля и опора на базовые знания.',lore:'Стартовый узел выглядит как тихий штаб, где герой собирается с мыслями и включает режим логики.',tactic:'Совет: ищи определяющее слово в формулировке вопроса.'},{id:'window',label:'LVL 2 · Окно задач',x:49.8,y:31.5,lvl:'LVL 2',type:'ТЕРМИНЫ',risk:'СРЕДНЯЯ УГРОЗА',sub:'Узел терминов, где важно не перепутать окно, файл, программу и устройство.',goal:'Научиться различать интерфейсные понятия.',check:'Точность терминов и внимание к формулировке.',reward:'Уверенность в базовой навигации по понятиям.',lore:'Окно задач — спокойная зона, где отсеиваются случайные догадки.',tactic:'Сначала ищи, про что именно вопрос: программа, устройство или действие.'},{id:'algo',label:'LVL 3 · Алгоритм',x:33.5,y:57.5,lvl:'LVL 3',type:'ЛОГИКА',risk:'СРЕДНЯЯ УГРОЗА',sub:'Этап, где важен порядок шагов и причинно-следственная связь.',goal:'Закрепить идею алгоритма и последовательности.',check:'Умение понимать пошаговость и структуру действий.',reward:'Плюс к логическому мышлению героя.',lore:'Алгоритм выглядит как узел с жёстким маршрутом — тут нет места хаосу.',tactic:'Если в вопросе есть “по шагам”, почти всегда рядом алгоритм.'},{id:'cpu',label:'LVL 4 · Ядро процессора',x:46.6,y:74.8,lvl:'LVL 4',type:'ЖЕЛЕЗО',risk:'СРЕДНЯЯ УГРОЗА',sub:'Узел железа: кто что делает внутри компьютера.',goal:'Понять роли процессора, памяти и материнской платы.',check:'Не путать, кто обрабатывает, кто хранит и кто соединяет.',reward:'Стабильность перед мини-боссом.',lore:'Ядро процессора раскалено от вычислений — здесь проверяют зрелость понимания.',tactic:'Запомни правило: процессор обрабатывает, память хранит, плата соединяет.'},{id:'mini',label:'LVL 5 · Мини-босс',x:61.6,y:53.5,lvl:'LVL 5',type:'МИНИ-БОСС',risk:'ВЫСОКАЯ УГРОЗА',sub:'Смешанные вопросы по темам информатики.',goal:'Собрать всё, что уже изучено, в одну устойчивую систему.',check:'Скорость распознавания и отсутствие путаницы.',reward:'Путь к финалу информатики.',lore:'Мини-босс появляется там, где герой начинает думать слишком поспешно.',tactic:'Не спеши — лучше один точный ответ, чем красивая, но неверная догадка.'},{id:'boss',label:'Финал · Босс-баг',x:80.8,y:31.8,boss:true,lvl:'LVL 7',type:'ФИНАЛ',risk:'МАКСИМАЛЬНАЯ УГРОЗА',sub:'Финальный узел, где смешиваются все темы.',goal:'Показать, что герой владеет всей картой информатики.',check:'Собранность, точность и спокойствие под давлением.',reward:'Полная победа и титул мастера логики.',lore:'Босс-баг живёт в хаосе путаницы — его побеждают только точные знания.',tactic:'Держи опору на смысл слова и функцию объекта.'}],hint(root){const topic=(root.querySelector('#itQTopic')?.textContent||'');const body=(root.querySelector('#itQBody')?.textContent||'');const txt=(topic+' '+body).toLowerCase();if(txt.includes('алгорит'))return 'Подсказка: ищи признак пошагового порядка действий.';if(txt.includes('процесс')||txt.includes('материн'))return 'Подсказка: подумай, кто обрабатывает, а кто соединяет и хранит.';if(txt.includes('окно'))return 'Подсказка: вопрос про элемент интерфейса программы, а не про часть дома.';return 'Подсказка: найди ключевое понятие в теме вопроса и проверь, не перепутана ли его роль.';},scanWords:['алгоритм','процессор','материнская плата','память','окно','программа','файл','данных','сервер','хакерская атака','условие','цикл']},phishGame:{prefix:'phx',mapImage:'karta-fishing.png',mapFallback:'karta-ib.png',mapTitle:'Карта антифишинга',mapPill:'🎣 Фишинг',helpLead:'Смотри на отправителя, тему, ссылку и просьбу в письме — только потом отвечай.',helpTips:['Верно — если письмо спокойное, без секретных кодов и странной спешки','Неверно — если просят пароль, код, оплату или пугают срочностью','Подсказка и сканер ссылки помогают ловить красные флаги'],items:[{key:'hint',title:'Подсказка домена',sub:'Намёк по письму',desc:'Даёт мягкий намёк на слабое место письма: домен, срочность или просьбу.',count:2,emoji:'💡',img:'podska-domen-fish.png',active:true},{key:'scan',title:'Сканер ссылок',sub:'Подсветка домена и ловушки',desc:'Подсвечивает подозрительные слова, адреса и красные флаги.',count:1,emoji:'🔎',img:'scaner-ssilok-fish.png',active:true},{key:'shield',title:'Щит аккаунта',sub:'Восстановление HP',desc:'Возвращает HP и помогает пережить опасную серию сообщений.',count:1,emoji:'🛡️',img:'sheeat-inf-fish.png',active:true},{key:'skiptoken',title:'Талон карантина',sub:'Вернёт 1 пропуск',desc:'Добавляет один запасной пропуск для сложного письма.',count:1,emoji:'🎟️',img:'talon-fish.png',active:true},{key:'quarantine',title:'Карантин',sub:'Слот под будущую механику',desc:'Готовый слот под отдельную механику изоляции письма.',count:0,emoji:'📦',img:'karantin-fish.png',active:false},{key:'report',title:'Кнопка жалобы',sub:'Слот под будущую механику',desc:'Заготовка под предмет для отправки жалобы.',count:0,emoji:'🚨',img:'help-knopcka-fish.png',active:false}],nodes:[{id:'start',label:'Старт · Почтовый шлюз',x:20.5,y:38.5,lvl:'LVL 1',type:'СТАРТ',risk:'НИЗКАЯ УГРОЗА',sub:'Первый узел, где герой учится видеть структуру письма.',goal:'Понять, на что смотреть в письме в первую очередь.',check:'Имя отправителя, тема и общий тон письма.',reward:'Базовый антифишинговый маршрут.',lore:'Почтовый шлюз — вход в мир сообщений, где важна каждая мелочь.',tactic:'Сначала отправитель, потом ссылка, потом просьба.'},{id:'domain',label:'LVL 2 · Домен',x:49.8,y:31.5,lvl:'LVL 2',type:'ССЫЛКИ',risk:'СРЕДНЯЯ УГРОЗА',sub:'Узел проверки доменов и адресов.',goal:'Научиться замечать подделки в адресах.',check:'Лишние буквы, странные окончания, похожие символы.',reward:'Плюс к вниманию героя.',lore:'Домен — место, где ловушки часто прячутся под маской знакомого бренда.',tactic:'Читай адрес целиком, а не по памяти.'},{id:'urgency',label:'LVL 3 · Срочность',x:33.5,y:57.5,lvl:'LVL 3',type:'ПСИХОЛОГИЯ',risk:'СРЕДНЯЯ УГРОЗА',sub:'Этап, где письма давят на страх и спешку.',goal:'Не поддаваться давлению и панике.',check:'Слова “срочно”, “иначе”, “аккаунт будет удалён”.',reward:'Спокойствие под давлением.',lore:'Срочность выглядит ярко, но почти всегда маскирует подвох.',tactic:'Любая слишком сильная спешка — повод остановиться.'},{id:'codes',label:'LVL 4 · Коды и пароли',x:46.6,y:74.8,lvl:'LVL 4',type:'СЕКРЕТЫ',risk:'ВЫСОКАЯ УГРОЗА',sub:'Узел секретных данных.',goal:'Запомнить: коды, пароли и SMS никому не отправляют.',check:'Просьбы передать логин, пароль, код из SMS.',reward:'Жёсткий навык самозащиты.',lore:'Здесь враг уже не маскируется — он хочет секрет напрямую.',tactic:'Если просят код или пароль — это почти всегда риск.'},{id:'mini',label:'LVL 5 · Мини-босс',x:61.6,y:53.5,lvl:'LVL 5',type:'МИНИ-БОСС',risk:'ВЫСОКАЯ УГРОЗА',sub:'Смешанные письма с несколькими ловушками.',goal:'Собрать все красные флаги в единый паттерн.',check:'Адрес, ссылка, спешка, страх и просьба о секрете.',reward:'Путь к финалу антифишинга.',lore:'Мини-босс собирает несколько уловок сразу, чтобы герой ошибся под давлением.',tactic:'Проверяй письмо по чек-листу, а не на эмоциях.'},{id:'boss',label:'Финал · Босс-фишер',x:80.8,y:31.8,boss:true,lvl:'LVL 7',type:'ФИНАЛ',risk:'МАКСИМАЛЬНАЯ УГРОЗА',sub:'Кульминация маршрута с самой хитрой подделкой.',goal:'Устоять против идеального фишингового письма.',check:'Все навыки героя сразу: домен, тон, ссылка, секреты.',reward:'Полная победа над фишингом.',lore:'Босс-фишер выглядит убедительно именно потому, что почти не кричит о себе.',tactic:'Даже красивое письмо может быть ловушкой — доверяй проверке, а не оформлению.'}],hint(root){const body=(root.querySelector('#msgBody')?.textContent||'').toLowerCase();const from=(root.querySelector('#msgFromEmail')?.textContent||'').toLowerCase();if(from.includes('fake')||from.includes('sparkle'))return 'Подсказка: проверь адрес отправителя — у него уже есть тревожный сигнал.';if(body.includes('код')||body.includes('парол'))return 'Подсказка: секретные данные и коды — главный красный флаг.';if(body.includes('сроч')||body.includes('иначе'))return 'Подсказка: слишком сильная спешка часто означает давление на эмоции.';return 'Подсказка: ищи красный флаг среди адреса, ссылки, срочности и просьбы о секрете.';},scanWords:['пароль','код','sms','смс','срочно','иначе','ссылка','оплатить','подтвердите','аккаунт','безопасность','фото','банк']}};
 const STATES={}; const q=(s,b=document)=>b.querySelector(s); const qa=(s,b=document)=>Array.from(b.querySelectorAll(s)); const ce=(tag,cls,html)=>{const el=document.createElement(tag); if(cls)el.className=cls; if(html!=null)el.innerHTML=html; return el;}; const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -41641,7 +41468,7 @@ html.tk-any-game-open .side-chip{
   }
 }
 </style>
-<script id="tk-force-unified-games-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-force-unified-games-script">
 (function(){
   function onReady(fn){
     if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
@@ -41797,7 +41624,7 @@ html.tk-any-game-open .roulette-dock, html.tk-any-game-open .rules, html.tk-any-
 @media (max-width: 1180px){#itGame .cool-phish-root .panel[data-step="play"] .play-grid, #phishGame .cool-phish-root .panel[data-step="play"] .play-grid{grid-template-columns:minmax(340px, 390px) minmax(0,1fr) !important;}}
 @media (max-width: 980px){#itGame .cool-phish-root .modal, #phishGame .cool-phish-root .modal{width:min(98vw, 1120px) !important;} #itGame .cool-phish-root .panel[data-step="play"] .play-grid, #phishGame .cool-phish-root .panel[data-step="play"] .play-grid{grid-template-columns:1fr !important;} #itGame .cool-phish-root .panel[data-step="play"] .play-grid > .panel:last-child, #phishGame .cool-phish-root .panel[data-step="play"] .play-grid > .panel:last-child{grid-column:1 !important; grid-row:auto !important;}}
 </style>
-<script id="tk-it-phish-static-shell-fix-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-it-phish-static-shell-fix-script">
 (function(){
   function sync(){
     const open = !!document.querySelector('#itGame.is-open, #phishGame.is-open, #infoSecGame.is-open, #itBackdrop.is-open, #phishBackdrop.is-open, #infoBackdrop.is-open, .game-map-lightbox:not([hidden]), #infoMapLightbox:not([hidden])');
@@ -41841,7 +41668,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   #phishGame .cool-phish-root .panel[data-step="play"] .play-grid > .panel:last-child{grid-column:1 !important;grid-row:auto !important;}
 }
 </style>
-<script id="tk-hard-layout-fix-v6-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-hard-layout-fix-v6-script">
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
   function qa(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
@@ -42146,7 +41973,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   }
 }
 </style>
-<script id="tk-game-stage-desktop-chip-v1-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-game-stage-desktop-chip-v1-script">
 (function(){
   const configs = [
     { gameId:'itGame', chipSelector:'.side-chip--it-min' },
@@ -42285,7 +42112,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   z-index:2;
 }
 </style>
-<script id="pc-parts-asset-fallback-patch">
+<script type="application/x-tk-managed" data-managed-script="1" id="pc-parts-asset-fallback-patch">
 (function(){
   "use strict";
   const FALLBACKS = {"start_pk_pec.png": "data:image/svg+xml;charset=UTF-8,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22720%22%20viewBox%3D%220%200%201200%20720%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2307172b%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230d2d50%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%20%20%3CradialGradient%20id%3D%22glow%22%20cx%3D%2250%25%22%20cy%3D%2245%25%22%20r%3D%2255%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22rgba%28123%2C240%2C255%2C0.45%29%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22rgba%28123%2C240%2C255%2C0%29%22/%3E%0A%20%20%20%20%3C/radialGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221200%22%20height%3D%22720%22%20rx%3D%2234%22%20fill%3D%22url%28%23bg%29%22/%3E%0A%20%20%3Crect%20x%3D%2230%22%20y%3D%2230%22%20width%3D%221140%22%20height%3D%22660%22%20rx%3D%2228%22%20fill%3D%22none%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.18%29%22%20stroke-width%3D%222%22/%3E%0A%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22260%22%20r%3D%22180%22%20fill%3D%22url%28%23glow%29%22/%3E%0A%20%20%3Ccircle%20cx%3D%22910%22%20cy%3D%22470%22%20r%3D%22190%22%20fill%3D%22rgba%28143%2C123%2C255%2C.14%29%22/%3E%0A%20%20%3Cg%20transform%3D%22translate%28120%20110%29%22%3E%0A%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%2260%22%20width%3D%22430%22%20height%3D%22330%22%20rx%3D%2228%22%20fill%3D%22rgba%2814%2C35%2C59%2C.65%29%22%20stroke%3D%22rgba%28123%2C240%2C255%2C.38%29%22%20stroke-width%3D%224%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2246%22%20y%3D%22110%22%20width%3D%22120%22%20height%3D%22180%22%20rx%3D%2218%22%20fill%3D%22rgba%2836%2C66%2C112%2C.75%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.14%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%22265%22%20y%3D%22100%22%20width%3D%22145%22%20height%3D%2266%22%20rx%3D%2216%22%20fill%3D%22rgba%2877%2C133%2C210%2C.78%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.2%29%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22315%22%20cy%3D%22235%22%20r%3D%2242%22%20fill%3D%22none%22%20stroke%3D%22%2389dcff%22%20stroke-width%3D%2210%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22315%22%20cy%3D%22235%22%20r%3D%2220%22%20fill%3D%22%23baf3ff%22/%3E%0A%20%20%20%20%3Crect%20x%3D%22257%22%20y%3D%22312%22%20width%3D%22112%22%20height%3D%2218%22%20rx%3D%229%22%20fill%3D%22%2389dcff%22/%3E%0A%20%20%20%20%3Crect%20x%3D%22257%22%20y%3D%22338%22%20width%3D%22112%22%20height%3D%2218%22%20rx%3D%229%22%20fill%3D%22%2389dcff%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2246%22%20y%3D%22310%22%20width%3D%2295%22%20height%3D%2252%22%20rx%3D%2214%22%20fill%3D%22rgba%2877%2C133%2C210%2C.78%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.18%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%22250%22%20y%3D%22315%22%20width%3D%2242%22%20height%3D%2242%22%20rx%3D%2210%22%20fill%3D%22rgba%2877%2C133%2C210%2C.9%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%22370%22%20y%3D%22327%22%20width%3D%2240%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22rgba%2877%2C133%2C210%2C.8%29%22/%3E%0A%20%20%20%20%3Cg%20fill%3D%22%23d5f9ff%22%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2295%22%20cy%3D%22202%22%20r%3D%2218%22/%3E%3Ccircle%20cx%3D%22314%22%20cy%3D%22132%22%20r%3D%2218%22/%3E%3Ccircle%20cx%3D%22315%22%20cy%3D%22235%22%20r%3D%2216%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22271%22%20cy%3D%22336%22%20r%3D%2216%22/%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22336%22%20r%3D%2216%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%22343%22%20r%3D%2216%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%28620%20108%29%22%3E%0A%20%20%20%20%3Ctext%20x%3D%220%22%20y%3D%2280%22%20fill%3D%22%23f9e6a8%22%20font-size%3D%2264%22%20font-family%3D%22Georgia%2Cserif%22%20font-weight%3D%22700%22%3E%D0%98%D0%B7%20%D1%87%D0%B5%D0%B3%D0%BE%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D0%B8%D1%82%20%D0%9F%D0%9A%3C/text%3E%0A%20%20%20%20%3Ctext%20x%3D%220%22%20y%3D%22150%22%20fill%3D%22rgba%28235%2C245%2C255%2C.92%29%22%20font-size%3D%2230%22%20font-family%3D%22Segoe%20UI%2C%20Arial%2C%20sans-serif%22%3E%0A%20%20%20%20%20%20%D0%9D%D0%B0%D0%B9%D0%B4%D0%B8%20%D0%B4%D0%B5%D1%82%D0%B0%D0%BB%D0%B8%2C%20%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%20%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%B0%20%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B9%D0%B4%D0%B8%20%D0%B2%D1%81%D0%B5%205%20%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D0%B5%D0%B9%0A%20%20%20%20%3C/text%3E%0A%20%20%20%20%3Ctext%20x%3D%220%22%20y%3D%22220%22%20fill%3D%22rgba%28235%2C245%2C255%2C.78%29%22%20font-size%3D%2226%22%20font-family%3D%22Segoe%20UI%2C%20Arial%2C%20sans-serif%22%3E%0A%20%20%20%20%20%20%D0%95%D1%81%D0%BB%D0%B8%20%D0%BE%D1%80%D0%B8%D0%B3%D0%B8%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F%20%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D0%B0%20%D0%BD%D0%B5%20%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%B8%D0%BB%D0%B0%D1%81%D1%8C%2C%20%D0%B8%D0%B3%D1%80%D0%B0%20%D0%B2%D1%81%D1%91%20%D1%80%D0%B0%D0%B2%D0%BD%D0%BE%20%D0%B1%D1%83%D0%B4%D0%B5%D1%82%20%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%D1%82%D1%8C.%0A%20%20%20%20%3C/text%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate%280%20285%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22430%22%20height%3D%22150%22%20rx%3D%2224%22%20fill%3D%22rgba%2812%2C30%2C53%2C.56%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.14%29%22/%3E%0A%20%20%20%20%20%20%3Ctext%20x%3D%2234%22%20y%3D%2252%22%20fill%3D%22%23baf3ff%22%20font-size%3D%2230%22%20font-family%3D%22Segoe%20UI%2C%20Arial%2C%20sans-serif%22%20font-weight%3D%22700%22%3E%D0%A7%D1%82%D0%BE%20%D0%B2%D0%BD%D1%83%D1%82%D1%80%D0%B8%3F%3C/text%3E%0A%20%20%20%20%20%20%3Ctext%20x%3D%2234%22%20y%3D%2292%22%20fill%3D%22rgba%28255%2C255%2C255%2C.86%29%22%20font-size%3D%2224%22%20font-family%3D%22Segoe%20UI%2C%20Arial%2C%20sans-serif%22%3E%D0%9A%D0%BE%D1%80%D0%BF%D1%83%D1%81%2C%20%D0%B2%D0%B8%D0%B4%D0%B5%D0%BE%D0%BA%D0%B0%D1%80%D1%82%D0%B0%2C%20%D0%BA%D1%83%D0%BB%D0%B5%D1%80%2C%3C/text%3E%0A%20%20%20%20%20%20%3Ctext%20x%3D%2234%22%20y%3D%22126%22%20fill%3D%22rgba%28255%2C255%2C255%2C.86%29%22%20font-size%3D%2224%22%20font-family%3D%22Segoe%20UI%2C%20Arial%2C%20sans-serif%22%3E%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81%D0%BE%D1%80%2C%20RAM%2C%20SSD%20%D0%B8%20%D0%B1%D0%BB%D0%BE%D0%BA%20%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F.%3C/text%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A", "computer.png": "data:image/svg+xml;charset=UTF-8,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221280%22%20height%3D%22720%22%20viewBox%3D%220%200%201280%20720%22%3E%0A%20%20%3Crect%20width%3D%221280%22%20height%3D%22720%22%20rx%3D%2228%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%221232%22%20height%3D%22672%22%20rx%3D%2224%22%20fill%3D%22rgba%286%2C28%2C54%2C.8%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.10%29%22%20stroke-width%3D%222%22/%3E%0A%20%20%3Ccircle%20cx%3D%22140%22%20cy%3D%22120%22%20r%3D%22120%22%20fill%3D%22rgba%28123%2C240%2C255%2C.18%29%22/%3E%0A%20%20%3Ccircle%20cx%3D%221140%22%20cy%3D%22610%22%20r%3D%22160%22%20fill%3D%22rgba%28255%2C229%2C146%2C.14%29%22/%3E%0A%20%20%3Crect%20x%3D%2290%22%20y%3D%2270%22%20width%3D%221030%22%20height%3D%22560%22%20rx%3D%2242%22%20fill%3D%22%23092147%22%20stroke%3D%22%233d73b7%22%20stroke-width%3D%2210%22/%3E%0A%20%20%3Crect%20x%3D%22145%22%20y%3D%22140%22%20width%3D%22250%22%20height%3D%22270%22%20rx%3D%2226%22%20fill%3D%22%231e3b66%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.14%29%22/%3E%0A%20%20%3Ctext%20x%3D%22270%22%20y%3D%22285%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.9%29%22%20font-size%3D%2262%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%9A%D0%9E%D0%A0%D0%9F%D0%A3%D0%A1%3C/text%3E%0A%20%20%3Crect%20x%3D%22708%22%20y%3D%22124%22%20width%3D%22335%22%20height%3D%22108%22%20rx%3D%2222%22%20fill%3D%22%233e6fb2%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.20%29%22/%3E%0A%20%20%3Ctext%20x%3D%22875%22%20y%3D%22186%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.84%29%22%20font-size%3D%2256%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3EGPU%3C/text%3E%0A%20%20%3Ccircle%20cx%3D%22865%22%20cy%3D%22375%22%20r%3D%2282%22%20fill%3D%22none%22%20stroke%3D%22%2389dcff%22%20stroke-width%3D%2218%22/%3E%3Ccircle%20cx%3D%22865%22%20cy%3D%22375%22%20r%3D%2238%22%20fill%3D%22%23baf3ff%22/%3E%0A%20%20%3Crect%20x%3D%22705%22%20y%3D%22485%22%20width%3D%2278%22%20height%3D%2278%22%20rx%3D%2216%22%20fill%3D%22%234c82c6%22/%3E%3Ctext%20x%3D%22744%22%20y%3D%22538%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.82%29%22%20font-size%3D%2242%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3ECPU%3C/text%3E%0A%20%20%3Crect%20x%3D%22899%22%20y%3D%22488%22%20width%3D%22218%22%20height%3D%2226%22%20rx%3D%2213%22%20fill%3D%22%2389dcff%22/%3E%0A%20%20%3Crect%20x%3D%22899%22%20y%3D%22536%22%20width%3D%22218%22%20height%3D%2226%22%20rx%3D%2213%22%20fill%3D%22%2389dcff%22/%3E%0A%20%20%3Crect%20x%3D%22142%22%20y%3D%22442%22%20width%3D%22210%22%20height%3D%2284%22%20rx%3D%2220%22%20fill%3D%22%233e6fb2%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.18%29%22/%3E%3Ctext%20x%3D%22247%22%20y%3D%22497%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.84%29%22%20font-size%3D%2244%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3EPSU%3C/text%3E%0A%20%20%3Crect%20x%3D%221020%22%20y%3D%22573%22%20width%3D%2288%22%20height%3D%2244%22%20rx%3D%2212%22%20fill%3D%22%234c82c6%22/%3E%0A%3C/svg%3E%0A", "mini-pk.png": "data:image/svg+xml;charset=UTF-8,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221280%22%20height%3D%22720%22%20viewBox%3D%220%200%201280%20720%22%3E%0A%20%20%3Crect%20width%3D%221280%22%20height%3D%22720%22%20rx%3D%2228%22%20fill%3D%22%2308162a%22/%3E%0A%20%20%3Crect%20x%3D%2270%22%20y%3D%2260%22%20width%3D%221140%22%20height%3D%22600%22%20rx%3D%2240%22%20fill%3D%22%23091f41%22%20stroke%3D%22%233d73b7%22%20stroke-width%3D%2210%22/%3E%0A%20%20%3Crect%20x%3D%22120%22%20y%3D%22120%22%20width%3D%22290%22%20height%3D%22240%22%20rx%3D%2228%22%20fill%3D%22%23123156%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.12%29%22/%3E%0A%20%20%3Ccircle%20cx%3D%22240%22%20cy%3D%22240%22%20r%3D%2286%22%20fill%3D%22none%22%20stroke%3D%22%238adfff%22%20stroke-width%3D%2216%22/%3E%3Ccircle%20cx%3D%22240%22%20cy%3D%22240%22%20r%3D%2236%22%20fill%3D%22%23baf3ff%22/%3E%0A%20%20%3Crect%20x%3D%22470%22%20y%3D%22330%22%20width%3D%22270%22%20height%3D%22170%22%20rx%3D%2224%22%20fill%3D%22%23274d82%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.14%29%22/%3E%3Ctext%20x%3D%22605%22%20y%3D%22425%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.86%29%22%20font-size%3D%2246%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3EMOBO%3C/text%3E%0A%20%20%3Crect%20x%3D%22825%22%20y%3D%22358%22%20width%3D%22270%22%20height%3D%22124%22%20rx%3D%2220%22%20fill%3D%22%234b80c5%22/%3E%0A%20%20%3Crect%20x%3D%22540%22%20y%3D%22548%22%20width%3D%22190%22%20height%3D%2242%22%20rx%3D%2212%22%20fill%3D%22%2382dfff%22/%3E%0A%20%20%3Crect%20x%3D%22780%22%20y%3D%22534%22%20width%3D%22120%22%20height%3D%2270%22%20rx%3D%2216%22%20fill%3D%22%233e6fb2%22/%3E%3Ctext%20x%3D%22840%22%20y%3D%22580%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.84%29%22%20font-size%3D%2234%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3ECPU%3C/text%3E%0A%3C/svg%3E%0A", "NooteBook.png": "data:image/svg+xml;charset=UTF-8,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221280%22%20height%3D%22720%22%20viewBox%3D%220%200%201280%20720%22%3E%0A%20%20%3Crect%20width%3D%221280%22%20height%3D%22720%22%20rx%3D%2228%22%20fill%3D%22%2308162a%22/%3E%0A%20%20%3Crect%20x%3D%22180%22%20y%3D%2242%22%20width%3D%22920%22%20height%3D%22240%22%20rx%3D%2228%22%20fill%3D%22%23123156%22%20stroke%3D%22%234c82c6%22%20stroke-width%3D%2210%22/%3E%0A%20%20%3Crect%20x%3D%22235%22%20y%3D%2288%22%20width%3D%22810%22%20height%3D%22148%22%20rx%3D%2216%22%20fill%3D%22%231f4b7e%22/%3E%0A%20%20%3Ctext%20x%3D%22640%22%20y%3D%22176%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.84%29%22%20font-size%3D%2260%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%AD%D0%9A%D0%A0%D0%90%D0%9D%3C/text%3E%0A%20%20%3Crect%20x%3D%22110%22%20y%3D%22315%22%20width%3D%221060%22%20height%3D%22305%22%20rx%3D%2234%22%20fill%3D%22%23091f41%22%20stroke%3D%22%233d73b7%22%20stroke-width%3D%2210%22/%3E%0A%20%20%3Crect%20x%3D%22250%22%20y%3D%22390%22%20width%3D%22240%22%20height%3D%22120%22%20rx%3D%2222%22%20fill%3D%22%23355f98%22/%3E%3Ctext%20x%3D%22370%22%20y%3D%22465%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.82%29%22%20font-size%3D%2242%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3EBATTERY%3C/text%3E%0A%20%20%3Crect%20x%3D%22590%22%20y%3D%22376%22%20width%3D%22250%22%20height%3D%22160%22%20rx%3D%2222%22%20fill%3D%22%23274d82%22/%3E%3Ctext%20x%3D%22715%22%20y%3D%22466%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.82%29%22%20font-size%3D%2242%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3EMOBO%3C/text%3E%0A%20%20%3Ccircle%20cx%3D%22980%22%20cy%3D%22438%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%2389dcff%22%20stroke-width%3D%2214%22/%3E%3Ccircle%20cx%3D%22980%22%20cy%3D%22438%22%20r%3D%2222%22%20fill%3D%22%23baf3ff%22/%3E%0A%20%20%3Crect%20x%3D%221045%22%20y%3D%22470%22%20width%3D%2290%22%20height%3D%2260%22%20rx%3D%2214%22%20fill%3D%22%234b80c5%22/%3E%0A%20%20%3Crect%20x%3D%221047%22%20y%3D%22390%22%20width%3D%2258%22%20height%3D%2246%22%20rx%3D%2210%22%20fill%3D%22%233e6fb2%22/%3E%3Ctext%20x%3D%221076%22%20y%3D%22420%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.82%29%22%20font-size%3D%2220%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3ECPU%3C/text%3E%0A%20%20%3Crect%20x%3D%22462%22%20y%3D%22486%22%20width%3D%2296%22%20height%3D%2282%22%20rx%3D%2214%22%20fill%3D%22%234b80c5%22/%3E%0A%3C/svg%3E%0A", "monoblock.png": "data:image/svg+xml;charset=UTF-8,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221280%22%20height%3D%22720%22%20viewBox%3D%220%200%201280%20720%22%3E%0A%20%20%3Crect%20width%3D%221280%22%20height%3D%22720%22%20rx%3D%2228%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%3Crect%20x%3D%22114%22%20y%3D%2260%22%20width%3D%22870%22%20height%3D%22520%22%20rx%3D%2234%22%20fill%3D%22%23123156%22%20stroke%3D%22%234c82c6%22%20stroke-width%3D%2212%22/%3E%0A%20%20%3Crect%20x%3D%22170%22%20y%3D%22120%22%20width%3D%22758%22%20height%3D%22240%22%20rx%3D%2216%22%20fill%3D%22%231e4a7e%22/%3E%0A%20%20%3Ctext%20x%3D%22549%22%20y%3D%22260%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.84%29%22%20font-size%3D%2270%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%AD%D0%9A%D0%A0%D0%90%D0%9D%3C/text%3E%0A%20%20%3Crect%20x%3D%22390%22%20y%3D%22590%22%20width%3D%22320%22%20height%3D%2238%22%20rx%3D%2219%22%20fill%3D%22%237a8fae%22/%3E%0A%20%20%3Crect%20x%3D%22520%22%20y%3D%22542%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%2214%22%20fill%3D%22%237a8fae%22/%3E%0A%20%20%3Crect%20x%3D%22470%22%20y%3D%22392%22%20width%3D%22340%22%20height%3D%22120%22%20rx%3D%2224%22%20fill%3D%22%23274d82%22/%3E%3Ctext%20x%3D%22640%22%20y%3D%22460%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.82%29%22%20font-size%3D%2242%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3EMOBO%3C/text%3E%0A%20%20%3Ccircle%20cx%3D%22900%22%20cy%3D%22316%22%20r%3D%2246%22%20fill%3D%22none%22%20stroke%3D%22%2389dcff%22%20stroke-width%3D%2214%22/%3E%3Ccircle%20cx%3D%22900%22%20cy%3D%22316%22%20r%3D%2219%22%20fill%3D%22%23baf3ff%22/%3E%0A%20%20%3Crect%20x%3D%22962%22%20y%3D%22458%22%20width%3D%2292%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%234b80c5%22/%3E%0A%20%20%3Crect%20x%3D%22598%22%20y%3D%22554%22%20width%3D%2272%22%20height%3D%2252%22%20rx%3D%2212%22%20fill%3D%22%233e6fb2%22/%3E%3Ctext%20x%3D%22634%22%20y%3D%22587%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.82%29%22%20font-size%3D%2218%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3ECPU%3C/text%3E%0A%20%20%3Crect%20x%3D%22734%22%20y%3D%22530%22%20width%3D%2296%22%20height%3D%2262%22%20rx%3D%2214%22%20fill%3D%22%234b80c5%22/%3E%0A%3C/svg%3E%0A", "vkl_pk_nootebook_mini_mon.png": "data:image/svg+xml;charset=UTF-8,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221280%22%20height%3D%22720%22%20viewBox%3D%220%200%201280%20720%22%3E%0A%20%20%3Crect%20width%3D%221280%22%20height%3D%22720%22%20rx%3D%2228%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%3Ctext%20x%3D%22640%22%20y%3D%2274%22%20text-anchor%3D%22middle%22%20fill%3D%22%23f8e19a%22%20font-size%3D%2246%22%20font-family%3D%22Georgia%2C%20serif%22%3E%D0%9D%D0%B0%D0%B6%D0%BC%D0%B8%20%D0%BD%D0%B0%20%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B8%20%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F%3C/text%3E%0A%20%20%3Cg%20transform%3D%22translate%2836%20118%29%22%3E%0A%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22210%22%20height%3D%22330%22%20rx%3D%2226%22%20fill%3D%22%230e2643%22%20stroke%3D%22%234c82c6%22%20stroke-width%3D%228%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22105%22%20cy%3D%2266%22%20r%3D%2222%22%20fill%3D%22%238ce4ff%22/%3E%3Ccircle%20cx%3D%22105%22%20cy%3D%2266%22%20r%3D%2210%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%20%20%3Ctext%20x%3D%22105%22%20y%3D%22302%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.86%29%22%20font-size%3D%2234%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%9F%D0%9A%3C/text%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%28352%20224%29%22%3E%0A%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22180%22%20height%3D%22118%22%20rx%3D%2222%22%20fill%3D%22%23123156%22%20stroke%3D%22%234c82c6%22%20stroke-width%3D%228%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2290%22%20cy%3D%2258%22%20r%3D%2220%22%20fill%3D%22%238ce4ff%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2258%22%20r%3D%229%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%20%20%3Ctext%20x%3D%2290%22%20y%3D%22164%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.86%29%22%20font-size%3D%2230%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%9C%D0%B8%D0%BD%D0%B8%E2%80%91%D0%9F%D0%9A%3C/text%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%28742%20224%29%22%3E%0A%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22360%22%20height%3D%22202%22%20rx%3D%2224%22%20fill%3D%22%23123156%22%20stroke%3D%22%234c82c6%22%20stroke-width%3D%228%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2222%22%20y%3D%2222%22%20width%3D%22316%22%20height%3D%22110%22%20rx%3D%2214%22%20fill%3D%22%231e4a7e%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22310%22%20cy%3D%22145%22%20r%3D%2218%22%20fill%3D%22%238ce4ff%22/%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22145%22%20r%3D%228%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%20%20%3Ctext%20x%3D%22180%22%20y%3D%22184%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.86%29%22%20font-size%3D%2232%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%9D%D0%BE%D1%83%D1%82%D0%B1%D1%83%D0%BA%3C/text%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%28506%20420%29%22%3E%0A%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22268%22%20height%3D%22190%22%20rx%3D%2224%22%20fill%3D%22%23123156%22%20stroke%3D%22%234c82c6%22%20stroke-width%3D%228%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2218%22%20y%3D%2218%22%20width%3D%22232%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%231e4a7e%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22134%22%20cy%3D%22150%22%20r%3D%2218%22%20fill%3D%22%238ce4ff%22/%3E%3Ccircle%20cx%3D%22134%22%20cy%3D%22150%22%20r%3D%228%22%20fill%3D%22%2307172b%22/%3E%0A%20%20%20%20%3Ctext%20x%3D%22134%22%20y%3D%22178%22%20text-anchor%3D%22middle%22%20fill%3D%22rgba%28235%2C245%2C255%2C.86%29%22%20font-size%3D%2226%22%20font-family%3D%22Segoe%20UI%2C%20Arial%22%3E%D0%9C%D0%BE%D0%BD%D0%BE%D0%B1%D0%BB%D0%BE%D0%BA%3C/text%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A"};
@@ -42359,7 +42186,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
 </script>
 
 
-<script id="tk-pcparts-launch-isolation-v1">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-pcparts-launch-isolation-v1">
 (function(){
   const launchSel = '#openPcPartsGameLaunch';
   function getLaunch(){ return document.querySelector(launchSel); }
@@ -42468,7 +42295,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   display:none !important;
 }
 </style>
-<script id="tk-pcparts-clean-flow-v4-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-pcparts-clean-flow-v4-script">
 (function(){
   "use strict";
   const modal = document.getElementById('pcPartsGame');
@@ -42604,7 +42431,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   pointer-events:none !important;
 }
 </style>
-<script id="tk-v10-it-phish-flow-fix-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v10-it-phish-flow-fix-script">
 (function(){
   'use strict';
 
@@ -42970,7 +42797,7 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
 </script>
 
 
-<script id="tk-it-phish-map-cleanup-v11">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-it-phish-map-cleanup-v11">
 (function(){
   function byId(id){ return document.getElementById(id); }
   function isOpenEl(el){
@@ -43432,7 +43259,7 @@ body #cinema .movie-btn{
 
 
 
-<script id="tk-fhd-clean-final-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-clean-final-script">
 (function(){
   var root = document.documentElement;
   function isTarget(){ return root.classList.contains('tk-fhd-clean-ui'); }
@@ -43850,7 +43677,7 @@ html.tk-fhd-clean-ui #cinema .cinema-banner-sub{
   </div>
 </div>
 
-<script id="tk-cinema-dev-placeholder-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-cinema-dev-placeholder-script">
 (function(){
   var backdrop = document.getElementById('tkDevFilmBackdrop');
   if(!backdrop) return;
@@ -43942,7 +43769,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   margin-bottom: 2px !important;
 }
 </style>
-<script id="tk-fhd-cinema-gap-final-fix-script-v2">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-cinema-gap-final-fix-script-v2">
 (function(){
   var root = document.documentElement;
   function isTarget(){ return root.classList.contains('tk-fhd-clean-ui'); }
@@ -43988,7 +43815,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 </script>
 
 
-<script id="tk-fhd-scroll-stability-fix-v3">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-scroll-stability-fix-v3">
 (function(){
   const root = document.documentElement;
   const header = document.getElementById('hero') || document.querySelector('.header');
@@ -44100,7 +43927,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 }
 </style>
 
-<script id="tk-global-wheel-relay-v4">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-global-wheel-relay-v4">
 (function(){
   const header = document.getElementById('hero') || document.querySelector('.header');
   if(!header) return;
@@ -44394,7 +44221,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   }
 }
 </style>
-<script id="oai-roulette-copyfit-v1-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="oai-roulette-copyfit-v1-script">
 (function(){
   function fitRouletteCopy(){
     try{
@@ -44827,7 +44654,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   }
 }
 </style>
-<script id="tk-rm-fhd-fit-script-v9">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-rm-fhd-fit-script-v9">
 (function(){
   function resetMissionScroll(){
     var back = document.getElementById('rouletteMission');
@@ -45135,7 +44962,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   }
 }
 </style>
-<script id="tk-rm-scroll-csssafe-script-v15">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-rm-scroll-csssafe-script-v15">
 (function(){
   function getMissionBody(){
     var back = document.getElementById('rouletteMission');
@@ -45328,7 +45155,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 }
 </style>
 
-<script id="tk-rm-final-fix-script-v16">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-rm-final-fix-script-v16">
 (function(){
   function missionBackdrop(){
     return document.getElementById('rouletteMission');
@@ -45522,7 +45349,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   }
 }
 </style>
-<script id="oa-menu-pill-toggle-unify-script-v1">
+<script type="application/x-tk-managed" data-managed-script="1" id="oa-menu-pill-toggle-unify-script-v1">
 (function(){
   function initMenuPillToggle(){
     var nav = document.querySelector('.side-nav');
@@ -45646,7 +45473,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
     transform: translateY(-50%) rotate(-45deg) scale(1.04);
   }
 </style>
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function(){
   function syncRouletteSoundBadge(){
     var btn = document.getElementById('rouletteSound');
@@ -46412,7 +46239,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
   </section>
 </div>
 
-<script>
+<script type="application/x-tk-managed" data-managed-script="1">
 (function trainingBetaModal(){
   const openBtn = document.getElementById('openTrainingIntro');
   const backdrop = document.getElementById('trainingBetaModal');
@@ -46929,7 +46756,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 </style>
 
 
-<script id="oaiInfoQuickbarArtScrollScript">
+<script type="application/x-tk-managed" data-managed-script="1" id="oaiInfoQuickbarArtScrollScript">
 (function(){
   function getMeta(id){
     try{
@@ -47012,7 +46839,7 @@ html.tk-fhd-clean-ui #cinema .movie-slide .movie-badges{
 </script>
 
 
-<script id="oaiInfoQuickbarImageRuntimePatch">
+<script type="application/x-tk-managed" data-managed-script="1" id="oaiInfoQuickbarImageRuntimePatch">
 (function(){
   function getMeta(id){
     try{
@@ -47495,7 +47322,7 @@ html.tk-mobile-landscape-v341 .side-chip .chip-card::after{
       text-shadow .18s ease;
   }
 </style>
-<script id="tk-cat-typing-v15-runtime-override">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-cat-typing-v15-runtime-override">
 (function(){
   const root = document.documentElement;
   const start = document.getElementById('tkCatStart');
@@ -47805,7 +47632,7 @@ html.tk-mobile-landscape-v341 .side-chip .chip-card::after{
     49%, 100%{ opacity:0; }
   }
 </style>
-<script id="tk-cat-typing-v16-final-pass-runtime">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-cat-typing-v16-final-pass-runtime">
 (function(){
   const root = document.documentElement;
   const start = document.getElementById('tkCatStart');
@@ -48230,7 +48057,7 @@ html.tk-tablet-landscape .side-chip--phish-min{ left:720px !important; }
   html.tk-tablet-landscape .side-chip--phish-min{ left:642px !important; }
 }
 </style>
-<script id="tk-tablet-clean-fix-v16-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-tablet-clean-fix-v16-script">
 (function(){
   var root = document.documentElement;
   function isTabletLandscape(){
@@ -48554,7 +48381,7 @@ html body #cinema.is-open .cinema-banner{
   }
 }
 </style>
-<script id="oai-wow-menu-and-cinema-script-v2">
+<script type="application/x-tk-managed" data-managed-script="1" id="oai-wow-menu-and-cinema-script-v2">
 (function(){
   var cinema = document.getElementById('cinema');
   if(!cinema) return;
@@ -48749,7 +48576,7 @@ html.chatgpt-4k-v40 #gpt4kRail .gpt4k-dots{ display:flex !important; justify-con
 html.chatgpt-4k-v40 #gpt4kRail .gpt4k-dot{ width:10px !important; height:10px !important; border:none !important; border-radius:999px !important; background:rgba(255,240,196,.45) !important; }
 html.chatgpt-4k-v40 #gpt4kRail .gpt4k-dot.is-active{ background:#ffd978 !important; box-shadow:0 0 12px rgba(255,217,120,.42) !important; }
 </style>
-<script id="chatgpt-4k-v40-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-4k-v40-script">
 (function(){
   const q=(s,c=document)=>c.querySelector(s), qa=(s,c=document)=>Array.from(c.querySelectorAll(s));
   function init(){
@@ -48885,7 +48712,7 @@ html.chatgpt-4k-v40 #tkLiveStats .tk-live-stats__panel{
   width:250px !important;
 }
 </style>
-<script id="chatgpt-4k-v41-widgets-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-4k-v41-widgets-script">
 (function(){
   function init(){
     if(!document.documentElement.classList.contains('chatgpt-4k-v40')) return;
@@ -48929,7 +48756,7 @@ html.chatgpt-4k-v40.games-panel-open .side-chip--infosec-min{ bottom:126px !impo
 html.chatgpt-4k-v40.games-panel-open .side-chip--it-min{ bottom:228px !important; z-index:9704 !important; }
 html.chatgpt-4k-v40.games-panel-open .side-chip .chip-card{ min-width:240px !important; }
 </style>
-<script id="chatgpt-4k-v42-open-games-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-4k-v42-open-games-script">
 (function(){
   function init(){
     var root = document.documentElement;
@@ -49045,7 +48872,7 @@ html.chatgpt-4k-v40.gpt4k-cinema-open #cinema .tk-cinema-callout{
   100%{ opacity:1; transform:translateY(0) scale(1); }
 }
 </style>
-<script id="chatgpt-4k-v48-top-fixed-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-4k-v48-top-fixed-script">
 (function(){
   function init(){
     var root = document.documentElement;
@@ -49140,7 +48967,7 @@ html.chatgpt-4k-v40 #chatgpt4kCinemaPortal > #cinema{
 }
 html.chatgpt-4k-v40 #chatgpt4kCinemaPortal > #cinema > *{ pointer-events:auto !important; }
 </style>
-<script id="chatgpt-4k-v50-top-portal-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-4k-v50-top-portal-script">
 (function(){
   function init(){
     var root = document.documentElement;
@@ -49183,7 +49010,7 @@ html.chatgpt-4k-v40 #chatgpt4kCinemaPortal > #cinema > *{ pointer-events:auto !i
   row-gap:0 !important;
 }
 </style>
-<script id="chatgpt-remove-cinema-subtitle-all-screens-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-remove-cinema-subtitle-all-screens-script">
 (function(){
   function imp(el, prop, val){
     if(!el) return;
@@ -49254,7 +49081,7 @@ html body .header__bg{
   }
 }
 </style>
-<script id="chatgpt-final-bg-deblur-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-final-bg-deblur-script">
 (function(){
   function apply(){
     document.querySelectorAll('.bg-blur-pic, .header__bg-blur, .hero-soft, .sparkles').forEach(function(el){
@@ -49341,7 +49168,7 @@ html.tk-fhd-clean-ui #cinema .tk-cinema-callout__img{
   pointer-events:auto !important;
 }
 </style>
-<script id="chatgpt-fhd-cinema-safe-toggle-v3-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="chatgpt-fhd-cinema-safe-toggle-v3-script">
 (function(){
   var root = document.documentElement;
   var guardTimers = [];
@@ -49522,7 +49349,7 @@ body.tk-license-open #tkLiveStats{
   pointer-events:none !important;
 }
 </style>
-<script id="tk-live-stats-top-right-final-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-top-right-final-script">
 (function(){
   var widget = document.getElementById('tkLiveStats');
   if(!widget) return;
@@ -49816,7 +49643,7 @@ body.tk-license-open #tkLiveStats{
   #tkLiveStats .tk-live-stats__card .tk-live-stats__value{ font-size: 26px !important; }
 }
 </style>
-<script id="tk-live-stats-compact-toggle-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-compact-toggle-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -50178,7 +50005,7 @@ body.tk-license-open #tkLiveStats{
   }
 }
 </style>
-<script id="tk-live-stats-v14-fit-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v14-fit-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -50410,7 +50237,7 @@ body.tk-license-open #tkLiveStats{
   }
 }
 </style>
-<script id="tk-live-stats-v15-fit-and-spacing-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v15-fit-and-spacing-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -50608,7 +50435,7 @@ body.tk-license-open #tkLiveStats{
   }
 }
 </style>
-<script id="tk-live-stats-v17-final-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v17-final-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -51275,7 +51102,7 @@ body.tk-license-open #tkLiveStats{
   }
 }
 </style>
-<script id="tk-live-stats-v29-collapsed-more-left-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v29-collapsed-more-left-script">
 (function(){
   var widget = document.getElementById('tkLiveStats');
   if(!widget) return;
@@ -51364,7 +51191,7 @@ body.tk-license-open #tkLiveStats{
   }
 }
 </style>
-<script id="tk-live-stats-v32-fhd-like-4k-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v32-fhd-like-4k-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -51653,7 +51480,7 @@ body.tk-license-open #tkLiveStats{
   #tkLiveStats .tk-live-stats__value{ font-size:23px !important; }
 }
 </style>
-<script id="tk-live-stats-v35-stable-open-down-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v35-stable-open-down-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -51734,7 +51561,7 @@ body.tk-license-open #tkLiveStats{
   }
 }
 </style>
-<script id="tk-live-stats-v38-4k-flush-right-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v38-4k-flush-right-script">
 (function(){
   var root = document.getElementById('tkLiveStats');
   if(!root) return;
@@ -51773,7 +51600,7 @@ body.tk-license-open #tkLiveStats{
   display:none !important;
 }
 </style>
-<script id="tk-live-stats-v42-final-touch-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v42-final-touch-script">
 (function(){
   var widget = document.getElementById('tkLiveStats');
   if(!widget) return;
@@ -51825,7 +51652,7 @@ html.tk-physical-4k #tkLiveStats:not(.is-collapsed){
   margin-right: 0 !important;
 }
 </style>
-<script id="tk-live-stats-v46-physical-4k-zero-gap-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-live-stats-v46-physical-4k-zero-gap-script">
 (function(){
   var widget = document.getElementById('tkLiveStats');
   var root = document.documentElement;
@@ -51993,7 +51820,7 @@ html.tk-physical-4k #tkLiveStats:not(.is-collapsed){
   }
 }
 </style>
-<script id="tk-roulette-popover-launch-script-v1">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-popover-launch-script-v1">
 (function(){
   var trigger = document.getElementById('openRouletteDockPopover');
   var refBtn = document.getElementById('openPcPartsGameLaunch');
@@ -52166,7 +51993,7 @@ html.tk-roulette-user-opened #rouletteDock.tk-roulette-popover-mode.tk-roulette-
   pointer-events:auto !important;
 }
 </style>
-<script id="tk-roulette-hard-hide-until-user-open-script-v1">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-hard-hide-until-user-open-script-v1">
 (function(){
   var root = document.documentElement;
   var trigger = document.getElementById('openRouletteDockPopover');
@@ -52230,7 +52057,7 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   z-index:15050 !important;
 }
 </style>
-<script id="tk-roulette-popover-final-override-script-v3">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-popover-final-override-script-v3">
 (function(){
   var legacyTrigger = document.getElementById('openRouletteDockPopover');
   var trigger = document.getElementById('tkqaOpenRoulette');
@@ -52696,7 +52523,7 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
   .rules[data-launch-style="v25"] .rule-pill__title{ font-size:12px !important; }
 }
 </style>
-<script id="tk-square-launch-v25-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-square-launch-v25-script">
 (function(){
   const titleMap = {
     'Рулетка заданий': 'Рулетка<br>заданий',
@@ -53075,7 +52902,7 @@ html.tk-fhd-clean-fixedrails #rouletteDock.tk-roulette-popover-mode.tk-final-pop
 }
 </style>
 
-<script id="tkqa-dock-bridge">
+<script type="application/x-tk-managed" data-managed-script="1" id="tkqa-dock-bridge">
 (function(){
   function clickHidden(id){
     var el = document.getElementById(id);
@@ -53790,7 +53617,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   #rouletteDock.tk-roulette-wow .wheel-pointer::after{ top:14px !important; width:9px !important; height:11px !important; }
 }
 </style>
-<script id="tk-roulette-stable-premium-v9">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-stable-premium-v9">
 (function(){
   const dock = document.getElementById('rouletteDock');
   if(!dock) return;
@@ -54012,7 +53839,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   #rouletteDock.tk-roulette-wow.tk-roulette-neo .wheel-wrap{ width:166px !important; height:166px !important; min-width:166px !important; min-height:166px !important; }
 }
 </style>
-<script id="tk-roulette-neo-v11-script">(function(){const dock=document.getElementById('rouletteDock');if(!dock)return;dock.classList.add('tk-roulette-neo');const title=document.getElementById('rTitle');if(title&&/^Выпала миссия —/.test(title.textContent))title.textContent=title.textContent.replace('Выпала миссия —','Выпала миссия:');})();</script>
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-neo-v11-script">(function(){const dock=document.getElementById('rouletteDock');if(!dock)return;dock.classList.add('tk-roulette-neo');const title=document.getElementById('rTitle');if(title&&/^Выпала миссия —/.test(title.textContent))title.textContent=title.textContent.replace('Выпала миссия —','Выпала миссия:');})();</script>
 
 
 
@@ -54095,7 +53922,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
     flex:0 0 auto !important;
   }
 </style>
-<script id="tk-v19-sound-counter-slot-clean-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-v19-sound-counter-slot-clean-script">
 (function(){
   function placeSound(){
     try{
@@ -54595,7 +54422,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 }
 </style>
-<script id="tk-roulette-legend-v1-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-legend-v1-script">
 (function(){
   var dock = document.getElementById('rouletteDock');
   if(!dock) return;
@@ -54706,7 +54533,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 </script>
 
 
-<script id="tk-roulette-sound-restore-patch">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-sound-restore-patch">
 (function(){
   var KEY = 'tk_roulette_sound_v1';
   var ctx = null;
@@ -54835,7 +54662,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 })();
 </script>
 
-<script id="tk-roulette-audio-engine-v6">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-roulette-audio-engine-v6">
 (function(){
   var KEY = 'tk_roulette_sound_v1';
   var dock = document.getElementById('rouletteDock');
@@ -55463,7 +55290,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
 }
 </style>
 
-<script id="tkqa-toggle-upward-v1-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tkqa-toggle-upward-v1-script">
 (function(){
   function init(){
     var wrap = document.querySelector('.rules.tkqa-wrap');
@@ -55934,7 +55761,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 }
 </style>
-<script id="tk-fhd-roulette-4k-parity-script-v6">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-roulette-4k-parity-script-v6">
 (function(){
   var root = document.documentElement;
   var dock = document.getElementById('rouletteDock');
@@ -56144,7 +55971,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 }
 </style>
-<script id="tk-fhd-wheel-recenter-v8-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-wheel-recenter-v8-script">
 (function(){
   function redraw(){
     try{
@@ -56322,7 +56149,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 }
 </style>
-<script id="tk-fhd-roulette-v10-final-fix-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-fhd-roulette-v10-final-fix-script">
 (function(){
   var root = document.documentElement;
   var dock = document.getElementById('rouletteDock');
@@ -56478,7 +56305,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 }
 </style>
-<script id="oai-fhd-roulette-v11-spin-restore-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="oai-fhd-roulette-v11-spin-restore-script">
 (function(){
   var root = document.documentElement;
   var dock = document.getElementById('rouletteDock');
@@ -56558,7 +56385,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   }
 }
 </style>
-<script id="oai-fhd-roulette-v13-innerwheel-center-script">
+<script type="application/x-tk-managed" data-managed-script="1" id="oai-fhd-roulette-v13-innerwheel-center-script">
 (function(){
   var root = document.documentElement;
   var dock = document.getElementById('rouletteDock');
@@ -56598,6 +56425,176 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   window.addEventListener('load', function(){ fix(); setTimeout(fix, 120); }, {once:true});
   window.addEventListener('resize', fix, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', fix, {passive:true});
+})();
+</script>
+
+
+<script id="tk-managed-runner-v46">
+(function(){
+  function isRetina2600Target(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr);
+      var physH = Math.round(sh * dpr);
+      var innerPhysW = Math.round(iw * dpr);
+      var innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.6;
+      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
+      var physBand = (
+        (physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) ||
+        (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900)
+      );
+      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
+    }catch(_e){ return false; }
+  }
+
+  var targetRetina = isRetina2600Target();
+  var queue = Array.prototype.slice.call(document.querySelectorAll('script[type="application/x-tk-managed"][data-managed-script="1"]'));
+  var loaded = document.readyState === 'complete';
+  var scheduled = false;
+  var emittedReady = false;
+  var state = window.__TK_MANAGED_STATE__ = {
+    targetRetina: targetRetina,
+    total: queue.length,
+    executed: 0,
+    started: false,
+    ready: false,
+    flush: false,
+    prewarm: false
+  };
+
+  window.addEventListener('load', function(){ loaded = true; }, { once:true });
+
+  function emit(name, detail){
+    try { window.dispatchEvent(new CustomEvent(name, { detail: detail || null })); }
+    catch(_){
+      try{ var evt=document.createEvent('Event'); evt.initEvent(name, true, true); evt.detail = detail || null; window.dispatchEvent(evt); }catch(__){}
+    }
+  }
+
+  function installLateEventShim(){
+    var docReady = document.readyState !== 'loading';
+    var winLoaded = loaded || document.readyState === 'complete';
+    var origDocAdd = document.addEventListener;
+    var origWinAdd = window.addEventListener;
+    function schedule(listener, target, type){
+      setTimeout(function(){
+        try{
+          var ev;
+          try{ ev = new Event(type); }
+          catch(_){ ev = document.createEvent('Event'); ev.initEvent(type, true, true); }
+          if(typeof listener === 'function') listener.call(target, ev);
+          else if(listener && typeof listener.handleEvent === 'function') listener.handleEvent.call(listener, ev);
+        }catch(err){ try{ console.error(err); }catch(_){} }
+      }, 0);
+    }
+    document.addEventListener = function(type, listener, options){
+      if(type === 'DOMContentLoaded' && docReady && listener){ schedule(listener, document, type); return; }
+      return origDocAdd.call(document, type, listener, options);
+    };
+    window.addEventListener = function(type, listener, options){
+      if(type === 'load' && winLoaded && listener){ schedule(listener, window, type); return; }
+      return origWinAdd.call(window, type, listener, options);
+    };
+    return function restore(){
+      document.addEventListener = origDocAdd;
+      window.addEventListener = origWinAdd;
+    };
+  }
+
+  function executeNode(node){
+    if(!node || node.dataset.tkExecuted === '1') return;
+    node.dataset.tkExecuted = '1';
+    var restore = installLateEventShim();
+    try{
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      if(node.id) s.setAttribute('data-origin-id', node.id);
+      s.text = (node.textContent || '') + '
+//# sourceURL=' + (node.id || 'tk-managed-inline');
+      (document.body || document.documentElement).appendChild(s);
+      s.parentNode.removeChild(s);
+    } catch(err){ try{ console.error(err); }catch(_){} }
+    restore();
+    state.executed += 1;
+  }
+
+  function finish(){
+    if(state.ready) return;
+    state.ready = true;
+    state.flush = false;
+    scheduled = false;
+    try{ document.documentElement.classList.remove('tk-retina-managed-hold'); }catch(_e){}
+    if(!emittedReady){
+      emittedReady = true;
+      emit('tk:managedready', { executed: state.executed, total: state.total });
+    }
+  }
+
+  function scheduleNext(mode){
+    if(state.ready || scheduled) return;
+    scheduled = true;
+    var cb = function(){ scheduled = false; pump(mode); };
+    if(mode === 'flush'){
+      setTimeout(cb, 0);
+      return;
+    }
+    if(window.requestIdleCallback){ requestIdleCallback(cb, { timeout: 90 }); return; }
+    setTimeout(cb, 16);
+  }
+
+  function pump(mode){
+    if(state.ready) return;
+    state.started = true;
+    var budget = mode === 'flush' ? 42 : 6;
+    var begin = performance.now();
+    while(state.executed < queue.length){
+      executeNode(queue[state.executed]);
+      if((performance.now() - begin) > budget) break;
+    }
+    emit('tk:managedprogress', { executed: state.executed, total: state.total, mode: mode });
+    if(state.executed >= queue.length){ finish(); return; }
+    scheduleNext(state.flush ? 'flush' : 'warm');
+  }
+
+  function prewarm(){
+    if(state.ready) return;
+    state.prewarm = true;
+    scheduleNext(state.flush ? 'flush' : 'warm');
+  }
+
+  function flush(){
+    if(state.ready){ finish(); return; }
+    state.flush = true;
+    scheduleNext('flush');
+  }
+
+  window.__TK_PREWARM_MANAGED__ = prewarm;
+  window.__TK_RUN_MANAGED__ = flush;
+  window.__TK_MANAGED_READY__ = function(){ return !!state.ready; };
+
+  if(!targetRetina){
+    state.flush = true;
+    setTimeout(flush, 0);
+    return;
+  }
+
+  try{ document.documentElement.classList.add('tk-retina-managed-hold'); }catch(_e){}
+
+  var loader = document.getElementById('tkLoader');
+  if(loader && (loader.dataset.done === '1' || loader.classList.contains('is-hidden'))){
+    setTimeout(prewarm, 0);
+  } else {
+    window.addEventListener('tk:loaderhidden', function(){ prewarm(); }, { once:true });
+  }
+
+  window.addEventListener('tk:licenseaccepted', function(){ flush(); });
 })();
 </script>
 
