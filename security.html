@@ -57518,5 +57518,186 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-pc .tkqa-card-title{
 })();
 </script>
 
+
+<style id="tk-mac2600-cinema-refine-v24">
+html.tk-mac2600 #cinema{
+  width: 860px !important;
+  max-width: 860px !important;
+  padding: 0 0 8px !important;
+}
+html.tk-mac2600 #cinema .cinema-head{
+  width: 860px !important;
+  max-width: 860px !important;
+  margin: 0 auto 4px !important;
+}
+html.tk-mac2600 #cinema .kino-badge-top-4k{
+  width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 auto 0 !important;
+}
+html.tk-mac2600 #cinema .cinema-title-art{
+  width: 452px !important;
+  max-width: 452px !important;
+}
+html.tk-mac2600 #cinema .slider-container{
+  width: 860px !important;
+  max-width: 860px !important;
+  min-height: 334px !important;
+  grid-template-columns: 48px 744px 48px !important;
+  column-gap: 10px !important;
+  align-items: start !important;
+}
+html.tk-mac2600 #cinema .slider-prev,
+html.tk-mac2600 #cinema .slider-next{
+  width: 46px !important;
+  height: 46px !important;
+}
+html.tk-mac2600 #cinema .slider-wrapper{
+  width: 744px !important;
+  min-width: 744px !important;
+  max-width: 744px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  padding: 6px 0 10px !important;
+}
+html.tk-mac2600 #cinema .movie-slide.tk-mac2600-cinema-hidden{
+  display: none !important;
+}
+html.tk-mac2600 #cinema .movie-slide,
+html.tk-mac2600 #cinema .movie-slide.is-active{
+  min-height: 0 !important;
+}
+html.tk-mac2600 #cinema .movie-img,
+html.tk-mac2600 #cinema .movie-slide.is-active .movie-img,
+html.tk-mac2600 #cinema .movie-slide:not(.is-active) .movie-img{
+  height: 188px !important;
+}
+html.tk-mac2600 #cinema .movie-info,
+html.tk-mac2600 #cinema .movie-slide.is-active .movie-info{
+  margin-top: -8px !important;
+  padding: 8px 16px 12px !important;
+  min-height: 132px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  column-gap: 14px !important;
+  align-items: start !important;
+  align-content: start !important;
+}
+html.tk-mac2600 #cinema .movie-text{
+  gap: 5px !important;
+}
+html.tk-mac2600 #cinema .movie-badges{
+  margin: 0 0 4px 0 !important;
+}
+html.tk-mac2600 #cinema .movie-ep,
+html.tk-mac2600 #cinema .movie-duration{
+  font-size: 12px !important;
+}
+html.tk-mac2600 #cinema .movie-info h3,
+html.tk-mac2600 #cinema .movie-slide.is-active .movie-info h3,
+html.tk-mac2600 #cinema .movie-slide .movie-text h3{
+  font-size: 20px !important;
+  line-height: 1.02 !important;
+  min-height: 2.08em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  letter-spacing: .008em !important;
+}
+html.tk-mac2600 #cinema .movie-btn{
+  min-width: 128px !important;
+  padding: 11px 14px !important;
+  align-self: end !important;
+  margin-top: 22px !important;
+}
+</style>
+<script id="tk-mac2600-cinema-refine-script-v24">
+(function(){
+  function isMac2600(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr);
+      var physH = Math.round(sh * dpr);
+      var innerPhysW = Math.round(iw * dpr);
+      var innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.6;
+      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
+      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
+      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
+    }catch(_e){ return false; }
+  }
+  if(!isMac2600()) return;
+  var root = document.documentElement;
+  root.classList.add('tk-mac2600');
+  var state = { start: 0, active: 1 };
+  var raf = 0;
+  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
+  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  function bind(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    var prev = q('.slider-prev', cinema);
+    var next = q('.slider-next', cinema);
+    var track = q('.slider-wrapper', cinema);
+    if(!prev || !next || !track) return;
+    if(!prev.__tkMacV24){
+      var p2 = prev.cloneNode(true); prev.parentNode.replaceChild(p2, prev); prev = p2;
+      var n2 = next.cloneNode(true); next.parentNode.replaceChild(n2, next); next = n2;
+      prev.__tkMacV24 = next.__tkMacV24 = true;
+      prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = clamp(state.start - 1, 0, Math.max(0, qa('.movie-slide', track).length - 2)); state.active = clamp(state.active, state.start, Math.min(state.start + 1, qa('.movie-slide', track).length - 1)); render(); }, true);
+      next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = clamp(state.start + 1, 0, Math.max(0, qa('.movie-slide', track).length - 2)); state.active = clamp(state.active, state.start, Math.min(state.start + 1, qa('.movie-slide', track).length - 1)); if(state.active < state.start) state.active = Math.min(state.start + 1, qa('.movie-slide', track).length - 1); render(); }, true);
+    }
+    qa('.movie-slide', track).forEach(function(slide, idx){
+      if(slide.__tkMacV24) return;
+      slide.__tkMacV24 = true;
+      slide.addEventListener('click', function(e){
+        if(e.target.closest('button') || e.target.closest('a')) return;
+        if(slide.classList.contains('tk-mac2600-cinema-hidden')) return;
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+        state.active = idx;
+        render();
+      }, true);
+    });
+  }
+  function render(){
+    var cinema = document.getElementById('cinema');
+    var track = cinema && q('.slider-wrapper', cinema);
+    var prev = cinema && q('.slider-prev', cinema);
+    var next = cinema && q('.slider-next', cinema);
+    if(!cinema || !track || !prev || !next) return;
+    var slides = qa('.movie-slide', track);
+    if(slides.length < 2) return;
+    var maxStart = Math.max(0, slides.length - 2);
+    state.start = clamp(state.start, 0, maxStart);
+    state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
+    slides.forEach(function(slide, idx){
+      var visible = idx >= state.start && idx < state.start + 2;
+      slide.classList.toggle('tk-fhd-hidden', !visible);
+      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
+      slide.classList.toggle('is-active', visible && idx === state.active);
+    });
+    track.scrollLeft = 0;
+    try{ track.scrollTo({left:0, behavior:'auto'}); }catch(_e){}
+    prev.disabled = state.start <= 0;
+    next.disabled = state.start >= maxStart;
+  }
+  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ raf = 0; bind(); render(); }); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
+  window.addEventListener('load', function(){ queue(); setTimeout(queue, 120); setTimeout(queue, 500); setTimeout(queue, 1200); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  var mo = new MutationObserver(queue);
+  var startObs = function(){ var cinema = document.getElementById('cinema'); if(cinema) mo.observe(cinema, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']}); };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObs, {once:true}); else startObs();
+})();
+</script>
+
 </body>
 </html>
