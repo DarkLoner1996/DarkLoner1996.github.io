@@ -56675,26 +56675,86 @@ html.tk-mac2600 #cinema .slider-wrapper{
 </script>
 
 
-<style id="tk-mac2600-tkqa-scale-polish-v17">
+<style id="tk-mac2600-tkqa-dock-fix-v15">
 html.tk-mac2600 .rules.tkqa-wrap{
-  right: 24px !important;
-  bottom: 14px !important;
-  transform-origin: right bottom !important;
-  transition: transform .28s cubic-bezier(.22,1,.36,1), right .28s ease !important;
-  will-change: transform;
-}
-html.tk-mac2600 .rules.tkqa-wrap.tkqa-collapsible.is-collapsed{
-  transform: translateZ(0) scale(1.035) !important;
-}
-html.tk-mac2600 .rules.tkqa-wrap.tkqa-collapsible.is-open,
-html.tk-mac2600 .rules.tkqa-wrap.tkqa-collapsible:not(.is-collapsed){
-  transform: translateZ(0) scale(1.085) !important;
+  width:324px !important;
+  min-width:324px !important;
+  max-width:324px !important;
+  right:12px !important;
+  bottom:10px !important;
 }
 html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
-  overflow:hidden !important;
+  width:324px !important;
+  min-width:324px !important;
+  max-width:324px !important;
+  padding:11px !important;
+  border-radius:24px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-head{
+  min-height:50px !important;
+  margin-bottom:8px !important;
+  padding:2px 2px 0 !important;
+  gap:8px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-orb{
+  width:12px !important;
+  height:12px !important;
+  top:7px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-title{
+  font-size:19px !important;
+  line-height:1 !important;
+  letter-spacing:.005em !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-sub{
+  font-size:10px !important;
+  letter-spacing:.08em !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-mode{
+  padding:4px 8px 3px !important;
+  font-size:7px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+  padding:2px 2px 2px !important;
+  margin:-2px -2px -2px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card{
+  min-height:84px !important;
+  border-radius:17px !important;
+  padding:10px 10px 9px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-card-head{
+  margin-bottom:7px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-icon-chip{
+  width:27px !important;
+  height:27px !important;
+  border-radius:11px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-icon-chip svg{
+  width:15px !important;
+  height:15px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-card-title{
+  font-size:14px !important;
+  line-height:1.02 !important;
+  max-width:9.6ch !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-pc .tkqa-card-title{
+  max-width:8.2ch !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card .tkqa-tag{
+  max-width:72px !important;
+  font-size:7px !important;
+  padding:4px 7px 3px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-bottom-line{
+  margin-top:9px !important;
 }
 </style>
-<script id="tk-mac2600-tkqa-scale-polish-script-v17">
+<script id="tk-mac2600-tkqa-dock-fix-script-v15">
 (function(){
   function isMac2600(){
     try{
@@ -56706,21 +56766,205 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
       return navigator.platform.indexOf('Mac') >= 0 && dpr >= 2 && ((sw >= 1440 && sh >= 900) || (iw >= 1200 && ih >= 760));
     }catch(_){ return false; }
   }
+  function set(el, name, value){
+    try{ el && el.style.setProperty(name, value, 'important'); }catch(_){}
+  }
   function apply(){
     if(!isMac2600()) return;
-    document.documentElement.classList.add('tk-mac2600');
     var wrap = document.querySelector('.rules.tkqa-wrap');
-    if(!wrap) return;
-    var sync = function(){
-      var open = !wrap.classList.contains('is-collapsed');
-      try{ wrap.style.setProperty('right', open ? '28px' : '24px', 'important'); }catch(_){ }
-    };
-    sync();
-    try{ new MutationObserver(sync).observe(wrap,{attributes:true,attributeFilter:['class']}); }catch(_){ }
-    [120, 500, 1200].forEach(function(ms){ setTimeout(sync, ms); });
+    var dock = wrap && wrap.querySelector('.tkqa-dock');
+    if(!wrap || !dock) return;
+    document.documentElement.classList.add('tk-mac2600');
+    ['width','min-width','max-width'].forEach(function(p){ set(wrap,p,'324px'); set(dock,p,'324px'); });
+    set(wrap,'right','12px');
+    set(wrap,'bottom','10px');
+    set(dock,'padding','11px');
+    set(dock,'border-radius','24px');
+
+    var head = wrap.querySelector('.tkqa-head');
+    if(head){
+      set(head,'min-height','50px');
+      set(head,'margin-bottom','8px');
+      set(head,'padding','2px 2px 0');
+      set(head,'gap','8px');
+    }
+    var orb = wrap.querySelector('.tkqa-orb');
+    if(orb){
+      set(orb,'width','12px');
+      set(orb,'height','12px');
+      set(orb,'top','7px');
+    }
+    var title = wrap.querySelector('.tkqa-title');
+    if(title){
+      set(title,'font-size','19px');
+      set(title,'line-height','1');
+      set(title,'letter-spacing','.005em');
+    }
+    var sub = wrap.querySelector('.tkqa-sub');
+    if(sub){
+      set(sub,'font-size','10px');
+      set(sub,'letter-spacing','.08em');
+    }
+    var mode = wrap.querySelector('.tkqa-mode');
+    if(mode){
+      set(mode,'padding','4px 8px 3px');
+      set(mode,'font-size','7px');
+    }
+    var grid = wrap.querySelector('.tkqa-grid');
+    if(grid){
+      set(grid,'grid-template-columns','repeat(2,minmax(0,1fr))');
+      set(grid,'gap','8px');
+      set(grid,'padding','2px 2px 2px');
+      set(grid,'margin','-2px -2px -2px');
+    }
+    wrap.querySelectorAll('.tkqa-card').forEach(function(card){
+      set(card,'min-height','84px');
+      set(card,'border-radius','17px');
+      set(card,'padding','10px 10px 9px');
+    });
+    wrap.querySelectorAll('.tkqa-card-head').forEach(function(el){ set(el,'margin-bottom','7px'); });
+    wrap.querySelectorAll('.tkqa-icon-chip').forEach(function(el){
+      set(el,'width','27px');
+      set(el,'height','27px');
+      set(el,'border-radius','11px');
+    });
+    wrap.querySelectorAll('.tkqa-icon-chip svg').forEach(function(el){
+      set(el,'width','15px');
+      set(el,'height','15px');
+    });
+    wrap.querySelectorAll('.tkqa-card-title').forEach(function(t){
+      set(t,'font-size','14px');
+      set(t,'line-height','1.02');
+      set(t,'max-width','9.6ch');
+    });
+    wrap.querySelectorAll('.tkqa-card.tkqa-pc .tkqa-card-title').forEach(function(t){ set(t,'max-width','8.2ch'); });
+    wrap.querySelectorAll('.tkqa-tag').forEach(function(t){
+      set(t,'max-width','72px');
+      set(t,'font-size','7px');
+      set(t,'padding','4px 7px 3px');
+    });
+    var line = wrap.querySelector('.tkqa-bottom-line');
+    if(line) set(line,'margin-top','9px');
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
   window.addEventListener('load', apply, {once:true});
+  setTimeout(apply, 200);
+  setTimeout(apply, 1000);
+})();
+</script>
+
+
+<style id="tk-mac2600-tkqa-fhd-match-v18">
+html.tk-mac2600 .rules.tkqa-wrap{
+  right:18px !important;
+  bottom:12px !important;
+  width:340px !important;
+  min-width:340px !important;
+  max-width:340px !important;
+}
+html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
+  width:340px !important;
+  min-width:340px !important;
+  max-width:340px !important;
+}
+</style>
+<script id="tk-mac2600-tkqa-fhd-match-script-v18">
+(function(){
+  function isMac2600(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number(screen.width || 0), Number(screen.availWidth || 0));
+      var sh = Math.max(Number(screen.height || 0), Number(screen.availHeight || 0));
+      return navigator.platform.indexOf('Mac') >= 0 && dpr >= 2 && ((sw >= 1440 && sh >= 900) || (iw >= 1200 && ih >= 760));
+    }catch(_){ return false; }
+  }
+  function set(el, name, value){ try{ if(el) el.style.setProperty(name, value, 'important'); }catch(_){} }
+  function apply(){
+    if(!isMac2600()) return;
+    var root = document.documentElement;
+    root.classList.add('tk-mac2600');
+    var wrap = document.querySelector('.rules.tkqa-wrap');
+    var dock = wrap && wrap.querySelector('.tkqa-dock');
+    if(!wrap || !dock) return;
+
+    set(wrap,'right','18px');
+    set(wrap,'bottom','12px');
+    set(wrap,'width','340px');
+    set(wrap,'min-width','340px');
+    set(wrap,'max-width','340px');
+    set(dock,'width','340px');
+    set(dock,'min-width','340px');
+    set(dock,'max-width','340px');
+    set(dock,'padding','12px');
+    set(dock,'border-radius','26px');
+
+    var head = wrap.querySelector('.tkqa-head');
+    if(head){
+      set(head,'padding','2px 2px 3px');
+      set(head,'gap','10px');
+      try{ head.style.removeProperty('min-height'); }catch(_){}
+      try{ head.style.removeProperty('margin-bottom'); }catch(_){}
+    }
+    var orb = wrap.querySelector('.tkqa-orb');
+    if(orb){ set(orb,'width','12px'); set(orb,'height','12px'); set(orb,'top','9px'); }
+    var title = wrap.querySelector('.tkqa-title');
+    if(title){ set(title,'font-size','22px'); set(title,'line-height','.98'); set(title,'letter-spacing','.01em'); }
+    var sub = wrap.querySelector('.tkqa-sub');
+    if(sub){ set(sub,'font-size','11px'); set(sub,'line-height','1'); set(sub,'letter-spacing','.08em'); }
+    var mode = wrap.querySelector('.tkqa-mode');
+    if(mode){ set(mode,'padding','4px 9px 4px'); set(mode,'font-size','8px'); }
+    var grid = wrap.querySelector('.tkqa-grid');
+    if(grid){
+      set(grid,'grid-template-columns','repeat(2,minmax(0,1fr))');
+      set(grid,'gap','8px');
+      try{ grid.style.removeProperty('padding'); }catch(_){}
+      try{ grid.style.removeProperty('margin'); }catch(_){}
+    }
+    wrap.querySelectorAll('.tkqa-card').forEach(function(card){
+      set(card,'min-height','74px');
+      set(card,'border-radius','18px');
+      set(card,'padding','10px 10px 10px');
+    });
+    wrap.querySelectorAll('.tkqa-card-head').forEach(function(el){ set(el,'margin-bottom','7px'); });
+    wrap.querySelectorAll('.tkqa-icon-chip').forEach(function(el){
+      set(el,'width','28px');
+      set(el,'height','28px');
+      set(el,'border-radius','12px');
+    });
+    wrap.querySelectorAll('.tkqa-icon-chip svg').forEach(function(el){ set(el,'width','16px'); set(el,'height','16px'); });
+    wrap.querySelectorAll('.tkqa-card-title').forEach(function(t){
+      set(t,'font-size','15px');
+      set(t,'line-height','1.02');
+      set(t,'max-width','11ch');
+    });
+    wrap.querySelectorAll('.tkqa-tag').forEach(function(t){
+      set(t,'max-width','78px');
+      set(t,'font-size','7px');
+      set(t,'padding','4px 7px 3px');
+    });
+    var line = wrap.querySelector('.tkqa-bottom-line');
+    if(line) set(line,'margin-top','10px');
+
+    var syncCollapsed = function(){
+      var collapsed = wrap.classList.contains('is-collapsed');
+      if(collapsed){
+        set(dock,'padding','12px');
+        if(head){ set(head,'padding','2px 2px 3px'); }
+      }
+    };
+    syncCollapsed();
+    try{
+      if(!wrap.__tkqaV18Obs){
+        wrap.__tkqaV18Obs = new MutationObserver(syncCollapsed);
+        wrap.__tkqaV18Obs.observe(wrap,{attributes:true,attributeFilter:['class']});
+      }
+    }catch(_){ }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
+  window.addEventListener('load', apply, {once:true});
+  [200, 700, 1400].forEach(function(ms){ setTimeout(apply, ms); });
 })();
 </script>
 
