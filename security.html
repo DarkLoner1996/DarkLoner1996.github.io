@@ -58593,8 +58593,8 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-title{
 }
 html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-title-art{
   display:block !important;
-  width:430px !important;
-  max-width:430px !important;
+  width:392px !important;
+  max-width:392px !important;
   height:auto !important;
   max-height:none !important;
   margin:0 auto !important;
@@ -58928,8 +58928,8 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-btn:hover{
       titleWrap.style.setProperty('transform','none','important');
     }
     if(titleImg){
-      titleImg.style.setProperty('width','430px','important');
-      titleImg.style.setProperty('max-width','430px','important');
+      titleImg.style.setProperty('width','392px','important');
+      titleImg.style.setProperty('max-width','392px','important');
       titleImg.style.setProperty('height','auto','important');
       titleImg.style.setProperty('transform','none','important');
       titleImg.style.setProperty('animation','none','important');
@@ -59044,6 +59044,75 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-btn:hover{
 </script>
 
 
+<style id="tk-mac2600-cartoon-only-v38">
+html.tk-mac2600 #cinema .cinema-banner-title,
+html.tk-mac2600 #cinema .cinema-banner-title--art{
+  width:min(78vw, 336px) !important;
+  max-width:min(78vw, 336px) !important;
+}
+html.tk-mac2600 #cinema .cinema-banner-title img.cinema-title-art,
+html.tk-mac2600 #cinema img.cinema-title-art,
+html.tk-mac2600 #cinema img[src$="cartoon.png"]{
+  width:min(78vw, 336px) !important;
+  max-width:min(78vw, 336px) !important;
+  max-height:121px !important;
+  height:auto !important;
+  display:block !important;
+  margin:0 auto !important;
+  object-fit:contain !important;
+}
+</style>
+<script id="tk-mac2600-cartoon-only-script-v38">
+(function(){
+  function isMac2600(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr), physH = Math.round(sh * dpr);
+      var innerPhysW = Math.round(iw * dpr), innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.6;
+      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
+      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
+      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
+    }catch(_e){ return false; }
+  }
+  if(!isMac2600()) return;
+  var root = document.documentElement;
+  root.classList.add('tk-mac2600');
+  function imp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function apply(){
+    var title = document.querySelector('#cinema .cinema-banner-title');
+    var img = document.querySelector('#cinema .cinema-title-art') || document.querySelector('#cinema img[src$="cartoon.png"]');
+    var head = document.querySelector('#cinema .cinema-head');
+    var banner = document.querySelector('#cinema .cinema-banner');
+    if(head){ imp(head,'width','336px'); imp(head,'max-width','min(78vw, 336px)'); }
+    if(banner){ imp(banner,'width','336px'); imp(banner,'max-width','min(78vw, 336px)'); }
+    if(title){ imp(title,'width','336px'); imp(title,'max-width','min(78vw, 336px)'); }
+    if(img){
+      imp(img,'width','336px');
+      imp(img,'max-width','min(78vw, 336px)');
+      imp(img,'max-height','121px');
+      imp(img,'height','auto');
+      imp(img,'display','block');
+      imp(img,'margin','0 auto');
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:false});
+  window.addEventListener('load', apply, {passive:true});
+  window.addEventListener('resize', apply, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
+  [0,120,300,700,1500,3000,5000].forEach(function(ms){ setTimeout(apply, ms); });
+  try{
+    var mo = new MutationObserver(function(){ apply(); });
+    mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src']});
+  }catch(_e){}
+})();
+</script>
 
 </body>
 </html>
