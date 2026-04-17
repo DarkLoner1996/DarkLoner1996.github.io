@@ -57774,7 +57774,7 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
 
 
 <!-- mac cinema single-controller fix: generated from v91 base -->
-<style id="tk-mac2600-cinema-single-controller-v94-style">
+<style id="tk-mac2600-cinema-single-controller-v95-style">
 @keyframes tkMacCinemaBannerPulseSingle {
   0%,100% {
     transform: translate3d(0,0,0) rotate(0deg) scale(1);
@@ -57847,7 +57847,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner{
   will-change:transform, filter !important;
 }
 
-html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller.tk-mac2600-slider-live .cinema-banner{
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller.tk-mac2600-slider-opened .cinema-banner{
   animation:none !important;
   transform:none !important;
   filter:
@@ -58116,7 +58116,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 
 @media (prefers-reduced-motion: reduce){
   html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner,
-  html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller.tk-mac2600-slider-live .cinema-banner{
+  html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller.tk-mac2600-slider-opened .cinema-banner{
     animation:none !important;
     transform:none !important;
   }
@@ -58127,7 +58127,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 
 <!-- removed v93 hotfix block: integrated into v94 single-controller styles -->
 
-<script id="tk-mac2600-cinema-single-controller-v94-script">
+<script id="tk-mac2600-cinema-single-controller-v95-script">
 (function(){
   var state = { start: 0, active: 0 };
   var parts = null;
@@ -58186,10 +58186,10 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     var banner = q('.cinema-banner', cinema);
     var title = q('.cinema-banner-title', cinema) || q('.cinema-banner-title--art', cinema);
     var img = q('.cinema-title-art', cinema) || q('img[src$="cartoon.png"]', cinema);
-    var sliderLive = !!cinema && cinema.classList.contains('tk-mac2600-slider-live');
+    var sliderOpened = !!cinema && cinema.classList.contains('tk-mac2600-slider-opened');
 
     if(banner){
-      if(sliderLive){
+      if(sliderOpened){
         imp(banner, 'animation', 'none');
         imp(banner, 'transform', 'none');
         imp(banner, 'filter', 'drop-shadow(0 10px 18px rgba(0,0,0,.20)) drop-shadow(0 0 12px rgba(86,210,255,.16))');
@@ -58414,8 +58414,16 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     syncBanner(parts.cinema);
   }
 
+  function markSliderOpened(){
+    if(!parts || !parts.cinema) return;
+    if(parts.cinema.classList.contains('tk-mac2600-slider-opened')) return;
+    parts.cinema.classList.add('tk-mac2600-slider-opened');
+    syncBanner(parts.cinema);
+  }
+
   function choose(idx){
     if(!parts) return;
+    markSliderOpened();
     if(idx < 0 || idx >= parts.slides.length) return;
     if(idx < state.start) state.start = idx;
     if(idx > state.start + 1) state.start = idx - 1;
@@ -58425,6 +58433,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 
   function move(dir){
     if(!parts) return false;
+    markSliderOpened();
     var maxStart = Math.max(0, parts.slides.length - 2);
     var nextStart = clamp(state.start + dir, 0, maxStart);
     if(nextStart === state.start && ((dir < 0 && state.start <= 0) || (dir > 0 && state.start >= maxStart))){
@@ -58458,9 +58467,18 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     parts.next.addEventListener('pointerdown', swallow(function(){ move(1); }), true);
     parts.next.addEventListener('click', swallow(function(){ move(1); }), true);
 
+    parts.prev.addEventListener('keydown', swallow(function(e){ if(e && (e.key === 'Enter' || e.key === ' ' || e.code === 'Space')) return move(-1); }), true);
+    parts.next.addEventListener('keydown', swallow(function(e){ if(e && (e.key === 'Enter' || e.key === ' ' || e.code === 'Space')) return move(1); }), true);
+
+    var banner = q('.cinema-banner', parts.cinema);
+    if(banner){
+      banner.addEventListener('pointerdown', function(){ markSliderOpened(); }, { passive:true, capture:true });
+    }
+
     parts.slides.forEach(function(slide, idx){
       var pick = swallow(function(e){
         if(e && e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return false;
+        markSliderOpened();
         choose(idx);
         return false;
       });
