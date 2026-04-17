@@ -57796,8 +57796,8 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
 <!-- disabled legacy mac cinema block: tk-mac2600-cinema-v91-authoritative-script -->
 
 
-<!-- mac cinema single-controller fix: generated from v91 base -->
-<style id="tk-mac2600-cinema-single-controller-v95-style">
+<!-- mac cinema single-controller fix: generated from v91 base, v102 pulse recovery -->
+<style id="tk-mac2600-cinema-single-controller-v102-style">
 @keyframes tkMacCinemaBannerPulseSingle {
   0% {
     transform: translate3d(0,0,0);
@@ -57814,20 +57814,20 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
   0% {
     transform: translate3d(0,0,0) scale(1) rotate(0deg);
   }
-  16% {
-    transform: translate3d(-2px,-2px,0) scale(1.012) rotate(-0.45deg);
+  14% {
+    transform: translate3d(-1.6px,-1.4px,0) scale(1.010) rotate(-0.35deg);
   }
-  32% {
-    transform: translate3d(-4px,-4px,0) scale(1.022) rotate(-0.9deg);
+  28% {
+    transform: translate3d(-3.2px,-3.2px,0) scale(1.019) rotate(-0.72deg);
   }
   50% {
-    transform: translate3d(0,-8px,0) scale(1.032) rotate(0deg);
+    transform: translate3d(0,-6.8px,0) scale(1.028) rotate(0deg);
   }
-  68% {
-    transform: translate3d(4px,-4px,0) scale(1.022) rotate(0.9deg);
+  72% {
+    transform: translate3d(3.2px,-3.2px,0) scale(1.019) rotate(0.72deg);
   }
-  84% {
-    transform: translate3d(2px,-2px,0) scale(1.012) rotate(0.45deg);
+  86% {
+    transform: translate3d(1.6px,-1.4px,0) scale(1.010) rotate(0.35deg);
   }
   100% {
     transform: translate3d(0,0,0) scale(1) rotate(0deg);
@@ -57893,15 +57893,10 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner-title
 
 html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-title-art,
 html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller img[src$="cartoon.png"]{
-  width:462px !important;
-  max-width:462px !important;
-  height:auto !important;
-  max-height:none !important;
   display:block !important;
   margin:0 auto !important;
   transform:translate3d(0,0,0) scale(1) rotate(0deg) !important;
   transform-origin:center 62% !important;
-  animation:tkMacCinemaTitleArtInvite 4.8s cubic-bezier(.42,0,.18,1) infinite both !important;
   filter:
     drop-shadow(0 12px 22px rgba(0,0,0,.20))
     drop-shadow(0 0 12px rgba(86,210,255,.13)) !important;
@@ -57909,20 +57904,29 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller img[src$="cartoon.pn
   backface-visibility:hidden !important;
 }
 
-html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:hover .cinema-title-art,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:hover img[src$="cartoon.png"]{
-  animation-duration:4.2s !important;
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-title-art.tk-mac2600-art-pulse-live,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller img[src$="cartoon.png"].tk-mac2600-art-pulse-live{
+  animation:tkMacCinemaTitleArtInvite 5.6s cubic-bezier(.42,0,.18,1) infinite both !important;
+  animation-play-state:running !important;
+  will-change:transform !important;
 }
 
-html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:active .cinema-title-art,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:active img[src$="cartoon.png"]{
-  transform:translate3d(0,-3px,0) scale(1.026) rotate(0deg) !important;
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:hover .cinema-title-art.tk-mac2600-art-pulse-live,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:hover img[src$="cartoon.png"].tk-mac2600-art-pulse-live{
+  animation-duration:5.0s !important;
 }
 
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:active .cinema-title-art.tk-mac2600-art-pulse-live,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner:active img[src$="cartoon.png"].tk-mac2600-art-pulse-live{
+  transform:translate3d(0,-3px,0) scale(1.024) rotate(0deg) !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-title-art.tk-mac2600-art-pulse-stop,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller img[src$="cartoon.png"].tk-mac2600-art-pulse-stop,
 html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller.tk-mac2600-slider-opened .cinema-title-art,
 html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller.tk-mac2600-slider-opened img[src$="cartoon.png"]{
   animation:none !important;
-  transform:none !important;
+  transform:translate3d(0,0,0) scale(1) rotate(0deg) !important;
   filter:
     drop-shadow(0 12px 22px rgba(0,0,0,.20))
     drop-shadow(0 0 12px rgba(86,210,255,.13)) !important;
@@ -58228,41 +58232,53 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     }catch(_e){ return false; }
   }
 
-  function syncBanner(cinema){
-    var banner = q('.cinema-banner', cinema);
-    var title = q('.cinema-banner-title', cinema) || q('.cinema-banner-title--art', cinema);
-    var img = q('.cinema-title-art', cinema) || q('img[src$="cartoon.png"]', cinema);
-    var sliderOpened = !!cinema && cinema.classList.contains('tk-mac2600-slider-opened');
+function syncBanner(cinema){
+  var banner = q('.cinema-banner', cinema);
+  var title = q('.cinema-banner-title', cinema) || q('.cinema-banner-title--art', cinema);
+  var img = q('.cinema-title-art', cinema) || q('img[src$="cartoon.png"]', cinema);
+  var sliderOpened = !!cinema && cinema.classList.contains('tk-mac2600-slider-opened');
 
-    if(banner){
-      imp(banner, 'animation', 'none');
-      imp(banner, 'transform', 'none');
-      imp(banner, 'filter', 'none');
-      imp(banner, 'will-change', 'auto');
-    }
-    if(title){
-      imp(title, 'animation', 'none');
-      imp(title, 'transform', 'none');
-      imp(title, 'filter', 'none');
-    }
-    if(img){
-      if(img.getAttribute('src') !== 'cartoon.png') img.setAttribute('src', 'cartoon.png');
-      imp(img, 'transform-origin', 'center 62%');
-      imp(img, 'backface-visibility', 'hidden');
-      if(sliderOpened){
-        imp(img, 'animation', 'none');
-        imp(img, 'transform', 'translate3d(0,0,0) scale(1) rotate(0deg)');
-        imp(img, 'filter', 'drop-shadow(0 12px 22px rgba(0,0,0,.20)) drop-shadow(0 0 12px rgba(86,210,255,.13))');
-        imp(img, 'will-change', 'auto');
-      }else{
-        imp(img, 'animation', 'tkMacCinemaTitleArtInvite 4.8s cubic-bezier(.42,0,.18,1) infinite both');
-        imp(img, 'filter', 'drop-shadow(0 12px 22px rgba(0,0,0,.20)) drop-shadow(0 0 12px rgba(86,210,255,.13))');
-        imp(img, 'will-change', 'transform');
-      }
+  if(banner){
+    imp(banner, 'animation', 'none');
+    imp(banner, 'transform', 'none');
+    imp(banner, 'filter', 'none');
+    imp(banner, 'will-change', 'auto');
+  }
+  if(title){
+    imp(title, 'animation', 'none');
+    imp(title, 'transform', 'none');
+    imp(title, 'filter', 'none');
+  }
+  if(img){
+    if((img.getAttribute('src') || '').split('?')[0].split('#')[0] !== 'cartoon.png') img.setAttribute('src', 'cartoon.png');
+    imp(img, 'transform-origin', 'center 62%');
+    imp(img, 'backface-visibility', 'hidden');
+    img.classList.remove('tk-mac2600-art-pulse-live', 'tk-mac2600-art-pulse-stop');
+
+    if(sliderOpened){
+      img.classList.add('tk-mac2600-art-pulse-stop');
+      imp(img, 'animation', 'none');
+      imp(img, 'animation-name', 'none');
+      imp(img, 'transform', 'translate3d(0,0,0) scale(1) rotate(0deg)');
+      imp(img, 'filter', 'drop-shadow(0 12px 22px rgba(0,0,0,.20)) drop-shadow(0 0 12px rgba(86,210,255,.13))');
+      imp(img, 'will-change', 'auto');
+    }else{
+      img.classList.add('tk-mac2600-art-pulse-live');
+      void img.offsetWidth;
+      imp(img, 'animation-name', 'tkMacCinemaTitleArtInvite');
+      imp(img, 'animation-duration', '5.6s');
+      imp(img, 'animation-timing-function', 'cubic-bezier(.42,0,.18,1)');
+      imp(img, 'animation-iteration-count', 'infinite');
+      imp(img, 'animation-fill-mode', 'both');
+      imp(img, 'animation-play-state', 'running');
+      imp(img, 'transform', 'translate3d(0,0,0) scale(1) rotate(0deg)');
+      imp(img, 'filter', 'drop-shadow(0 12px 22px rgba(0,0,0,.20)) drop-shadow(0 0 12px rgba(86,210,255,.13))');
+      imp(img, 'will-change', 'transform');
     }
   }
+}
 
-  function svgPoster(episode, title){
+function svgPoster  function svgPoster(episode, title){
     var safeTitle = String(title || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     var safeEp = String(episode || 'Серия').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     var svg = [
@@ -58521,7 +58537,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 
     var banner = q('.cinema-banner', parts.cinema);
     if(banner){
-      banner.addEventListener('pointerdown', function(){ markSliderOpened(); }, { passive:true, capture:true });
+      imp(banner, 'pointer-events', 'auto');
     }
 
     parts.slides.forEach(function(slide, idx){
