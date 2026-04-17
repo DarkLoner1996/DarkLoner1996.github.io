@@ -57553,399 +57553,12 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-grid .tkqa-card.tkqa-pc .tkqa-card-title{
 </script>
 
 
-<style id="tk-mac2600-cinema-refine-v24">
-html.tk-mac2600 #cinema{
-  width: 860px !important;
-  max-width: 860px !important;
-  padding: 0 0 8px !important;
-}
-html.tk-mac2600 #cinema .cinema-head{
-  width: 860px !important;
-  max-width: 860px !important;
-  margin: 0 auto 4px !important;
-}
-html.tk-mac2600 #cinema .kino-badge-top-4k{
-  width: 150px !important;
-  max-width: 150px !important;
-  margin: 0 auto 0 !important;
-}
-html.tk-mac2600 #cinema .cinema-title-art{
-  width: 452px !important;
-  max-width: 452px !important;
-}
-html.tk-mac2600 #cinema .slider-container{
-  width: 860px !important;
-  max-width: 860px !important;
-  min-height: 334px !important;
-  grid-template-columns: 48px 744px 48px !important;
-  column-gap: 10px !important;
-  align-items: start !important;
-}
-html.tk-mac2600 #cinema .slider-prev,
-html.tk-mac2600 #cinema .slider-next{
-  width: 46px !important;
-  height: 46px !important;
-}
-html.tk-mac2600 #cinema .slider-wrapper{
-  width: 744px !important;
-  min-width: 744px !important;
-  max-width: 744px !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 16px !important;
-  padding: 6px 0 10px !important;
-}
-html.tk-mac2600 #cinema .movie-slide.tk-mac2600-cinema-hidden{
-  display: none !important;
-}
-html.tk-mac2600 #cinema .movie-slide,
-html.tk-mac2600 #cinema .movie-slide.is-active{
-  min-height: 0 !important;
-}
-html.tk-mac2600 #cinema .movie-img,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-img,
-html.tk-mac2600 #cinema .movie-slide:not(.is-active) .movie-img{
-  height: 188px !important;
-}
-html.tk-mac2600 #cinema .movie-info,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-info{
-  margin-top: -8px !important;
-  padding: 8px 16px 12px !important;
-  min-height: 132px !important;
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  column-gap: 14px !important;
-  align-items: start !important;
-  align-content: start !important;
-}
-html.tk-mac2600 #cinema .movie-text{
-  gap: 5px !important;
-}
-html.tk-mac2600 #cinema .movie-badges{
-  margin: 0 0 4px 0 !important;
-}
-html.tk-mac2600 #cinema .movie-ep,
-html.tk-mac2600 #cinema .movie-duration{
-  font-size: 12px !important;
-}
-html.tk-mac2600 #cinema .movie-info h3,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-info h3,
-html.tk-mac2600 #cinema .movie-slide .movie-text h3{
-  font-size: 20px !important;
-  line-height: 1.02 !important;
-  min-height: 2.08em !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  letter-spacing: .008em !important;
-}
-html.tk-mac2600 #cinema .movie-btn{
-  min-width: 128px !important;
-  padding: 11px 14px !important;
-  align-self: end !important;
-  margin-top: 22px !important;
-}
-</style>
-<script id="tk-mac2600-cinema-refine-script-v24">
-(function(){
-  function isMac2600(){
-    try{
-      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-      var physW = Math.round(sw * dpr);
-      var physH = Math.round(sh * dpr);
-      var innerPhysW = Math.round(iw * dpr);
-      var innerPhysH = Math.round(ih * dpr);
-      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-      var retina = dpr >= 1.25 && dpr <= 2.6;
-      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
-      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
-      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
-  }
-  if(!isMac2600()) return;
-  var root = document.documentElement;
-  root.classList.add('tk-mac2600');
-  var state = { start: 0, active: 1 };
-  var raf = 0;
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-  function bind(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var prev = q('.slider-prev', cinema);
-    var next = q('.slider-next', cinema);
-    var track = q('.slider-wrapper', cinema);
-    if(!prev || !next || !track) return;
-    if(!prev.__tkMacV24){
-      var p2 = prev.cloneNode(true); prev.parentNode.replaceChild(p2, prev); prev = p2;
-      var n2 = next.cloneNode(true); next.parentNode.replaceChild(n2, next); next = n2;
-      prev.__tkMacV24 = next.__tkMacV24 = true;
-      prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = clamp(state.start - 1, 0, Math.max(0, qa('.movie-slide', track).length - 2)); state.active = clamp(state.active, state.start, Math.min(state.start + 1, qa('.movie-slide', track).length - 1)); render(); }, true);
-      next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); state.start = clamp(state.start + 1, 0, Math.max(0, qa('.movie-slide', track).length - 2)); state.active = clamp(state.active, state.start, Math.min(state.start + 1, qa('.movie-slide', track).length - 1)); if(state.active < state.start) state.active = Math.min(state.start + 1, qa('.movie-slide', track).length - 1); render(); }, true);
-    }
-    qa('.movie-slide', track).forEach(function(slide, idx){
-      if(slide.__tkMacV24) return;
-      slide.__tkMacV24 = true;
-      slide.addEventListener('click', function(e){
-        if(e.target.closest('button') || e.target.closest('a')) return;
-        if(slide.classList.contains('tk-mac2600-cinema-hidden')) return;
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        state.active = idx;
-        render();
-      }, true);
-    });
-  }
-  function render(){
-    var cinema = document.getElementById('cinema');
-    var track = cinema && q('.slider-wrapper', cinema);
-    var prev = cinema && q('.slider-prev', cinema);
-    var next = cinema && q('.slider-next', cinema);
-    if(!cinema || !track || !prev || !next) return;
-    var slides = qa('.movie-slide', track);
-    if(slides.length < 2) return;
-    var maxStart = Math.max(0, slides.length - 2);
-    state.start = clamp(state.start, 0, maxStart);
-    state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
-    slides.forEach(function(slide, idx){
-      var visible = idx >= state.start && idx < state.start + 2;
-      slide.classList.toggle('tk-fhd-hidden', !visible);
-      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
-      slide.classList.toggle('is-active', visible && idx === state.active);
-    });
-    track.scrollLeft = 0;
-    try{ track.scrollTo({left:0, behavior:'auto'}); }catch(_e){}
-    prev.disabled = state.start <= 0;
-    next.disabled = state.start >= maxStart;
-  }
-  function queue(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ raf = 0; bind(); render(); }); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
-  window.addEventListener('load', function(){ queue(); setTimeout(queue, 120); setTimeout(queue, 500); setTimeout(queue, 1200); }, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  var mo = new MutationObserver(queue);
-  var startObs = function(){ var cinema = document.getElementById('cinema'); if(cinema) mo.observe(cinema, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style']}); };
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObs, {once:true}); else startObs();
-})();
-</script>
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-refine-v24 -->
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-refine-script-v24 -->
 
 
-<style id="tk-mac2600-refine-v26">
-html.tk-mac2600 #cinema{
-  width:700px !important;
-  max-width:700px !important;
-  padding:0 0 4px !important;
-}
-html.tk-mac2600 #cinema .cinema-head{
-  width:700px !important;
-  max-width:700px !important;
-  margin:0 auto -6px !important;
-}
-html.tk-mac2600 #cinema .kino-badge-top-4k{
-  width:128px !important;
-  max-width:128px !important;
-  margin:0 auto -4px !important;
-}
-html.tk-mac2600 #cinema .cinema-title-art{
-  width:332px !important;
-  max-width:332px !important;
-}
-html.tk-mac2600 #cinema .slider-container{
-  width:700px !important;
-  max-width:700px !important;
-  min-height:282px !important;
-  grid-template-columns:42px 616px 42px !important;
-  column-gap:0 !important;
-  margin-top:-6px !important;
-  align-items:center !important;
-}
-html.tk-mac2600 #cinema .slider-prev,
-html.tk-mac2600 #cinema .slider-next{
-  width:42px !important;
-  height:42px !important;
-}
-html.tk-mac2600 #cinema .slider-wrapper{
-  width:616px !important;
-  min-width:616px !important;
-  max-width:616px !important;
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
-  padding:6px 0 !important;
-  overflow:hidden !important;
-}
-html.tk-mac2600 #cinema .movie-slide,
-html.tk-mac2600 #cinema .movie-slide.is-active{
-  transform:none !important;
-  opacity:1 !important;
-  filter:none !important;
-}
-html.tk-mac2600 #cinema .movie-slide{
-  padding:0 !important;
-  border-radius:24px !important;
-  overflow:hidden !important;
-  border:1px solid rgba(255,226,146,.30) !important;
-  background:
-    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.12), transparent 60%),
-    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.08), transparent 60%),
-    linear-gradient(180deg, rgba(10,55,90,.56), rgba(8,35,60,.52)) !important;
-  box-shadow:
-    0 18px 30px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-}
-html.tk-mac2600 #cinema .movie-slide.is-active{
-  transform:translateY(-3px) !important;
-  z-index:4 !important;
-  border-color:rgba(255,234,165,.56) !important;
-  box-shadow:
-    0 20px 34px rgba(0,0,0,.24),
-    0 0 0 1px rgba(255,228,150,.14),
-    inset 0 1px 0 rgba(255,255,255,.15) !important;
-}
-html.tk-mac2600 #cinema .movie-img,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-img,
-html.tk-mac2600 #cinema .movie-slide:not(.is-active) .movie-img{
-  height:168px !important;
-  display:block !important;
-  margin:0 !important;
-  border-radius:24px 24px 0 0 !important;
-}
-html.tk-mac2600 #cinema .movie-slide .movie-seam-gold{
-  display:block !important;
-  position:relative !important;
-  z-index:3 !important;
-  height:7px !important;
-  width:100% !important;
-  margin:0 !important;
-  border-radius:0 !important;
-  background:linear-gradient(180deg, rgba(255,249,223,.98) 0%, rgba(255,222,120,1) 58%, rgba(177,118,32,.94) 100%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.75),
-    0 1px 0 rgba(86,52,11,.34) !important;
-  overflow:hidden !important;
-}
-html.tk-mac2600 #cinema .movie-slide .movie-seam-gold::before,
-html.tk-mac2600 #cinema .movie-slide .movie-seam-gold::after{
-  display:none !important;
-  content:none !important;
-}
-html.tk-mac2600 #cinema .movie-info{
-  margin-top:0 !important;
-  min-height:auto !important;
-  padding:12px 14px 13px !important;
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) auto !important;
-  grid-template-areas:
-    "badges badges"
-    "title btn" !important;
-  column-gap:12px !important;
-  row-gap:8px !important;
-  align-items:start !important;
-  justify-content:stretch !important;
-  border-radius:0 0 24px 24px !important;
-  overflow:hidden !important;
-  background:linear-gradient(180deg, rgba(11,40,71,.96) 0%, rgba(7,22,40,.985) 100%) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.10) !important;
-}
-html.tk-mac2600 #cinema .movie-text{
-  min-width:0 !important;
-  display:contents !important;
-}
-html.tk-mac2600 #cinema .movie-badges{
-  grid-area:badges !important;
-  display:flex !important;
-  gap:8px !important;
-  align-items:center !important;
-  flex-wrap:wrap !important;
-  margin:0 !important;
-}
-html.tk-mac2600 #cinema .movie-ep,
-html.tk-mac2600 #cinema .movie-duration{
-  font-size:10px !important;
-  letter-spacing:.11em !important;
-  padding:4px 8px !important;
-}
-html.tk-mac2600 #cinema .movie-info h3,
-html.tk-mac2600 #cinema .movie-slide .movie-text h3,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-info h3{
-  grid-area:title !important;
-  font-size:14px !important;
-  line-height:1.08 !important;
-  min-height:2.16em !important;
-  margin:0 !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  letter-spacing:.01em !important;
-  align-self:center !important;
-}
-html.tk-mac2600 #cinema .movie-btn{
-  grid-area:btn !important;
-  min-width:116px !important;
-  padding:10px 14px !important;
-  font-size:11px !important;
-  letter-spacing:.13em !important;
-  white-space:nowrap !important;
-  align-self:center !important;
-  justify-self:end !important;
-  margin:0 !important;
-}
-html.tk-mac2600 .rules.tkqa-wrap{
-  right:74px !important;
-  width:344px !important;
-  min-width:344px !important;
-  max-width:344px !important;
-}
-html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
-  width:344px !important;
-  min-width:344px !important;
-  max-width:344px !important;
-}
-</style>
-<script id="tk-mac2600-refine-script-v26">
-(function(){
-  function isMac2600(){
-    try{
-      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-      var physW = Math.round(sw * dpr);
-      var physH = Math.round(sh * dpr);
-      var innerPhysW = Math.round(iw * dpr);
-      var innerPhysH = Math.round(ih * dpr);
-      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-      var retina = dpr >= 1.25 && dpr <= 2.6;
-      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
-      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
-      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
-  }
-  function set(el, name, value){ try{ if(el) el.style.setProperty(name, value, 'important'); }catch(_){} }
-  function apply(){
-    if(!isMac2600()) return;
-    document.documentElement.classList.add('tk-mac2600');
-    var wrap = document.querySelector('.rules.tkqa-wrap');
-    var dock = wrap && wrap.querySelector('.tkqa-dock');
-    set(wrap,'right','74px');
-    set(wrap,'width','344px');
-    set(wrap,'min-width','344px');
-    set(wrap,'max-width','344px');
-    set(dock,'width','344px');
-    set(dock,'min-width','344px');
-    set(dock,'max-width','344px');
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
-  window.addEventListener('load', apply, {once:true});
-  [120,500,1200].forEach(function(ms){ setTimeout(apply, ms); });
-})();
-</script>
+<!-- disabled legacy mac cinema block: tk-mac2600-refine-v26 -->
+<!-- disabled legacy mac cinema block: tk-mac2600-refine-script-v26 -->
 
 
 <style id="tk-mac2600-final-polish-v27">
@@ -58118,230 +57731,333 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
 </script>
 
 
-<style id="tk-mac2600-cinema-redesign-v31">
-html.tk-mac2600 body{
-  background:#061220 url("header-bg-m-3840.jpg") center bottom / cover no-repeat !important;
-}
-html.tk-mac2600 .header,
-html.tk-mac2600 .bg-main-pic,
-html.tk-mac2600 .bg-blur-pic,
-html.tk-mac2600 .header__bg,
-html.tk-mac2600 .header__bg-blur{
-  min-height:100dvh !important;
-  height:100dvh !important;
-}
-html.tk-mac2600 .bg-main-pic,
-html.tk-mac2600 .bg-blur-pic,
-html.tk-mac2600 .header__bg,
-html.tk-mac2600 .header__bg-blur{
-  object-fit:cover !important;
-  object-position:50% 100% !important;
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-redesign-v31 -->
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-redesign-script-v31 -->
+
+
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-final-v37 -->
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-final-script-v37 -->
+
+
+<!-- disabled legacy mac cinema block: tk-mac2600-cartoon-only-v38 -->
+<!-- disabled legacy mac cinema block: tk-mac2600-cartoon-only-script-v38 -->
+
+
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-fhd2-final-v82 -->
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-fhd2-final-script-v82 -->
+
+
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-v86-style -->
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-v86-script -->
+
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-v91-style-overrides -->
+
+<!-- disabled legacy mac cinema block: tk-mac2600-cinema-v91-authoritative-script -->
+
+
+<!-- mac cinema single-controller fix: generated from v91 base -->
+<style id="tk-mac2600-cinema-single-controller-v92-style">
+@keyframes tkMacCinemaBannerPulseSingle {
+  0%,100% {
+    transform: translate3d(0,0,0) scale(1);
+    filter:
+      drop-shadow(0 10px 18px rgba(0,0,0,.20))
+      drop-shadow(0 0 12px rgba(86,210,255,.18));
+  }
+  50% {
+    transform: translate3d(0,-7px,0) scale(1.028);
+    filter:
+      drop-shadow(0 16px 28px rgba(0,0,0,.24))
+      drop-shadow(0 0 22px rgba(86,210,255,.32))
+      drop-shadow(0 0 10px rgba(255,208,110,.18));
+  }
 }
 
-html.tk-mac2600 #cinema{
-  width:560px !important;
-  max-width:560px !important;
-  padding:0 !important;
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller{
+  width:620px !important;
+  max-width:620px !important;
   margin:0 auto !important;
+  padding:0 !important;
 }
-html.tk-mac2600 #cinema .cinema-head{
-  width:560px !important;
-  max-width:560px !important;
-  margin:0 auto -12px !important;
-  transform:scale(.70) !important;
-  transform-origin:center top !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-head{
+  width:620px !important;
+  max-width:620px !important;
+  margin:0 auto 8px !important;
+  padding-top:0 !important;
+  transform:none !important;
 }
-html.tk-mac2600 #cinema .kino-badge-top-4k{
-  width:86px !important;
-  max-width:86px !important;
-  margin:0 auto -4px !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner{
+  width:440px !important;
+  max-width:440px !important;
+  margin:0 auto !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  overflow:visible !important;
+  animation:tkMacCinemaBannerPulseSingle 1.9s ease-in-out infinite !important;
+  transform-origin:center center !important;
+  will-change:transform, filter !important;
 }
-html.tk-mac2600 #cinema .cinema-title-art{
-  width:280px !important;
-  max-width:280px !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner::before,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner::after,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-head::before,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-head::after{
+  display:none !important;
+  content:none !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner-title,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner-title--art{
+  width:440px !important;
+  max-width:440px !important;
+  margin:0 auto !important;
+  padding:0 !important;
+  animation:none !important;
+  transform:none !important;
+  filter:none !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-title-art,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller img[src$="cartoon.png"]{
+  width:440px !important;
+  max-width:440px !important;
   height:auto !important;
+  max-height:none !important;
   display:block !important;
   margin:0 auto !important;
+  transform:none !important;
+  animation:none !important;
+  filter:none !important;
 }
-html.tk-mac2600 #cinema .slider-container{
-  width:560px !important;
-  max-width:560px !important;
-  min-height:252px !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-banner-sub,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .tk-cinema-callout,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .tk-cinema-callout__img,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-tabs,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .cinema-down{
+  display:none !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-container{
+  width:620px !important;
+  max-width:620px !important;
+  min-height:290px !important;
   margin:0 auto !important;
   display:grid !important;
-  grid-template-columns:42px 476px 42px !important;
-  column-gap:0 !important;
+  grid-template-columns:42px 536px 42px !important;
   align-items:center !important;
+  column-gap:0 !important;
   overflow:visible !important;
+  padding:0 !important;
 }
-html.tk-mac2600 #cinema .slider-prev,
-html.tk-mac2600 #cinema .slider-next{
-  width:38px !important;
-  height:38px !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-prev,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-next{
+  width:42px !important;
+  height:42px !important;
   position:relative !important;
+  top:auto !important;
   left:auto !important;
   right:auto !important;
-  top:auto !important;
   transform:none !important;
-  z-index:20 !important;
+  place-self:center !important;
+  z-index:60 !important;
+  pointer-events:auto !important;
+  opacity:1 !important;
 }
-html.tk-mac2600 #cinema .slider-wrapper{
-  width:476px !important;
-  min-width:476px !important;
-  max-width:476px !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-wrapper{
+  grid-column:2 !important;
+  width:536px !important;
+  min-width:536px !important;
+  max-width:536px !important;
   margin:0 auto !important;
-  padding:6px 4px 8px !important;
+  padding:6px 4px 10px !important;
+  box-sizing:border-box !important;
   display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:12px !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  gap:14px !important;
+  align-items:stretch !important;
+  justify-content:stretch !important;
   overflow:visible !important;
   scroll-snap-type:none !important;
+  scrollbar-width:none !important;
+  -ms-overflow-style:none !important;
+  -webkit-mask-image:none !important;
+  mask-image:none !important;
 }
-html.tk-mac2600 #cinema .movie-slide.tk-mac2600-cinema-hidden{
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-wrapper::-webkit-scrollbar{
   display:none !important;
 }
-html.tk-mac2600 #cinema .movie-slide,
-html.tk-mac2600 #cinema .movie-slide.is-active{
-  min-height:0 !important;
-  border-radius:20px !important;
-  overflow:hidden !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.tk-mac2600-cinema-slide-hidden{
+  display:none !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide{
+  width:261px !important;
+  min-width:261px !important;
+  max-width:261px !important;
+  min-height:286px !important;
+  border-radius:22px !important;
   padding:0 !important;
-  opacity:1 !important;
-  filter:none !important;
-  background:
-    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.10), transparent 60%),
-    linear-gradient(180deg, rgba(12,48,84,.94), rgba(8,28,52,.98)) !important;
-  border:1px solid rgba(255,224,144,.28) !important;
-  box-shadow:
-    0 14px 24px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-  transform-origin:center center !important;
-  transition:transform .22s cubic-bezier(.22,.61,.36,1), box-shadow .22s ease, border-color .22s ease !important;
-  will-change:transform !important;
-}
-html.tk-mac2600 #cinema .movie-slide::before,
-html.tk-mac2600 #cinema .movie-slide::after{
-  display:none !important;
-  content:none !important;
-}
-html.tk-mac2600 #cinema .movie-slide.is-active{
-  transform:translateY(-3px) scale(1.018) !important;
-  border-color:rgba(255,229,151,.76) !important;
-  box-shadow:
-    0 18px 30px rgba(0,0,0,.26),
-    0 0 0 1px rgba(255,225,135,.26),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
-  z-index:5 !important;
-}
-html.tk-mac2600 #cinema .movie-img,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-img,
-html.tk-mac2600 #cinema .movie-slide:not(.is-active) .movie-img{
-  display:block !important;
-  width:100% !important;
-  height:138px !important;
-  margin:0 !important;
-  object-fit:cover !important;
-  border-radius:20px 20px 0 0 !important;
-}
-html.tk-mac2600 #cinema .movie-slide .movie-seam-gold{
-  display:block !important;
-  height:4px !important;
-  width:100% !important;
-  margin:0 !important;
-  border-radius:0 !important;
-  background:linear-gradient(180deg,#fff7d2 0%,#ffd76f 52%,#b97a1d 100%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.72),
-    0 1px 0 rgba(67,41,10,.28) !important;
+  position:relative !important;
   overflow:hidden !important;
+  cursor:pointer !important;
+  background:
+    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.14), transparent 60%),
+    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.10), transparent 60%),
+    linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46)) !important;
+  border:1px solid rgba(255,221,136,.34) !important;
+  box-shadow:
+    0 18px 30px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
+  transform:translateY(0) scale(.965) !important;
+  transform-origin:center center !important;
+  transition:transform .24s ease, filter .24s ease, box-shadow .24s ease, border-color .24s ease !important;
+  filter:saturate(.96) brightness(.98) !important;
+  z-index:1 !important;
 }
-html.tk-mac2600 #cinema .movie-slide .movie-seam-gold::before,
-html.tk-mac2600 #cinema .movie-slide .movie-seam-gold::after{
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:22px !important;
+  padding:2px !important;
+  background:linear-gradient(90deg, rgba(255,244,201,.90), rgba(255,210,122,.76), rgba(255,255,255,.18), rgba(255,210,122,.74), rgba(255,244,201,.88)) !important;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite:xor !important;
+  mask-composite:exclude !important;
+  pointer-events:none !important;
+  opacity:.62 !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.tk-mac2600-cinema-active,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.is-active{
+  transform:translateY(-6px) scale(1.02) !important;
+  filter:saturate(1.04) brightness(1.02) !important;
+  z-index:5 !important;
+  border-color:rgba(255,233,156,.88) !important;
+  box-shadow:
+    0 24px 36px rgba(0,0,0,.24),
+    0 0 0 1px rgba(255,228,146,.24),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.tk-mac2600-cinema-active::before,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.is-active::before{
+  opacity:.92 !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-img,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.is-active .movie-img,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide:not(.is-active) .movie-img{
+  width:100% !important;
+  height:166px !important;
+  display:block !important;
+  object-fit:cover !important;
+  margin:0 !important;
+  border-radius:18px 18px 0 0 !important;
+  vertical-align:top !important;
+}
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-seam-gold{
+  display:block !important;
+  width:100% !important;
+  min-width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+  height:8px !important;
+  border-radius:0 !important;
+  background:linear-gradient(180deg, rgba(255,251,226,.98) 0%, rgba(255,239,181,.98) 14%, rgba(255,219,109,1) 40%, rgba(227,161,42,.98) 72%, rgba(255,237,176,.96) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.86),
+    inset 0 -2px 4px rgba(122,74,8,.36),
+    0 0 0 1px rgba(255,219,109,.22),
+    0 0 10px rgba(255,205,90,.16) !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-seam-gold::before,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-seam-gold::after{
   display:none !important;
   content:none !important;
 }
-html.tk-mac2600 #cinema .movie-info,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-info{
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-info{
+  position:relative !important;
   margin:0 !important;
-  min-height:auto !important;
-  padding:8px 10px 10px !important;
+  min-height:102px !important;
+  padding:10px 12px 10px !important;
   display:grid !important;
   grid-template-columns:minmax(0,1fr) auto !important;
-  grid-template-areas:
-    "badges badges"
-    "title btn" !important;
-  align-items:center !important;
+  grid-template-areas:"badges badges" "title btn" !important;
+  align-items:end !important;
   align-content:start !important;
   column-gap:12px !important;
   row-gap:8px !important;
-  background:linear-gradient(180deg, rgba(9,32,58,.98), rgba(8,24,44,.995)) !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg, rgba(8,36,64,.96), rgba(7,23,41,.99)) !important;
   border-radius:0 0 22px 22px !important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.09) !important;
 }
-html.tk-mac2600 #cinema .movie-text{
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-text{
   display:contents !important;
 }
-html.tk-mac2600 #cinema .movie-text br{
-  display:none !important;
-}
-html.tk-mac2600 #cinema .movie-badges{
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-badges{
   grid-area:badges !important;
   display:flex !important;
   flex-wrap:wrap !important;
-  gap:7px !important;
+  gap:8px !important;
   align-items:center !important;
   margin:0 !important;
 }
-html.tk-mac2600 #cinema .movie-ep,
-html.tk-mac2600 #cinema .movie-duration{
-  font-size:8.8px !important;
-  letter-spacing:.11em !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-ep,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-duration{
+  font-size:9px !important;
+  letter-spacing:.10em !important;
   padding:4px 7px !important;
 }
-html.tk-mac2600 #cinema .movie-info h3,
-html.tk-mac2600 #cinema .movie-slide .movie-text h3,
-html.tk-mac2600 #cinema .movie-slide.is-active .movie-info h3{
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-info h3,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide .movie-text h3,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-slide.is-active .movie-info h3{
   grid-area:title !important;
   margin:0 !important;
-  font-size:13px !important;
-  line-height:1.12 !important;
-  min-height:2.24em !important;
+  font-size:17px !important;
+  line-height:1.03 !important;
+  min-height:2.05em !important;
   white-space:normal !important;
   overflow:visible !important;
   text-overflow:clip !important;
-  letter-spacing:.01em !important;
-  align-self:center !important;
 }
-html.tk-mac2600 #cinema .movie-btn{
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn{
   grid-area:btn !important;
-  align-self:center !important;
   justify-self:end !important;
-  min-width:108px !important;
+  align-self:end !important;
+  min-width:112px !important;
+  padding:9px 14px !important;
   margin:0 !important;
-  padding:9px 12px !important;
-  font-size:10px !important;
-  letter-spacing:.12em !important;
-  white-space:nowrap !important;
 }
-html.tk-mac2600 .rules,
-html.tk-mac2600 .rules.tkqa-wrap,
-html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
-  overflow:visible !important;
-}
-html.tk-mac2600 .rules.tkqa-wrap{
-  right:110px !important;
-  width:338px !important;
-  min-width:338px !important;
-  max-width:338px !important;
-}
-html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
-  width:338px !important;
-  min-width:338px !important;
-  max-width:338px !important;
+
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
+  transform:translateY(-1px) !important;
 }
 </style>
-<script id="tk-mac2600-cinema-redesign-script-v31">
+
+<script id="tk-mac2600-cinema-single-controller-v92-script">
 (function(){
+  if(window.__tkMac2600CinemaSingleV92) return;
+  window.__tkMac2600CinemaSingleV92 = true;
+
   function isMac2600(){
     try{
       var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
@@ -58356,1139 +58072,287 @@ html.tk-mac2600 .rules.tkqa-wrap .tkqa-dock{
       var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
       var retina = dpr >= 1.25 && dpr <= 2.6;
       var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
-      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      var physBand = (
+        (physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) ||
+        (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900)
+      );
+      var not4k = !(
+        physW >= 3600 || physH >= 2300 ||
+        innerPhysW >= 3600 || innerPhysH >= 2300 ||
+        iw >= 2200 || ih >= 1350
+      );
       return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
+    }catch(_e){
+      return false;
+    }
   }
+
   if(!isMac2600()) return;
-  document.documentElement.classList.add('tk-mac2600');
+
+  var LEGACY_IDS = [
+    'tk-mac2600-cinema-refine-v24',
+    'tk-mac2600-cinema-refine-script-v24',
+    'tk-mac2600-refine-v26',
+    'tk-mac2600-refine-script-v26',
+    'tk-mac2600-cinema-redesign-v31',
+    'tk-mac2600-cinema-redesign-script-v31',
+    'tk-mac2600-cinema-final-v37',
+    'tk-mac2600-cinema-final-script-v37',
+    'tk-mac2600-cartoon-only-v38',
+    'tk-mac2600-cartoon-only-script-v38',
+    'tk-mac2600-cinema-fhd2-final-v82',
+    'tk-mac2600-cinema-fhd2-final-script-v82',
+    'tk-mac2600-cinema-v86-style',
+    'tk-mac2600-cinema-v86-script',
+    'tk-mac2600-cinema-v91-style-overrides',
+    'tk-mac2600-cinema-v91-authoritative-script'
+  ];
+
   var state = { start: 0, active: 0 };
+  var parts = null;
+  var observer = null;
+
   function q(sel, ctx){ return (ctx || document).querySelector(sel); }
   function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
-  function setup(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var track = q('.slider-wrapper', cinema);
-    var prev = q('.slider-prev', cinema);
-    var next = q('.slider-next', cinema);
-    if(!track || !prev || !next) return;
-
-    var slides = qa('.movie-slide', track);
-    if(slides.length < 2) return;
-
-    if(state.active < state.start) state.active = state.start;
-    if(state.active > state.start + 1) state.active = state.start + 1;
-
-    if(!prev.__tkMac31){
-      var p = prev.cloneNode(true);
-      prev.parentNode.replaceChild(p, prev);
-      prev = p;
-      var n = next.cloneNode(true);
-      next.parentNode.replaceChild(n, next);
-      next = n;
-      prev.__tkMac31 = next.__tkMac31 = true;
-
-      prev.addEventListener('click', function(e){
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        state.start = clamp(state.start - 1, 0, Math.max(0, slides.length - 2));
-        state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
-        render();
-      }, true);
-
-      next.addEventListener('click', function(e){
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        state.start = clamp(state.start + 1, 0, Math.max(0, slides.length - 2));
-        state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
-        render();
-      }, true);
-    }
-
-    slides.forEach(function(slide, idx){
-      if(slide.__tkMac31) return;
-      slide.__tkMac31 = true;
-      slide.addEventListener('click', function(e){
-        if(e.target.closest('button') || e.target.closest('a')) return;
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        if(idx < state.start){ state.start = idx; }
-        if(idx > state.start + 1){ state.start = idx - 1; }
-        state.active = idx;
-        render();
-      }, true);
-    });
-
-    render();
-  }
-
-  function render(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    var track = q('.slider-wrapper', cinema);
-    var prev = q('.slider-prev', cinema);
-    var next = q('.slider-next', cinema);
-    if(!track || !prev || !next) return;
-    var slides = qa('.movie-slide', track);
-    if(slides.length < 2) return;
-    var maxStart = Math.max(0, slides.length - 2);
-    state.start = clamp(state.start, 0, maxStart);
-    if(state.active < state.start) state.active = state.start;
-    if(state.active > state.start + 1) state.active = state.start + 1;
-
-    slides.forEach(function(slide, idx){
-      var visible = idx >= state.start && idx < state.start + 2;
-      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
-      slide.classList.toggle('tk-fhd-hidden', !visible);
-      slide.classList.toggle('is-active', visible && idx === state.active);
-      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
-    });
-    prev.disabled = state.start <= 0;
-    next.disabled = state.start >= maxStart;
-    try{ track.scrollTo({left:0, behavior:'auto'}); }catch(_){}
-    track.scrollLeft = 0;
-  }
-
-  function applyDock(){
-    var wrap = document.querySelector('.rules.tkqa-wrap');
-    var dock = wrap && wrap.querySelector('.tkqa-dock');
-    if(wrap){
-      wrap.style.setProperty('right','110px','important');
-      wrap.style.setProperty('width','338px','important');
-      wrap.style.setProperty('min-width','338px','important');
-      wrap.style.setProperty('max-width','338px','important');
-      wrap.style.setProperty('overflow','visible','important');
-    }
-    if(dock){
-      dock.style.setProperty('width','338px','important');
-      dock.style.setProperty('min-width','338px','important');
-      dock.style.setProperty('max-width','338px','important');
-      dock.style.setProperty('overflow','visible','important');
-    }
-  }
-
-  function apply(){
-    setup();
-    applyDock();
-    var cinema = document.getElementById('cinema');
-    if(cinema){
-      var head = q('.cinema-head', cinema);
-      var title = q('.cinema-title-art', cinema);
-      var badge = q('.kino-badge-top-4k', cinema);
-      var container = q('.slider-container', cinema);
-      var track = q('.slider-wrapper', cinema);
-      if(head){
-        head.style.setProperty('width','560px','important');
-        head.style.setProperty('max-width','560px','important');
-        head.style.setProperty('transform','scale(.70)','important');
-        head.style.setProperty('transform-origin','center top','important');
-        head.style.setProperty('margin','0 auto -12px','important');
-      }
-      if(title){
-        title.style.setProperty('width','280px','important');
-        title.style.setProperty('max-width','280px','important');
-        title.style.setProperty('height','auto','important');
-      }
-      if(badge){
-        badge.style.setProperty('width','86px','important');
-        badge.style.setProperty('max-width','86px','important');
-      }
-      if(container){
-        container.style.setProperty('width','560px','important');
-        container.style.setProperty('max-width','560px','important');
-        container.style.setProperty('grid-template-columns','42px 476px 42px','important');
-        container.style.setProperty('min-height','252px','important');
-      }
-      if(track){
-        track.style.setProperty('width','476px','important');
-        track.style.setProperty('min-width','476px','important');
-        track.style.setProperty('max-width','476px','important');
-      }
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', apply, {once:true});
-  }else{
-    apply();
-  }
-  window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 450); setTimeout(apply, 1200); }, {once:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
-})();
-</script>
-
-
-<style id="tk-mac2600-cinema-final-v37">
-html.tk-mac2600 body{
-  background:#061220 url("header-bg-m-3840.jpg") center bottom / cover no-repeat !important;
-}
-html.tk-mac2600 .header{
-  min-height:100vh !important;
-  height:100vh !important;
-  background:#061220 !important;
-}
-html.tk-mac2600 .bg-main-pic,
-html.tk-mac2600 .bg-blur-pic{
-  position:absolute !important;
-  inset:0 !important;
-  width:100% !important;
-  height:100% !important;
-}
-html.tk-mac2600 .header__bg,
-html.tk-mac2600 .header__bg-blur{
-  width:100% !important;
-  height:100% !important;
-  object-fit:cover !important;
-  object-position:50% 100% !important;
-}
-
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37{
-  width:680px !important;
-  max-width:680px !important;
-  padding:0 !important;
-  margin:0 auto !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-head{
-  width:760px !important;
-  max-width:680px !important;
-  margin:0 auto 10px !important;
-  padding-top:0 !important;
-  transform:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner{
-  width:auto !important;
-  max-width:none !important;
-  padding:0 !important;
-  margin:0 auto !important;
-  gap:4px !important;
-  background:transparent !important;
-  border:0 !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-  overflow:visible !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner::before,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner::after,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-head::before,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-head::after{
-  display:none !important;
-  content:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .kino-badge-top-4k{
-  display:block !important;
-  width:112px !important;
-  max-width:112px !important;
-  height:auto !important;
-  margin:0 auto 2px !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-title{
-  width:auto !important;
-  min-width:0 !important;
-  max-width:none !important;
-  padding:0 !important;
-  margin:0 auto !important;
-  transform:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-title-art{
-  display:block !important;
-  width:440px !important;
-  max-width:440px !important;
-  height:auto !important;
-  max-height:none !important;
-  margin:0 auto !important;
-  transform:none !important;
-  animation:none !important;
-  filter:
-    drop-shadow(0 14px 24px rgba(0,0,0,.18))
-    drop-shadow(0 0 14px rgba(74,198,255,.14))
-    drop-shadow(0 0 18px rgba(255,207,110,.12)) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-sub,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .tk-cinema-callout,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .tk-cinema-callout__img,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-tabs,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-down{
-  display:none !important;
-}
-
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-container{
-  position:relative !important;
-  width:760px !important;
-  max-width:680px !important;
-  min-height:250px !important;
-  margin:0 auto !important;
-  display:grid !important;
-  grid-template-columns:42px 588px 42px !important;
-  align-items:center !important;
-  column-gap:6px !important;
-  overflow:visible !important;
-  padding:0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-prev,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-next{
-  position:relative !important;
-  top:auto !important;
-  left:auto !important;
-  right:auto !important;
-  transform:none !important;
-  margin:0 !important;
-  place-self:center !important;
-  width:40px !important;
-  height:40px !important;
-  z-index:12 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-wrapper{
-  grid-column:2 !important;
-  width:588px !important;
-  min-width:588px !important;
-  max-width:588px !important;
-  padding:4px 4px 8px !important;
-  box-sizing:border-box !important;
-  margin:0 auto !important;
-  overflow:hidden !important;
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
-  align-items:stretch !important;
-  justify-content:stretch !important;
-  scroll-snap-type:none !important;
-  scrollbar-width:none !important;
-  -ms-overflow-style:none !important;
-  -webkit-mask-image:none !important;
-  mask-image:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-wrapper::-webkit-scrollbar{ display:none !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.tk-mac2600-cinema-hidden{ display:none !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide{
-  display:block !important;
-  width:auto !important;
-  min-width:0 !important;
-  max-width:none !important;
-  flex:none !important;
-  cursor:pointer !important;
-  min-height:0 !important;
-  border-radius:22px !important;
-  padding:10px !important;
-  position:relative !important;
-  overflow:hidden !important;
-  background:
-    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.14), transparent 60%),
-    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.10), transparent 60%),
-    linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46)) !important;
-  border:1px solid rgba(255,225,138,.32) !important;
-  box-shadow:
-    0 18px 32px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.14) !important;
-  backdrop-filter:blur(14px) saturate(1.06) !important;
-  -webkit-backdrop-filter:blur(14px) saturate(1.06) !important;
-  transform:none !important;
-  opacity:1 !important;
-  filter:none !important;
-  transform-origin:center center !important;
-  transition:transform .22s cubic-bezier(.22,.61,.36,1), box-shadow .22s ease, border-color .22s ease !important;
-  will-change:transform !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  border-radius:22px !important;
-  padding:2px !important;
-  background:linear-gradient(90deg, rgba(255,244,201,.92), rgba(255,210,122,.76), rgba(255,255,255,.22), rgba(255,210,122,.72), rgba(255,244,201,.90)) !important;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
-  -webkit-mask-composite: xor !important;
-  mask-composite: exclude !important;
-  pointer-events:none !important;
-  opacity:.92 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide::after{
-  display:none !important;
-  content:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active{
-  transform:translateY(-4px) scale(1.015) !important;
-  z-index:4 !important;
-  border-color:rgba(255,244,201,.74) !important;
-  box-shadow:
-    0 22px 38px rgba(0,0,0,.24),
-    0 0 0 1px rgba(255,226,146,.28),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-img,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active .movie-img,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide:not(.is-active) .movie-img{
-  display:block !important;
-  width:100% !important;
-  height:150px !important;
-  object-fit:cover !important;
-  margin:0 !important;
-  border-radius:18px 18px 0 0 !important;
-  filter:none !important;
-  opacity:1 !important;
-  vertical-align:top !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-seam-gold{
-  display:block !important;
-  position:relative !important;
-  z-index:3 !important;
-  height:8px !important;
-  width:100% !important;
-  margin:0 !important;
-  border-radius:0 !important;
-  background:linear-gradient(180deg, rgba(255,251,226,.98) 0%, rgba(255,239,181,.98) 14%, rgba(255,219,109,1) 40%, rgba(227,161,42,.98) 72%, rgba(255,237,176,.96) 100%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.86),
-    inset 0 -2px 4px rgba(122,74,8,.36),
-    0 0 0 1px rgba(255,219,109,.22),
-    0 0 10px rgba(255,205,90,.16) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-seam-gold::before,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-seam-gold::after{
-  display:none !important;
-  content:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-info{
-  position:relative !important;
-  margin-top:0 !important;
-  padding:10px 10px 10px !important;
-  border-top:none !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:6px !important;
-  align-items:flex-start !important;
-  justify-content:flex-start !important;
-  background:
-    linear-gradient(180deg,
-      rgba(255,246,203,.98) 0px,
-      rgba(255,228,150,.96) 1px,
-      rgba(255,202,97,.88) 4px,
-      rgba(124,221,255,.42) 8px,
-      rgba(12,44,76,.96) 9px,
-      rgba(7,22,40,.985) 100%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.14),
-    inset 0 8px 20px rgba(255,214,120,.10) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-text{
-  min-width:0 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:8px !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-badges{
-  display:flex !important;
-  gap:8px !important;
-  align-items:center !important;
-  flex-wrap:wrap !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-ep,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-duration{
-  display:inline-flex !important;
-  align-items:center !important;
-  padding:4px 8px !important;
-  border-radius:999px !important;
-  font-size:10px !important;
-  letter-spacing:.10em !important;
-  text-transform:uppercase !important;
-  border:1px solid rgba(255,255,255,.16) !important;
-  background:rgba(255,255,255,.08) !important;
-  color:rgba(255,242,205,.88) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-duration{
-  color:rgba(200,245,255,.88) !important;
-  border-color:rgba(120,230,255,.18) !important;
-  background:rgba(120,230,255,.08) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-info h3{
-  font-size:15px !important;
-  line-height:1.06 !important;
-  margin:0 !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  min-height:2.1em !important;
-  max-width:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-info h3,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active .movie-info h3,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide .movie-text h3{
-  font-size:16px !important;
-  line-height:1.10 !important;
-  margin:0 !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  min-height:2.2em !important;
-  text-shadow:0 12px 28px rgba(0,0,0,.24) !important;
-  letter-spacing:.01em !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-btn{
-  appearance:none !important;
-  border:none !important;
-  cursor:pointer !important;
-  border-radius:999px !important;
-  padding:9px 14px !important;
-  min-width:118px !important;
-  font-family:inherit !important;
-  text-transform:uppercase !important;
-  letter-spacing:.14em !important;
-  font-size:11px !important;
-  color:rgba(245,250,255,.98) !important;
-  background:radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.20), transparent 60%), linear-gradient(180deg, rgba(120,230,255,.78), rgba(24,110,200,.80)) !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-  box-shadow:0 18px 34px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18) !important;
-  transition:transform .2s ease, filter .2s ease !important;
-  white-space:nowrap !important;
-  align-self:flex-start !important;
-  margin-top:0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-btn:hover{
-  transform:translateY(-1px) scale(1.02) !important;
-  filter:brightness(1.06) !important;
-}
-
-@keyframes tkMacCartoonPulseV81{
-  0%,100%{ filter: drop-shadow(0 10px 22px rgba(0,0,0,.20)) drop-shadow(0 0 10px rgba(74,198,255,.16)) drop-shadow(0 0 10px rgba(255,207,110,.12)); opacity:1; }
-  50%{ filter: drop-shadow(0 14px 28px rgba(0,0,0,.24)) drop-shadow(0 0 18px rgba(74,198,255,.28)) drop-shadow(0 0 18px rgba(255,207,110,.20)); opacity:1; }
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-title{
-  animation: tkMacCartoonPulseV81 2.6s ease-in-out infinite !important;
-  transform:none !important;
-}
-</style>
-<script id="tk-mac2600-cinema-final-script-v37">
-(function(){ /* disabled in v91 */ return; })();
-</script>
-
-
-<style id="tk-mac2600-cartoon-only-v38">
-html.tk-mac2600 #cinema .cinema-head,
-html.tk-mac2600 #cinema .cinema-banner,
-html.tk-mac2600 #cinema .cinema-banner-title,
-html.tk-mac2600 #cinema .cinema-banner-title--art{
-  width:min(86vw, 440px) !important;
-  max-width:min(86vw, 440px) !important;
-}
-html.tk-mac2600 #cinema .cinema-banner-title img.cinema-title-art,
-html.tk-mac2600 #cinema img.cinema-title-art,
-html.tk-mac2600 #cinema img[src$="cartoon.png"]{
-  width:min(86vw, 440px) !important;
-  max-width:min(86vw, 440px) !important;
-  max-height:160px !important;
-  height:auto !important;
-  display:block !important;
-  margin:0 auto !important;
-  object-fit:contain !important;
-}
-</style>
-<script id="tk-mac2600-cartoon-only-script-v38">
-(function(){
-  function isMac2600(){
-    try{
-      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-      var physW = Math.round(sw * dpr), physH = Math.round(sh * dpr);
-      var innerPhysW = Math.round(iw * dpr), innerPhysH = Math.round(ih * dpr);
-      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-      var retina = dpr >= 1.25 && dpr <= 2.6;
-      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
-      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
-      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
-  }
-  if(!isMac2600()) return;
-  var root = document.documentElement;
-  root.classList.add('tk-mac2600');
   function imp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
-  function apply(){
-    var title = document.querySelector('#cinema .cinema-banner-title');
-    var img = document.querySelector('#cinema .cinema-title-art') || document.querySelector('#cinema img[src$="cartoon.png"]');
-    var head = document.querySelector('#cinema .cinema-head');
-    var banner = document.querySelector('#cinema .cinema-banner');
-    if(head){ imp(head,'width','440px'); imp(head,'max-width','min(86vw, 440px)'); }
-    if(banner){ imp(banner,'width','440px'); imp(banner,'max-width','min(86vw, 440px)'); }
-    if(title){ imp(title,'width','440px'); imp(title,'max-width','min(86vw, 440px)'); }
+
+  function disableLegacyNodes(){
+    LEGACY_IDS.forEach(function(id){
+      var node = document.getElementById(id);
+      if(node && node.parentNode){
+        node.parentNode.removeChild(node);
+      }
+    });
+  }
+
+  function syncBanner(cinema){
+    var banner = q('.cinema-banner', cinema);
+    var title = q('.cinema-banner-title', cinema) || q('.cinema-banner-title--art', cinema);
+    var img = q('.cinema-title-art', cinema) || q('img[src$="cartoon.png"]', cinema);
+
+    if(banner){
+      imp(banner, 'animation', 'tkMacCinemaBannerPulseSingle 1.9s ease-in-out infinite');
+      imp(banner, 'transform-origin', 'center center');
+      imp(banner, 'will-change', 'transform, filter');
+    }
+    if(title){
+      imp(title, 'animation', 'none');
+      imp(title, 'transform', 'none');
+      imp(title, 'filter', 'none');
+    }
     if(img){
-      imp(img,'width','440px');
-      imp(img,'max-width','min(86vw, 440px)');
-      imp(img,'max-height','160px');
-      imp(img,'height','auto');
-      imp(img,'display','block');
-      imp(img,'margin','0 auto');
+      imp(img, 'animation', 'none');
+      imp(img, 'transform', 'none');
+      imp(img, 'filter', 'none');
+      if(img.getAttribute('src') !== 'cartoon.png') img.setAttribute('src', 'cartoon.png');
     }
   }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:false});
-  window.addEventListener('load', apply, {passive:true});
-  window.addEventListener('resize', apply, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
-  [0,120,300,700,1500,3000,5000].forEach(function(ms){ setTimeout(apply, ms); });
-  try{
-    var mo = new MutationObserver(function(){ apply(); });
-    mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style','src']});
-  }catch(_e){}
-})();
-</script>
 
-
-<style id="tk-mac2600-cinema-fhd2-final-v82">
-@keyframes tkMacCinemaPulseV82{
-  0%,100%{ transform:translateZ(0) scale(1); filter:drop-shadow(0 10px 18px rgba(0,0,0,.18)) drop-shadow(0 0 10px rgba(76,198,255,.14)); }
-  50%{ transform:translateZ(0) scale(1.045); filter:drop-shadow(0 14px 24px rgba(0,0,0,.20)) drop-shadow(0 0 18px rgba(76,198,255,.22)) drop-shadow(0 0 14px rgba(255,199,95,.18)); }
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37{
-  width:620px !important;
-  max-width:620px !important;
-  margin:0 auto !important;
-  padding:0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-head{
-  width:620px !important;
-  max-width:620px !important;
-  margin:0 auto 8px !important;
-  padding-top:0 !important;
-  transform:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-title,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-title--art{
-  width:440px !important;
-  max-width:440px !important;
-  margin:0 auto !important;
-  padding:0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-banner-title{
-  transform-origin:center center !important;
-  animation:tkMacCinemaPulseV82 2.35s ease-in-out infinite !important;
-  will-change:transform, filter !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .cinema-title-art{
-  width:440px !important;
-  max-width:440px !important;
-  height:auto !important;
-  display:block !important;
-  margin:0 auto !important;
-  animation:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-container{
-  width:620px !important;
-  max-width:620px !important;
-  min-height:285px !important;
-  margin:0 auto !important;
-  display:grid !important;
-  grid-template-columns:44px 532px 44px !important;
-  column-gap:0 !important;
-  align-items:center !important;
-  overflow:visible !important;
-  padding:0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-prev,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-next{
-  width:42px !important;
-  height:42px !important;
-  position:relative !important;
-  top:auto !important; left:auto !important; right:auto !important;
-  transform:none !important;
-  place-self:center !important;
-  z-index:16 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .slider-wrapper{
-  width:532px !important;
-  min-width:532px !important;
-  max-width:532px !important;
-  margin:0 auto !important;
-  padding:8px 6px 12px !important;
-  display:grid !important;
-  grid-template-columns:repeat(2, minmax(0,1fr)) !important;
-  gap:14px !important;
-  align-items:start !important;
-  overflow:visible !important;
-  scroll-snap-type:none !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.tk-mac2600-cinema-hidden{ display:none !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide{
-  min-height:0 !important;
-  border-radius:20px !important;
-  padding:0 !important;
-  overflow:hidden !important;
-  background:
-    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.12), transparent 60%),
-    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.08), transparent 60%),
-    linear-gradient(180deg, rgba(10,55,90,.62), rgba(8,35,60,.58)) !important;
-  border:1px solid rgba(255,221,136,.34) !important;
-  box-shadow:0 18px 30px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.13) !important;
-  transform:translateY(0) scale(.97) !important;
-  transform-origin:center center !important;
-  transition:transform .22s cubic-bezier(.22,.61,.36,1), box-shadow .22s ease, border-color .22s ease, opacity .22s ease !important;
-  opacity:.96 !important;
-  filter:none !important;
-  cursor:pointer !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  border-radius:20px !important;
-  padding:2px !important;
-  background:linear-gradient(90deg, rgba(255,244,201,.90), rgba(255,210,122,.76), rgba(255,255,255,.18), rgba(255,210,122,.74), rgba(255,244,201,.88)) !important;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
-  -webkit-mask-composite: xor !important;
-  mask-composite: exclude !important;
-  pointer-events:none !important;
-  opacity:.62 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active{
-  transform:translateY(-4px) scale(1.02) !important;
-  z-index:6 !important;
-  opacity:1 !important;
-  border-color:rgba(255,233,156,.88) !important;
-  box-shadow:0 24px 36px rgba(0,0,0,.24), 0 0 0 1px rgba(255,228,146,.24), inset 0 1px 0 rgba(255,255,255,.18) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active::before{ opacity:.92 !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-img,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active .movie-img,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide:not(.is-active) .movie-img{
-  width:100% !important;
-  height:150px !important;
-  display:block !important;
-  object-fit:cover !important;
-  margin:0 !important;
-  border-radius:18px 18px 0 0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-seam-gold{
-  display:block !important;
-  width:calc(100% - 12px) !important;
-  margin:0 6px !important;
-  height:5px !important;
-  border-radius:999px !important;
-  background:linear-gradient(180deg,#fff7d5 0%, #ffd86f 48%, #b97a1d 100%) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.72), 0 0 0 1px rgba(255,218,108,.18), 0 0 8px rgba(255,205,90,.12) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-seam-gold::before,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-seam-gold::after{ display:none !important; content:none !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-info{
-  margin:0 !important;
-  padding:10px 10px 10px !important;
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) auto !important;
-  grid-template-areas:"badges badges" "title btn" !important;
-  align-items:end !important;
-  column-gap:10px !important;
-  row-gap:8px !important;
-  background:linear-gradient(180deg, rgba(8,36,64,.96), rgba(7,23,41,.99)) !important;
-  border-radius:0 0 20px 20px !important;
-  min-height:100px !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-text{ display:contents !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-badges{ grid-area:badges !important; display:flex !important; gap:7px !important; flex-wrap:wrap !important; margin:0 !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-ep,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-duration{ font-size:9px !important; letter-spacing:.10em !important; padding:4px 7px !important; }
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-info h3,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide .movie-text h3,
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-slide.is-active .movie-info h3{
-  grid-area:title !important;
-  margin:0 !important;
-  font-size:13.5px !important;
-  line-height:1.10 !important;
-  min-height:2.2em !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  text-shadow:0 10px 24px rgba(0,0,0,.22) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-btn{
-  grid-area:btn !important;
-  justify-self:end !important;
-  align-self:end !important;
-  min-width:102px !important;
-  padding:8px 12px !important;
-  font-size:10px !important;
-  letter-spacing:.12em !important;
-  margin:0 !important;
-}
-</style>
-<script id="tk-mac2600-cinema-fhd2-final-script-v82">
-(function(){ /* disabled in v91 */ return; })();
-</script>
-
-
-<style id="tk-mac2600-cinema-v86-style">
-@keyframes tkMacCinemaPulseV86 {
-  0%,100% { transform: translateZ(0) scale(1); filter: drop-shadow(0 8px 18px rgba(0,0,0,.18)) drop-shadow(0 0 14px rgba(88,208,255,.24)); }
-  50% { transform: translateZ(0) scale(1.06); filter: drop-shadow(0 14px 28px rgba(0,0,0,.22)) drop-shadow(0 0 24px rgba(88,208,255,.38)) drop-shadow(0 0 16px rgba(255,198,96,.24)); }
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86{
-  width: 620px !important;
-  max-width: 620px !important;
-  margin: 0 auto !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-head{
-  width: 620px !important;
-  max-width: 620px !important;
-  margin: 0 auto 8px !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-banner,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-banner-title,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-banner-title--art{
-  width: 440px !important;
-  max-width: 440px !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-banner-title{
-  animation: tkMacCinemaPulseV86 1.85s ease-in-out infinite !important;
-  transform-origin: center center !important;
-  will-change: transform, filter !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .slider-container{
-  width: 620px !important;
-  max-width: 620px !important;
-  grid-template-columns: 42px 536px 42px !important;
-  min-height: 290px !important;
-  overflow: visible !important;
-  align-items: center !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .slider-wrapper{
-  width: 536px !important;
-  min-width: 536px !important;
-  max-width: 536px !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 14px !important;
-  overflow: visible !important;
-  padding: 6px 4px 10px !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide.tk-mac2600-cinema-hidden{ display:none !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide{
-  width: 261px !important;
-  min-width: 261px !important;
-  max-width: 261px !important;
-  min-height: 286px !important;
-  transition: transform .24s ease, filter .24s ease, box-shadow .24s ease !important;
-  transform-origin: center center !important;
-  cursor: pointer !important;
-  overflow: hidden !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide.tk-v86-active{
-  transform: translateY(-6px) scale(1.02) !important;
-  z-index: 5 !important;
-  filter: saturate(1.04) brightness(1.02) !important;
-  box-shadow: 0 16px 34px rgba(0,0,0,.24), 0 0 0 1px rgba(255,232,182,.34) inset !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide.tk-v86-idle{
-  transform: translateY(0) scale(.965) !important;
-  z-index: 1 !important;
-  filter: saturate(.96) brightness(.98) !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-img{ height: 166px !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-seam-gold{
-  height: 8px !important;
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-seam-gold::before,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-seam-gold::after{ display:none !important; content:none !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-info{
-  min-height: 102px !important;
-  padding: 10px 12px 12px !important;
-  display:grid !important;
-  grid-template-columns: minmax(0,1fr) auto !important;
-  grid-template-areas: "badges badges" "title btn" !important;
-  column-gap: 12px !important;
-  row-gap: 8px !important;
-  align-items: end !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-text{ display: contents !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-badges{ grid-area: badges !important; display:flex !important; gap:8px !important; flex-wrap:wrap !important; margin:0 !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-info h3,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide .movie-text h3,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide.is-active .movie-info h3{
-  grid-area: title !important;
-  font-size: 17px !important;
-  line-height: 1.03 !important;
-  min-height: 2.05em !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  margin: 0 !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-btn{
-  grid-area: btn !important;
-  justify-self: end !important;
-  align-self: end !important;
-  min-width: 112px !important;
-  padding: 9px 14px !important;
-  margin: 0 !important;
-}
-</style>
-<script id="tk-mac2600-cinema-v86-script">
-(function(){
-  function isMac2600(){
-    try{
-      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-      var physW = Math.round(sw * dpr), physH = Math.round(sh * dpr), innerPhysW = Math.round(iw * dpr), innerPhysH = Math.round(ih * dpr);
-      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-      var retina = dpr >= 1.25 && dpr <= 2.6;
-      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
-      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
-      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
-  }
-  if(!isMac2600()) return;
-  var root = document.documentElement; root.classList.add('tk-mac2600');
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  var state = { start:0, active:0 };
-  var current = null;
-  function imp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-  function rebindNode(node){ if(!node || !node.parentNode) return node; var clone = node.cloneNode(true); node.parentNode.replaceChild(clone, node); return clone; }
-  function forcePulse(cinema){
-    var titleWrap = q('.cinema-banner-title', cinema);
-    var head = q('.cinema-head', cinema);
-    [head, titleWrap].forEach(function(el){
-      if(!el) return;
-      imp(el,'animation','tkMacCinemaPulseV86 1.85s ease-in-out infinite');
-      imp(el,'transform-origin','center center');
-      imp(el,'will-change','transform,filter');
-    });
-    var img = q('.cinema-title-art', cinema);
-    if(img) imp(img,'animation','none');
-  }
   function setup(){
+    disableLegacyNodes();
+
     var cinema = document.getElementById('cinema');
     if(!cinema) return null;
-    cinema.classList.add('tk-mac2600-cinema-v37','tk-mac2600-v86');
-    forcePulse(cinema);
-    var prev = rebindNode(q('.slider-prev', cinema));
-    var next = rebindNode(q('.slider-next', cinema));
-    var track = rebindNode(q('.slider-wrapper', cinema));
+
+    document.documentElement.classList.add('tk-mac2600');
+    cinema.classList.remove('tk-mac2600-cinema-v37', 'tk-mac2600-v86');
+    cinema.classList.add('tk-mac2600-cinema-single-controller');
+
+    var prev = q('.slider-prev', cinema);
+    var next = q('.slider-next', cinema);
+    var track = q('.slider-wrapper', cinema);
     if(!prev || !next || !track) return null;
+
+    prev = prev.cloneNode(true);
+    q('.slider-prev', cinema).replaceWith(prev);
+
+    next = next.cloneNode(true);
+    q('.slider-next', cinema).replaceWith(next);
+
+    track = track.cloneNode(true);
+    q('.slider-wrapper', cinema).replaceWith(track);
+
     var slides = qa('.movie-slide', track);
-    slides.forEach(function(slide){
-      slide.classList.remove('tk-fhd-hidden','tk-mac2600-cinema-hidden','is-active','tk-v86-active','tk-v86-idle');
-      imp(slide,'display','block');
-      imp(slide,'cursor','pointer');
+    slides.forEach(function(slide, idx){
+      slide.classList.remove(
+        'tk-fhd-hidden',
+        'tk-mac2600-cinema-hidden',
+        'tk-mac2600-cinema-slide-hidden',
+        'is-active',
+        'tk-v86-active',
+        'tk-v86-idle',
+        'tk-mac2600-cinema-active',
+        'tk-mac2600-cinema-idle'
+      );
+      slide.dataset.tkMacCinemaIndex = String(idx);
+      imp(slide, 'display', 'block');
+      imp(slide, 'cursor', 'pointer');
+      slide.setAttribute('aria-hidden', 'false');
     });
-    state.start = clamp(state.start, 0, Math.max(0, slides.length-2));
-    state.active = clamp(state.active, state.start, Math.min(state.start+1, slides.length-1));
-    return { cinema: cinema, prev: prev, next: next, track: track, slides: slides };
-  }
-  function render(parts){
-    if(!parts) return;
-    var slides = parts.slides, maxStart = Math.max(0, slides.length - 2);
-    state.start = clamp(state.start, 0, maxStart);
+
+    syncBanner(cinema);
+
+    state.start = clamp(state.start, 0, Math.max(0, slides.length - 2));
     state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
-    slides.forEach(function(slide, idx){
-      var visible = idx >= state.start && idx < state.start + 2;
-      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
-      slide.classList.toggle('tk-fhd-hidden', !visible);
-      slide.classList.toggle('is-active', visible && idx === state.active);
-      slide.classList.toggle('tk-v86-active', visible && idx === state.active);
-      slide.classList.toggle('tk-v86-idle', visible && idx !== state.active);
-      imp(slide,'display', visible ? 'block' : 'none');
-      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
-    });
-    parts.prev.disabled = state.start <= 0;
-    parts.next.disabled = state.start >= maxStart;
-    try{ parts.track.scrollLeft = 0; }catch(_e){}
-    forcePulse(parts.cinema);
-  }
-  function setActive(idx){
-    if(!current) return;
-    if(idx < state.start) state.start = idx;
-    if(idx > state.start + 1) state.start = idx - 1;
-    state.active = idx;
-    render(current);
-  }
-  function bind(parts){
-    if(!parts) return;
-    parts.prev.onclick = function(e){
-      e.preventDefault(); e.stopPropagation();
-      state.start = clamp(state.start - 1, 0, Math.max(0, parts.slides.length - 2));
-      state.active = state.start;
-      render(parts);
-      return false;
-    };
-    parts.next.onclick = function(e){
-      e.preventDefault(); e.stopPropagation();
-      state.start = clamp(state.start + 1, 0, Math.max(0, parts.slides.length - 2));
-      state.active = Math.min(state.start + 1, parts.slides.length - 1);
-      render(parts);
-      return false;
-    };
-    parts.slides.forEach(function(slide, idx){
-      slide.onclick = function(e){
-        if(e.target.closest('a') || e.target.closest('button')) return;
-        e.preventDefault(); e.stopPropagation();
-        setActive(idx);
-        return false;
-      };
-      slide.onpointerup = slide.onclick;
-      var btn = q('.movie-btn', slide);
-      if(btn){ btn.onclick = function(e){ e.stopPropagation(); setActive(idx); }; }
-    });
-  }
-  function apply(){
-    current = setup();
-    if(!current) return;
-    bind(current);
-    render(current);
-  }
-  function tick(){ apply(); setTimeout(apply,120); setTimeout(apply,450); setTimeout(apply,1200); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick, {once:true}); else tick();
-  window.addEventListener('load', tick, {once:true});
-})();
-</script>
 
-<style id="tk-mac2600-cinema-v91-style-overrides">
-@keyframes tkMacCartoonFloatV91 {
-  0%,100% { transform: translate3d(0,0,0) scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.20)) drop-shadow(0 0 10px rgba(86,210,255,.18)); }
-  50% { transform: translate3d(0,-7px,0) scale(1.028); filter: drop-shadow(0 16px 28px rgba(0,0,0,.24)) drop-shadow(0 0 22px rgba(86,210,255,.32)) drop-shadow(0 0 10px rgba(255,208,110,.18)); }
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-head{ margin-bottom:8px !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-banner-title,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .cinema-banner-title--art{
-  animation: tkMacCartoonFloatV91 1.9s ease-in-out infinite !important;
-  transform-origin:center center !important;
-  will-change:transform, filter !important;
-}
-html.tk-mac2600 #cinema.tk-mac2600-v86 .slider-container{ min-height: 270px !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .slider-wrapper{ padding:6px 4px 2px !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide{ overflow:hidden !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-info{ padding:10px 10px 8px !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-info h3,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide .movie-text h3,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-slide.is-active .movie-info h3{ margin-bottom:0 !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .movie-btn{ align-self:center !important; }
-html.tk-mac2600 #cinema.tk-mac2600-v86 .slider-prev,
-html.tk-mac2600 #cinema.tk-mac2600-v86 .slider-next{
-  z-index: 60 !important;
-  pointer-events:auto !important;
-}
-</style>
+    return {
+      cinema: cinema,
+      prev: prev,
+      next: next,
+      track: track,
+      slides: slides
+    };
+  }
 
-<script id="tk-mac2600-cinema-v91-authoritative-script">
-(function(){
-  function isMac2600(){
-    try{
-      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-      var physW = Math.round(sw * dpr), physH = Math.round(sh * dpr), innerPhysW = Math.round(iw * dpr), innerPhysH = Math.round(ih * dpr);
-      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-      var retina = dpr >= 1.25 && dpr <= 2.6;
-      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
-      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
-      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){ return false; }
-  }
-  if(!isMac2600()) return;
-  var root=document.documentElement; root.classList.add('tk-mac2600');
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function imp(el,p,v){ if(el) el.style.setProperty(p,v,'important'); }
-  var parts=null, state={start:0, active:0};
-  function setup(){
-    var cinema=document.getElementById('cinema'); if(!cinema) return null;
-    cinema.classList.add('tk-mac2600-cinema-v37','tk-mac2600-v86');
-    var prev=q('.slider-prev', cinema), next=q('.slider-next', cinema), track=q('.slider-wrapper', cinema);
-    if(!prev||!next||!track) return null;
-    prev = prev.cloneNode(true); q('.slider-prev', cinema).replaceWith(prev);
-    next = next.cloneNode(true); q('.slider-next', cinema).replaceWith(next);
-    track = track.cloneNode(true); q('.slider-wrapper', cinema).replaceWith(track);
-    var slides=qa('.movie-slide', track);
-    slides.forEach(function(slide, idx){
-      slide.classList.remove('tk-fhd-hidden','tk-mac2600-cinema-hidden','is-active','tk-v86-active','tk-v86-idle');
-      imp(slide,'display','block'); imp(slide,'cursor','pointer');
-      slide.dataset.macIndex=String(idx);
-    });
-    imp(prev,'pointer-events','auto'); imp(next,'pointer-events','auto');
-    imp(prev,'opacity','1'); imp(next,'opacity','1');
-    var title = q('.cinema-banner-title', cinema);
-    if(title){ imp(title,'animation','tkMacCartoonFloatV91 1.9s ease-in-out infinite'); }
-    return {cinema:cinema, prev:prev, next:next, track:track, slides:slides};
-  }
   function render(){
     if(!parts) return;
-    var slides=parts.slides, maxStart=Math.max(0, slides.length-2);
-    state.start=clamp(state.start,0,maxStart);
-    state.active=clamp(state.active,state.start,Math.min(state.start+1,slides.length-1));
+    var slides = parts.slides;
+    if(!slides.length) return;
+
+    var maxStart = Math.max(0, slides.length - 2);
+    state.start = clamp(state.start, 0, maxStart);
+    state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
+
     slides.forEach(function(slide, idx){
-      var visible = idx>=state.start && idx<state.start+2;
-      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
+      var visible = idx >= state.start && idx < state.start + 2;
+      var active = visible && idx === state.active;
+
+      slide.classList.toggle('tk-mac2600-cinema-slide-hidden', !visible);
       slide.classList.toggle('tk-fhd-hidden', !visible);
-      slide.classList.toggle('is-active', visible && idx===state.active);
-      slide.classList.toggle('tk-v86-active', visible && idx===state.active);
-      slide.classList.toggle('tk-v86-idle', visible && idx!==state.active);
-      imp(slide,'display', visible ? 'block':'none');
-      slide.setAttribute('aria-hidden', visible ? 'false':'true');
+      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
+      slide.classList.toggle('tk-mac2600-cinema-active', active);
+      slide.classList.toggle('tk-mac2600-cinema-idle', visible && !active);
+      slide.classList.toggle('is-active', active);
+      slide.classList.remove('tk-v86-active', 'tk-v86-idle');
+
+      imp(slide, 'display', visible ? 'block' : 'none');
+      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
     });
-    parts.prev.disabled = state.start<=0;
-    parts.next.disabled = state.start>=maxStart;
-    imp(parts.prev,'opacity', state.start<=0 ? '.58':'1');
-    imp(parts.next,'opacity', state.start>=maxStart ? '.58':'1');
-    try{ parts.track.scrollLeft=0; }catch(_e){}
+
+    parts.prev.disabled = state.start <= 0;
+    parts.next.disabled = state.start >= maxStart;
+    imp(parts.prev, 'opacity', state.start <= 0 ? '.58' : '1');
+    imp(parts.next, 'opacity', state.start >= maxStart ? '.58' : '1');
+
+    try{
+      parts.track.scrollLeft = 0;
+      if(parts.track.scrollTo) parts.track.scrollTo({ left: 0, behavior: 'auto' });
+    }catch(_e){}
+
+    syncBanner(parts.cinema);
   }
+
   function choose(idx){
     if(!parts) return;
     if(idx < 0 || idx >= parts.slides.length) return;
+
     if(idx < state.start) state.start = idx;
     if(idx > state.start + 1) state.start = idx - 1;
+
     state.active = idx;
     render();
   }
+
   function bind(){
     if(!parts) return;
+
     parts.prev.addEventListener('click', function(e){
-      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-      if(state.start<=0) return false;
-      state.start = state.start - 1;
-      if(state.active > state.start + 1) state.active = state.start + 1;
-      if(state.active < state.start) state.active = state.start;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      var maxStart = Math.max(0, parts.slides.length - 2);
+      state.start = clamp(state.start - 1, 0, maxStart);
+      if(state.active < state.start || state.active > state.start + 1){
+        state.active = state.start;
+      }
       render();
       return false;
     }, true);
+
     parts.next.addEventListener('click', function(e){
-      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-      var maxStart=Math.max(0, parts.slides.length-2);
-      if(state.start>=maxStart) return false;
-      state.start = state.start + 1;
-      if(state.active < state.start) state.active = state.start;
-      if(state.active > state.start + 1) state.active = state.start + 1;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      var maxStart = Math.max(0, parts.slides.length - 2);
+      state.start = clamp(state.start + 1, 0, maxStart);
+      if(state.active < state.start || state.active > state.start + 1){
+        state.active = state.start + 1 > parts.slides.length - 1 ? parts.slides.length - 1 : state.start + 1;
+      }
       render();
       return false;
     }, true);
+
     parts.slides.forEach(function(slide, idx){
       function onPick(e){
         if(e && e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return;
-        if(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        }
         choose(idx);
         return false;
       }
+
       slide.addEventListener('click', onPick, true);
       slide.addEventListener('pointerup', onPick, true);
-      var btn=q('.movie-btn', slide);
-      if(btn) btn.addEventListener('click', function(e){ e.stopPropagation(); choose(idx); }, true);
+
+      var btn = q('.movie-btn', slide);
+      if(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          choose(idx);
+        }, true);
+      }
     });
   }
-  function boot(){ parts=setup(); if(!parts) return; bind(); render(); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
-  window.addEventListener('load', function(){ boot(); setTimeout(render,50); setTimeout(render,220); setTimeout(render,800); }, {once:true});
+
+  function boot(){
+    parts = setup();
+    if(!parts) return;
+    bind();
+    render();
+  }
+
+  function watch(){
+    if(observer) return;
+    try{
+      observer = new MutationObserver(function(){
+        boot();
+      });
+      observer.observe(document.documentElement, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['class', 'style', 'src']
+      });
+    }catch(_e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      boot();
+      watch();
+    }, { once: true });
+  }else{
+    boot();
+    watch();
+  }
+
+  window.addEventListener('load', function(){
+    boot();
+    setTimeout(boot, 60);
+    setTimeout(boot, 220);
+    setTimeout(boot, 800);
+  }, { once: true });
+
+  window.addEventListener('resize', boot, { passive: true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', boot, { passive: true });
 })();
 </script>
 
+</body>
+</html>
