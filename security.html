@@ -14671,7 +14671,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </button>
 <div class="slider-wrapper">
 <div class="movie-slide" data-ep="1">
-<img alt="Серия 1 — Опасный пароль" class="movie-img" loading="lazy" src="movie-1.jpg">
+<img alt="Серия 1 — Опасный пароль" class="movie-img" loading="lazy" src="movie-1.jpg"/>
 <div class="movie-seam-gold" aria-hidden="true"></div>
 <div class="movie-info">
 <div class="movie-text">
@@ -14683,7 +14683,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </div>
 <button class="movie-btn" type="button">Смотреть</button>
 </div>
-</img></div>
+</div>
 <div class="movie-slide" data-ep="2">
 <img alt="Серия 2 — Что такое фишинг?" class="movie-img" loading="lazy" src="movie-2.jpg"/>
 <div class="movie-seam-gold" aria-hidden="true"></div>
@@ -58053,41 +58053,33 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 }
 </style>
 
+
+
+<style id="tk-mac2600-cinema-hotfix-v93-style">
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-prev{ grid-column:1 !important; }
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-next{ grid-column:3 !important; }
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-prev,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .slider-next{
+  z-index:120 !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-img{
+  background:
+    radial-gradient(120% 120% at 22% 18%, rgba(130,230,255,.18), transparent 58%),
+    radial-gradient(120% 120% at 84% 22%, rgba(255,220,125,.16), transparent 60%),
+    linear-gradient(180deg, rgba(18,42,72,.98), rgba(8,22,42,1)) !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-img[data-tk-poster-fallback="1"]{
+  object-fit:cover !important;
+  image-rendering:auto !important;
+}
+</style>
+
 <script id="tk-mac2600-cinema-single-controller-v92-script">
 (function(){
-  if(window.__tkMac2600CinemaSingleV92) return;
-  window.__tkMac2600CinemaSingleV92 = true;
-
-  function isMac2600(){
-    try{
-      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
-      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
-      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
-      var physW = Math.round(sw * dpr);
-      var physH = Math.round(sh * dpr);
-      var innerPhysW = Math.round(iw * dpr);
-      var innerPhysH = Math.round(ih * dpr);
-      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
-      var retina = dpr >= 1.25 && dpr <= 2.6;
-      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
-      var physBand = (
-        (physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) ||
-        (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900)
-      );
-      var not4k = !(
-        physW >= 3600 || physH >= 2300 ||
-        innerPhysW >= 3600 || innerPhysH >= 2300 ||
-        iw >= 2200 || ih >= 1350
-      );
-      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
-    }catch(_e){
-      return false;
-    }
-  }
-
-  if(!isMac2600()) return;
+  if(window.__tkMac2600CinemaSingleV93) return;
+  window.__tkMac2600CinemaSingleV93 = true;
 
   var LEGACY_IDS = [
     'tk-mac2600-cinema-refine-v24',
@@ -58110,12 +58102,58 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 
   var state = { start: 0, active: 0 };
   var parts = null;
-  var observer = null;
 
   function q(sel, ctx){ return (ctx || document).querySelector(sel); }
   function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
   function imp(el, prop, value){ if(el) el.style.setProperty(prop, value, 'important'); }
+  function uniq(list){ return list.filter(function(v, i, arr){ return !!v && arr.indexOf(v) === i; }); }
+
+  function detectMac2600(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr);
+      var physH = Math.round(sh * dpr);
+      var innerPhysW = Math.round(iw * dpr);
+      var innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.8;
+      var logicalBand = iw >= 1050 && iw <= 1900 && ih >= 640 && ih <= 1250;
+      var physBand = (
+        (physW >= 2300 && physW <= 3600 && physH >= 1400 && physH <= 2400) ||
+        (innerPhysW >= 2300 && innerPhysW <= 3400 && innerPhysH >= 1350 && innerPhysH <= 2300)
+      );
+      var notHuge4k = !(physW >= 3900 || physH >= 2600 || innerPhysW >= 3900 || innerPhysH >= 2600 || iw >= 2200 || ih >= 1500);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && notHuge4k;
+    }catch(_e){
+      return false;
+    }
+  }
+
+  function shouldRun(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return false;
+    if(detectMac2600()) return true;
+    if(document.documentElement.classList.contains('tk-mac2600')) return true;
+    try{
+      var wrapper = q('.slider-wrapper', cinema);
+      if(!wrapper) return false;
+      var slides = qa('.movie-slide', wrapper);
+      if(slides.length < 3) return false;
+      var cs = window.getComputedStyle(wrapper);
+      var cols = String(cs.gridTemplateColumns || '').trim().split(/\s+/).filter(Boolean).length;
+      var stage = q('.slider-container', cinema);
+      var compactStage = !!stage && stage.getBoundingClientRect().width <= 660;
+      var desktopish = window.innerWidth >= 1050 && window.innerHeight >= 640;
+      return desktopish && (cols === 2 || compactStage);
+    }catch(_e){
+      return false;
+    }
+  }
 
   function disableLegacyNodes(){
     LEGACY_IDS.forEach(function(id){
@@ -58130,7 +58168,6 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     var banner = q('.cinema-banner', cinema);
     var title = q('.cinema-banner-title', cinema) || q('.cinema-banner-title--art', cinema);
     var img = q('.cinema-title-art', cinema) || q('img[src$="cartoon.png"]', cinema);
-
     if(banner){
       imp(banner, 'animation', 'tkMacCinemaBannerPulseSingle 1.9s ease-in-out infinite');
       imp(banner, 'transform-origin', 'center center');
@@ -58149,11 +58186,117 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     }
   }
 
+  function svgPoster(episode, title){
+    var safeTitle = String(title || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var safeEp = String(episode || 'Серия').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">',
+      '<defs>',
+      '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">',
+      '<stop offset="0%" stop-color="#0b1c35"/>',
+      '<stop offset="100%" stop-color="#103c68"/>',
+      '</linearGradient>',
+      '<radialGradient id="glow" cx="50%" cy="38%" r="62%">',
+      '<stop offset="0%" stop-color="rgba(122,229,255,0.34)"/>',
+      '<stop offset="100%" stop-color="rgba(122,229,255,0)"/>',
+      '</radialGradient>',
+      '</defs>',
+      '<rect width="900" height="560" rx="34" fill="url(#bg)"/>',
+      '<rect x="22" y="22" width="856" height="516" rx="28" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2"/>',
+      '<circle cx="220" cy="170" r="150" fill="url(#glow)"/>',
+      '<circle cx="706" cy="398" r="150" fill="rgba(255,215,130,.10)"/>',
+      '<g transform="translate(112 108)">',
+      '<rect x="0" y="44" width="240" height="226" rx="28" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.10)"/>',
+      '<rect x="34" y="76" width="172" height="18" rx="9" fill="#8ce4ff" opacity=".82"/>',
+      '<rect x="34" y="112" width="140" height="18" rx="9" fill="#8ce4ff" opacity=".72"/>',
+      '<rect x="34" y="148" width="186" height="18" rx="9" fill="#ffd680" opacity=".66"/>',
+      '<circle cx="120" cy="214" r="42" fill="none" stroke="#8ce4ff" stroke-width="12"/>',
+      '<circle cx="120" cy="214" r="18" fill="#d8fbff"/>',
+      '</g>',
+      '<g transform="translate(390 108)">',
+      '<rect x="0" y="0" width="220" height="42" rx="21" fill="rgba(255,223,145,.18)" stroke="rgba(255,255,255,.14)"/>',
+      '<text x="110" y="28" text-anchor="middle" fill="#ffe4a2" font-size="22" font-family="Segoe UI,Arial,sans-serif" font-weight="700">', safeEp, '</text>',
+      '<text x="0" y="108" fill="#fff0be" font-size="46" font-family="Georgia,serif" font-weight="700">Постер серии</text>',
+      '<foreignObject x="0" y="146" width="440" height="170">',
+      '<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Segoe UI,Arial,sans-serif;color:#eaf6ff;font-size:32px;line-height:1.12;font-weight:700;">', safeTitle, '</div>',
+      '</foreignObject>',
+      '<text x="0" y="358" fill="rgba(234,246,255,.78)" font-size="22" font-family="Segoe UI,Arial,sans-serif">Оригинальная картинка не загрузилась — карточка не сломана.</text>',
+      '<text x="0" y="392" fill="rgba(140,228,255,.82)" font-size="22" font-family="Segoe UI,Arial,sans-serif">Листание и выбор слайда продолжают работать.</text>',
+      '</g>',
+      '</svg>'
+    ].join('');
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+
+  function candidateSources(src){
+    var clean = String(src || '').split('#')[0].split('?')[0];
+    var base = clean.replace(/\.[^.\/]+$/, '');
+    var under = base.replace(/-/g, '_');
+    var flat = base.replace(/[-_]/g, '');
+    return uniq([
+      clean,
+      base + '.jpg',
+      base + '.jpeg',
+      base + '.png',
+      base + '.webp',
+      under + '.jpg',
+      under + '.jpeg',
+      under + '.png',
+      under + '.webp',
+      flat + '.jpg',
+      flat + '.jpeg',
+      flat + '.png',
+      flat + '.webp'
+    ]);
+  }
+
+  function attachPosterFallback(slide, idx){
+    var img = q('.movie-img', slide);
+    if(!img || img.__tkPosterFixBound) return;
+    img.__tkPosterFixBound = true;
+
+    var title = '';
+    var titleEl = q('h3', slide);
+    if(titleEl) title = titleEl.textContent || '';
+    var episode = slide.getAttribute('data-ep') ? ('Серия ' + slide.getAttribute('data-ep')) : ('Серия ' + (idx + 1));
+    var original = img.getAttribute('src') || img.src || '';
+    var tries = candidateSources(original);
+    var pos = 0;
+
+    function applyFinalFallback(){
+      img.dataset.tkPosterFallback = '1';
+      img.setAttribute('data-tk-poster-fallback', '1');
+      img.src = svgPoster(episode, title);
+    }
+
+    function tryNext(){
+      while(pos < tries.length){
+        var next = tries[pos++];
+        if(!next) continue;
+        if((img.getAttribute('src') || '') === next) continue;
+        img.src = next;
+        return;
+      }
+      applyFinalFallback();
+    }
+
+    img.addEventListener('error', function(){
+      if(img.dataset.tkPosterFallback === '1') return;
+      tryNext();
+    });
+
+    if(img.complete && !img.naturalWidth){
+      setTimeout(function(){
+        if(!img.naturalWidth) tryNext();
+      }, 0);
+    }
+  }
+
   function setup(){
     disableLegacyNodes();
 
     var cinema = document.getElementById('cinema');
-    if(!cinema) return null;
+    if(!cinema || !shouldRun()) return null;
 
     document.documentElement.classList.add('tk-mac2600');
     cinema.classList.remove('tk-mac2600-cinema-v37', 'tk-mac2600-v86');
@@ -58164,14 +58307,17 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     var track = q('.slider-wrapper', cinema);
     if(!prev || !next || !track) return null;
 
-    prev = prev.cloneNode(true);
-    q('.slider-prev', cinema).replaceWith(prev);
+    var freshPrev = prev.cloneNode(true);
+    prev.replaceWith(freshPrev);
+    prev = freshPrev;
 
-    next = next.cloneNode(true);
-    q('.slider-next', cinema).replaceWith(next);
+    var freshNext = next.cloneNode(true);
+    next.replaceWith(freshNext);
+    next = freshNext;
 
-    track = track.cloneNode(true);
-    q('.slider-wrapper', cinema).replaceWith(track);
+    var freshTrack = track.cloneNode(true);
+    track.replaceWith(freshTrack);
+    track = freshTrack;
 
     var slides = qa('.movie-slide', track);
     slides.forEach(function(slide, idx){
@@ -58189,6 +58335,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
       imp(slide, 'display', 'block');
       imp(slide, 'cursor', 'pointer');
       slide.setAttribute('aria-hidden', 'false');
+      attachPosterFallback(slide, idx);
     });
 
     syncBanner(cinema);
@@ -58196,13 +58343,7 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     state.start = clamp(state.start, 0, Math.max(0, slides.length - 2));
     state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
 
-    return {
-      cinema: cinema,
-      prev: prev,
-      next: next,
-      track: track,
-      slides: slides
-    };
+    return { cinema: cinema, prev: prev, next: next, track: track, slides: slides };
   }
 
   function render(){
@@ -58217,7 +58358,6 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     slides.forEach(function(slide, idx){
       var visible = idx >= state.start && idx < state.start + 2;
       var active = visible && idx === state.active;
-
       slide.classList.toggle('tk-mac2600-cinema-slide-hidden', !visible);
       slide.classList.toggle('tk-fhd-hidden', !visible);
       slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
@@ -58225,7 +58365,6 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
       slide.classList.toggle('tk-mac2600-cinema-idle', visible && !active);
       slide.classList.toggle('is-active', active);
       slide.classList.remove('tk-v86-active', 'tk-v86-idle');
-
       imp(slide, 'display', visible ? 'block' : 'none');
       slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
     });
@@ -58234,6 +58373,8 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     parts.next.disabled = state.start >= maxStart;
     imp(parts.prev, 'opacity', state.start <= 0 ? '.58' : '1');
     imp(parts.next, 'opacity', state.start >= maxStart ? '.58' : '1');
+    imp(parts.prev, 'pointer-events', 'auto');
+    imp(parts.next, 'pointer-events', 'auto');
 
     try{
       parts.track.scrollLeft = 0;
@@ -58246,66 +58387,59 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
   function choose(idx){
     if(!parts) return;
     if(idx < 0 || idx >= parts.slides.length) return;
-
     if(idx < state.start) state.start = idx;
     if(idx > state.start + 1) state.start = idx - 1;
-
     state.active = idx;
     render();
+  }
+
+  function move(dir){
+    if(!parts) return false;
+    var maxStart = Math.max(0, parts.slides.length - 2);
+    var nextStart = clamp(state.start + dir, 0, maxStart);
+    if(nextStart === state.start && ((dir < 0 && state.start <= 0) || (dir > 0 && state.start >= maxStart))){
+      render();
+      return false;
+    }
+    state.start = nextStart;
+    if(state.active < state.start || state.active > state.start + 1){
+      state.active = dir > 0 ? Math.min(state.start + 1, parts.slides.length - 1) : state.start;
+    }
+    render();
+    return false;
+  }
+
+  function swallow(handler){
+    return function(e){
+      if(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+      }
+      return handler(e);
+    };
   }
 
   function bind(){
     if(!parts) return;
 
-    parts.prev.addEventListener('click', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-
-      var maxStart = Math.max(0, parts.slides.length - 2);
-      state.start = clamp(state.start - 1, 0, maxStart);
-      if(state.active < state.start || state.active > state.start + 1){
-        state.active = state.start;
-      }
-      render();
-      return false;
-    }, true);
-
-    parts.next.addEventListener('click', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-
-      var maxStart = Math.max(0, parts.slides.length - 2);
-      state.start = clamp(state.start + 1, 0, maxStart);
-      if(state.active < state.start || state.active > state.start + 1){
-        state.active = state.start + 1 > parts.slides.length - 1 ? parts.slides.length - 1 : state.start + 1;
-      }
-      render();
-      return false;
-    }, true);
+    parts.prev.addEventListener('pointerdown', swallow(function(){ move(-1); }), true);
+    parts.prev.addEventListener('click', swallow(function(){ move(-1); }), true);
+    parts.next.addEventListener('pointerdown', swallow(function(){ move(1); }), true);
+    parts.next.addEventListener('click', swallow(function(){ move(1); }), true);
 
     parts.slides.forEach(function(slide, idx){
-      function onPick(e){
-        if(e && e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return;
-        if(e){
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-        }
+      var pick = swallow(function(e){
+        if(e && e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return false;
         choose(idx);
         return false;
-      }
-
-      slide.addEventListener('click', onPick, true);
-      slide.addEventListener('pointerup', onPick, true);
+      });
+      slide.addEventListener('click', pick, true);
+      slide.addEventListener('pointerup', pick, true);
 
       var btn = q('.movie-btn', slide);
       if(btn){
-        btn.addEventListener('click', function(e){
-          e.stopPropagation();
-          choose(idx);
-        }, true);
+        btn.addEventListener('click', swallow(function(){ choose(idx); }), true);
       }
     });
   }
@@ -58317,42 +58451,24 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
     render();
   }
 
-  function watch(){
-    if(observer) return;
-    try{
-      observer = new MutationObserver(function(){
-        boot();
-      });
-      observer.observe(document.documentElement, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['class', 'style', 'src']
-      });
-    }catch(_e){}
-  }
-
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){
-      boot();
-      watch();
-    }, { once: true });
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
   }else{
     boot();
-    watch();
   }
 
   window.addEventListener('load', function(){
     boot();
-    setTimeout(boot, 60);
-    setTimeout(boot, 220);
-    setTimeout(boot, 800);
+    setTimeout(boot, 80);
+    setTimeout(boot, 260);
+    setTimeout(boot, 900);
   }, { once: true });
 
   window.addEventListener('resize', boot, { passive: true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', boot, { passive: true });
 })();
 </script>
+
 
 </body>
 </html>
