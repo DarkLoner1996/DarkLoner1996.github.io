@@ -59436,3 +59436,148 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-v37 .movie-btn{
   window.addEventListener('resize', apply, {passive:true}); if(window.visualViewport) window.visualViewport.addEventListener('resize', apply, {passive:true});
 })();
 </script>
+
+
+<style id="tk-mac2600-cinema-pulse-logic-v84">
+@keyframes tkMacBannerPulseV84 {
+  0%,100% {
+    transform: translateZ(0) scale(1);
+    filter: drop-shadow(0 12px 22px rgba(0,0,0,.20)) drop-shadow(0 0 12px rgba(76,198,255,.16)) drop-shadow(0 0 10px rgba(255,206,110,.10));
+  }
+  50% {
+    transform: translateZ(0) scale(1.04);
+    filter: drop-shadow(0 16px 30px rgba(0,0,0,.24)) drop-shadow(0 0 22px rgba(76,198,255,.34)) drop-shadow(0 0 18px rgba(255,206,110,.24));
+  }
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-v37.tk-mac2600-cinema-v84 .cinema-banner-title,
+html.tk-mac2600 #cinema.tk-mac2600-cinema-v37.tk-mac2600-cinema-v84 .cinema-banner-title--art{
+  animation: tkMacBannerPulseV84 2.1s ease-in-out infinite !important;
+  transform-origin: center center !important;
+  will-change: transform, filter !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-v37.tk-mac2600-cinema-v84 .movie-slide{
+  transform: translateY(0) scale(.94) !important;
+  opacity: .88 !important;
+  z-index: 1 !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-v37.tk-mac2600-cinema-v84 .movie-slide.is-active{
+  transform: translateY(-6px) scale(1.04) !important;
+  opacity: 1 !important;
+  z-index: 6 !important;
+  border-color: rgba(255,233,156,.95) !important;
+  box-shadow: 0 24px 40px rgba(0,0,0,.26), 0 0 0 1px rgba(255,228,146,.30), inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+html.tk-mac2600 #cinema.tk-mac2600-cinema-v37.tk-mac2600-cinema-v84 .movie-slide.is-active::before{
+  opacity:.96 !important;
+}
+</style>
+<script id="tk-mac2600-cinema-pulse-logic-v84">
+(function(){
+  function isMac2600(){
+    try{
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var sw = Math.max(Number((window.screen && (window.screen.availWidth || window.screen.width)) || 0), iw);
+      var sh = Math.max(Number((window.screen && (window.screen.availHeight || window.screen.height)) || 0), ih);
+      var physW = Math.round(sw * dpr), physH = Math.round(sh * dpr), innerPhysW = Math.round(iw * dpr), innerPhysH = Math.round(ih * dpr);
+      var ratio = Math.max(sw, iw) / Math.max(1, Math.max(sh, ih));
+      var retina = dpr >= 1.25 && dpr <= 2.6;
+      var logicalBand = iw >= 1100 && iw <= 1800 && ih >= 680 && ih <= 1120;
+      var physBand = ((physW >= 2300 && physW <= 3400 && physH >= 1400 && physH <= 2200) || (innerPhysW >= 2450 && innerPhysW <= 3000 && innerPhysH >= 1350 && innerPhysH <= 1900));
+      var not4k = !(physW >= 3600 || physH >= 2300 || innerPhysW >= 3600 || innerPhysH >= 2300 || iw >= 2200 || ih >= 1350);
+      return retina && logicalBand && physBand && ratio >= 1.45 && ratio <= 1.80 && not4k;
+    }catch(_e){ return false; }
+  }
+  if(!isMac2600()) return;
+  var root = document.documentElement;
+  root.classList.add('tk-mac2600');
+  var state = { start:0, active:0 };
+  var boundNodes = new WeakSet();
+  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
+  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function render(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    cinema.classList.add('tk-mac2600-cinema-v37','tk-mac2600-cinema-v84');
+    var slides = qa('.movie-slide', cinema);
+    if(!slides.length) return;
+    var maxStart = Math.max(0, slides.length - 2);
+    state.start = clamp(state.start, 0, maxStart);
+    if(state.active < state.start) state.active = state.start;
+    if(state.active > state.start + 1) state.active = state.start + 1;
+    slides.forEach(function(slide, idx){
+      var visible = idx >= state.start && idx < state.start + 2;
+      slide.classList.toggle('tk-mac2600-cinema-hidden', !visible);
+      slide.classList.toggle('tk-fhd-hidden', !visible);
+      slide.classList.toggle('is-active', visible && idx === state.active);
+      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      slide.style.setProperty('display', visible ? '' : 'none', 'important');
+    });
+    var prev = q('.slider-prev', cinema), next = q('.slider-next', cinema);
+    if(prev) prev.disabled = state.start <= 0;
+    if(next) next.disabled = state.start >= maxStart;
+  }
+  function activate(idx){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    var slides = qa('.movie-slide', cinema);
+    if(!slides.length) return;
+    idx = clamp(idx, 0, slides.length - 1);
+    if(idx < state.start) state.start = idx;
+    if(idx > state.start + 1) state.start = idx - 1;
+    state.active = idx;
+    render();
+  }
+  function bindNode(node, fn){ if(node && !boundNodes.has(node)){ boundNodes.add(node); fn(node); } }
+  function bind(){
+    var cinema = document.getElementById('cinema');
+    if(!cinema) return;
+    cinema.classList.add('tk-mac2600-cinema-v37','tk-mac2600-cinema-v84');
+    var title = q('.cinema-banner-title', cinema);
+    if(title){ title.style.setProperty('animation','tkMacBannerPulseV84 2.1s ease-in-out infinite','important'); }
+    bindNode(q('.slider-prev', cinema), function(prev){
+      prev.addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+        state.start = clamp(state.start - 1, 0, Math.max(0, qa('.movie-slide', cinema).length - 2));
+        state.active = state.start;
+        render();
+      }, true);
+    });
+    bindNode(q('.slider-next', cinema), function(next){
+      next.addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+        state.start = clamp(state.start + 1, 0, Math.max(0, qa('.movie-slide', cinema).length - 2));
+        state.active = Math.min(state.start + 1, qa('.movie-slide', cinema).length - 1);
+        render();
+      }, true);
+    });
+    qa('.movie-slide', cinema).forEach(function(slide, idx){
+      bindNode(slide, function(sl){
+        sl.addEventListener('click', function(e){
+          if(e.target.closest('button') || e.target.closest('a')) return;
+          e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+          activate(idx);
+        }, true);
+      });
+      bindNode(q('.movie-btn', slide), function(btn){
+        btn.addEventListener('click', function(e){
+          e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+          activate(idx);
+        }, true);
+      });
+    });
+    render();
+  }
+  function boot(){ bind(); render(); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
+  window.addEventListener('load', function(){ boot(); setTimeout(boot,120); setTimeout(boot,500); setTimeout(boot,1500); setTimeout(boot,3000); }, {once:true});
+  window.addEventListener('resize', boot, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', boot, {passive:true});
+  try{
+    var mo = new MutationObserver(function(){ boot(); });
+    mo.observe(document.documentElement, {subtree:true, childList:true});
+  }catch(_e){}
+})();
+</script>
