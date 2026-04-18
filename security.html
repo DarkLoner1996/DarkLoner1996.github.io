@@ -19904,6 +19904,27 @@ function renderCard() {
         }
       }
 
+      function setWheelRotation(deg){
+        const safeDeg = Number.isFinite(deg) ? deg : 0;
+        const value = `rotate(${safeDeg}deg)`;
+        try{
+          rot.style.transform = value;
+          rot.style.webkitTransform = value;
+        }catch(_){ }
+      }
+
+      function clearWheelTransition(){
+        try{
+          rot.style.transition = 'none';
+          rot.style.webkitTransition = 'none';
+        }catch(_){ }
+      }
+
+      function easeOutSpin(t){
+        const clamped = Math.max(0, Math.min(1, t));
+        return 1 - Math.pow(1 - clamped, 4);
+      }
+
       function pulseTicks(duration, turns){
         if(reduce) return;
         const totalTurns = Math.max(1, turns || 1);
@@ -19935,57 +19956,71 @@ function renderCard() {
         clearSpinTimers();
 
         const fromDeg = normalizeDeg(angle);
-        const finalVisual = toDeg;
+        const finalVisual = Number.isFinite(toDeg) ? toDeg : fromDeg;
         const durationMs = Math.max(240, Math.round(duration || 0));
         const totalTurns = Math.max(1, Math.round((finalVisual - fromDeg) / 360));
         pulseTicks(durationMs, totalTurns);
 
         rot.style.willChange = 'transform';
-        rot.style.transition = 'none';
-        rot.style.transform = `rotate(${fromDeg}deg)`;
+        clearWheelTransition();
+        setWheelRotation(fromDeg);
         void rot.offsetWidth;
 
         return new Promise((resolve, reject) => {
           let settled = false;
+          const startedAt = (window.performance && typeof performance.now === 'function')
+            ? performance.now()
+            : Date.now();
 
-          function finish(){
+          function finish(forceReject){
             if(settled) return;
             settled = true;
             clearSpinTimers();
             rot.style.willChange = '';
-            if(token !== spinToken){
+            clearWheelTransition();
+            try{
+              setWheelRotation(normalizeDeg(finalVisual));
+            }catch(_){ }
+            if(forceReject || token !== spinToken){
               reject(new Error('stale_spin'));
               return;
             }
-            try{
-              rot.style.transition = 'none';
-              rot.style.transform = `rotate(${normalizeDeg(finalVisual)}deg)`;
-            }catch(_){ }
             resolve();
           }
 
-          const onDone = (ev) => {
-            if(ev && ev.target !== rot) return;
-            finish();
-          };
-
           spinCleanup = () => {
-            rot.removeEventListener('transitionend', onDone);
-            rot.removeEventListener('transitioncancel', onDone);
+            if(spinRaf){
+              try{ cancelAnimationFrame(spinRaf); }catch(_){ }
+              spinRaf = 0;
+            }
           };
 
-          rot.addEventListener('transitionend', onDone);
-          rot.addEventListener('transitioncancel', onDone);
-          spinEndTimer = setTimeout(finish, durationMs + 220);
-
-          spinRaf = requestAnimationFrame(() => {
+          function frame(now){
+            if(settled) return;
             if(token !== spinToken){
-              finish();
+              finish(true);
               return;
             }
-            rot.style.transition = `transform ${durationMs}ms cubic-bezier(.12,.78,.12,1)`;
-            rot.style.transform = `rotate(${finalVisual}deg)`;
-          });
+
+            const currentNow = (typeof now === 'number')
+              ? now
+              : ((window.performance && typeof performance.now === 'function') ? performance.now() : Date.now());
+            const elapsed = Math.max(0, currentNow - startedAt);
+            const progress = durationMs <= 0 ? 1 : Math.min(1, elapsed / durationMs);
+            const eased = easeOutSpin(progress);
+            const currentDeg = fromDeg + ((finalVisual - fromDeg) * eased);
+
+            setWheelRotation(currentDeg);
+
+            if(progress >= 1){
+              finish(false);
+              return;
+            }
+            spinRaf = requestAnimationFrame(frame);
+          }
+
+          spinEndTimer = setTimeout(() => finish(false), durationMs + 260);
+          spinRaf = requestAnimationFrame(frame);
         });
       }
 
@@ -20007,8 +20042,8 @@ function renderCard() {
 
         try{
           clearSpinTimers();
-          rot.style.transition = 'none';
-          rot.style.transform = `rotate(${normalizeDeg(angle)}deg)`;
+          clearWheelTransition();
+          setWheelRotation(normalizeDeg(angle));
           drawWheel(null);
         }catch(_){ }
 
@@ -20029,8 +20064,8 @@ function renderCard() {
             if(token !== spinToken) return;
 
             angle = normalizeDeg(finalVisual);
-            rot.style.transition = 'none';
-            rot.style.transform = `rotate(${angle}deg)`;
+            clearWheelTransition();
+            setWheelRotation(angle);
 
             const landedIndex = pickIndex(angle);
             selectedWheelIndex = landedIndex;
@@ -20184,7 +20219,7 @@ ${currentItem.text}`;
         }
         pendingSetup = false;
         try{ setupCanvas(); }catch(_){}
-        rot.style.transform = `rotate(${angle}deg)`;
+        setWheelRotation(angle);
       }
 
       window.__tkRouletteRedraw = safeSetup;
@@ -55805,7 +55840,10 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   function fix(){
     if(!isFhd()) return;
     rot.style.setProperty('transform-origin', '50% 50%', 'important');
-    rot.style.removeProperty('transform');
+    if(!(dock.dataset && dock.dataset.spinState === 'spinning') && !rot.style.transform){
+      rot.style.setProperty('transform', 'rotate(0deg)', 'important');
+      rot.style.setProperty('-webkit-transform', 'rotate(0deg)', 'important');
+    }
     if(center){
       center.style.setProperty('left', '50%', 'important');
       center.style.setProperty('top', '50%', 'important');
