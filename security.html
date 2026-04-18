@@ -58964,5 +58964,157 @@ html.tk-tablet-landscape.tk-tablet-fhd-match .ui{
 }
 </style>
 
+
+<style id="tk-tablet-fhd-match-v9-game-stack">
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail{
+  position:fixed !important;
+  left:clamp(228px, 18vw, 268px) !important;
+  bottom:max(12px, env(safe-area-inset-bottom, 0px)) !important;
+  z-index:12620 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  gap:10px !important;
+  pointer-events:none !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail[hidden]{
+  display:none !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:auto !important;
+  margin:0 !important;
+  transform:none !important;
+  zoom:1 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  pointer-events:auto !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .avatar{
+  width:74px !important;
+  height:74px !important;
+  flex:0 0 74px !important;
+  border-radius:22px !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-card{
+  min-width:252px !important;
+  max-width:252px !important;
+  padding:10px 12px !important;
+  border-radius:22px !important;
+  box-sizing:border-box !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-name{
+  font-size:14px !important;
+  line-height:1.05 !important;
+  margin-bottom:6px !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-badge{
+  font-size:8.5px !important;
+  padding:3px 6px !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-actions{
+  gap:8px !important;
+}
+html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-btn{
+  min-width:148px !important;
+  padding:9px 12px !important;
+  font-size:10px !important;
+  border-radius:16px !important;
+}
+@media (max-width: 1180px){
+  html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail{
+    left:224px !important;
+    gap:8px !important;
+  }
+  html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .avatar{
+    width:68px !important;
+    height:68px !important;
+    flex-basis:68px !important;
+  }
+  html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-card{
+    min-width:238px !important;
+    max-width:238px !important;
+    padding:9px 11px !important;
+  }
+  html.tk-tablet-landscape.tk-tablet-fhd-match #tkTabletGameRail .side-chip .chip-btn{
+    min-width:138px !important;
+    padding:8px 11px !important;
+    font-size:9.5px !important;
+  }
+}
+</style>
+<script id="tk-tablet-fhd-match-v9-game-stack-script">
+(function(){
+  var root = document.documentElement;
+  var anchors = new WeakMap();
+  var selectors = ['.side-chip--it-min', '.side-chip--infosec-min', '.side-chip--phish-min'];
+
+  function isOn(){
+    return root.classList.contains('tk-tablet-fhd-match');
+  }
+  function q(sel){ return document.querySelector(sel); }
+  function ensureAnchor(el){
+    if(!el || anchors.has(el) || !el.parentNode) return;
+    var marker = document.createComment('tk-tablet-game-stack-anchor');
+    el.parentNode.insertBefore(marker, el);
+    anchors.set(el, marker);
+  }
+  function restore(el){
+    var marker = anchors.get(el);
+    if(!marker || !marker.parentNode || !el) return;
+    if(el.parentNode !== marker.parentNode){
+      marker.parentNode.insertBefore(el, marker.nextSibling);
+    }
+  }
+  function ensureRail(){
+    var rail = document.getElementById('tkTabletGameRail');
+    if(!rail){
+      rail = document.createElement('div');
+      rail.id = 'tkTabletGameRail';
+      rail.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(rail);
+    }
+    return rail;
+  }
+  function teardown(){
+    selectors.map(q).forEach(function(el){ if(el) restore(el); });
+    var rail = document.getElementById('tkTabletGameRail');
+    if(rail) rail.hidden = true;
+  }
+  function apply(){
+    var chips = selectors.map(q).filter(Boolean);
+    if(chips.length !== 3) return;
+    chips.forEach(ensureAnchor);
+    if(!isOn()){
+      teardown();
+      return;
+    }
+    var rail = ensureRail();
+    rail.hidden = false;
+    chips.forEach(function(el){
+      if(el.parentNode !== rail) rail.appendChild(el);
+    });
+  }
+  function queue(){
+    apply();
+    setTimeout(apply, 0);
+    setTimeout(apply, 160);
+    setTimeout(apply, 700);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', queue, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(queue,120); setTimeout(queue,420); }, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  var mo = new MutationObserver(function(){ queue(); });
+  mo.observe(document.documentElement, {attributes:true, childList:true, subtree:true});
+})();
+</script>
+
 </body>
 </html>
