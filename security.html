@@ -17487,1011 +17487,611 @@ function renderCard() {
 </div>
 </div></section></div>
 
+
 <style id="tk-rulegame-wow-redesign">
-#ruleGame{
-  background:
-    radial-gradient(1200px 620px at 50% 15%, rgba(88,186,255,.18), transparent 58%),
-    radial-gradient(900px 520px at 20% 85%, rgba(255,196,92,.12), transparent 56%),
-    radial-gradient(900px 520px at 85% 18%, rgba(84,255,205,.10), transparent 54%),
-    linear-gradient(180deg, rgba(1,8,20,.72), rgba(1,6,18,.90));
-  backdrop-filter: blur(14px) saturate(1.08);
-  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+#ruleGame.rdn-backdrop{
+  position:fixed !important;
+  inset:auto !important;
+  right:var(--rdn-right, 12px) !important;
+  bottom:var(--rdn-bottom, 250px) !important;
+  width:var(--rdn-width, 320px) !important;
+  max-width:calc(100vw - 16px) !important;
+  max-height:var(--rdn-maxh, min(320px, calc(100vh - 24px))) !important;
+  padding:0 !important;
+  margin:0 !important;
+  background:transparent !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  z-index:12480 !important;
+  display:block !important;
+  transform:translateY(10px) scale(.98);
+  transform-origin:100% 100%;
+  transition:opacity .18s ease, transform .18s ease;
 }
-#ruleGame::before,
-#ruleGame::after{
-  content:"";
-  position:absolute;
-  inset:-14%;
-  pointer-events:none;
+#ruleGame.rdn-backdrop::before,
+#ruleGame.rdn-backdrop::after{content:none !important;display:none !important;}
+#ruleGame.rdn-backdrop.is-open{
+  opacity:1 !important;
+  transform:translateY(0) scale(1);
 }
-#ruleGame::before{
-  background:
-    radial-gradient(620px 220px at 50% 0%, rgba(126,229,255,.16), transparent 65%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 68px),
-    repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 68px);
-  opacity:.42;
-  mix-blend-mode: screen;
-}
-#ruleGame::after{
-  inset:0;
-  background: radial-gradient(circle at 50% 50%, rgba(90,180,255,.10), transparent 44%);
-  filter: blur(32px);
-  opacity:.95;
-}
-#ruleGame .rg-modal{
-  width:min(920px, 100%);
-  border-radius:30px;
-  border:1px solid rgba(185,235,255,.20);
-  background:
-    linear-gradient(135deg, rgba(5,28,54,.95) 0%, rgba(8,38,77,.90) 38%, rgba(8,26,58,.94) 100%);
-  box-shadow:
-    0 48px 120px rgba(0,0,0,.52),
-    0 0 0 1px rgba(255,214,122,.10) inset,
-    inset 0 1px 0 rgba(255,255,255,.14),
-    inset 0 -40px 80px rgba(3,10,24,.36);
-  overflow:hidden;
-  isolation:isolate;
-}
-#ruleGame .rg-modal::before,
-#ruleGame .rg-modal::after{
-  content:"";
-  position:absolute;
-  pointer-events:none;
-}
-#ruleGame .rg-modal::before{
-  inset:0;
-  background:
-    radial-gradient(900px 320px at 50% -2%, rgba(110,208,255,.18), transparent 60%),
-    radial-gradient(620px 420px at 88% 14%, rgba(255,209,110,.12), transparent 52%),
-    radial-gradient(700px 460px at 12% 88%, rgba(82,245,214,.08), transparent 56%);
-  z-index:0;
-}
-#ruleGame .rg-modal::after{
-  inset:1px;
-  border-radius:29px;
-  border:1px solid rgba(255,255,255,.06);
-  z-index:0;
-}
-#ruleGame .rg-ambient-layer{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-  overflow:hidden;
-}
-#ruleGame .rg-gridGlow,
-#ruleGame .rg-shieldPulse,
-#ruleGame .rg-scanLine,
-#ruleGame .rg-particles{
-  position:absolute;
-  pointer-events:none;
-}
-#ruleGame .rg-gridGlow{
-  inset:-10% -4% auto;
-  height:48%;
-  background:
-    radial-gradient(ellipse at top, rgba(120,225,255,.18), transparent 58%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 80px),
-    repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 62px);
-  mask-image: linear-gradient(180deg, rgba(0,0,0,1), rgba(0,0,0,.25), transparent 100%);
-  opacity:.55;
-}
-#ruleGame .rg-shieldPulse{
-  right:-100px;
-  top:-70px;
-  width:340px;
-  height:340px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle, rgba(120,220,255,.26) 0%, rgba(120,220,255,.10) 36%, transparent 66%);
-  filter: blur(10px);
-  animation: rgPulse 5.6s ease-in-out infinite;
-}
-#ruleGame .rg-scanLine{
-  left:-20%;
-  top:140px;
-  width:140%;
-  height:2px;
-  background: linear-gradient(90deg, transparent, rgba(120,240,255,.92), transparent);
-  box-shadow: 0 0 18px rgba(120,240,255,.52);
-  opacity:.65;
-  animation: rgScan 6s linear infinite;
-}
-#ruleGame .rg-particles{
-  inset:0;
-  background:
-    radial-gradient(4px 4px at 14% 20%, rgba(255,255,255,.55), transparent 72%),
-    radial-gradient(4px 4px at 28% 68%, rgba(255,255,255,.22), transparent 72%),
-    radial-gradient(5px 5px at 72% 24%, rgba(255,225,150,.30), transparent 72%),
-    radial-gradient(5px 5px at 82% 58%, rgba(120,230,255,.26), transparent 72%),
-    radial-gradient(4px 4px at 64% 80%, rgba(255,255,255,.18), transparent 72%);
-  opacity:.9;
-  animation: rgStars 9s ease-in-out infinite;
-}
-#ruleGame .rg-modal > *:not(.rg-ambient-layer){ position:relative; z-index:1; }
-#ruleGame .rg-top{ padding: 20px 22px 10px; }
-#ruleGame .rg-title{ display:flex; flex-direction:column; gap:6px; }
-#ruleGame .rg-kicker{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  align-self:flex-start;
-  padding:8px 12px;
-  border-radius:999px;
-  background:
-    linear-gradient(180deg, rgba(255,190,92,.95), rgba(204,118,30,.90));
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow: 0 12px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
-  color:#311a06;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-}
-#ruleGame .rg-kicker::before{ content:"✦"; font-size:12px; }
-#ruleGame .rg-title .mg-h1{
-  font-size: clamp(28px, 4.2vw, 42px);
-  letter-spacing:.02em;
-  line-height:1;
-  color:#fff0bf;
-  text-shadow:
-    0 2px 0 rgba(102,62,14,.42),
-    0 18px 42px rgba(0,0,0,.38),
-    0 0 26px rgba(255,205,120,.14);
-}
-#ruleGame .rg-title .mg-sub{
-  margin-top:0;
-  max-width:560px;
-  font-size:12px;
-  line-height:1.45;
-  letter-spacing:.16em;
-  color:rgba(226,244,255,.88);
-}
-#ruleGame .rg-headMeta{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  padding: 0 22px 14px;
-}
-#ruleGame .rg-stat{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 14px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background:
-    radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.18), transparent 62%),
-    linear-gradient(180deg, rgba(11,67,116,.46), rgba(8,35,60,.28));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 16px 28px rgba(0,0,0,.16);
-  color:rgba(240,248,255,.92);
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-}
-#ruleGame .rg-stat--live{ color:#dbfff1; }
-#ruleGame .rg-progress{
-  padding: 0 22px 14px;
-  gap:10px;
-  align-items:center;
-}
-#ruleGame .rg-progress .mg-dot{
-  width:12px;
-  height:12px;
-  background: rgba(255,255,255,.08);
-  border-color: rgba(255,255,255,.08);
-}
-#ruleGame .rg-progress .mg-dot.is-on{
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(120,235,255,.85));
-  box-shadow: 0 0 18px rgba(120,235,255,.56), 0 0 34px rgba(120,235,255,.22);
-}
-#ruleGame .rg-progressLabel{
-  margin-left:8px;
-  color:rgba(220,240,255,.78);
-  font-size:10px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-}
-#ruleGame .rg-body{ padding: 0 22px 22px; gap:14px; }
-#ruleGame .rg-card{
-  padding:18px 18px 18px;
-  border-radius:26px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.10)),
-    radial-gradient(140% 180% at 10% 10%, rgba(120,224,255,.18), transparent 58%);
-  border:1px solid rgba(195,235,255,.18);
-  box-shadow:
-    0 24px 54px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.14),
-    inset 0 0 32px rgba(98,194,255,.08);
-}
-#ruleGame .rg-card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:26px;
-  padding:1px;
-  background: linear-gradient(135deg, rgba(255,255,255,.28), rgba(120,228,255,.20), rgba(255,214,122,.22));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity:.85;
-  pointer-events:none;
-}
-#ruleGame .rg-cardHead{
-  align-items:flex-start;
-  margin-bottom:16px;
-}
-#ruleGame .rg-labelStack{ display:flex; flex-direction:column; gap:6px; min-width:0; }
-#ruleGame .rg-cardTag{
-  font-size:11px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:#cfefff;
-}
-#ruleGame .rg-cardScope{
-  font-size:11px;
-  color:rgba(255,242,205,.76);
-  letter-spacing:.10em;
-  text-transform:uppercase;
-}
-#ruleGame .rg-date{
-  background:
-    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
-    linear-gradient(180deg, rgba(22,92,150,.72), rgba(10,45,86,.52));
-  border-color: rgba(177,228,255,.18);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 24px rgba(0,0,0,.16);
-  color:#ecf8ff;
-  padding:8px 12px;
-  font-size:11px;
-}
-#ruleGame .rg-ruleShell{
-  display:grid;
-  grid-template-columns: 76px 1fr;
-  gap:16px;
-  align-items:flex-start;
-}
-#ruleGame .rg-ruleIcon{
-  width:76px;
-  height:76px;
-  border-radius:24px;
-  display:grid;
-  place-items:center;
-  font-size:34px;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(255,255,255,.30), transparent 48%),
-    linear-gradient(180deg, rgba(22,111,171,.96), rgba(7,56,102,.88));
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow:
-    0 18px 34px rgba(0,0,0,.22),
-    0 0 0 1px rgba(255,214,122,.08) inset,
-    inset 0 1px 0 rgba(255,255,255,.14);
-}
-#ruleGame .rg-msg{
-  font-size:17px;
-  line-height:1.42;
-  color:rgba(242,248,255,.98);
-}
-#ruleGame .rg-ruleLine{
-  font-size: clamp(19px, 2.4vw, 28px);
-  line-height:1.15;
-  font-weight:900;
-  color:#fff6d7;
-  text-shadow: 0 10px 28px rgba(0,0,0,.30), 0 0 22px rgba(255,214,120,.12);
-  margin-bottom:12px;
-}
-#ruleGame .rg-scenario{
-  padding:16px 18px;
-  border-radius:20px;
-  background:
-    linear-gradient(180deg, rgba(8,22,44,.56), rgba(5,15,30,.46));
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.16);
-  color:rgba(226,243,255,.90);
-}
-#ruleGame .rg-actions{
-  gap:14px;
-}
-#ruleGame .rg-answer{
-  min-height:94px;
-  border-radius:24px;
-  padding:16px 18px;
-  display:flex;
-  align-items:center;
-  gap:14px;
-  text-align:left;
+#ruleGame .rdn-card{
   position:relative;
-  overflow:hidden;
+  width:100%;
+  max-height:inherit;
+  overflow:auto;
+  overscroll-behavior:contain;
+  pointer-events:auto;
+  border-radius:22px;
+  border:1px solid rgba(136,223,255,.24);
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(123,240,255,.12), transparent 42%),
+    radial-gradient(100% 100% at 100% 0%, rgba(110,164,255,.10), transparent 38%),
+    linear-gradient(180deg, rgba(4,20,42,.96), rgba(4,16,34,.98));
+  box-shadow:
+    0 18px 48px rgba(0,0,0,.38),
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 -18px 34px rgba(0,0,0,.20);
 }
-#ruleGame .rg-answer::before{
+#ruleGame .rdn-card::-webkit-scrollbar{width:6px;height:6px;}
+#ruleGame .rdn-card::-webkit-scrollbar-thumb{background:rgba(106,204,255,.34);border-radius:999px;}
+#ruleGame .rdn-card::before{
   content:"";
   position:absolute;
   inset:0;
-  background: linear-gradient(120deg, rgba(255,255,255,.14), transparent 36%, transparent 64%, rgba(255,255,255,.08));
-  opacity:.75;
+  border-radius:22px;
+  padding:1px;
+  background:linear-gradient(135deg, rgba(162,240,255,.42), rgba(82,138,255,.18), rgba(103,255,205,.24));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+  opacity:.9;
+}
+#ruleGame .rdn-card::after{
+  content:"";
+  position:absolute;
+  inset:auto 14px 0 14px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(87,224,255,.0), rgba(87,224,255,.95), rgba(126,255,212,.0));
+  opacity:.95;
+  box-shadow:0 0 12px rgba(87,224,255,.24);
   pointer-events:none;
 }
-#ruleGame .rg-answer__icon{
-  width:52px;
-  height:52px;
-  flex:0 0 auto;
+#ruleGame .rdn-close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:5;
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
   display:grid;
   place-items:center;
-  border-radius:18px;
-  background: rgba(6,16,28,.28);
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 10px 20px rgba(0,0,0,.16);
-  font-size:22px;
+  pointer-events:auto;
+  touch-action:manipulation;
+  color:#eaf7ff;
+  background:linear-gradient(180deg, rgba(20,50,86,.94), rgba(12,34,60,.90));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 10px 20px rgba(0,0,0,.18);
 }
-#ruleGame .rg-answer__txt{
+#ruleGame .rdn-close svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;}
+#ruleGame .rdn-close:hover{filter:saturate(1.08);transform:translateY(-1px);}
+#ruleGame .rdn-head{
+  position:relative;
+  z-index:1;
   display:flex;
   flex-direction:column;
-  gap:6px;
-  min-width:0;
+  gap:8px;
+  padding:14px 52px 10px 14px;
 }
-#ruleGame .rg-answer__txt strong{
-  font-size:15px;
+#ruleGame .rdn-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  align-self:flex-start;
+  min-height:24px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid rgba(98,255,214,.16);
+  background:linear-gradient(180deg, rgba(20,114,98,.86), rgba(13,78,84,.86));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 8px 18px rgba(0,0,0,.16);
+  color:#dffdf4;
+  font:700 9px/1 'Russo One', system-ui, sans-serif;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+#ruleGame .rdn-badgeDot{
+  width:7px;height:7px;border-radius:50%;
+  background:#7df7bf;
+  box-shadow:0 0 12px rgba(125,247,191,.7);
+}
+#ruleGame .rdn-title{
+  margin:0;
+  color:#f1f7ff;
+  font:700 clamp(22px, 2.4vw, 26px)/1 'Russo One', system-ui, sans-serif;
+  letter-spacing:.03em;
+}
+#ruleGame .rdn-body{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:10px;
+  padding:0 14px 14px;
+}
+#ruleGame .rdn-question{
+  display:grid;
+  grid-template-columns:40px 1fr auto;
+  align-items:start;
+  gap:10px;
+  padding:11px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(7,28,54,.84), rgba(6,20,40,.92));
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+#ruleGame .rdn-icon{
+  width:40px;height:40px;border-radius:14px;
+  display:grid;place-items:center;
+  background:linear-gradient(180deg, rgba(22,100,175,.98), rgba(8,56,115,.92));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 8px 18px rgba(0,0,0,.16);
+  font-size:19px;
+}
+#ruleGame .rdn-copy{min-width:0;}
+#ruleGame .rdn-label{
+  margin:0 0 5px;
+  color:rgba(180,222,248,.88);
+  font:700 9px/1 'Russo One', system-ui, sans-serif;
   letter-spacing:.16em;
   text-transform:uppercase;
 }
-#ruleGame .rg-answer__txt small{
-  font-size:11px;
-  line-height:1.35;
-  letter-spacing:.04em;
-  text-transform:none;
-  color:rgba(255,255,255,.84);
+#ruleGame .rdn-rule{
+  margin:0;
+  color:#fff4d3;
+  font:700 14px/1.28 'Russo One', system-ui, sans-serif;
+  letter-spacing:.01em;
 }
-#ruleGame .rg-answer.is-picked{
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 28px 56px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.18), 0 0 0 1px rgba(255,255,255,.14);
-}
-#ruleGame .rg-answer.is-correct{
-  box-shadow: 0 0 0 1px rgba(125,255,208,.30), 0 26px 54px rgba(26,174,108,.18), inset 0 1px 0 rgba(255,255,255,.18);
-}
-#ruleGame .rg-answer.is-wrong{
-  box-shadow: 0 0 0 1px rgba(255,132,148,.26), 0 22px 44px rgba(181,34,65,.18), inset 0 1px 0 rgba(255,255,255,.16);
-}
-#ruleGame .rg-explain{
-  border-radius:24px;
-  padding:16px 18px 16px;
-  background:
-    linear-gradient(180deg, rgba(8,28,54,.74), rgba(4,14,28,.54));
-  border:1px solid rgba(194,232,255,.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 20px 44px rgba(0,0,0,.16);
-}
-#ruleGame .rg-explain::before{
-  content:"Разбор ситуации";
-  display:block;
-  margin-bottom:10px;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:rgba(255,232,165,.86);
-}
-#ruleGame[data-rg-state="good"] .rg-explain{
-  border-color: rgba(114,255,204,.22);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 22px 44px rgba(14,170,112,.14), 0 0 0 1px rgba(114,255,204,.08);
-}
-#ruleGame[data-rg-state="bad"] .rg-explain{
-  border-color: rgba(255,146,161,.22);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 22px 44px rgba(190,46,84,.14), 0 0 0 1px rgba(255,146,161,.08);
-}
-#ruleGame .rg-nextRow{ align-items:stretch; gap:14px; }
-#ruleGame .rg-hint{
-  min-width: 280px;
-  padding:14px 16px;
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,.10);
-  background: linear-gradient(180deg, rgba(8,22,44,.44), rgba(4,14,28,.38));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.14);
-  font-size:11px;
-  line-height:1.45;
+#ruleGame .rdn-date{
+  align-self:start;
+  margin-left:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  color:#dff2ff;
+  background:linear-gradient(180deg, rgba(25,94,150,.90), rgba(12,48,90,.88));
+  border:1px solid rgba(169,227,255,.14);
+  font:700 8px/1 'Russo One', system-ui, sans-serif;
   letter-spacing:.12em;
 }
-#ruleGame .rg-hint::before{
-  content:"Подсказка";
-  display:block;
-  margin-bottom:7px;
-  color:rgba(117,233,255,.92);
-  font-size:10px;
-  letter-spacing:.18em;
+#ruleGame .rdn-scenario{
+  margin:7px 0 0;
+  color:rgba(224,238,249,.92);
+  font:600 12px/1.35 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
-#ruleGame .rg-next{
-  min-width:170px;
-  border-radius:20px;
-  padding: 14px 16px;
-  box-shadow: 0 20px 38px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
+#ruleGame .rdn-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
-#ruleGame .rg-finish{
-  border-radius:26px;
-  padding:18px 18px 16px;
-  background:
-    linear-gradient(180deg, rgba(10,36,68,.84), rgba(4,14,28,.60));
-  border:1px solid rgba(255,226,154,.16);
-  box-shadow:
-    0 26px 56px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.12),
-    inset 0 0 42px rgba(255,214,120,.08);
-}
-#ruleGame .rg-finishHead{
+#ruleGame .rdn-btn{
+  min-height:52px;
+  padding:0 12px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  cursor:pointer;
   display:flex;
   align-items:center;
-  gap:12px;
-  margin-bottom:12px;
+  gap:10px;
+  justify-content:flex-start;
+  text-align:left;
+  color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 10px 22px rgba(0,0,0,.16);
+  transition:transform .14s ease, filter .14s ease, box-shadow .14s ease;
 }
-#ruleGame .rg-finishHead i{
-  width:52px;
-  height:52px;
-  border-radius:18px;
-  display:grid;
-  place-items:center;
-  background: linear-gradient(180deg, rgba(255,198,90,.96), rgba(207,128,28,.90));
-  color:#311805;
-  font-style:normal;
-  font-size:24px;
-  box-shadow: 0 16px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
-}
-#ruleGame .rg-finishTitle{
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:.08em;
-  color:#fff0bc;
+#ruleGame .rdn-btn:hover{transform:translateY(-1px);filter:saturate(1.05);}
+#ruleGame .rdn-btn b{
+  font:700 13px/1 'Russo One', system-ui, sans-serif;
+  letter-spacing:.06em;
   text-transform:uppercase;
 }
-#ruleGame .rg-finishNote{
-  font-size:11px;
+#ruleGame .rdn-btn span{
+  width:24px;height:24px;border-radius:999px;display:grid;place-items:center;flex:0 0 24px;
+  background:rgba(5,14,28,.24);border:1px solid rgba(255,255,255,.12);font-size:13px;
+}
+#ruleGame .rdn-btn.is-danger{background:linear-gradient(180deg, rgba(231,97,114,.98), rgba(197,47,72,.96));}
+#ruleGame .rdn-btn.is-safe{background:linear-gradient(180deg, rgba(77,208,138,.98), rgba(43,174,101,.96));}
+#ruleGame .rdn-btn.is-correct{box-shadow:0 0 0 2px rgba(166,255,214,.30), inset 0 1px 0 rgba(255,255,255,.18), 0 12px 26px rgba(0,0,0,.18);}
+#ruleGame .rdn-btn.is-wrong{opacity:.68;filter:saturate(.88);}
+#ruleGame .rdn-explain{
+  display:grid;
+  gap:6px;
+  padding:11px 12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(180deg, rgba(7,24,45,.78), rgba(6,20,36,.92));
+}
+#ruleGame .rdn-explain[hidden]{display:none !important;}
+#ruleGame .rdn-explainTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#ruleGame .rdn-explainState{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:24px;
+  padding:0 9px;
+  border-radius:999px;
+  font:700 9px/1 'Russo One', system-ui, sans-serif;
   letter-spacing:.12em;
   text-transform:uppercase;
-  color:rgba(223,244,255,.72);
-  margin-top:4px;
 }
-#ruleGame .rg-status{
-  background:
-    radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.16), transparent 62%),
-    linear-gradient(180deg, rgba(32,147,95,.78), rgba(18,100,64,.70));
-  border-color: rgba(191,255,221,.16);
-  color:#effff7;
+#ruleGame .rdn-explainState.is-good{background:rgba(44,184,108,.18); color:#aef2cb; border:1px solid rgba(98,255,173,.14);}
+#ruleGame .rdn-explainState.is-bad{background:rgba(234,82,97,.18); color:#ffd0d5; border:1px solid rgba(255,126,138,.14);}
+#ruleGame .rdn-explainText{
+  color:#edf7ff;
+  font:600 12px/1.42 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
-#ruleGame .chip-btn{
-  border-radius:18px;
-  padding: 11px 14px;
+#ruleGame .rdn-explainWhy{
+  color:rgba(200,228,246,.88);
+  font:500 11px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
-#ruleGame .mg-close{
-  width:46px;
-  height:46px;
-  border-radius:18px;
-  background:
-    radial-gradient(120% 140% at 20% 18%, rgba(255,255,255,.18), transparent 60%),
-    linear-gradient(180deg, rgba(14,70,120,.66), rgba(8,35,60,.52));
+#ruleGame .rdn-doneRow{
+  display:flex;
+  gap:8px;
 }
-#ruleGame[data-rg-state="done"] .rg-modal{
-  box-shadow:
-    0 48px 120px rgba(0,0,0,.52),
-    0 0 0 1px rgba(255,214,122,.12) inset,
-    0 0 60px rgba(255,214,122,.10),
-    inset 0 1px 0 rgba(255,255,255,.14);
+#ruleGame .rdn-doneRow[hidden]{display:none !important;}
+#ruleGame .rdn-next,
+#ruleGame .rdn-again{
+  min-height:40px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  font:700 11px/1 'Russo One', system-ui, sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
-@keyframes rgPulse{
-  0%,100%{ transform: scale(.96); opacity:.72; }
-  50%{ transform: scale(1.07); opacity:1; }
+#ruleGame .rdn-next{
+  flex:1 1 auto;
+  color:#051527;
+  background:linear-gradient(180deg, rgba(124,246,212,.98), rgba(80,213,193,.96));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 10px 20px rgba(0,0,0,.16);
 }
-@keyframes rgScan{
-  0%{ transform: translateY(-20px); opacity:.0; }
-  10%{ opacity:.66; }
-  50%{ opacity:.66; }
-  100%{ transform: translateY(360px); opacity:0; }
+#ruleGame .rdn-again{
+  flex:0 0 auto;
+  padding:0 12px;
+  color:#e7f4ff;
+  background:linear-gradient(180deg, rgba(19,50,86,.94), rgba(12,34,60,.92));
 }
-@keyframes rgStars{
-  0%,100%{ transform: translate3d(0,0,0); opacity:.76; }
-  50%{ transform: translate3d(10px,-8px,0); opacity:1; }
+#ruleGame .rdn-card[data-state="done"] .rdn-question{
+  border-color:rgba(108,255,201,.18);
+  background:linear-gradient(180deg, rgba(8,34,49,.86), rgba(6,24,38,.94));
+}
+#ruleGame .rdn-card[data-state="done"] .rdn-title::after{
+  content:" · выполнено";
+  color:#7ff0b9;
+  font-size:.62em;
 }
 @media (max-width: 760px){
-  #ruleGame .rg-top{ padding: 16px 16px 10px; }
-  #ruleGame .rg-headMeta,
-  #ruleGame .rg-progress,
-  #ruleGame .rg-body{ padding-left:16px; padding-right:16px; }
-  #ruleGame .rg-ruleShell{ grid-template-columns: 1fr; }
-  #ruleGame .rg-ruleIcon{ width:64px; height:64px; border-radius:20px; }
-  #ruleGame .rg-actions{ grid-template-columns: 1fr; }
-  #ruleGame .rg-answer{ min-height:82px; }
+  #ruleGame.rdn-backdrop{
+    width:var(--rdn-width, 300px) !important;
+    bottom:var(--rdn-bottom, 226px) !important;
+  }
+  #ruleGame .rdn-title{font-size:22px;}
+  #ruleGame .rdn-question{grid-template-columns:38px 1fr;}
+  #ruleGame .rdn-date{grid-column:2; justify-self:start; margin:0;}
 }
 @media (max-width: 520px){
-  #ruleGame .rg-modal{ border-radius:24px; }
-  #ruleGame .rg-title .mg-h1{ font-size: clamp(24px, 8.4vw, 34px); }
-  #ruleGame .rg-title .mg-sub{ letter-spacing:.10em; font-size:11px; }
-  #ruleGame .rg-headMeta{ gap:8px; }
-  #ruleGame .rg-stat{ width:100%; justify-content:center; }
-  #ruleGame .rg-progressLabel{ margin-left:0; width:100%; }
-  #ruleGame .rg-card{ padding:15px 14px 14px; }
-  #ruleGame .rg-ruleLine{ font-size:22px; }
-  #ruleGame .rg-scenario{ padding:14px; }
-  #ruleGame .rg-hint{ min-width:0; width:100%; }
-  #ruleGame .rg-next{ width:100%; justify-content:center; }
-  #ruleGame .rg-finishHead i{ width:46px; height:46px; border-radius:16px; font-size:21px; }
-  #ruleGame .rg-finishTitle{ font-size:16px; }
+  #ruleGame.rdn-backdrop{
+    right:var(--rdn-right, 8px) !important;
+    width:min(var(--rdn-width, 296px), calc(100vw - 12px)) !important;
+    max-height:var(--rdn-maxh, min(280px, calc(100vh - 12px))) !important;
+    bottom:var(--rdn-bottom, 214px) !important;
+  }
+  #ruleGame .rdn-card{border-radius:20px;}
+  #ruleGame .rdn-card::before{border-radius:20px;}
+  #ruleGame .rdn-head{padding:12px 48px 9px 12px;gap:7px;}
+  #ruleGame .rdn-body{padding:0 12px 12px;gap:9px;}
+  #ruleGame .rdn-badge{font-size:8px;min-height:22px;padding:0 9px;}
+  #ruleGame .rdn-title{font-size:20px;}
+  #ruleGame .rdn-question{padding:10px;gap:9px;}
+  #ruleGame .rdn-rule{font-size:13px;line-height:1.24;}
+  #ruleGame .rdn-scenario{font-size:11px;margin-top:6px;}
+  #ruleGame .rdn-actions{gap:8px;}
+  #ruleGame .rdn-btn{min-height:48px;padding:0 10px;border-radius:14px;}
+  #ruleGame .rdn-btn b{font-size:12px;}
+  #ruleGame .rdn-explain{padding:10px;border-radius:14px;}
+  #ruleGame .rdn-explainText{font-size:11px;}
+  #ruleGame .rdn-explainWhy{font-size:10px;}
+  #ruleGame .rdn-doneRow{gap:7px;}
+  #ruleGame .rdn-next,
+  #ruleGame .rdn-again{min-height:38px;font-size:10px;}
 }
 @media (prefers-reduced-motion: reduce){
-  #ruleGame::before,
-  #ruleGame .rg-gridGlow,
-  #ruleGame .rg-shieldPulse,
-  #ruleGame .rg-scanLine,
-  #ruleGame .rg-particles{
-    animation:none !important;
-  }
+  #ruleGame.rdn-backdrop,
+  #ruleGame .rdn-btn,
+  #ruleGame .rdn-close{transition:none !important;}
 }
 </style>
 
-<div aria-hidden="true" class="mg-backdrop" data-rg-state="idle" id="ruleGame">
-<section aria-labelledby="rgTitle" aria-modal="true" class="mg-modal rg-modal" role="dialog">
-<div aria-hidden="true" class="rg-ambient-layer">
-<span class="rg-gridGlow"></span>
-<span class="rg-shieldPulse"></span>
-<span class="rg-scanLine"></span>
-<span class="rg-particles"></span>
-</div>
-<div class="mg-top rg-top">
-<div class="mg-title rg-title">
-<div class="rg-kicker">Ежедневный cyber-челлендж</div>
-<div class="mg-h1" id="rgTitle">Правило дня</div>
-<div class="mg-sub" id="rgSub">1 день — 1 правило: проживи ситуацию, почувствуй риск и выбери сильное решение</div>
-</div>
-<button aria-label="Закрыть правило дня" class="mg-close" id="closeRuleGame" type="button">
-<svg aria-hidden="true" viewbox="0 0 24 24">
-<path d="M6 6l12 12"></path>
-<path d="M18 6 6 18"></path>
-</svg>
-</button>
-</div>
-<div class="rg-headMeta">
-<div class="rg-stat">🛡 Щит знаний активен</div>
-<div class="rg-stat rg-stat--live">⚡ 1 правило · 1 сильное решение</div>
-</div>
-<div aria-label="Прогресс правила" class="mg-progress rg-progress">
-<span aria-hidden="true" class="mg-dot is-on"></span>
-<span aria-hidden="true" class="mg-dot is-on"></span>
-<span aria-hidden="true" class="mg-dot"></span>
-<div class="rg-progressLabel">Сканирование ситуации и выбор безопасного действия</div>
-</div>
-<div class="mg-body rg-body">
-<div aria-label="Правило и ситуация" class="mg-card rg-card">
-<div class="mg-cardHead rg-cardHead">
-<div class="rg-labelStack">
-<div id="rgCardNo" class="rg-cardTag">Правило дня</div>
-<div class="rg-cardScope">Твой ежедневный апгрейд цифровой защиты</div>
-</div>
-<div class="mg-level rg-date" id="rgDatePill">сегодня</div>
-</div>
-<div class="rg-ruleShell">
-<div aria-hidden="true" class="rg-ruleIcon">🛡️</div>
-<div class="mg-msg rg-msg">
-<div id="rgRuleLine" class="rg-ruleLine">...</div>
-<div id="rgScenario" class="rg-scenario">...</div>
-</div>
-</div>
-</div>
-<div aria-label="Выбор" class="mg-actions rg-actions">
-<button class="mg-btn is-red rg-answer rg-answer--danger" id="rgBtnBad" type="button">
-<span aria-hidden="true" class="rg-answer__icon">⚠️</span>
-<span class="rg-answer__txt"><strong>Опасно</strong><small>Остановиться, не вводить данные и проверить источник</small></span>
-</button>
-<button class="mg-btn is-green rg-answer rg-answer--safe" id="rgBtnGood" type="button">
-<span aria-hidden="true" class="rg-answer__icon">🟢</span>
-<span class="rg-answer__txt"><strong>Безопасно</strong><small>Действие защищает аккаунт, устройство и личные данные</small></span>
-</button>
-</div>
-<div aria-live="polite" class="mg-explain rg-explain" id="rgExplain"></div>
-<div class="mg-nextRow rg-nextRow">
-<div class="mg-miniHint rg-hint" id="rgHint">Если просят пароль, код подтверждения, личные данные или торопят — это красный флаг.</div>
-<button class="mg-next rg-next" id="rgDone" type="button">
-            Закрепить правило
-            <svg aria-hidden="true" viewbox="0 0 24 24">
-<path d="M10 7l6 5-6 5"></path>
-</svg>
-</button>
-</div>
-<div class="mg-finish rg-finish" id="rgFinish">
-<div class="rg-finishHead">
-<i aria-hidden="true">🏆</i>
-<div>
-<div class="rg-finishTitle">Правило дня закреплено</div>
-<div class="rg-finishNote">Ещё один уровень цифровой защиты открыт</div>
-</div>
-</div>
-<div id="rgFinishText"></div>
-<div class="mg-scoreRow">
-<div class="mg-scorePill rg-status" id="rgStatus">Статус: пройдено</div>
-<button class="chip-btn" id="rgAgain" type="button">
-<svg viewbox="0 0 24 24">
-<path d="M21 12a9 9 0 1 1-3-6.7"></path>
-<path d="M21 3v6h-6"></path>
-</svg>
-              Повторить миссию
-            </button>
-</div>
-</div>
-</div>
-</section>
+<div aria-hidden="true" class="mg-backdrop rdn-backdrop" data-rdn-state="idle" id="ruleGame">
+  <section aria-labelledby="rgTitle" aria-modal="false" class="rdn-card" data-state="idle" role="dialog">
+    <button aria-label="Закрыть правило дня" class="rdn-close" id="closeRuleGame" type="button">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
+    </button>
+    <div class="rdn-head">
+      <div class="rdn-badge"><span class="rdn-badgeDot"></span>Ежедневный кибер-челлендж</div>
+      <h2 id="rgTitle" class="rdn-title">Правило дня</h2>
+    </div>
+    <div class="rdn-body">
+      <div aria-label="Ситуация дня" class="rdn-question">
+        <div aria-hidden="true" class="rdn-icon" id="rgIcon">🛡️</div>
+        <div class="rdn-copy">
+          <div class="rdn-label">Ситуация</div>
+          <div id="rgRuleLine" class="rdn-rule">...</div>
+          <div id="rgScenario" class="rdn-scenario">...</div>
+        </div>
+        <div class="rdn-date" id="rgDatePill">сегодня</div>
+      </div>
+      <div aria-label="Ответ" class="rdn-actions">
+        <button class="rdn-btn is-danger" id="rgBtnBad" type="button"><span aria-hidden="true">⚠️</span><b>Опасно</b></button>
+        <button class="rdn-btn is-safe" id="rgBtnGood" type="button"><span aria-hidden="true">🟢</span><b>Безопасно</b></button>
+      </div>
+      <div aria-live="polite" class="rdn-explain" hidden id="rgExplain"></div>
+      <div class="rdn-doneRow" hidden id="rgDoneRow">
+        <button class="rdn-next" id="rgDone" type="button">Понял</button>
+        <button class="rdn-again" id="rgAgain" type="button">Ещё раз</button>
+      </div>
+    </div>
+  </section>
 </div>
 <script type="application/x-tk-managed" data-managed-script="1">
+(function ruleOfDayGame(){
+  const openLink = document.getElementById('openRuleGame');
+  const backdrop = document.getElementById('ruleGame');
+  const card = backdrop && backdrop.querySelector('.rdn-card');
+  const closeBtn = document.getElementById('closeRuleGame');
+  const rgDatePill = document.getElementById('rgDatePill');
+  const rgRuleLine = document.getElementById('rgRuleLine');
+  const rgScenario = document.getElementById('rgScenario');
+  const rgIcon = document.getElementById('rgIcon');
+  const rgExplain = document.getElementById('rgExplain');
+  const rgDoneRow = document.getElementById('rgDoneRow');
+  const btnBad = document.getElementById('rgBtnBad');
+  const btnGood = document.getElementById('rgBtnGood');
+  const doneBtn = document.getElementById('rgDone');
+  const againBtn = document.getElementById('rgAgain');
+  if(!openLink || !backdrop || !card || !closeBtn || !rgDatePill || !rgRuleLine || !rgScenario || !rgExplain || !rgDoneRow || !btnBad || !btnGood || !doneBtn || !againBtn) return;
 
-    (function ruleOfDayGame(){
-      const openLink = document.getElementById('openRuleGame');
-      const backdrop = document.getElementById('ruleGame');
-      const closeBtn = document.getElementById('closeRuleGame');
+  const rules = [
+    {icon:'🛡️', rule:'Сомневаешься? Спроси взрослого.', scenario:'Не уверен, можно ли доверять сообщению или сайту.', correct:'good', why:'Когда сомневаешься, лучше остановиться и спросить взрослого.', extra:'Так ты защищаешь себя, пароль и аккаунты.'},
+    {icon:'📩', rule:'Ссылка просит пароль?', scenario:'Сообщение ведёт на вход по подозрительной ссылке.', correct:'bad', why:'Пароль нельзя вводить по ссылкам из сообщений.', extra:'Открывай сервис сам: через приложение, закладку или ручной адрес.'},
+    {icon:'🔐', rule:'Просят код из SMS?', scenario:'Кто-то торопит и просит код подтверждения.', correct:'bad', why:'Код из SMS — ключ от аккаунта.', extra:'Настоящая защита работает только пока код знаешь только ты.'},
+    {icon:'📎', rule:'Незнакомый файл?', scenario:'Прислали архив или файл и просят срочно открыть.', correct:'bad', why:'Неизвестные файлы часто приносят вирусы или крадут данные.', extra:'Лучше удалить и ничего не запускать.'},
+    {icon:'⏰', rule:'Торопят и пугают?', scenario:'Пишут «срочно, иначе всё удалится».', correct:'bad', why:'Мошенники давят на страх и спешку.', extra:'Спокойная проверка почти всегда безопаснее мгновенного клика.'},
+    {icon:'🧾', rule:'Странный адрес отправителя?', scenario:'Название знакомое, но адрес выглядит чужим.', correct:'bad', why:'Подделать название легко, адрес — сложнее.', extra:'Смотри на домен, ошибки и странные символы.'},
+    {icon:'🎁', rule:'Просят личные данные?', scenario:'За приз или бонус просят телефон, адрес или карту.', correct:'bad', why:'Такие данные могут использовать против тебя и семьи.', extra:'Ничего не отправляй без проверки со взрослым.'},
+    {icon:'🛡️', rule:'Отключить 2FA ради удобства?', scenario:'Предлагают убрать подтверждение входа «чтобы было быстрее».', correct:'bad', why:'Подтверждение входа — твой дополнительный щит.', extra:'Без него пароль украсть намного опаснее.'}
+  ];
 
-      if(!openLink || !backdrop || !closeBtn) return;
+  let lastFocus = null;
+  let answered = false;
+  let isOpen = false;
 
-      const rgDatePill = document.getElementById('rgDatePill');
-      const rgRuleLine = document.getElementById('rgRuleLine');
-      const rgScenario = document.getElementById('rgScenario');
-      const rgExplain  = document.getElementById('rgExplain');
-      const rgHint     = document.getElementById('rgHint');
+  function pad2(n){ return String(n).padStart(2, '0'); }
+  function todayKey(){ const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+  function dayIndex(key){ let h = 0; for(let i=0;i<key.length;i++) h = (h * 31 + key.charCodeAt(i)) >>> 0; return h % rules.length; }
+  function storageKey(){ return 'tk_rules_done_' + todayKey(); }
+  function isDone(){ try { return localStorage.getItem(storageKey()) === '1'; } catch(_) { return false; } }
+  function markDone(){ try { localStorage.setItem(storageKey(), '1'); } catch(_) {} }
+  function clearDone(){ try { localStorage.removeItem(storageKey()); } catch(_) {} }
+  function currentRule(){ return rules[dayIndex(todayKey())]; }
+  function setButtonsLocked(locked){ btnBad.disabled = locked; btnGood.disabled = locked; }
 
-      const btnBad  = document.getElementById('rgBtnBad');
-      const btnGood = document.getElementById('rgBtnGood');
-
-      const doneBtn = document.getElementById('rgDone');
-
-      const rgFinish     = document.getElementById('rgFinish');
-      const rgFinishText = document.getElementById('rgFinishText');
-      const rgStatus     = document.getElementById('rgStatus');
-      const rgAgain      = document.getElementById('rgAgain');
-
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-
-      function snapRouletteAboveIT(){
-        const root = document.documentElement;
-        const dock = document.getElementById('rouletteDock');
-        const itChip = document.querySelector('.side-chip--it-min');
-
-        // v183: disable legacy snap in non4k right-rail mode (causes drift/jitter)
-        if(root.classList.contains('tk-non4k-balanced-v19') || (dock && dock.closest && dock.closest('#tk23RightRail'))){
-          root.style.removeProperty('--roulette-dock-left');
-          root.style.removeProperty('--roulette-dock-tx');
-          root.style.removeProperty('--roulette-dock-bottom');
-          root.style.setProperty('--roulette-over-chips','0px');
-          return;
-        }
-        if(!dock || !itChip){
-          root.style.removeProperty('--roulette-dock-left');
-          root.style.removeProperty('--roulette-dock-tx');
-          root.style.removeProperty('--roulette-dock-bottom');
-          root.style.setProperty('--roulette-over-chips','0px');
-          return;
-        }
-
-        if(matchMedia('(max-width: 520px)').matches){
-          root.style.removeProperty('--roulette-dock-left');
-          root.style.removeProperty('--roulette-dock-tx');
-          root.style.removeProperty('--roulette-dock-bottom');
-          root.style.setProperty('--roulette-over-chips','0px');
-          return;
-        }
-
-        root.style.setProperty('--roulette-dock-left','50%');
-        root.style.setProperty('--roulette-dock-tx','-50%');
-        root.style.removeProperty('--roulette-dock-bottom');
-        root.style.setProperty('--roulette-over-chips','0px');
-
-        const chipRect = itChip.getBoundingClientRect();
-        if(!chipRect || chipRect.width === 0 || chipRect.height === 0){
-          root.style.removeProperty('--roulette-dock-left');
-          root.style.removeProperty('--roulette-dock-tx');
-          root.style.removeProperty('--roulette-dock-bottom');
-          root.style.setProperty('--roulette-over-chips','0px');
-          return;
-        }
-
-        const dockRect = dock.getBoundingClientRect();
-        if(!dockRect || dockRect.width === 0 || dockRect.height === 0){
-          return;
-        }
-
-
-        const gapY = 12; 
-
-        const desiredBottom = Math.round((window.innerHeight - chipRect.top) + gapY);
-
-
-        const baseBottom = parseFloat(getComputedStyle(dock).bottom) || 0;
-        const finalBottom = Math.max(baseBottom, desiredBottom);
-        root.style.setProperty('--roulette-dock-bottom', finalBottom + 'px');
-
-
-        const pad = 26; 
-        const nudgeX = 10; 
-        const targetCenter = chipRect.left + chipRect.width/2;
-        let leftPx = Math.round(targetCenter - dockRect.width/2) + nudgeX;
-        leftPx = Math.max(pad, Math.min(window.innerWidth - dockRect.width - pad, leftPx));
-
-        root.style.setProperty('--roulette-dock-left', leftPx + 'px');
-        root.style.setProperty('--roulette-dock-tx','0px');
-      }
-
-      requestAnimationFrame(snapRouletteAboveIT);
-      window.addEventListener('resize', snapRouletteAboveIT, {passive:true});
-      window.addEventListener('orientationchange', snapRouletteAboveIT, {passive:true});
-      if(window.visualViewport) visualViewport.addEventListener('resize', snapRouletteAboveIT, {passive:true});
-
-      document.addEventListener('click', (e)=>{
-        const t = e && e.target;
-        if(!t) return;
-        if(t.id === 'menuToggle' || (t.closest && t.closest('#menuToggle'))){
-          setTimeout(snapRouletteAboveIT, 60);
-        }
-      }, true);
-
-
-
-      let lastFocus = null;
-      let locked = false;
-
-      const rules = [
-        {
-          title: "Никому не сообщай коды из SMS и приложений.",
-          scenario: "👨‍👧 «Я твой друг/папа/учитель, пришли код — срочно надо войти!»",
-          correct: "bad",
-          explain: [
-            "Код подтверждения — это <b>ключ</b>. Его нельзя никому передавать.",
-            "Правильно: <b>перезвони</b> человеку обычным звонком и уточни."
-          ]
-        },
-        {
-          title: "Не вводи пароль по ссылкам из сообщений.",
-          scenario: "📩 «Подтвердите аккаунт: перейдите по ссылке и введите пароль»",
-          correct: "bad",
-          explain: [
-            "Ссылки в сообщениях могут вести на подделку.",
-            "Правильно: открой сайт <b>вручную</b> (закладка/ввод адреса) и проверь."
-          ]
-        },
-        {
-          title: "Если просят личные данные — стоп.",
-          scenario: "🎮 «Для подарка напиши адрес/телефон/школу и номер карты родителей»",
-          correct: "bad",
-          explain: [
-            "Личные данные помогают мошенникам.",
-            "Правильно: ничего не отправляй, покажи сообщение взрослым."
-          ]
-        },
-        {
-          title: "Незнакомые файлы и архивы не открывай.",
-          scenario: "📎 «Смотри фотку» (photo.zip / video.exe / document.scr)",
-          correct: "bad",
-          explain: [
-            "Файлы могут содержать вирусы и красть данные.",
-            "Правильно: удаляй и блокируй отправителя."
-          ]
-        },
-        {
-          title: "Настоящие сервисы не пугают и не торопят.",
-          scenario: "⚠️ «Срочно! Через 10 минут всё удалится! Нажми и подтверди»",
-          correct: "bad",
-          explain: [
-            "Срочность — классический приём мошенников.",
-            "Правильно: спокойно проверяй через официальный сайт/приложение."
-          ]
-        },
-        {
-          title: "Сомневаешься — спроси взрослого. Это сила, а не слабость.",
-          scenario: "🤔 Ты не уверен(а), правда ли сообщение или сайт.",
-          correct: "good",
-          explain: [
-            "Лучшее действие — <b>попросить помощи</b>.",
-            "Так ты защищаешь себя и свои аккаунты."
-          ]
-        },
-        {
-          title: "Двухфакторная защита — твой щит.",
-          scenario: "🔐 Тебе предлагают отключить подтверждение входа «чтобы было удобнее».",
-          correct: "bad",
-          explain: [
-            "2FA защищает даже если пароль узнали.",
-            "Правильно: оставь включённым, а пароль делай сложным."
-          ]
-        },
-        {
-          title: "Проверяй, кто пишет: имя ≠ настоящий отправитель.",
-          scenario: "🧾 «Это банк/школа» — но адрес странный и текст с ошибками.",
-          correct: "bad",
-          explain: [
-            "Мошенники часто копируют названия и логотипы.",
-            "Правильно: проверяй адрес/домен и не переходи по ссылкам."
-          ]
-        }
-      ];
-
-      function pad2(n){ return String(n).padStart(2,'0'); }
-      function todayKey(){
-        const d = new Date();
-        return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
-      }
-      function dayIndex(key){
-        let h = 0;
-        for(let i=0;i<key.length;i++){
-          h = (h * 31 + key.charCodeAt(i)) >>> 0;
-        }
-        return h % rules.length;
-      }
-
-      function setLocked(v){
-        locked = !!v;
-        btnBad.disabled = locked;
-        btnGood.disabled = locked;
-      }
-
-      function resetUI(){
-        backdrop.dataset.rgState = 'idle';
-        rgExplain.classList.remove('is-on');
-        rgExplain.innerHTML = "";
-        doneBtn.classList.remove('is-on');
-        rgFinish.classList.remove('is-on');
-        btnBad.classList.remove('is-picked','is-correct','is-wrong');
-        btnGood.classList.remove('is-picked','is-correct','is-wrong');
-        setLocked(false);
-      }
-
-      function markDone(dateStr){
-        try{ localStorage.setItem("tk_rules_done_" + dateStr, "1"); }catch(_){}
-      }
-      function isDone(dateStr){
-        try{ return localStorage.getItem("tk_rules_done_" + dateStr) === "1"; }catch(_){ return false; }
-      }
-      function clearDone(dateStr){
-        try{ localStorage.removeItem("tk_rules_done_" + dateStr); }catch(_){}
-      }
-
-      function render(){
-        const dKey = todayKey();
-        const i = dayIndex(dKey);
-        const r = rules[i];
-
-        rgDatePill.textContent = dKey;
-        rgRuleLine.textContent = "🛡️ " + r.title;
-        rgScenario.textContent = r.scenario;
-
-        rgHint.textContent = "Если просят пароль, код подтверждения, личные данные или торопят — это красный флаг.";
-        resetUI();
-
-        if(isDone(dKey)){
-          rgFinishText.innerHTML = `
-            Сегодняшнее правило уже пройдено 🎉<br>
-            <b>Правило:</b> ${r.title}
-            <br><br>
-            Хочешь — нажми «Повторить миссию», чтобы ещё раз закрепить реакцию.
-          `;
-          backdrop.dataset.rgState = 'done';
-          rgStatus.textContent = "Статус: пройдено";
-          rgFinish.classList.add('is-on');
-          setLocked(true);
-          setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
-        }
-      }
-
-      function open(){
-        lastFocus = document.activeElement;
-
-        backdrop.dataset.rgState = 'idle';
-        backdrop.classList.add('is-open');
-        backdrop.setAttribute('aria-hidden', 'false');
-
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-
-        render();
-        setTimeout(() => closeBtn.focus({ preventScroll:true }), reduce ? 0 : 60);
-      }
-
-      function close(){
-        backdrop.classList.remove('is-open');
-        backdrop.dataset.rgState = 'idle';
-        backdrop.setAttribute('aria-hidden', 'true');
-
+  function releasePageLocks(){
+    try{
+      const anyOpen = !!document.querySelector(
+        '#itGame.is-open, #infoSecGame.is-open, #phishGame.is-open, #pcPartsGame.is-open, #comicMenu.is-open, ' +
+        '.rm-backdrop.is-open, .game-map-lightbox:not([hidden]), #infoMapLightbox:not([hidden]), #tkLicenseOverlay.is-open'
+      );
+      if(!anyOpen){
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
-
-        if(lastFocus && typeof lastFocus.focus === 'function'){
-          setTimeout(() => lastFocus.focus({ preventScroll:true }), 0);
-        }
+        document.documentElement.style.pointerEvents = '';
+        document.body.style.pointerEvents = '';
       }
+    }catch(_){}
+  }
 
-      function answer(choice){
-        if(locked) return;
+  function positionRuleNotice(){
+    const dock = document.querySelector('.rules');
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isPhone = window.matchMedia('(max-width: 520px)').matches;
+    const gap = isPhone ? 10 : 14;
+    let width = isPhone ? Math.min(304, vw - 12) : 338;
+    let right = isPhone ? 8 : 12;
+    let bottom = isPhone ? 214 : 236;
+    let maxH = Math.min(isPhone ? 280 : 330, vh - 16);
+    if(dock){
+      const rect = dock.getBoundingClientRect();
+      right = Math.max(isPhone ? 8 : 12, Math.round(vw - rect.right));
+      width = Math.min(Math.max(286, Math.round(rect.width)), isPhone ? vw - 12 : 360);
+      bottom = Math.max(isPhone ? 12 : 16, Math.round(vh - rect.top + gap));
+      maxH = Math.max(228, Math.min(isPhone ? 288 : 340, Math.round(rect.top - 12)));
+    }
+    backdrop.style.setProperty('--rdn-right', right + 'px');
+    backdrop.style.setProperty('--rdn-bottom', bottom + 'px');
+    backdrop.style.setProperty('--rdn-width', width + 'px');
+    backdrop.style.setProperty('--rdn-maxh', maxH + 'px');
+  }
 
-        const dKey = todayKey();
-        const r = rules[dayIndex(dKey)];
+  function resetState(){
+    answered = false;
+    backdrop.dataset.rdnState = 'idle';
+    card.dataset.state = isDone() ? 'done' : 'idle';
+    btnBad.classList.remove('is-correct','is-wrong');
+    btnGood.classList.remove('is-correct','is-wrong');
+    rgExplain.hidden = true;
+    rgExplain.innerHTML = '';
+    rgDoneRow.hidden = true;
+    setButtonsLocked(false);
+  }
 
-        setLocked(true);
-        btnBad.classList.remove('is-picked','is-correct','is-wrong');
-        btnGood.classList.remove('is-picked','is-correct','is-wrong');
+  function render(){
+    const rule = currentRule();
+    rgDatePill.textContent = todayKey();
+    rgIcon.textContent = rule.icon;
+    rgRuleLine.textContent = rule.rule;
+    rgScenario.textContent = rule.scenario;
+    resetState();
+    if(isDone()){
+      rgExplain.hidden = false;
+      rgExplain.innerHTML = `
+        <div class="rdn-explainTop"><span class="rdn-explainState is-good">выполнено</span></div>
+        <div class="rdn-explainText">Сегодняшнее правило уже пройдено.</div>
+        <div class="rdn-explainWhy">Можно повторить, если хочешь быстро освежить его.</div>`;
+      rgDoneRow.hidden = false;
+      doneBtn.textContent = 'Закрыть';
+      setButtonsLocked(true);
+    }else{
+      doneBtn.textContent = 'Понял';
+    }
+    positionRuleNotice();
+  }
 
-        const correct = (choice === r.correct);
-        const topLine = correct ? "✅ Верно!" : "❌ Почти!";
+  function open(){
+    lastFocus = document.activeElement;
+    render();
+    isOpen = true;
+    backdrop.classList.add('is-open');
+    backdrop.setAttribute('aria-hidden', 'false');
+    positionRuleNotice();
+    requestAnimationFrame(function(){
+      try{ closeBtn.focus({preventScroll:true}); }catch(_){ }
+    });
+  }
 
-        const rightText = (r.correct === "bad") ? "Опасно" : "Безопасно";
-        const pickedBtn = (choice === 'bad') ? btnBad : btnGood;
-        const correctBtn = (r.correct === 'bad') ? btnBad : btnGood;
+  function close(ev){
+    if(ev){
+      try{ ev.preventDefault(); }catch(_){}
+      try{ ev.stopPropagation(); }catch(_){}
+      try{ ev.stopImmediatePropagation && ev.stopImmediatePropagation(); }catch(_){}
+    }
+    if(!isOpen && !backdrop.classList.contains('is-open')) return false;
+    isOpen = false;
+    backdrop.classList.remove('is-open');
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.dataset.rdnState = 'idle';
+    releasePageLocks();
+    window.dispatchEvent(new Event('resize'));
+    const lf = lastFocus;
+    if(lf && lf.isConnected && typeof lf.focus === 'function'){
+      setTimeout(() => { try{ lf.focus({preventScroll:true}); }catch(_){} }, 0);
+    }
+    return false;
+  }
 
-        pickedBtn.classList.add('is-picked');
-        if(correct){
-          pickedBtn.classList.add('is-correct');
-        }else{
-          pickedBtn.classList.add('is-wrong');
-          correctBtn.classList.add('is-correct');
-        }
+  function answer(choice){
+    if(answered || isDone()) return;
+    answered = true;
+    const rule = currentRule();
+    const correct = choice === rule.correct;
+    const goodChoice = rule.correct === 'good' ? btnGood : btnBad;
+    goodChoice.classList.add('is-correct');
+    if(!correct){ (choice === 'good' ? btnGood : btnBad).classList.add('is-wrong'); }
+    setButtonsLocked(true);
+    backdrop.dataset.rdnState = correct ? 'good' : 'bad';
+    rgExplain.hidden = false;
+    rgExplain.innerHTML = `
+      <div class="rdn-explainTop">
+        <span class="rdn-explainState ${correct ? 'is-good' : 'is-bad'}">${correct ? 'верно' : 'не совсем'}</span>
+      </div>
+      <div class="rdn-explainText">${rule.why}</div>
+      <div class="rdn-explainWhy">${rule.extra}</div>`;
+    rgDoneRow.hidden = false;
+    doneBtn.textContent = 'Понял';
+    requestAnimationFrame(function(){
+      try{ doneBtn.focus({preventScroll:true}); }catch(_){}
+    });
+  }
 
-        const lines = [
-          `<div style="margin:6px 0;"><b>${topLine}</b> Правильный ответ: <b>${rightText}</b>.</div>`,
-          ...r.explain.map(s => `<div style="margin:6px 0;">${s}</div>`)
-        ].join("");
+  function done(ev){
+    if(ev){
+      try{ ev.preventDefault(); }catch(_){}
+      try{ ev.stopPropagation(); }catch(_){}
+    }
+    if(!isDone() && answered) markDone();
+    return close(ev);
+  }
 
-        backdrop.dataset.rgState = correct ? 'good' : 'bad';
-        rgExplain.innerHTML = lines;
-        rgExplain.classList.add('is-on');
-        doneBtn.classList.add('is-on');
+  function again(ev){
+    if(ev){
+      try{ ev.preventDefault(); }catch(_){}
+      try{ ev.stopPropagation(); }catch(_){}
+    }
+    clearDone();
+    render();
+    requestAnimationFrame(function(){
+      try{ btnBad.focus({preventScroll:true}); }catch(_){}
+    });
+  }
 
-        rgHint.textContent = correct
-          ? "Круто! Ты укрепляешь цифровой щит и быстрее считываешь риск."
-          : "Отлично для тренировки: теперь ты знаешь признак и сможешь среагировать увереннее.";
+  function closeIfBackdrop(e){
+    if(e.target === backdrop) close(e);
+  }
 
-        doneBtn.focus({ preventScroll:true });
-      }
+  function trapTab(e){
+    if(!backdrop.classList.contains('is-open') || e.key !== 'Tab') return;
+    const nodes = [closeBtn, btnBad, btnGood, doneBtn, againBtn].filter(function(el){
+      return el && !el.hidden && !el.disabled && el.offsetParent !== null;
+    });
+    if(!nodes.length) return;
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus({preventScroll:true});
+    }else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus({preventScroll:true});
+    }
+  }
 
-      function done(){
-        const dKey = todayKey();
-        markDone(dKey);
-
-        const r = rules[dayIndex(dKey)];
-
-        rgFinishText.innerHTML = `
-          <b>Правило дня:</b> ${r.title}<br><br>
-          Завтра тебя будет ждать новая ситуация и новое усиление цифровой защиты ✅
-        `;
-        backdrop.dataset.rgState = 'done';
-        rgStatus.textContent = "Статус: пройдено";
-        rgFinish.classList.add('is-on');
-
-        rgExplain.classList.remove('is-on');
-        doneBtn.classList.remove('is-on');
-
-        setTimeout(() => rgAgain.focus({ preventScroll:true }), 0);
-      }
-
-      function again(){
-        const dKey = todayKey();
-        clearDone(dKey);
-        render();
-        setTimeout(() => btnBad.focus({ preventScroll:true }), 0);
-      }
-
-      openLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        open();
-      });
-
-      closeBtn.addEventListener('click', close);
-
-      backdrop.addEventListener('click', (e) => {
-        if(e.target === backdrop) close();
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if(!backdrop.classList.contains('is-open')) return;
-        if(e.key === 'Escape') close();
-      });
-
-      btnBad.addEventListener('click', () => answer("bad"));
-      btnGood.addEventListener('click', () => answer("good"));
-      doneBtn.addEventListener('click', done);
-      rgAgain.addEventListener('click', again);
-
-      window.__tkOpenRuleDay = open;
-      window.__tkCloseRuleDay = close;
-    })();
+  openLink.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); open(); });
+  openLink.addEventListener('pointerdown', function(e){ e.preventDefault(); e.stopPropagation(); });
+  closeBtn.addEventListener('click', close);
+  closeBtn.addEventListener('pointerdown', function(e){ e.preventDefault(); e.stopPropagation(); });
+  backdrop.addEventListener('click', closeIfBackdrop);
+  backdrop.addEventListener('pointerdown', closeIfBackdrop);
+  card.addEventListener('click', function(e){ e.stopPropagation(); });
+  card.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+  btnBad.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); answer('bad'); });
+  btnGood.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); answer('good'); });
+  doneBtn.addEventListener('click', done);
+  againBtn.addEventListener('click', again);
+  window.addEventListener('keydown', function(e){
+    if(!backdrop.classList.contains('is-open')) return;
+    if(e.key === 'Escape') close(e);
+    trapTab(e);
+  });
+  window.addEventListener('resize', positionRuleNotice, {passive:true});
+  window.addEventListener('orientationchange', positionRuleNotice, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', positionRuleNotice, {passive:true});
+  try {
+    const dock = document.querySelector('.rules');
+    if(window.ResizeObserver && dock){ new ResizeObserver(positionRuleNotice).observe(dock); }
+  } catch(_) {}
+  window.__tkOpenRuleDay = open;
+  window.__tkCloseRuleDay = close;
+})();
 </script>
+
 <script type="application/x-tk-managed" data-managed-script="1">
     (function introAnim(){
       const intro = document.getElementById('intro');
@@ -58601,360 +58201,6 @@ html.tk-mac2600 #cinema.tk-mac2600-cinema-single-controller .movie-btn:hover{
 })();
 </script>
 
-
-
-<style id="tk-ruleday-compact-override-v1">
-#ruleGame{
-  align-items:flex-start !important;
-  justify-content:flex-end !important;
-  padding:
-    max(16px, calc(env(safe-area-inset-top) + 10px))
-    max(16px, calc(env(safe-area-inset-right) + 10px))
-    max(16px, calc(env(safe-area-inset-bottom) + 10px))
-    16px !important;
-  background: rgba(3, 8, 18, .26) !important;
-  backdrop-filter: blur(8px) saturate(1.02) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(1.02) !important;
-}
-#ruleGame::before,
-#ruleGame::after,
-#ruleGame .rg-ambient-layer,
-#ruleGame .rg-headMeta{
-  display:none !important;
-  content:none !important;
-}
-#ruleGame .rg-modal{
-  width:min(420px, calc(100vw - 32px)) !important;
-  max-height:min(84vh, 760px) !important;
-  overflow:auto !important;
-  overscroll-behavior:contain !important;
-  border-radius:24px !important;
-  border:1px solid rgba(167, 235, 223, .20) !important;
-  background:
-    radial-gradient(120% 140% at 0% 0%, rgba(110, 245, 208, .16), transparent 44%),
-    radial-gradient(120% 140% at 100% 0%, rgba(122, 204, 255, .12), transparent 40%),
-    linear-gradient(180deg, rgba(10, 28, 40, .97), rgba(6, 18, 28, .97)) !important;
-  box-shadow:
-    0 26px 68px rgba(0,0,0,.34),
-    0 0 0 1px rgba(255,255,255,.04) inset,
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-  backdrop-filter: blur(18px) saturate(1.08) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
-  transform: translateY(-4px) scale(.985) !important;
-}
-#ruleGame.is-open .rg-modal,
-#ruleGame.mg-backdrop.is-open .rg-modal{
-  transform: translateY(0) scale(1) !important;
-}
-#ruleGame .rg-modal::-webkit-scrollbar{
-  width:8px;
-}
-#ruleGame .rg-modal::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,.14);
-  border-radius:999px;
-}
-#ruleGame .rg-top{
-  padding:15px 15px 8px !important;
-  gap:10px !important;
-  align-items:flex-start !important;
-}
-#ruleGame .rg-title{
-  gap:4px !important;
-}
-#ruleGame .rg-kicker{
-  padding:6px 9px !important;
-  font-size:9px !important;
-  letter-spacing:.12em !important;
-  border-radius:999px !important;
-  background: linear-gradient(180deg, rgba(116,255,208,.92), rgba(40,170,138,.92)) !important;
-  color:#072218 !important;
-  box-shadow: 0 8px 20px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.22) !important;
-}
-#ruleGame .rg-kicker::before{
-  content:"•" !important;
-  font-size:14px !important;
-  line-height:1 !important;
-}
-#ruleGame .rg-title .mg-h1{
-  font-size: clamp(20px, 4vw, 28px) !important;
-  line-height:1.02 !important;
-  letter-spacing:.01em !important;
-  color:#f4fff9 !important;
-  text-shadow: 0 10px 28px rgba(0,0,0,.26) !important;
-}
-#ruleGame .rg-title .mg-sub{
-  max-width:none !important;
-  margin-top:0 !important;
-  font-size:10px !important;
-  line-height:1.45 !important;
-  letter-spacing:.08em !important;
-  text-transform:none !important;
-  color: rgba(225,240,245,.78) !important;
-}
-#ruleGame #closeRuleGame,
-#ruleGame .mg-close{
-  width:36px !important;
-  height:36px !important;
-  min-width:36px !important;
-  border-radius:12px !important;
-}
-#ruleGame .rg-progress{
-  padding: 0 15px 10px !important;
-  gap:8px !important;
-  align-items:center !important;
-}
-#ruleGame .rg-progress .mg-dot{
-  width:8px !important;
-  height:8px !important;
-}
-#ruleGame .rg-progressLabel{
-  margin-left:4px !important;
-  font-size:9px !important;
-  letter-spacing:.12em !important;
-  color: rgba(220,236,242,.72) !important;
-}
-#ruleGame .rg-body{
-  padding:0 15px 15px !important;
-  gap:10px !important;
-}
-#ruleGame .rg-card{
-  padding:14px !important;
-  border-radius:18px !important;
-  border:1px solid rgba(255,255,255,.10) !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)),
-    radial-gradient(140% 150% at 0% 0%, rgba(110, 245, 208, .12), transparent 48%) !important;
-  box-shadow:
-    0 14px 30px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
-}
-#ruleGame .rg-card::before,
-#ruleGame .rg-cardScope{
-  display:none !important;
-}
-#ruleGame .rg-cardHead{
-  gap:8px !important;
-  margin-bottom:10px !important;
-}
-#ruleGame .rg-cardTag{
-  font-size:10px !important;
-  letter-spacing:.12em !important;
-  padding:6px 8px !important;
-}
-#ruleGame .rg-date{
-  padding:6px 9px !important;
-  font-size:10px !important;
-  line-height:1 !important;
-  min-height:auto !important;
-}
-#ruleGame .rg-ruleShell{
-  grid-template-columns:46px minmax(0,1fr) !important;
-  gap:10px !important;
-  align-items:start !important;
-}
-#ruleGame .rg-ruleIcon{
-  width:46px !important;
-  height:46px !important;
-  border-radius:14px !important;
-  font-size:20px !important;
-  box-shadow: 0 10px 22px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12) !important;
-}
-#ruleGame .rg-msg{
-  gap:8px !important;
-}
-#ruleGame .rg-ruleLine{
-  font-size:18px !important;
-  line-height:1.18 !important;
-  letter-spacing:0 !important;
-}
-#ruleGame .rg-scenario{
-  margin-top:0 !important;
-  padding:12px !important;
-  border-radius:14px !important;
-  font-size:13px !important;
-  line-height:1.4 !important;
-  background:
-    linear-gradient(180deg, rgba(120,205,255,.10), rgba(120,205,255,.04)),
-    rgba(7,18,30,.44) !important;
-  border:1px solid rgba(255,255,255,.08) !important;
-}
-#ruleGame .rg-actions{
-  grid-template-columns:1fr !important;
-  gap:8px !important;
-}
-#ruleGame .rg-answer{
-  min-height:0 !important;
-  padding:11px 12px !important;
-  border-radius:16px !important;
-  gap:10px !important;
-}
-#ruleGame .rg-answer__icon{
-  width:34px !important;
-  height:34px !important;
-  border-radius:11px !important;
-  font-size:16px !important;
-  flex:0 0 34px !important;
-}
-#ruleGame .rg-answer__txt{
-  gap:2px !important;
-}
-#ruleGame .rg-answer__txt strong{
-  font-size:14px !important;
-  line-height:1.15 !important;
-}
-#ruleGame .rg-answer__txt small{
-  font-size:11px !important;
-  line-height:1.35 !important;
-  letter-spacing:0 !important;
-  text-transform:none !important;
-}
-#ruleGame .rg-explain{
-  margin-top:0 !important;
-  padding:12px !important;
-  border-radius:15px !important;
-  font-size:13px !important;
-  line-height:1.42 !important;
-}
-#ruleGame .rg-explain::before{
-  display:none !important;
-}
-#ruleGame .rg-nextRow{
-  flex-direction:column !important;
-  gap:8px !important;
-  align-items:stretch !important;
-}
-#ruleGame .rg-hint{
-  min-width:0 !important;
-  width:100% !important;
-  padding:10px 12px !important;
-  border-radius:14px !important;
-  font-size:11px !important;
-  line-height:1.38 !important;
-}
-#ruleGame .rg-next{
-  width:100% !important;
-  min-height:44px !important;
-  justify-content:center !important;
-  border-radius:14px !important;
-  font-size:11px !important;
-  letter-spacing:.1em !important;
-}
-#ruleGame .rg-finish{
-  margin-top:0 !important;
-  padding:14px !important;
-  border-radius:18px !important;
-}
-#ruleGame .rg-finishHead{
-  gap:10px !important;
-}
-#ruleGame .rg-finishHead i{
-  width:40px !important;
-  height:40px !important;
-  border-radius:14px !important;
-  font-size:18px !important;
-}
-#ruleGame .rg-finishTitle{
-  font-size:15px !important;
-}
-#ruleGame .rg-finishNote,
-#ruleGame #rgFinishText{
-  font-size:12px !important;
-  line-height:1.45 !important;
-}
-#ruleGame .mg-scoreRow{
-  flex-direction:column !important;
-  gap:8px !important;
-  align-items:stretch !important;
-}
-#ruleGame .rg-status,
-#ruleGame #rgAgain{
-  width:100% !important;
-  justify-content:center !important;
-}
-#ruleGame #rgAgain{
-  min-height:42px !important;
-  border-radius:14px !important;
-}
-
-@media (min-width: 1400px){
-  #ruleGame .rg-modal{
-    width:min(440px, calc(100vw - 40px)) !important;
-  }
-}
-@media (max-width: 900px){
-  #ruleGame{
-    align-items:flex-end !important;
-    justify-content:center !important;
-  }
-}
-@media (max-width: 640px){
-  #ruleGame{
-    padding:
-      max(12px, calc(env(safe-area-inset-top) + 6px))
-      12px
-      max(12px, calc(env(safe-area-inset-bottom) + 8px))
-      12px !important;
-  }
-  #ruleGame .rg-modal{
-    width:min(100%, 420px) !important;
-    max-height:min(82vh, 680px) !important;
-    border-radius:20px !important;
-  }
-  #ruleGame .rg-top,
-  #ruleGame .rg-progress,
-  #ruleGame .rg-body{
-    padding-left:13px !important;
-    padding-right:13px !important;
-  }
-  #ruleGame .rg-top{ padding-top:13px !important; }
-  #ruleGame .rg-title .mg-h1{ font-size:clamp(20px, 6.6vw, 26px) !important; }
-  #ruleGame .rg-title .mg-sub{ font-size:10px !important; }
-  #ruleGame .rg-progressLabel{ width:auto !important; }
-  #ruleGame .rg-ruleShell{ grid-template-columns:42px minmax(0,1fr) !important; }
-  #ruleGame .rg-ruleIcon{ width:42px !important; height:42px !important; font-size:18px !important; }
-  #ruleGame .rg-ruleLine{ font-size:16px !important; }
-  #ruleGame .rg-scenario{ font-size:12px !important; }
-  #ruleGame .rg-answer__txt strong{ font-size:13px !important; }
-  #ruleGame .rg-answer__txt small{ font-size:10.5px !important; }
-}
-@media (max-width: 420px){
-  #ruleGame .rg-kicker{ max-width:100%; white-space:normal; }
-  #ruleGame .rg-progress{ flex-wrap:wrap !important; }
-}
-html.tk-mobile-landscape-v341 #ruleGame.mg-backdrop{
-  align-items:center !important;
-  justify-content:flex-end !important;
-  padding:12px !important;
-}
-html.tk-mobile-landscape-v341 #ruleGame .rg-modal{
-  width:min(392px, calc(100vw - 24px)) !important;
-  max-height:calc(100vh - 24px) !important;
-}
-@media (prefers-reduced-motion: reduce){
-  #ruleGame,
-  #ruleGame .rg-modal
-}
-</style>
-<script id="tk-ruleday-compact-override-script" type="application/x-tk-managed" data-managed-script="1">
-(function(){
-  function refineRulePopupText(){
-    var sub = document.getElementById('rgSub');
-    var hint = document.getElementById('rgHint');
-    if(sub) sub.textContent = 'Один короткий сценарий, один выбор и понятное объяснение без перегруза.';
-    if(hint && !hint.dataset.tkCompactHint){
-      hint.dataset.tkCompactHint = '1';
-      hint.textContent = 'Просьба о коде, пароле, личных данных или спешка — повод остановиться и проверить.';
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', refineRulePopupText, {once:true});
-  }else{
-    refineRulePopupText();
-  }
-  window.addEventListener('load', refineRulePopupText, {once:true});
-})();
-</script>
 
 </body>
 </html>
