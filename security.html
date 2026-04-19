@@ -60465,5 +60465,193 @@ html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame
 })();
 </script>
 
+
+<style id="tk-tablet-step-isolation-v7-style">
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body > .panel[data-step][hidden]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body > .panel[data-step]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  opacity:0 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).tk-tablet-game-inner-open .cool-phish-root .modal-body > .panel[data-step].tk-tablet-step-visible:not([hidden]){
+  visibility:visible !important;
+  pointer-events:auto !important;
+  opacity:1 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="avatar"] .cool-phish-root .modal-body > .panel[data-step="avatar"].tk-tablet-step-visible:not([hidden]){
+  display:block !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .modal-body > .panel[data-step="profile"].tk-tablet-step-visible:not([hidden]){
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .modal-body > .panel[data-step="play"].tk-tablet-step-visible:not([hidden]),
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="trailer"] .cool-phish-root .modal-body > .panel[data-step="trailer"].tk-tablet-step-visible:not([hidden]){
+  display:block !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .panel[data-step="profile"].tk-tablet-step-visible:not([hidden]){
+  background:linear-gradient(180deg, rgba(10,24,44,.94), rgba(7,18,34,.96)) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .modal-body{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .modal-body{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  touch-action:pan-y !important;
+  overscroll-behavior:contain !important;
+  padding-bottom:max(34px, env(safe-area-inset-bottom, 0px) + 28px) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .panel[data-step="play"].tk-tablet-step-visible:not([hidden]){
+  min-height:max-content !important;
+  touch-action:pan-y !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .play-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .msg-card,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .actions,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .footer-controls{
+  touch-action:pan-y !important;
+}
+</style>
+<script id="tk-tablet-step-isolation-v7-script">
+(function(){
+  var GAME_IDS = ['infoSecGame','itGame','phishGame'];
+  var raf = 0;
+
+  function isTabletMode(){
+    var root = document.documentElement;
+    return root.classList.contains('tk-tablet-landscape') && root.classList.contains('tk-tablet-fhd-match');
+  }
+
+  function qs(root, sel){ return root ? root.querySelector(sel) : null; }
+  function qsa(root, sel){ return root ? Array.prototype.slice.call(root.querySelectorAll(sel)) : []; }
+
+  function panelState(panel){
+    if(!panel) return false;
+    if(panel.hidden) return false;
+    if(panel.getAttribute('hidden') !== null) return false;
+    if(panel.getAttribute('aria-hidden') === 'true') return false;
+    return true;
+  }
+
+  function activeFromDots(outer){
+    var activeDot = qs(outer, '.steps .step-dot.is-active, .steps .step-dot.is-on');
+    if(!activeDot) return null;
+    var dot = activeDot.getAttribute('data-stepdot');
+    return ({'1':'avatar','2':'profile','3':'play'})[dot] || null;
+  }
+
+  function activeFromFocus(outer){
+    var el = document.activeElement;
+    if(!el || !outer.contains(el)) return null;
+    if(el.matches && el.matches('input, textarea, [contenteditable="true"]')) return 'profile';
+    return null;
+  }
+
+  function activeFromPanels(outer){
+    var panels = qsa(outer, '.modal-body > .panel[data-step]');
+    for(var i=0;i<panels.length;i++){
+      if(panelState(panels[i])) return panels[i].getAttribute('data-step') || null;
+    }
+    return null;
+  }
+
+  function resolveStep(outer){
+    var inner = qs(outer, '.cool-phish-root > .backdrop, .backdrop');
+    var innerOpen = !!(inner && inner.classList.contains('is-open') && inner.getAttribute('aria-hidden') !== 'true');
+    if(!innerOpen) return 'menu';
+    return activeFromFocus(outer) || activeFromDots(outer) || activeFromPanels(outer) || outer.getAttribute('data-tk-tablet-step') || 'avatar';
+  }
+
+  function isolate(outer){
+    if(!outer) return;
+    var panels = qsa(outer, '.modal-body > .panel[data-step]');
+    if(!isTabletMode()){
+      panels.forEach(function(panel){
+        panel.classList.remove('tk-tablet-step-visible', 'tk-tablet-step-hidden');
+        panel.style.removeProperty('display');
+        panel.style.removeProperty('visibility');
+        panel.style.removeProperty('pointer-events');
+      });
+      return;
+    }
+    var step = resolveStep(outer);
+    outer.setAttribute('data-tk-tablet-step', step);
+    panels.forEach(function(panel){
+      var name = panel.getAttribute('data-step') || '';
+      var visible = step !== 'menu' && name === step && panelState(panel);
+      panel.classList.toggle('tk-tablet-step-visible', visible);
+      panel.classList.toggle('tk-tablet-step-hidden', !visible);
+      if(!visible){
+        panel.style.setProperty('display', 'none', 'important');
+        panel.style.setProperty('visibility', 'hidden', 'important');
+        panel.style.setProperty('pointer-events', 'none', 'important');
+      }else{
+        panel.style.removeProperty('display');
+        panel.style.removeProperty('visibility');
+        panel.style.removeProperty('pointer-events');
+      }
+    });
+  }
+
+  function run(){
+    raf = 0;
+    GAME_IDS.forEach(function(id){ isolate(document.getElementById(id)); });
+  }
+
+  function queue(){
+    if(raf) return;
+    raf = (window.requestAnimationFrame || function(cb){ return setTimeout(cb, 16); })(run);
+  }
+
+  function bindOuter(outer){
+    if(!outer || outer.dataset.tkTabletStepIsolationBound === '1') return;
+    outer.dataset.tkTabletStepIsolationBound = '1';
+    outer.addEventListener('click', function(){ queue(); setTimeout(queue, 60); setTimeout(queue, 180); }, true);
+    outer.addEventListener('focusin', function(){ queue(); setTimeout(queue, 80); setTimeout(queue, 220); }, true);
+    outer.addEventListener('focusout', function(){ setTimeout(queue, 80); setTimeout(queue, 220); }, true);
+    if(window.MutationObserver){
+      var mo = new MutationObserver(function(){ queue(); });
+      mo.observe(outer, {subtree:true, attributes:true, attributeFilter:['hidden','aria-hidden','class','style']});
+    }
+  }
+
+  function boot(){
+    GAME_IDS.forEach(function(id){ bindOuter(document.getElementById(id)); });
+    queue();
+    setTimeout(queue, 120);
+    setTimeout(queue, 320);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, {once:true});
+  }else{
+    boot();
+  }
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(queue, 100); setTimeout(queue, 320); }, {passive:true});
+  window.addEventListener('tk:tablet-minigame-layout-sync', queue);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ setTimeout(queue, 40); }, {passive:true});
+  }
+})();
+</script>
+
 </body>
 </html>
