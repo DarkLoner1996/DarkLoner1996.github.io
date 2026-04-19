@@ -14497,7 +14497,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 }
 </style>
 </head>
-<body>
+<body class="menu-collapsed">
 <div aria-label="Загрузка сайта" aria-live="polite" class="tk-loader" id="tkLoader">
 <div class="tk-loader__bg"></div>
 <div class="tk-loader__noise"></div>
@@ -14535,7 +14535,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 <div aria-hidden="true" class="page-transition" id="pt">
 <div class="wipe"></div>
 </div>
-<nav aria-label="Игровое меню" class="side-nav">
+<nav aria-label="Игровое меню" class="side-nav is-collapsed">
 <div class="side-nav__tab">
 <div class="tab-row">
 <span aria-hidden="true" class="menu-pill">
@@ -14544,7 +14544,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </svg>
 <span class="menu-pill__label">ИГРОВОЕ МЕНЮ</span>
 </span>
-<button aria-controls="hudPanel" aria-expanded="true" class="back-btn" id="menuToggle" title="Свернуть/развернуть" type="button">
+<button aria-controls="hudPanel" aria-expanded="false" class="back-btn" id="menuToggle" title="Развернуть/свернуть" type="button">
 <svg aria-hidden="true" viewbox="0 0 24 24">
 <path d="M14.5 6.5 8.5 12l6 5.5"></path>
 </svg>
@@ -18048,9 +18048,12 @@ function renderCard() {
 
       function sync(){
         const collapsed = nav.classList.contains('is-collapsed');
+        const panelId = btn.getAttribute('aria-controls');
+        const panel = panelId ? document.getElementById(panelId) : null;
         document.body.classList.toggle('menu-collapsed', collapsed);
         btn.setAttribute('aria-expanded', String(!collapsed));
         btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
+        if(panel) panel.setAttribute('aria-hidden', String(collapsed));
       }
 
       sync();
