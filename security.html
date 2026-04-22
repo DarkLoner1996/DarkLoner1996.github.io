@@ -63623,5 +63623,485 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
 })();
 </script>
 
+
+<style id="tk-v17-mobile-landscape-system-style">
+/* v17: mobile landscape controller based on the stable v12/v15 line.
+   Keeps the same visual language, but gives phone-landscape its own
+   interaction model: cat state, cinema entry, 2-card slider, scroll,
+   and compact platform status. */
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .header{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior-y:contain !important;
+  touch-action:pan-y pinch-zoom !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .ui{
+  min-height:calc(var(--tk-phone-vh) + 160px) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .header::after{
+  content:"";
+  display:block;
+  height:140px;
+}
+
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats{
+  position:fixed !important;
+  left:max(calc(var(--tk-pl-left) + 2px), 8px) !important;
+  top:calc(var(--tk-pl-top) + 52px) !important;
+  width:min(150px, 22vw) !important;
+  z-index:14826 !important;
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__panel{
+  display:block !important;
+  padding:8px 9px 9px !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(130% 120% at 18% 18%, rgba(255,255,255,.14), transparent 58%),
+    linear-gradient(180deg, rgba(9,34,61,.88), rgba(6,18,34,.86)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:0 14px 32px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:6px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__title{
+  display:flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  min-width:0 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__orb{
+  display:block !important;
+  width:10px !important;
+  height:10px !important;
+  border-radius:999px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__label{
+  display:grid !important;
+  gap:1px !important;
+  font-size:8px !important;
+  line-height:1.02 !important;
+  letter-spacing:.14em !important;
+  text-transform:uppercase !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__badge{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-width:34px !important;
+  height:20px !important;
+  border-radius:999px !important;
+  font-size:8px !important;
+  letter-spacing:.14em !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:6px !important;
+  margin-top:7px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__card{
+  display:block !important;
+  min-width:0 !important;
+  padding:6px 7px !important;
+  border-radius:12px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__metric{
+  display:grid !important;
+  gap:0 !important;
+  font-size:7px !important;
+  line-height:1.06 !important;
+  letter-spacing:.10em !important;
+  text-transform:uppercase !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__value{
+  display:block !important;
+  margin-top:3px !important;
+  font-size:13px !important;
+  line-height:1 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #tkLiveStats{
+  opacity:.94 !important;
+}
+
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-v17-cat-visible #tkCatStart{
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  left:max(var(--tk-pl-left), 8px) !important;
+  bottom:calc(var(--tk-pl-bottom) + 8px) !important;
+  width:min(292px, 34vw) !important;
+  z-index:14848 !important;
+  transform:translate3d(0,0,0) scale(var(--tk-v12-cat-scale, 1)) !important;
+  transform-origin:left bottom !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-v17-cat-awake).tk-v17-cat-visible #tkCatStart{
+  opacity:0 !important;
+  transform:translate3d(-14px, 14px, 0) scale(calc(var(--tk-v12-cat-scale, 1) * .96)) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-v17-cat-awake.tk-v17-cat-visible #tkCatStart{
+  animation:tkV17CatAppear .48s cubic-bezier(.22,1,.36,1) both;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-license-open #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-loader-visible #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-any-game-open #tkCatStart{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkCatStart .tk-cat-launch__pet{
+  width:68px !important;
+  height:68px !important;
+  flex-basis:68px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkCatStart .tk-cat-launch__dialog{
+  width:calc(100% - 78px) !important;
+}
+@keyframes tkV17CatAppear{
+  0%{ opacity:0; transform:translate3d(-14px, 14px, 0) scale(calc(var(--tk-v12-cat-scale, 1) * .96)); }
+  100%{ opacity:1; transform:translate3d(0,0,0) scale(var(--tk-v12-cat-scale, 1)); }
+}
+
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema{
+  width:min(76vw, 760px) !important;
+  max-width:min(76vw, 760px) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .cinema-head{
+  margin-bottom:8px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .cinema-title-art{
+  width:min(50vw, 490px) !important;
+  max-width:min(50vw, 490px) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinemaStage{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-container{
+  display:block !important;
+  width:min(76vw, 760px) !important;
+  max-width:min(76vw, 760px) !important;
+  margin:8px auto 0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-prev,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-next{
+  display:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-wrapper{
+  display:grid !important;
+  grid-auto-flow:column !important;
+  grid-auto-columns:calc((min(76vw, 760px) - 10px) / 2) !important;
+  gap:10px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  padding:4px 2px 10px !important;
+  margin:0 !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  scroll-snap-type:x mandatory !important;
+  scroll-padding-inline:2px !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior-x:contain !important;
+  touch-action:pan-x pinch-zoom !important;
+  scrollbar-width:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-wrapper::-webkit-scrollbar{
+  display:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-slide{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:none !important;
+  flex:none !important;
+  scroll-snap-align:start !important;
+  opacity:1 !important;
+  filter:none !important;
+  transform:none !important;
+  content-visibility:auto !important;
+  contain:layout paint style !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-img{
+  height:min(26vh, 170px) !important;
+  border-radius:18px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-info{
+  padding:10px 10px 11px !important;
+  gap:7px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-info h3{
+  min-height:2.2em !important;
+  font-size:14px !important;
+  line-height:1.14 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-btn{
+  min-height:34px !important;
+  height:34px !important;
+  border-radius:13px !important;
+  font-size:10px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .rules,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .cinema-head,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .cinema-banner,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .cinema-title-art,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-container,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .slider-wrapper,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-slide{
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #cinema .slider-wrapper{
+  overflow:hidden !important;
+}
+
+@media (orientation: landscape) and (max-height: 380px){
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #cinema .movie-img{
+    height:min(24vh, 148px) !important;
+  }
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats{
+    width:min(140px, 21vw) !important;
+    top:calc(var(--tk-pl-top) + 48px) !important;
+  }
+}
+</style>
+<script id="tk-v17-mobile-landscape-system-script">
+(function(){
+  var root = document.documentElement;
+  var body = document.body;
+  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
+  var CAT_TIMER = 0;
+
+  function isLandscapePhone(){
+    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
+  }
+  function overlayOpen(id){
+    var el = document.getElementById(id);
+    if(!el) return false;
+    if(el.classList.contains('is-open')) return true;
+    if(el.getAttribute('aria-hidden') === 'false') return true;
+    if(id === 'ruleGame' && String(el.dataset.rdnState || '').toLowerCase() !== 'idle') return true;
+    return false;
+  }
+  function anyGameDialogOpen(){
+    return ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal']
+      .some(overlayOpen);
+  }
+  function isLoaderVisible(){
+    var loader = document.getElementById('tkLoader');
+    if(!loader || loader.dataset.done === '1' || loader.classList.contains('is-hidden')) return false;
+    var cs = window.getComputedStyle(loader);
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.01;
+  }
+  function isLicenseOpen(){
+    var overlay = document.getElementById('tkLicenseOverlay');
+    return !!(overlay && overlay.classList.contains('is-open') && overlay.getAttribute('aria-hidden') !== 'true');
+  }
+  function isGamesOpen(){
+    return root.classList.contains('tk-phone-games-open');
+  }
+  function setGamesOpen(next){
+    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
+    root.classList.toggle('tk-phone-games-open', !!next);
+    if(body) body.classList.toggle('tk-phone-games-open', !!next);
+  }
+  function clearDialog(el){
+    if(!el) return;
+    el.classList.remove('is-open','is-on','open','active');
+    el.setAttribute('aria-hidden', 'true');
+    if(el.id === 'ruleGame') el.dataset.rdnState = 'idle';
+    try{
+      el.hidden = false;
+      el.style.removeProperty('display');
+      el.style.removeProperty('visibility');
+      el.style.removeProperty('opacity');
+      el.style.removeProperty('pointer-events');
+    }catch(_e){}
+  }
+  function closeInteractivePanels(){
+    ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].forEach(function(id){
+      clearDialog(document.getElementById(id));
+    });
+    root.classList.remove('tk-any-game-open');
+    if(body) body.classList.remove('tk-any-game-open');
+  }
+  function getTrack(){
+    return document.querySelector('#cinema .slider-wrapper');
+  }
+  function pickSlides(){
+    var slides = Array.prototype.slice.call(document.querySelectorAll('#cinema .movie-slide'));
+    return slides.filter(function(slide){ return slide && slide.offsetParent !== null; });
+  }
+  function setFirstActive(){
+    var slides = pickSlides();
+    if(!slides.length) return slides;
+    var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
+    slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
+    return slides;
+  }
+  function positionCinema(){
+    var track = getTrack();
+    if(!track) return;
+    var slides = setFirstActive();
+    if(!slides.length) return;
+    var active = slides.find(function(s){ return s.classList.contains('is-active'); }) || slides[0];
+    try{ track.scrollTo({ left: Math.max(0, active.offsetLeft - 2), behavior:'auto' }); }
+    catch(_e){ track.scrollLeft = Math.max(0, active.offsetLeft - 2); }
+  }
+  function showCat(flag){
+    var cat = document.getElementById('tkCatStart');
+    clearTimeout(CAT_TIMER);
+    root.classList.toggle('tk-v17-cat-visible', !!flag);
+    if(body) body.classList.toggle('tk-v17-cat-visible', !!flag);
+    if(cat){
+      cat.hidden = !flag;
+      cat.setAttribute('aria-hidden', flag ? 'false' : 'true');
+      if(flag){
+        cat.style.removeProperty('display');
+        cat.style.removeProperty('visibility');
+      }
+    }
+    if(flag){
+      root.classList.remove('tk-v17-cat-awake');
+      if(body) body.classList.remove('tk-v17-cat-awake');
+      CAT_TIMER = setTimeout(function(){
+        root.classList.add('tk-v17-cat-awake');
+        if(body) body.classList.add('tk-v17-cat-awake');
+      }, 30);
+    }else{
+      root.classList.remove('tk-v17-cat-awake');
+      if(body) body.classList.remove('tk-v17-cat-awake');
+    }
+  }
+  function syncState(){
+    if(!isLandscapePhone()){
+      showCat(false);
+      return;
+    }
+    var loader = isLoaderVisible();
+    var license = isLicenseOpen();
+    var anyGame = anyGameDialogOpen();
+    root.classList.toggle('tk-loader-visible', loader);
+    root.classList.toggle('tk-license-open', license);
+    root.classList.toggle('tk-any-game-open', anyGame);
+    if(body){
+      body.classList.toggle('tk-loader-visible', loader);
+      body.classList.toggle('tk-license-open', license);
+      body.classList.toggle('tk-any-game-open', anyGame);
+    }
+    var canShowCat = !loader && !license && !anyGame && !isGamesOpen();
+    showCat(canShowCat);
+
+    var header = document.querySelector('.header');
+    if(header){
+      header.style.overflowY = 'auto';
+      header.style.overflowX = 'hidden';
+      header.style.webkitOverflowScrolling = 'touch';
+      header.style.touchAction = 'pan-y pinch-zoom';
+    }
+  }
+  function openGames(ev){
+    if(!isLandscapePhone()) return false;
+    if(ev){
+      try{ ev.preventDefault(); }catch(_e){}
+      try{ ev.stopPropagation(); }catch(_e){}
+    }
+    closeInteractivePanels();
+    setGamesOpen(true);
+    root.classList.remove('tk-phone-cinema-ready');
+    if(body) body.classList.remove('tk-phone-cinema-ready');
+    showCat(false);
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        positionCinema();
+        root.classList.add('tk-phone-cinema-ready');
+        if(body) body.classList.add('tk-phone-cinema-ready');
+        syncState();
+      });
+    });
+    return false;
+  }
+  function tapInsideCinemaBanner(target){
+    if(!target) return false;
+    if(target.closest('.movie-btn, .slider-prev, .slider-next')) return false;
+    if(target.closest('#cinema .cinema-head, #cinema .cinema-banner, #cinema .cinema-title-art')) return true;
+    var cinema = target.closest('#cinema');
+    if(!cinema) return false;
+    var stage = document.getElementById('cinemaStage');
+    if(stage && stage.contains(target)) return false;
+    return true;
+  }
+  function bindGlobalOpen(type, opts){
+    document.addEventListener(type, function(ev){
+      if(!isLandscapePhone() || isGamesOpen()) return;
+      if(tapInsideCinemaBanner(ev.target)) openGames(ev);
+    }, opts);
+  }
+  function bind(){
+    var btn = document.getElementById('tkCatStartBtn');
+    if(btn && !btn.__tkV17Bound){
+      btn.__tkV17Bound = true;
+      btn.addEventListener('click', openGames, true);
+      btn.addEventListener('touchend', openGames, {capture:true, passive:false});
+      btn.addEventListener('pointerup', openGames, {capture:true, passive:false});
+    }
+    if(!document.documentElement.__tkV17GlobalBound){
+      document.documentElement.__tkV17GlobalBound = true;
+      bindGlobalOpen('click', true);
+      bindGlobalOpen('pointerup', {capture:true, passive:false});
+      bindGlobalOpen('touchend', {capture:true, passive:false});
+    }
+    var track = getTrack();
+    if(track && !track.__tkV17ScrollBound){
+      track.__tkV17ScrollBound = true;
+      track.addEventListener('scroll', function(){ /* keep native horizontal slider smooth */ }, {passive:true});
+    }
+  }
+  function queue(){
+    bind();
+    syncState();
+    if(isLandscapePhone() && isGamesOpen()){
+      requestAnimationFrame(positionCinema);
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
+  else queue();
+  window.addEventListener('load', queue, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(queue, 70); setTimeout(queue, 220); setTimeout(queue, 480); }, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('tk:loaderhidden', queue);
+  window.addEventListener('tk:licenseaccepted', function(){ setGamesOpen(false); setTimeout(queue, 40); setTimeout(queue, 220); });
+  try{
+    var mo = new MutationObserver(queue);
+    mo.observe(root, {attributes:true, attributeFilter:['class']});
+    ['tkLoader','tkLicenseOverlay','ruleGame','itGame','infoSecGame','phishGame','pcPartsGame','comicMenu'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) mo.observe(el, {attributes:true, attributeFilter:['class','aria-hidden','data-rdn-state']});
+    });
+  }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
