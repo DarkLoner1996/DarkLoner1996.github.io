@@ -14764,7 +14764,9 @@ html.tk-mobile-phone-perf-v1 #cinema{
     }catch(_e){}
     try{
       var particles = document.getElementById('tkLoaderParticles');
-      if(particles) particles.remove();
+      if(particles){
+        particles.setAttribute('data-phone-preserve', '1');
+      }
     }catch(_e2){}
   }, {once:true});
 })();
@@ -63081,6 +63083,270 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
   mo.observe(root, {attributes:true, attributeFilter:['class']});
   var overlay = document.getElementById('tkLicenseOverlay');
   if(overlay) mo.observe(overlay, {attributes:true, attributeFilter:['class','aria-hidden']});
+})();
+</script>
+
+
+<style id="tk-v15-mobile-orbfx-style">
+html:not(.chatgpt-4k-v40) #tkLoader,
+html:not(.chatgpt-4k-v40) #tkLicenseOverlay{
+  overflow:hidden !important;
+}
+html:not(.chatgpt-4k-v40) #tkLoader .tk-v15-orbfx,
+html:not(.chatgpt-4k-v40) #tkLicenseOverlay .tk-v15-orbfx{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  pointer-events:none;
+  z-index:1;
+  opacity:.92;
+  mix-blend-mode:screen;
+}
+html:not(.chatgpt-4k-v40) #tkLicenseOverlay .tk-v15-orbfx{
+  opacity:.82;
+}
+html:not(.chatgpt-4k-v40) #tkLoader .tk-loader__panel,
+html:not(.chatgpt-4k-v40) #tkLicenseOverlay .tk-license{
+  position:relative !important;
+  z-index:2 !important;
+}
+html:not(.chatgpt-4k-v40) #tkLoader .tk-loader__particles{
+  opacity:0 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLoader{
+  background:
+    radial-gradient(980px 540px at 50% 46%, rgba(19,82,128,.18), transparent 58%),
+    linear-gradient(180deg, #020814 0%, #041224 50%, #020814 100%) !important;
+  background-repeat:no-repeat !important;
+  background-size:cover !important;
+  background-position:center center !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLoader .tk-loader__bg{ opacity:.42 !important; }
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLoader .tk-loader__noise{ opacity:.32 !important; }
+
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-cat-launch-opened #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-cat-launch-opening #tkCatStart{
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  filter:none !important;
+  left:max(var(--tk-pl-left), 8px) !important;
+  bottom:calc(var(--tk-pl-bottom) + 8px) !important;
+  width:min(284px, 34vw) !important;
+  z-index:14845 !important;
+  transform:translate3d(0,0,0) scale(var(--tk-v12-cat-scale, 1)) !important;
+  transform-origin:left bottom !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced:not(.tk-phone-cat-awake) #tkCatStart{
+  opacity:0 !important;
+  transform:translate3d(-10px, 12px, 0) scale(calc(var(--tk-v12-cat-scale, 1) * .96)) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-cat-awake #tkCatStart{
+  animation:tkPhoneCatPopV15 .46s cubic-bezier(.22,1,.36,1) both;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced #tkCatStart .tk-cat-launch__dialog{
+  width:calc(100% - 78px) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced #tkCatStart .tk-cat-launch__pet{
+  width:68px !important;
+  height:68px !important;
+  flex-basis:68px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced #tkCatStart .tk-cat-launch__presence{
+  min-height:30px !important;
+}
+@keyframes tkPhoneCatPopV15{
+  0%{ opacity:0; transform:translate3d(-10px, 12px, 0) scale(calc(var(--tk-v12-cat-scale, 1) * .96)); }
+  100%{ opacity:1; transform:translate3d(0,0,0) scale(var(--tk-v12-cat-scale, 1)); }
+}
+</style>
+<script id="tk-v15-mobile-orbfx-script">
+(function(){
+  var root = document.documentElement;
+  function is4k(){
+    try{
+      if(root.classList.contains('chatgpt-4k-v40')) return true;
+      var dpr = Math.max(1, Number(window.devicePixelRatio || 1));
+      var iw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var ih = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var physW = Math.round(iw * dpr);
+      var physH = Math.round(ih * dpr);
+      return physW >= 3600 || physH >= 2300 || iw >= 2200 || ih >= 1350;
+    }catch(_e){ return false; }
+  }
+  if(is4k()) return;
+
+  var scenes = [];
+  var raf = 0;
+  function makeScene(host, opts){
+    if(!host) return null;
+    for(var ci=0; ci<host.children.length; ci++){ if(host.children[ci].classList && host.children[ci].classList.contains('tk-v15-orbfx')) return null; }
+    var canvas = document.createElement('canvas');
+    canvas.className = 'tk-v15-orbfx';
+    host.insertBefore(canvas, host.firstChild);
+    var ctx = canvas.getContext('2d', { alpha:true });
+    var scene = { host:host, canvas:canvas, ctx:ctx, opts:opts, orbs:[], dpr:1, w:1, h:1, seed:Math.random()*1000 };
+    scenes.push(scene);
+    build(scene);
+    return scene;
+  }
+  function build(scene){
+    var count = scene.opts.count;
+    scene.orbs = Array.from({length:count}, function(){
+      return {
+        x: Math.random(),
+        y: Math.random(),
+        r: (scene.opts.rMin + Math.random() * (scene.opts.rMax - scene.opts.rMin)),
+        vx: (-0.012 + Math.random()*0.024) * scene.opts.speed,
+        vy: (-0.020 + Math.random()*0.040) * scene.opts.speed,
+        a: scene.opts.aMin + Math.random() * (scene.opts.aMax - scene.opts.aMin),
+        hue: Math.random() > 0.26 ? '110,220,255' : '255,224,146'
+      };
+    });
+  }
+  function resize(scene){
+    var rect = scene.host.getBoundingClientRect();
+    var dpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+    scene.dpr = dpr;
+    scene.w = Math.max(1, Math.floor(rect.width));
+    scene.h = Math.max(1, Math.floor(rect.height));
+    scene.canvas.width = Math.max(1, Math.floor(scene.w * dpr));
+    scene.canvas.height = Math.max(1, Math.floor(scene.h * dpr));
+    scene.canvas.style.width = scene.w + 'px';
+    scene.canvas.style.height = scene.h + 'px';
+  }
+  function hostVisible(host){
+    if(!host || !host.isConnected) return false;
+    var cs = window.getComputedStyle(host);
+    if(cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity || '1') < 0.02) return false;
+    return true;
+  }
+  function draw(now){
+    raf = requestAnimationFrame(draw);
+    for(var i=0;i<scenes.length;i++){
+      var s = scenes[i];
+      if(!hostVisible(s.host)) continue;
+      if(!s.w || !s.h) resize(s);
+      var ctx = s.ctx;
+      var w = s.canvas.width;
+      var h = s.canvas.height;
+      ctx.clearRect(0,0,w,h);
+      for(var j=0;j<s.orbs.length;j++){
+        var p = s.orbs[j];
+        p.x += p.vx * 0.35;
+        p.y += p.vy * 0.35;
+        p.x += Math.sin((now*0.00025) + p.y*6 + s.seed) * 0.00022;
+        p.y += Math.cos((now*0.00018) + p.x*5 + s.seed) * 0.00010;
+        if(p.x < -0.08) p.x = 1.08;
+        if(p.x > 1.08) p.x = -0.08;
+        if(p.y < -0.08) p.y = 1.08;
+        if(p.y > 1.08) p.y = -0.08;
+        var px = p.x * w;
+        var py = p.y * h;
+        var rr = p.r * s.dpr;
+        var g = ctx.createRadialGradient(px, py, 0, px, py, rr * 3.3);
+        g.addColorStop(0, 'rgba(' + p.hue + ',' + Math.min(1, p.a + 0.34).toFixed(3) + ')');
+        g.addColorStop(0.36, 'rgba(115,223,255,' + p.a.toFixed(3) + ')');
+        g.addColorStop(0.68, 'rgba(115,223,255,' + Math.max(0, p.a * 0.34).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(115,223,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(px, py, rr * 3.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  function ensure(){
+    makeScene(document.getElementById('tkLoader'), { count: 28, speed: 1.05, rMin: 1.2, rMax: 2.8, aMin: 0.18, aMax: 0.48 });
+    makeScene(document.getElementById('tkLicenseOverlay'), { count: 20, speed: 0.85, rMin: 1.0, rMax: 2.5, aMin: 0.12, aMax: 0.34 });
+    for(var i=0;i<scenes.length;i++) resize(scenes[i]);
+    if(!raf) raf = requestAnimationFrame(draw);
+  }
+  function queue(){ setTimeout(ensure, 0); setTimeout(ensure, 120); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensure, { once:true });
+  else ensure();
+  window.addEventListener('load', ensure, { once:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 220); }, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+})();
+</script>
+<script id="tk-v15-mobile-landscape-cat-script">
+(function(){
+  var root = document.documentElement;
+  var body = document.body;
+  var raf = 0;
+  function isLandscapePhone(){
+    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
+  }
+  function loaderVisible(){
+    var loader = document.getElementById('tkLoader');
+    if(!loader) return false;
+    if(loader.classList.contains('is-hidden')) return false;
+    var cs = window.getComputedStyle(loader);
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.02;
+  }
+  function licenseOpen(){
+    var overlay = document.getElementById('tkLicenseOverlay');
+    return !!(overlay && overlay.classList.contains('is-open'));
+  }
+  function anyGameOpen(){
+    return root.classList.contains('tk-any-game-open');
+  }
+  function awaken(flag){
+    root.classList.toggle('tk-phone-cat-awake', !!flag);
+    if(body) body.classList.toggle('tk-phone-cat-awake', !!flag);
+  }
+  function sync(){
+    var cat = document.getElementById('tkCatStart');
+    if(!cat) return;
+    var show = isLandscapePhone() && !loaderVisible() && !licenseOpen() && !anyGameOpen();
+    root.classList.toggle('tk-phone-cat-forced', show);
+    if(body) body.classList.toggle('tk-phone-cat-forced', show);
+    if(show){
+      cat.hidden = false;
+      cat.removeAttribute('hidden');
+      cat.setAttribute('aria-hidden', 'false');
+      cat.style.setProperty('display', 'flex', 'important');
+      cat.style.setProperty('visibility', 'visible', 'important');
+      cat.style.setProperty('opacity', '1', 'important');
+      cat.style.setProperty('pointer-events', 'auto', 'important');
+      cat.style.setProperty('filter', 'none', 'important');
+      cat.style.setProperty('z-index', '14845', 'important');
+      if(!root.classList.contains('tk-phone-cat-awake')){
+        awaken(false);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ awaken(true); }); });
+      }
+    }else{
+      awaken(false);
+    }
+  }
+  function queue(){
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){
+      sync();
+      setTimeout(sync, 80);
+      setTimeout(sync, 240);
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
+  else queue();
+  window.addEventListener('load', queue, { once:true });
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 180); setTimeout(queue, 420); }, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('tk:loaderhidden', queue);
+  window.addEventListener('tk:licenseaccepted', queue);
+  var overlay = document.getElementById('tkLicenseOverlay');
+  if(overlay){
+    try{
+      new MutationObserver(queue).observe(overlay, { attributes:true, attributeFilter:['class','aria-hidden'] });
+    }catch(_e){}
+  }
 })();
 </script>
 
