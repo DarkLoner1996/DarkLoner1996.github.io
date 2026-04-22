@@ -63645,8 +63645,16 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
 <style id="tk-phone-onboarding-v6-style">
 @media (orientation: landscape) and (max-height: 600px) and (max-width: 1024px){
   html.tk-phone-onboarding-v6{
-    --tk-v6-loader-scale: 1;
-    --tk-v6-license-scale: 1;
+    --tk-v6-safe-top:max(env(safe-area-inset-top, 0px), 4px);
+    --tk-v6-safe-right:max(env(safe-area-inset-right, 0px), 6px);
+    --tk-v6-safe-bottom:max(env(safe-area-inset-bottom, 0px), 6px);
+    --tk-v6-safe-left:max(env(safe-area-inset-left, 0px), 6px);
+    --tk-v6-pad-x:8px;
+    --tk-v6-pad-y:4px;
+    --tk-v6-loader-w:min(calc(var(--tk-v6-vw) - (var(--tk-v6-pad-x) * 2) - var(--tk-v6-safe-left) - var(--tk-v6-safe-right)), 920px);
+    --tk-v6-loader-h:clamp(250px, calc(var(--tk-v6-vh) - (var(--tk-v6-pad-y) * 2) - var(--tk-v6-safe-top) - var(--tk-v6-safe-bottom)), 360px);
+    --tk-v6-license-w:min(calc(var(--tk-v6-vw) - (var(--tk-v6-pad-x) * 2) - var(--tk-v6-safe-left) - var(--tk-v6-safe-right)), 980px);
+    --tk-v6-license-h:max(320px, calc(var(--tk-v6-vh) - (var(--tk-v6-pad-y) * 2) - var(--tk-v6-safe-top) - var(--tk-v6-safe-bottom)));
   }
 
   html.tk-phone-onboarding-v6.tk-phone-onboarding-license #tkLoader,
@@ -63657,302 +63665,456 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
     display:none !important;
   }
 
-  html.tk-phone-onboarding-v6 #tkLoader{
-    padding:max(6px, env(safe-area-inset-top)) 10px calc(max(8px, env(safe-area-inset-bottom)) + 4px) !important;
+  html.tk-phone-onboarding-v6 #tkLoader,
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay{
     align-items:center !important;
     justify-content:center !important;
+    overflow:auto !important;
+    overscroll-behavior:contain !important;
+    -webkit-overflow-scrolling:touch !important;
+    padding:calc(var(--tk-v6-safe-top) + var(--tk-v6-pad-y)) calc(var(--tk-v6-safe-right) + var(--tk-v6-pad-x)) calc(var(--tk-v6-safe-bottom) + var(--tk-v6-pad-y)) calc(var(--tk-v6-safe-left) + var(--tk-v6-pad-x)) !important;
+  }
+
+  html.tk-phone-onboarding-v6 #tkLoader{
+    min-height:var(--tk-v6-vh) !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__panel{
-    width:960px !important;
-    max-width:960px !important;
-    max-height:none !important;
-    overflow:visible !important;
-    transform:scale(var(--tk-v6-loader-scale)) !important;
+    width:var(--tk-v6-loader-w) !important;
+    max-width:var(--tk-v6-loader-w) !important;
+    min-width:0 !important;
+    height:var(--tk-v6-loader-h) !important;
+    max-height:var(--tk-v6-loader-h) !important;
+    min-height:var(--tk-v6-loader-h) !important;
+    transform:none !important;
     transform-origin:center center !important;
+    overflow:hidden !important;
     display:grid !important;
-    grid-template-columns:148px minmax(0, 1fr) !important;
+    grid-template-columns:124px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "core eyebrow"
+      "core title"
+      "core subtitle"
+      "core status"
+      "core bar"
+      "core phase"
+      "core steps" !important;
     column-gap:16px !important;
-    row-gap:0 !important;
+    row-gap:6px !important;
     align-items:start !important;
-    padding:20px 20px 18px !important;
+    align-content:start !important;
+    padding:16px 16px 14px !important;
     border-radius:24px !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__eyebrow{
-    grid-column:2 !important;
-    margin:0 0 8px !important;
+    grid-area:eyebrow !important;
+    margin:0 !important;
     text-align:left !important;
-    font-size:12px !important;
-    line-height:1.1 !important;
+    font-size:11px !important;
+    line-height:1.08 !important;
     letter-spacing:.18em !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__core{
-    grid-column:1 !important;
-    grid-row:1 / span 7 !important;
-    width:122px !important;
-    height:122px !important;
-    margin:0 auto !important;
+    grid-area:core !important;
+    width:108px !important;
+    height:108px !important;
+    margin:2px auto 0 !important;
     align-self:start !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__badge{
-    inset:34px !important;
-    font-size:34px !important;
+    inset:32px !important;
+    font-size:32px !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__title{
-    grid-column:2 !important;
+    grid-area:title !important;
     margin:0 !important;
     text-align:left !important;
-    font-size:clamp(28px, 3vw, 44px) !important;
-    line-height:.98 !important;
+    font-size:clamp(26px, 3.1vw, 40px) !important;
+    line-height:1 !important;
     white-space:nowrap !important;
     max-width:none !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__subtitle{
-    grid-column:2 !important;
-    margin:6px 0 12px !important;
+    grid-area:subtitle !important;
+    margin:0 !important;
     text-align:left !important;
     max-width:none !important;
     font-size:13px !important;
-    line-height:1.35 !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLoader .tk-loader__status-wrap,
-  html.tk-phone-onboarding-v6 #tkLoader .tk-loader__bar,
-  html.tk-phone-onboarding-v6 #tkLoader .tk-loader__phase,
-  html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps{
-    grid-column:2 !important;
+    line-height:1.32 !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__status-wrap{
-    margin:0 0 8px !important;
+    grid-area:status !important;
+    margin:4px 0 0 !important;
     align-items:end !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__status{
-    font-size:15px !important;
-    line-height:1.14 !important;
+    font-size:14px !important;
+    line-height:1.12 !important;
     max-width:none !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__percent{
-    min-width:46px !important;
-    font-size:18px !important;
+    min-width:42px !important;
+    font-size:17px !important;
     line-height:1 !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__bar{
-    height:12px !important;
-    margin:0 0 7px !important;
+    grid-area:bar !important;
+    height:10px !important;
+    margin:0 !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__phase{
-    margin-top:0 !important;
-    font-size:10px !important;
+    grid-area:phase !important;
+    margin:0 !important;
+    font-size:9px !important;
     letter-spacing:.16em !important;
   }
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps{
-    margin-top:10px !important;
-    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
-    gap:8px !important;
+    grid-area:steps !important;
+    margin:0 !important;
+    grid-template-columns:repeat(5, minmax(0, 1fr)) !important;
+    gap:6px !important;
+    align-self:end !important;
   }
-  html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps li{
-    min-height:40px !important;
-    padding:8px 9px !important;
-    border-radius:12px !important;
-    font-size:10px !important;
-    line-height:1.12 !important;
-  }
+  html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps li,
   html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps li:last-child{
     grid-column:auto !important;
+    min-height:34px !important;
+    padding:7px 8px !important;
+    border-radius:12px !important;
+    font-size:8px !important;
+    line-height:1.1 !important;
   }
 
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay{
-    padding:max(6px, env(safe-area-inset-top)) 10px calc(max(8px, env(safe-area-inset-bottom)) + 4px) !important;
-    align-items:center !important;
-    justify-content:center !important;
-    overflow:hidden !important;
-  }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay::before{
-    background:rgba(2, 9, 20, .84) !important;
+    background:rgba(2, 9, 20, .90) !important;
     backdrop-filter:blur(10px) !important;
     -webkit-backdrop-filter:blur(10px) !important;
   }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license-bg-lights{
+    display:none !important;
+  }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license{
-    width:1100px !important;
-    max-width:1100px !important;
-    height:650px !important;
-    max-height:650px !important;
-    min-height:650px !important;
-    transform:scale(var(--tk-v6-license-scale)) !important;
+    width:var(--tk-v6-license-w) !important;
+    max-width:var(--tk-v6-license-w) !important;
+    min-width:0 !important;
+    height:var(--tk-v6-license-h) !important;
+    max-height:var(--tk-v6-license-h) !important;
+    min-height:0 !important;
+    transform:none !important;
     transform-origin:center center !important;
     margin:0 auto !important;
-    border-radius:24px !important;
+    border-radius:22px !important;
     display:grid !important;
     grid-template-rows:auto minmax(0, 1fr) auto !important;
     overflow:hidden !important;
+    align-content:stretch !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__head{
-    padding:16px 18px 12px !important;
+    padding:12px 14px 10px !important;
+    background:linear-gradient(180deg, rgba(8,24,56,.96), rgba(7,22,51,.92)) !important;
+    border-bottom:1px solid rgba(255,255,255,.08) !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__eyebrow{
-    margin-bottom:10px !important;
-    padding:7px 12px !important;
-    font-size:10px !important;
+    margin:0 0 8px !important;
+    padding:6px 11px !important;
+    font-size:9px !important;
     line-height:1.1 !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__title-row{
     align-items:flex-start !important;
-    gap:14px !important;
+    gap:12px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__title{
-    font-size:clamp(22px, 2.8vw, 34px) !important;
-    line-height:1.04 !important;
+    font-size:clamp(20px, 2.7vw, 30px) !important;
+    line-height:1.02 !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__subtitle{
-    margin-top:8px !important;
+    margin-top:6px !important;
     max-width:none !important;
-    font-size:14px !important;
-    line-height:1.45 !important;
+    font-size:12px !important;
+    line-height:1.35 !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__close{
-    width:52px !important;
-    height:52px !important;
-    border-radius:16px !important;
-    flex:0 0 52px !important;
+    width:44px !important;
+    height:44px !important;
+    border-radius:14px !important;
+    flex:0 0 44px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__body{
-    padding:12px 14px 10px !important;
+    padding:10px 12px !important;
     overflow:auto !important;
     overscroll-behavior:contain !important;
     -webkit-overflow-scrolling:touch !important;
+    min-height:0 !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__grid{
-    grid-template-columns:minmax(0, 1fr) 300px !important;
-    gap:12px !important;
+    grid-template-columns:minmax(0, 1fr) minmax(230px, 270px) !important;
+    gap:10px !important;
     align-items:start !important;
   }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__card,
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__side{
+    border-radius:16px !important;
+  }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__card{
-    padding:16px 16px 12px !important;
-    border-radius:18px !important;
+    padding:14px 14px 10px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section + .tk-license__section{
-    margin-top:12px !important;
+    margin-top:10px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section h3{
-    font-size:15px !important;
-    margin-bottom:7px !important;
+    font-size:14px !important;
+    margin-bottom:6px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section p,
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__list li{
-    font-size:13px !important;
-    line-height:1.46 !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__side{
-    padding:12px !important;
-    gap:10px !important;
-    border-radius:18px !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini{
-    padding:12px !important;
-    border-radius:14px !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini-label{
-    font-size:10px !important;
-    margin-bottom:6px !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini strong{
-    font-size:14px !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini span,
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__alert{
     font-size:12px !important;
     line-height:1.42 !important;
   }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__side{
+    padding:10px !important;
+    gap:8px !important;
+  }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini,
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__check,
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__alert{
-    padding:12px !important;
-    border-radius:14px !important;
+    padding:10px !important;
+    border-radius:13px !important;
+  }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini-label{
+    font-size:9px !important;
+    margin-bottom:5px !important;
+  }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini strong{
+    font-size:13px !important;
+  }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini span,
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__alert,
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox span{
+    font-size:11px !important;
+    line-height:1.35 !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox{
-    grid-template-columns:18px 1fr !important;
-    gap:10px !important;
+    grid-template-columns:17px 1fr !important;
+    gap:9px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox input{
-    width:18px !important;
-    height:18px !important;
+    width:17px !important;
+    height:17px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox strong{
-    font-size:13px !important;
-    margin-bottom:3px !important;
-  }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox span{
     font-size:12px !important;
-    line-height:1.4 !important;
+    margin-bottom:2px !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__foot{
-    position:relative !important;
-    bottom:auto !important;
-    z-index:auto !important;
-    padding:14px 16px 16px !important;
-    display:flex !important;
+    display:grid !important;
+    grid-template-columns:minmax(0, 1fr) minmax(320px, 44%) !important;
     align-items:center !important;
-    justify-content:space-between !important;
-    gap:14px !important;
-    flex-direction:row !important;
-    background:linear-gradient(180deg, rgba(7,18,34,.92), rgba(3,10,22,.97)) !important;
+    gap:10px 14px !important;
+    padding:10px 12px 12px !important;
+    background:linear-gradient(180deg, rgba(7,18,34,.94), rgba(3,10,22,.98)) !important;
+    border-top:1px solid rgba(255,255,255,.08) !important;
   }
-  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__meta{
-    font-size:12px !important;
-    line-height:1.4 !important;
-  }
+  html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__meta,
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__error{
-    font-size:12px !important;
-    line-height:1.35 !important;
-    min-height:1.35em !important;
+    font-size:11px !important;
+    line-height:1.3 !important;
+    min-height:1.3em !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__actions{
-    width:min(430px, 42%) !important;
-    min-width:390px !important;
+    width:100% !important;
+    min-width:0 !important;
     display:grid !important;
     grid-template-columns:1fr 1fr !important;
     gap:10px !important;
+    justify-self:end !important;
   }
   html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__btn{
-    min-height:48px !important;
-    padding:12px 14px !important;
+    min-height:44px !important;
+    height:44px !important;
+    padding:0 12px !important;
     border-radius:14px !important;
-    font-size:14px !important;
+    font-size:13px !important;
+  }
+
+  @media (max-width: 760px){
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__panel{
+      grid-template-columns:108px minmax(0, 1fr) !important;
+      column-gap:12px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps{
+      grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__grid{
+      grid-template-columns:1fr !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__foot{
+      grid-template-columns:1fr !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__actions{
+      justify-self:stretch !important;
+    }
   }
 
   @media (max-height: 520px){
+    html.tk-phone-onboarding-v6{
+      --tk-v6-loader-h:clamp(236px, calc(var(--tk-v6-vh) - (var(--tk-v6-pad-y) * 2) - var(--tk-v6-safe-top) - var(--tk-v6-safe-bottom)), 330px);
+      --tk-v6-license-h:max(300px, calc(var(--tk-v6-vh) - (var(--tk-v6-pad-y) * 2) - var(--tk-v6-safe-top) - var(--tk-v6-safe-bottom)));
+    }
     html.tk-phone-onboarding-v6 #tkLoader .tk-loader__panel{
-      width:900px !important;
-      max-width:900px !important;
+      padding:14px 14px 12px !important;
+      grid-template-columns:112px minmax(0, 1fr) !important;
+      row-gap:5px !important;
     }
     html.tk-phone-onboarding-v6 #tkLoader .tk-loader__core{
-      width:112px !important;
-      height:112px !important;
+      width:96px !important;
+      height:96px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__badge{
+      inset:28px !important;
+      font-size:28px !important;
     }
     html.tk-phone-onboarding-v6 #tkLoader .tk-loader__title{
-      font-size:clamp(26px, 2.7vw, 40px) !important;
+      font-size:clamp(24px, 2.8vw, 36px) !important;
     }
     html.tk-phone-onboarding-v6 #tkLoader .tk-loader__subtitle{
       font-size:12px !important;
-      margin-bottom:10px !important;
+      line-height:1.28 !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__status{
+      font-size:13px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__percent{
+      font-size:16px !important;
     }
     html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps li{
-      min-height:36px !important;
-      font-size:9px !important;
+      min-height:30px !important;
+      padding:6px 7px !important;
+      font-size:7px !important;
     }
-    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license{
-      width:1060px !important;
-      max-width:1060px !important;
-      height:620px !important;
-      max-height:620px !important;
-      min-height:620px !important;
+
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__head{
+      padding:10px 12px 8px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__eyebrow{
+      padding:5px 10px !important;
+      margin-bottom:6px !important;
     }
     html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__title{
-      font-size:clamp(20px, 2.5vw, 30px) !important;
+      font-size:clamp(18px, 2.35vw, 26px) !important;
     }
     html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__subtitle{
+      font-size:11px !important;
+      line-height:1.3 !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__body{
+      padding:8px 10px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__card{
+      padding:12px 12px 9px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section h3{
       font-size:13px !important;
     }
     html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section p,
     html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__list li{
+      font-size:11px !important;
+      line-height:1.34 !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini strong,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox strong{
+      font-size:11px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini span,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__alert,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox span,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__meta,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__error{
+      font-size:10px !important;
+      line-height:1.28 !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__foot{
+      padding:8px 10px 10px !important;
+      grid-template-columns:minmax(0, 1fr) minmax(280px, 42%) !important;
+      gap:8px 10px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__btn{
+      min-height:40px !important;
+      height:40px !important;
       font-size:12px !important;
+      border-radius:13px !important;
+    }
+  }
+
+  @media (max-height: 420px){
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__panel{
+      grid-template-columns:100px minmax(0, 1fr) !important;
+      padding:12px 12px 10px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__core{
+      width:86px !important;
+      height:86px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__badge{
+      inset:25px !important;
+      font-size:24px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__title{
+      font-size:clamp(21px, 2.4vw, 32px) !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__subtitle,
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__status{
+      font-size:11px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLoader .tk-loader__steps li{
+      min-height:28px !important;
+      font-size:7px !important;
+    }
+
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__title-row{
+      gap:10px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__close{
+      width:38px !important;
+      height:38px !important;
+      border-radius:12px !important;
+      flex-basis:38px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__title{
+      font-size:clamp(16px, 2.15vw, 22px) !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__subtitle{
+      font-size:10px !important;
+      line-height:1.24 !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__grid{
+      gap:8px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__card,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__side,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__check,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__alert{
+      padding:8px !important;
+      border-radius:12px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section h3{
+      font-size:12px !important;
+      margin-bottom:4px !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__section p,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__list li,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__mini span,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__alert,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__checkbox span,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__meta,
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__error{
+      font-size:9px !important;
+      line-height:1.22 !important;
+    }
+    html.tk-phone-onboarding-v6 #tkLicenseOverlay .tk-license__btn{
+      min-height:36px !important;
+      height:36px !important;
+      font-size:11px !important;
     }
   }
 }
@@ -63965,6 +64127,7 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
   var raf = 0;
   var pruneTimer = 0;
   var observer = null;
+  var lastState = '';
 
   function vw(){
     try{ return Math.round(window.visualViewport ? window.visualViewport.width : window.innerWidth); }
@@ -63986,6 +64149,10 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
   function isLandscape(){ return vw() > vh(); }
   function getLoader(){ return document.getElementById('tkLoader'); }
   function getLicense(){ return document.getElementById('tkLicenseOverlay'); }
+  function getLicenseBody(){
+    var overlay = getLicense();
+    return overlay ? overlay.querySelector('.tk-license__body') : null;
+  }
   function loaderVisible(){
     var el = getLoader();
     return !!(el && el.dataset.done !== '1' && !el.classList.contains('is-hidden'));
@@ -64004,21 +64171,33 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
       root.classList.toggle('tk-phone-onboarding-' + name, on);
       if(body) body.classList.toggle('tk-phone-onboarding-' + name, on);
     });
+    if(lastState !== state){
+      lastState = state;
+      normalizeViewport(state);
+    }
   }
-  function setScaleVars(){
+  function setViewportVars(){
     var width = vw();
     var height = vh();
     root.style.setProperty('--tk-v6-vw', width + 'px');
     root.style.setProperty('--tk-v6-vh', height + 'px');
-
-    if(isLandscape() && isPhoneTarget()){
-      var loaderScale = Math.min(1, (width - 24) / 960, (height - 14) / 430);
-      var licenseScale = Math.min(1, (width - 20) / 1100, (height - 14) / 650);
-      root.style.setProperty('--tk-v6-loader-scale', String(Math.max(0.72, loaderScale)).slice(0, 6));
-      root.style.setProperty('--tk-v6-license-scale', String(Math.max(0.68, licenseScale)).slice(0, 6));
-    }else{
-      root.style.setProperty('--tk-v6-loader-scale', '1');
-      root.style.setProperty('--tk-v6-license-scale', '1');
+  }
+  function normalizeViewport(state){
+    var loader = getLoader();
+    var overlay = getLicense();
+    var licBody = getLicenseBody();
+    try{ window.scrollTo(0, 0); }catch(_e){}
+    try{ document.documentElement.scrollTop = 0; }catch(_e){}
+    try{ if(document.body) document.body.scrollTop = 0; }catch(_e){}
+    if(state === 'loader' && loader){
+      try{ loader.scrollTop = 0; }catch(_e){}
+    }
+    if(state === 'license' && overlay){
+      try{ overlay.scrollTop = 0; }catch(_e){}
+      setTimeout(function(){
+        try{ overlay.scrollTop = 0; }catch(_e){}
+        try{ if(licBody) licBody.scrollTop = 0; }catch(_e){}
+      }, 0);
     }
   }
   function pruneLoader(immediate){
@@ -64046,25 +64225,24 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
   }
   function syncLifecycle(){
     var active = isPhoneTarget();
+    var landscape = active && isLandscape();
     root.classList.toggle('tk-phone-onboarding-v6', active);
     if(body) body.classList.toggle('tk-phone-onboarding-v6', active);
-    root.classList.toggle('tk-phone-onboarding-v6-landscape', active && isLandscape());
-    if(body) body.classList.toggle('tk-phone-onboarding-v6-landscape', active && isLandscape());
+    root.classList.toggle('tk-phone-onboarding-v6-landscape', landscape);
+    if(body) body.classList.toggle('tk-phone-onboarding-v6-landscape', landscape);
 
     if(!active){
       setState('ready');
       root.style.removeProperty('--tk-v6-vw');
       root.style.removeProperty('--tk-v6-vh');
-      root.style.removeProperty('--tk-v6-loader-scale');
-      root.style.removeProperty('--tk-v6-license-scale');
       return;
     }
 
-    setScaleVars();
+    setViewportVars();
 
     if(licenseOpen()){
-      setState('license');
       pruneLoader(true);
+      setState('license');
       return;
     }
     if(loaderVisible()){
@@ -64072,8 +64250,8 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
       return;
     }
     if(loaderDone()){
-      setState('license');
       pruneLoader(true);
+      setState('license');
       return;
     }
     setState('ready');
