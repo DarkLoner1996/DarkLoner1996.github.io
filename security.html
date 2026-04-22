@@ -63891,7 +63891,15 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
   var body = document.body;
   var OPEN_KEY = 'tk-phone-premium-games-open-v3';
   var CAT_TIMER = 0;
+  var RAF = 0;
+  var BOUND = false;
+  var LAST = { loader:null, license:null, anyGame:null, gamesOpen:null, cat:null, landscape:null };
 
+  function setClass(node, name, flag){
+    if(!node) return;
+    if(node.classList.contains(name) === !!flag) return;
+    node.classList.toggle(name, !!flag);
+  }
   function isLandscapePhone(){
     return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
   }
@@ -63904,8 +63912,7 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
     return false;
   }
   function anyGameDialogOpen(){
-    return ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal']
-      .some(overlayOpen);
+    return ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].some(overlayOpen);
   }
   function isLoaderVisible(){
     var loader = document.getElementById('tkLoader');
@@ -63922,8 +63929,8 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
   }
   function setGamesOpen(next){
     try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    root.classList.toggle('tk-phone-games-open', !!next);
-    if(body) body.classList.toggle('tk-phone-games-open', !!next);
+    setClass(root, 'tk-phone-games-open', !!next);
+    setClass(body, 'tk-phone-games-open', !!next);
   }
   function clearDialog(el){
     if(!el) return;
@@ -63942,8 +63949,8 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
     ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].forEach(function(id){
       clearDialog(document.getElementById(id));
     });
-    root.classList.remove('tk-any-game-open');
-    if(body) body.classList.remove('tk-any-game-open');
+    setClass(root, 'tk-any-game-open', false);
+    setClass(body, 'tk-any-game-open', false);
   }
   function getTrack(){
     return document.querySelector('#cinema .slider-wrapper');
@@ -63952,65 +63959,85 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
     var slides = Array.prototype.slice.call(document.querySelectorAll('#cinema .movie-slide'));
     return slides.filter(function(slide){ return slide && slide.offsetParent !== null; });
   }
-  function setFirstActive(){
-    var slides = pickSlides();
-    if(!slides.length) return slides;
-    var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
-    slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
-    return slides;
-  }
   function positionCinema(){
     var track = getTrack();
     if(!track) return;
-    var slides = setFirstActive();
+    var slides = pickSlides();
     if(!slides.length) return;
-    var active = slides.find(function(s){ return s.classList.contains('is-active'); }) || slides[0];
-    try{ track.scrollTo({ left: Math.max(0, active.offsetLeft - 2), behavior:'auto' }); }
-    catch(_e){ track.scrollLeft = Math.max(0, active.offsetLeft - 2); }
+    var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
+    slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
+    var left = Math.max(0, active.offsetLeft - 2);
+    try{ track.scrollTo({ left:left, behavior:'auto' }); }
+    catch(_e){ track.scrollLeft = left; }
   }
   function showCat(flag){
     var cat = document.getElementById('tkCatStart');
     clearTimeout(CAT_TIMER);
-    root.classList.toggle('tk-v17-cat-visible', !!flag);
-    if(body) body.classList.toggle('tk-v17-cat-visible', !!flag);
+    setClass(root, 'tk-v17-cat-visible', !!flag);
+    setClass(body, 'tk-v17-cat-visible', !!flag);
     if(cat){
       cat.hidden = !flag;
       cat.setAttribute('aria-hidden', flag ? 'false' : 'true');
       if(flag){
         cat.style.removeProperty('display');
         cat.style.removeProperty('visibility');
+        cat.style.removeProperty('opacity');
+        cat.style.removeProperty('pointer-events');
       }
     }
+    setClass(root, 'tk-v17-cat-awake', false);
+    setClass(body, 'tk-v17-cat-awake', false);
     if(flag){
-      root.classList.remove('tk-v17-cat-awake');
-      if(body) body.classList.remove('tk-v17-cat-awake');
       CAT_TIMER = setTimeout(function(){
-        root.classList.add('tk-v17-cat-awake');
-        if(body) body.classList.add('tk-v17-cat-awake');
-      }, 30);
-    }else{
-      root.classList.remove('tk-v17-cat-awake');
-      if(body) body.classList.remove('tk-v17-cat-awake');
+        setClass(root, 'tk-v17-cat-awake', true);
+        setClass(body, 'tk-v17-cat-awake', true);
+      }, 40);
     }
   }
   function syncState(){
-    if(!isLandscapePhone()){
-      showCat(false);
+    var landscape = isLandscapePhone();
+    if(!landscape){
+      if(LAST.landscape !== false){
+        LAST.landscape = false;
+        showCat(false);
+        setClass(root, 'tk-loader-visible', false);
+        setClass(body, 'tk-loader-visible', false);
+        setClass(root, 'tk-license-open', false);
+        setClass(body, 'tk-license-open', false);
+        setClass(root, 'tk-any-game-open', false);
+        setClass(body, 'tk-any-game-open', false);
+      }
       return;
     }
+    LAST.landscape = true;
     var loader = isLoaderVisible();
     var license = isLicenseOpen();
     var anyGame = anyGameDialogOpen();
-    root.classList.toggle('tk-loader-visible', loader);
-    root.classList.toggle('tk-license-open', license);
-    root.classList.toggle('tk-any-game-open', anyGame);
-    if(body){
-      body.classList.toggle('tk-loader-visible', loader);
-      body.classList.toggle('tk-license-open', license);
-      body.classList.toggle('tk-any-game-open', anyGame);
+    var gamesOpen = isGamesOpen();
+    var canShowCat = !loader && !license && !anyGame && !gamesOpen;
+
+    if(LAST.loader !== loader){
+      LAST.loader = loader;
+      setClass(root, 'tk-loader-visible', loader);
+      setClass(body, 'tk-loader-visible', loader);
     }
-    var canShowCat = !loader && !license && !anyGame && !isGamesOpen();
-    showCat(canShowCat);
+    if(LAST.license !== license){
+      LAST.license = license;
+      setClass(root, 'tk-license-open', license);
+      setClass(body, 'tk-license-open', license);
+    }
+    if(LAST.anyGame !== anyGame){
+      LAST.anyGame = anyGame;
+      setClass(root, 'tk-any-game-open', anyGame);
+      setClass(body, 'tk-any-game-open', anyGame);
+    }
+    if(LAST.gamesOpen !== gamesOpen){
+      LAST.gamesOpen = gamesOpen;
+    }
+    if(LAST.cat !== canShowCat){
+      LAST.cat = canShowCat;
+      showCat(canShowCat);
+    }
 
     var header = document.querySelector('.header');
     if(header){
@@ -64028,14 +64055,16 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
     }
     closeInteractivePanels();
     setGamesOpen(true);
-    root.classList.remove('tk-phone-cinema-ready');
-    if(body) body.classList.remove('tk-phone-cinema-ready');
+    setClass(root, 'tk-phone-cinema-ready', false);
+    setClass(body, 'tk-phone-cinema-ready', false);
+    LAST.gamesOpen = true;
+    LAST.cat = false;
     showCat(false);
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         positionCinema();
-        root.classList.add('tk-phone-cinema-ready');
-        if(body) body.classList.add('tk-phone-cinema-ready');
+        setClass(root, 'tk-phone-cinema-ready', true);
+        setClass(body, 'tk-phone-cinema-ready', true);
         syncState();
       });
     });
@@ -64058,48 +64087,51 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
     }, opts);
   }
   function bind(){
+    if(BOUND) return;
+    BOUND = true;
     var btn = document.getElementById('tkCatStartBtn');
-    if(btn && !btn.__tkV17Bound){
-      btn.__tkV17Bound = true;
+    if(btn){
       btn.addEventListener('click', openGames, true);
       btn.addEventListener('touchend', openGames, {capture:true, passive:false});
       btn.addEventListener('pointerup', openGames, {capture:true, passive:false});
     }
-    if(!document.documentElement.__tkV17GlobalBound){
-      document.documentElement.__tkV17GlobalBound = true;
-      bindGlobalOpen('click', true);
-      bindGlobalOpen('pointerup', {capture:true, passive:false});
-      bindGlobalOpen('touchend', {capture:true, passive:false});
-    }
+    bindGlobalOpen('click', true);
+    bindGlobalOpen('pointerup', {capture:true, passive:false});
+    bindGlobalOpen('touchend', {capture:true, passive:false});
     var track = getTrack();
-    if(track && !track.__tkV17ScrollBound){
-      track.__tkV17ScrollBound = true;
-      track.addEventListener('scroll', function(){ /* keep native horizontal slider smooth */ }, {passive:true});
+    if(track){
+      track.style.overflowX = 'auto';
+      track.style.overflowY = 'hidden';
+      track.style.webkitOverflowScrolling = 'touch';
+      track.style.touchAction = 'pan-x pinch-zoom';
     }
   }
   function queue(){
-    bind();
-    syncState();
-    if(isLandscapePhone() && isGamesOpen()){
-      requestAnimationFrame(positionCinema);
-    }
+    cancelAnimationFrame(RAF);
+    RAF = requestAnimationFrame(function(){
+      bind();
+      syncState();
+      if(isLandscapePhone() && isGamesOpen()) requestAnimationFrame(positionCinema);
+    });
   }
+
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
   else queue();
-  window.addEventListener('load', queue, {once:true});
+  window.addEventListener('load', function(){ setTimeout(queue, 30); setTimeout(queue, 180); }, {once:true});
   window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(queue, 70); setTimeout(queue, 220); setTimeout(queue, 480); }, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(queue, 80); setTimeout(queue, 260); setTimeout(queue, 520); }, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('tk:loaderhidden', queue);
+  window.addEventListener('tk:loaderhidden', function(){ setTimeout(queue, 30); setTimeout(queue, 180); });
   window.addEventListener('tk:licenseaccepted', function(){ setGamesOpen(false); setTimeout(queue, 40); setTimeout(queue, 220); });
-  try{
-    var mo = new MutationObserver(queue);
-    mo.observe(root, {attributes:true, attributeFilter:['class']});
-    ['tkLoader','tkLicenseOverlay','ruleGame','itGame','infoSecGame','phishGame','pcPartsGame','comicMenu'].forEach(function(id){
-      var el = document.getElementById(id);
-      if(el) mo.observe(el, {attributes:true, attributeFilter:['class','aria-hidden','data-rdn-state']});
-    });
-  }catch(_e){}
+
+  ['tkLoader','tkLicenseOverlay','ruleGame','itGame','infoSecGame','phishGame','pcPartsGame','comicMenu'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    try{
+      var mo = new MutationObserver(function(){ queue(); });
+      mo.observe(el, {attributes:true, attributeFilter:['class','aria-hidden','data-rdn-state']});
+    }catch(_e){}
+  });
 })();
 </script>
 
