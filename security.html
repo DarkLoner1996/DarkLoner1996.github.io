@@ -56487,7 +56487,7 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
 })();
 </script>
 
-<script id="tk-managed-runner-v46">
+<script id="tk-managed-runner-v47-phone-safe">
 (function(){
   function isRetina2600Target(){
     try{
@@ -56512,11 +56512,41 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
     }catch(_e){ return false; }
   }
 
+  function isPhoneTarget(){
+    try{
+      var coarse = false;
+      try{ coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }catch(_e){}
+      var vw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var vh = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var shortSide = Math.min(vw, vh);
+      var longSide = Math.max(vw, vh);
+      if(!coarse) return false;
+      return shortSide <= 600 && longSide <= 1280;
+    }catch(_e){ return false; }
+  }
+
+  function loaderLooksDone(){
+    try{
+      var loader = document.getElementById('tkLoader');
+      return !loader || loader.dataset.done === '1' || loader.classList.contains('is-hidden');
+    }catch(_e){ return false; }
+  }
+
+  function licenseLooksOpen(){
+    try{
+      var overlay = document.getElementById('tkLicenseOverlay');
+      return !!((overlay && overlay.classList.contains('is-open')) || document.documentElement.classList.contains('tk-license-open') || (document.body && document.body.classList.contains('tk-license-open')));
+    }catch(_e){ return false; }
+  }
+
   var targetRetina = isRetina2600Target();
   var mac2600 = targetRetina;
-  var phoneManagedChunk = !!window.__TK_FORCE_CHUNKED_MANAGED__;
-  var managedSliceMs = Number(window.__TK_MANAGED_SLICE_MS__ || 0) || (mac2600 ? 6 : (phoneManagedChunk ? 7 : 22));
+  var phoneTarget = isPhoneTarget();
+  var deferForPhone = phoneTarget;
+  var phoneManagedChunk = !!window.__TK_FORCE_CHUNKED_MANAGED__ || deferForPhone;
+  var managedSliceMs = Number(window.__TK_MANAGED_SLICE_MS__ || 0) || (mac2600 ? 6 : (phoneManagedChunk ? 6 : 22));
   targetRetina = false;
+
   var queue = Array.prototype.slice.call(document.querySelectorAll('script[type="application/x-tk-managed"][data-managed-script="1"]'));
   var started = false;
   var loaded = document.readyState === 'complete';
@@ -56559,7 +56589,8 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
       var s = document.createElement('script');
       s.type = 'text/javascript';
       if(node.id) s.setAttribute('data-origin-id', node.id);
-      s.text = (node.textContent || '') + '\n//# sourceURL=' + (node.id || 'tk-managed-inline');
+      s.text = (node.textContent || '') + '
+//# sourceURL=' + (node.id || 'tk-managed-inline');
       (document.body || document.documentElement).appendChild(s);
       s.parentNode.removeChild(s);
     } catch(err){ try{ console.error(err); }catch(_){} }
@@ -56569,7 +56600,7 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
   function runQueue(chunked){
     if(started) return;
     started = true;
-    emit('tk:loaderhidden');
+    if(!deferForPhone && loaderLooksDone()) emit('tk:loaderhidden');
     var idx = 0;
     function step(){
       var begin = performance.now();
@@ -56587,7 +56618,35 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
     step();
   }
 
-  window.__TK_RUN_MANAGED__ = function(){ runQueue(mac2600 || targetRetina); };
+  window.__TK_RUN_MANAGED__ = function(){ runQueue(mac2600 || targetRetina || phoneManagedChunk); };
+
+  if(deferForPhone){
+    document.documentElement.classList.add('tk-phone-managed-hold');
+
+    function releasePhoneBoot(){
+      if(started) return;
+      if(licenseLooksOpen()) return;
+      runQueue(true);
+    }
+
+    window.addEventListener('tk:licenseaccepted', function(){
+      document.documentElement.classList.remove('tk-phone-managed-hold');
+      releasePhoneBoot();
+    }, { once:true });
+
+    window.addEventListener('tk:managedready', function(){
+      document.documentElement.classList.remove('tk-phone-managed-hold');
+    }, { once:true });
+
+    window.addEventListener('pageshow', function(){
+      if(loaderLooksDone() && !licenseLooksOpen()) setTimeout(releasePhoneBoot, 120);
+    }, { once:true });
+
+    setTimeout(function(){
+      if(!started && loaderLooksDone() && !licenseLooksOpen()) releasePhoneBoot();
+    }, 15000);
+    return;
+  }
 
   if(!targetRetina){
     setTimeout(function(){ runQueue(mac2600 || phoneManagedChunk); }, (mac2600 || phoneManagedChunk) ? 16 : 0);
@@ -63333,14 +63392,14 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
 }
 </style>
 
-<script id="tk-phone-deep-rework-v4-script">
+<script id="tk-phone-deep-rework-v5-script">
 (function(){
   var root = document.documentElement;
   var body = document.body;
   var STATE_KEY = 'tk-phone-games-open-v4';
   var CONFLICT_STATE_KEY = 'tk-phone-premium-games-open-v3';
-  var CAT_KEY = 'tk-cat-launch-unlocked';
-  var bootResetDone = false;
+  var bootUnlocked = false;
+  var boundInteractive = false;
   var observer = null;
   var raf = 0;
 
@@ -63353,9 +63412,7 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
   function viewportHeight(){
     try{ return Math.round(window.visualViewport ? window.visualViewport.height : window.innerHeight); }catch(_e){ return Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0); }
   }
-  function isLandscape(){
-    return viewportWidth() > viewportHeight();
-  }
+  function isLandscape(){ return viewportWidth() > viewportHeight(); }
   function isPhoneTarget(){
     try{
       var coarse = false;
@@ -63366,6 +63423,18 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
       var longSide = Math.max(vw, vh);
       if(!coarse) return false;
       return shortSide <= 560 && longSide <= 1280;
+    }catch(_e){ return false; }
+  }
+  function loaderLooksDone(){
+    try{
+      var loader = document.getElementById('tkLoader');
+      return !loader || loader.dataset.done === '1' || loader.classList.contains('is-hidden');
+    }catch(_e){ return false; }
+  }
+  function licenseLooksOpen(){
+    try{
+      var overlay = document.getElementById('tkLicenseOverlay');
+      return !!((overlay && overlay.classList.contains('is-open')) || root.classList.contains('tk-license-open') || (body && body.classList.contains('tk-license-open')));
     }catch(_e){ return false; }
   }
   function conflictClasses(){
@@ -63386,22 +63455,14 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
       try{ root.classList.remove(cls); }catch(_e){}
       try{ body && body.classList.remove(cls); }catch(_e){}
     });
-    try{ root.classList.remove('tk-cat-launch-opened', 'tk-cat-launch-opening'); }catch(_e){}
-    try{ body && body.classList.remove('tk-cat-launch-opened', 'tk-cat-launch-opening'); }catch(_e){}
-  }
-  function hardResetLegacyPhoneState(){
-    if(bootResetDone) return;
-    bootResetDone = true;
     try{ sessionStorage.removeItem(CONFLICT_STATE_KEY); }catch(_e){}
-    try{ sessionStorage.removeItem(CAT_KEY); }catch(_e){}
-    try{ sessionStorage.setItem(STATE_KEY, '0'); }catch(_e){}
   }
   function getOpen(){
     try{ return sessionStorage.getItem(STATE_KEY) === '1'; }catch(_e){ return false; }
   }
   function setOpen(flag){
     try{ sessionStorage.setItem(STATE_KEY, flag ? '1' : '0'); }catch(_e){}
-    syncState();
+    syncSceneVisibility();
   }
   function ensureCatVisible(){
     var cat = document.getElementById('tkCatStart');
@@ -63411,6 +63472,7 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
     cat.style.removeProperty('display');
     cat.style.removeProperty('visibility');
     cat.style.removeProperty('opacity');
+    cat.style.removeProperty('pointer-events');
   }
   function centerCinema(){
     var cinema = q('#cinema');
@@ -63418,51 +63480,38 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
     var track = q('.slider-wrapper', cinema);
     var slides = track ? qa('.movie-slide', track) : [];
     if(!track || !slides.length) return;
-
     var active = slides.findIndex(function(slide){ return slide.classList.contains('is-active'); });
     if(active < 0) active = 0;
-
     if(root.classList.contains('tk-phone-deep-v4-portrait')){
       slides.forEach(function(slide, idx){ slide.classList.toggle('is-active', idx === active); });
       return;
     }
-
     var current = slides[active];
     var max = Math.max(0, track.scrollWidth - track.clientWidth);
     var left = Math.max(0, Math.min((current.offsetLeft + current.offsetWidth / 2) - (track.clientWidth / 2), max));
     try{ track.scrollTo({ left:left, behavior:'auto' }); }catch(_e){ track.scrollLeft = left; }
   }
   function syncSceneVisibility(){
+    if(!bootUnlocked || !root.classList.contains('tk-phone-deep-v4')) return;
     var open = getOpen();
     root.classList.toggle('tk-phone-games-open-v4', open);
     if(body) body.classList.toggle('tk-phone-games-open-v4', open);
-
     ensureCatVisible();
-
     qa('.side-chip--it-min, .side-chip--infosec-min, .side-chip--phish-min').forEach(function(el){
       el.hidden = !open;
       el.setAttribute('aria-hidden', open ? 'false' : 'true');
     });
-
     var startBtn = document.getElementById('tkCatStartBtn');
     if(startBtn){
       var label = startBtn.querySelector('span');
       if(label) label.textContent = open ? 'Скрыть игры' : 'Открыть игры';
       startBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
-
     var stage = document.getElementById('cinemaStage');
-    if(stage){
-      stage.setAttribute('aria-hidden', open ? 'false' : 'true');
-    }
-
+    if(stage) stage.setAttribute('aria-hidden', open ? 'false' : 'true');
     setTimeout(centerCinema, 0);
-    setTimeout(centerCinema, 140);
+    setTimeout(centerCinema, 120);
     setTimeout(centerCinema, 320);
-  }
-  function syncState(){
-    stripConflicts();
-    syncSceneVisibility();
   }
   function openGames(ev){
     if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
@@ -63474,49 +63523,10 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
     setOpen(!getOpen());
     return false;
   }
-  function queueApply(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(applyMode);
-  }
-  function applyMode(){
-    var active = isPhoneTarget();
-    root.classList.toggle('tk-phone-deep-v4', active);
-    if(body) body.classList.toggle('tk-phone-deep-v4', active);
+  function bindInteractive(){
+    if(boundInteractive) return;
+    boundInteractive = true;
 
-    if(!active){
-      try{
-        root.classList.remove('tk-phone-deep-v4-portrait', 'tk-phone-deep-v4-landscape', 'tk-phone-games-open-v4');
-        if(body) body.classList.remove('tk-phone-deep-v4-portrait', 'tk-phone-deep-v4-landscape', 'tk-phone-games-open-v4');
-      }catch(_e){}
-      return;
-    }
-
-    hardResetLegacyPhoneState();
-    stripConflicts();
-
-    var landscape = isLandscape();
-    root.classList.toggle('tk-phone-deep-v4-landscape', landscape);
-    root.classList.toggle('tk-phone-deep-v4-portrait', !landscape);
-    if(body){
-      body.classList.toggle('tk-phone-deep-v4-landscape', landscape);
-      body.classList.toggle('tk-phone-deep-v4-portrait', !landscape);
-    }
-
-    root.style.setProperty('--tk-v4-vh', viewportHeight() + 'px');
-    root.style.setProperty('--tk-v4-vw', viewportWidth() + 'px');
-
-    var header = q('.header');
-    if(header){
-      header.style.overflowX = 'hidden';
-      header.style.webkitOverflowScrolling = 'touch';
-      header.style.overscrollBehavior = 'contain';
-      header.style.touchAction = landscape ? 'none' : 'pan-y';
-      if(landscape) header.scrollTop = 0;
-    }
-
-    syncState();
-  }
-  function bind(){
     var startBtn = document.getElementById('tkCatStartBtn');
     if(startBtn && !startBtn.__tkPhoneDeepV4Bound){
       startBtn.__tkPhoneDeepV4Bound = true;
@@ -63528,9 +63538,8 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
     if(banner && !banner.__tkPhoneDeepV4Bound){
       banner.__tkPhoneDeepV4Bound = true;
       banner.addEventListener('click', function(ev){
-        if(!root.classList.contains('tk-phone-deep-v4')) return;
-        if(!getOpen()) openGames(ev);
-        else setTimeout(centerCinema, 0);
+        if(!root.classList.contains('tk-phone-deep-v4') || !bootUnlocked) return;
+        if(!getOpen()) openGames(ev); else setTimeout(centerCinema, 0);
       }, true);
     }
 
@@ -63538,9 +63547,8 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
     if(titleArt && !titleArt.__tkPhoneDeepV4Bound){
       titleArt.__tkPhoneDeepV4Bound = true;
       titleArt.addEventListener('click', function(ev){
-        if(!root.classList.contains('tk-phone-deep-v4')) return;
-        if(!getOpen()) openGames(ev);
-        else setTimeout(centerCinema, 0);
+        if(!root.classList.contains('tk-phone-deep-v4') || !bootUnlocked) return;
+        if(!getOpen()) openGames(ev); else setTimeout(centerCinema, 0);
       }, true);
     }
 
@@ -63559,27 +63567,77 @@ html.tk-phone-deep-v4.tk-phone-deep-v4-landscape #tkLicenseOverlay .tk-license__
   function watchConflicts(){
     if(observer) return;
     observer = new MutationObserver(function(){
-      if(!root.classList.contains('tk-phone-deep-v4')) return;
+      if(!bootUnlocked || !root.classList.contains('tk-phone-deep-v4')) return;
       stripConflicts();
       ensureCatVisible();
     });
     observer.observe(root, { attributes:true, attributeFilter:['class'] });
   }
+  function maybeUnlockBoot(){
+    if(bootUnlocked) return;
+    if(!isPhoneTarget()) return;
+    if(licenseLooksOpen()) return;
+    if(!loaderLooksDone()) return;
+    bootUnlocked = true;
+    stripConflicts();
+    bindInteractive();
+    watchConflicts();
+    syncSceneVisibility();
+  }
+  function queueApply(){
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(applyMode);
+  }
+  function applyMode(){
+    var active = isPhoneTarget();
+    root.classList.toggle('tk-phone-deep-v4', active);
+    if(body) body.classList.toggle('tk-phone-deep-v4', active);
+
+    if(!active){
+      try{
+        root.classList.remove('tk-phone-deep-v4-portrait', 'tk-phone-deep-v4-landscape', 'tk-phone-games-open-v4');
+        if(body) body.classList.remove('tk-phone-deep-v4-portrait', 'tk-phone-deep-v4-landscape', 'tk-phone-games-open-v4');
+      }catch(_e){}
+      return;
+    }
+
+    var landscape = isLandscape();
+    root.classList.toggle('tk-phone-deep-v4-landscape', landscape);
+    root.classList.toggle('tk-phone-deep-v4-portrait', !landscape);
+    if(body){
+      body.classList.toggle('tk-phone-deep-v4-landscape', landscape);
+      body.classList.toggle('tk-phone-deep-v4-portrait', !landscape);
+    }
+
+    root.style.setProperty('--tk-v4-vh', viewportHeight() + 'px');
+    root.style.setProperty('--tk-v4-vw', viewportWidth() + 'px');
+
+    var header = q('.header');
+    if(header){
+      header.style.overflowX = 'hidden';
+      header.style.webkitOverflowScrolling = 'touch';
+      header.style.overscrollBehavior = 'contain';
+      header.style.touchAction = 'pan-x pan-y';
+    }
+
+    maybeUnlockBoot();
+    if(bootUnlocked) syncSceneVisibility();
+  }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ bind(); applyMode(); watchConflicts(); }, { once:true });
+    document.addEventListener('DOMContentLoaded', function(){ applyMode(); }, { once:true });
   }else{
-    bind();
     applyMode();
-    watchConflicts();
   }
 
-  window.addEventListener('load', function(){ bind(); applyMode(); }, { once:true });
+  window.addEventListener('tk:licenseaccepted', function(){ bootUnlocked = true; queueApply(); }, { once:true });
+  window.addEventListener('tk:managedready', function(){ queueApply(); }, { once:true });
+  window.addEventListener('load', function(){ queueApply(); setTimeout(queueApply, 120); }, { once:true });
   window.addEventListener('resize', queueApply, { passive:true });
   window.addEventListener('orientationchange', function(){ queueApply(); setTimeout(queueApply, 120); setTimeout(queueApply, 360); }, { passive:true });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', queueApply, { passive:true });
-  }
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queueApply, { passive:true });
+  setTimeout(queueApply, 2500);
+  setTimeout(queueApply, 9000);
 })();
 </script>
 
