@@ -49170,10 +49170,11 @@ body.tk-license-open #tkLiveStats{
   var root = document.documentElement;
   var body = document.body;
 
-  function pin(){
-    if(widget.parentNode !== document.body){
-      document.body.appendChild(widget);
-    }
+  function isLandscapePhone(){
+    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
+  }
+
+  function stripPlacementClasses(){
     widget.classList.remove(
       'tk-live-stats--rules-left-embed',
       'tk-live-stats--inline-rail',
@@ -49181,6 +49182,13 @@ body.tk-license-open #tkLiveStats{
       'tk-live-stats--anchored-left-of-rules',
       'tk-live-stats--hard-next-to-rules'
     );
+  }
+
+  function pinDefault(){
+    if(widget.parentNode !== document.body){
+      document.body.appendChild(widget);
+    }
+    stripPlacementClasses();
     var vw = window.innerWidth || document.documentElement.clientWidth || 0;
     var collapsed = widget.classList.contains('is-collapsed');
     var top = vw <= 640 ? '10px' : (vw <= 1100 ? '12px' : '14px');
@@ -49197,6 +49205,30 @@ body.tk-license-open #tkLiveStats{
     widget.style.setProperty('transform','none','important');
     widget.style.setProperty('margin','0','important');
     widget.style.setProperty('z-index','120','important');
+    widget.style.removeProperty('width');
+  }
+
+  function pinLandscape(){
+    if(widget.parentNode !== document.body){
+      document.body.appendChild(widget);
+    }
+    stripPlacementClasses();
+    widget.classList.remove('is-collapsed');
+    widget.setAttribute('aria-expanded', 'true');
+    try{ sessionStorage.setItem('tk-live-stats-open-v3', '1'); }catch(_e){}
+    widget.style.setProperty('position', 'fixed', 'important');
+    widget.style.setProperty('left', 'max(calc(var(--tk-pl-left) + 4px), 8px)', 'important');
+    widget.style.setProperty('top', 'calc(var(--tk-pl-top) + 48px)', 'important');
+    widget.style.setProperty('right', 'auto', 'important');
+    widget.style.setProperty('bottom', 'auto', 'important');
+    widget.style.setProperty('width', 'min(156px, 22vw)', 'important');
+    widget.style.setProperty('transform', 'none', 'important');
+    widget.style.setProperty('margin', '0', 'important');
+    widget.style.setProperty('z-index', '14844', 'important');
+    widget.style.setProperty('display', 'block', 'important');
+    widget.style.setProperty('visibility', 'visible', 'important');
+    widget.style.setProperty('opacity', '1', 'important');
+    widget.style.setProperty('pointer-events', 'auto', 'important');
   }
 
   function syncVisibility(){
@@ -49209,12 +49241,14 @@ body.tk-license-open #tkLiveStats{
       return;
     }
     widget.style.setProperty('display','block','important');
-    widget.style.removeProperty('pointer-events');
-    if(widget.classList.contains('is-ready')) widget.style.setProperty('opacity','1','important');
+    widget.style.setProperty('visibility','visible','important');
+    widget.style.setProperty('pointer-events','auto','important');
+    widget.style.setProperty('opacity','1','important');
   }
 
   function sync(){
-    pin();
+    if(isLandscapePhone()) pinLandscape();
+    else pinDefault();
     syncVisibility();
   }
 
@@ -49225,7 +49259,7 @@ body.tk-license-open #tkLiveStats{
   }
   window.addEventListener('load', function(){ sync(); setTimeout(sync, 120); setTimeout(sync, 600); }, {once:true});
   window.addEventListener('resize', sync, {passive:true});
-  window.addEventListener('orientationchange', sync, {passive:true});
+  window.addEventListener('orientationchange', function(){ sync(); setTimeout(sync, 140); setTimeout(sync, 420); }, {passive:true});
   window.addEventListener('tk:loaderhidden', sync, {passive:true});
   var mo = new MutationObserver(sync);
   if(loader) mo.observe(loader, {attributes:true, attributeFilter:['class','style','data-done']});
@@ -62105,219 +62139,7 @@ html.tk-phone-premium-v3.tk-phone-orienting *::after{
 </style>
 <script id="tk-phone-premium-v3-script">
 (function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var raf = 0;
-
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-
-  function isPhoneTarget(){
-    try{
-      var coarse = false;
-      try{ coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }catch(_e){}
-      var vw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var vh = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var shortSide = Math.min(vw, vh);
-      var longSide = Math.max(vw, vh);
-      if(!coarse) return false;
-      return shortSide <= 540 && longSide <= 1100;
-    }catch(_e){ return false; }
-  }
-
-  function isLandscape(){
-    return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0) > Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-  }
-
-  function viewportWidth(){
-    try{ return Math.round(window.visualViewport ? window.visualViewport.width : window.innerWidth); }catch(_e){ return window.innerWidth || document.documentElement.clientWidth || 0; }
-  }
-  function viewportHeight(){
-    try{ return Math.round(window.visualViewport ? window.visualViewport.height : window.innerHeight); }catch(_e){ return window.innerHeight || document.documentElement.clientHeight || 0; }
-  }
-
-  function removeConflicts(){
-    root.classList.remove('tk-mobile-landscape-v341', 'tk-mobile-phone-fhdlite-v2');
-    if(body){ body.classList.remove('tk-mobile-landscape-v341', 'tk-mobile-phone-fhdlite-v2'); }
-  }
-
-  function isOpen(){
-    try{ return sessionStorage.getItem(OPEN_KEY) === '1'; }catch(_e){ return false; }
-  }
-
-  function setOpenState(next){
-    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    root.classList.toggle('tk-phone-games-open', !!next);
-    if(body) body.classList.toggle('tk-phone-games-open', !!next);
-    syncScene();
-  }
-
-  function centerCinema(){
-    var cinema = q('#cinema');
-    if(!cinema) return;
-    var track = q('.slider-wrapper', cinema);
-    var slides = track ? qa('.movie-slide', track) : [];
-    if(!track || !slides.length) return;
-    var active = slides.findIndex(function(slide){ return slide.classList.contains('is-active'); });
-    if(active < 0) active = 0;
-    slides.forEach(function(slide, idx){ slide.classList.toggle('is-active', idx === active); });
-    var current = slides[active];
-    var max = Math.max(0, track.scrollWidth - track.clientWidth);
-    var left = Math.max(0, Math.min((current.offsetLeft + current.offsetWidth / 2) - (track.clientWidth / 2), max));
-    try{ track.scrollTo({ left:left, behavior:'auto' }); }catch(_e){ track.scrollLeft = left; }
-  }
-
-  function scheduleCinemaReady(){
-    root.classList.remove('tk-phone-cinema-ready');
-    if(!isOpen()) return;
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        centerCinema();
-        root.classList.add('tk-phone-cinema-ready');
-      });
-    });
-  }
-
-  function syncScrollContainers(){
-    var header = q('.header');
-    if(header){
-      header.style.overflowX = 'hidden';
-      header.style.overflowY = 'auto';
-      header.style.webkitOverflowScrolling = 'touch';
-      header.style.overscrollBehavior = 'contain';
-      header.style.touchAction = 'pan-y';
-    }
-    var licBody = q('#tkLicenseOverlay .tk-license__body');
-    if(licBody){
-      licBody.style.overflowY = 'auto';
-      licBody.style.overflowX = 'hidden';
-      licBody.style.webkitOverflowScrolling = 'touch';
-      licBody.style.touchAction = 'pan-y';
-    }
-  }
-
-  function syncScene(){
-    if(!root.classList.contains('tk-phone-premium-v3')) return;
-    var open = isOpen();
-    root.classList.toggle('tk-phone-games-open', open);
-    if(body) body.classList.toggle('tk-phone-games-open', open);
-
-    var catStart = document.getElementById('tkCatStart');
-    if(catStart){
-      catStart.hidden = !!open;
-      catStart.setAttribute('aria-hidden', open ? 'true' : 'false');
-    }
-
-    qa('.side-chip--it-min, .side-chip--infosec-min, .side-chip--phish-min').forEach(function(el){
-      el.hidden = !open;
-      el.setAttribute('aria-hidden', open ? 'false' : 'true');
-    });
-
-    scheduleCinemaReady();
-    syncScrollContainers();
-  }
-
-  function applyMode(){
-    var active = isPhoneTarget();
-    root.classList.toggle('tk-phone-premium-v3', active);
-    if(body) body.classList.toggle('tk-phone-premium-v3', active);
-
-    if(!active){
-      root.classList.remove('tk-phone-landscape-fhdclone', 'tk-phone-portrait-premium', 'tk-phone-cinema-ready', 'tk-phone-orienting');
-      if(body) body.classList.remove('tk-phone-landscape-fhdclone', 'tk-phone-portrait-premium', 'tk-phone-cinema-ready', 'tk-phone-orienting');
-      return;
-    }
-
-    removeConflicts();
-    var landscape = isLandscape();
-    root.classList.toggle('tk-phone-landscape-fhdclone', landscape);
-    root.classList.toggle('tk-phone-portrait-premium', !landscape);
-    if(body){
-      body.classList.toggle('tk-phone-landscape-fhdclone', landscape);
-      body.classList.toggle('tk-phone-portrait-premium', !landscape);
-    }
-
-    root.style.setProperty('--tk-phone-vh', viewportHeight() + 'px');
-    root.style.setProperty('--tk-phone-vw', viewportWidth() + 'px');
-
-    if(landscape){
-      try{ window.scrollTo(0, 0); }catch(_e){}
-      var header = q('.header');
-      if(header) header.scrollTop = 0;
-    }
-
-    syncScene();
-  }
-
-  function queueApply(){
-    cancelAnimationFrame(raf);
-    root.classList.add('tk-phone-orienting');
-    if(body) body.classList.add('tk-phone-orienting');
-    raf = requestAnimationFrame(function(){
-      applyMode();
-      setTimeout(applyMode, 80);
-      setTimeout(applyMode, 220);
-      setTimeout(function(){
-        root.classList.remove('tk-phone-orienting');
-        if(body) body.classList.remove('tk-phone-orienting');
-      }, 420);
-    });
-  }
-
-  function openGames(ev){
-    if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
-    setOpenState(true);
-    queueApply();
-    return false;
-  }
-
-  function bind(){
-    var startBtn = document.getElementById('tkCatStartBtn');
-    if(startBtn && !startBtn.__tkPhonePremiumBound){
-      startBtn.__tkPhonePremiumBound = true;
-      startBtn.addEventListener('click', openGames, true);
-      startBtn.addEventListener('touchend', openGames, { passive:false, capture:true });
-    }
-
-    var banner = q('#cinema .cinema-banner');
-    if(banner && !banner.__tkPhonePremiumBound){
-      banner.__tkPhonePremiumBound = true;
-      banner.addEventListener('click', function(ev){
-        if(root.classList.contains('tk-phone-premium-v3') && !isOpen()) openGames(ev);
-      }, true);
-    }
-
-    var titleArt = q('#cinema .cinema-title-art');
-    if(titleArt && !titleArt.__tkPhonePremiumBound){
-      titleArt.__tkPhonePremiumBound = true;
-      titleArt.addEventListener('click', function(ev){
-        if(root.classList.contains('tk-phone-premium-v3') && !isOpen()) openGames(ev);
-      }, true);
-    }
-
-    var prev = q('#cinema .slider-prev');
-    var next = q('#cinema .slider-next');
-    [prev, next].forEach(function(btn){
-      if(!btn || btn.__tkPhonePremiumBound) return;
-      btn.__tkPhonePremiumBound = true;
-      btn.addEventListener('click', function(){ setTimeout(centerCinema, 0); setTimeout(centerCinema, 120); }, true);
-    });
-
-    qa('#cinema .movie-slide').forEach(function(slide){
-      if(slide.__tkPhonePremiumBound) return;
-      slide.__tkPhonePremiumBound = true;
-      slide.addEventListener('click', function(){ setTimeout(centerCinema, 0); setTimeout(centerCinema, 120); }, true);
-    });
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ bind(); queueApply(); }, { once:true });
-  else { bind(); queueApply(); }
-
-  window.addEventListener('load', queueApply, { once:true });
-  window.addEventListener('resize', queueApply, { passive:true });
-  window.addEventListener('orientationchange', function(){ queueApply(); setTimeout(queueApply, 140); setTimeout(queueApply, 420); }, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queueApply, { passive:true });
+  /* Replaced by unified mobile landscape controller v18. */
 })();
 </script>
 
@@ -62815,44 +62637,7 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-c
 </style>
 <script id="tk-phone-landscape-v13-finish-script">
 (function(){
-  var root = document.documentElement;
-  function landscapePhone(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
-  }
-  function preload(src){
-    try{
-      var img = new Image();
-      img.decoding = 'async';
-      img.loading = 'eager';
-      img.src = src;
-    }catch(_e){}
-  }
-  function sync(){
-    if(!landscapePhone()) return;
-    preload('header-bg-m-3840.jpg');
-    var overlay = document.getElementById('tkLicenseOverlay');
-    if(overlay && overlay.classList.contains('is-open')){
-      root.classList.add('tk-license-open');
-    }
-    var cat = document.getElementById('tkCatStart');
-    if(cat && root.classList.contains('tk-phone-games-open')){
-      cat.hidden = false;
-      cat.style.removeProperty('display');
-    }
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync, {once:true});
-  else sync();
-  window.addEventListener('load', sync, {once:true});
-  window.addEventListener('resize', sync, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(sync, 90); setTimeout(sync, 260); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', sync, {passive:true});
-  var overlay = document.getElementById('tkLicenseOverlay');
-  if(overlay){
-    try{
-      var mo = new MutationObserver(sync);
-      mo.observe(overlay, {attributes:true, attributeFilter:['class','aria-hidden']});
-    }catch(_e){}
-  }
+  /* Replaced by unified mobile landscape controller v18. */
 })();
 </script>
 
@@ -62957,132 +62742,7 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
 </style>
 <script id="tk-phone-landscape-v14-deepfinish-script">
 (function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var raf = 0;
-
-  function isLandscapePhone(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
-  }
-  function hasOpenLicense(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(overlay && overlay.classList.contains('is-open'));
-  }
-  function isLoaderVisible(){
-    var loader = document.getElementById('tkLoader');
-    if(!loader) return false;
-    if(loader.classList.contains('is-hidden')) return false;
-    var cs = window.getComputedStyle(loader);
-    return cs.display != 'none' && cs.visibility != 'hidden' && Number(cs.opacity || '1') > 0.01;
-  }
-  function setGameOpen(next){
-    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    root.classList.toggle('tk-phone-games-open', !!next);
-    if(body) body.classList.toggle('tk-phone-games-open', !!next);
-  }
-  function centerCinema(){
-    var track = document.querySelector('#cinema .slider-wrapper');
-    if(!track) return;
-    var slides = Array.prototype.slice.call(track.querySelectorAll('.movie-slide'));
-    if(!slides.length) return;
-    var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
-    slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
-    try{ track.scrollTo({ left: Math.max(0, active.offsetLeft - 8), behavior:'auto' }); }catch(_e){ track.scrollLeft = Math.max(0, active.offsetLeft - 8); }
-  }
-  function syncCinemaTrack(){
-    var track = document.querySelector('#cinema .slider-wrapper');
-    if(!track) return;
-    if(isLandscapePhone() && root.classList.contains('tk-phone-games-open')){
-      track.style.overflowX = 'auto';
-      track.style.overflowY = 'hidden';
-      track.style.webkitOverflowScrolling = 'touch';
-      track.style.touchAction = 'pan-x pinch-zoom';
-    }
-  }
-  function syncCat(){
-    var shouldShow = isLandscapePhone() && !hasOpenLicense() && !isLoaderVisible();
-    root.classList.toggle('tk-phone-cat-forced', shouldShow);
-    root.classList.toggle('tk-loader-visible', isLoaderVisible());
-    if(body){
-      body.classList.toggle('tk-phone-cat-forced', shouldShow);
-      body.classList.toggle('tk-loader-visible', isLoaderVisible());
-    }
-    var cat = document.getElementById('tkCatStart');
-    if(cat && shouldShow){
-      cat.hidden = false;
-      cat.setAttribute('aria-hidden', 'false');
-      cat.style.removeProperty('display');
-    }
-  }
-  function openGames(ev){
-    if(!isLandscapePhone()) return false;
-    if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
-    setGameOpen(true);
-    root.classList.remove('tk-phone-cinema-ready');
-    if(body) body.classList.remove('tk-phone-cinema-ready');
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        centerCinema();
-        syncCinemaTrack();
-        root.classList.add('tk-phone-cinema-ready');
-        if(body) body.classList.add('tk-phone-cinema-ready');
-        syncCat();
-      });
-    });
-    return false;
-  }
-  function bindOpenTarget(el){
-    if(!el || el.__tkV14Bound) return;
-    el.__tkV14Bound = true;
-    ['click','touchend','pointerup'].forEach(function(type){
-      el.addEventListener(type, function(ev){
-        if(!root.classList.contains('tk-phone-games-open')) openGames(ev);
-      }, {capture:true, passive:false});
-    });
-  }
-  function bind(){
-    bindOpenTarget(document.querySelector('#cinema .cinema-banner'));
-    bindOpenTarget(document.querySelector('#cinema .cinema-title-art'));
-    bindOpenTarget(document.querySelector('#cinema .cinema-head'));
-    bindOpenTarget(document.getElementById('tkCatStartBtn'));
-    var cinema = document.getElementById('cinema');
-    if(cinema && !cinema.__tkV14Delegate){
-      cinema.__tkV14Delegate = true;
-      cinema.addEventListener('click', function(ev){
-        if(!isLandscapePhone() || root.classList.contains('tk-phone-games-open')) return;
-        var t = ev.target;
-        if(!t) return;
-        if(t.closest('.movie-btn, .slider-prev, .slider-next')) return;
-        if(t.closest('.cinema-head, .cinema-banner, .cinema-title-art, #cinemaStage, .slider-wrapper, .movie-slide')) openGames(ev);
-      }, true);
-    }
-  }
-  function sync(){
-    bind();
-    syncCat();
-    syncCinemaTrack();
-  }
-  function queue(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      sync();
-      setTimeout(sync, 80);
-      setTimeout(sync, 220);
-    });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', queue, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 180); setTimeout(queue, 420); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('tk:loaderhidden', queue);
-  window.addEventListener('tk:licenseaccepted', queue);
-  var mo = new MutationObserver(queue);
-  mo.observe(root, {attributes:true, attributeFilter:['class']});
-  var overlay = document.getElementById('tkLicenseOverlay');
-  if(overlay) mo.observe(overlay, {attributes:true, attributeFilter:['class','aria-hidden']});
+  /* Replaced by unified mobile landscape controller v18. */
 })();
 </script>
 
@@ -63444,182 +63104,7 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
 </style>
 <script id="tk-v16-mobile-landscape-ui-controller">
 (function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var raf = 0;
-
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function active(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
-  }
-  function overlay(){
-    return document.getElementById('tkLicenseOverlay');
-  }
-  function loader(){
-    return document.getElementById('tkLoader');
-  }
-  function loaderVisible(){
-    var el = loader();
-    if(!el) return false;
-    if(el.classList.contains('is-hidden') || el.dataset.done === '1') return false;
-    var cs = window.getComputedStyle(el);
-    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.02;
-  }
-  function licenseOpen(){
-    var el = overlay();
-    return !!(el && el.classList.contains('is-open') && el.getAttribute('aria-hidden') !== 'true');
-  }
-  function anyGameOpen(){
-    if(root.classList.contains('tk-any-game-open')) return true;
-    return qa('#itGame, #infoSecGame, #phishGame, #ruleGame, #pcPartsGame, #comicMenu, #tkTop10Modal, #rouletteDock').some(function(el){
-      if(!el) return false;
-      if(el.hidden) return false;
-      var cs = window.getComputedStyle(el);
-      return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.02 && (
-        el.classList.contains('is-open') || el.classList.contains('is-on') || el.getAttribute('aria-hidden') === 'false'
-      );
-    });
-  }
-  function gamesOpen(){
-    return root.classList.contains('tk-phone-games-open');
-  }
-  function setClass(name, flag){
-    root.classList.toggle(name, !!flag);
-    if(body) body.classList.toggle(name, !!flag);
-  }
-  function awaken(flag){
-    setClass('tk-pl-assist-awake', !!flag);
-  }
-  function setGamesOpen(flag){
-    try{ sessionStorage.setItem(OPEN_KEY, flag ? '1' : '0'); }catch(_e){}
-    setClass('tk-phone-games-open', !!flag);
-  }
-  function ensureLicenseState(){
-    setClass('tk-license-open', licenseOpen());
-    setClass('tk-loader-visible', loaderVisible());
-    setClass('tk-any-game-open', anyGameOpen());
-  }
-  function currentTrack(){
-    return q('#cinema .slider-wrapper');
-  }
-  function normalizeSlides(){
-    var track = currentTrack();
-    if(!track) return null;
-    var slides = qa('.movie-slide', track);
-    if(!slides.length) return track;
-    var activeIdx = slides.findIndex(function(slide){ return slide.classList.contains('is-active'); });
-    if(activeIdx < 0) activeIdx = 0;
-    slides.forEach(function(slide, idx){ slide.classList.toggle('is-active', idx === activeIdx); });
-    var activeSlide = slides[activeIdx];
-    try{ track.scrollTo({ left: Math.max(0, activeSlide.offsetLeft - 8), behavior:'auto' }); }
-    catch(_e){ track.scrollLeft = Math.max(0, activeSlide.offsetLeft - 8); }
-    return track;
-  }
-  function openCinema(ev){
-    if(!active()) return false;
-    if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
-    if(loaderVisible() || licenseOpen()) return false;
-    setGamesOpen(true);
-    setClass('tk-phone-cinema-ready', false);
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        normalizeSlides();
-        var track = currentTrack();
-        if(track){
-          track.style.overflowX = 'auto';
-          track.style.overflowY = 'hidden';
-          track.style.webkitOverflowScrolling = 'touch';
-          track.style.touchAction = 'pan-x pinch-zoom';
-        }
-        setClass('tk-phone-cinema-ready', true);
-        sync();
-      });
-    });
-    return false;
-  }
-  function bindOpenTarget(el){
-    if(!el || el.__tkV16Bound) return;
-    el.__tkV16Bound = true;
-    ['pointerdown','touchstart','click','touchend'].forEach(function(type){
-      el.addEventListener(type, function(ev){
-        if(!active()) return;
-        if(gamesOpen()) return;
-        openCinema(ev);
-      }, {capture:true, passive:false});
-    });
-  }
-  function bind(){
-    bindOpenTarget(q('#cinema .cinema-head'));
-    bindOpenTarget(q('#cinema .cinema-banner'));
-    bindOpenTarget(q('#cinema .cinema-title-art'));
-    bindOpenTarget(document.getElementById('tkCatStartBtn'));
-
-    var cinema = document.getElementById('cinema');
-    if(cinema && !cinema.__tkV16Delegate){
-      cinema.__tkV16Delegate = true;
-      cinema.addEventListener('pointerdown', function(ev){
-        if(!active() || gamesOpen()) return;
-        var t = ev.target;
-        if(!t) return;
-        if(t.closest('.movie-btn, .slider-prev, .slider-next')) return;
-        if(t.closest('.cinema-head, .cinema-banner, .cinema-title-art')) openCinema(ev);
-      }, {capture:true, passive:false});
-    }
-  }
-  function syncCat(){
-    var cat = document.getElementById('tkCatStart');
-    if(!cat) return;
-    var show = active() && !loaderVisible() && !licenseOpen() && !gamesOpen() && !anyGameOpen();
-    setClass('tk-pl-assist-visible', show);
-    if(show){
-      cat.hidden = false;
-      cat.removeAttribute('hidden');
-      cat.setAttribute('aria-hidden', 'false');
-      cat.style.setProperty('display', 'flex', 'important');
-      cat.style.setProperty('visibility', 'visible', 'important');
-      cat.style.setProperty('opacity', '1', 'important');
-      cat.style.setProperty('pointer-events', 'auto', 'important');
-      cat.style.setProperty('z-index', '14870', 'important');
-      if(!root.classList.contains('tk-pl-assist-awake')){
-        awaken(false);
-        requestAnimationFrame(function(){ requestAnimationFrame(function(){ awaken(true); }); });
-      }
-    }else{
-      awaken(false);
-    }
-  }
-  function sync(){
-    bind();
-    ensureLicenseState();
-    syncCat();
-    if(active() && gamesOpen()){
-      normalizeSlides();
-      setClass('tk-phone-cinema-ready', true);
-    }
-  }
-  function queue(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      sync();
-      setTimeout(sync, 80);
-      setTimeout(sync, 220);
-      setTimeout(sync, 480);
-    });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', queue, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 180); setTimeout(queue, 420); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('tk:loaderhidden', queue);
-  window.addEventListener('tk:licenseaccepted', queue);
-  var mo = new MutationObserver(queue);
-  mo.observe(root, {attributes:true, attributeFilter:['class']});
-  var lic = overlay();
-  if(lic) mo.observe(lic, {attributes:true, attributeFilter:['class','aria-hidden']});
+  /* Replaced by unified mobile landscape controller v18. */
 })();
 </script>
 
@@ -63887,249 +63372,517 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
 </style>
 <script id="tk-v17-mobile-landscape-system-script">
 (function(){
+  /* Replaced by unified mobile landscape controller v18. */
+})();
+</script>
+
+
+<style id="tk-mobile-landscape-v18-style">
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone{
+  --tk-pl-stage-w:min(70vw, 700px);
+  --tk-pl-title-w:min(48vw, 480px);
+  --tk-pl-side-w:min(236px, 29vw);
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-cinema-open) #cinemaStage{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinemaStage{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-any-game-open #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-license-open #tkCatStart,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-loader-visible #tkCatStart{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) .side-chip--it-min,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) .side-chip--infosec-min,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) .side-chip--phish-min{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip--it-min,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip--infosec-min,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip--phish-min{
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip{
+  position:fixed !important;
+  left:max(var(--tk-pl-left), 8px) !important;
+  right:auto !important;
+  width:min(236px, 29vw) !important;
+  max-width:min(236px, 29vw) !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  z-index:14836 !important;
+  transform:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip--it-min{ top:calc(var(--tk-pl-top) + 118px) !important; bottom:auto !important; }
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip--infosec-min{ top:calc(var(--tk-pl-top) + 192px) !important; bottom:auto !important; }
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open .side-chip--phish-min{ top:calc(var(--tk-pl-top) + 266px) !important; bottom:auto !important; }
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .avatar{
+  display:grid !important;
+  place-items:center !important;
+  width:58px !important;
+  height:58px !important;
+  min-width:58px !important;
+  border-radius:20px !important;
+  flex:0 0 58px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .chip-card{
+  width:calc(100% - 70px) !important;
+  min-width:0 !important;
+  max-width:none !important;
+  height:60px !important;
+  padding:8px 10px !important;
+  border-radius:20px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .chip-name{
+  margin:0 !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:2px !important;
+  font-size:11px !important;
+  line-height:1.02 !important;
+  letter-spacing:.08em !important;
+  text-transform:uppercase !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .chip-badge{
+  display:inline-flex !important;
+  font-size:8px !important;
+  letter-spacing:.12em !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .chip-actions{
+  margin-left:auto !important;
+  gap:0 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .chip-btn{
+  min-width:86px !important;
+  height:34px !important;
+  padding:0 12px !important;
+  border-radius:13px !important;
+  font-size:9px !important;
+  letter-spacing:.09em !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .rules{
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #cinema{
+  width:var(--tk-pl-stage-w) !important;
+  max-width:var(--tk-pl-stage-w) !important;
+  top:max(4px, calc(var(--tk-pl-top) - 2px)) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #cinema .cinema-head{
+  margin-bottom:8px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #cinema .cinema-title-art{
+  width:var(--tk-pl-title-w) !important;
+  max-width:var(--tk-pl-title-w) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .slider-container{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  margin:8px auto 0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .slider-prev,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .slider-next{
+  display:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .slider-wrapper{
+  display:grid !important;
+  grid-auto-flow:column !important;
+  grid-auto-columns:minmax(0, calc((100% - 12px) / 2)) !important;
+  gap:12px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  padding:4px 2px 10px !important;
+  margin:0 !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  scroll-snap-type:x mandatory !important;
+  scroll-padding-inline:2px !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior-x:contain !important;
+  touch-action:pan-x pinch-zoom !important;
+  scrollbar-width:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .slider-wrapper::-webkit-scrollbar{
+  display:none !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .movie-slide{
+  display:block !important;
+  width:auto !important;
+  min-width:0 !important;
+  max-width:none !important;
+  flex:none !important;
+  scroll-snap-align:start !important;
+  opacity:1 !important;
+  filter:none !important;
+  transform:none !important;
+  border-radius:18px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .movie-img{
+  height:min(25vh, 156px) !important;
+  border-radius:16px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .movie-info{
+  padding:10px 10px 11px !important;
+  gap:7px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .movie-info h3{
+  min-height:2.2em !important;
+  font-size:13px !important;
+  line-height:1.14 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .movie-btn{
+  min-height:34px !important;
+  height:34px !important;
+  border-radius:13px !important;
+  font-size:10px !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats.is-collapsed,
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats:not(.is-collapsed){
+  left:max(calc(var(--tk-pl-left) + 4px), 8px) !important;
+  top:calc(var(--tk-pl-top) + 48px) !important;
+  right:auto !important;
+  bottom:auto !important;
+  width:min(156px, 22vw) !important;
+  max-width:min(156px, 22vw) !important;
+  z-index:14844 !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__grid{
+  max-height:none !important;
+  opacity:1 !important;
+  margin-top:7px !important;
+  pointer-events:auto !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats .tk-live-stats__title::after{
+  transform:rotate(90deg) !important;
+}
+html.tk-phone-premium-v3.tk-phone-landscape-fhdclone #tkLiveStats.is-collapsed .tk-live-stats__grid{
+  max-height:none !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+@media (orientation: landscape) and (max-height: 390px){
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip{
+    width:min(220px, 28vw) !important;
+    max-width:min(220px, 28vw) !important;
+  }
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .avatar{
+    width:52px !important;
+    height:52px !important;
+    min-width:52px !important;
+  }
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone .side-chip .chip-card{
+    height:56px !important;
+  }
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cinema-open #cinema .movie-img{
+    height:min(23vh, 142px) !important;
+  }
+}
+</style>
+<script id="tk-mobile-layout-v18-script">
+(function(){
   var root = document.documentElement;
   var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var CAT_TIMER = 0;
+  var GAMES_KEY = 'tk-phone-premium-games-open-v3';
+  var CINEMA_KEY = 'tk-phone-premium-cinema-open-v1';
+  var CAT_KEY = 'tk-cat-launch-unlocked';
   var RAF = 0;
-  var BOUND = false;
-  var LAST = { loader:null, license:null, anyGame:null, gamesOpen:null, cat:null, landscape:null };
 
-  function setClass(node, name, flag){
-    if(!node) return;
-    if(node.classList.contains(name) === !!flag) return;
-    node.classList.toggle(name, !!flag);
+  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
+  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function setClass(name, flag){
+    root.classList.toggle(name, !!flag);
+    if(body) body.classList.toggle(name, !!flag);
   }
-  function isLandscapePhone(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
+  function writeSession(key, value){
+    try{ sessionStorage.setItem(key, value ? '1' : '0'); }catch(_e){}
   }
-  function overlayOpen(id){
-    var el = document.getElementById(id);
-    if(!el) return false;
-    if(el.classList.contains('is-open')) return true;
-    if(el.getAttribute('aria-hidden') === 'false') return true;
-    if(id === 'ruleGame' && String(el.dataset.rdnState || '').toLowerCase() !== 'idle') return true;
-    return false;
+  function readSession(key){
+    try{ return sessionStorage.getItem(key) === '1'; }catch(_e){ return false; }
   }
-  function anyGameDialogOpen(){
-    return ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].some(overlayOpen);
+  function catUnlocked(){
+    return root.classList.contains('tk-cat-launch-opened') || readSession(CAT_KEY);
   }
-  function isLoaderVisible(){
+  function isPhoneTarget(){
+    try{
+      var coarse = false;
+      try{ coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }catch(_e){}
+      var vw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var vh = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var shortSide = Math.min(vw, vh);
+      var longSide = Math.max(vw, vh);
+      if(!coarse) return false;
+      return shortSide <= 540 && longSide <= 1100;
+    }catch(_e){ return false; }
+  }
+  function isLandscape(){
+    return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0) > Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+  }
+  function viewportWidth(){
+    try{ return Math.round(window.visualViewport ? window.visualViewport.width : window.innerWidth); }catch(_e){ return window.innerWidth || document.documentElement.clientWidth || 0; }
+  }
+  function viewportHeight(){
+    try{ return Math.round(window.visualViewport ? window.visualViewport.height : window.innerHeight); }catch(_e){ return window.innerHeight || document.documentElement.clientHeight || 0; }
+  }
+  function loaderVisible(){
     var loader = document.getElementById('tkLoader');
     if(!loader || loader.dataset.done === '1' || loader.classList.contains('is-hidden')) return false;
     var cs = window.getComputedStyle(loader);
     return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.01;
   }
-  function isLicenseOpen(){
+  function licenseOpen(){
     var overlay = document.getElementById('tkLicenseOverlay');
     return !!(overlay && overlay.classList.contains('is-open') && overlay.getAttribute('aria-hidden') !== 'true');
   }
-  function isGamesOpen(){
-    return root.classList.contains('tk-phone-games-open');
+  function overlayOpen(id){
+    var el = document.getElementById(id);
+    if(!el) return false;
+    if(el.hidden) return false;
+    if(el.classList.contains('is-open') || el.classList.contains('is-on') || el.classList.contains('open') || el.classList.contains('active')) return true;
+    if(el.getAttribute('aria-hidden') === 'false') return true;
+    if(id === 'ruleGame' && String(el.dataset.rdnState || '').toLowerCase() !== 'idle') return true;
+    var cs = window.getComputedStyle(el);
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.02 && (
+      el.classList.contains('is-open') || el.classList.contains('is-on') || el.getAttribute('aria-hidden') === 'false'
+    );
   }
-  function setGamesOpen(next){
-    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    setClass(root, 'tk-phone-games-open', !!next);
-    setClass(body, 'tk-phone-games-open', !!next);
+  function anyGameDialogOpen(){
+    return ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal','tkTop10Modal','rouletteDock','rouletteMission'].some(overlayOpen);
   }
-  function clearDialog(el){
-    if(!el) return;
-    el.classList.remove('is-open','is-on','open','active');
-    el.setAttribute('aria-hidden', 'true');
-    if(el.id === 'ruleGame') el.dataset.rdnState = 'idle';
-    try{
-      el.hidden = false;
-      el.style.removeProperty('display');
-      el.style.removeProperty('visibility');
-      el.style.removeProperty('opacity');
-      el.style.removeProperty('pointer-events');
-    }catch(_e){}
+  function readGamesOpen(){
+    return readSession(GAMES_KEY) || catUnlocked();
   }
-  function closeInteractivePanels(){
-    ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].forEach(function(id){
-      clearDialog(document.getElementById(id));
-    });
-    setClass(root, 'tk-any-game-open', false);
-    setClass(body, 'tk-any-game-open', false);
+  function readCinemaOpen(){
+    return readSession(CINEMA_KEY);
   }
-  function getTrack(){
-    return document.querySelector('#cinema .slider-wrapper');
+  function writeGamesOpen(flag){
+    writeSession(GAMES_KEY, flag);
   }
-  function pickSlides(){
-    var slides = Array.prototype.slice.call(document.querySelectorAll('#cinema .movie-slide'));
-    return slides.filter(function(slide){ return slide && slide.offsetParent !== null; });
+  function writeCinemaOpen(flag){
+    writeSession(CINEMA_KEY, flag);
   }
-  function positionCinema(){
-    var track = getTrack();
+  function centerCinema(){
+    var track = q('#cinema .slider-wrapper');
     if(!track) return;
-    var slides = pickSlides();
+    var slides = qa('.movie-slide', track).filter(function(slide){ return slide && slide.offsetParent !== null; });
     if(!slides.length) return;
     var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
     slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
-    var left = Math.max(0, active.offsetLeft - 2);
-    try{ track.scrollTo({ left:left, behavior:'auto' }); }
-    catch(_e){ track.scrollLeft = left; }
+    var max = Math.max(0, track.scrollWidth - track.clientWidth);
+    var left = Math.max(0, Math.min(active.offsetLeft - 2, max));
+    try{ track.scrollTo({ left:left, behavior:'auto' }); }catch(_e){ track.scrollLeft = left; }
   }
-  function showCat(flag){
+  function syncScrollContainers(){
+    var header = q('.header');
+    if(header){
+      header.style.overflowX = 'hidden';
+      header.style.overflowY = 'auto';
+      header.style.webkitOverflowScrolling = 'touch';
+      header.style.overscrollBehavior = 'contain';
+      header.style.touchAction = 'pan-y';
+    }
+    var licBody = q('#tkLicenseOverlay .tk-license__body');
+    if(licBody){
+      licBody.style.overflowY = 'auto';
+      licBody.style.overflowX = 'hidden';
+      licBody.style.webkitOverflowScrolling = 'touch';
+      licBody.style.touchAction = 'pan-y';
+    }
+  }
+  function syncState(){
+    var active = isPhoneTarget();
+    setClass('tk-phone-premium-v3', active);
+    if(!active){
+      ['tk-phone-landscape-fhdclone','tk-phone-portrait-premium','tk-phone-cinema-ready','tk-phone-cinema-open','tk-phone-orienting','tk-loader-visible','tk-license-open','tk-any-game-open'].forEach(function(name){ setClass(name, false); });
+      return;
+    }
+
+    root.classList.remove('tk-mobile-landscape-v341', 'tk-mobile-phone-fhdlite-v2');
+    if(body) body.classList.remove('tk-mobile-landscape-v341', 'tk-mobile-phone-fhdlite-v2');
+
+    var landscape = isLandscape();
+    setClass('tk-phone-landscape-fhdclone', landscape);
+    setClass('tk-phone-portrait-premium', !landscape);
+    root.style.setProperty('--tk-phone-vh', viewportHeight() + 'px');
+    root.style.setProperty('--tk-phone-vw', viewportWidth() + 'px');
+
+    var loader = loaderVisible();
+    var license = licenseOpen();
+    var anyGame = anyGameDialogOpen();
+    setClass('tk-loader-visible', loader);
+    setClass('tk-license-open', license);
+    setClass('tk-any-game-open', anyGame);
+
+    var gamesOpen = readGamesOpen();
+    var cinemaOpen = readCinemaOpen();
+    if(!landscape && cinemaOpen) gamesOpen = true;
+    if(!landscape) cinemaOpen = gamesOpen || cinemaOpen;
+
+    setClass('tk-phone-games-open', gamesOpen);
+    setClass('tk-phone-cinema-open', cinemaOpen);
+
     var cat = document.getElementById('tkCatStart');
-    clearTimeout(CAT_TIMER);
-    setClass(root, 'tk-v17-cat-visible', !!flag);
-    setClass(body, 'tk-v17-cat-visible', !!flag);
+    var showCat = !loader && !license && !anyGame && !gamesOpen && !cinemaOpen;
     if(cat){
-      cat.hidden = !flag;
-      cat.setAttribute('aria-hidden', flag ? 'false' : 'true');
-      if(flag){
+      cat.hidden = !showCat;
+      cat.setAttribute('aria-hidden', showCat ? 'false' : 'true');
+      if(showCat){
         cat.style.removeProperty('display');
         cat.style.removeProperty('visibility');
         cat.style.removeProperty('opacity');
         cat.style.removeProperty('pointer-events');
       }
     }
-    setClass(root, 'tk-v17-cat-awake', false);
-    setClass(body, 'tk-v17-cat-awake', false);
-    if(flag){
-      CAT_TIMER = setTimeout(function(){
-        setClass(root, 'tk-v17-cat-awake', true);
-        setClass(body, 'tk-v17-cat-awake', true);
-      }, 40);
-    }
-  }
-  function syncState(){
-    var landscape = isLandscapePhone();
-    if(!landscape){
-      if(LAST.landscape !== false){
-        LAST.landscape = false;
-        showCat(false);
-        setClass(root, 'tk-loader-visible', false);
-        setClass(body, 'tk-loader-visible', false);
-        setClass(root, 'tk-license-open', false);
-        setClass(body, 'tk-license-open', false);
-        setClass(root, 'tk-any-game-open', false);
-        setClass(body, 'tk-any-game-open', false);
-      }
-      return;
-    }
-    LAST.landscape = true;
-    var loader = isLoaderVisible();
-    var license = isLicenseOpen();
-    var anyGame = anyGameDialogOpen();
-    var gamesOpen = isGamesOpen();
-    var canShowCat = !loader && !license && !anyGame && !gamesOpen;
 
-    if(LAST.loader !== loader){
-      LAST.loader = loader;
-      setClass(root, 'tk-loader-visible', loader);
-      setClass(body, 'tk-loader-visible', loader);
-    }
-    if(LAST.license !== license){
-      LAST.license = license;
-      setClass(root, 'tk-license-open', license);
-      setClass(body, 'tk-license-open', license);
-    }
-    if(LAST.anyGame !== anyGame){
-      LAST.anyGame = anyGame;
-      setClass(root, 'tk-any-game-open', anyGame);
-      setClass(body, 'tk-any-game-open', anyGame);
-    }
-    if(LAST.gamesOpen !== gamesOpen){
-      LAST.gamesOpen = gamesOpen;
-    }
-    if(LAST.cat !== canShowCat){
-      LAST.cat = canShowCat;
-      showCat(canShowCat);
-    }
-
-    var header = document.querySelector('.header');
-    if(header){
-      header.style.overflowY = 'auto';
-      header.style.overflowX = 'hidden';
-      header.style.webkitOverflowScrolling = 'touch';
-      header.style.touchAction = 'pan-y pinch-zoom';
-    }
-  }
-  function openGames(ev){
-    if(!isLandscapePhone()) return false;
-    if(ev){
-      try{ ev.preventDefault(); }catch(_e){}
-      try{ ev.stopPropagation(); }catch(_e){}
-    }
-    closeInteractivePanels();
-    setGamesOpen(true);
-    setClass(root, 'tk-phone-cinema-ready', false);
-    setClass(body, 'tk-phone-cinema-ready', false);
-    LAST.gamesOpen = true;
-    LAST.cat = false;
-    showCat(false);
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        positionCinema();
-        setClass(root, 'tk-phone-cinema-ready', true);
-        setClass(body, 'tk-phone-cinema-ready', true);
-        syncState();
-      });
+    qa('.side-chip--it-min, .side-chip--infosec-min, .side-chip--phish-min').forEach(function(el){
+      var visible = !!gamesOpen;
+      el.hidden = !visible;
+      el.setAttribute('aria-hidden', visible ? 'false' : 'true');
     });
-    return false;
-  }
-  function tapInsideCinemaBanner(target){
-    if(!target) return false;
-    if(target.closest('.movie-btn, .slider-prev, .slider-next')) return false;
-    if(target.closest('#cinema .cinema-head, #cinema .cinema-banner, #cinema .cinema-title-art')) return true;
-    var cinema = target.closest('#cinema');
-    if(!cinema) return false;
+
     var stage = document.getElementById('cinemaStage');
-    if(stage && stage.contains(target)) return false;
-    return true;
-  }
-  function bindGlobalOpen(type, opts){
-    document.addEventListener(type, function(ev){
-      if(!isLandscapePhone() || isGamesOpen()) return;
-      if(tapInsideCinemaBanner(ev.target)) openGames(ev);
-    }, opts);
-  }
-  function bind(){
-    if(BOUND) return;
-    BOUND = true;
-    var btn = document.getElementById('tkCatStartBtn');
-    if(btn){
-      btn.addEventListener('click', openGames, true);
-      btn.addEventListener('touchend', openGames, {capture:true, passive:false});
-      btn.addEventListener('pointerup', openGames, {capture:true, passive:false});
+    if(stage){
+      stage.hidden = !cinemaOpen;
+      stage.setAttribute('aria-hidden', cinemaOpen ? 'false' : 'true');
     }
-    bindGlobalOpen('click', true);
-    bindGlobalOpen('pointerup', {capture:true, passive:false});
-    bindGlobalOpen('touchend', {capture:true, passive:false});
-    var track = getTrack();
-    if(track){
-      track.style.overflowX = 'auto';
-      track.style.overflowY = 'hidden';
-      track.style.webkitOverflowScrolling = 'touch';
-      track.style.touchAction = 'pan-x pinch-zoom';
+
+    var live = document.getElementById('tkLiveStats');
+    if(live && landscape){
+      live.classList.remove('is-collapsed');
+      live.setAttribute('aria-expanded', 'true');
+      try{ sessionStorage.setItem('tk-live-stats-open-v3', '1'); }catch(_e){}
     }
+
+    setClass('tk-phone-cinema-ready', false);
+    if(cinemaOpen){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          centerCinema();
+          setClass('tk-phone-cinema-ready', true);
+        });
+      });
+    }
+
+    if(landscape){
+      try{ window.scrollTo(0, 0); }catch(_e){}
+      var header = q('.header');
+      if(header) header.scrollTop = 0;
+    }
+    syncScrollContainers();
   }
   function queue(){
     cancelAnimationFrame(RAF);
+    setClass('tk-phone-orienting', true);
     RAF = requestAnimationFrame(function(){
-      bind();
       syncState();
-      if(isLandscapePhone() && isGamesOpen()) requestAnimationFrame(positionCinema);
+      setTimeout(syncState, 80);
+      setTimeout(syncState, 220);
+      setTimeout(function(){ setClass('tk-phone-orienting', false); }, 420);
+    });
+  }
+  function stop(ev){
+    if(!ev) return;
+    try{ ev.preventDefault(); }catch(_e){}
+    try{ ev.stopPropagation(); }catch(_e){}
+  }
+  function openGamesPanel(ev){
+    if(!isPhoneTarget()) return false;
+    stop(ev);
+    writeGamesOpen(true);
+    if(!isLandscape()) writeCinemaOpen(true);
+    queue();
+    return false;
+  }
+  function openCinemaPanel(ev){
+    if(!isPhoneTarget()) return false;
+    stop(ev);
+    if(isLandscape()){
+      writeCinemaOpen(true);
+    }else{
+      writeGamesOpen(true);
+      writeCinemaOpen(true);
+    }
+    queue();
+    return false;
+  }
+  function bind(){
+    var startBtn = document.getElementById('tkCatStartBtn');
+    if(startBtn && !startBtn.__tkMobileV18Bound){
+      startBtn.__tkMobileV18Bound = true;
+      startBtn.addEventListener('click', openGamesPanel, true);
+      startBtn.addEventListener('touchend', openGamesPanel, {capture:true, passive:false});
+      startBtn.addEventListener('pointerup', openGamesPanel, {capture:true, passive:false});
+    }
+
+    [q('#cinema .cinema-head'), q('#cinema .cinema-banner'), q('#cinema .cinema-title-art')].forEach(function(node){
+      if(!node || node.__tkMobileV18Bound) return;
+      node.__tkMobileV18Bound = true;
+      node.addEventListener('click', openCinemaPanel, true);
+      node.addEventListener('touchend', openCinemaPanel, {capture:true, passive:false});
+      node.addEventListener('pointerup', openCinemaPanel, {capture:true, passive:false});
+    });
+
+    [q('#cinema .slider-prev'), q('#cinema .slider-next')].forEach(function(btn){
+      if(!btn || btn.__tkMobileV18Bound) return;
+      btn.__tkMobileV18Bound = true;
+      btn.addEventListener('click', function(){ setTimeout(centerCinema, 0); setTimeout(centerCinema, 120); }, true);
+    });
+
+    qa('#cinema .movie-slide').forEach(function(slide){
+      if(slide.__tkMobileV18Bound) return;
+      slide.__tkMobileV18Bound = true;
+      slide.addEventListener('click', function(){ setTimeout(centerCinema, 0); setTimeout(centerCinema, 120); }, true);
     });
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', function(){ setTimeout(queue, 30); setTimeout(queue, 180); }, {once:true});
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ bind(); queue(); }, {once:true});
+  else { bind(); queue(); }
+
+  window.addEventListener('load', function(){ queue(); setTimeout(queue, 180); }, {once:true});
   window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(queue, 80); setTimeout(queue, 260); setTimeout(queue, 520); }, {passive:true});
+  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 140); setTimeout(queue, 420); }, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
   window.addEventListener('tk:loaderhidden', function(){ setTimeout(queue, 30); setTimeout(queue, 180); });
-  window.addEventListener('tk:licenseaccepted', function(){ setGamesOpen(false); setTimeout(queue, 40); setTimeout(queue, 220); });
+  window.addEventListener('tk:licenseaccepted', function(){ setTimeout(queue, 40); setTimeout(queue, 220); });
 
-  ['tkLoader','tkLicenseOverlay','ruleGame','itGame','infoSecGame','phishGame','pcPartsGame','comicMenu'].forEach(function(id){
+  ['tkLoader','tkLicenseOverlay','itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal','tkTop10Modal','rouletteDock','rouletteMission'].forEach(function(id){
     var el = document.getElementById(id);
     if(!el) return;
     try{
       var mo = new MutationObserver(function(){ queue(); });
-      mo.observe(el, {attributes:true, attributeFilter:['class','aria-hidden','data-rdn-state']});
+      mo.observe(el, {attributes:true, attributeFilter:['class','style','aria-hidden','data-rdn-state','hidden']});
     }catch(_e){}
   });
 })();
