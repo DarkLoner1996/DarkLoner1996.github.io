@@ -31620,44 +31620,6 @@ html.tk-v206-laptop15 #tkV205RightRail4k{
   }
 }
 </style>
-<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-script-v341">
-(function(){
-  const mq = window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 1024px)');
-  const nav = document.querySelector('.side-nav');
-  const btn = document.getElementById('menuToggle');
-  function apply(){
-    const active = !!mq.matches;
-    document.documentElement.classList.toggle('tk-mobile-landscape-v341', active);
-    document.body.classList.toggle('tk-mobile-landscape-v341', active);
-    try{
-      const hide = active ? 'none' : '';
-      ['rouletteDock','rouletteMission'].forEach(id=>{
-        const el = document.getElementById(id);
-        if(el) el.style.display = hide;
-      });
-      document.querySelectorAll('.roulette-dock,.roulette-card,.roulette-modal,.roulette-backdrop').forEach(el=>{
-        el.style.display = hide;
-      });
-    }catch(_){ }
-    if(active && nav){
-      nav.classList.add('is-collapsed');
-      document.body.classList.add('menu-collapsed');
-      if(btn) btn.setAttribute('aria-expanded','false');
-    }
-  }
-  apply();
-  try{ mq.addEventListener('change', apply); }catch(_){ mq.addListener(apply); }
-
-  document.addEventListener('click', function(e){
-    if(!mq.matches || !nav) return;
-    const insideNav = e.target.closest('.side-nav');
-    if(insideNav) return;
-    nav.classList.add('is-collapsed');
-    document.body.classList.add('menu-collapsed');
-    if(btn) btn.setAttribute('aria-expanded','false');
-  }, true);
-})();
-</script>
 <style id="tk-mobile-landscape-v342-overrides">
 @media (orientation: landscape) and (max-height: 600px) and (max-width: 1024px){
   html.tk-mobile-landscape-v341{
@@ -62103,225 +62065,6 @@ html.tk-phone-premium-v3.tk-phone-orienting *::after{
   html.tk-phone-landscape-fhdclone #cinema .movie-img{ height:min(18vh, 116px) !important; }
 }
 </style>
-<script id="tk-phone-premium-v3-script">
-(function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var raf = 0;
-
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-
-  function isPhoneTarget(){
-    try{
-      var coarse = false;
-      try{ coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }catch(_e){}
-      var vw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
-      var vh = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
-      var shortSide = Math.min(vw, vh);
-      var longSide = Math.max(vw, vh);
-      if(!coarse) return false;
-      return shortSide <= 540 && longSide <= 1100;
-    }catch(_e){ return false; }
-  }
-
-  function isLandscape(){
-    return Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0) > Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-  }
-
-  function viewportWidth(){
-    try{ return Math.round(window.visualViewport ? window.visualViewport.width : window.innerWidth); }catch(_e){ return window.innerWidth || document.documentElement.clientWidth || 0; }
-  }
-  function viewportHeight(){
-    try{ return Math.round(window.visualViewport ? window.visualViewport.height : window.innerHeight); }catch(_e){ return window.innerHeight || document.documentElement.clientHeight || 0; }
-  }
-
-  function removeConflicts(){
-    root.classList.remove('tk-mobile-landscape-v341', 'tk-mobile-phone-fhdlite-v2');
-    if(body){ body.classList.remove('tk-mobile-landscape-v341', 'tk-mobile-phone-fhdlite-v2'); }
-  }
-
-  function isOpen(){
-    try{ return sessionStorage.getItem(OPEN_KEY) === '1'; }catch(_e){ return false; }
-  }
-
-  function setOpenState(next){
-    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    root.classList.toggle('tk-phone-games-open', !!next);
-    if(body) body.classList.toggle('tk-phone-games-open', !!next);
-    syncScene();
-  }
-
-  function centerCinema(){
-    var cinema = q('#cinema');
-    if(!cinema) return;
-    var track = q('.slider-wrapper', cinema);
-    var slides = track ? qa('.movie-slide', track) : [];
-    if(!track || !slides.length) return;
-    var active = slides.findIndex(function(slide){ return slide.classList.contains('is-active'); });
-    if(active < 0) active = 0;
-    slides.forEach(function(slide, idx){ slide.classList.toggle('is-active', idx === active); });
-    var current = slides[active];
-    var max = Math.max(0, track.scrollWidth - track.clientWidth);
-    var left = Math.max(0, Math.min((current.offsetLeft + current.offsetWidth / 2) - (track.clientWidth / 2), max));
-    try{ track.scrollTo({ left:left, behavior:'auto' }); }catch(_e){ track.scrollLeft = left; }
-  }
-
-  function scheduleCinemaReady(){
-    root.classList.remove('tk-phone-cinema-ready');
-    if(!isOpen()) return;
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        centerCinema();
-        root.classList.add('tk-phone-cinema-ready');
-      });
-    });
-  }
-
-  function syncScrollContainers(){
-    var header = q('.header');
-    if(header){
-      header.style.overflowX = 'hidden';
-      header.style.overflowY = 'auto';
-      header.style.webkitOverflowScrolling = 'touch';
-      header.style.overscrollBehavior = 'contain';
-      header.style.touchAction = 'pan-y';
-    }
-    var licBody = q('#tkLicenseOverlay .tk-license__body');
-    if(licBody){
-      licBody.style.overflowY = 'auto';
-      licBody.style.overflowX = 'hidden';
-      licBody.style.webkitOverflowScrolling = 'touch';
-      licBody.style.touchAction = 'pan-y';
-    }
-  }
-
-  function syncScene(){
-    if(!root.classList.contains('tk-phone-premium-v3')) return;
-    var open = isOpen();
-    root.classList.toggle('tk-phone-games-open', open);
-    if(body) body.classList.toggle('tk-phone-games-open', open);
-
-    var catStart = document.getElementById('tkCatStart');
-    if(catStart){
-      catStart.hidden = !!open;
-      catStart.setAttribute('aria-hidden', open ? 'true' : 'false');
-    }
-
-    qa('.side-chip--it-min, .side-chip--infosec-min, .side-chip--phish-min').forEach(function(el){
-      el.hidden = !open;
-      el.setAttribute('aria-hidden', open ? 'false' : 'true');
-    });
-
-    scheduleCinemaReady();
-    syncScrollContainers();
-  }
-
-  function applyMode(){
-    var active = isPhoneTarget();
-    root.classList.toggle('tk-phone-premium-v3', active);
-    if(body) body.classList.toggle('tk-phone-premium-v3', active);
-
-    if(!active){
-      root.classList.remove('tk-phone-landscape-fhdclone', 'tk-phone-portrait-premium', 'tk-phone-cinema-ready', 'tk-phone-orienting');
-      if(body) body.classList.remove('tk-phone-landscape-fhdclone', 'tk-phone-portrait-premium', 'tk-phone-cinema-ready', 'tk-phone-orienting');
-      return;
-    }
-
-    removeConflicts();
-    var landscape = isLandscape();
-    root.classList.toggle('tk-phone-landscape-fhdclone', landscape);
-    root.classList.toggle('tk-phone-portrait-premium', !landscape);
-    if(body){
-      body.classList.toggle('tk-phone-landscape-fhdclone', landscape);
-      body.classList.toggle('tk-phone-portrait-premium', !landscape);
-    }
-
-    root.style.setProperty('--tk-phone-vh', viewportHeight() + 'px');
-    root.style.setProperty('--tk-phone-vw', viewportWidth() + 'px');
-
-    if(landscape){
-      try{ window.scrollTo(0, 0); }catch(_e){}
-      var header = q('.header');
-      if(header) header.scrollTop = 0;
-    }
-
-    syncScene();
-  }
-
-  function queueApply(){
-    cancelAnimationFrame(raf);
-    root.classList.add('tk-phone-orienting');
-    if(body) body.classList.add('tk-phone-orienting');
-    raf = requestAnimationFrame(function(){
-      applyMode();
-      setTimeout(applyMode, 80);
-      setTimeout(applyMode, 220);
-      setTimeout(function(){
-        root.classList.remove('tk-phone-orienting');
-        if(body) body.classList.remove('tk-phone-orienting');
-      }, 420);
-    });
-  }
-
-  function openGames(ev){
-    if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
-    setOpenState(true);
-    queueApply();
-    return false;
-  }
-
-  function bind(){
-    var startBtn = document.getElementById('tkCatStartBtn');
-    if(startBtn && !startBtn.__tkPhonePremiumBound){
-      startBtn.__tkPhonePremiumBound = true;
-      startBtn.addEventListener('click', openGames, true);
-      startBtn.addEventListener('touchend', openGames, { passive:false, capture:true });
-    }
-
-    var banner = q('#cinema .cinema-banner');
-    if(banner && !banner.__tkPhonePremiumBound){
-      banner.__tkPhonePremiumBound = true;
-      banner.addEventListener('click', function(ev){
-        if(root.classList.contains('tk-phone-premium-v3') && !isOpen()) openGames(ev);
-      }, true);
-    }
-
-    var titleArt = q('#cinema .cinema-title-art');
-    if(titleArt && !titleArt.__tkPhonePremiumBound){
-      titleArt.__tkPhonePremiumBound = true;
-      titleArt.addEventListener('click', function(ev){
-        if(root.classList.contains('tk-phone-premium-v3') && !isOpen()) openGames(ev);
-      }, true);
-    }
-
-    var prev = q('#cinema .slider-prev');
-    var next = q('#cinema .slider-next');
-    [prev, next].forEach(function(btn){
-      if(!btn || btn.__tkPhonePremiumBound) return;
-      btn.__tkPhonePremiumBound = true;
-      btn.addEventListener('click', function(){ setTimeout(centerCinema, 0); setTimeout(centerCinema, 120); }, true);
-    });
-
-    qa('#cinema .movie-slide').forEach(function(slide){
-      if(slide.__tkPhonePremiumBound) return;
-      slide.__tkPhonePremiumBound = true;
-      slide.addEventListener('click', function(){ setTimeout(centerCinema, 0); setTimeout(centerCinema, 120); }, true);
-    });
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ bind(); queueApply(); }, { once:true });
-  else { bind(); queueApply(); }
-
-  window.addEventListener('load', queueApply, { once:true });
-  window.addEventListener('resize', queueApply, { passive:true });
-  window.addEventListener('orientationchange', function(){ queueApply(); setTimeout(queueApply, 140); setTimeout(queueApply, 420); }, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queueApply, { passive:true });
-})();
-</script>
-
-
 <style id="tk-phone-landscape-scale-v12-style">
 html.tk-phone-premium-v3.tk-phone-landscape-fhdclone{
   --tk-v12-loader-scale:1;
@@ -62955,138 +62698,6 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
   pointer-events:auto !important;
 }
 </style>
-<script id="tk-phone-landscape-v14-deepfinish-script">
-(function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var raf = 0;
-
-  function isLandscapePhone(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
-  }
-  function hasOpenLicense(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(overlay && overlay.classList.contains('is-open'));
-  }
-  function isLoaderVisible(){
-    var loader = document.getElementById('tkLoader');
-    if(!loader) return false;
-    if(loader.classList.contains('is-hidden')) return false;
-    var cs = window.getComputedStyle(loader);
-    return cs.display != 'none' && cs.visibility != 'hidden' && Number(cs.opacity || '1') > 0.01;
-  }
-  function setGameOpen(next){
-    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    root.classList.toggle('tk-phone-games-open', !!next);
-    if(body) body.classList.toggle('tk-phone-games-open', !!next);
-  }
-  function centerCinema(){
-    var track = document.querySelector('#cinema .slider-wrapper');
-    if(!track) return;
-    var slides = Array.prototype.slice.call(track.querySelectorAll('.movie-slide'));
-    if(!slides.length) return;
-    var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
-    slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
-    try{ track.scrollTo({ left: Math.max(0, active.offsetLeft - 8), behavior:'auto' }); }catch(_e){ track.scrollLeft = Math.max(0, active.offsetLeft - 8); }
-  }
-  function syncCinemaTrack(){
-    var track = document.querySelector('#cinema .slider-wrapper');
-    if(!track) return;
-    if(isLandscapePhone() && root.classList.contains('tk-phone-games-open')){
-      track.style.overflowX = 'auto';
-      track.style.overflowY = 'hidden';
-      track.style.webkitOverflowScrolling = 'touch';
-      track.style.touchAction = 'pan-x pinch-zoom';
-    }
-  }
-  function syncCat(){
-    var shouldShow = isLandscapePhone() && !hasOpenLicense() && !isLoaderVisible();
-    root.classList.toggle('tk-phone-cat-forced', shouldShow);
-    root.classList.toggle('tk-loader-visible', isLoaderVisible());
-    if(body){
-      body.classList.toggle('tk-phone-cat-forced', shouldShow);
-      body.classList.toggle('tk-loader-visible', isLoaderVisible());
-    }
-    var cat = document.getElementById('tkCatStart');
-    if(cat && shouldShow){
-      cat.hidden = false;
-      cat.setAttribute('aria-hidden', 'false');
-      cat.style.removeProperty('display');
-    }
-  }
-  function openGames(ev){
-    if(!isLandscapePhone()) return false;
-    if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
-    setGameOpen(true);
-    root.classList.remove('tk-phone-cinema-ready');
-    if(body) body.classList.remove('tk-phone-cinema-ready');
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        centerCinema();
-        syncCinemaTrack();
-        root.classList.add('tk-phone-cinema-ready');
-        if(body) body.classList.add('tk-phone-cinema-ready');
-        syncCat();
-      });
-    });
-    return false;
-  }
-  function bindOpenTarget(el){
-    if(!el || el.__tkV14Bound) return;
-    el.__tkV14Bound = true;
-    ['click','touchend','pointerup'].forEach(function(type){
-      el.addEventListener(type, function(ev){
-        if(!root.classList.contains('tk-phone-games-open')) openGames(ev);
-      }, {capture:true, passive:false});
-    });
-  }
-  function bind(){
-    bindOpenTarget(document.querySelector('#cinema .cinema-banner'));
-    bindOpenTarget(document.querySelector('#cinema .cinema-title-art'));
-    bindOpenTarget(document.querySelector('#cinema .cinema-head'));
-    bindOpenTarget(document.getElementById('tkCatStartBtn'));
-    var cinema = document.getElementById('cinema');
-    if(cinema && !cinema.__tkV14Delegate){
-      cinema.__tkV14Delegate = true;
-      cinema.addEventListener('click', function(ev){
-        if(!isLandscapePhone() || root.classList.contains('tk-phone-games-open')) return;
-        var t = ev.target;
-        if(!t) return;
-        if(t.closest('.movie-btn, .slider-prev, .slider-next')) return;
-        if(t.closest('.cinema-head, .cinema-banner, .cinema-title-art, #cinemaStage, .slider-wrapper, .movie-slide')) openGames(ev);
-      }, true);
-    }
-  }
-  function sync(){
-    bind();
-    syncCat();
-    syncCinemaTrack();
-  }
-  function queue(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      sync();
-      setTimeout(sync, 80);
-      setTimeout(sync, 220);
-    });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', queue, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 180); setTimeout(queue, 420); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('tk:loaderhidden', queue);
-  window.addEventListener('tk:licenseaccepted', queue);
-  var mo = new MutationObserver(queue);
-  mo.observe(root, {attributes:true, attributeFilter:['class']});
-  var overlay = document.getElementById('tkLicenseOverlay');
-  if(overlay) mo.observe(overlay, {attributes:true, attributeFilter:['class','aria-hidden']});
-})();
-</script>
-
-
 <style id="tk-v15-mobile-orbfx-style">
 html:not(.chatgpt-4k-v40) #tkLoader,
 html:not(.chatgpt-4k-v40) #tkLicenseOverlay{
@@ -63442,188 +63053,6 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
   100%{ opacity:1; transform:translate3d(0,0,0) scale(var(--tk-v12-cat-scale, 1)); }
 }
 </style>
-<script id="tk-v16-mobile-landscape-ui-controller">
-(function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var raf = 0;
-
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function active(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
-  }
-  function overlay(){
-    return document.getElementById('tkLicenseOverlay');
-  }
-  function loader(){
-    return document.getElementById('tkLoader');
-  }
-  function loaderVisible(){
-    var el = loader();
-    if(!el) return false;
-    if(el.classList.contains('is-hidden') || el.dataset.done === '1') return false;
-    var cs = window.getComputedStyle(el);
-    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.02;
-  }
-  function licenseOpen(){
-    var el = overlay();
-    return !!(el && el.classList.contains('is-open') && el.getAttribute('aria-hidden') !== 'true');
-  }
-  function anyGameOpen(){
-    if(root.classList.contains('tk-any-game-open')) return true;
-    return qa('#itGame, #infoSecGame, #phishGame, #ruleGame, #pcPartsGame, #comicMenu, #tkTop10Modal, #rouletteDock').some(function(el){
-      if(!el) return false;
-      if(el.hidden) return false;
-      var cs = window.getComputedStyle(el);
-      return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.02 && (
-        el.classList.contains('is-open') || el.classList.contains('is-on') || el.getAttribute('aria-hidden') === 'false'
-      );
-    });
-  }
-  function gamesOpen(){
-    return root.classList.contains('tk-phone-games-open');
-  }
-  function setClass(name, flag){
-    root.classList.toggle(name, !!flag);
-    if(body) body.classList.toggle(name, !!flag);
-  }
-  function awaken(flag){
-    setClass('tk-pl-assist-awake', !!flag);
-  }
-  function setGamesOpen(flag){
-    try{ sessionStorage.setItem(OPEN_KEY, flag ? '1' : '0'); }catch(_e){}
-    setClass('tk-phone-games-open', !!flag);
-  }
-  function ensureLicenseState(){
-    setClass('tk-license-open', licenseOpen());
-    setClass('tk-loader-visible', loaderVisible());
-    setClass('tk-any-game-open', anyGameOpen());
-  }
-  function currentTrack(){
-    return q('#cinema .slider-wrapper');
-  }
-  function normalizeSlides(){
-    var track = currentTrack();
-    if(!track) return null;
-    var slides = qa('.movie-slide', track);
-    if(!slides.length) return track;
-    var activeIdx = slides.findIndex(function(slide){ return slide.classList.contains('is-active'); });
-    if(activeIdx < 0) activeIdx = 0;
-    slides.forEach(function(slide, idx){ slide.classList.toggle('is-active', idx === activeIdx); });
-    var activeSlide = slides[activeIdx];
-    try{ track.scrollTo({ left: Math.max(0, activeSlide.offsetLeft - 8), behavior:'auto' }); }
-    catch(_e){ track.scrollLeft = Math.max(0, activeSlide.offsetLeft - 8); }
-    return track;
-  }
-  function openCinema(ev){
-    if(!active()) return false;
-    if(ev){ try{ ev.preventDefault(); }catch(_e){} try{ ev.stopPropagation(); }catch(_e){} }
-    if(loaderVisible() || licenseOpen()) return false;
-    setGamesOpen(true);
-    setClass('tk-phone-cinema-ready', false);
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        normalizeSlides();
-        var track = currentTrack();
-        if(track){
-          track.style.overflowX = 'auto';
-          track.style.overflowY = 'hidden';
-          track.style.webkitOverflowScrolling = 'touch';
-          track.style.touchAction = 'pan-x pinch-zoom';
-        }
-        setClass('tk-phone-cinema-ready', true);
-        sync();
-      });
-    });
-    return false;
-  }
-  function bindOpenTarget(el){
-    if(!el || el.__tkV16Bound) return;
-    el.__tkV16Bound = true;
-    ['pointerdown','touchstart','click','touchend'].forEach(function(type){
-      el.addEventListener(type, function(ev){
-        if(!active()) return;
-        if(gamesOpen()) return;
-        openCinema(ev);
-      }, {capture:true, passive:false});
-    });
-  }
-  function bind(){
-    bindOpenTarget(q('#cinema .cinema-head'));
-    bindOpenTarget(q('#cinema .cinema-banner'));
-    bindOpenTarget(q('#cinema .cinema-title-art'));
-    bindOpenTarget(document.getElementById('tkCatStartBtn'));
-
-    var cinema = document.getElementById('cinema');
-    if(cinema && !cinema.__tkV16Delegate){
-      cinema.__tkV16Delegate = true;
-      cinema.addEventListener('pointerdown', function(ev){
-        if(!active() || gamesOpen()) return;
-        var t = ev.target;
-        if(!t) return;
-        if(t.closest('.movie-btn, .slider-prev, .slider-next')) return;
-        if(t.closest('.cinema-head, .cinema-banner, .cinema-title-art')) openCinema(ev);
-      }, {capture:true, passive:false});
-    }
-  }
-  function syncCat(){
-    var cat = document.getElementById('tkCatStart');
-    if(!cat) return;
-    var show = active() && !loaderVisible() && !licenseOpen() && !gamesOpen() && !anyGameOpen();
-    setClass('tk-pl-assist-visible', show);
-    if(show){
-      cat.hidden = false;
-      cat.removeAttribute('hidden');
-      cat.setAttribute('aria-hidden', 'false');
-      cat.style.setProperty('display', 'flex', 'important');
-      cat.style.setProperty('visibility', 'visible', 'important');
-      cat.style.setProperty('opacity', '1', 'important');
-      cat.style.setProperty('pointer-events', 'auto', 'important');
-      cat.style.setProperty('z-index', '14870', 'important');
-      if(!root.classList.contains('tk-pl-assist-awake')){
-        awaken(false);
-        requestAnimationFrame(function(){ requestAnimationFrame(function(){ awaken(true); }); });
-      }
-    }else{
-      awaken(false);
-    }
-  }
-  function sync(){
-    bind();
-    ensureLicenseState();
-    syncCat();
-    if(active() && gamesOpen()){
-      normalizeSlides();
-      setClass('tk-phone-cinema-ready', true);
-    }
-  }
-  function queue(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      sync();
-      setTimeout(sync, 80);
-      setTimeout(sync, 220);
-      setTimeout(sync, 480);
-    });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', queue, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ queue(); setTimeout(queue, 180); setTimeout(queue, 420); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('tk:loaderhidden', queue);
-  window.addEventListener('tk:licenseaccepted', queue);
-  var mo = new MutationObserver(queue);
-  mo.observe(root, {attributes:true, attributeFilter:['class']});
-  var lic = overlay();
-  if(lic) mo.observe(lic, {attributes:true, attributeFilter:['class','aria-hidden']});
-})();
-</script>
-
-
 <style id="tk-v17-mobile-landscape-system-style">
 /* v17: mobile landscape controller based on the stable v12/v15 line.
    Keeps the same visual language, but gives phone-landscape its own
@@ -63885,742 +63314,487 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone:not(.tk-phone-games-open) #
   }
 }
 </style>
-<script id="tk-v17-mobile-landscape-system-script">
+
+<style id="tk-phone-landscape-clean-v25-style">
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 1024px){
+  html.tk-phone-landscape-clean-v25,
+  html.tk-phone-landscape-clean-v25 body{
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 .header{
+    height:100dvh !important;
+    max-height:100dvh !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    overscroll-behavior-y:contain !important;
+    touch-action:pan-y pinch-zoom !important;
+  }
+  html.tk-phone-landscape-clean-v25 .ui{
+    display:block !important;
+    min-height:calc(100dvh + 140px) !important;
+    padding:0 !important;
+  }
+  html.tk-phone-landscape-clean-v25 .ui-bottom{
+    position:absolute !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    transform:none !important;
+    width:auto !important;
+    gap:6px !important;
+    z-index:8 !important;
+  }
+
+  html.tk-phone-landscape-clean-v25 .side-nav{
+    left:10px !important;
+    top:10px !important;
+    transform:scale(.76) !important;
+    transform-origin:top left !important;
+    z-index:16000 !important;
+  }
+  html.tk-phone-landscape-clean-v25 .side-nav__tab,
+  html.tk-phone-landscape-clean-v25 .side-nav__panel{
+    width:320px !important;
+  }
+
+  html.tk-phone-landscape-clean-v25 #cinema{
+    position:relative !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    transform:none !important;
+    width:min(430px, calc(100vw - 332px)) !important;
+    max-width:min(430px, calc(100vw - 332px)) !important;
+    margin:0 auto !important;
+    padding:0 0 10px !important;
+    z-index:6 !important;
+    pointer-events:auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-head{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 auto 4px !important;
+    padding-top:0 !important;
+    transform:none !important;
+    pointer-events:auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-banner{
+    width:auto !important;
+    max-width:none !important;
+    padding:0 !important;
+    margin:0 auto !important;
+    gap:0 !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    overflow:visible !important;
+    cursor:pointer !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-banner::before,
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-banner::after,
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-head::before,
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-head::after,
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-kicker,
+  html.tk-phone-landscape-clean-v25 #cinema .kino-badge,
+  html.tk-phone-landscape-clean-v25 #cinema .kino-badge-top-4k{
+    display:none !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-banner-title{
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    padding:0 !important;
+    margin:0 auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .cinema-title-art{
+    display:block !important;
+    width:min(330px, 44vw) !important;
+    max-width:min(330px, 44vw) !important;
+    margin:0 auto !important;
+    filter:none !important;
+    transform:none !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinemaStage{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    width:100% !important;
+    margin-top:4px !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinemaStage{
+    display:grid !important;
+    grid-template-columns:36px 1fr 36px !important;
+    align-items:center !important;
+    gap:6px !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .slider-prev,
+  html.tk-phone-landscape-clean-v25 #cinema .slider-next{
+    display:none !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .slider-prev,
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .slider-next{
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    right:auto !important;
+    transform:none !important;
+    display:grid !important;
+    place-items:center !important;
+    width:36px !important;
+    height:36px !important;
+    border-radius:14px !important;
+    margin:0 !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .slider-prev{ grid-column:1 !important; }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .slider-wrapper{
+    grid-column:2 !important;
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    gap:8px !important;
+    overflow:visible !important;
+    padding:0 !important;
+    margin:0 !important;
+    scroll-snap-type:none !important;
+  }
+  html.tk-phone-landscape-clean-v25 #cinema .movie-slide.tk-phone-hidden-v25{ display:none !important; }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-slide{
+    display:block !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    flex:none !important;
+    transform:none !important;
+    opacity:1 !important;
+    filter:none !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-slide::before,
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-slide::after{ display:none !important; }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-slide.is-active{
+    transform:none !important;
+    opacity:1 !important;
+    filter:none !important;
+    z-index:2 !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-img{
+    height:108px !important;
+    border-radius:16px !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-info{
+    padding:8px 8px 9px !important;
+    gap:6px !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-info h3{
+    min-height:2.25em !important;
+    font-size:11px !important;
+    line-height:1.14 !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-btn{
+    min-height:30px !important;
+    height:30px !important;
+    padding:0 10px !important;
+    border-radius:12px !important;
+    font-size:9px !important;
+    letter-spacing:.12em !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-ep,
+  html.tk-phone-landscape-clean-v25.tk-phone-cinema-open-v25 #cinema .movie-duration{
+    font-size:7px !important;
+    padding:4px 6px !important;
+  }
+
+  html.tk-phone-landscape-clean-v25 #tkCatStart{
+    left:12px !important;
+    bottom:12px !important;
+    transform:scale(.60) !important;
+    transform-origin:left bottom !important;
+    z-index:16500 !important;
+  }
+  html.tk-phone-landscape-clean-v25 #tkCatStart .tk-cat-launch__dialog{ width:280px !important; }
+  html.tk-phone-landscape-clean-v25 #tkCatStart .tk-cat-launch__pet{ width:72px !important; height:72px !important; }
+  html.tk-phone-landscape-clean-v25 #tkCatStart .tk-cat-launch__typing,
+  html.tk-phone-landscape-clean-v25 #tkCatStart .tk-cat-char{
+    opacity:1 !important;
+    filter:none !important;
+    transform:none !important;
+    transition:none !important;
+    animation:none !important;
+  }
+  html.tk-phone-landscape-clean-v25 #tkCatStart .tk-cat-launch__line::after,
+  html.tk-phone-landscape-clean-v25 #tkCatStart .tk-cat-launch__cursor{
+    display:none !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opened #tkCatStart,
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opening #tkCatStart{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+
+  html.tk-phone-landscape-clean-v25 .side-chip--it-min,
+  html.tk-phone-landscape-clean-v25 .side-chip--infosec-min,
+  html.tk-phone-landscape-clean-v25 .side-chip--phish-min{
+    position:fixed !important;
+    left:12px !important;
+    right:auto !important;
+    bottom:auto !important;
+    transform:scale(.58) !important;
+    transform-origin:left top !important;
+    z-index:16510 !important;
+  }
+  html.tk-phone-landscape-clean-v25 .side-chip--it-min{ top:106px !important; }
+  html.tk-phone-landscape-clean-v25 .side-chip--infosec-min{ top:212px !important; }
+  html.tk-phone-landscape-clean-v25 .side-chip--phish-min{ top:318px !important; }
+  html.tk-phone-landscape-clean-v25:not(.tk-cat-launch-opened):not(.tk-cat-launch-opening) .side-chip--it-min,
+  html.tk-phone-landscape-clean-v25:not(.tk-cat-launch-opened):not(.tk-cat-launch-opening) .side-chip--infosec-min,
+  html.tk-phone-landscape-clean-v25:not(.tk-cat-launch-opened):not(.tk-cat-launch-opening) .side-chip--phish-min{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opened .side-chip--it-min,
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opened .side-chip--infosec-min,
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opened .side-chip--phish-min,
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opening .side-chip--it-min,
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opening .side-chip--infosec-min,
+  html.tk-phone-landscape-clean-v25.tk-cat-launch-opening .side-chip--phish-min{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 .side-chip .avatar,
+  html.tk-phone-landscape-clean-v25 .avatar{
+    width:68px !important;
+    height:68px !important;
+    border-radius:22px !important;
+  }
+  html.tk-phone-landscape-clean-v25 .side-chip .avatar img,
+  html.tk-phone-landscape-clean-v25 .avatar img,
+  html.tk-phone-landscape-clean-v25 .avatar .avatar-img{
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    border-radius:inherit !important;
+  }
+  html.tk-phone-landscape-clean-v25 .side-chip .chip-card,
+  html.tk-phone-landscape-clean-v25 .chip-card{
+    min-width:230px !important;
+  }
+
+  html.tk-phone-landscape-clean-v25 #tkLiveStats{
+    position:fixed !important;
+    right:10px !important;
+    top:10px !important;
+    left:auto !important;
+    bottom:auto !important;
+    z-index:16600 !important;
+    transform:scale(.62) !important;
+    transform-origin:top right !important;
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+  html.tk-phone-landscape-clean-v25 #tkLiveStats .tk-live-stats__panel{
+    width:240px !important;
+  }
+
+  html.tk-phone-landscape-clean-v25 .rules{
+    position:fixed !important;
+    right:10px !important;
+    bottom:10px !important;
+    left:auto !important;
+    top:auto !important;
+    z-index:16590 !important;
+    transform:scale(.62) !important;
+    transform-origin:right bottom !important;
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    gap:8px !important;
+  }
+
+  @media (max-width: 760px){
+    html.tk-phone-landscape-clean-v25 #cinema{ width:min(392px, calc(100vw - 312px)) !important; max-width:min(392px, calc(100vw - 312px)) !important; }
+    html.tk-phone-landscape-clean-v25 #cinema .cinema-title-art{ width:min(300px, 42vw) !important; max-width:min(300px, 42vw) !important; }
+    html.tk-phone-landscape-clean-v25 .side-nav{ transform:scale(.72) !important; }
+    html.tk-phone-landscape-clean-v25 #tkLiveStats{ transform:scale(.58) !important; }
+    html.tk-phone-landscape-clean-v25 .rules{ transform:scale(.58) !important; }
+    html.tk-phone-landscape-clean-v25 .side-chip--it-min,
+    html.tk-phone-landscape-clean-v25 .side-chip--infosec-min,
+    html.tk-phone-landscape-clean-v25 .side-chip--phish-min{ transform:scale(.54) !important; }
+  }
+}
+</style>
+<script id="tk-phone-landscape-clean-v25-script">
 (function(){
   var root = document.documentElement;
   var body = document.body;
-  var OPEN_KEY = 'tk-phone-premium-games-open-v3';
-  var CAT_TIMER = 0;
-  var RAF = 0;
-  var BOUND = false;
-  var LAST = { loader:null, license:null, anyGame:null, gamesOpen:null, cat:null, landscape:null };
-
-  function setClass(node, name, flag){
-    if(!node) return;
-    if(node.classList.contains(name) === !!flag) return;
-    node.classList.toggle(name, !!flag);
-  }
-  function isLandscapePhone(){
-    return root.classList.contains('tk-phone-premium-v3') && root.classList.contains('tk-phone-landscape-fhdclone');
-  }
-  function overlayOpen(id){
-    var el = document.getElementById(id);
-    if(!el) return false;
-    if(el.classList.contains('is-open')) return true;
-    if(el.getAttribute('aria-hidden') === 'false') return true;
-    if(id === 'ruleGame' && String(el.dataset.rdnState || '').toLowerCase() !== 'idle') return true;
-    return false;
-  }
-  function anyGameDialogOpen(){
-    return ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].some(overlayOpen);
-  }
-  function isLoaderVisible(){
-    var loader = document.getElementById('tkLoader');
-    if(!loader || loader.dataset.done === '1' || loader.classList.contains('is-hidden')) return false;
-    var cs = window.getComputedStyle(loader);
-    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.01;
-  }
-  function isLicenseOpen(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(overlay && overlay.classList.contains('is-open') && overlay.getAttribute('aria-hidden') !== 'true');
-  }
-  function isGamesOpen(){
-    return root.classList.contains('tk-phone-games-open');
-  }
-  function setGamesOpen(next){
-    try{ sessionStorage.setItem(OPEN_KEY, next ? '1' : '0'); }catch(_e){}
-    setClass(root, 'tk-phone-games-open', !!next);
-    setClass(body, 'tk-phone-games-open', !!next);
-  }
-  function clearDialog(el){
-    if(!el) return;
-    el.classList.remove('is-open','is-on','open','active');
-    el.setAttribute('aria-hidden', 'true');
-    if(el.id === 'ruleGame') el.dataset.rdnState = 'idle';
+  var raf = 0;
+  function q(s,c){ return (c||document).querySelector(s); }
+  function qa(s,c){ return Array.prototype.slice.call((c||document).querySelectorAll(s)); }
+  function setClass(node, name, flag){ if(node) node.classList.toggle(name, !!flag); }
+  function isTarget(){
     try{
-      el.hidden = false;
-      el.style.removeProperty('display');
-      el.style.removeProperty('visibility');
-      el.style.removeProperty('opacity');
-      el.style.removeProperty('pointer-events');
-    }catch(_e){}
+      var coarse = false;
+      try{ coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }catch(_e){}
+      if(!coarse) return false;
+      var vw = Math.max(Number(window.innerWidth || 0), Number(document.documentElement.clientWidth || 0));
+      var vh = Math.max(Number(window.innerHeight || 0), Number(document.documentElement.clientHeight || 0));
+      var shortSide = Math.min(vw, vh);
+      var longSide = Math.max(vw, vh);
+      return longSide > shortSide && shortSide <= 540 && longSide <= 1100;
+    }catch(_e){ return false; }
   }
-  function closeInteractivePanels(){
-    ['itGame','infoSecGame','phishGame','pcPartsGame','comicMenu','ruleGame','trainingBetaModal'].forEach(function(id){
-      clearDialog(document.getElementById(id));
+  function ensureAvatars(){
+    qa('.side-chip--it-min .avatar, .side-chip--infosec-min .avatar, .side-chip--phish-min .avatar').forEach(function(avatar){
+      if(!avatar.querySelector('img')) avatar.innerHTML = '<img src="kotik_game.png" alt="" class="avatar-img">';
     });
-    setClass(root, 'tk-any-game-open', false);
-    setClass(body, 'tk-any-game-open', false);
   }
-  function getTrack(){
-    return document.querySelector('#cinema .slider-wrapper');
+  function resetCinemaVisibility(){
+    qa('#cinema .movie-slide').forEach(function(slide){
+      slide.classList.remove('tk-phone-hidden-v25');
+      slide.classList.remove('is-active');
+    });
+    var prev = q('#cinema .slider-prev');
+    var next = q('#cinema .slider-next');
+    if(prev) prev.disabled = true;
+    if(next) next.disabled = true;
   }
-  function pickSlides(){
-    var slides = Array.prototype.slice.call(document.querySelectorAll('#cinema .movie-slide'));
-    return slides.filter(function(slide){ return slide && slide.offsetParent !== null; });
-  }
-  function positionCinema(){
-    var track = getTrack();
-    if(!track) return;
-    var slides = pickSlides();
-    if(!slides.length) return;
-    var active = slides.find(function(slide){ return slide.classList.contains('is-active'); }) || slides[0];
-    slides.forEach(function(slide){ slide.classList.toggle('is-active', slide === active); });
-    var left = Math.max(0, active.offsetLeft - 2);
-    try{ track.scrollTo({ left:left, behavior:'auto' }); }
-    catch(_e){ track.scrollLeft = left; }
-  }
-  function showCat(flag){
-    var cat = document.getElementById('tkCatStart');
-    clearTimeout(CAT_TIMER);
-    setClass(root, 'tk-v17-cat-visible', !!flag);
-    setClass(body, 'tk-v17-cat-visible', !!flag);
-    if(cat){
-      cat.hidden = !flag;
-      cat.setAttribute('aria-hidden', flag ? 'false' : 'true');
-      if(flag){
-        cat.style.removeProperty('display');
-        cat.style.removeProperty('visibility');
-        cat.style.removeProperty('opacity');
-        cat.style.removeProperty('pointer-events');
-      }
-    }
-    setClass(root, 'tk-v17-cat-awake', false);
-    setClass(body, 'tk-v17-cat-awake', false);
-    if(flag){
-      CAT_TIMER = setTimeout(function(){
-        setClass(root, 'tk-v17-cat-awake', true);
-        setClass(body, 'tk-v17-cat-awake', true);
-      }, 40);
-    }
-  }
-  function syncState(){
-    var landscape = isLandscapePhone();
-    if(!landscape){
-      if(LAST.landscape !== false){
-        LAST.landscape = false;
-        showCat(false);
-        setClass(root, 'tk-loader-visible', false);
-        setClass(body, 'tk-loader-visible', false);
-        setClass(root, 'tk-license-open', false);
-        setClass(body, 'tk-license-open', false);
-        setClass(root, 'tk-any-game-open', false);
-        setClass(body, 'tk-any-game-open', false);
-      }
+  function renderCinema(){
+    var cinema = q('#cinema');
+    if(!cinema) return;
+    var track = q('.slider-wrapper', cinema);
+    var prev = q('.slider-prev', cinema);
+    var next = q('.slider-next', cinema);
+    var slides = qa('.movie-slide', track);
+    if(!track || !prev || !next || slides.length < 2) return;
+    if(!cinema.__tkPhoneCinemaState){ cinema.__tkPhoneCinemaState = { start:0, active:0, bound:false }; }
+    var st = cinema.__tkPhoneCinemaState;
+    var maxStart = Math.max(0, slides.length - 2);
+    st.start = Math.max(0, Math.min(st.start, maxStart));
+    if(st.active < st.start || st.active > st.start + 1) st.active = st.start;
+    if(!root.classList.contains('tk-phone-cinema-open-v25')){
+      resetCinemaVisibility();
       return;
     }
-    LAST.landscape = true;
-    var loader = isLoaderVisible();
-    var license = isLicenseOpen();
-    var anyGame = anyGameDialogOpen();
-    var gamesOpen = isGamesOpen();
-    var canShowCat = !loader && !license && !anyGame && !gamesOpen;
-
-    if(LAST.loader !== loader){
-      LAST.loader = loader;
-      setClass(root, 'tk-loader-visible', loader);
-      setClass(body, 'tk-loader-visible', loader);
+    slides.forEach(function(slide, idx){
+      var visible = idx >= st.start && idx < st.start + 2;
+      slide.classList.toggle('tk-phone-hidden-v25', !visible);
+      slide.classList.toggle('is-active', visible && idx === st.active);
+    });
+    prev.disabled = st.start <= 0;
+    next.disabled = st.start >= maxStart;
+    if(!st.bound){
+      prev.addEventListener('click', function(ev){
+        if(!root.classList.contains('tk-phone-landscape-clean-v25')) return;
+        ev.preventDefault(); ev.stopPropagation();
+        st.start = Math.max(0, st.start - 1);
+        st.active = st.start;
+        renderCinema();
+      }, true);
+      next.addEventListener('click', function(ev){
+        if(!root.classList.contains('tk-phone-landscape-clean-v25')) return;
+        ev.preventDefault(); ev.stopPropagation();
+        st.start = Math.min(maxStart, st.start + 1);
+        st.active = st.start;
+        renderCinema();
+      }, true);
+      slides.forEach(function(slide, idx){
+        slide.addEventListener('click', function(ev){
+          if(!root.classList.contains('tk-phone-landscape-clean-v25')) return;
+          if(slide.classList.contains('tk-phone-hidden-v25')) return;
+          if(ev.target.closest('button,a')) return;
+          ev.preventDefault(); ev.stopPropagation();
+          st.active = idx;
+          renderCinema();
+        }, true);
+      });
+      st.bound = true;
     }
-    if(LAST.license !== license){
-      LAST.license = license;
-      setClass(root, 'tk-license-open', license);
-      setClass(body, 'tk-license-open', license);
+  }
+  function setCinemaOpen(flag){
+    setClass(root, 'tk-phone-cinema-open-v25', !!flag);
+    setClass(body, 'tk-phone-cinema-open-v25', !!flag);
+    renderCinema();
+  }
+  function bind(){
+    var banner = q('#cinema .cinema-banner');
+    var title = q('#cinema .cinema-title-art');
+    [banner, title].forEach(function(el){
+      if(!el || el.__tkPhoneV25Bound) return;
+      el.__tkPhoneV25Bound = true;
+      ['click','touchend','pointerup'].forEach(function(type){
+        el.addEventListener(type, function(ev){
+          if(!isTarget()) return;
+          if(type !== 'click' && ev.cancelable === false) return;
+          try{ ev.preventDefault(); }catch(_e){}
+          try{ ev.stopPropagation(); }catch(_e){}
+          try{ ev.stopImmediatePropagation(); }catch(_e){}
+          setCinemaOpen(!root.classList.contains('tk-phone-cinema-open-v25'));
+          return false;
+        }, {capture:true, passive:false});
+      });
+    });
+    var btn = document.getElementById('tkCatStartBtn');
+    if(btn && !btn.__tkPhoneV25Bound){
+      btn.__tkPhoneV25Bound = true;
+      ['click','touchend','pointerup'].forEach(function(type){
+        btn.addEventListener(type, function(){
+          if(!isTarget()) return;
+          setCinemaOpen(false);
+        }, {capture:true, passive:type!=='touchend'});
+      });
     }
-    if(LAST.anyGame !== anyGame){
-      LAST.anyGame = anyGame;
-      setClass(root, 'tk-any-game-open', anyGame);
-      setClass(body, 'tk-any-game-open', anyGame);
-    }
-    if(LAST.gamesOpen !== gamesOpen){
-      LAST.gamesOpen = gamesOpen;
-    }
-    if(LAST.cat !== canShowCat){
-      LAST.cat = canShowCat;
-      showCat(canShowCat);
-    }
-
-    var header = document.querySelector('.header');
+  }
+  function apply(){
+    var active = isTarget();
+    setClass(root, 'tk-phone-landscape-clean-v25', active);
+    setClass(body, 'tk-phone-landscape-clean-v25', active);
+    if(!active){ setCinemaOpen(false); resetCinemaVisibility(); return; }
+    ensureAvatars();
+    var header = q('.header');
     if(header){
-      header.style.overflowY = 'auto';
       header.style.overflowX = 'hidden';
+      header.style.overflowY = 'auto';
       header.style.webkitOverflowScrolling = 'touch';
       header.style.touchAction = 'pan-y pinch-zoom';
     }
-  }
-  function openGames(ev){
-    if(!isLandscapePhone()) return false;
-    if(ev){
-      try{ ev.preventDefault(); }catch(_e){}
-      try{ ev.stopPropagation(); }catch(_e){}
+    var live = document.getElementById('tkLiveStats');
+    if(live){
+      live.hidden = false;
+      live.setAttribute('aria-hidden','false');
+      live.style.removeProperty('display');
     }
-    closeInteractivePanels();
-    setGamesOpen(true);
-    setClass(root, 'tk-phone-cinema-ready', false);
-    setClass(body, 'tk-phone-cinema-ready', false);
-    LAST.gamesOpen = true;
-    LAST.cat = false;
-    showCat(false);
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        positionCinema();
-        setClass(root, 'tk-phone-cinema-ready', true);
-        setClass(body, 'tk-phone-cinema-ready', true);
-        syncState();
-      });
-    });
-    return false;
-  }
-  function tapInsideCinemaBanner(target){
-    if(!target) return false;
-    if(target.closest('.movie-btn, .slider-prev, .slider-next')) return false;
-    if(target.closest('#cinema .cinema-head, #cinema .cinema-banner, #cinema .cinema-title-art')) return true;
-    var cinema = target.closest('#cinema');
-    if(!cinema) return false;
-    var stage = document.getElementById('cinemaStage');
-    if(stage && stage.contains(target)) return false;
-    return true;
-  }
-  function bindGlobalOpen(type, opts){
-    document.addEventListener(type, function(ev){
-      if(!isLandscapePhone() || isGamesOpen()) return;
-      if(tapInsideCinemaBanner(ev.target)) openGames(ev);
-    }, opts);
-  }
-  function bind(){
-    if(BOUND) return;
-    BOUND = true;
-    var btn = document.getElementById('tkCatStartBtn');
-    if(btn){
-      btn.addEventListener('click', openGames, true);
-      btn.addEventListener('touchend', openGames, {capture:true, passive:false});
-      btn.addEventListener('pointerup', openGames, {capture:true, passive:false});
+    var rules = q('.rules');
+    if(rules){
+      rules.hidden = false;
+      rules.style.removeProperty('display');
     }
-    bindGlobalOpen('click', true);
-    bindGlobalOpen('pointerup', {capture:true, passive:false});
-    bindGlobalOpen('touchend', {capture:true, passive:false});
-    var track = getTrack();
-    if(track){
-      track.style.overflowX = 'auto';
-      track.style.overflowY = 'hidden';
-      track.style.webkitOverflowScrolling = 'touch';
-      track.style.touchAction = 'pan-x pinch-zoom';
-    }
-  }
-  function queue(){
-    cancelAnimationFrame(RAF);
-    RAF = requestAnimationFrame(function(){
-      bind();
-      syncState();
-      if(isLandscapePhone() && isGamesOpen()) requestAnimationFrame(positionCinema);
-    });
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true});
-  else queue();
-  window.addEventListener('load', function(){ setTimeout(queue, 30); setTimeout(queue, 180); }, {once:true});
-  window.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(queue, 80); setTimeout(queue, 260); setTimeout(queue, 520); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
-  window.addEventListener('tk:loaderhidden', function(){ setTimeout(queue, 30); setTimeout(queue, 180); });
-  window.addEventListener('tk:licenseaccepted', function(){ setGamesOpen(false); setTimeout(queue, 40); setTimeout(queue, 220); });
-
-  ['tkLoader','tkLicenseOverlay','ruleGame','itGame','infoSecGame','phishGame','pcPartsGame','comicMenu'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(!el) return;
-    try{
-      var mo = new MutationObserver(function(){ queue(); });
-      mo.observe(el, {attributes:true, attributeFilter:['class','aria-hidden','data-rdn-state']});
-    }catch(_e){}
-  });
-})();
-</script>
-
-
-<style id="tk-mobile-landscape-v24-style">
-html.tk-ml-v24-active #hero{
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-  overscroll-behavior:contain !important;
-  padding-bottom: 220px !important;
-}
-html.tk-ml-v24-active .ui-bottom{
-  top: 88px !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-html.tk-ml-v24-active #cinema{
-  position:absolute !important;
-  top:0 !important;
-  left:50% !important;
-  right:auto !important;
-  bottom:auto !important;
-  transform:translateX(-50%) !important;
-  width:min(420px, calc(100vw - 430px)) !important;
-  max-width:min(420px, calc(100vw - 430px)) !important;
-  min-width:320px !important;
-  z-index:12020 !important;
-  pointer-events:auto !important;
-}
-html.tk-ml-v24-active #cinema .cinema-head{
-  width:100% !important;
-  margin:0 auto 6px !important;
-  padding-top:0 !important;
-}
-html.tk-ml-v24-active #cinema .cinema-banner{
-  padding:0 !important;
-  background:transparent !important;
-  border:0 !important;
-  box-shadow:none !important;
-  -webkit-backdrop-filter:none !important;
-  backdrop-filter:none !important;
-}
-html.tk-ml-v24-active #cinema .cinema-banner::before,
-html.tk-ml-v24-active #cinema .cinema-banner::after,
-html.tk-ml-v24-active #cinema .cinema-head::before,
-html.tk-ml-v24-active #cinema .cinema-head::after{
-  display:none !important;
-  content:none !important;
-}
-html.tk-ml-v24-active #cinema .cinema-title-art{
-  display:block !important;
-  width:min(340px, calc(100% - 12px)) !important;
-  max-width:min(340px, calc(100% - 12px)) !important;
-  height:auto !important;
-  margin:0 auto !important;
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,.34));
-}
-html.tk-ml-v24-active #cinema .cinema-banner-sub{ display:none !important; }
-html.tk-ml-v24-active:not(.tk-ml-v24-cinema-open) #cinemaStage{
-  display:none !important;
-}
-html.tk-ml-v24-active.tk-ml-v24-cinema-open #cinemaStage{
-  display:grid !important;
-  grid-template-columns: 40px minmax(0,1fr) 40px !important;
-  column-gap: 8px !important;
-  align-items:center !important;
-  width:100% !important;
-  margin-top: 2px !important;
-}
-html.tk-ml-v24-active #cinema .slider-wrapper{
-  display:flex !important;
-  gap:12px !important;
-  overflow:hidden !important;
-  padding: 6px 0 10px !important;
-  scroll-behavior:auto !important;
-}
-html.tk-ml-v24-active #cinema .movie-slide{
-  flex:0 0 calc((100% - 12px) / 2) !important;
-  width:calc((100% - 12px) / 2) !important;
-  min-width:calc((100% - 12px) / 2) !important;
-  max-width:calc((100% - 12px) / 2) !important;
-  border-radius:16px !important;
-  overflow:hidden !important;
-}
-html.tk-ml-v24-active #cinema .movie-img{
-  height:82px !important;
-  border-radius:14px !important;
-}
-html.tk-ml-v24-active #cinema .movie-info{
-  padding:8px !important;
-  min-height:96px !important;
-}
-html.tk-ml-v24-active #cinema .movie-badges{ gap:6px !important; }
-html.tk-ml-v24-active #cinema .movie-ep,
-html.tk-ml-v24-active #cinema .movie-duration{ font-size:8px !important; }
-html.tk-ml-v24-active #cinema .movie-text h3{ font-size:11px !important; line-height:1.05 !important; }
-html.tk-ml-v24-active #cinema .movie-btn{
-  min-width:0 !important;
-  width:100% !important;
-  height:30px !important;
-  padding:0 10px !important;
-  font-size:8px !important;
-  letter-spacing:.12em !important;
-  border-radius:13px !important;
-}
-html.tk-ml-v24-active #cinema .slider-prev,
-html.tk-ml-v24-active #cinema .slider-next{
-  width:40px !important;
-  height:40px !important;
-  border-radius:14px !important;
-}
-html.tk-ml-v24-active #tkCatStart{
-  left:10px !important;
-  bottom:10px !important;
-  top:auto !important;
-  right:auto !important;
-  transform:none !important;
-  gap:8px !important;
-  z-index:12040 !important;
-}
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__pet{
-  width:66px !important;
-  height:66px !important;
-  border-radius:22px !important;
-}
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__dialog{
-  width:214px !important;
-  min-width:214px !important;
-  max-width:214px !important;
-  padding:10px 11px 10px !important;
-  border-radius:18px !important;
-}
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__presence{
-  min-height:28px !important;
-  padding:6px 10px !important;
-  margin-bottom:7px !important;
-}
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__presence-label{
-  font-size:8px !important;
-  letter-spacing:.12em !important;
-}
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__line--meow{ font-size:13px !important; }
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__line--hero{ font-size:20px !important; }
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__line--play{ font-size:18px !important; }
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__btn{
-  width:100% !important;
-  min-width:0 !important;
-  height:40px !important;
-  padding:0 12px !important;
-  font-size:9px !important;
-}
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__hint{ font-size:8px !important; }
-html.tk-ml-v24-active #tkCatStart .tk-cat-launch__typing,
-html.tk-ml-v24-active #tkCatStart .tk-cat-char{ opacity:1 !important; }
-html.tk-ml-v24-active.tk-ml-v24-games-open #tkCatStart{
-  display:none !important;
-}
-html.tk-ml-v24-active:not(.tk-ml-v24-games-open) .side-chip--it-min,
-html.tk-ml-v24-active:not(.tk-ml-v24-games-open) .side-chip--infosec-min,
-html.tk-ml-v24-active:not(.tk-ml-v24-games-open) .side-chip--phish-min{
-  display:none !important;
-}
-html.tk-ml-v24-active.tk-ml-v24-games-open .side-chip--it-min,
-html.tk-ml-v24-active.tk-ml-v24-games-open .side-chip--infosec-min,
-html.tk-ml-v24-active.tk-ml-v24-games-open .side-chip--phish-min{
-  display:flex !important;
-  left:10px !important;
-  right:auto !important;
-  bottom:auto !important;
-  transform:none !important;
-  gap:8px !important;
-  z-index:12030 !important;
-}
-html.tk-ml-v24-active.tk-ml-v24-games-open .side-chip--it-min{ top:112px !important; }
-html.tk-ml-v24-active.tk-ml-v24-games-open .side-chip--infosec-min{ top:186px !important; }
-html.tk-ml-v24-active.tk-ml-v24-games-open .side-chip--phish-min{ top:260px !important; }
-html.tk-ml-v24-active .side-chip--it-min .avatar,
-html.tk-ml-v24-active .side-chip--infosec-min .avatar,
-html.tk-ml-v24-active .side-chip--phish-min .avatar{
-  width:58px !important;
-  height:58px !important;
-  border-radius:18px !important;
-  flex:0 0 58px !important;
-  display:grid !important;
-}
-html.tk-ml-v24-active .side-chip--it-min .avatar img,
-html.tk-ml-v24-active .side-chip--infosec-min .avatar img,
-html.tk-ml-v24-active .side-chip--phish-min .avatar img{
-  width:100% !important;
-  height:100% !important;
-  object-fit:cover !important;
-}
-html.tk-ml-v24-active .side-chip--it-min .chip-card,
-html.tk-ml-v24-active .side-chip--infosec-min .chip-card,
-html.tk-ml-v24-active .side-chip--phish-min .chip-card{
-  width:210px !important;
-  min-width:210px !important;
-  max-width:210px !important;
-  height:64px !important;
-  min-height:64px !important;
-  padding:6px 10px 7px !important;
-  border-radius:18px !important;
-  gap:4px !important;
-}
-html.tk-ml-v24-active .side-chip--it-min .chip-name,
-html.tk-ml-v24-active .side-chip--infosec-min .chip-name,
-html.tk-ml-v24-active .side-chip--phish-min .chip-name{
-  font-size:10px !important;
-  letter-spacing:.12em !important;
-  margin-bottom:0 !important;
-}
-html.tk-ml-v24-active .side-chip--it-min .chip-badge,
-html.tk-ml-v24-active .side-chip--infosec-min .chip-badge,
-html.tk-ml-v24-active .side-chip--phish-min .chip-badge{
-  display:none !important;
-}
-html.tk-ml-v24-active .side-chip--it-min .chip-btn,
-html.tk-ml-v24-active .side-chip--infosec-min .chip-btn,
-html.tk-ml-v24-active .side-chip--phish-min .chip-btn{
-  width:118px !important;
-  max-width:118px !important;
-  height:28px !important;
-  min-height:28px !important;
-  padding:0 10px !important;
-  border-radius:12px !important;
-  font-size:8px !important;
-  letter-spacing:.12em !important;
-}
-html.tk-ml-v24-active .rules.tkqa-wrap{
-  right:8px !important;
-  bottom:8px !important;
-  left:auto !important;
-  top:auto !important;
-  transform:scale(.78) !important;
-  transform-origin:bottom right !important;
-  z-index:12025 !important;
-}
-html.tk-ml-v24-active #tkLiveStats,
-html.tk-ml-v24-active #tkLiveStats.is-collapsed,
-html.tk-ml-v24-active #tkLiveStats:not(.is-collapsed){
-  display:block !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-  position:fixed !important;
-  top:8px !important;
-  right:8px !important;
-  left:auto !important;
-  bottom:auto !important;
-  width:172px !important;
-  min-width:172px !important;
-  max-width:172px !important;
-  transform:none !important;
-  z-index:12050 !important;
-}
-html.tk-ml-v24-active #tkLiveStats .tk-live-stats__panel{ padding:7px !important; border-radius:16px !important; }
-html.tk-ml-v24-active #tkLiveStats .tk-live-stats__head{ margin-bottom:0 !important; grid-template-columns:minmax(0,1fr) 52px !important; gap:6px !important; }
-html.tk-ml-v24-active #tkLiveStats .tk-live-stats__title{ min-height:38px !important; padding:6px 9px !important; border-radius:12px !important; }
-html.tk-ml-v24-active #tkLiveStats .tk-live-stats__label{ font-size:8px !important; letter-spacing:.10em !important; }
-html.tk-ml-v24-active #tkLiveStats .tk-live-stats__badge{ min-width:52px !important; width:52px !important; height:38px !important; font-size:10px !important; border-radius:12px !important; }
-html.tk-ml-v24-active #tkLiveStats .tk-live-stats__grid{ display:none !important; }
-@media (max-width: 900px){
-  html.tk-ml-v24-active #cinema{ width:min(360px, calc(100vw - 370px)) !important; max-width:min(360px, calc(100vw - 370px)) !important; }
-  html.tk-ml-v24-active .side-chip--it-min .chip-card,
-  html.tk-ml-v24-active .side-chip--infosec-min .chip-card,
-  html.tk-ml-v24-active .side-chip--phish-min .chip-card{ width:188px !important; min-width:188px !important; max-width:188px !important; }
-}
-</style>
-<script id="tk-mobile-landscape-v24-script">
-(function(){
-  var root = document.documentElement;
-  var body = document.body;
-  var OPEN_KEY = 'tk-cat-launch-unlocked';
-  var state = { games:false, cinema:false, wired:false, cinemaStart:0, cinemaActive:0 };
-  var refs = {};
-
-  function isPhoneLandscape(){
-    try{
-      var coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0;
-      var vw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
-      var vh = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-      var shortSide = Math.min(vw, vh);
-      var longSide = Math.max(vw, vh);
-      return coarse && vw > vh && shortSide <= 540 && longSide <= 1100;
-    }catch(_){ return false; }
-  }
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-  function loaderVisible(){
-    var loader = document.getElementById('tkLoader');
-    if(!loader) return false;
-    if(loader.classList.contains('is-hidden') || loader.dataset.done === '1') return false;
-    var cs = window.getComputedStyle(loader);
-    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.01;
-  }
-  function licenseOpen(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(overlay && overlay.classList.contains('is-open') && overlay.getAttribute('aria-hidden') !== 'true');
-  }
-  function active(){ return isPhoneLandscape() && !loaderVisible() && !licenseOpen(); }
-  function ensureInstantCatText(cat){
-    qa('.tk-cat-launch__typing[data-full-text]', cat).forEach(function(node){
-      var txt = node.getAttribute('data-full-text') || node.textContent || '';
-      node.textContent = txt;
-      node.classList.add('is-complete');
-    });
-    cat.classList.remove('is-typing');
-  }
-  function replaceNode(node){
-    if(!node || !node.parentNode) return node;
-    var clone = node.cloneNode(true);
-    node.parentNode.replaceChild(clone, node);
-    return clone;
-  }
-  function ensureRefs(){
-    refs.hero = document.getElementById('hero');
-    refs.rules = document.querySelector('.rules.tkqa-wrap');
-    refs.live = document.getElementById('tkLiveStats');
-    refs.cinema = document.getElementById('cinema');
-    refs.cat = document.getElementById('tkCatStart');
-    if(!refs.cinema || !refs.cat) return false;
-    if(!refs.cinema.dataset.tkV24Cloned){
-      refs.cinema = replaceNode(refs.cinema);
-      refs.cinema.dataset.tkV24Cloned = '1';
-    }
-    if(!refs.cat.dataset.tkV24Cloned){
-      refs.cat = replaceNode(refs.cat);
-      refs.cat.dataset.tkV24Cloned = '1';
-      ensureInstantCatText(refs.cat);
-    }
-    refs.banner = q('.cinema-banner', refs.cinema);
-    refs.titleArt = q('.cinema-title-art', refs.cinema);
-    refs.stage = document.getElementById('cinemaStage');
-    refs.prev = q('.slider-prev', refs.cinema);
-    refs.next = q('.slider-next', refs.cinema);
-    refs.track = q('.slider-wrapper', refs.cinema);
-    refs.slides = qa('.movie-slide', refs.cinema);
-    refs.startBtn = document.getElementById('tkCatStartBtn');
-    refs.it = document.querySelector('.side-chip--it-min');
-    refs.info = document.querySelector('.side-chip--infosec-min');
-    refs.phish = document.querySelector('.side-chip--phish-min');
-    return !!(refs.banner && refs.startBtn && refs.track && refs.slides.length && refs.it && refs.info && refs.phish);
-  }
-  function applyRoot(flag){
-    root.classList.toggle('tk-ml-v24-active', !!flag);
-    if(body) body.classList.toggle('tk-ml-v24-active', !!flag);
-  }
-  function setGames(flag){
-    state.games = !!flag;
-    root.classList.toggle('tk-ml-v24-games-open', state.games);
-    if(body) body.classList.toggle('tk-ml-v24-games-open', state.games);
-    if(refs.cat){
-      refs.cat.hidden = state.games;
-      refs.cat.setAttribute('aria-hidden', state.games ? 'true' : 'false');
-    }
-    [refs.it, refs.info, refs.phish].forEach(function(el){
-      if(!el) return;
-      el.hidden = !state.games;
-      el.setAttribute('aria-hidden', state.games ? 'false' : 'true');
-    });
-    try{ sessionStorage.setItem(OPEN_KEY, state.games ? '1' : '0'); }catch(_){ }
-    root.classList.toggle('tk-cat-launch-opened', state.games);
-  }
-  function renderCinema(){
-    if(!refs.track || !refs.slides || !refs.slides.length) return;
-    var maxStart = Math.max(0, refs.slides.length - 2);
-    state.cinemaStart = clamp(state.cinemaStart, 0, maxStart);
-    state.cinemaActive = clamp(state.cinemaActive, state.cinemaStart, Math.min(state.cinemaStart + 1, refs.slides.length - 1));
-    refs.slides.forEach(function(slide, idx){
-      var visible = idx >= state.cinemaStart && idx < state.cinemaStart + 2;
-      var activeSlide = visible && idx === state.cinemaActive;
-      slide.style.display = visible ? 'block' : 'none';
-      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
-      slide.classList.toggle('is-active', activeSlide);
-    });
-    if(refs.prev) refs.prev.disabled = state.cinemaStart <= 0;
-    if(refs.next) refs.next.disabled = state.cinemaStart >= maxStart;
-    try{ refs.track.scrollLeft = 0; if(refs.track.scrollTo) refs.track.scrollTo({ left: 0, behavior: 'auto' }); }catch(_){ }
-  }
-  function openCinema(ev){
-    if(ev){ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }
-    if(!active()) return false;
-    state.cinema = true;
-    root.classList.add('tk-ml-v24-cinema-open');
-    if(body) body.classList.add('tk-ml-v24-cinema-open');
-    renderCinema();
-    setTimeout(function(){ try{ refs.cinema && refs.cinema.scrollIntoView({ block:'start', behavior:'smooth' }); }catch(_){ } }, 30);
-    return false;
-  }
-  function closeCinema(){
-    state.cinema = false;
-    root.classList.remove('tk-ml-v24-cinema-open');
-    if(body) body.classList.remove('tk-ml-v24-cinema-open');
-  }
-  function openGames(ev){
-    if(ev){ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }
-    if(!active()) return false;
-    closeCinema();
-    setGames(true);
-    return false;
-  }
-  function chooseCinema(idx, ev){
-    if(ev){ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }
-    state.cinemaActive = idx;
-    if(idx < state.cinemaStart) state.cinemaStart = idx;
-    if(idx > state.cinemaStart + 1) state.cinemaStart = idx - 1;
-    renderCinema();
-    return false;
-  }
-  function bindCinema(){
-    if(refs.prev && !refs.prev.dataset.tkV24Bound){
-      refs.prev.dataset.tkV24Bound = '1';
-      refs.prev.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); state.cinemaStart = clamp(state.cinemaStart - 1, 0, Math.max(0, refs.slides.length - 2)); if(state.cinemaActive < state.cinemaStart) state.cinemaActive = state.cinemaStart; renderCinema(); }, true);
-    }
-    if(refs.next && !refs.next.dataset.tkV24Bound){
-      refs.next.dataset.tkV24Bound = '1';
-      refs.next.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); state.cinemaStart = clamp(state.cinemaStart + 1, 0, Math.max(0, refs.slides.length - 2)); if(state.cinemaActive > state.cinemaStart + 1) state.cinemaActive = state.cinemaStart + 1; renderCinema(); }, true);
-    }
-    refs.slides.forEach(function(slide, idx){
-      if(slide.dataset.tkV24Bound) return;
-      slide.dataset.tkV24Bound = '1';
-      slide.addEventListener('click', function(ev){
-        if(ev.target && ev.target.closest && ev.target.closest('button,a')) return;
-        chooseCinema(idx, ev);
-      }, true);
-      var btn = q('.movie-btn', slide);
-      if(btn){
-        btn.addEventListener('click', function(ev){ chooseCinema(idx, ev); }, true);
-      }
-    });
-  }
-  function bind(){
-    if(state.wired) return;
-    if(!ensureRefs()) return;
-    ensureInstantCatText(refs.cat);
-    if(refs.startBtn){
-      refs.startBtn.addEventListener('click', openGames, true);
-      refs.startBtn.addEventListener('touchend', openGames, { capture:true, passive:false });
-    }
-    if(refs.banner){
-      refs.banner.addEventListener('click', openCinema, true);
-      refs.banner.addEventListener('touchend', openCinema, { capture:true, passive:false });
-    }
-    if(refs.titleArt){
-      refs.titleArt.addEventListener('click', openCinema, true);
-      refs.titleArt.addEventListener('touchend', openCinema, { capture:true, passive:false });
-    }
-    bindCinema();
-    state.wired = true;
-  }
-  function sync(){
-    var on = active();
-    applyRoot(on);
-    if(!on) return;
     bind();
-    if(!state.games){ setGames(false); }
-    if(refs.hero){
-      refs.hero.style.overflowX = 'hidden';
-      refs.hero.style.overflowY = 'auto';
-      refs.hero.style.webkitOverflowScrolling = 'touch';
-      refs.hero.style.overscrollBehavior = 'contain';
-    }
-    if(refs.live){
-      refs.live.hidden = false;
-      refs.live.setAttribute('aria-hidden', 'false');
-      refs.live.classList.add('is-collapsed');
-      refs.live.style.display = 'block';
-      refs.live.style.visibility = 'visible';
-      refs.live.style.opacity = '1';
-    }
-    if(refs.rules){
-      refs.rules.hidden = false;
-      refs.rules.style.display = 'flex';
-      refs.rules.style.visibility = 'visible';
-      refs.rules.style.opacity = '1';
-    }
-    if(!state.cinema){ closeCinema(); }
     renderCinema();
   }
-  function queue(){ setTimeout(sync, 0); setTimeout(sync, 120); setTimeout(sync, 420); setTimeout(sync, 900); }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true }); else queue();
-  window.addEventListener('load', queue, { once:true });
-  window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', function(){ setTimeout(queue, 120); setTimeout(queue, 420); }, { passive:true });
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
-  var observer = new MutationObserver(function(){ if(active()) queue(); });
-  window.addEventListener('load', function(){ observer.observe(document.documentElement, { attributes:true, subtree:false, attributeFilter:['class'] }); }, { once:true });
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ apply(); setTimeout(apply, 80); setTimeout(apply, 260); }); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, {once:true}); else queue();
+  window.addEventListener('load', function(){ queue(); setTimeout(queue, 180); setTimeout(queue, 520); }, {once:true});
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(queue, 120); setTimeout(queue, 360); setTimeout(queue, 700); }, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('tk:loaderhidden', function(){ setTimeout(queue, 30); setTimeout(queue, 240); });
+  window.addEventListener('tk:licenseaccepted', function(){ setTimeout(queue, 30); setTimeout(queue, 240); });
 })();
 </script>
 
