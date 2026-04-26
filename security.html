@@ -65237,888 +65237,172 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
 })();
 </script>
 
-
-
-
-
-<!-- tk-v46-phone-hotfix: mobile landscape corrections. Loader/license are not changed.
-     1) the Мяу launcher is visible before opening the three games;
-     2) the Мяу launcher is hidden only while the v44 three-game panel / cinema panel is open;
-     3) cartoon logo is +10% larger than v45. -->
-<style id="tk-v46-phone-landscape-logo-cat-hotfix-style">
-@media (orientation: landscape) and (max-height: 680px){
+<!-- tk-v51-phone-landscape-clean-fix: mobile landscape only. Loader/license untouched. -->
+<style id="tk-v51-phone-landscape-clean-fix-style">
+@media (orientation: landscape) and (max-height:680px){
   html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
-    width:clamp(146px, 22.8vw, 196px) !important;
+    display:block!important;position:fixed!important;left:50%!important;top:max(5px,env(safe-area-inset-top,0px))!important;
+    width:clamp(165px,25.6vw,220px)!important;max-width:clamp(165px,25.6vw,220px)!important;height:auto!important;
+    transform:translate3d(-50%,0,0)!important;z-index:16120!important;border:0!important;padding:0!important;margin:0!important;background:transparent!important;
+    cursor:pointer!important;pointer-events:auto!important;transition:none!important;animation:none!important;will-change:auto!important;
   }
   html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo img{
-    max-height:clamp(61px, 20.3vh, 101px) !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
-    top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(70px, 21.5vh, 107px)) !important;
+    display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:clamp(70px,23.4vh,112px)!important;
+    object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 5px 11px rgba(0,0,0,.42)) drop-shadow(0 0 8px rgba(80,190,255,.18))!important;
   }
 
-  /* Stronger than the older phone-cat-forced rules: hide the original Мяу card only when v44 overlay is open. */
-  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart,
-  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open #tkCatStart,
-  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart,
-  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open #tkCatStart{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-    transform:translate3d(-9999px,0,0) scale(.01) !important;
-  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .cinema-head,
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .cinema-banner,
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .cinema-banner-title,
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .cinema-title-art{visibility:hidden!important;opacity:0!important;pointer-events:none!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema{width:1px!important;max-width:1px!important;min-width:1px!important;overflow:visible!important;pointer-events:none!important;}
 
-  /* Restore the launcher in the normal idle state, even if an old session marked it as opened. */
-  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart,
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart{
-    display:flex !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
-    filter:none !important;
-    transform:translate3d(0,0,0) scale(1) !important;
-  }
-
-  @media (max-width:760px){
-    html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
-      width:clamp(136px, 21.5vw, 175px) !important;
-    }
-  }
-}
-</style>
-<script id="tk-v46-phone-landscape-logo-cat-hotfix-script">
-(function(){
-  'use strict';
-  var html = document.documentElement;
-  var body = document.body;
-  var raf = 0;
-
-  function active(){
-    return html.classList.contains('tk-phone-landscape-v39') && html.classList.contains('tk-v44-phone');
-  }
-  function licenseOpen(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(
-      html.classList.contains('tk-license-open') ||
-      (body && body.classList.contains('tk-license-open')) ||
-      (overlay && overlay.classList.contains('is-open'))
-    );
-  }
-  function loaderOpen(){
-    var loader = document.getElementById('tkLoader');
-    if(html.classList.contains('tk-loader-visible')) return true;
-    if(!loader || loader.classList.contains('is-hidden')) return false;
-    try{
-      var cs = window.getComputedStyle(loader);
-      return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.01;
-    }catch(_e){ return false; }
-  }
-  function overlayOpen(){
-    /* v50: cinema slider must not hide the Мяу launcher; only the 3-game panel hides it. */
-    return html.classList.contains('tk-v44-games-open');
-  }
-  function clearInlineCat(cat){
-    ['display','visibility','opacity','pointer-events','filter','transform'].forEach(function(prop){
-      try{ cat.style.removeProperty(prop); }catch(_e){}
-    });
-  }
-  function syncCat(){
-    var cat = document.getElementById('tkCatStart');
-    if(!cat) return;
-    if(!active()) return;
-
-    if(overlayOpen()){
-      cat.__tkV46HiddenByPatch = '1';
-      cat.hidden = true;
-      cat.setAttribute('aria-hidden','true');
-      cat.style.setProperty('display','none','important');
-      cat.style.setProperty('visibility','hidden','important');
-      cat.style.setProperty('opacity','0','important');
-      cat.style.setProperty('pointer-events','none','important');
-      cat.style.setProperty('transform','translate3d(-9999px,0,0) scale(.01)','important');
-      return;
-    }
-
-    if(licenseOpen() || loaderOpen()) return;
-
-    /* In mobile landscape the Мяу card must be the launcher, not a one-time dismissed element. */
-    cat.__tkV46HiddenByPatch = '';
-    cat.hidden = false;
-    cat.setAttribute('aria-hidden','false');
-    clearInlineCat(cat);
-    try{ html.classList.remove('tk-cat-launch-opened','tk-cat-launch-opening'); }catch(_e){}
-    try{ sessionStorage.removeItem('tk-cat-launch-unlocked'); }catch(_e){}
-  }
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      raf = 0;
-      syncCat();
-      setTimeout(syncCat, 0);
-      setTimeout(syncCat, 80);
-      setTimeout(syncCat, 220);
-    });
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', function(){ schedule(); setTimeout(schedule, 180); setTimeout(schedule, 420); }, {passive:true});
-  window.addEventListener('tk:loaderhidden', schedule);
-  window.addEventListener('tk:licenseaccepted', schedule);
-  document.addEventListener('click', function(ev){
-    var t = ev.target;
-    if(t && t.closest && (t.closest('#tkCatStartBtn') || t.closest('#tkV44Logo') || t.closest('#tkV44Games'))){
-      setTimeout(schedule, 0);
-      setTimeout(schedule, 120);
-      setTimeout(schedule, 320);
-    }
-  }, true);
-  try{
-    new MutationObserver(schedule).observe(html, {attributes:true, attributeFilter:['class']});
-    if(body) new MutationObserver(schedule).observe(body, {attributes:true, attributeFilter:['class']});
-  }catch(_e){}
-  setInterval(function(){ if(active()) syncCat(); }, 500);
-})();
-</script>
-
-
-
-<!-- tk-v47-phone-hotfix: mobile landscape sizing only. Loader/license acceptance flow is untouched.
-     1) keep the Мяу launcher visible before opening games, but make it smaller;
-     2) after opening games the launcher is still hidden by v46 logic;
-     3) increase the cartoon safety logo by another ~10%. -->
-<style id="tk-v47-phone-landscape-size-hotfix-style">
-@media (orientation: landscape) and (max-height: 680px){
-  /* Cartoon logo: +10% from v46 values. */
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
-    width:clamp(161px, 25.1vw, 216px) !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo img{
-    max-height:clamp(67px, 22.3vh, 111px) !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
-    top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(76px, 23.6vh, 118px)) !important;
-  }
-
-  /* Мяу launcher: reduced size in idle state only. Hiding while games are open stays from v46. */
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart{
-    width:clamp(172px, 23.5vw, 228px) !important;
-    max-width:clamp(172px, 23.5vw, 228px) !important;
-    min-width:0 !important;
-    gap:6px !important;
-    left:calc(var(--v42-left, 8px) + 12px) !important;
-    bottom:calc(var(--v42-bottom, 8px) + 12px) !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__pet{
-    width:clamp(46px, 9.5vh, 56px) !important;
-    height:clamp(46px, 9.5vh, 56px) !important;
-    flex:0 0 clamp(46px, 9.5vh, 56px) !important;
-    border-radius:15px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__dialog{
-    width:calc(100% - clamp(53px, 10.6vh, 64px)) !important;
-    padding:7px 8px !important;
-    border-radius:16px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__presence{
-    min-height:18px !important;
-    height:18px !important;
-    padding:3px 6px !important;
-    margin-bottom:5px !important;
-    border-radius:10px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__presence-label{
-    font-size:6px !important;
-    letter-spacing:.11em !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__presence-dots i{
-    width:3px !important;
-    height:3px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__line--meow{
-    font-size:clamp(8px, 2.2vh, 11px) !important;
-    line-height:1 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__line--hero{
-    font-size:clamp(13px, 3.9vh, 18px) !important;
-    line-height:1 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__line--play{
-    font-size:clamp(11px, 3.4vh, 16px) !important;
-    line-height:1 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__actions{
-    margin-top:5px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__btn{
-    min-height:28px !important;
-    height:clamp(28px, 6.0vh, 34px) !important;
-    padding:0 8px !important;
-    font-size:clamp(7px, 1.7vh, 9px) !important;
-    letter-spacing:.11em !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__btn svg{
-    width:11px !important;
-    height:11px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__hint{
-    margin-top:4px !important;
-    font-size:6px !important;
-    letter-spacing:.10em !important;
-  }
-
-  @media (max-width:760px){
-    html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
-      width:clamp(150px, 23.7vw, 193px) !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart{
-      width:clamp(160px, 24vw, 205px) !important;
-      max-width:clamp(160px, 24vw, 205px) !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__line--hero{
-      font-size:13px !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__line--play{
-      font-size:11px !important;
-    }
-  }
-}
-</style>
-
-
-
-<!-- tk-v48-phone-landscape-stability-hotfix: mobile landscape only. Loader/license acceptance flow untouched.
-     1) Cinema slider opens only from the cartoon safety logo, not from Игровое меню.
-     2) Мяу launcher is pinned closer to the left-bottom edge and no longer floats/jumps.
-     3) Cartoon safety logo is enlarged by another ~10% from v47. -->
-<style id="tk-v48-phone-landscape-stability-hotfix-style">
-@media (orientation: landscape) and (max-height: 680px){
-  /* The slider must stay closed for menu opening and all other UI actions.
-     Only tk-v44-cinema-open, set by #tkV44Logo, is allowed to show it. */
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-cinema-open) #cinema #cinemaStage,
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-cinema-open) #cinema.slider-container,
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-cinema-open) #cinema .slider-container,
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage,
   html.tk-phone-landscape-v39.tk-v44-phone.tk-v39-cinema-open:not(.tk-v44-cinema-open) #cinema #cinemaStage,
   html.tk-phone-landscape-v39.tk-v44-phone .side-nav:not(.is-collapsed) ~ * #cinema #cinemaStage{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
+    display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
   }
-
   html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open #cinema #cinemaStage,
   html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open .side-nav:not(.is-collapsed) ~ * #cinema #cinemaStage{
-    display:grid !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
-  }
-
-  /* Stabilize phone-landscape overlays: no float/transition jumps while tapping menu/buttons. */
-  html.tk-phone-landscape-v39.tk-v44-phone #tkCatStart,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkCatStart .tk-cat-launch__pet,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkCatStart .tk-cat-launch__dialog,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Games,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkLiveStats,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV42Status,
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV43Status,
-  html.tk-phone-landscape-v39.tk-v44-phone .rules.tkqa-wrap{
-    transition:none !important;
-    will-change:auto !important;
-  }
-
-  /* Мяу launcher: pin to the actual left/bottom content edge in idle state. */
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart{
-    left:calc(env(safe-area-inset-left, 0px) + 1px) !important;
-    bottom:calc(env(safe-area-inset-bottom, 0px) + 1px) !important;
-    transform:translate3d(0,0,0) !important;
-    animation:none !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__pet{
-    animation:none !important;
-  }
-
-  /* Cartoon logo: another +10% over v47. */
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
-    width:clamp(177px, 27.6vw, 238px) !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo img{
-    max-height:clamp(74px, 24.5vh, 122px) !important;
+    display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
   }
   html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
-    top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(83px, 25.9vh, 130px)) !important;
-  }
-
-  @media (max-width:760px){
-    html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
-      width:clamp(165px, 26.1vw, 212px) !important;
-    }
-  }
-}
-</style>
-<script id="tk-v48-phone-landscape-stability-hotfix-script">
-(function(){
-  'use strict';
-  var html = document.documentElement;
-  var body = document.body;
-  var raf = 0;
-
-  function active(){
-    return html.classList.contains('tk-phone-landscape-v39') && html.classList.contains('tk-v44-phone');
-  }
-  function q(sel, base){ return (base || document).querySelector(sel); }
-
-  function normalize(reason){
-    if(!active()) return;
-
-    /* Old v39 logic linked the opened main menu with the cinema slider.
-       In v48 the slider is controlled only by #tkV44Logo / tk-v44-cinema-open. */
-    if(reason === 'menu'){
-      html.classList.remove('tk-v39-cinema-open','tk-v44-cinema-open');
-      if(body) body.classList.remove('tk-v39-cinema-open','tk-v44-cinema-open');
-    }
-
-    var stage = document.getElementById('cinemaStage');
-    if(stage){
-      stage.setAttribute('aria-hidden', html.classList.contains('tk-v44-cinema-open') ? 'false' : 'true');
-    }
-
-    var cat = document.getElementById('tkCatStart');
-    if(cat && !html.classList.contains('tk-v44-games-open') && !html.classList.contains('tk-v44-cinema-open')){
-      cat.hidden = false;
-      cat.removeAttribute('hidden');
-      cat.setAttribute('aria-hidden','false');
-      cat.style.removeProperty('left');
-      cat.style.removeProperty('bottom');
-      cat.style.removeProperty('transform');
-      cat.style.removeProperty('animation');
-    }
-  }
-
-  function schedule(reason){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      raf = 0;
-      normalize(reason);
-      setTimeout(function(){ normalize(reason); }, 0);
-      setTimeout(function(){ normalize(reason); }, 90);
-      setTimeout(function(){ normalize(reason); }, 260);
-    });
-  }
-
-  document.addEventListener('click', function(ev){
-    if(!active()) return;
-    var t = ev.target;
-    if(!t || !t.closest) return;
-
-    if(t.closest('.menu-pill, #menuToggle, .side-nav__tab')){
-      var wasV44CinemaOpen = html.classList.contains('tk-v44-cinema-open');
-      schedule('menu');
-      if(wasV44CinemaOpen){
-        setTimeout(function(){
-          var logo = document.getElementById('tkV44Logo');
-          if(logo && html.classList.contains('tk-v44-cinema-open')){
-            try{ logo.click(); }catch(_e){}
-          }
-          schedule('menu');
-        }, 0);
-      }
-      return;
-    }
-
-    if(t.closest('#tkV44Logo')){
-      /* Keep the new v44 source of truth clean when the cartoon button is used. */
-      setTimeout(function(){ html.classList.remove('tk-v39-cinema-open'); if(body) body.classList.remove('tk-v39-cinema-open'); }, 0);
-      schedule('logo');
-      return;
-    }
-
-    if(t.closest('#tkCatStartBtn, #tkCatStart .tk-cat-launch__btn, #tkV44Games, .rules.tkqa-wrap .tkqa-head')){
-      schedule('ui');
-    }
-  }, true);
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ schedule('boot'); }, {once:true});
-  else schedule('boot');
-  window.addEventListener('load', function(){ schedule('load'); }, {once:true});
-  window.addEventListener('resize', function(){ schedule('resize'); }, {passive:true});
-  window.addEventListener('orientationchange', function(){ schedule('orientation'); setTimeout(function(){ schedule('orientation'); }, 240); }, {passive:true});
-  window.addEventListener('tk:loaderhidden', function(){ schedule('loaderhidden'); });
-  window.addEventListener('tk:licenseaccepted', function(){ schedule('licenseaccepted'); });
-  try{ new MutationObserver(function(){ schedule('mutation'); }).observe(html, {attributes:true, attributeFilter:['class']}); }catch(_e){}
-})();
-</script>
-
-
-
-<!-- tk-v50-phone-landscape-cinema-slider-hotfix: mobile landscape only. Loader/license acceptance flow untouched.
-     1) Cinema slider shows exactly two readable slides and pages through all 12 episodes.
-     2) The cinema slider no longer hides, enlarges or moves the Мяу launcher.
-     3) The launcher keeps a small left/bottom offset and the slider stays between launcher and modules. -->
-<style id="tk-v50-phone-landscape-cinema-slider-hotfix-style">
-@media (orientation: landscape) and (max-height: 680px){
-  /* v50: Мяу не увеличивается при слайдере; остаётся небольшой отступ от левого/нижнего края. */
-  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart,
-  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart{
-    display:flex !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
-    filter:none !important;
-    transform:translate3d(0,0,0) scale(1) !important;
-    animation:none !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart,
-  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-    transform:translate3d(-9999px,0,0) scale(.01) !important;
-  }
-
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart{
-    left:calc(env(safe-area-inset-left, 0px) + 8px) !important;
-    bottom:calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
-    right:auto !important;
-    top:auto !important;
-    width:clamp(172px, 23.5vw, 228px) !important;
-    max-width:clamp(172px, 23.5vw, 228px) !important;
-    min-width:0 !important;
-    gap:6px !important;
-    margin:0 !important;
-    transform:translate3d(0,0,0) scale(1) !important;
-    animation:none !important;
-    transition:none !important;
-    will-change:auto !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__pet{
-    width:clamp(46px, 9.5vh, 56px) !important;
-    height:clamp(46px, 9.5vh, 56px) !important;
-    flex:0 0 clamp(46px, 9.5vh, 56px) !important;
-    border-radius:15px !important;
-    animation:none !important;
-    transition:none !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__dialog{
-    width:calc(100% - clamp(53px, 10.6vh, 64px)) !important;
-    padding:7px 8px !important;
-    border-radius:16px !important;
-    transition:none !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__presence{
-    min-height:18px !important;
-    height:18px !important;
-    padding:3px 6px !important;
-    margin-bottom:5px !important;
-    border-radius:10px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__presence-label{
-    font-size:6px !important;
-    letter-spacing:.11em !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__presence-dots i{
-    width:3px !important;
-    height:3px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__line--meow{
-    font-size:clamp(8px, 2.2vh, 11px) !important;
-    line-height:1 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__line--hero{
-    font-size:clamp(13px, 3.9vh, 18px) !important;
-    line-height:1 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__line--play{
-    font-size:clamp(11px, 3.4vh, 16px) !important;
-    line-height:1 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__actions{
-    margin-top:5px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__btn{
-    min-height:28px !important;
-    height:clamp(28px, 6vh, 34px) !important;
-    padding:0 8px !important;
-    font-size:clamp(7px, 1.7vh, 9px) !important;
-    letter-spacing:.11em !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__btn svg{
-    width:11px !important;
-    height:11px !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart .tk-cat-launch__hint{
-    margin-top:4px !important;
-    font-size:6px !important;
-    letter-spacing:.10em !important;
-  }
-
-  /* v50: ровно 2 читаемых слайда между котиком и правыми модулями. */
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
-    position:fixed !important;
-    left:clamp(258px, 31vw, 340px) !important;
-    top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(112px, 27vh, 154px)) !important;
-    width:clamp(360px, 38vw, 430px) !important;
-    max-width:clamp(360px, 38vw, 430px) !important;
-    min-width:360px !important;
-    height:auto !important;
-    max-height:none !important;
-    margin:0 !important;
-    padding:0 !important;
-    transform:none !important;
-    z-index:16105 !important;
-    grid-template-columns:30px minmax(0,1fr) 30px !important;
-    column-gap:8px !important;
-    align-items:center !important;
-    justify-content:center !important;
-    overflow:visible !important;
-    contain:layout paint !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open #cinema #cinemaStage{
-    display:grid !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
+    position:fixed!important;left:50%!important;top:calc(max(5px,env(safe-area-inset-top,0px)) + clamp(112px,34vh,155px))!important;
+    width:clamp(410px,45vw,560px)!important;max-width:clamp(410px,45vw,560px)!important;min-width:410px!important;transform:translate3d(-50%,0,0)!important;
+    grid-template-columns:32px minmax(0,1fr) 32px!important;column-gap:9px!important;align-items:center!important;justify-content:center!important;
+    z-index:16110!important;margin:0!important;padding:0!important;overflow:visible!important;transition:none!important;animation:none!important;will-change:auto!important;
   }
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-wrapper{
-    width:100% !important;
-    max-width:100% !important;
-    min-width:0 !important;
-    height:auto !important;
-    display:grid !important;
-    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
-    gap:12px !important;
-    padding:0 !important;
-    margin:0 !important;
-    overflow:hidden !important;
-    scroll-snap-type:none !important;
-    -webkit-overflow-scrolling:auto !important;
-    align-items:stretch !important;
-    transform:none !important;
+    grid-column:2!important;width:100%!important;min-width:0!important;max-width:100%!important;display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:0!important;margin:0!important;overflow:visible!important;scroll-snap-type:none!important;transform:none!important;
   }
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-prev,
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next{
-    position:relative !important;
-    left:auto !important;
-    right:auto !important;
-    top:auto !important;
-    bottom:auto !important;
-    transform:none !important;
-    width:30px !important;
-    height:30px !important;
-    min-width:30px !important;
-    border-radius:999px !important;
-    padding:0 !important;
-    margin:0 !important;
-    z-index:3 !important;
-    opacity:.96 !important;
-    pointer-events:auto !important;
-    box-shadow:0 10px 22px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.18) !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-prev svg,
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next svg{
-    width:16px !important;
-    height:16px !important;
+    position:relative!important;left:auto!important;right:auto!important;top:auto!important;transform:none!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+    border-radius:999px!important;display:grid!important;place-items:center!important;cursor:pointer!important;z-index:2!important;border:1px solid rgba(255,232,166,.42)!important;
+    background:linear-gradient(180deg,rgba(28,91,140,.88),rgba(12,36,66,.84))!important;box-shadow:0 12px 24px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.16)!important;color:#fff!important;
   }
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-prev[disabled],
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next[disabled]{
-    opacity:.42 !important;
-    filter:saturate(.7) !important;
-    pointer-events:auto !important;
-  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next[disabled]{opacity:.42!important;cursor:default!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-prev svg,
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next svg{width:17px!important;height:17px!important;}
 
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide{
-    display:none !important;
-    width:auto !important;
-    min-width:0 !important;
-    max-width:none !important;
-    min-height:0 !important;
-    height:clamp(132px, 33vh, 168px) !important;
-    max-height:clamp(132px, 33vh, 168px) !important;
-    flex:0 1 auto !important;
-    padding:7px !important;
-    border-radius:17px !important;
-    transform:none !important;
-    opacity:1 !important;
-    filter:none !important;
-    transition:none !important;
-    overflow:hidden !important;
-    background:radial-gradient(140% 120% at 18% 14%, rgba(255,255,255,.18), transparent 58%), radial-gradient(120% 120% at 86% 22%, rgba(95,204,255,.16), transparent 56%), linear-gradient(180deg, rgba(9,44,78,.86), rgba(6,24,45,.82)) !important;
-    border:1px solid rgba(255,232,166,.40) !important;
-    box-shadow:0 14px 30px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.14) !important;
+    display:none!important;width:auto!important;min-width:0!important;max-width:none!important;height:clamp(142px,35vh,178px)!important;max-height:clamp(142px,35vh,178px)!important;
+    padding:8px!important;border-radius:18px!important;overflow:hidden!important;transform:none!important;opacity:0!important;filter:none!important;transition:none!important;animation:none!important;
+    border:1px solid rgba(255,232,166,.42)!important;background:radial-gradient(120% 135% at 18% 12%,rgba(255,255,255,.16),transparent 60%),linear-gradient(180deg,rgba(14,54,91,.88),rgba(7,23,45,.84))!important;
+    box-shadow:0 14px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.14)!important;
   }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide.tk-v50-visible{
-    display:flex !important;
-    flex-direction:column !important;
-    justify-content:flex-start !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide::before{
-    border-radius:17px !important;
-    padding:1px !important;
-    opacity:.95 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide.is-active{
-    transform:none !important;
-    filter:none !important;
-    opacity:1 !important;
-  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide.tk-v51-visible{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide.is-active{transform:none!important;filter:none!important;opacity:1!important;}
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-img{
-    display:block !important;
-    width:100% !important;
-    height:clamp(64px, 18vh, 84px) !important;
-    min-height:64px !important;
-    border-radius:12px !important;
-    object-fit:cover !important;
-    object-position:center center !important;
-    margin:0 !important;
-    box-shadow:0 8px 16px rgba(0,0,0,.26) !important;
+    display:block!important;width:100%!important;height:clamp(78px,20vh,104px)!important;min-height:78px!important;border-radius:13px!important;object-fit:cover!important;object-position:center!important;
+    margin:0!important;box-shadow:0 8px 16px rgba(0,0,0,.28)!important;opacity:1!important;filter:saturate(1.04) contrast(1.02)!important;
   }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-seam-gold{
-    height:4px !important;
-    min-height:4px !important;
-    margin:0 !important;
-    border-radius:0 0 8px 8px !important;
-  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-seam-gold{height:4px!important;min-height:4px!important;margin:0!important;border-radius:0 0 8px 8px!important;}
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-info{
-    margin-top:0 !important;
-    padding:6px 6px 0 !important;
-    gap:5px !important;
-    display:grid !important;
-    grid-template-columns:minmax(0,1fr) auto !important;
-    align-items:end !important;
-    justify-content:space-between !important;
-    min-height:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
+    margin-top:0!important;padding:7px 5px 0!important;gap:6px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:end!important;justify-content:space-between!important;min-height:0!important;background:transparent!important;box-shadow:none!important;
   }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-text{
-    gap:4px !important;
-    min-width:0 !important;
-  }
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-badges{
-    gap:4px !important;
-    flex-wrap:nowrap !important;
-    margin:0 !important;
-  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-text{gap:5px!important;min-width:0!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-badges{gap:5px!important;flex-wrap:nowrap!important;margin:0!important;}
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-ep,
-  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-duration{
-    font-size:7px !important;
-    line-height:1 !important;
-    letter-spacing:.08em !important;
-    padding:3px 5px !important;
-    border-radius:999px !important;
-    white-space:nowrap !important;
-  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-duration{font-size:8px!important;line-height:1!important;letter-spacing:.08em!important;padding:4px 6px!important;border-radius:999px!important;white-space:nowrap!important;}
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-info h3{
-    font-size:clamp(9px, 1.35vw, 12px) !important;
-    line-height:1.08 !important;
-    min-height:2.12em !important;
-    max-height:2.18em !important;
-    max-width:100% !important;
-    white-space:normal !important;
-    overflow:hidden !important;
-    text-overflow:clip !important;
-    margin:0 !important;
+    font-size:clamp(10px,1.45vw,13px)!important;line-height:1.10!important;min-height:2.18em!important;max-height:2.25em!important;max-width:100%!important;white-space:normal!important;overflow:hidden!important;text-overflow:clip!important;margin:0!important;opacity:1!important;
   }
   html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-btn{
-    min-width:68px !important;
-    width:auto !important;
-    min-height:26px !important;
-    height:26px !important;
-    border-radius:999px !important;
-    padding:0 9px !important;
-    font-size:7px !important;
-    line-height:1 !important;
-    letter-spacing:.10em !important;
-    white-space:nowrap !important;
-    flex:0 0 auto !important;
-    align-self:end !important;
+    min-width:76px!important;width:auto!important;min-height:28px!important;height:28px!important;border-radius:999px!important;padding:0 11px!important;font-size:8px!important;line-height:1!important;letter-spacing:.10em!important;white-space:nowrap!important;flex:0 0 auto!important;align-self:end!important;opacity:1!important;
   }
 
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart,
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart{
+    position:fixed!important;left:calc(env(safe-area-inset-left,0px) + 12px)!important;bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;right:auto!important;top:auto!important;
+    display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:clamp(165px,23.2vw,205px)!important;max-width:clamp(165px,23.2vw,205px)!important;min-width:0!important;gap:6px!important;
+    margin:0!important;transform:translate3d(0,0,0) scale(1)!important;filter:none!important;animation:none!important;transition:none!important;will-change:auto!important;z-index:16220!important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart,
+  html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-cat-forced.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart{
+    display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:translate3d(-9999px,0,0) scale(.01)!important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__pet{width:clamp(48px,9.5vh,56px)!important;height:clamp(48px,9.5vh,56px)!important;flex:0 0 clamp(48px,9.5vh,56px)!important;border-radius:15px!important;animation:none!important;transition:none!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__dialog{width:calc(100% - clamp(55px,10.6vh,64px))!important;padding:7px 8px!important;border-radius:16px!important;transition:none!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__presence{min-height:18px!important;height:18px!important;padding:3px 6px!important;margin-bottom:5px!important;border-radius:10px!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__presence-label{font-size:6px!important;letter-spacing:.11em!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__presence-dots i{width:3px!important;height:3px!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__line--meow{font-size:clamp(8px,2.2vh,11px)!important;line-height:1!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__line--hero{font-size:clamp(13px,3.9vh,18px)!important;line-height:1!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__line--play{font-size:clamp(11px,3.4vh,16px)!important;line-height:1!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__actions{margin-top:5px!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__btn{min-height:28px!important;height:clamp(28px,6.0vh,34px)!important;padding:0 8px!important;font-size:clamp(7px,1.7vh,9px)!important;letter-spacing:.11em!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__btn svg{width:11px!important;height:11px!important;}
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open) #tkCatStart .tk-cat-launch__hint{margin-top:4px!important;font-size:6px!important;letter-spacing:.10em!important;}
+
   @media (max-width:760px){
-    html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-license-open):not(.tk-loader-visible) #tkCatStart{
-      left:calc(env(safe-area-inset-left, 0px) + 7px) !important;
-      bottom:calc(env(safe-area-inset-bottom, 0px) + 7px) !important;
-      width:clamp(160px, 24vw, 205px) !important;
-      max-width:clamp(160px, 24vw, 205px) !important;
-    }
+    html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{width:clamp(158px,24.2vw,205px)!important;max-width:clamp(158px,24.2vw,205px)!important;}
     html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
-      left:clamp(224px, 31vw, 258px) !important;
-      top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(105px, 26vh, 138px)) !important;
-      width:clamp(300px, 40vw, 350px) !important;
-      max-width:clamp(300px, 40vw, 350px) !important;
-      min-width:300px !important;
-      grid-template-columns:27px minmax(0,1fr) 27px !important;
-      column-gap:6px !important;
+      left:clamp(244px,45vw,420px)!important;top:calc(max(5px,env(safe-area-inset-top,0px)) + clamp(110px,32vh,142px))!important;
+      width:clamp(360px,43vw,440px)!important;max-width:clamp(360px,43vw,440px)!important;min-width:360px!important;transform:translate3d(0,0,0)!important;
+      grid-template-columns:28px minmax(0,1fr) 28px!important;column-gap:7px!important;
     }
-    html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-wrapper{ gap:8px !important; }
+    html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-wrapper{gap:10px!important;}
     html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-prev,
-    html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next{
-      width:27px !important;
-      height:27px !important;
-      min-width:27px !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide{
-      height:clamp(120px, 31vh, 146px) !important;
-      max-height:clamp(120px, 31vh, 146px) !important;
-      padding:6px !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-img{
-      height:clamp(56px, 16vh, 72px) !important;
-      min-height:56px !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-info h3{
-      font-size:8.5px !important;
-      min-height:2.06em !important;
-    }
-    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-btn{
-      min-width:60px !important;
-      height:24px !important;
-      min-height:24px !important;
-      font-size:6.5px !important;
-      padding:0 8px !important;
-    }
+    html.tk-phone-landscape-v39.tk-v44-phone #cinema .slider-next{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;}
+    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-slide{height:clamp(130px,32vh,154px)!important;max-height:clamp(130px,32vh,154px)!important;padding:7px!important;}
+    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-img{height:clamp(66px,17vh,82px)!important;min-height:66px!important;}
+    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-info h3{font-size:9px!important;}
+    html.tk-phone-landscape-v39.tk-v44-phone #cinema .movie-btn{min-width:66px!important;height:25px!important;min-height:25px!important;font-size:7px!important;padding:0 8px!important;}
   }
 }
 </style>
-<script id="tk-v50-phone-landscape-cinema-slider-hotfix-script">
+<script id="tk-v51-phone-landscape-clean-fix-script">
 (function(){
   'use strict';
-  var html = document.documentElement;
-  var body = document.body;
-  var index = 0;
-  var perPage = 2;
-  var wasCinemaOpen = false;
-  var raf = 0;
-
-  function active(){ return html.classList.contains('tk-phone-landscape-v39') && html.classList.contains('tk-v44-phone'); }
-  function loaderOpen(){
-    var loader = document.getElementById('tkLoader');
-    if(html.classList.contains('tk-loader-visible')) return true;
-    if(!loader || loader.classList.contains('is-hidden')) return false;
-    try{ var cs = window.getComputedStyle(loader); return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || '1') > 0.01; }catch(_e){ return false; }
-  }
-  function licenseOpen(){
-    var overlay = document.getElementById('tkLicenseOverlay');
-    return !!(html.classList.contains('tk-license-open') || (body && body.classList.contains('tk-license-open')) || (overlay && overlay.classList.contains('is-open')));
-  }
-  function slides(){
-    var wrap = document.querySelector('#cinema #cinemaStage .slider-wrapper');
-    return wrap ? Array.prototype.slice.call(wrap.querySelectorAll('.movie-slide')) : [];
-  }
-  function clampIndex(items){
-    var max = Math.max(0, items.length - perPage);
-    if(index < 0) index = 0;
-    if(index > max) index = max;
-    if(index % perPage !== 0) index = Math.floor(index / perPage) * perPage;
-    if(index > max) index = Math.max(0, max - (max % perPage));
-  }
+  var html=document.documentElement, body=document.body, index=0, perPage=2, wasCinemaOpen=false, raf=0;
+  function active(){return html.classList.contains('tk-phone-landscape-v39')&&html.classList.contains('tk-v44-phone');}
+  function loaderOpen(){var l=document.getElementById('tkLoader'); if(html.classList.contains('tk-loader-visible'))return true; if(!l||l.classList.contains('is-hidden'))return false; try{var cs=getComputedStyle(l); return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||'1')>.01;}catch(e){return false;}}
+  function licenseOpen(){var o=document.getElementById('tkLicenseOverlay'); return !!(html.classList.contains('tk-license-open')||(body&&body.classList.contains('tk-license-open'))||(o&&o.classList.contains('is-open')));}
+  function slides(){var w=document.querySelector('#cinema #cinemaStage .slider-wrapper'); return w?[].slice.call(w.querySelectorAll('.movie-slide')):[];}
+  function clampIndex(items){var max=Math.max(0,items.length-perPage); if(index<0)index=0; if(index>max)index=max; if(index%perPage!==0)index=Math.floor(index/perPage)*perPage; if(index>max)index=Math.max(0,max-(max%perPage));}
   function updateSlider(){
-    if(!active()) return;
-    var items = slides();
-    if(!items.length) return;
-    clampIndex(items);
-    for(var i = 0; i < items.length; i++){
-      var show = i >= index && i < index + perPage;
-      items[i].classList.toggle('tk-v50-visible', show);
-      items[i].classList.toggle('is-active', show && i === index);
-      items[i].setAttribute('aria-hidden', show ? 'false' : 'true');
-      items[i].style.setProperty('display', show ? 'flex' : 'none', 'important');
-      items[i].style.setProperty('visibility', show ? 'visible' : 'hidden', 'important');
-      items[i].style.setProperty('opacity', show ? '1' : '0', 'important');
-      items[i].style.setProperty('pointer-events', show ? 'auto' : 'none', 'important');
-      items[i].style.setProperty('transform', 'none', 'important');
-      items[i].style.setProperty('filter', 'none', 'important');
-    }
-    var prev = document.querySelector('#cinema #cinemaStage .slider-prev');
-    var next = document.querySelector('#cinema #cinemaStage .slider-next');
-    if(prev) prev.disabled = index <= 0;
-    if(next) next.disabled = index + perPage >= items.length;
+    if(!active())return; var items=slides(); if(!items.length)return; clampIndex(items);
+    items.forEach(function(el,i){var show=i>=index&&i<index+perPage; el.classList.toggle('tk-v51-visible',show); el.classList.remove('tk-v50-visible'); el.classList.toggle('is-active',show&&i===index); el.setAttribute('aria-hidden',show?'false':'true');
+      el.style.setProperty('display',show?'flex':'none','important'); el.style.setProperty('visibility',show?'visible':'hidden','important'); el.style.setProperty('opacity',show?'1':'0','important'); el.style.setProperty('pointer-events',show?'auto':'none','important'); el.style.setProperty('transform','none','important'); el.style.setProperty('filter','none','important');
+    });
+    var p=document.querySelector('#cinema #cinemaStage .slider-prev'), n=document.querySelector('#cinema #cinemaStage .slider-next'); if(p)p.disabled=index<=0; if(n)n.disabled=index+perPage>=items.length;
   }
-  function restoreCat(){
-    if(!active() || loaderOpen() || licenseOpen() || html.classList.contains('tk-v44-games-open')) return;
-    var cat = document.getElementById('tkCatStart');
-    if(!cat) return;
-    cat.hidden = false;
-    cat.removeAttribute('hidden');
-    cat.setAttribute('aria-hidden','false');
-    cat.__tkV46HiddenByPatch = '';
-    cat.style.setProperty('display','flex','important');
-    cat.style.setProperty('visibility','visible','important');
-    cat.style.setProperty('opacity','1','important');
-    cat.style.setProperty('pointer-events','auto','important');
-    cat.style.setProperty('left','calc(env(safe-area-inset-left, 0px) + 8px)','important');
-    cat.style.setProperty('bottom','calc(env(safe-area-inset-bottom, 0px) + 8px)','important');
-    cat.style.setProperty('right','auto','important');
-    cat.style.setProperty('top','auto','important');
-    cat.style.setProperty('margin','0','important');
-    cat.style.setProperty('filter','none','important');
-    cat.style.setProperty('width','clamp(172px, 23.5vw, 228px)','important');
-    cat.style.setProperty('max-width','clamp(172px, 23.5vw, 228px)','important');
-    cat.style.setProperty('min-width','0','important');
-    cat.style.setProperty('gap','6px','important');
-    cat.style.setProperty('transform','translate3d(0,0,0) scale(1)','important');
-    cat.style.setProperty('animation','none','important');
-    cat.style.setProperty('transition','none','important');
-    var pet = cat.querySelector('.tk-cat-launch__pet');
-    if(pet){
-      pet.style.setProperty('width','clamp(46px, 9.5vh, 56px)','important');
-      pet.style.setProperty('height','clamp(46px, 9.5vh, 56px)','important');
-      pet.style.setProperty('flex','0 0 clamp(46px, 9.5vh, 56px)','important');
-      pet.style.setProperty('animation','none','important');
-      pet.style.setProperty('transition','none','important');
-    }
-    var dialog = cat.querySelector('.tk-cat-launch__dialog');
-    if(dialog){
-      dialog.style.setProperty('width','calc(100% - clamp(53px, 10.6vh, 64px))','important');
-      dialog.style.setProperty('padding','7px 8px','important');
-      dialog.style.setProperty('border-radius','16px','important');
-      dialog.style.setProperty('transition','none','important');
-    }
+  function stabilizeCat(){
+    if(!active())return; var c=document.getElementById('tkCatStart'); if(!c)return;
+    if(html.classList.contains('tk-v44-games-open')){c.hidden=true;c.setAttribute('aria-hidden','true');c.style.setProperty('display','none','important');c.style.setProperty('visibility','hidden','important');c.style.setProperty('opacity','0','important');c.style.setProperty('pointer-events','none','important');c.style.setProperty('transform','translate3d(-9999px,0,0) scale(.01)','important');return;}
+    if(loaderOpen()||licenseOpen())return;
+    c.hidden=false;c.removeAttribute('hidden');c.setAttribute('aria-hidden','false');c.__tkV46HiddenByPatch='';
+    [['position','fixed'],['display','flex'],['visibility','visible'],['opacity','1'],['pointer-events','auto'],['left','calc(env(safe-area-inset-left, 0px) + 12px)'],['bottom','calc(env(safe-area-inset-bottom, 0px) + 12px)'],['right','auto'],['top','auto'],['margin','0'],['filter','none'],['width','clamp(165px, 23.2vw, 205px)'],['max-width','clamp(165px, 23.2vw, 205px)'],['min-width','0'],['gap','6px'],['transform','translate3d(0,0,0) scale(1)'],['animation','none'],['transition','none'],['z-index','16220']].forEach(function(a){c.style.setProperty(a[0],a[1],'important');});
+    var p=c.querySelector('.tk-cat-launch__pet'); if(p){[['width','clamp(48px, 9.5vh, 56px)'],['height','clamp(48px, 9.5vh, 56px)'],['flex','0 0 clamp(48px, 9.5vh, 56px)'],['animation','none'],['transition','none']].forEach(function(a){p.style.setProperty(a[0],a[1],'important');});}
+    var d=c.querySelector('.tk-cat-launch__dialog'); if(d){[['width','calc(100% - clamp(55px, 10.6vh, 64px))'],['padding','7px 8px'],['border-radius','16px'],['transition','none']].forEach(function(a){d.style.setProperty(a[0],a[1],'important');});}
   }
-  function tick(){
-    var cinemaOpen = html.classList.contains('tk-v44-cinema-open');
-    if(cinemaOpen && !wasCinemaOpen) index = 0;
-    wasCinemaOpen = cinemaOpen;
-    updateSlider();
-    restoreCat();
+  function normalize(reason){
+    if(!active())return;
+    if(reason==='menu'){html.classList.remove('tk-v39-cinema-open','tk-v44-cinema-open'); if(body)body.classList.remove('tk-v39-cinema-open','tk-v44-cinema-open');}
+    else{html.classList.remove('tk-v39-cinema-open'); if(body)body.classList.remove('tk-v39-cinema-open');}
+    var open=html.classList.contains('tk-v44-cinema-open'); if(open&&!wasCinemaOpen)index=0; wasCinemaOpen=open;
+    var s=document.getElementById('cinemaStage'); if(s)s.setAttribute('aria-hidden',open?'false':'true');
+    updateSlider(); stabilizeCat();
   }
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){ raf = 0; tick(); setTimeout(tick, 0); setTimeout(tick, 80); setTimeout(tick, 240); });
-  }
-  document.addEventListener('click', function(ev){
-    if(!active()) return;
-    var t = ev.target;
-    if(!t || !t.closest) return;
-    var items = slides();
-    if(!items.length) return;
-    if(t.closest('#cinema #cinemaStage .slider-next')){
-      ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-      index = Math.min(Math.max(0, items.length - perPage), index + perPage);
-      schedule();
-      return;
-    }
-    if(t.closest('#cinema #cinemaStage .slider-prev')){
-      ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-      index = Math.max(0, index - perPage);
-      schedule();
-      return;
-    }
-    if(t.closest('#tkV44Logo')){ index = 0; schedule(); }
-  }, true);
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true}); else schedule();
-  window.addEventListener('load', schedule, {once:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', function(){ index = 0; schedule(); setTimeout(schedule, 260); }, {passive:true});
-  window.addEventListener('tk:loaderhidden', schedule);
-  window.addEventListener('tk:licenseaccepted', schedule);
-  try{ new MutationObserver(schedule).observe(html, {attributes:true, attributeFilter:['class']}); }catch(_e){}
-  setInterval(function(){ if(active()) tick(); }, 700);
+  function schedule(reason){if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){raf=0; normalize(reason||'sync'); setTimeout(function(){normalize(reason||'sync')},0); setTimeout(function(){normalize(reason||'sync')},80); setTimeout(function(){normalize(reason||'sync')},220);});}
+  document.addEventListener('click',function(ev){
+    if(!active())return; var t=ev.target; if(!t||!t.closest)return; var items=slides();
+    if(t.closest('#cinema #cinemaStage .slider-next')){ev.preventDefault();ev.stopPropagation(); if(ev.stopImmediatePropagation)ev.stopImmediatePropagation(); if(items.length)index=Math.min(Math.max(0,items.length-perPage),index+perPage); schedule('slider'); return;}
+    if(t.closest('#cinema #cinemaStage .slider-prev')){ev.preventDefault();ev.stopPropagation(); if(ev.stopImmediatePropagation)ev.stopImmediatePropagation(); index=Math.max(0,index-perPage); schedule('slider'); return;}
+    if(t.closest('.menu-pill,#menuToggle,.side-nav__tab')){schedule('menu'); return;}
+    if(t.closest('#tkV44Logo')){index=0; setTimeout(function(){schedule('logo')},0); return;}
+    if(t.closest('#tkCatStartBtn,#tkCatStart .tk-cat-launch__btn,#tkV44Games,.rules.tkqa-wrap .tkqa-head'))schedule('ui');
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){schedule('boot')},{once:true}); else schedule('boot');
+  window.addEventListener('load',function(){schedule('load')},{once:true}); window.addEventListener('resize',function(){schedule('resize')},{passive:true});
+  window.addEventListener('orientationchange',function(){index=0;schedule('orientation');setTimeout(function(){schedule('orientation')},260)},{passive:true});
+  window.addEventListener('tk:loaderhidden',function(){schedule('loaderhidden')}); window.addEventListener('tk:licenseaccepted',function(){schedule('licenseaccepted')});
+  try{new MutationObserver(function(){schedule('mutation')}).observe(html,{attributes:true,attributeFilter:['class']});}catch(e){}
+  setInterval(function(){if(active())normalize('interval')},650);
 })();
 </script>
 
