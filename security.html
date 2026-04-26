@@ -65237,5 +65237,129 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
 })();
 </script>
 
+
+
+<!-- tk-v45-phone-hotfix: v44 landscape fixes. Loader/license untouched.
+     1) hard-hide the original Мяу cat when the v44 games/cinema overlay is open;
+     2) enlarge the mobile landscape cartoon logo by 15%. -->
+<style id="tk-v45-phone-landscape-logo-cat-hotfix-style">
+@media (orientation: landscape) and (max-height: 680px){
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
+    width:clamp(133px, 20.7vw, 178px) !important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo img{
+    max-height:clamp(55px, 18.4vh, 92px) !important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
+    top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(64px, 19.55vh, 97px)) !important;
+  }
+
+  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-games-open #tkCatStart,
+  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open #tkCatStart{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+
+  @media (max-width:760px){
+    html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
+      width:clamp(124px, 19.55vw, 159px) !important;
+    }
+  }
+}
+</style>
+<script id="tk-v45-phone-landscape-logo-cat-hotfix-script">
+(function(){
+  'use strict';
+  var html = document.documentElement;
+  var body = document.body;
+  var raf = 0;
+  var restoreAttrs = {
+    display: true,
+    visibility: true,
+    opacity: true,
+    pointerEvents: true,
+    filter: true,
+    transform: true
+  };
+
+  function isV44Phone(){
+    return html.classList.contains('tk-phone-landscape-v39') && html.classList.contains('tk-v44-phone');
+  }
+  function isBlocked(){
+    return isV44Phone() && (
+      html.classList.contains('tk-v44-games-open') ||
+      html.classList.contains('tk-v44-cinema-open') ||
+      html.classList.contains('tk-license-open') ||
+      html.classList.contains('tk-loader-visible') ||
+      html.classList.contains('tk-any-game-open')
+    );
+  }
+  function hardHideCat(){
+    var cat = document.getElementById('tkCatStart');
+    if(!cat) return;
+    if(isBlocked()){
+      cat.__tkV45HiddenByPatch = '1';
+      cat.hidden = true;
+      cat.setAttribute('aria-hidden','true');
+      cat.style.setProperty('display','none','important');
+      cat.style.setProperty('visibility','hidden','important');
+      cat.style.setProperty('opacity','0','important');
+      cat.style.setProperty('pointer-events','none','important');
+      cat.style.setProperty('filter','none','important');
+      cat.style.setProperty('transform','translate3d(-9999px,0,0) scale(.01)','important');
+      return;
+    }
+    if(cat.__tkV45HiddenByPatch === '1'){
+      cat.__tkV45HiddenByPatch = '';
+      cat.removeAttribute('aria-hidden');
+      cat.hidden = false;
+      Object.keys(restoreAttrs).forEach(function(prop){
+        try{ cat.style.removeProperty(prop.replace(/[A-Z]/g, function(m){ return '-' + m.toLowerCase(); })); }catch(_e){}
+      });
+    }
+  }
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      hardHideCat();
+      setTimeout(hardHideCat, 0);
+      setTimeout(hardHideCat, 60);
+      setTimeout(hardHideCat, 180);
+      setTimeout(hardHideCat, 420);
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', function(){ schedule(); setTimeout(schedule, 180); setTimeout(schedule, 420); }, {passive:true});
+  window.addEventListener('tk:loaderhidden', schedule);
+  window.addEventListener('tk:licenseaccepted', schedule);
+  document.addEventListener('click', function(ev){
+    var t = ev.target;
+    if(t && t.closest && (t.closest('#tkCatStartBtn') || t.closest('#tkV44Logo') || t.closest('#tkV44Games'))){
+      setTimeout(schedule, 0);
+      setTimeout(schedule, 120);
+    }
+  }, true);
+  try{
+    new MutationObserver(schedule).observe(html, {attributes:true, attributeFilter:['class']});
+    var waitCat = function(){
+      var cat = document.getElementById('tkCatStart');
+      if(cat){
+        new MutationObserver(schedule).observe(cat, {attributes:true, attributeFilter:['style','hidden','class','aria-hidden']});
+      }
+    };
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', waitCat, {once:true});
+    else waitCat();
+  }catch(_e){}
+  setInterval(function(){ if(isV44Phone()) hardHideCat(); }, 350);
+})();
+</script>
+
 </body>
 </html>
