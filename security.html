@@ -65487,5 +65487,170 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
 }
 </style>
 
+
+
+<!-- tk-v48-phone-landscape-stability-hotfix: mobile landscape only. Loader/license acceptance flow untouched.
+     1) Cinema slider opens only from the cartoon safety logo, not from Игровое меню.
+     2) Мяу launcher is pinned closer to the left-bottom edge and no longer floats/jumps.
+     3) Cartoon safety logo is enlarged by another ~10% from v47. -->
+<style id="tk-v48-phone-landscape-stability-hotfix-style">
+@media (orientation: landscape) and (max-height: 680px){
+  /* The slider must stay closed for menu opening and all other UI actions.
+     Only tk-v44-cinema-open, set by #tkV44Logo, is allowed to show it. */
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-cinema-open) #cinema #cinemaStage,
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-cinema-open) #cinema.slider-container,
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-cinema-open) #cinema .slider-container,
+  html.tk-phone-landscape-v39.tk-v44-phone.tk-v39-cinema-open:not(.tk-v44-cinema-open) #cinema #cinemaStage,
+  html.tk-phone-landscape-v39.tk-v44-phone .side-nav:not(.is-collapsed) ~ * #cinema #cinemaStage{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+
+  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open #cinema #cinemaStage,
+  html.tk-phone-landscape-v39.tk-v44-phone.tk-v44-cinema-open .side-nav:not(.is-collapsed) ~ * #cinema #cinemaStage{
+    display:grid !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+
+  /* Stabilize phone-landscape overlays: no float/transition jumps while tapping menu/buttons. */
+  html.tk-phone-landscape-v39.tk-v44-phone #tkCatStart,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkCatStart .tk-cat-launch__pet,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkCatStart .tk-cat-launch__dialog,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Games,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkLiveStats,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV42Status,
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV43Status,
+  html.tk-phone-landscape-v39.tk-v44-phone .rules.tkqa-wrap{
+    transition:none !important;
+    will-change:auto !important;
+  }
+
+  /* Мяу launcher: pin to the actual left/bottom content edge in idle state. */
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart{
+    left:calc(env(safe-area-inset-left, 0px) + 1px) !important;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 1px) !important;
+    transform:translate3d(0,0,0) !important;
+    animation:none !important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone:not(.tk-v44-games-open):not(.tk-v44-cinema-open) #tkCatStart .tk-cat-launch__pet{
+    animation:none !important;
+  }
+
+  /* Cartoon logo: another +10% over v47. */
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
+    width:clamp(177px, 27.6vw, 238px) !important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo img{
+    max-height:clamp(74px, 24.5vh, 122px) !important;
+  }
+  html.tk-phone-landscape-v39.tk-v44-phone #cinema #cinemaStage{
+    top:calc(max(5px, env(safe-area-inset-top, 0px)) + clamp(83px, 25.9vh, 130px)) !important;
+  }
+
+  @media (max-width:760px){
+    html.tk-phone-landscape-v39.tk-v44-phone #tkV44Logo{
+      width:clamp(165px, 26.1vw, 212px) !important;
+    }
+  }
+}
+</style>
+<script id="tk-v48-phone-landscape-stability-hotfix-script">
+(function(){
+  'use strict';
+  var html = document.documentElement;
+  var body = document.body;
+  var raf = 0;
+
+  function active(){
+    return html.classList.contains('tk-phone-landscape-v39') && html.classList.contains('tk-v44-phone');
+  }
+  function q(sel, base){ return (base || document).querySelector(sel); }
+
+  function normalize(reason){
+    if(!active()) return;
+
+    /* Old v39 logic linked the opened main menu with the cinema slider.
+       In v48 the slider is controlled only by #tkV44Logo / tk-v44-cinema-open. */
+    if(reason === 'menu'){
+      html.classList.remove('tk-v39-cinema-open','tk-v44-cinema-open');
+      if(body) body.classList.remove('tk-v39-cinema-open','tk-v44-cinema-open');
+    }
+
+    var stage = document.getElementById('cinemaStage');
+    if(stage){
+      stage.setAttribute('aria-hidden', html.classList.contains('tk-v44-cinema-open') ? 'false' : 'true');
+    }
+
+    var cat = document.getElementById('tkCatStart');
+    if(cat && !html.classList.contains('tk-v44-games-open') && !html.classList.contains('tk-v44-cinema-open')){
+      cat.hidden = false;
+      cat.removeAttribute('hidden');
+      cat.setAttribute('aria-hidden','false');
+      cat.style.removeProperty('left');
+      cat.style.removeProperty('bottom');
+      cat.style.removeProperty('transform');
+      cat.style.removeProperty('animation');
+    }
+  }
+
+  function schedule(reason){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      normalize(reason);
+      setTimeout(function(){ normalize(reason); }, 0);
+      setTimeout(function(){ normalize(reason); }, 90);
+      setTimeout(function(){ normalize(reason); }, 260);
+    });
+  }
+
+  document.addEventListener('click', function(ev){
+    if(!active()) return;
+    var t = ev.target;
+    if(!t || !t.closest) return;
+
+    if(t.closest('.menu-pill, #menuToggle, .side-nav__tab')){
+      var wasV44CinemaOpen = html.classList.contains('tk-v44-cinema-open');
+      schedule('menu');
+      if(wasV44CinemaOpen){
+        setTimeout(function(){
+          var logo = document.getElementById('tkV44Logo');
+          if(logo && html.classList.contains('tk-v44-cinema-open')){
+            try{ logo.click(); }catch(_e){}
+          }
+          schedule('menu');
+        }, 0);
+      }
+      return;
+    }
+
+    if(t.closest('#tkV44Logo')){
+      /* Keep the new v44 source of truth clean when the cartoon button is used. */
+      setTimeout(function(){ html.classList.remove('tk-v39-cinema-open'); if(body) body.classList.remove('tk-v39-cinema-open'); }, 0);
+      schedule('logo');
+      return;
+    }
+
+    if(t.closest('#tkCatStartBtn, #tkCatStart .tk-cat-launch__btn, #tkV44Games, .rules.tkqa-wrap .tkqa-head')){
+      schedule('ui');
+    }
+  }, true);
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ schedule('boot'); }, {once:true});
+  else schedule('boot');
+  window.addEventListener('load', function(){ schedule('load'); }, {once:true});
+  window.addEventListener('resize', function(){ schedule('resize'); }, {passive:true});
+  window.addEventListener('orientationchange', function(){ schedule('orientation'); setTimeout(function(){ schedule('orientation'); }, 240); }, {passive:true});
+  window.addEventListener('tk:loaderhidden', function(){ schedule('loaderhidden'); });
+  window.addEventListener('tk:licenseaccepted', function(){ schedule('licenseaccepted'); });
+  try{ new MutationObserver(function(){ schedule('mutation'); }).observe(html, {attributes:true, attributeFilter:['class']}); }catch(_e){}
+})();
+</script>
+
 </body>
 </html>
