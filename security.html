@@ -65555,5 +65555,177 @@ html.tk-v35-cinema-open .tk-v35-cinema-panel{ display:block; }
 })();
 </script>
 
+
+<!-- TK v36 accept/unlock guard: fixes freeze after "Принять и войти" without changing loader/license UI -->
+<style id="tk-v36-accept-unlock-style">
+html.tk-v36-after-accept:not(.tk-loader-preboot),
+html.tk-v36-after-accept:not(.tk-loader-preboot) body{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+html.tk-v36-after-accept:not(.tk-loader-preboot) #tkLicenseOverlay:not(.is-open){
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-v36-after-accept:not(.tk-loader-preboot) #tkLoader.is-hidden,
+html.tk-v36-after-accept:not(.tk-loader-preboot) #tkLoader[data-done="1"]{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-v36-after-accept.tk-v35-ml #tkV35Root{
+  display:block !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+}
+html.tk-v36-after-accept.tk-v35-ml.tk-v35-modal-open #tkV35Root{
+  display:none !important;
+}
+</style>
+<script id="tk-v36-accept-unlock-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var body = document.body;
+  var fired = false;
+  var timer = 0;
+
+  function cssVisible(el){
+    if(!el) return false;
+    try{
+      var cs = getComputedStyle(el);
+      return !el.hidden && cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.04;
+    }catch(_){ return false; }
+  }
+
+  function licenseIsOpen(){
+    var overlay = document.getElementById('tkLicenseOverlay');
+    if(!overlay) return false;
+    if(overlay.classList.contains('is-open')) return true;
+    if(overlay.getAttribute('aria-hidden') === 'false') return true;
+    return cssVisible(overlay) && getComputedStyle(overlay).pointerEvents !== 'none';
+  }
+
+  function loaderIsDone(){
+    var loader = document.getElementById('tkLoader');
+    if(!loader) return true;
+    return loader.dataset.done === '1' || loader.classList.contains('is-hidden') || !cssVisible(loader);
+  }
+
+  function forceCloseLicense(){
+    var overlay = document.getElementById('tkLicenseOverlay');
+    if(!overlay) return;
+    overlay.classList.remove('is-open', 'tk-license--instant');
+    overlay.setAttribute('aria-hidden','true');
+    overlay.style.setProperty('opacity','0','important');
+    overlay.style.setProperty('visibility','hidden','important');
+    overlay.style.setProperty('pointer-events','none','important');
+  }
+
+  function forceHideLoader(){
+    var loader = document.getElementById('tkLoader');
+    if(!loader) return;
+    loader.dataset.done = '1';
+    loader.classList.add('is-hidden');
+    loader.setAttribute('aria-hidden','true');
+    loader.style.setProperty('display','none','important');
+    loader.style.setProperty('opacity','0','important');
+    loader.style.setProperty('visibility','hidden','important');
+    loader.style.setProperty('pointer-events','none','important');
+  }
+
+  function clearGlobalLocks(){
+    root.classList.remove('tk-loader-preboot', 'tk-license-open');
+    if(body){
+      body.classList.remove('tk-license-open');
+      body.style.removeProperty('opacity');
+      body.style.removeProperty('visibility');
+      body.style.removeProperty('pointer-events');
+    }
+    root.classList.add('tk-v36-after-accept');
+  }
+
+  function reviveMainDom(){
+    ['.header', '#hero', '.ui', '.ui-bottom', '#cinema', '.side-nav'].forEach(function(sel){
+      var el = document.querySelector(sel);
+      if(!el) return;
+      el.style.removeProperty('opacity');
+      el.style.removeProperty('visibility');
+      el.style.removeProperty('pointer-events');
+      if(sel === '.header' || sel === '#hero' || sel === '.ui' || sel === '.ui-bottom'){
+        el.hidden = false;
+        el.removeAttribute('hidden');
+      }
+    });
+  }
+
+  function dispatchRecoveryEvents(){
+    ['tk:loaderhidden','tk:licenseaccepted','resize'].forEach(function(name){
+      try{ window.dispatchEvent(new CustomEvent(name)); }
+      catch(_){ try{ var ev=document.createEvent('Event'); ev.initEvent(name,true,true); window.dispatchEvent(ev); }catch(__){} }
+    });
+  }
+
+  function runUnlock(reason){
+    if(licenseIsOpen() && reason !== 'accept-click' && reason !== 'license-event') return;
+    forceHideLoader();
+    forceCloseLicense();
+    clearGlobalLocks();
+    reviveMainDom();
+    dispatchRecoveryEvents();
+    setTimeout(function(){
+      clearGlobalLocks();
+      forceCloseLicense();
+      reviveMainDom();
+      try{ window.dispatchEvent(new Event('resize')); }catch(_){ }
+    }, 80);
+    setTimeout(function(){
+      clearGlobalLocks();
+      forceCloseLicense();
+      reviveMainDom();
+      try{ window.dispatchEvent(new Event('resize')); }catch(_){ }
+    }, 320);
+  }
+
+  function schedule(reason){
+    clearTimeout(timer);
+    timer = setTimeout(function(){ runUnlock(reason); }, reason === 'accept-click' ? 60 : 0);
+    setTimeout(function(){ runUnlock(reason); }, 220);
+    setTimeout(function(){ runUnlock(reason); }, 700);
+    setTimeout(function(){ runUnlock(reason); }, 1400);
+  }
+
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if(t && t.closest && t.closest('#tkLicenseAccept')){
+      fired = true;
+      schedule('accept-click');
+    }
+  }, true);
+
+  window.addEventListener('tk:licenseaccepted', function(){
+    fired = true;
+    schedule('license-event');
+  });
+
+  window.addEventListener('tk:loaderhidden', function(){
+    if(fired || !licenseIsOpen()) schedule('loader-event');
+  });
+
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      if(!licenseIsOpen() && loaderIsDone()) schedule('load-postcheck');
+    }, 1200);
+  }, {once:true});
+
+  setTimeout(function(){
+    if(!licenseIsOpen() && loaderIsDone()) schedule('initial-postcheck');
+  }, 1800);
+})();
+</script>
+
 </body>
 </html>
