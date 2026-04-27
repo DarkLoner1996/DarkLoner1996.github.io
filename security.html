@@ -68261,5 +68261,96 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </script>
 <!-- TK PATCH: ultra compact Rule of Day for mobile landscape / end -->
 
+
+
+<!-- TK PATCH: lift Rule of Day above game modules on mobile landscape / start -->
+<style id="tk-ruleday-mobile-landscape-lift-v3">
+/*
+  v3: поднимаем компактное «Правило дня» выше в мобильной альбомной версии,
+  чтобы карточка не прилипала к блоку «Дополнительные игровые модули».
+  Патч стоит последним и намеренно не зависит от JS-переменной --tk-rdn-top,
+  которую ранние скрипты пересчитывают при открытии/resize.
+*/
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1400px) and (max-height: 700px){
+  html:not(.tk-phone-portrait-lock-active).tk-rdn-ultra-compact #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-mobile-landscape-v341 #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-phone-landscape-v39 #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-v44-phone #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active) #ruleGame.rdn-backdrop.is-open{
+    top:max(62px, calc(env(safe-area-inset-top, 0px) + 54px)) !important;
+    bottom:auto !important;
+    transform-origin:100% 0 !important;
+  }
+
+  html:not(.tk-phone-portrait-lock-active) #ruleGame.rdn-backdrop.is-open{
+    transform:translate3d(0,0,0) scale(1) !important;
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1400px) and (max-height: 430px){
+  html:not(.tk-phone-portrait-lock-active).tk-rdn-ultra-compact #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-mobile-landscape-v341 #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-phone-landscape-v39 #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-v44-phone #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active) #ruleGame.rdn-backdrop.is-open{
+    top:max(56px, calc(env(safe-area-inset-top, 0px) + 48px)) !important;
+    max-height:min(150px, calc(100dvh - 66px)) !important;
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1400px) and (max-height: 370px){
+  html:not(.tk-phone-portrait-lock-active).tk-rdn-ultra-compact #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-mobile-landscape-v341 #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-phone-landscape-v39 #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active).tk-v44-phone #ruleGame.rdn-backdrop,
+  html:not(.tk-phone-portrait-lock-active) #ruleGame.rdn-backdrop.is-open{
+    top:max(48px, calc(env(safe-area-inset-top, 0px) + 42px)) !important;
+    max-height:min(140px, calc(100dvh - 56px)) !important;
+  }
+}
+</style>
+<script id="tk-ruleday-mobile-landscape-lift-v3">
+(function(){
+  var root = document.documentElement;
+  var box = document.getElementById('ruleGame');
+  if(!box) return;
+
+  function isLandscapePhone(){
+    var w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return w > h && h <= 700 && w <= 1400;
+  }
+
+  function lift(){
+    if(!isLandscapePhone()) return;
+    var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var top = h <= 370 ? 48 : (h <= 430 ? 56 : 62);
+    var maxH = h <= 370 ? 140 : (h <= 430 ? 150 : 166);
+    root.classList.add('tk-rdn-ultra-compact');
+    box.style.setProperty('--tk-rdn-top', top + 'px');
+    box.style.setProperty('--rdn-bottom', 'auto');
+    box.style.setProperty('--tk-rdn-maxh', Math.min(maxH, Math.max(124, h - top - 10)) + 'px');
+    box.style.setProperty('--rdn-maxh', Math.min(maxH, Math.max(124, h - top - 10)) + 'px');
+  }
+
+  var openBtn = document.getElementById('openRuleGame');
+  if(openBtn){
+    openBtn.addEventListener('click', function(){
+      lift();
+      requestAnimationFrame(lift);
+      setTimeout(lift, 40);
+      setTimeout(lift, 180);
+    }, true);
+  }
+
+  window.addEventListener('resize', lift, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(lift, 60); setTimeout(lift, 240); }, {passive:true});
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', lift, {passive:true}); }
+  document.addEventListener('DOMContentLoaded', lift, {once:true});
+  lift();
+})();
+</script>
+<!-- TK PATCH: lift Rule of Day above game modules on mobile landscape / end -->
+
 </body>
 </html>
