@@ -68352,512 +68352,487 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </script>
 <!-- TK PATCH: lift Rule of Day above game modules on mobile landscape / end -->
 
-<!-- TK PATCH: professional compact roulette for phone landscape / start -->
-<style id="tk-roulette-phone-landscape-pro-v13">
-/*
-  v13: одна реальная рулетка, без дублирования DOM.
-  На телефонах в альбомной ориентации старый широкий popover переводится
-  в компактную премиальную карточку, а панель «Дополнительные игровые модули»
-  уходит с экрана, чтобы не спорить с рулеткой визуально.
-*/
-html.tk-roulette-phone-landscape-v13{
-  --tk-rl-card-w: min(252px, calc(100vw - 18px));
-  --tk-rl-wheel: 86px;
-  --tk-rl-gap: 7px;
-}
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock.roulette-dock{
-  width:var(--tk-rl-card-w) !important;
-  min-width:var(--tk-rl-card-w) !important;
-  max-width:var(--tk-rl-card-w) !important;
-  height:auto !important;
-  max-height:calc(100dvh - 92px) !important;
-  margin:0 !important;
-  padding:7px !important;
-  box-sizing:border-box !important;
 
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  justify-content:flex-start !important;
-  gap:7px !important;
+<!-- TK PATCH: roulette serious mobile landscape controller v14 / start -->
+<style id="tk-roulette-mobile-landscape-v14-style">
+@media (orientation: landscape) and (max-height: 680px) and (max-width: 1500px){
+  html.tk-rl-v14-phone{
+    --tk-rl14-w: 306px;
+    --tk-rl14-wheel: 98px;
+    --tk-rl14-top-card: 112px;
+    --tk-rl14-info-card: 78px;
+    --tk-rl14-radius: 22px;
+  }
+  html.tk-rl-v14-phone.tk-rl-v14-tight{
+    --tk-rl14-w: 286px;
+    --tk-rl14-wheel: 88px;
+    --tk-rl14-top-card: 104px;
+    --tk-rl14-info-card: 70px;
+    --tk-rl14-radius: 20px;
+  }
 
-  border-radius:22px !important;
-  overflow:hidden !important;
-  isolation:isolate !important;
+  /* Пока рулетка открыта, панель дополнительных модулей именно скрывается, а не масштабируется. */
+  html.tk-rl-v14-open .rules.tkqa-wrap,
+  body.tk-rl-v14-open .rules.tkqa-wrap{
+    display:flex !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    transform:translate3d(28px, 0, 0) scale(.94) !important;
+    filter:blur(.3px) saturate(.82) !important;
+    transition:opacity .14s ease, transform .16s cubic-bezier(.22,1,.36,1), visibility .14s ease !important;
+  }
 
-  background:
-    radial-gradient(130% 115% at 18% 8%, rgba(180,235,255,.17), transparent 53%),
-    radial-gradient(120% 115% at 92% 4%, rgba(255,222,134,.13), transparent 48%),
-    linear-gradient(180deg, rgba(10,35,66,.94), rgba(4,15,34,.94)) !important;
-  border:1px solid rgba(168,222,255,.24) !important;
-  box-shadow:
-    0 18px 46px rgba(0,0,0,.38),
-    0 0 0 1px rgba(120,220,255,.08),
-    inset 0 1px 0 rgba(255,255,255,.18),
-    inset 0 -18px 34px rgba(0,0,0,.16) !important;
+  html.tk-rl-v14-phone:not(.tk-rl-v14-open) #rouletteDock.tk-rl-v14-owned{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
 
-  backdrop-filter: blur(16px) saturate(1.10) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(1.10) !important;
-  transform:translate3d(0,0,0) scale(1) !important;
-  transform-origin:right top !important;
-  contain:layout paint style !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned.tk-roulette-popover-mode,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned.tk-roulette-popover-open,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned.tk-final-popover-control{
+    position:fixed !important;
+    left:auto !important;
+    right:var(--tk-rl14-right, 14px) !important;
+    top:var(--tk-rl14-top, 128px) !important;
+    bottom:auto !important;
+    width:var(--tk-rl14-w) !important;
+    min-width:var(--tk-rl14-w) !important;
+    max-width:var(--tk-rl14-w) !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:calc(100dvh - 92px) !important;
+    margin:0 !important;
+    padding:7px !important;
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    grid-template-rows:var(--tk-rl14-top-card) var(--tk-rl14-info-card) !important;
+    align-items:stretch !important;
+    justify-content:stretch !important;
+    gap:7px !important;
+    overflow:hidden !important;
+    isolation:isolate !important;
+    border-radius:var(--tk-rl14-radius) !important;
+    z-index:39080 !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    transform:translate3d(0,0,0) scale(1) !important;
+    transform-origin:right top !important;
+    background:
+      radial-gradient(120% 130% at 18% 0%, rgba(176,232,255,.18), transparent 52%),
+      radial-gradient(110% 120% at 92% 10%, rgba(255,220,132,.13), transparent 48%),
+      linear-gradient(180deg, rgba(9,36,66,.90), rgba(4,14,32,.94)) !important;
+    border:1px solid rgba(166,226,255,.26) !important;
+    box-shadow:
+      0 20px 50px rgba(0,0,0,.38),
+      0 0 0 1px rgba(120,220,255,.08),
+      0 0 28px rgba(83,190,255,.10),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -18px 38px rgba(0,0,0,.18) !important;
+    backdrop-filter:blur(16px) saturate(1.12) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(1.12) !important;
+    contain:layout paint style !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock.roulette-dock::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  border-radius:22px !important;
-  padding:1px !important;
-  background:
-    linear-gradient(135deg, rgba(255,244,201,.88), rgba(111,218,255,.34), rgba(255,255,255,.10), rgba(255,205,106,.50)) !important;
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
-  -webkit-mask-composite:xor !important;
-  mask-composite:exclude !important;
-  opacity:.74 !important;
-  pointer-events:none !important;
-  z-index:2 !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned::before{
+    content:"" !important;
+    position:absolute !important;
+    inset:0 !important;
+    border-radius:var(--tk-rl14-radius) !important;
+    padding:1px !important;
+    background:linear-gradient(135deg, rgba(255,244,201,.86), rgba(92,209,255,.34), rgba(255,255,255,.10), rgba(255,205,106,.46)) !important;
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+    -webkit-mask-composite:xor !important;
+    mask-composite:exclude !important;
+    pointer-events:none !important;
+    opacity:.78 !important;
+    z-index:2 !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock.roulette-dock::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:-28% !important;
-  background:
-    radial-gradient(5px 5px at 18% 22%, rgba(255,255,255,.28), transparent 70%),
-    radial-gradient(4px 4px at 84% 20%, rgba(120,230,255,.24), transparent 72%),
-    linear-gradient(118deg, transparent 0 42%, rgba(255,255,255,.08) 50%, transparent 61%) !important;
-  opacity:.68 !important;
-  mix-blend-mode:screen !important;
-  pointer-events:none !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned::after{
+    content:"" !important;
+    position:absolute !important;
+    inset:-24% !important;
+    background:
+      radial-gradient(5px 5px at 17% 21%, rgba(255,255,255,.26), transparent 72%),
+      radial-gradient(4px 4px at 86% 18%, rgba(112,222,255,.23), transparent 70%),
+      linear-gradient(118deg, transparent 0 42%, rgba(255,255,255,.08) 50%, transparent 61%) !important;
+    opacity:.68 !important;
+    pointer-events:none !important;
+    mix-blend-mode:screen !important;
+    z-index:1 !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock[hidden],
-html.tk-roulette-phone-landscape-v13 #rouletteDock[aria-hidden="true"]:not(.tk-roulette-popover-open):not(.tk-rl-mobile-open){
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-spark,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-burst,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-mini,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-ghostRow,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned #rouletteReset,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-history{
+    display:none !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-card,
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-info{
-  position:relative !important;
-  z-index:3 !important;
-  width:100% !important;
-  min-width:0 !important;
-  max-width:100% !important;
-  box-sizing:border-box !important;
-  border-radius:17px !important;
-  overflow:hidden !important;
-  background:
-    radial-gradient(120% 120% at 14% 10%, rgba(255,255,255,.13), transparent 58%),
-    radial-gradient(120% 110% at 90% 0%, rgba(93,202,255,.11), transparent 58%),
-    linear-gradient(180deg, rgba(12,44,76,.62), rgba(5,21,43,.58)) !important;
-  border:1px solid rgba(255,255,255,.15) !important;
-  box-shadow:
-    0 10px 24px rgba(0,0,0,.20),
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-  transform:none !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-card,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-info{
+    position:relative !important;
+    z-index:3 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+    border-radius:17px !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    transform:none !important;
+    background:
+      radial-gradient(120% 145% at 14% 8%, rgba(255,255,255,.15), transparent 56%),
+      radial-gradient(120% 110% at 90% 0%, rgba(92,204,255,.12), transparent 58%),
+      linear-gradient(180deg, rgba(12,44,76,.64), rgba(5,20,42,.66)) !important;
+    border:1px solid rgba(255,255,255,.15) !important;
+    box-shadow:
+      0 10px 24px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.13) !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-card::before,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-info::before{
+    border-radius:17px !important;
+    padding:1px !important;
+    opacity:.70 !important;
+    background:linear-gradient(135deg, rgba(255,244,201,.70), rgba(120,230,255,.23), rgba(255,255,255,.08)) !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-card::before,
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-info::before{
-  border-radius:17px !important;
-  padding:1px !important;
-  background:linear-gradient(135deg, rgba(255,244,201,.72), rgba(120,230,255,.22), rgba(255,255,255,.08)) !important;
-  opacity:.66 !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-card{
+    grid-row:1 !important;
+    min-height:var(--tk-rl14-top-card) !important;
+    max-height:var(--tk-rl14-top-card) !important;
+    display:grid !important;
+    grid-template-columns:calc(var(--tk-rl14-wheel) + 12px) minmax(0, 1fr) !important;
+    align-items:center !important;
+    justify-content:stretch !important;
+    gap:7px !important;
+    padding:8px 9px !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-card{
-  display:grid !important;
-  grid-template-columns:var(--tk-rl-wheel) minmax(0,1fr) !important;
-  align-items:center !important;
-  justify-content:stretch !important;
-  gap:8px !important;
-  padding:8px 9px !important;
-  min-height:104px !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-wrap,
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-rot{
+    width:var(--tk-rl14-wheel) !important;
+    height:var(--tk-rl14-wheel) !important;
+    min-width:var(--tk-rl14-wheel) !important;
+    min-height:var(--tk-rl14-wheel) !important;
+    max-width:var(--tk-rl14-wheel) !important;
+    max-height:var(--tk-rl14-wheel) !important;
+    flex:0 0 var(--tk-rl14-wheel) !important;
+    margin:0 auto !important;
+    padding:0 !important;
+    grid-column:1 !important;
+    grid-row:1 !important;
+    transform-origin:50% 50% !important;
+    overflow:visible !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-wrap{
+    border-radius:999px !important;
+    background:
+      radial-gradient(closest-side, rgba(104,220,255,.12), transparent 64%),
+      linear-gradient(180deg, rgba(5,18,40,.64), rgba(2,10,24,.72)) !important;
+    border:1px solid rgba(176,235,255,.18) !important;
+    box-shadow:
+      0 12px 25px rgba(0,0,0,.28),
+      0 0 18px rgba(84,199,255,.12),
+      inset 0 1px 0 rgba(255,255,255,.14) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned canvas#wheel{
+    width:100% !important;
+    height:100% !important;
+    display:block !important;
+    margin:0 !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-ring{ inset:-1px !important; opacity:.64 !important; }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-glow{ inset:-8px !important; opacity:.18 !important; }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-center{
+    left:50% !important;
+    top:50% !important;
+    right:auto !important;
+    bottom:auto !important;
+    width:27px !important;
+    height:27px !important;
+    min-width:27px !important;
+    min-height:27px !important;
+    transform:translate(-50%, -50%) !important;
+    margin:0 !important;
+    font-size:0 !important;
+    box-shadow:0 8px 17px rgba(0,0,0,.20), 0 0 18px rgba(108,220,255,.18), inset 0 1px 0 rgba(255,255,255,.22) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-pointer{
+    top:-5px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+    border-left:7px solid transparent !important;
+    border-right:7px solid transparent !important;
+    border-bottom:11px solid rgba(255,236,174,.96) !important;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.26)) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .wheel-pointer::after{
+    left:-6px !important;
+    top:3px !important;
+    border-left:6px solid transparent !important;
+    border-right:6px solid transparent !important;
+    border-bottom:8px solid rgba(93,206,255,.40) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned #rouletteSound{
+    position:absolute !important;
+    right:-3px !important;
+    bottom:-3px !important;
+    left:auto !important;
+    top:auto !important;
+    width:31px !important;
+    height:31px !important;
+    min-width:31px !important;
+    min-height:31px !important;
+    padding:0 !important;
+    border-radius:12px !important;
+    font-size:14px !important;
+    display:grid !important;
+    place-items:center !important;
+    z-index:8 !important;
+  }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-wrap,
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-rot{
-  width:var(--tk-rl-wheel) !important;
-  height:var(--tk-rl-wheel) !important;
-  min-width:var(--tk-rl-wheel) !important;
-  min-height:var(--tk-rl-wheel) !important;
-  max-width:var(--tk-rl-wheel) !important;
-  max-height:var(--tk-rl-wheel) !important;
-  flex:0 0 var(--tk-rl-wheel) !important;
-  margin:0 !important;
-  padding:0 !important;
-  overflow:visible !important;
-  transform-origin:50% 50% !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-controls{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:stretch !important;
+    gap:6px !important;
+    padding:0 28px 0 0 !important;
+    box-sizing:border-box !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-head{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) 34px !important;
+    align-items:center !important;
+    gap:6px !important;
+    width:100% !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-title{
+    font-family:"Russo One", Inter, system-ui, sans-serif !important;
+    font-size:14px !important;
+    line-height:1.02 !important;
+    font-weight:900 !important;
+    letter-spacing:.075em !important;
+    text-transform:uppercase !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    color:rgba(255,248,221,.98) !important;
+    text-shadow:0 8px 16px rgba(0,0,0,.34) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-sub{
+    margin-top:2px !important;
+    font-family:Inter, "Segoe UI", Arial, sans-serif !important;
+    font-size:8px !important;
+    line-height:1 !important;
+    font-weight:900 !important;
+    letter-spacing:.13em !important;
+    text-transform:uppercase !important;
+    color:rgba(221,242,255,.82) !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-meter{
+    width:34px !important;
+    height:34px !important;
+    min-width:34px !important;
+    min-height:34px !important;
+    border-radius:13px !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-meter .meter-ring{ inset:5px !important; }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-meter .meter-text{
+    font-family:Inter, "Segoe UI", Arial, sans-serif !important;
+    font-size:8px !important;
+    line-height:1 !important;
+    font-weight:1000 !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned #spinBtn{
+    width:100% !important;
+    height:31px !important;
+    min-height:31px !important;
+    max-height:31px !important;
+    padding:0 10px !important;
+    border-radius:14px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:6px !important;
+    font-family:Inter, "Segoe UI", Arial, sans-serif !important;
+    font-size:9px !important;
+    line-height:1 !important;
+    font-weight:1000 !important;
+    letter-spacing:.055em !important;
+    text-transform:uppercase !important;
+    white-space:nowrap !important;
+    border:1px solid rgba(255,255,255,.20) !important;
+    background:radial-gradient(120% 130% at 18% 16%, rgba(255,255,255,.23), transparent 58%), linear-gradient(135deg, rgba(88,204,255,.98), rgba(31,123,238,.98)) !important;
+    box-shadow:0 10px 18px rgba(0,0,0,.26), 0 0 14px rgba(64,180,255,.14), inset 0 1px 0 rgba(255,255,255,.22) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned #spinBtn svg{ width:11px !important; height:11px !important; }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-wrap{
-  border-radius:999px !important;
-  background:
-    radial-gradient(closest-side, rgba(104,220,255,.13), transparent 64%),
-    linear-gradient(180deg, rgba(5,18,40,.64), rgba(2,10,24,.72)) !important;
-  border:1px solid rgba(176,235,255,.18) !important;
-  box-shadow:
-    0 10px 22px rgba(0,0,0,.26),
-    0 0 16px rgba(86,198,255,.09),
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-}
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-info{
+    grid-row:2 !important;
+    min-height:var(--tk-rl14-info-card) !important;
+    max-height:var(--tk-rl14-info-card) !important;
+    padding:8px 9px 8px !important;
+    display:grid !important;
+    grid-template-columns:minmax(0, 1fr) 86px !important;
+    grid-template-rows:17px minmax(0, 1fr) !important;
+    column-gap:8px !important;
+    row-gap:5px !important;
+    align-items:center !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-infoHead{
+    grid-column:1 / 2 !important;
+    grid-row:1 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:6px !important;
+    min-width:0 !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-infoBadge{
+    height:17px !important;
+    min-height:17px !important;
+    padding:0 8px !important;
+    border-radius:999px !important;
+    font-family:Inter, "Segoe UI", Arial, sans-serif !important;
+    font-size:7px !important;
+    line-height:17px !important;
+    font-weight:1000 !important;
+    letter-spacing:.09em !important;
+    white-space:nowrap !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-streak{
+    position:absolute !important;
+    right:8px !important;
+    top:8px !important;
+    width:36px !important;
+    height:24px !important;
+    min-width:36px !important;
+    border-radius:12px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:0 !important;
+    font-size:8px !important;
+    font-weight:1000 !important;
+    z-index:6 !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-infoTitle{
+    grid-column:1 / 2 !important;
+    grid-row:2 !important;
+    align-self:start !important;
+    margin:0 !important;
+    font-family:Inter, "Segoe UI", Arial, sans-serif !important;
+    font-size:10.8px !important;
+    line-height:1.12 !important;
+    font-weight:1000 !important;
+    letter-spacing:.005em !important;
+    color:rgba(255,255,255,.96) !important;
+    text-shadow:0 8px 15px rgba(0,0,0,.30) !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    overflow:hidden !important;
+    max-height:25px !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-infoText{
+    display:none !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-infoActions{
+    grid-column:2 !important;
+    grid-row:1 / 3 !important;
+    align-self:end !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned #rLink{
+    width:100% !important;
+    min-width:0 !important;
+    height:32px !important;
+    min-height:32px !important;
+    padding:0 9px !important;
+    border-radius:14px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:5px !important;
+    font-family:Inter, "Segoe UI", Arial, sans-serif !important;
+    font-size:8.8px !important;
+    line-height:1 !important;
+    font-weight:1000 !important;
+    letter-spacing:.055em !important;
+    text-transform:uppercase !important;
+    white-space:nowrap !important;
+    color:#fff !important;
+    background:radial-gradient(120% 130% at 18% 16%, rgba(255,255,255,.22), transparent 60%), linear-gradient(135deg, rgba(99,231,174,.98), rgba(35,176,103,.96)) !important;
+    box-shadow:0 10px 18px rgba(0,0,0,.24), 0 0 12px rgba(81,230,164,.14), inset 0 1px 0 rgba(255,255,255,.22) !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned #rLink svg{ width:10px !important; height:10px !important; }
 
-html.tk-roulette-phone-landscape-v13 #rouletteDock canvas#wheel{
-  position:relative !important;
-  width:100% !important;
-  height:100% !important;
-  display:block !important;
-  margin:0 !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-ring{
-  inset:-1px !important;
-  opacity:.58 !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-glow{
-  inset:-8px !important;
-  opacity:.18 !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-center{
-  left:50% !important;
-  top:50% !important;
-  right:auto !important;
-  bottom:auto !important;
-  width:26px !important;
-  height:26px !important;
-  min-width:26px !important;
-  min-height:26px !important;
-  font-size:0 !important;
-  transform:translate(-50%, -50%) !important;
-  margin:0 !important;
-  box-shadow:
-    0 8px 16px rgba(0,0,0,.18),
-    0 0 18px rgba(108,220,255,.18),
-    inset 0 1px 0 rgba(255,255,255,.22) !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-pointer{
-  top:-5px !important;
-  left:50% !important;
-  transform:translateX(-50%) !important;
-  border-left:7px solid transparent !important;
-  border-right:7px solid transparent !important;
-  border-bottom:11px solid rgba(255,236,174,.96) !important;
-  filter:drop-shadow(0 6px 10px rgba(0,0,0,.26)) !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock .wheel-pointer::after{
-  left:-6px !important;
-  top:3px !important;
-  border-left:6px solid transparent !important;
-  border-right:6px solid transparent !important;
-  border-bottom:8px solid rgba(93,206,255,.40) !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock #rouletteSound{
-  position:absolute !important;
-  right:-3px !important;
-  bottom:-3px !important;
-  left:auto !important;
-  top:auto !important;
-  width:31px !important;
-  height:31px !important;
-  min-width:31px !important;
-  min-height:31px !important;
-  padding:0 !important;
-  border-radius:12px !important;
-  font-size:14px !important;
-  z-index:8 !important;
-  display:grid !important;
-  place-items:center !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-controls{
-  display:flex !important;
-  flex-direction:column !important;
-  justify-content:center !important;
-  align-items:stretch !important;
-  gap:6px !important;
-  min-width:0 !important;
-  width:auto !important;
-  padding:0 26px 0 0 !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-head{
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) 36px !important;
-  align-items:start !important;
-  gap:6px !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-title{
-  font-family:"Handjet","Russo One",system-ui,sans-serif !important;
-  font-size:23px !important;
-  font-weight:900 !important;
-  line-height:.78 !important;
-  letter-spacing:.018em !important;
-  color:#f8fbff !important;
-  text-transform:uppercase !important;
-  max-width:100% !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.10),
-    1px 1px 0 rgba(7,18,34,.95),
-    2px 2px 0 rgba(7,18,34,.76),
-    0 8px 16px rgba(0,0,0,.30) !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-sub{
-  margin-top:2px !important;
-  font-family:"Russo One",system-ui,sans-serif !important;
-  font-size:8px !important;
-  line-height:1 !important;
-  letter-spacing:.13em !important;
-  color:rgba(225,246,255,.78) !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-meter{
-  width:34px !important;
-  height:34px !important;
-  min-width:34px !important;
-  min-height:34px !important;
-  border-radius:13px !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-meter .meter-ring{
-  inset:5px !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-meter::after{
-  inset:9px !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-meter .meter-text{
-  font-size:8px !important;
-  letter-spacing:.02em !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock #spinBtn{
-  width:100% !important;
-  min-width:0 !important;
-  min-height:32px !important;
-  height:32px !important;
-  padding:0 10px !important;
-  border-radius:14px !important;
-  gap:6px !important;
-  font-size:9.5px !important;
-  line-height:1 !important;
-  letter-spacing:.08em !important;
-  white-space:nowrap !important;
-  box-shadow:
-    0 10px 20px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.16) !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock #spinBtn svg{
-  width:13px !important;
-  height:13px !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-mini,
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-ghostRow,
-html.tk-roulette-phone-landscape-v13 #rouletteDock #rouletteReset,
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-history{
-  display:none !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-info{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  justify-content:flex-start !important;
-  gap:5px !important;
-  min-height:82px !important;
-  padding:8px 9px 9px !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-infoHead{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  gap:6px !important;
-  min-height:18px !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-infoBadge{
-  height:18px !important;
-  min-height:18px !important;
-  padding:0 7px !important;
-  border-radius:999px !important;
-  gap:5px !important;
-  font-size:7.5px !important;
-  line-height:18px !important;
-  letter-spacing:.10em !important;
-  white-space:nowrap !important;
-  max-width:120px !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-infoBadge .dot{
-  width:5px !important;
-  height:5px !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-streak{
-  height:18px !important;
-  min-height:18px !important;
-  padding:0 7px !important;
-  border-radius:999px !important;
-  font-size:8px !important;
-  line-height:18px !important;
-  letter-spacing:.05em !important;
-  white-space:nowrap !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-infoTitle{
-  font-family:"Russo One",system-ui,sans-serif !important;
-  font-size:10.8px !important;
-  line-height:1.13 !important;
-  letter-spacing:.005em !important;
-  color:rgba(248,252,255,.96) !important;
-  max-height:25px !important;
-  overflow:hidden !important;
-  display:-webkit-box !important;
-  -webkit-line-clamp:2 !important;
-  -webkit-box-orient:vertical !important;
-  text-shadow:0 8px 18px rgba(0,0,0,.30) !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-infoText{
-  font-size:9.2px !important;
-  line-height:1.18 !important;
-  color:rgba(232,244,255,.78) !important;
-  max-height:22px !important;
-  overflow:hidden !important;
-  display:-webkit-box !important;
-  -webkit-line-clamp:2 !important;
-  -webkit-box-orient:vertical !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-infoActions{
-  display:flex !important;
-  width:100% !important;
-  align-items:center !important;
-  justify-content:stretch !important;
-  gap:6px !important;
-  margin:1px 0 0 !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock #rLink{
-  flex:1 1 auto !important;
-  width:100% !important;
-  min-width:0 !important;
-  min-height:30px !important;
-  height:30px !important;
-  padding:0 10px !important;
-  border-radius:14px !important;
-  justify-content:center !important;
-  gap:5px !important;
-  font-size:9px !important;
-  line-height:1 !important;
-  letter-spacing:.08em !important;
-  white-space:nowrap !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock #rLink svg{
-  width:12px !important;
-  height:12px !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-close-x{
-  top:7px !important;
-  right:7px !important;
-  width:28px !important;
-  height:28px !important;
-  min-width:28px !important;
-  min-height:28px !important;
-  border-radius:12px !important;
-  z-index:20 !important;
-  padding:0 !important;
-  display:grid !important;
-  place-items:center !important;
-  background:
-    radial-gradient(120% 120% at 25% 20%, rgba(255,255,255,.18), transparent 58%),
-    linear-gradient(180deg, rgba(18,61,100,.78), rgba(6,22,48,.80)) !important;
-}
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-close-x svg{
-  width:13px !important;
-  height:13px !important;
-  stroke-width:3 !important;
-}
-
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-spark,
-html.tk-roulette-phone-landscape-v13 #rouletteDock .roulette-burst{
-  pointer-events:none !important;
-}
-
-/* В момент открытия рулетки правая панель модулей уходит, а не растягивается и не конкурирует с карточкой. */
-html.tk-roulette-phone-landscape-v13.tk-roulette-mobile-open .rules.tkqa-wrap{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-  transform:translate3d(26px,0,0) scale(.92) !important;
-  filter:blur(.5px) saturate(.88) !important;
-  transition:opacity .16s ease, transform .18s cubic-bezier(.22,1,.36,1), visibility .16s ease !important;
-}
-
-/* Очень низкие экраны: ещё компактнее, но без обрезания текста. */
-html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight{
-  --tk-rl-card-w:min(232px, calc(100vw - 16px));
-  --tk-rl-wheel:78px;
-}
-html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight #rouletteDock.roulette-dock{
-  padding:6px !important;
-  gap:6px !important;
-  border-radius:20px !important;
-}
-html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight #rouletteDock .roulette-card{
-  min-height:94px !important;
-  padding:7px 8px !important;
-  gap:7px !important;
-}
-html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight #rouletteDock .roulette-title{
-  font-size:21px !important;
-}
-html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight #rouletteDock .roulette-info{
-  min-height:76px !important;
-  padding:7px 8px 8px !important;
-}
-html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight #rouletteDock .roulette-infoText{
-  display:none !important;
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-close-x{
+    position:absolute !important;
+    top:9px !important;
+    right:9px !important;
+    left:auto !important;
+    width:29px !important;
+    height:29px !important;
+    min-width:29px !important;
+    min-height:29px !important;
+    padding:0 !important;
+    border-radius:12px !important;
+    display:grid !important;
+    place-items:center !important;
+    z-index:10 !important;
+    opacity:.96 !important;
+  }
+  html.tk-rl-v14-open #rouletteDock.tk-rl-v14-owned .roulette-close-x svg{
+    width:13px !important;
+    height:13px !important;
+  }
 }
 </style>
 
-<script id="tk-roulette-phone-landscape-pro-v13-script">
+<script id="tk-roulette-mobile-landscape-v14-script">
 (function(){
   var root = document.documentElement;
   var body = document.body;
   var dock = document.getElementById('rouletteDock');
   var modules = document.querySelector('.rules.tkqa-wrap');
-  var trigger = document.getElementById('tkqaOpenRoulette');
-  var legacyTrigger = document.getElementById('openRouletteDockPopover');
-  var closeBtn = document.getElementById('closeRouletteDock');
-  var link = document.getElementById('rLink');
-  var spin = document.getElementById('spinBtn');
   if(!dock) return;
 
-  var lastModulesWereOpen = false;
+  var visualTrigger = null;
+  var triggerRenameTimer = 0;
   var raf = 0;
-  var closeTimer = 0;
+  var lastToggleAt = 0;
+  var wasModulesOpen = false;
+  var wasModulesCollapsed = false;
 
   function vv(){
     var v = window.visualViewport;
@@ -68867,209 +68842,285 @@ html.tk-roulette-phone-landscape-v13.tk-rl-extra-tight #rouletteDock .roulette-i
     };
   }
 
-  function isLandscapePhone(){
+  function isPhoneLandscape(){
     var v = vv();
     var coarse = false;
     try{ coarse = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }
     catch(_){ coarse = (navigator.maxTouchPoints || 0) > 0; }
-
-    var uaPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent || '');
-    var classHint =
-      root.classList.contains('tk-phone-landscape-v39') ||
-      root.classList.contains('tk-v44-phone') ||
-      root.classList.contains('tk-mobile-landscape-v341');
-
-    return v.w > v.h && v.h <= 640 && v.w <= 1400 && (coarse || uaPhone || classHint || v.h <= 520);
+    var ua = /Android|iPhone|iPod|Mobile|Huawei|HONOR|Samsung|Xiaomi|Redmi|OPPO|Vivo/i.test(navigator.userAgent || '');
+    var hint = root.classList.contains('tk-phone-landscape-v39') || root.classList.contains('tk-v44-phone') || root.classList.contains('tk-mobile-landscape-v341');
+    return v.w > v.h && v.h <= 680 && v.w <= 1500 && (coarse || ua || hint || v.h <= 560);
   }
 
-  function isDockVisiblyOpen(){
-    if(!dock) return false;
-    if(dock.hidden) return false;
-    var aria = dock.getAttribute('aria-hidden');
-    if(aria === 'false') return true;
-    if(dock.classList.contains('tk-roulette-popover-open')) return true;
-    if(dock.classList.contains('tk-rl-mobile-open')) return true;
-    try{
-      var cs = getComputedStyle(dock);
-      return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '0') > .1;
-    }catch(_){ return false; }
+  function findTrigger(){
+    return document.querySelector('[data-tk-rl-v14-trigger="1"]') || document.getElementById('tkqaOpenRoulette');
   }
 
-  function rememberModulesState(){
-    if(!modules) return;
-    if(modules.__tkRlRemembered) return;
-    modules.__tkRlRemembered = '1';
-    lastModulesWereOpen = modules.classList.contains('is-open') && !modules.classList.contains('is-collapsed');
-  }
-
-  function restoreModulesState(){
-    if(!modules) return;
-    modules.__tkRlRemembered = '';
-    if(lastModulesWereOpen && isLandscapePhone()){
-      modules.classList.add('is-open');
-      modules.classList.remove('is-collapsed');
+  function setupTrigger(){
+    var t = findTrigger();
+    if(!t) return null;
+    visualTrigger = t;
+    t.setAttribute('data-tk-rl-v14-trigger','1');
+    /* Ключевой фикс запуска: на phone landscape убираем id, который перехватывает старый v39 document-click handler. */
+    if(isPhoneLandscape()){
+      if(t.id === 'tkqaOpenRoulette'){
+        t.setAttribute('data-tk-rl-v14-old-id','tkqaOpenRoulette');
+        t.id = 'tkqaOpenRouletteMobileV14';
+      }
+    }else{
+      if(t.id === 'tkqaOpenRouletteMobileV14'){
+        t.id = 'tkqaOpenRoulette';
+      }
     }
+    return t;
   }
 
-  function applyRootMode(){
-    var on = isLandscapePhone();
-    root.classList.toggle('tk-roulette-phone-landscape-v13', on);
-    root.classList.toggle('tk-rl-extra-tight', on && vv().h <= 390);
+  function updateMode(){
+    var on = isPhoneLandscape();
+    root.classList.toggle('tk-rl-v14-phone', on);
+    root.classList.toggle('tk-rl-v14-tight', on && vv().h <= 390);
     if(body){
-      body.classList.toggle('tk-roulette-phone-landscape-v13', on);
-      body.classList.toggle('tk-rl-extra-tight', on && vv().h <= 390);
+      body.classList.toggle('tk-rl-v14-phone', on);
+      body.classList.toggle('tk-rl-v14-tight', on && vv().h <= 390);
     }
+    setupTrigger();
     return on;
   }
 
-  function forceBoxVisible(){
+  function setImportant(el, prop, value){
+    if(el) el.style.setProperty(prop, value, 'important');
+  }
+
+  function rememberModules(){
+    if(!modules || modules.getAttribute('data-tk-rl-v14-remembered') === '1') return;
+    modules.setAttribute('data-tk-rl-v14-remembered','1');
+    wasModulesOpen = modules.classList.contains('is-open');
+    wasModulesCollapsed = modules.classList.contains('is-collapsed');
+  }
+
+  function hideModules(){
+    if(!modules) return;
+    rememberModules();
+    modules.classList.add('tk-rl-v14-hidden','is-collapsed');
+    modules.classList.remove('is-open');
+    modules.setAttribute('aria-hidden','true');
+  }
+
+  function restoreModules(){
+    if(!modules) return;
+    modules.classList.remove('tk-rl-v14-hidden');
+    modules.setAttribute('aria-hidden','false');
+    if(wasModulesOpen && !wasModulesCollapsed){
+      modules.classList.add('is-open');
+      modules.classList.remove('is-collapsed');
+    }else{
+      modules.classList.remove('is-open');
+      modules.classList.add('is-collapsed');
+    }
+    modules.removeAttribute('data-tk-rl-v14-remembered');
+  }
+
+  function setOpenClasses(open){
+    root.classList.toggle('tk-rl-v14-open', open);
+    root.classList.add('tk-rl-v14-phone');
+    if(body){
+      body.classList.toggle('tk-rl-v14-open', open);
+      body.classList.add('tk-rl-v14-phone');
+    }
+    dock.classList.add('tk-rl-v14-owned','tk-roulette-popover-mode','tk-final-popover-control');
+    dock.classList.toggle('tk-roulette-popover-open', open);
+    dock.classList.toggle('tk-rl-v14-open-dock', open);
+    root.classList.add('tk-roulette-user-opened');
+  }
+
+  function placeDock(){
+    if(!isPhoneLandscape() || !root.classList.contains('tk-rl-v14-open')) return;
+    var v = vv();
+    var tight = v.h <= 390 || v.w <= 780;
+    root.classList.toggle('tk-rl-v14-tight', tight);
+    if(body) body.classList.toggle('tk-rl-v14-tight', tight);
+
+    var w = tight ? Math.min(286, Math.max(260, Math.round(v.w * 0.31))) : Math.min(316, Math.max(288, Math.round(v.w * 0.32)));
+    var wheel = tight ? 88 : 98;
+    var totalH = (tight ? 104 + 70 : 112 + 78) + 21;
+    var minTop = Math.max(76, Math.round(v.h * 0.25));
+    var desiredTop = Math.round(v.h * (tight ? 0.31 : 0.32));
+    var top = Math.max(minTop, Math.min(desiredTop, Math.max(minTop, v.h - totalH - 12)));
+    var right = Math.max(12, Math.min(18, Math.round(v.w * 0.016)));
+
+    root.style.setProperty('--tk-rl14-w', w + 'px');
+    root.style.setProperty('--tk-rl14-wheel', wheel + 'px');
+    root.style.setProperty('--tk-rl14-right', right + 'px');
+    root.style.setProperty('--tk-rl14-top', top + 'px');
+
+    setImportant(dock, 'position', 'fixed');
+    setImportant(dock, 'right', right + 'px');
+    setImportant(dock, 'left', 'auto');
+    setImportant(dock, 'top', top + 'px');
+    setImportant(dock, 'bottom', 'auto');
+  }
+
+  function showDock(){
     dock.hidden = false;
     dock.removeAttribute('hidden');
     dock.setAttribute('aria-hidden','false');
-    dock.classList.add('tk-roulette-popover-open','tk-rl-mobile-open');
-    dock.style.setProperty('position','fixed','important');
-    dock.style.setProperty('display','flex','important');
-    dock.style.setProperty('opacity','1','important');
-    dock.style.setProperty('visibility','visible','important');
-    dock.style.setProperty('pointer-events','auto','important');
-    dock.style.setProperty('bottom','auto','important');
-    dock.style.setProperty('margin','0','important');
-    dock.style.setProperty('transform','translate3d(0,0,0) scale(1)','important');
-    dock.style.setProperty('transform-origin','right top','important');
-    dock.style.setProperty('z-index','15140','important');
-    if(trigger) trigger.setAttribute('aria-expanded','true');
-    if(legacyTrigger) legacyTrigger.setAttribute('aria-expanded','true');
+    setOpenClasses(true);
+    setImportant(dock, 'display', 'grid');
+    setImportant(dock, 'visibility', 'visible');
+    setImportant(dock, 'opacity', '1');
+    setImportant(dock, 'pointer-events', 'auto');
+    setImportant(dock, 'transform', 'translate3d(0,0,0) scale(1)');
+    placeDock();
+    if(visualTrigger) visualTrigger.setAttribute('aria-expanded','true');
+    var legacy = document.getElementById('openRouletteDockPopover');
+    if(legacy) legacy.setAttribute('aria-expanded','true');
   }
 
-  function positionDock(){
-    if(!applyRootMode() || !isDockVisiblyOpen()) return;
-    forceBoxVisible();
-
-    var v = vv();
-    var rect = dock.getBoundingClientRect();
-    var h = Math.max(150, Math.round(rect.height || dock.offsetHeight || 198));
-    var safeTop = Math.max(74, Math.round(v.h * 0.22));
-    var top = Math.round(v.h * 0.34);
-    top = Math.max(safeTop, Math.min(top, Math.max(safeTop, v.h - h - 12)));
-    var right = Math.max(8, Math.round(Math.min(14, v.w * 0.014)));
-
-    dock.style.setProperty('right', right + 'px', 'important');
-    dock.style.setProperty('left', 'auto', 'important');
-    dock.style.setProperty('top', top + 'px', 'important');
-
-    root.classList.add('tk-roulette-mobile-open');
-    if(body) body.classList.add('tk-roulette-mobile-open');
-    rememberModulesState();
+  function openMobile(){
+    if(!updateMode()) return false;
+    setupTrigger();
+    hideModules();
+    showDock();
+    setTimeout(placeDock, 0);
+    setTimeout(placeDock, 80);
+    setTimeout(placeDock, 260);
+    return true;
   }
 
-  function closeMobileState(){
-    if(closeTimer) clearTimeout(closeTimer);
-    closeTimer = setTimeout(function(){
-      closeTimer = 0;
-      if(isDockVisiblyOpen()) return;
-      root.classList.remove('tk-roulette-mobile-open');
-      if(body) body.classList.remove('tk-roulette-mobile-open');
-      dock.classList.remove('tk-rl-mobile-open','is-open');
-      if(trigger) trigger.setAttribute('aria-expanded','false');
-      if(legacyTrigger) legacyTrigger.setAttribute('aria-expanded','false');
-      restoreModulesState();
-    }, 35);
-  }
-
-  function hardCloseMobile(){
-    dock.classList.remove('tk-roulette-popover-open','tk-rl-mobile-open','is-open');
+  function closeMobile(){
+    setOpenClasses(false);
     dock.hidden = true;
     dock.setAttribute('aria-hidden','true');
-    dock.style.setProperty('display','none','important');
-    dock.style.setProperty('opacity','0','important');
-    dock.style.setProperty('visibility','hidden','important');
-    dock.style.setProperty('pointer-events','none','important');
-    dock.style.setProperty('left','-9999px','important');
-    dock.style.setProperty('right','auto','important');
-    dock.style.setProperty('top','12px','important');
-    root.classList.remove('tk-roulette-mobile-open');
-    if(body) body.classList.remove('tk-roulette-mobile-open');
-    if(trigger) trigger.setAttribute('aria-expanded','false');
-    if(legacyTrigger) legacyTrigger.setAttribute('aria-expanded','false');
-    restoreModulesState();
+    setImportant(dock, 'display', 'none');
+    setImportant(dock, 'visibility', 'hidden');
+    setImportant(dock, 'opacity', '0');
+    setImportant(dock, 'pointer-events', 'none');
+    setImportant(dock, 'left', '-9999px');
+    setImportant(dock, 'right', 'auto');
+    setImportant(dock, 'top', '12px');
+    setImportant(dock, 'bottom', 'auto');
+    restoreModules();
+    if(visualTrigger) visualTrigger.setAttribute('aria-expanded','false');
+    var legacy = document.getElementById('openRouletteDockPopover');
+    if(legacy) legacy.setAttribute('aria-expanded','false');
+  }
+
+  function toggleMobile(){
+    if(root.classList.contains('tk-rl-v14-open')) closeMobile();
+    else openMobile();
+  }
+
+  function eat(ev){
+    try{ ev.preventDefault(); }catch(_){ }
+    try{ ev.stopPropagation(); }catch(_){ }
+    try{ ev.stopImmediatePropagation(); }catch(_){ }
   }
 
   function schedule(){
-    applyRootMode();
+    updateMode();
     if(raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(function(){
       raf = 0;
-      if(isLandscapePhone() && isDockVisiblyOpen()) positionDock();
-      else closeMobileState();
+      if(root.classList.contains('tk-rl-v14-open')) placeDock();
     });
   }
 
-  function afterOpen(){
-    applyRootMode();
-    setTimeout(schedule, 0);
-    setTimeout(schedule, 35);
-    setTimeout(schedule, 120);
-    setTimeout(schedule, 260);
+  /* Ранний mobile-путь: pointer/touch открывает рулетку до старого click-перехватчика. */
+  function earlyPointer(ev){
+    var target = ev.target && ev.target.closest ? ev.target.closest('[data-tk-rl-v14-trigger="1"], #tkqaOpenRoulette') : null;
+    if(!target || !isPhoneLandscape()) return;
+    setupTrigger();
+    eat(ev);
+    var now = Date.now();
+    if(now - lastToggleAt > 280){
+      lastToggleAt = now;
+      toggleMobile();
+    }
   }
 
-  [trigger, legacyTrigger].forEach(function(el){
-    if(!el || el.__tkRlProV13) return;
-    el.__tkRlProV13 = true;
-    el.addEventListener('click', afterOpen, false);
-    el.addEventListener('pointerup', afterOpen, false);
-    el.addEventListener('touchend', afterOpen, {passive:true});
-  });
+  document.addEventListener('pointerdown', earlyPointer, true);
+  document.addEventListener('touchstart', earlyPointer, {capture:true, passive:false});
 
-  if(closeBtn && !closeBtn.__tkRlProV13){
-    closeBtn.__tkRlProV13 = true;
-    closeBtn.addEventListener('click', function(){ setTimeout(hardCloseMobile, 0); }, false);
+  /* Click-путь нужен для браузеров/эмуляторов, где pointerdown не приходит. Старый v39 его больше не видит, потому что id кнопки переименован. */
+  document.addEventListener('click', function(ev){
+    var target = ev.target && ev.target.closest ? ev.target.closest('[data-tk-rl-v14-trigger="1"], #tkqaOpenRouletteMobileV14') : null;
+    if(!target || !isPhoneLandscape()) return;
+    eat(ev);
+    var now = Date.now();
+    if(now - lastToggleAt > 280){
+      lastToggleAt = now;
+      toggleMobile();
+    }
+  }, true);
+
+  var closeBtn = document.getElementById('closeRouletteDock');
+  if(closeBtn){
+    closeBtn.addEventListener('click', function(ev){
+      if(!isPhoneLandscape()) return;
+      eat(ev);
+      closeMobile();
+    }, true);
   }
 
-  if(link && !link.__tkRlProV13){
-    link.__tkRlProV13 = true;
-    link.addEventListener('click', function(){ setTimeout(hardCloseMobile, 20); }, false);
-  }
-
-  if(spin && !spin.__tkRlProV13){
-    spin.__tkRlProV13 = true;
+  var spin = document.getElementById('spinBtn');
+  if(spin){
     spin.addEventListener('click', function(){
-      setTimeout(positionDock, 0);
-      setTimeout(positionDock, 120);
-      setTimeout(positionDock, 920);
+      if(!isPhoneLandscape()) return;
+      setTimeout(placeDock, 0);
+      setTimeout(placeDock, 140);
+      setTimeout(placeDock, 900);
     }, false);
   }
 
+  var link = document.getElementById('rLink');
+  if(link){
+    link.addEventListener('click', function(){
+      if(!isPhoneLandscape()) return;
+      setTimeout(closeMobile, 40);
+    }, false);
+  }
+
+  document.addEventListener('click', function(ev){
+    if(!root.classList.contains('tk-rl-v14-open') || !isPhoneLandscape()) return;
+    var t = ev.target;
+    if((dock && dock.contains(t)) || (visualTrigger && visualTrigger.contains(t))) return;
+    closeMobile();
+  }, false);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape' && root.classList.contains('tk-rl-v14-open')) closeMobile();
+  }, true);
+
   try{
-    var mo = new MutationObserver(schedule);
-    mo.observe(dock, {attributes:true, attributeFilter:['class','style','hidden','aria-hidden']});
-    mo.observe(document.documentElement, {attributes:true, attributeFilter:['class']});
-    if(modules) mo.observe(modules, {attributes:true, attributeFilter:['class','style','aria-hidden']});
-  }catch(_){}
+    new MutationObserver(function(){
+      if(root.classList.contains('tk-rl-v14-open')){
+        hideModules();
+        showDock();
+      }
+    }).observe(dock, {attributes:true, attributeFilter:['hidden','class','style','aria-hidden']});
+  }catch(_){ }
 
   window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(schedule, 60); setTimeout(schedule, 240); }, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(schedule, 60); setTimeout(schedule, 260); }, {passive:true});
   window.addEventListener('pageshow', schedule, {passive:true});
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', schedule, {passive:true});
     window.visualViewport.addEventListener('scroll', schedule, {passive:true});
   }
-  document.addEventListener('keydown', function(ev){
-    if(ev.key === 'Escape' && root.classList.contains('tk-roulette-mobile-open')){
-      setTimeout(hardCloseMobile, 0);
-    }
-  }, false);
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
+  window.addEventListener('load', function(){ setTimeout(schedule, 120); setTimeout(schedule, 700); }, {once:true});
 
-  window.tkRoulettePhoneLandscapeFixV13 = {
-    schedule:schedule,
-    position:positionDock,
-    close:hardCloseMobile
+  window.tkRouletteMobileLandscapeV14 = {
+    open: openMobile,
+    close: closeMobile,
+    place: placeDock,
+    setup: schedule
   };
 })();
 </script>
-<!-- TK PATCH: professional compact roulette for phone landscape / end -->
+<!-- TK PATCH: roulette serious mobile landscape controller v14 / end -->
 
 </body>
 </html>
