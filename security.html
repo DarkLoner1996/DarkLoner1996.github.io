@@ -70311,5 +70311,350 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </script>
 <!-- /OAI PATCH v21.1 -->
 
+
+
+<!-- OAI PATCH v21.2: roulette/mobile-landscape state machine. Mission hides roulette; mission close restores roulette; roulette close restores extra modules. -->
+<style id="oai-roulette-mobile-landscape-v21-2-state-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.oai-rl84-phone.tk-rm-active #rouletteMission{
+    z-index:28000 !important;
+  }
+  html.oai-rl84-phone.tk-rm-active #rouletteMission.is-open{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84.tk-rm-soft-hidden{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoText{
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    overflow:visible !important;
+  }
+}
+</style>
+<script id="oai-roulette-mobile-landscape-v21-2-state-script">
+(function(){
+  'use strict';
+
+  var root = document.documentElement;
+  var missionTimer = 0;
+  var missionObserver = null;
+  var dockObserver = null;
+  var rouletteWasOpenBeforeMission = false;
+  var rouletteClosedExplicitly = false;
+  var restoringMission = false;
+  var closingRoulette = false;
+  var raf = 0;
+
+  function byId(id){ return document.getElementById(id); }
+  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
+
+  function phoneLandscape(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      w = Math.max(w, Math.round(window.visualViewport.width || 0));
+      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
+    }
+    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
+  }
+
+  function dockIsOpen(){
+    var dock = byId('rouletteDock');
+    if(!dock) return false;
+    var cs = window.getComputedStyle ? getComputedStyle(dock) : null;
+    return !dock.hidden && dock.getAttribute('aria-hidden') !== 'true' && (!cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'));
+  }
+
+  function missionIsOpen(){
+    var m = byId('rouletteMission');
+    if(!m) return false;
+    return m.classList.contains('is-open') || m.getAttribute('aria-hidden') === 'false';
+  }
+
+  function restoreExtraModules(){
+    root.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-roulette-user-opened','tk-rm-active');
+    if(document.body){
+      document.body.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-rm-active');
+    }
+    qa('.rules.tkqa-wrap, .rules').forEach(function(el){
+      if(!el || el.id === 'rouletteDock') return;
+      el.classList.remove('is-collapsed','is-hidden','tk-hidden');
+      el.classList.add('is-open');
+      el.removeAttribute('aria-hidden');
+      ['display','visibility','opacity','pointer-events','transform'].forEach(function(prop){ clearImp(el, prop); });
+      setImp(el, 'display', 'flex');
+      setImp(el, 'visibility', 'visible');
+      setImp(el, 'opacity', '1');
+      setImp(el, 'pointer-events', 'auto');
+    });
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(el) el.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function hideExtraModules(){
+    qa('.rules.tkqa-wrap, .rules').forEach(function(el){
+      if(!el || el.id === 'rouletteDock') return;
+      el.classList.add('is-collapsed');
+      el.classList.remove('is-open');
+      el.setAttribute('aria-hidden', 'true');
+      setImp(el, 'display', 'none');
+      setImp(el, 'visibility', 'hidden');
+      setImp(el, 'opacity', '0');
+      setImp(el, 'pointer-events', 'none');
+    });
+  }
+
+  function softHideDockForMission(){
+    var dock = byId('rouletteDock');
+    if(!dock || !phoneLandscape()) return;
+    dock.classList.add('tk-rm-soft-hidden');
+    dock.setAttribute('data-tk-rm-soft-hidden', '1');
+    dock.setAttribute('aria-hidden', 'true');
+    setImp(dock, 'display', 'none');
+    setImp(dock, 'visibility', 'hidden');
+    setImp(dock, 'opacity', '0');
+    setImp(dock, 'pointer-events', 'none');
+    setImp(dock, 'z-index', '1');
+  }
+
+  function ensureMissionMode(){
+    if(!phoneLandscape() || !missionIsOpen()) return;
+    var dock = byId('rouletteDock');
+    if(dock && !rouletteWasOpenBeforeMission){
+      rouletteWasOpenBeforeMission = dockIsOpen() || dock.classList.contains('tk-rl-v84') || root.classList.contains('oai-rl84-open');
+    }
+    root.classList.add('tk-rm-active');
+    if(document.body) document.body.classList.add('tk-rm-active');
+    var m = byId('rouletteMission');
+    if(m){
+      setImp(m, 'z-index', '28000');
+      setImp(m, 'display', 'flex');
+      setImp(m, 'visibility', 'visible');
+      setImp(m, 'opacity', '1');
+      setImp(m, 'pointer-events', 'auto');
+    }
+    softHideDockForMission();
+    startMissionLoop();
+  }
+
+  function startMissionLoop(){
+    if(missionTimer) return;
+    missionTimer = window.setInterval(function(){
+      if(missionIsOpen()) softHideDockForMission();
+      else stopMissionLoop();
+    }, 90);
+  }
+
+  function stopMissionLoop(){
+    if(missionTimer){
+      clearInterval(missionTimer);
+      missionTimer = 0;
+    }
+  }
+
+  function showDockAfterMission(){
+    if(restoringMission) return;
+    if(!phoneLandscape()) return;
+    if(missionIsOpen()) return;
+    stopMissionLoop();
+    root.classList.remove('tk-rm-active');
+    if(document.body) document.body.classList.remove('tk-rm-active');
+    var dock = byId('rouletteDock');
+    if(!dock || rouletteClosedExplicitly || !rouletteWasOpenBeforeMission) return;
+
+    rouletteWasOpenBeforeMission = false;
+    restoringMission = true;
+    root.classList.add('oai-rl84-open','tk-roulette-user-opened');
+    if(document.body) document.body.classList.add('oai-rl84-open');
+    hideExtraModules();
+
+    dock.classList.remove('tk-rm-soft-hidden');
+    dock.removeAttribute('data-tk-rm-soft-hidden');
+    dock.hidden = false;
+    dock.removeAttribute('hidden');
+    dock.setAttribute('aria-hidden', 'false');
+    dock.classList.add('tk-roulette-popover-mode','tk-final-popover-control','tk-roulette-popover-open','tk-rl-v84');
+    ['display','visibility','opacity','pointer-events','z-index'].forEach(function(prop){ clearImp(dock, prop); });
+    setImp(dock, 'display', 'block');
+    setImp(dock, 'visibility', 'visible');
+    setImp(dock, 'opacity', '1');
+    setImp(dock, 'pointer-events', 'auto');
+    setImp(dock, 'z-index', '22000');
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(el) el.setAttribute('aria-expanded', 'true');
+    });
+    setTimeout(function(){ restoringMission = false; }, 250);
+  }
+
+  function forceCloseMissionIfStillOpen(){
+    var m = byId('rouletteMission');
+    if(m && missionIsOpen()){
+      m.classList.remove('is-open');
+      m.setAttribute('aria-hidden', 'true');
+      setImp(m, 'pointer-events', 'none');
+    }
+    showDockAfterMission();
+  }
+
+  function hardHideDock(){
+    var dock = byId('rouletteDock');
+    if(!dock) return;
+    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open','tk-rm-soft-hidden');
+    dock.removeAttribute('data-tk-rm-soft-hidden');
+    dock.setAttribute('aria-hidden', 'true');
+    dock.hidden = true;
+    setImp(dock, 'display', 'none');
+    setImp(dock, 'visibility', 'hidden');
+    setImp(dock, 'opacity', '0');
+    setImp(dock, 'pointer-events', 'none');
+    setImp(dock, 'z-index', '1');
+  }
+
+  function callNativeClose(){
+    var nativeClose = byId('closeRouletteDock');
+    if(nativeClose && typeof nativeClose.onclick === 'function'){
+      try{
+        nativeClose.onclick({
+          preventDefault:function(){},
+          stopPropagation:function(){},
+          stopImmediatePropagation:function(){}
+        });
+      }catch(_){ }
+    }
+  }
+
+  function closeRouletteBlock(ev){
+    if(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_){ }
+    }
+    if(closingRoulette) return false;
+    closingRoulette = true;
+    rouletteClosedExplicitly = true;
+    rouletteWasOpenBeforeMission = false;
+    stopMissionLoop();
+
+    callNativeClose();
+    hardHideDock();
+    restoreExtraModules();
+    setTimeout(function(){ hardHideDock(); restoreExtraModules(); }, 80);
+    setTimeout(function(){ hardHideDock(); restoreExtraModules(); closingRoulette = false; }, 240);
+    return false;
+  }
+
+  function onMaybeMissionClosed(){
+    if(missionIsOpen()) ensureMissionMode();
+    else showDockAfterMission();
+  }
+
+  function schedule(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      onMaybeMissionClosed();
+    });
+    setTimeout(onMaybeMissionClosed, 80);
+    setTimeout(onMaybeMissionClosed, 220);
+  }
+
+  function bind(){
+    var mission = byId('rouletteMission');
+    var dock = byId('rouletteDock');
+    if(mission && !missionObserver && window.MutationObserver){
+      missionObserver = new MutationObserver(schedule);
+      missionObserver.observe(mission, {attributes:true, attributeFilter:['class','aria-hidden','style']});
+    }
+    if(dock && !dockObserver && window.MutationObserver){
+      dockObserver = new MutationObserver(function(){
+        if(missionIsOpen()) softHideDockForMission();
+      });
+      dockObserver.observe(dock, {attributes:true, attributeFilter:['class','style','hidden','aria-hidden']});
+    }
+
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(!el || el.__tkRm21OpenBound) return;
+      el.__tkRm21OpenBound = true;
+      el.addEventListener('click', function(){ rouletteClosedExplicitly = false; rouletteWasOpenBeforeMission = false; }, true);
+      el.addEventListener('pointerdown', function(){ rouletteClosedExplicitly = false; rouletteWasOpenBeforeMission = false; }, true);
+      el.addEventListener('touchstart', function(){ rouletteClosedExplicitly = false; rouletteWasOpenBeforeMission = false; }, {capture:true, passive:true});
+    });
+  }
+
+  window.addEventListener('pointerdown', function(ev){
+    var t = ev.target;
+    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+      closeRouletteBlock(ev);
+    }
+  }, true);
+
+  window.addEventListener('click', function(ev){
+    var t = ev.target;
+    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+      closeRouletteBlock(ev);
+      return;
+    }
+    if(t && t.closest && t.closest('#rLink, #rouletteDock .roulette-link')){
+      if(!rouletteClosedExplicitly) rouletteWasOpenBeforeMission = true;
+      setTimeout(ensureMissionMode, 0);
+      setTimeout(ensureMissionMode, 60);
+      setTimeout(ensureMissionMode, 180);
+    }
+    if(t && t.closest && t.closest('#rmClose, #rmFinish')){
+      setTimeout(showDockAfterMission, 40);
+      setTimeout(showDockAfterMission, 140);
+      setTimeout(forceCloseMissionIfStillOpen, 360);
+    }
+  }, true);
+
+  window.addEventListener('touchstart', function(ev){
+    var t = ev.target;
+    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+      closeRouletteBlock(ev);
+    }
+  }, {capture:true, passive:false});
+
+  document.addEventListener('click', function(ev){
+    var mission = byId('rouletteMission');
+    if(mission && ev.target === mission){
+      setTimeout(showDockAfterMission, 60);
+      setTimeout(forceCloseMissionIfStillOpen, 220);
+    }
+  }, true);
+
+  window.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape'){
+      if(missionIsOpen()){
+        setTimeout(showDockAfterMission, 60);
+        setTimeout(forceCloseMissionIfStillOpen, 220);
+      }else if(dockIsOpen()){
+        closeRouletteBlock(ev);
+      }
+    }
+  }, true);
+
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(schedule, 120); }, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ bind(); schedule(); }, {once:true});
+  else { bind(); schedule(); }
+  window.addEventListener('load', function(){ bind(); setTimeout(schedule, 250); }, {once:true});
+})();
+</script>
+<!-- /OAI PATCH v21.2 -->
+
 </body>
 </html>
