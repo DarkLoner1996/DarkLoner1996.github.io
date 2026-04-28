@@ -69319,7 +69319,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     skin.appendChild(x);
     dock.appendChild(skin);
 
-    ['pointerdown','touchstart','click'].forEach(function(type){
+    ['pointerdown','pointerup','touchstart','touchend','click'].forEach(function(type){
       x.addEventListener(type, closeRoulette, true);
     });
     return skin;
@@ -69544,7 +69544,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
     if(closeBtn && !closeBtn.__tkRl84CloseBound){
       closeBtn.__tkRl84CloseBound = true;
-      ['pointerdown','touchstart','click'].forEach(function(type){
+      ['pointerdown','pointerup','touchstart','touchend','click'].forEach(function(type){
         closeBtn.addEventListener(type, closeRoulette, true);
       });
       closeBtn.onclick = closeRoulette;
@@ -69552,7 +69552,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
     if(dock && !observer && window.MutationObserver){
       observer = new MutationObserver(schedule);
-      observer.observe(dock, {attributes:true, childList:true, subtree:true, attributeFilter:['class','style','hidden','aria-hidden']});
+      observer.observe(dock, {attributes:true, childList:false, subtree:false, attributeFilter:['class','style','hidden','aria-hidden']});
     }
   }
 
@@ -69774,177 +69774,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   }
 }
 </style>
-<script id="oai-roulette-mobile-landscape-v8-8-script">
-(function(){
-  'use strict';
-
-  function byId(id){ return document.getElementById(id); }
-  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-
-  function phoneLandscape(){
-    var w = window.innerWidth || document.documentElement.clientWidth || 0;
-    var h = window.innerHeight || document.documentElement.clientHeight || 0;
-    if(window.visualViewport){
-      w = Math.max(w, Math.round(window.visualViewport.width || 0));
-      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
-    }
-    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
-  }
-
-  function enforce(){
-    if(!phoneLandscape()) return;
-    var dock = byId('rouletteDock');
-    if(!dock || !dock.classList.contains('tk-rl-v84')) return;
-
-    var low = Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 430;
-    var wheelBox = low ? 78 : 84;
-    var wheel = low ? 70 : 76;
-    var btnW = low ? 94 : 98;
-    var btnH = low ? 26 : 28;
-
-    var hidden = q('.tk-rl-v84-hiddenWheel', dock);
-    if(hidden){
-      ['width','height','min-width','min-height','max-width','max-height'].forEach(function(p){ setImp(hidden, p, wheelBox + 'px'); });
-      setImp(hidden, 'background', 'transparent');
-      setImp(hidden, 'box-shadow', 'none');
-      setImp(hidden, 'border', '0');
-      setImp(hidden, 'overflow', 'visible');
-    }
-
-    qa('.tk-rl-v84-hiddenWheel .wheel-wrap, .tk-rl-v84-hiddenWheel .wheel-rot, .tk-rl-v84-hiddenWheel .wheel-rot > canvas#wheel', dock).forEach(function(el){
-      ['width','height','min-width','min-height','max-width','max-height'].forEach(function(p){ setImp(el, p, wheel + 'px'); });
-    });
-
-    var wrap = q('.tk-rl-v84-hiddenWheel .wheel-wrap', dock);
-    if(wrap){
-      setImp(wrap, 'padding-top', '0px');
-      setImp(wrap, 'background', 'transparent');
-      setImp(wrap, 'box-shadow', 'none');
-      setImp(wrap, 'border', '0');
-    }
-
-    qa('.tk-rl-v84-hiddenWheel .wheel-pointer, .tk-rl-v84-hiddenWheel .wheel-glow', dock).forEach(function(el){
-      setImp(el, 'display', 'none');
-      setImp(el, 'visibility', 'hidden');
-      setImp(el, 'opacity', '0');
-    });
-
-    var left = q('.tk-rl-v84-left', dock);
-    if(left){
-      setImp(left, 'background', 'linear-gradient(180deg, rgba(18,65,102,.70), rgba(5,21,42,.86))');
-      setImp(left, 'overflow', 'hidden');
-    }
-    qa('.tk-rl-v84-left-title, .tk-rl-v84-title-sub', dock).forEach(function(el){
-      setImp(el, 'background', 'none');
-      setImp(el, 'box-shadow', 'none');
-      setImp(el, 'filter', 'none');
-    });
-
-    var actions = q('.roulette-infoActions', dock);
-    var slot = q('.tk-rl-v84-missionSlot', dock);
-    [actions, slot].forEach(function(el){
-      if(!el) return;
-      setImp(el, 'width', 'auto');
-      setImp(el, 'height', btnH + 'px');
-      setImp(el, 'min-height', btnH + 'px');
-      setImp(el, 'max-height', btnH + 'px');
-      setImp(el, 'display', 'flex');
-      setImp(el, 'align-items', 'flex-end');
-      setImp(el, 'justify-content', 'center');
-      setImp(el, 'margin', '0');
-      setImp(el, 'padding', '0');
-      setImp(el, 'flex', '0 0 ' + btnH + 'px');
-    });
-
-    ['spinBtn','rLink'].forEach(function(id){
-      var el = byId(id);
-      if(!el) return;
-      setImp(el, 'width', btnW + 'px');
-      setImp(el, 'min-width', btnW + 'px');
-      setImp(el, 'max-width', btnW + 'px');
-      setImp(el, 'flex', '0 0 ' + btnW + 'px');
-      setImp(el, 'height', btnH + 'px');
-      setImp(el, 'min-height', btnH + 'px');
-      setImp(el, 'max-height', btnH + 'px');
-      setImp(el, 'padding', '0 10px');
-      setImp(el, 'margin', '0 auto');
-      setImp(el, 'border-radius', '12px');
-      setImp(el, 'display', 'inline-flex');
-      setImp(el, 'align-items', 'center');
-      setImp(el, 'justify-content', 'center');
-      setImp(el, 'font-size', low ? '7.6px' : '8px');
-      setImp(el, 'line-height', '1');
-      setImp(el, 'white-space', 'nowrap');
-    });
-
-    /* TK v8 direct mobile-landscape layout fix:
-       keep only the spin button smaller and slightly higher; do not touch mission/link behavior. */
-    var spin = byId('spinBtn');
-    var spinSlot = q('.tk-rl-v84-spinSlot', dock);
-    var spinW = low ? 74 : 78;
-    var spinH = low ? 22 : 23;
-    if(spinSlot){
-      setImp(spinSlot, 'height', '28px');
-      setImp(spinSlot, 'min-height', '28px');
-      setImp(spinSlot, 'max-height', '28px');
-      setImp(spinSlot, 'display', 'flex');
-      setImp(spinSlot, 'align-items', 'flex-start');
-      setImp(spinSlot, 'justify-content', 'center');
-      setImp(spinSlot, 'padding-top', '0px');
-      setImp(spinSlot, 'overflow', 'visible');
-      setImp(spinSlot, 'transform', 'translateY(-3px)');
-    }
-    if(spin){
-      setImp(spin, 'width', spinW + 'px');
-      setImp(spin, 'min-width', spinW + 'px');
-      setImp(spin, 'max-width', spinW + 'px');
-      setImp(spin, 'flex', '0 0 ' + spinW + 'px');
-      setImp(spin, 'height', spinH + 'px');
-      setImp(spin, 'min-height', spinH + 'px');
-      setImp(spin, 'max-height', spinH + 'px');
-      setImp(spin, 'padding', '0 6px');
-      setImp(spin, 'margin', '0 auto');
-      setImp(spin, 'border-radius', '10px');
-      setImp(spin, 'gap', '3px');
-      setImp(spin, 'font-size', low ? '6.8px' : '7px');
-      setImp(spin, 'letter-spacing', '.035em');
-      setImp(spin, 'transform', 'translateY(-4px)');
-      setImp(spin, 'position', 'relative');
-      setImp(spin, 'z-index', '3');
-      var svg = spin.querySelector('svg');
-      if(svg){
-        setImp(svg, 'width', '8px');
-        setImp(svg, 'height', '8px');
-        setImp(svg, 'min-width', '8px');
-        setImp(svg, 'min-height', '8px');
-        setImp(svg, 'flex', '0 0 8px');
-      }
-    }
-  }
-
-  function schedule(){
-    requestAnimationFrame(enforce);
-    setTimeout(enforce, 60);
-    setTimeout(enforce, 220);
-    setTimeout(enforce, 520);
-  }
-
-  document.addEventListener('click', schedule, true);
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(schedule, 120); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-
-  if(window.MutationObserver){
-    new MutationObserver(schedule).observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style','hidden','aria-hidden']});
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-})();
-</script>
+<!-- runtime disabled: oai-roulette-mobile-landscape-v8-8-script was causing repeated style recalculations during spin/mission. CSS from v20.8 is kept. -->
 <!-- /OAI PATCH v20.8 -->
 
 
@@ -70237,18 +70067,41 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     max-width:8px !important;
     flex:0 0 8px !important;
   }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-spinSlot{
+    height:24px !important;
+    min-height:24px !important;
+    max-height:24px !important;
+    align-items:flex-end !important;
+    justify-content:center !important;
+    transform:translateY(4px) !important;
+    will-change:auto !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-left{
+    grid-template-rows:20px minmax(0, 1fr) 24px !important;
+    gap:3px !important;
+    padding-bottom:7px !important;
+  }
 }
 
 @media (orientation: landscape) and (max-height:430px) and (max-width:980px){
   html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn{
-    width:72px !important;
-    min-width:72px !important;
-    max-width:72px !important;
-    flex-basis:72px !important;
+    width:70px !important;
+    min-width:70px !important;
+    max-width:70px !important;
+    flex-basis:70px !important;
+    height:21px !important;
+    min-height:21px !important;
+    max-height:21px !important;
+    font-size:6.4px !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-spinSlot{
+    transform:translateY(5px) !important;
     height:22px !important;
     min-height:22px !important;
     max-height:22px !important;
-    font-size:6.6px !important;
   }
 }
 </style>
@@ -70726,16 +70579,22 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
 
 
-<!-- OAI PATCH v21.5: mobile-landscape roulette close/state fix (TK v8 direct edit). -->
+<!-- OAI PATCH v21.5: hard close button fix for mobile-landscape roulette. -->
 <style id="oai-roulette-mobile-landscape-v21-5-hard-close-style">
 @media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
   html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-close,
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #closeRouletteDock,
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 button[aria-label*="Закрыть"]{
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #closeRouletteDock{
+    width:26px !important;
+    height:26px !important;
+    min-width:26px !important;
+    min-height:26px !important;
+    max-width:26px !important;
+    max-height:26px !important;
+    font-size:19px !important;
     pointer-events:auto !important;
     touch-action:manipulation !important;
     cursor:pointer !important;
-    z-index:2147483647 !important;
+    z-index:60 !important;
   }
 
   html.tk-roulette-hard-closed #rouletteDock,
@@ -70750,84 +70609,12 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   }
 
   html.tk-roulette-hard-closed .rules.tkqa-wrap,
-  html.tk-roulette-hard-closed .rules:not(#rouletteDock),
-  body.tk-roulette-hard-closed .rules.tkqa-wrap,
-  body.tk-roulette-hard-closed .rules:not(#rouletteDock){
-    display:flex !important;
+  body.tk-roulette-hard-closed .rules.tkqa-wrap{
+    display:block !important;
     visibility:visible !important;
     opacity:1 !important;
     pointer-events:auto !important;
   }
-
-  /* TK v8: keep the roulette close button visually small; use the v84 close, not the legacy SVG close. */
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-close{
-    top:6px !important;
-    right:6px !important;
-    width:26px !important;
-    height:26px !important;
-    min-width:26px !important;
-    min-height:26px !important;
-    max-width:26px !important;
-    max-height:26px !important;
-    padding:0 !important;
-    border-radius:999px !important;
-    font-size:18px !important;
-    line-height:1 !important;
-    display:grid !important;
-    place-items:center !important;
-    pointer-events:auto !important;
-    z-index:80 !important;
-    transform:none !important;
-  }
-
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 > #closeRouletteDock.roulette-close-x{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-spinSlot{
-    transform:translateY(-3px) !important;
-    align-items:flex-start !important;
-    overflow:visible !important;
-  }
-
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn{
-    width:78px !important;
-    min-width:78px !important;
-    max-width:78px !important;
-    flex:0 0 78px !important;
-    height:23px !important;
-    min-height:23px !important;
-    max-height:23px !important;
-    padding:0 6px !important;
-    border-radius:10px !important;
-    font-size:7px !important;
-    gap:3px !important;
-    transform:translateY(-4px) !important;
-  }
-
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn svg{
-    width:8px !important;
-    height:8px !important;
-    flex:0 0 8px !important;
-  }
-
-  @media (orientation: landscape) and (max-height:430px) and (max-width:980px){
-    html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn{
-      width:74px !important;
-      min-width:74px !important;
-      max-width:74px !important;
-      flex-basis:74px !important;
-      height:22px !important;
-      min-height:22px !important;
-      max-height:22px !important;
-      font-size:6.8px !important;
-      transform:translateY(-4px) !important;
-    }
-  }
-
 }
 </style>
 <script id="oai-roulette-mobile-landscape-v21-5-hard-close-script">
@@ -70835,89 +70622,13 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   'use strict';
 
   var root = document.documentElement;
-  var dockObserver = null;
-  var hardClosed = false;
-  var applying = false;
 
   function byId(id){ return document.getElementById(id); }
-  function all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
   function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
 
-  function removeOpenFlags(){
-    var names = [
-      'oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open',
-      'tk-roulette-user-opened','tk-rm-mission-open','tk-roulette-force-closed'
-    ];
-    names.forEach(function(c){ root.classList.remove(c); if(document.body) document.body.classList.remove(c); });
-  }
-
-  function showExtraModules(){
-    all('.rules.tkqa-wrap, .rules').forEach(function(el){
-      if(!el || el.id === 'rouletteDock') return;
-      el.classList.remove('is-collapsed','is-hidden','tk-hidden');
-      el.classList.add('is-open');
-      el.removeAttribute('aria-hidden');
-      ['display','visibility','opacity','pointer-events','transform','z-index'].forEach(function(prop){ clearImp(el, prop); });
-      setImp(el, 'display', 'flex');
-      setImp(el, 'visibility', 'visible');
-      setImp(el, 'opacity', '1');
-      setImp(el, 'pointer-events', 'auto');
-    });
-    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
-      var el = byId(id);
-      if(el) el.setAttribute('aria-expanded','false');
-    });
-  }
-
-  function hardHideDock(){
-    var dock = byId('rouletteDock');
-    if(!dock) return;
-    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open','is-open','oai-rl84-open');
-    dock.setAttribute('aria-hidden','true');
-    dock.setAttribute('data-oai-hard-closed','1');
-    dock.hidden = true;
-    setImp(dock, 'display', 'none');
-    setImp(dock, 'visibility', 'hidden');
-    setImp(dock, 'opacity', '0');
-    setImp(dock, 'pointer-events', 'none');
-    setImp(dock, 'z-index', '1');
-  }
-
-  function closeRouletteToExtraMenu(){
-    if(applying) return false;
-    applying = true;
-    hardClosed = true;
-    root.classList.add('tk-roulette-hard-closed');
-    if(document.body) document.body.classList.add('tk-roulette-hard-closed');
-
-    removeOpenFlags();
-    // Add this after removing legacy flags, because older helpers may remove their own force class.
-    root.classList.add('tk-roulette-hard-closed');
-    if(document.body) document.body.classList.add('tk-roulette-hard-closed');
-
-    hardHideDock();
-    showExtraModules();
-
-    [0, 16, 50, 120, 260, 520, 1000, 1800].forEach(function(ms){
-      setTimeout(function(){
-        if(!hardClosed) return;
-        removeOpenFlags();
-        root.classList.add('tk-roulette-hard-closed');
-        if(document.body) document.body.classList.add('tk-roulette-hard-closed');
-        hardHideDock();
-        showExtraModules();
-      }, ms);
-    });
-
-    setTimeout(function(){ applying = false; }, 70);
-    return false;
-  }
-
   function openWasRequested(){
-    hardClosed = false;
-    root.classList.remove('tk-roulette-hard-closed');
-    if(document.body) document.body.classList.remove('tk-roulette-hard-closed');
+    root.classList.remove('tk-roulette-hard-closed','tk-roulette-force-closed');
+    if(document.body) document.body.classList.remove('tk-roulette-hard-closed','tk-roulette-force-closed');
     var dock = byId('rouletteDock');
     if(dock){
       dock.removeAttribute('data-oai-hard-closed');
@@ -70925,64 +70636,20 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     }
   }
 
-  function isCloseTarget(t){
-    return !!(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock, #rouletteDock button[aria-label*="Закрыть"], #rouletteDock [aria-label*="Закрыть рулетку"]'));
-  }
-
-  function closeCapture(ev){
-    if(!isCloseTarget(ev.target)) return;
-    /* Do not stop propagation here.
-       The mobile v84 roulette has its own private closeRoulette() handler; it must receive the event
-       so its internal isOpen/closingUntil state is updated. The hard close below is only a final fallback. */
-    setTimeout(function(){ closeRouletteToExtraMenu(); }, 0);
-  }
-
-  function bindCloseButtonsDirectly(){
-    all('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock, #rouletteDock button[aria-label*="Закрыть"]').forEach(function(btn){
-      if(!btn || btn.__oai215HardCloseBound) return;
-      btn.__oai215HardCloseBound = true;
-      btn.onclick = closeRouletteToExtraMenu;
-      ['pointerdown','touchstart','click'].forEach(function(type){
-        btn.addEventListener(type, closeCapture, {capture:true, passive:false});
-      });
-    });
-  }
-
   function bind(){
-    ['pointerdown','touchstart','click'].forEach(function(type){
-      window.addEventListener(type, closeCapture, {capture:true, passive:false});
-      document.addEventListener(type, closeCapture, {capture:true, passive:false});
-    });
-
     ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
       var el = byId(id);
-      if(!el || el.__oai215OpenBound) return;
-      el.__oai215OpenBound = true;
+      if(!el || el.__oai215OpenBoundSafe) return;
+      el.__oai215OpenBoundSafe = true;
       ['pointerdown','touchstart','click'].forEach(function(type){
         el.addEventListener(type, openWasRequested, {capture:true, passive:true});
       });
     });
-
-    var dock = byId('rouletteDock');
-    if(dock && !dockObserver && window.MutationObserver){
-      dockObserver = new MutationObserver(function(){
-        bindCloseButtonsDirectly();
-        if(hardClosed){
-          hardHideDock();
-          showExtraModules();
-        }
-      });
-      dockObserver.observe(dock, {attributes:true, childList:true, subtree:true, attributeFilter:['class','style','hidden','aria-hidden']});
-    }
-    bindCloseButtonsDirectly();
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', bind, {once:true});
-  }else{
-    bind();
-  }
-  window.addEventListener('load', function(){ bind(); bindCloseButtonsDirectly(); }, {once:true});
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+  else bind();
+  window.addEventListener('load', bind, {once:true});
 })();
 </script>
 <!-- /OAI PATCH v21.5 -->
