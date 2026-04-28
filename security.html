@@ -69304,7 +69304,9 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     x.type = 'button';
     x.className = 'tk-rl-v84-close';
     x.setAttribute('aria-label', 'Закрыть');
+    x.setAttribute('data-tk-roulette-close', '1');
     x.textContent = '×';
+    x.onclick = closeRoulette;
 
     leftPanel.appendChild(leftTitle);
     leftPanel.appendChild(hiddenWheel);
@@ -69467,6 +69469,8 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     if(!cache() || !syncPhoneClass()) return false;
     isOpen = true;
     closingUntil = 0;
+    root.classList.remove('tk-roulette-force-closed','tk-roulette-hard-closed');
+    if(body) body.classList.remove('tk-roulette-force-closed','tk-roulette-hard-closed');
     root.classList.add('oai-rl84-open','tk-roulette-user-opened');
     if(body) body.classList.add('oai-rl84-open');
     hideModules();
@@ -69483,15 +69487,18 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     }
     if(!cache()) return false;
     isOpen = false;
-    closingUntil = Date.now() + 900;
+    closingUntil = Date.now() + 1400;
+    root.classList.add('tk-roulette-force-closed');
+    if(body) body.classList.add('tk-roulette-force-closed');
 
-    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open');
+    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open','is-open');
     dock.setAttribute('aria-hidden','true');
     dock.hidden = true;
     setImp(dock, 'display', 'none');
     setImp(dock, 'opacity', '0');
     setImp(dock, 'visibility', 'hidden');
     setImp(dock, 'pointer-events', 'none');
+    setImp(dock, 'z-index', '1');
 
     if(trigger) trigger.setAttribute('aria-expanded','false');
     if(legacyTrigger) legacyTrigger.setAttribute('aria-expanded','false');
@@ -69562,6 +69569,39 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
       closeRoulette(ev);
     }
   }, true);
+
+
+
+  function closeHitFromEvent(ev){
+    if(!dock || !phoneLandscape()) return false;
+    var target = ev && ev.target;
+    if(target && target.closest && target.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock [data-tk-roulette-close="1"]')) return true;
+
+    var point = null;
+    if(ev && ev.changedTouches && ev.changedTouches.length){
+      point = ev.changedTouches[0];
+    }else if(ev && typeof ev.clientX === 'number' && typeof ev.clientY === 'number'){
+      point = ev;
+    }
+    if(!point) return false;
+
+    var closeEl = dock.querySelector('.tk-rl-v84-close');
+    if(closeEl){
+      var r = closeEl.getBoundingClientRect();
+      var pad = 10;
+      if(point.clientX >= r.left - pad && point.clientX <= r.right + pad && point.clientY >= r.top - pad && point.clientY <= r.bottom + pad) return true;
+    }
+    return false;
+  }
+
+  function closeByHit(ev){
+    if(!closeHitFromEvent(ev)) return;
+    closeRoulette(ev);
+  }
+
+  ['pointerdown','pointerup','touchstart','touchend','click'].forEach(function(type){
+    document.addEventListener(type, closeByHit, true);
+  });
 
   document.addEventListener('keydown', function(ev){ if(isOpen && ev.key === 'Escape') closeRoulette(ev); }, true);
   window.addEventListener('resize', schedule, {passive:true});
@@ -70876,158 +70916,49 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
 
 
-<!-- OAI PATCH v22.0: mobile-landscape roulette close-button root fix + visual tune -->
-<style id="oai-roulette-mobile-landscape-v22-0-style">
+
+<!-- OAI PATCH v11: mobile-landscape roulette root close + wheel-outline tune, based on working v9 -->
+<style id="oai-roulette-mobile-landscape-v11-root-close-style">
 @media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-left,
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-right{
-    border:1px solid rgba(220,252,255,.11) !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 5px 10px rgba(0,0,0,.18) !important;
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-hiddenWheel .wheel-wrap{
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.15)) !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-hiddenWheel .wheel-rot,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-hiddenWheel .wheel-rot > canvas#wheel{
+    box-shadow:none !important;
+    outline:0 !important;
   }
 
   html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-close{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 > #closeRouletteDock.roulette-close-x{
-    display:grid !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
-    position:absolute !important;
-    top:6px !important;
-    right:6px !important;
     width:26px !important;
     height:26px !important;
     min-width:26px !important;
     min-height:26px !important;
     max-width:26px !important;
     max-height:26px !important;
-    padding:0 !important;
-    border-radius:999px !important;
-    z-index:90 !important;
-    place-items:center !important;
+    top:6px !important;
+    right:6px !important;
     border:1px solid rgba(230,252,255,.22) !important;
-    background:linear-gradient(180deg, rgba(31,78,118,.94), rgba(8,28,51,.96)) !important;
     box-shadow:0 7px 14px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.14) !important;
+    z-index:120 !important;
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
   }
 
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 > #closeRouletteDock.roulette-close-x svg{
-    width:12px !important;
-    height:12px !important;
-    stroke-width:3.1 !important;
-  }
-
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-spinSlot{
-    transform:translateY(7px) !important;
-  }
-}
-
-@media (orientation: landscape) and (max-height:430px) and (max-width:980px){
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-spinSlot{
-    transform:translateY(8px) !important;
+  html.oai-rl84-phone.tk-roulette-force-closed #rouletteDock,
+  html.oai-rl84-phone.tk-roulette-force-closed #rouletteDock.tk-rl-v84,
+  body.tk-roulette-force-closed #rouletteDock,
+  body.tk-roulette-force-closed #rouletteDock.tk-rl-v84{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    z-index:1 !important;
   }
 }
 </style>
-<script id="oai-roulette-mobile-landscape-v22-0-script">
-(function(){
-  'use strict';
+<!-- /OAI PATCH v11 -->
 
-  var root = document.documentElement;
-  var lastCloseTs = 0;
-
-  function byId(id){ return document.getElementById(id); }
-  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
-
-  function phoneLandscape(){
-    var w = window.innerWidth || root.clientWidth || 0;
-    var h = window.innerHeight || root.clientHeight || 0;
-    if(window.visualViewport){
-      w = Math.max(w, Math.round(window.visualViewport.width || 0));
-      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
-    }
-    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
-  }
-
-  function restoreExtraModulesOnce(){
-    var els = Array.prototype.slice.call(document.querySelectorAll('.rules.tkqa-wrap, .rules'));
-    els.forEach(function(el){
-      if(!el || el.id === 'rouletteDock') return;
-      el.classList.remove('is-collapsed','is-hidden','tk-hidden');
-      el.classList.add('is-open');
-      el.removeAttribute('aria-hidden');
-      ['display','visibility','opacity','pointer-events','transform'].forEach(function(prop){ clearImp(el, prop); });
-      setImp(el, 'display', 'flex');
-      setImp(el, 'visibility', 'visible');
-      setImp(el, 'opacity', '1');
-      setImp(el, 'pointer-events', 'auto');
-    });
-  }
-
-  function finalizeRouletteClose(){
-    var dock = byId('rouletteDock');
-    if(!dock) return false;
-
-    root.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-roulette-user-opened','tk-rm-mission-open','tk-roulette-force-closed','tk-roulette-hard-closed');
-    if(document.body){
-      document.body.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-rm-mission-open','tk-roulette-force-closed','tk-roulette-hard-closed');
-    }
-
-    try{
-      if(typeof window.tkCloseRouletteDock === 'function') window.tkCloseRouletteDock();
-    }catch(_e){}
-
-    dock.classList.remove('tk-roulette-popover-open','tk-roulette-popover-mode','tk-final-popover-control','oai-rl17-open','oai-rl18-open','is-open');
-    dock.hidden = true;
-    dock.setAttribute('hidden', 'hidden');
-    dock.setAttribute('aria-hidden', 'true');
-    setImp(dock, 'display', 'none');
-    setImp(dock, 'visibility', 'hidden');
-    setImp(dock, 'opacity', '0');
-    setImp(dock, 'pointer-events', 'none');
-
-    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
-      var el = byId(id);
-      if(el) el.setAttribute('aria-expanded','false');
-    });
-
-    restoreExtraModulesOnce();
-    setTimeout(restoreExtraModulesOnce, 60);
-    setTimeout(restoreExtraModulesOnce, 180);
-    setTimeout(restoreExtraModulesOnce, 480);
-    return false;
-  }
-
-  function onCloseIntent(){
-    if(!phoneLandscape()) return;
-    var now = Date.now();
-    if(now - lastCloseTs < 180) return;
-    lastCloseTs = now;
-    setTimeout(finalizeRouletteClose, 0);
-    setTimeout(finalizeRouletteClose, 40);
-  }
-
-  function bindCloseButton(){
-    var btn = byId('closeRouletteDock');
-    if(!btn || btn.__oai220Bound) return;
-    btn.__oai220Bound = true;
-    ['pointerup','touchend','click'].forEach(function(type){
-      btn.addEventListener(type, onCloseIntent, true);
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', bindCloseButton, {once:true});
-  }else{
-    bindCloseButton();
-  }
-  window.addEventListener('load', bindCloseButton, {once:true});
-})();
-</script>
-<!-- /OAI PATCH v22.0 -->
 </body>
 </html>
