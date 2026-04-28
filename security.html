@@ -70313,44 +70313,43 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
 
 
-<!-- OAI PATCH v21.2: roulette/mobile-landscape state machine. Mission hides roulette; mission close restores roulette; roulette close restores extra modules. -->
-<style id="oai-roulette-mobile-landscape-v21-2-state-style">
+<!-- OAI PATCH v21.3: stable mobile-landscape roulette state logic. Based on v8.11 working mission link. -->
+<style id="oai-roulette-mobile-landscape-v21-3-state-style">
 @media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
-  html.oai-rl84-phone.tk-rm-active #rouletteMission{
-    z-index:28000 !important;
-  }
-  html.oai-rl84-phone.tk-rm-active #rouletteMission.is-open{
-    display:flex !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
-  }
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84.tk-rm-soft-hidden{
+  html.oai-rl84-phone.tk-rm-mission-open #rouletteDock,
+  html.oai-rl84-phone.tk-rm-mission-open #rouletteDock.tk-rl-v84,
+  html.oai-rl84-phone.tk-roulette-force-closed #rouletteDock,
+  html.oai-rl84-phone.tk-roulette-force-closed #rouletteDock.tk-rl-v84{
     display:none !important;
     visibility:hidden !important;
     opacity:0 !important;
     pointer-events:none !important;
+    z-index:1 !important;
   }
-  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoText{
-    border-radius:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    overflow:visible !important;
+
+  html.oai-rl84-phone.tk-rm-mission-open #rouletteMission{
+    z-index:28000 !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #rLink,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-link,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-close{
+    pointer-events:auto !important;
+    cursor:pointer !important;
   }
 }
 </style>
-<script id="oai-roulette-mobile-landscape-v21-2-state-script">
+<script id="oai-roulette-mobile-landscape-v21-3-state-script">
 (function(){
   'use strict';
 
   var root = document.documentElement;
-  var missionTimer = 0;
   var missionObserver = null;
   var dockObserver = null;
   var rouletteWasOpenBeforeMission = false;
-  var rouletteClosedExplicitly = false;
-  var restoringMission = false;
-  var closingRoulette = false;
+  var forceClosed = false;
+  var closeBusy = false;
   var raf = 0;
 
   function byId(id){ return document.getElementById(id); }
@@ -70368,23 +70367,28 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
   }
 
+  function isShown(el){
+    if(!el) return false;
+    var cs = window.getComputedStyle ? getComputedStyle(el) : null;
+    return !el.hidden && el.getAttribute('aria-hidden') !== 'true' && (!cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'));
+  }
+
   function dockIsOpen(){
     var dock = byId('rouletteDock');
     if(!dock) return false;
-    var cs = window.getComputedStyle ? getComputedStyle(dock) : null;
-    return !dock.hidden && dock.getAttribute('aria-hidden') !== 'true' && (!cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'));
+    return isShown(dock) || dock.classList.contains('tk-roulette-popover-open') || root.classList.contains('oai-rl84-open');
   }
 
   function missionIsOpen(){
     var m = byId('rouletteMission');
     if(!m) return false;
-    return m.classList.contains('is-open') || m.getAttribute('aria-hidden') === 'false';
+    return isShown(m) || m.classList.contains('is-open') || m.getAttribute('aria-hidden') === 'false';
   }
 
-  function restoreExtraModules(){
-    root.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-roulette-user-opened','tk-rm-active');
+  function showExtraModules(){
+    root.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-roulette-user-opened','tk-rm-mission-open');
     if(document.body){
-      document.body.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-rm-active');
+      document.body.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-rm-mission-open');
     }
     qa('.rules.tkqa-wrap, .rules').forEach(function(el){
       if(!el || el.id === 'rouletteDock') return;
@@ -70399,7 +70403,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     });
     ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
       var el = byId(id);
-      if(el) el.setAttribute('aria-expanded', 'false');
+      if(el) el.setAttribute('aria-expanded','false');
     });
   }
 
@@ -70408,7 +70412,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
       if(!el || el.id === 'rouletteDock') return;
       el.classList.add('is-collapsed');
       el.classList.remove('is-open');
-      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('aria-hidden','true');
       setImp(el, 'display', 'none');
       setImp(el, 'visibility', 'hidden');
       setImp(el, 'opacity', '0');
@@ -70416,12 +70420,12 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     });
   }
 
-  function softHideDockForMission(){
+  function hardHideDock(){
     var dock = byId('rouletteDock');
-    if(!dock || !phoneLandscape()) return;
-    dock.classList.add('tk-rm-soft-hidden');
-    dock.setAttribute('data-tk-rm-soft-hidden', '1');
-    dock.setAttribute('aria-hidden', 'true');
+    if(!dock) return;
+    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open');
+    dock.setAttribute('aria-hidden','true');
+    dock.hidden = true;
     setImp(dock, 'display', 'none');
     setImp(dock, 'visibility', 'hidden');
     setImp(dock, 'opacity', '0');
@@ -70429,62 +70433,20 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     setImp(dock, 'z-index', '1');
   }
 
-  function ensureMissionMode(){
-    if(!phoneLandscape() || !missionIsOpen()) return;
+  function revealDockAfterMission(){
+    if(!phoneLandscape() || forceClosed || !rouletteWasOpenBeforeMission || missionIsOpen()) return;
     var dock = byId('rouletteDock');
-    if(dock && !rouletteWasOpenBeforeMission){
-      rouletteWasOpenBeforeMission = dockIsOpen() || dock.classList.contains('tk-rl-v84') || root.classList.contains('oai-rl84-open');
-    }
-    root.classList.add('tk-rm-active');
-    if(document.body) document.body.classList.add('tk-rm-active');
-    var m = byId('rouletteMission');
-    if(m){
-      setImp(m, 'z-index', '28000');
-      setImp(m, 'display', 'flex');
-      setImp(m, 'visibility', 'visible');
-      setImp(m, 'opacity', '1');
-      setImp(m, 'pointer-events', 'auto');
-    }
-    softHideDockForMission();
-    startMissionLoop();
-  }
+    if(!dock) return;
 
-  function startMissionLoop(){
-    if(missionTimer) return;
-    missionTimer = window.setInterval(function(){
-      if(missionIsOpen()) softHideDockForMission();
-      else stopMissionLoop();
-    }, 90);
-  }
-
-  function stopMissionLoop(){
-    if(missionTimer){
-      clearInterval(missionTimer);
-      missionTimer = 0;
-    }
-  }
-
-  function showDockAfterMission(){
-    if(restoringMission) return;
-    if(!phoneLandscape()) return;
-    if(missionIsOpen()) return;
-    stopMissionLoop();
-    root.classList.remove('tk-rm-active');
-    if(document.body) document.body.classList.remove('tk-rm-active');
-    var dock = byId('rouletteDock');
-    if(!dock || rouletteClosedExplicitly || !rouletteWasOpenBeforeMission) return;
-
-    rouletteWasOpenBeforeMission = false;
-    restoringMission = true;
+    root.classList.remove('tk-rm-mission-open','tk-roulette-force-closed');
+    if(document.body) document.body.classList.remove('tk-rm-mission-open');
     root.classList.add('oai-rl84-open','tk-roulette-user-opened');
     if(document.body) document.body.classList.add('oai-rl84-open');
     hideExtraModules();
 
-    dock.classList.remove('tk-rm-soft-hidden');
-    dock.removeAttribute('data-tk-rm-soft-hidden');
     dock.hidden = false;
     dock.removeAttribute('hidden');
-    dock.setAttribute('aria-hidden', 'false');
+    dock.setAttribute('aria-hidden','false');
     dock.classList.add('tk-roulette-popover-mode','tk-final-popover-control','tk-roulette-popover-open','tk-rl-v84');
     ['display','visibility','opacity','pointer-events','z-index'].forEach(function(prop){ clearImp(dock, prop); });
     setImp(dock, 'display', 'block');
@@ -70494,153 +70456,122 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     setImp(dock, 'z-index', '22000');
     ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
       var el = byId(id);
-      if(el) el.setAttribute('aria-expanded', 'true');
+      if(el) el.setAttribute('aria-expanded','true');
     });
-    setTimeout(function(){ restoringMission = false; }, 250);
   }
 
-  function forceCloseMissionIfStillOpen(){
-    var m = byId('rouletteMission');
-    if(m && missionIsOpen()){
-      m.classList.remove('is-open');
-      m.setAttribute('aria-hidden', 'true');
-      setImp(m, 'pointer-events', 'none');
-    }
-    showDockAfterMission();
-  }
-
-  function hardHideDock(){
-    var dock = byId('rouletteDock');
-    if(!dock) return;
-    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open','tk-rm-soft-hidden');
-    dock.removeAttribute('data-tk-rm-soft-hidden');
-    dock.setAttribute('aria-hidden', 'true');
-    dock.hidden = true;
-    setImp(dock, 'display', 'none');
-    setImp(dock, 'visibility', 'hidden');
-    setImp(dock, 'opacity', '0');
-    setImp(dock, 'pointer-events', 'none');
-    setImp(dock, 'z-index', '1');
-  }
-
-  function callNativeClose(){
-    var nativeClose = byId('closeRouletteDock');
-    if(nativeClose && typeof nativeClose.onclick === 'function'){
-      try{
-        nativeClose.onclick({
-          preventDefault:function(){},
-          stopPropagation:function(){},
-          stopImmediatePropagation:function(){}
-        });
-      }catch(_){ }
+  function syncMissionState(){
+    if(!phoneLandscape()) return;
+    var open = missionIsOpen();
+    if(open){
+      if(!rouletteWasOpenBeforeMission) rouletteWasOpenBeforeMission = dockIsOpen();
+      root.classList.add('tk-rm-mission-open');
+      if(document.body) document.body.classList.add('tk-rm-mission-open');
+      var m = byId('rouletteMission');
+      if(m){
+        setImp(m, 'z-index', '28000');
+        setImp(m, 'pointer-events', 'auto');
+      }
+    }else{
+      root.classList.remove('tk-rm-mission-open');
+      if(document.body) document.body.classList.remove('tk-rm-mission-open');
+      revealDockAfterMission();
     }
   }
 
-  function closeRouletteBlock(ev){
+  function closeRouletteOnly(ev){
     if(ev){
       try{ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_){ }
     }
-    if(closingRoulette) return false;
-    closingRoulette = true;
-    rouletteClosedExplicitly = true;
+    if(closeBusy) return false;
+    closeBusy = true;
+    forceClosed = true;
     rouletteWasOpenBeforeMission = false;
-    stopMissionLoop();
+    root.classList.add('tk-roulette-force-closed');
 
-    callNativeClose();
+    var nativeClose = byId('closeRouletteDock');
+    if(nativeClose && ev && ev.target !== nativeClose){
+      try{ nativeClose.click(); }catch(_){ }
+    }
+
     hardHideDock();
-    restoreExtraModules();
-    setTimeout(function(){ hardHideDock(); restoreExtraModules(); }, 80);
-    setTimeout(function(){ hardHideDock(); restoreExtraModules(); closingRoulette = false; }, 240);
+    showExtraModules();
+    setTimeout(function(){ hardHideDock(); showExtraModules(); }, 80);
+    setTimeout(function(){ hardHideDock(); showExtraModules(); closeBusy = false; }, 260);
     return false;
-  }
-
-  function onMaybeMissionClosed(){
-    if(missionIsOpen()) ensureMissionMode();
-    else showDockAfterMission();
   }
 
   function schedule(){
     if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function(){
-      raf = 0;
-      onMaybeMissionClosed();
-    });
-    setTimeout(onMaybeMissionClosed, 80);
-    setTimeout(onMaybeMissionClosed, 220);
+    raf = requestAnimationFrame(function(){ raf = 0; syncMissionState(); });
+    setTimeout(syncMissionState, 80);
+    setTimeout(syncMissionState, 240);
   }
 
   function bind(){
     var mission = byId('rouletteMission');
     var dock = byId('rouletteDock');
+
     if(mission && !missionObserver && window.MutationObserver){
       missionObserver = new MutationObserver(schedule);
       missionObserver.observe(mission, {attributes:true, attributeFilter:['class','aria-hidden','style']});
     }
     if(dock && !dockObserver && window.MutationObserver){
-      dockObserver = new MutationObserver(function(){
-        if(missionIsOpen()) softHideDockForMission();
-      });
+      dockObserver = new MutationObserver(function(){ if(missionIsOpen()) syncMissionState(); });
       dockObserver.observe(dock, {attributes:true, attributeFilter:['class','style','hidden','aria-hidden']});
     }
 
     ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
       var el = byId(id);
-      if(!el || el.__tkRm21OpenBound) return;
-      el.__tkRm21OpenBound = true;
-      el.addEventListener('click', function(){ rouletteClosedExplicitly = false; rouletteWasOpenBeforeMission = false; }, true);
-      el.addEventListener('pointerdown', function(){ rouletteClosedExplicitly = false; rouletteWasOpenBeforeMission = false; }, true);
-      el.addEventListener('touchstart', function(){ rouletteClosedExplicitly = false; rouletteWasOpenBeforeMission = false; }, {capture:true, passive:true});
+      if(!el || el.__tkRm213OpenBound) return;
+      el.__tkRm213OpenBound = true;
+      ['pointerdown','touchstart','click'].forEach(function(type){
+        el.addEventListener(type, function(){
+          forceClosed = false;
+          rouletteWasOpenBeforeMission = false;
+          root.classList.remove('tk-roulette-force-closed','tk-rm-mission-open');
+          if(document.body) document.body.classList.remove('tk-rm-mission-open');
+        }, true);
+      });
     });
+
+    document.addEventListener('click', function(ev){
+      var t = ev.target;
+      if(t && t.closest && t.closest('#rLink, #rouletteDock .roulette-link')){
+        rouletteWasOpenBeforeMission = dockIsOpen();
+        setTimeout(schedule, 0);
+        setTimeout(schedule, 100);
+        setTimeout(schedule, 260);
+      }
+      if(t && t.closest && t.closest('#rmClose, #rmFinish')){
+        setTimeout(schedule, 40);
+        setTimeout(schedule, 160);
+        setTimeout(schedule, 360);
+      }
+      var mission = byId('rouletteMission');
+      if(mission && ev.target === mission){
+        setTimeout(schedule, 80);
+        setTimeout(schedule, 260);
+      }
+    }, false);
   }
 
-  window.addEventListener('pointerdown', function(ev){
-    var t = ev.target;
-    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
-      closeRouletteBlock(ev);
-    }
-  }, true);
-
-  window.addEventListener('click', function(ev){
-    var t = ev.target;
-    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
-      closeRouletteBlock(ev);
-      return;
-    }
-    if(t && t.closest && t.closest('#rLink, #rouletteDock .roulette-link')){
-      if(!rouletteClosedExplicitly) rouletteWasOpenBeforeMission = true;
-      setTimeout(ensureMissionMode, 0);
-      setTimeout(ensureMissionMode, 60);
-      setTimeout(ensureMissionMode, 180);
-    }
-    if(t && t.closest && t.closest('#rmClose, #rmFinish')){
-      setTimeout(showDockAfterMission, 40);
-      setTimeout(showDockAfterMission, 140);
-      setTimeout(forceCloseMissionIfStillOpen, 360);
-    }
-  }, true);
-
-  window.addEventListener('touchstart', function(ev){
-    var t = ev.target;
-    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
-      closeRouletteBlock(ev);
-    }
-  }, {capture:true, passive:false});
-
-  document.addEventListener('click', function(ev){
-    var mission = byId('rouletteMission');
-    if(mission && ev.target === mission){
-      setTimeout(showDockAfterMission, 60);
-      setTimeout(forceCloseMissionIfStillOpen, 220);
-    }
-  }, true);
+  ['pointerdown','touchstart','click'].forEach(function(type){
+    window.addEventListener(type, function(ev){
+      var t = ev.target;
+      if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+        closeRouletteOnly(ev);
+      }
+    }, {capture:true, passive:false});
+  });
 
   window.addEventListener('keydown', function(ev){
     if(ev.key === 'Escape'){
       if(missionIsOpen()){
-        setTimeout(showDockAfterMission, 60);
-        setTimeout(forceCloseMissionIfStillOpen, 220);
+        setTimeout(schedule, 80);
+        setTimeout(schedule, 260);
       }else if(dockIsOpen()){
-        closeRouletteBlock(ev);
+        closeRouletteOnly(ev);
       }
     }
   }, true);
@@ -70654,7 +70585,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   window.addEventListener('load', function(){ bind(); setTimeout(schedule, 250); }, {once:true});
 })();
 </script>
-<!-- /OAI PATCH v21.2 -->
+<!-- /OAI PATCH v21.3 -->
 
 </body>
 </html>
