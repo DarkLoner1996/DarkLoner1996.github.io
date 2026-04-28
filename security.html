@@ -71056,11 +71056,11 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 <!-- /OAI PATCH v12 -->
 
 
-<!-- OAI PATCH v16: direct mobile-landscape extra menu toggle, prevents double-toggle with legacy handler -->
-<style id="oai-tkqa-mobile-landscape-v16-direct-toggle-style">
+<!-- OAI PATCH v17: stable mobile-landscape extra menu head toggle (single-tap, no double toggle) -->
+<style id="oai-tkqa-mobile-landscape-v17-head-toggle-style">
 @media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-collapsed .tkqa-fold,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-collapsed .tkqa-fold{
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-collapsed .tkqa-fold,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-collapsed .tkqa-fold{
     display:none !important;
     max-height:0 !important;
     opacity:0 !important;
@@ -71072,18 +71072,18 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     filter:none !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-collapsed .tkqa-grid,
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-collapsed .tkqa-bottom-line,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-collapsed .tkqa-grid,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-collapsed .tkqa-bottom-line{
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-collapsed .tkqa-grid,
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-collapsed .tkqa-bottom-line,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-collapsed .tkqa-grid,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-collapsed .tkqa-bottom-line{
     display:none !important;
     visibility:hidden !important;
     opacity:0 !important;
     pointer-events:none !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-open .tkqa-fold,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-open .tkqa-fold{
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-open .tkqa-fold,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-open .tkqa-fold{
     display:block !important;
     max-height:var(--tkqa-fold-h, 230px) !important;
     opacity:1 !important;
@@ -71091,27 +71091,29 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     pointer-events:auto !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-open .tkqa-grid,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-open .tkqa-grid{
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-open .tkqa-grid,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-open .tkqa-grid{
     display:grid !important;
     visibility:visible !important;
     opacity:1 !important;
     pointer-events:auto !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-open .tkqa-bottom-line,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v16-open .tkqa-bottom-line{
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-open .tkqa-bottom-line,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.tkqa-v17-open .tkqa-bottom-line{
     display:block !important;
     visibility:visible !important;
     opacity:1 !important;
   }
 }
 </style>
-<script id="oai-tkqa-mobile-landscape-v16-direct-toggle-script">
+<script id="oai-tkqa-mobile-landscape-v17-head-toggle-script">
 (function(){
   'use strict';
 
   var root = document.documentElement;
+  var lastToggleAt = 0;
+  var suppressClickUntil = 0;
 
   function phoneLandscape(){
     var w = window.innerWidth || root.clientWidth || 0;
@@ -71124,7 +71126,6 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   }
 
   function wrap(){ return document.querySelector('.rules.tkqa-wrap'); }
-
   function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
   function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
 
@@ -71145,6 +71146,16 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     return fold;
   }
 
+  function visibleByState(w){
+    if(!w) return false;
+    if(w.classList.contains('tkqa-v17-collapsed') || w.classList.contains('is-collapsed')) return false;
+    if(w.classList.contains('tkqa-v17-open') || w.classList.contains('is-open') || w.getAttribute('data-tkqa-open') === '1') return true;
+    var grid = w.querySelector('.tkqa-grid');
+    if(!grid) return false;
+    var cs = window.getComputedStyle ? getComputedStyle(grid) : null;
+    return !!(!cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'));
+  }
+
   function setOpen(open, save){
     var w = wrap();
     if(!w) return;
@@ -71156,8 +71167,9 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     w.classList.add('tkqa-collapsible');
     w.classList.toggle('is-open', !!open);
     w.classList.toggle('is-collapsed', !open);
-    w.classList.toggle('tkqa-v16-open', !!open);
-    w.classList.toggle('tkqa-v16-collapsed', !open);
+    w.classList.toggle('tkqa-v17-open', !!open);
+    w.classList.toggle('tkqa-v17-collapsed', !open);
+    w.classList.remove('tkqa-v16-open','tkqa-v16-collapsed','is-hidden','tk-hidden');
     w.setAttribute('data-tkqa-open', open ? '1' : '0');
     w.removeAttribute('aria-hidden');
 
@@ -71176,7 +71188,6 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
     if(fold){
       if(open){
-        clearImp(fold, 'display');
         setImp(fold, 'display', 'block');
         setImp(fold, 'visibility', 'visible');
         setImp(fold, 'opacity', '1');
@@ -71222,21 +71233,33 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     }
   }
 
-  function isOpen(){
-    var w = wrap();
-    if(!w) return false;
-    if(w.classList.contains('tkqa-v16-collapsed') || w.classList.contains('is-collapsed')) return false;
-    return w.classList.contains('tkqa-v16-open') || w.classList.contains('is-open') || w.getAttribute('data-tkqa-open') === '1';
-  }
-
-  function toggle(ev){
-    if(!phoneLandscape()) return;
-    var target = ev && ev.target;
-    if(!target || !target.closest || !target.closest('.rules.tkqa-wrap .tkqa-head')) return;
+  function consume(ev){
     try{ ev.preventDefault(); }catch(_e){}
     try{ ev.stopPropagation(); }catch(_e){}
     try{ if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_e){}
-    setOpen(!isOpen(), true);
+  }
+
+  function handleToggle(ev){
+    if(!phoneLandscape()) return;
+    var target = ev && ev.target;
+    if(!target || !target.closest || !target.closest('.rules.tkqa-wrap .tkqa-head')) return;
+
+    var now = Date.now();
+    if(ev.type === 'click' && now < suppressClickUntil){
+      consume(ev);
+      return;
+    }
+    if(now - lastToggleAt < 220){
+      consume(ev);
+      return;
+    }
+
+    consume(ev);
+    var w = wrap();
+    var next = !visibleByState(w);
+    lastToggleAt = now;
+    if(ev.type === 'pointerup' || ev.type === 'touchend') suppressClickUntil = now + 520;
+    setOpen(next, true);
   }
 
   function onKey(ev){
@@ -71244,23 +71267,24 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     var target = ev && ev.target;
     if(!target || !target.closest || !target.closest('.rules.tkqa-wrap .tkqa-head')) return;
     var key = ev.key || ev.code;
-    if(key === 'Enter' || key === ' ' || key === 'Spacebar') toggle(ev);
+    if(key === 'Enter' || key === ' ' || key === 'Spacebar') handleToggle(ev);
   }
 
   function init(){
     var w = wrap();
     if(!w) return;
     ensureFold(w);
-    if(!w.classList.contains('tkqa-v16-open') && !w.classList.contains('tkqa-v16-collapsed')){
-      var open = w.classList.contains('is-open') || w.getAttribute('data-tkqa-open') === '1';
-      try{ open = sessionStorage.getItem('tkqa-dock-open') === '1'; }catch(_e){}
-      setOpen(open, false);
-    }
+    var open = visibleByState(w);
+    try{
+      var saved = sessionStorage.getItem('tkqa-dock-open');
+      if(saved === '0') open = false;
+      if(saved === '1') open = true;
+    }catch(_e){}
+    setOpen(open, false);
   }
 
-  document.addEventListener('click', toggle, true);
-  document.addEventListener('pointerup', toggle, true);
-  document.addEventListener('touchend', toggle, true);
+  document.addEventListener(window.PointerEvent ? 'pointerup' : 'touchend', handleToggle, true);
+  document.addEventListener('click', handleToggle, true);
   document.addEventListener('keydown', onKey, true);
 
   if(document.readyState === 'loading'){
@@ -71271,6 +71295,6 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   window.addEventListener('load', init, {once:true});
 })();
 </script>
-<!-- /OAI PATCH v16 -->
+<!-- /OAI PATCH v17 -->
 </body>
 </html>
