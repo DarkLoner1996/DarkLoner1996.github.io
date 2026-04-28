@@ -71096,5 +71096,306 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
 
 
+
+<!-- TK PATCH: mobile landscape roulette close -> extra menu + smaller spin button / start -->
+<style id="tk-mobile-landscape-roulette-close-extra-menu-vfinal-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.tk-ml-roulette-closed-vfinal #rouletteDock,
+  html.tk-ml-roulette-closed-vfinal #rouletteDock.tk-rl-v84,
+  body.tk-ml-roulette-closed-vfinal #rouletteDock,
+  body.tk-ml-roulette-closed-vfinal #rouletteDock.tk-rl-v84{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    z-index:1 !important;
+  }
+
+  html.tk-ml-roulette-closed-vfinal .rules.tkqa-wrap,
+  body.tk-ml-roulette-closed-vfinal .rules.tkqa-wrap{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    transform:none !important;
+    z-index:12620 !important;
+  }
+
+  html.tk-ml-roulette-closed-vfinal .rules.tkqa-wrap .tkqa-dock,
+  body.tk-ml-roulette-closed-vfinal .rules.tkqa-wrap .tkqa-dock,
+  html.tk-ml-roulette-closed-vfinal .rules.tkqa-wrap .tkqa-grid,
+  body.tk-ml-roulette-closed-vfinal .rules.tkqa-wrap .tkqa-grid{
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-btn,
+  html.tk-mobile-landscape-v341 #rouletteDock.tk-rl-v84 #spinBtn,
+  html.tk-mobile-landscape-v341 #rouletteDock.tk-rl-v84 .roulette-btn{
+    min-height:36px !important;
+    height:36px !important;
+    padding:6px 10px !important;
+    border-radius:12px !important;
+    font-size:11px !important;
+    line-height:1 !important;
+    letter-spacing:.03em !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn,
+  html.tk-mobile-landscape-v341 #rouletteDock.tk-rl-v84 #spinBtn{
+    width:116px !important;
+    min-width:116px !important;
+    max-width:116px !important;
+    justify-content:center !important;
+    gap:6px !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn svg,
+  html.tk-mobile-landscape-v341 #rouletteDock.tk-rl-v84 #spinBtn svg{
+    width:13px !important;
+    height:13px !important;
+    min-width:13px !important;
+    min-height:13px !important;
+  }
+}
+</style>
+<script id="tk-mobile-landscape-roulette-close-extra-menu-vfinal-script">
+(function(){
+  'use strict';
+
+  var root = document.documentElement;
+  var closeState = false;
+  var dockObserver = null;
+  var menuObserver = null;
+
+  function byId(id){ return document.getElementById(id); }
+  function menuWrap(){ return document.querySelector('.rules.tkqa-wrap'); }
+  function dock(){ return byId('rouletteDock'); }
+  function openTriggers(){ return [byId('tkqaOpenRoulette'), byId('openRouletteDockPopover')].filter(Boolean); }
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
+
+  function viewport(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      w = Math.max(w, Math.round(window.visualViewport.width || 0));
+      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
+    }
+    return { w:w, h:h };
+  }
+
+  function isTargetMode(){
+    var v = viewport();
+    var landscape = v.w > v.h;
+    var shortSide = Math.min(v.w, v.h);
+    var longSide = Math.max(v.w, v.h);
+    var coarse = false;
+    try{ coarse = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }
+    catch(_){ coarse = (navigator.maxTouchPoints || 0) > 0; }
+    return landscape && shortSide <= 680 && longSide <= 1600 && (
+      root.classList.contains('tk-mobile-landscape-v341') ||
+      root.classList.contains('oai-rl84-phone') ||
+      coarse
+    );
+  }
+
+  function removeOpenFlags(){
+    [
+      'oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open',
+      'tk-roulette-user-opened','tk-rm-mission-open','tk-roulette-force-closed','tk-roulette-hard-closed'
+    ].forEach(function(c){
+      root.classList.remove(c);
+      if(document.body) document.body.classList.remove(c);
+    });
+  }
+
+  function showExtraMenu(){
+    var wrap = menuWrap();
+    if(!wrap) return;
+    wrap.classList.remove('is-collapsed','is-hidden','tk-hidden');
+    wrap.classList.add('is-open');
+    wrap.removeAttribute('aria-hidden');
+    ['display','visibility','opacity','pointer-events','transform','z-index'].forEach(function(prop){ clearImp(wrap, prop); });
+    setImp(wrap, 'display', 'block');
+    setImp(wrap, 'visibility', 'visible');
+    setImp(wrap, 'opacity', '1');
+    setImp(wrap, 'pointer-events', 'auto');
+    setImp(wrap, 'transform', 'none');
+    setImp(wrap, 'z-index', '12620');
+
+    var dockEl = wrap.querySelector('.tkqa-dock');
+    if(dockEl){
+      dockEl.removeAttribute('aria-hidden');
+      ['display','visibility','opacity','pointer-events'].forEach(function(prop){ clearImp(dockEl, prop); });
+      setImp(dockEl, 'display', 'block');
+      setImp(dockEl, 'visibility', 'visible');
+      setImp(dockEl, 'opacity', '1');
+      setImp(dockEl, 'pointer-events', 'auto');
+    }
+
+    var grid = wrap.querySelector('.tkqa-grid');
+    if(grid){
+      ['display','visibility','opacity','pointer-events'].forEach(function(prop){ clearImp(grid, prop); });
+      setImp(grid, 'display', 'grid');
+      setImp(grid, 'visibility', 'visible');
+      setImp(grid, 'opacity', '1');
+      setImp(grid, 'pointer-events', 'auto');
+    }
+
+    openTriggers().forEach(function(btn){ btn.setAttribute('aria-expanded', 'false'); });
+  }
+
+  function hideExtraMenu(){
+    var wrap = menuWrap();
+    if(!wrap) return;
+    wrap.classList.add('is-collapsed');
+    wrap.classList.remove('is-open');
+    wrap.setAttribute('aria-hidden','true');
+    setImp(wrap, 'display', 'none');
+    setImp(wrap, 'visibility', 'hidden');
+    setImp(wrap, 'opacity', '0');
+    setImp(wrap, 'pointer-events', 'none');
+  }
+
+  function hideDockHard(){
+    var el = dock();
+    if(!el) return;
+    el.hidden = true;
+    el.setAttribute('aria-hidden', 'true');
+    el.setAttribute('data-tk-ml-roulette-closed', '1');
+    el.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open','is-open','oai-rl84-open');
+    ['display','visibility','opacity','pointer-events','z-index','left','right','top','bottom','transform'].forEach(function(prop){ clearImp(el, prop); });
+    setImp(el, 'display', 'none');
+    setImp(el, 'visibility', 'hidden');
+    setImp(el, 'opacity', '0');
+    setImp(el, 'pointer-events', 'none');
+    setImp(el, 'z-index', '1');
+  }
+
+  function clearClosedState(){
+    closeState = false;
+    root.classList.remove('tk-ml-roulette-closed-vfinal');
+    if(document.body) document.body.classList.remove('tk-ml-roulette-closed-vfinal');
+    var el = dock();
+    if(el){
+      el.removeAttribute('data-tk-ml-roulette-closed');
+      ['display','visibility','opacity','pointer-events','z-index'].forEach(function(prop){ clearImp(el, prop); });
+      el.hidden = false;
+      el.setAttribute('aria-hidden','false');
+    }
+  }
+
+  function closeRouletteToMenu(){
+    if(!isTargetMode()) return false;
+    closeState = true;
+    root.classList.add('tk-ml-roulette-closed-vfinal');
+    if(document.body) document.body.classList.add('tk-ml-roulette-closed-vfinal');
+    removeOpenFlags();
+    hideDockHard();
+    showExtraMenu();
+    [0,16,60,140,320,700,1200].forEach(function(ms){
+      setTimeout(function(){
+        if(!closeState || !isTargetMode()) return;
+        removeOpenFlags();
+        hideDockHard();
+        showExtraMenu();
+      }, ms);
+    });
+    return false;
+  }
+
+  function handleOpenIntent(){
+    if(!isTargetMode()) return;
+    clearClosedState();
+    hideExtraMenu();
+    openTriggers().forEach(function(btn){ btn.setAttribute('aria-expanded', 'true'); });
+  }
+
+  function isCloseTarget(target){
+    return !!(target && target.closest && target.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock'));
+  }
+
+  function bindOpen(){
+    openTriggers().forEach(function(btn){
+      if(btn.__tkMlRouletteOpenBound) return;
+      btn.__tkMlRouletteOpenBound = true;
+      ['pointerdown','touchstart','click'].forEach(function(type){
+        btn.addEventListener(type, handleOpenIntent, { capture:true, passive:false });
+      });
+    });
+  }
+
+  function bindClose(){
+    ['pointerdown','touchstart','click'].forEach(function(type){
+      document.addEventListener(type, function(ev){
+        if(!isTargetMode()) return;
+        if(!isCloseTarget(ev.target)) return;
+        try{ ev.preventDefault(); }catch(_){ }
+        try{ ev.stopPropagation(); }catch(_){ }
+        try{ ev.stopImmediatePropagation(); }catch(_){ }
+        closeRouletteToMenu();
+        return false;
+      }, { capture:true, passive:false });
+    });
+  }
+
+  function bindObservers(){
+    var d = dock();
+    if(d && !dockObserver && window.MutationObserver){
+      dockObserver = new MutationObserver(function(){
+        if(closeState && isTargetMode()){
+          hideDockHard();
+          showExtraMenu();
+        }
+      });
+      dockObserver.observe(d, { attributes:true, childList:true, subtree:true, attributeFilter:['class','style','hidden','aria-hidden'] });
+    }
+
+    var wrap = menuWrap();
+    if(wrap && !menuObserver && window.MutationObserver){
+      menuObserver = new MutationObserver(function(){
+        if(closeState && isTargetMode()) showExtraMenu();
+      });
+      menuObserver.observe(wrap, { attributes:true, childList:true, subtree:true, attributeFilter:['class','style','hidden','aria-hidden'] });
+    }
+  }
+
+  function maintain(){
+    if(!isTargetMode()) return;
+    if(closeState){
+      hideDockHard();
+      showExtraMenu();
+    }
+  }
+
+  function bind(){
+    bindOpen();
+    bindClose();
+    bindObservers();
+    maintain();
+  }
+
+  window.tkMobileLandscapeRouletteCloseToMenu = closeRouletteToMenu;
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape' && closeState && isTargetMode()){
+      closeRouletteToMenu();
+    }
+  }, false);
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, { once:true });
+  else bind();
+
+  window.addEventListener('load', function(){ bind(); maintain(); }, { once:true });
+  window.addEventListener('resize', function(){ setTimeout(maintain, 0); }, { passive:true });
+  window.addEventListener('orientationchange', function(){ setTimeout(maintain, 120); }, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ setTimeout(maintain, 0); }, { passive:true });
+})();
+</script>
+<!-- TK PATCH: mobile landscape roulette close -> extra menu + smaller spin button / end -->
+
 </body>
 </html>
