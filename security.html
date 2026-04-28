@@ -71055,5 +71055,185 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </script>
 <!-- /OAI PATCH v12 -->
 
+
+<!-- OAI PATCH v13: mobile-landscape extra menu direct collapse after roulette return -->
+<style id="oai-tkqa-mobile-landscape-v13-collapse-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible{
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible .tkqa-head,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible .tkqa-head{
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    cursor:pointer !important;
+  }
+
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
+    max-height:0 !important;
+    height:0 !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    margin-top:0 !important;
+    overflow:hidden !important;
+    transform:translate3d(0,18px,0) scaleY(.84) !important;
+  }
+
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-grid,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-grid,
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-bottom-line,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-bottom-line{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-open .tkqa-fold,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-open .tkqa-fold{
+    height:auto !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    overflow:hidden !important;
+  }
+}
+</style>
+<script id="oai-tkqa-mobile-landscape-v13-collapse-script">
+(function(){
+  'use strict';
+
+  var root = document.documentElement;
+  var lastToggleAt = 0;
+
+  function wrap(){ return document.querySelector('.rules.tkqa-wrap'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+
+  function phoneLandscape(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      w = Math.max(w, Math.round(window.visualViewport.width || 0));
+      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
+    }
+    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
+  }
+
+  function ensureFold(w){
+    if(!w) return null;
+    var dock = w.querySelector('.tkqa-dock');
+    var grid = w.querySelector('.tkqa-grid');
+    var line = w.querySelector('.tkqa-bottom-line');
+    if(!dock || !grid) return null;
+    var fold = w.querySelector('.tkqa-fold');
+    if(!fold){
+      fold = document.createElement('div');
+      fold.className = 'tkqa-fold';
+      fold.id = 'tkqaFold';
+      dock.insertBefore(fold, line || null);
+      fold.appendChild(grid);
+      if(line) fold.appendChild(line);
+    }
+    return fold;
+  }
+
+  function setOpen(open, save){
+    var w = wrap();
+    if(!w) return;
+    var fold = ensureFold(w);
+    var head = w.querySelector('.tkqa-head');
+
+    w.classList.add('tkqa-collapsible');
+    w.classList.toggle('is-open', !!open);
+    w.classList.toggle('is-collapsed', !open);
+    w.classList.remove('is-hidden','tk-hidden');
+    w.removeAttribute('aria-hidden');
+    w.setAttribute('data-tkqa-open', open ? '1' : '0');
+
+    setImp(w, 'display', 'block');
+    setImp(w, 'visibility', 'visible');
+    setImp(w, 'opacity', '1');
+    setImp(w, 'pointer-events', 'auto');
+    clearImp(w, 'transform');
+
+    if(head){
+      head.setAttribute('role', 'button');
+      head.setAttribute('tabindex', '0');
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      head.style.setProperty('pointer-events', 'auto', 'important');
+      head.style.setProperty('touch-action', 'manipulation', 'important');
+      head.style.setProperty('cursor', 'pointer', 'important');
+    }
+
+    if(fold){
+      if(open){
+        fold.style.removeProperty('max-height');
+        fold.style.removeProperty('height');
+        fold.style.removeProperty('opacity');
+        fold.style.removeProperty('visibility');
+        fold.style.removeProperty('pointer-events');
+        fold.style.removeProperty('margin-top');
+        fold.style.removeProperty('transform');
+        try{
+          var h = Math.ceil(fold.scrollHeight || 0);
+          if(h > 0) w.style.setProperty('--tkqa-fold-h', h + 'px');
+        }catch(_e){}
+      }else{
+        fold.style.setProperty('max-height', '0', 'important');
+        fold.style.setProperty('height', '0', 'important');
+        fold.style.setProperty('opacity', '0', 'important');
+        fold.style.setProperty('visibility', 'hidden', 'important');
+        fold.style.setProperty('pointer-events', 'none', 'important');
+        fold.style.setProperty('margin-top', '0', 'important');
+      }
+    }
+
+    if(save !== false){
+      try{ sessionStorage.setItem('tkqa-dock-open', open ? '1' : '0'); }catch(_e){}
+    }
+  }
+
+  function shouldHandle(target){
+    return !!(target && target.closest && target.closest('.rules.tkqa-wrap .tkqa-head'));
+  }
+
+  function handleToggle(ev){
+    if(!phoneLandscape()) return;
+    if(!shouldHandle(ev.target)) return;
+
+    var now = Date.now();
+    if(now - lastToggleAt < 320){
+      try{ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_e){}
+      return false;
+    }
+    lastToggleAt = now;
+
+    try{ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_e){}
+    var w = wrap();
+    if(!w) return false;
+    setOpen(!w.classList.contains('is-open'));
+    return false;
+  }
+
+  ['pointerup','touchend','click'].forEach(function(type){
+    document.addEventListener(type, handleToggle, {capture:true, passive:false});
+  });
+
+  document.addEventListener('keydown', function(ev){
+    if(!phoneLandscape()) return;
+    var key = ev.key || ev.code;
+    if((key === 'Enter' || key === ' ' || key === 'Spacebar') && shouldHandle(ev.target)){
+      handleToggle(ev);
+    }
+  }, true);
+})();
+</script>
+<!-- /OAI PATCH v13 -->
 </body>
 </html>
