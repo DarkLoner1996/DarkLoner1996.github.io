@@ -9,7 +9,7 @@
 <link href="embl.webp" rel="icon" sizes="72x72" type="image/webp"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
 <title>ТехноКрыльяРоссии</title>
-<meta name="x-automerge-version" content="v39-phone-landscape-global"/>
+<meta name="x-automerge-version" content="v42-fhd-it-phish-flow-fast"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -41796,21 +41796,37 @@ html.tk-any-game-open .side-chip{
     setTimeout(apply, 400);
     setTimeout(apply, 1200);
 
+    function shouldApplyPlayLayout(){
+      const play = q('[data-step="play"]', outer);
+      if(!play) return false;
+      const flowRoot = q('.cool-phish-root', outer);
+      const innerBack = gameId === 'itGame' ? q('#itBackdrop', outer) : q('#backdrop', outer);
+      const step = (innerBack && innerBack.dataset && innerBack.dataset.tkStep) || (flowRoot && flowRoot.dataset && flowRoot.dataset.tkStep) || '';
+      return step === 'play' || (outer.classList.contains('is-open') && !play.hidden);
+    }
+
+    let layoutRaf = 0;
     const mo = new MutationObserver(() => {
-      requestAnimationFrame(() => {
-        apply();
+      if(!shouldApplyPlayLayout()) return;
+      if(layoutRaf) return;
+      layoutRaf = requestAnimationFrame(() => {
+        layoutRaf = 0;
+        if(shouldApplyPlayLayout()) apply();
       });
     });
     mo.observe(outer, {subtree:true, childList:true, attributes:true, attributeFilter:['hidden','class','style']});
 
     const kickIds = [
       gameId === 'itGame' ? 'openItGame' : 'openPhishGame',
-      gameId === 'itGame' ? 'itStartBtn' : 'startPhishBtn',
+      gameId === 'itGame' ? 'itGoPlayBtn' : 'toPlayBtn',
       gameId === 'itGame' ? 'itCloseBtn' : 'phishCloseBtn'
     ];
     kickIds.forEach(id => {
       const el = document.getElementById(id);
-      if(el) el.addEventListener('click', () => { setTimeout(apply, 50); setTimeout(apply, 300); });
+      if(el) el.addEventListener('click', () => {
+        if(!shouldApplyPlayLayout()) return;
+        requestAnimationFrame(apply);
+      });
     });
   }
 
@@ -41850,7 +41866,7 @@ html.tk-any-game-open .roulette-dock, html.tk-any-game-open .rules, html.tk-any-
     const open = !!document.querySelector('#itGame.is-open, #phishGame.is-open, #infoSecGame.is-open, #itBackdrop.is-open, #phishBackdrop.is-open, #infoBackdrop.is-open, .game-map-lightbox:not([hidden]), #infoMapLightbox:not([hidden])');
     document.documentElement.classList.toggle('tk-any-game-open', open);
   }
-  ['openItGame','openPhishGame','itGoPlayBtn','toPlayBtn','itCloseBtn','phishCloseBtn','closeItGame','closePhishGame'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('click', ()=>{setTimeout(sync,20); setTimeout(sync,200); setTimeout(sync,800);});});
+  ['openItGame','openPhishGame','itGoPlayBtn','toPlayBtn','itCloseBtn','phishCloseBtn','closeItGame','closePhishGame'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('click', ()=>{requestAnimationFrame(sync);});});
   new MutationObserver(sync).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['class','hidden','style']});
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', sync, {once:true}); else sync();
 })();
@@ -41941,11 +41957,19 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
     const open=!!document.querySelector('#itGame.is-open, #phishGame.is-open, #infoSecGame.is-open, #itBackdrop.is-open, #phishBackdrop.is-open, #infoBackdrop.is-open, .game-map-lightbox:not([hidden]), #infoMapLightbox:not([hidden])');
     document.documentElement.classList.toggle('tk-any-game-open', open);
   }
+  function anyPlayActive(){
+    return !!document.querySelector('#itGame.is-open .cool-phish-root[data-tk-step="play"], #phishGame.is-open .cool-phish-root[data-tk-step="play"], #itBackdrop[data-tk-step="play"], #backdrop[data-tk-step="play"], #itGame.is-open .panel[data-step="play"]:not([hidden]), #phishGame.is-open .panel[data-step="play"]:not([hidden])');
+  }
   function applyAll(){ ensureSidebar('itGame','itGame'); ensureSidebar('phishGame','phishGame'); syncOpen(); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', applyAll, {once:true}); else applyAll();
   window.addEventListener('load', applyAll);
-  ['openItGame','itStartBtn','itGoPlayBtn','openPhishGame','startPhishBtn','toPlayBtn'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('click', ()=>{ setTimeout(applyAll,50); setTimeout(applyAll,200); setTimeout(applyAll,700); setTimeout(applyAll,1400); }); });
-  new MutationObserver(()=>{ requestAnimationFrame(applyAll); }).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','style']});
+  ['openItGame','itGoPlayBtn','openPhishGame','toPlayBtn'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('click', ()=>{ requestAnimationFrame(applyAll); }); });
+  let tkHardLayoutRaf = 0;
+  new MutationObserver(()=>{
+    if(!anyPlayActive()){ syncOpen(); return; }
+    if(tkHardLayoutRaf) return;
+    tkHardLayoutRaf = requestAnimationFrame(()=>{ tkHardLayoutRaf = 0; applyAll(); });
+  }).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','style']});
 })();
 </script>
 
@@ -42650,6 +42674,20 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
   visibility:hidden !important;
   pointer-events:none !important;
 }
+
+/* FHD: step switches must be display-only, without delayed visual effects. */
+@media (min-width: 1400px) and (max-width: 2200px){
+  html.tk-fhd-clean-ui :is(#itGame,#phishGame) .cool-phish-root.tk-flow-inner :is(#itBackdrop,#backdrop),
+  html.tk-fhd-clean-fixedrails :is(#itGame,#phishGame) .cool-phish-root.tk-flow-inner :is(#itBackdrop,#backdrop){
+    transition:none !important;
+    animation:none !important;
+  }
+  html.tk-fhd-clean-ui :is(#itGame,#phishGame) .cool-phish-root.tk-flow-inner .panel[data-step],
+  html.tk-fhd-clean-fixedrails :is(#itGame,#phishGame) .cool-phish-root.tk-flow-inner .panel[data-step]{
+    transition:none !important;
+    animation:none !important;
+  }
+}
 </style>
 <script type="application/x-tk-managed" data-managed-script="1" id="tk-v10-it-phish-flow-fix-script">
 (function(){
@@ -42862,28 +42900,31 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
     if(toProfile && !toProfile.dataset.tkFlowSync){
       toProfile.dataset.tkFlowSync = '1';
       toProfile.addEventListener('click', function(){
-        setTimeout(function(){ openStep(game, 'profile'); focusSoon(q(game.profileFocusSelector)); }, 0);
+        openStep(game, 'profile');
+        focusSoon(q(game.profileFocusSelector));
       });
     }
     var backToAvatar = byId(game.backToAvatarId);
     if(backToAvatar && !backToAvatar.dataset.tkFlowSync){
       backToAvatar.dataset.tkFlowSync = '1';
       backToAvatar.addEventListener('click', function(){
-        setTimeout(function(){ openStep(game, 'avatar'); focusSoon(q(game.firstAvatarSelector)); }, 0);
+        openStep(game, 'avatar');
+        focusSoon(q(game.firstAvatarSelector));
       });
     }
     var toPlay = byId(game.toPlayId);
     if(toPlay && !toPlay.dataset.tkFlowSync){
       toPlay.dataset.tkFlowSync = '1';
       toPlay.addEventListener('click', function(){
-        setTimeout(function(){ openStep(game, 'play'); }, 0);
+        openStep(game, 'play');
       });
     }
     var changeAvatar = byId(game.changeAvatarId);
     if(changeAvatar && !changeAvatar.dataset.tkFlowSync){
       changeAvatar.dataset.tkFlowSync = '1';
       changeAvatar.addEventListener('click', function(){
-        setTimeout(function(){ openStep(game, 'avatar'); focusSoon(q(game.firstAvatarSelector)); }, 0);
+        openStep(game, 'avatar');
+        focusSoon(q(game.firstAvatarSelector));
       });
     }
     var resetBtn = byId(game.resetId);
@@ -42891,7 +42932,9 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
       resetBtn.dataset.tkFlowSync = '1';
       resetBtn.addEventListener('click', function(){
         if(game._syntheticReset) return;
-        setTimeout(function(){ hardDomReset(game); openStep(game, 'avatar'); focusSoon(q(game.firstAvatarSelector)); }, 0);
+        hardDomReset(game);
+        openStep(game, 'avatar');
+        focusSoon(q(game.firstAvatarSelector));
       });
     }
   }
@@ -42911,74 +42954,136 @@ html.tk-any-game-open .side-chip{opacity:0 !important;visibility:hidden !importa
     if(!t) return;
 
     if(t.closest('#openItGame')){
-      setTimeout(function(){ initGameRefs(GAMES.it); openMenu(GAMES.it); focusSoon(byId('itStartBtn')); }, 0);
+      initGameRefs(GAMES.it);
+      openMenu(GAMES.it);
+      focusSoon(byId('itStartBtn'));
       return;
     }
     if(t.closest('#openPhishGame')){
-      setTimeout(function(){ initGameRefs(GAMES.phish); openMenu(GAMES.phish); focusSoon(byId('startBtn')); }, 0);
+      initGameRefs(GAMES.phish);
+      openMenu(GAMES.phish);
+      focusSoon(byId('startBtn'));
       return;
     }
     if(t.closest('#itStartBtn')){
-      setTimeout(function(){ openStep(GAMES.it, 'avatar'); focusSoon(q(GAMES.it.firstAvatarSelector)); }, 0);
+      openStep(GAMES.it, 'avatar');
+      focusSoon(q(GAMES.it.firstAvatarSelector));
       return;
     }
     if(t.closest('#startBtn')){
-      setTimeout(function(){ openStep(GAMES.phish, 'avatar'); focusSoon(q(GAMES.phish.firstAvatarSelector)); }, 0);
+      openStep(GAMES.phish, 'avatar');
+      focusSoon(q(GAMES.phish.firstAvatarSelector));
       return;
     }
     if(t.closest('#itTrailerBtn')){
-      setTimeout(function(){ openStep(GAMES.it, 'trailer'); focusSoon(byId('itTrailerBackBtn')); }, 0);
+      openStep(GAMES.it, 'trailer');
+      focusSoon(byId('itTrailerBackBtn'));
       return;
     }
     if(t.closest('#trailerBtn')){
-      setTimeout(function(){ openStep(GAMES.phish, 'trailer'); focusSoon(byId('backFromTrailerBtn')); }, 0);
+      openStep(GAMES.phish, 'trailer');
+      focusSoon(byId('backFromTrailerBtn'));
       return;
     }
     if(t.closest('#itBackToMenuBtn, #itTrailerBackBtn')){
-      setTimeout(function(){ openMenu(GAMES.it); focusSoon(byId('itStartBtn')); }, 0);
+      openMenu(GAMES.it);
+      focusSoon(byId('itStartBtn'));
       return;
     }
     if(t.closest('#backFromTrailerBtn')){
-      setTimeout(function(){ openMenu(GAMES.phish); focusSoon(byId('startBtn')); }, 0);
+      openMenu(GAMES.phish);
+      focusSoon(byId('startBtn'));
       return;
     }
     if(t.closest('#closeItGame, #itCloseBtn')){
-      setTimeout(function(){ closeGame(GAMES.it); }, 0);
+      closeGame(GAMES.it);
       return;
     }
     if(t.closest('#closePhishGame, #closeBtn')){
-      setTimeout(function(){ closeGame(GAMES.phish); }, 0);
+      closeGame(GAMES.phish);
       return;
     }
     if(t.closest('#itWinCloseBtn, #itLoseCloseBtn')){
-      setTimeout(function(){ finalClose(GAMES.it); }, 0);
+      finalClose(GAMES.it);
       return;
     }
     if(t.closest('#phishWinCloseBtn, #phishLoseCloseBtn')){
-      setTimeout(function(){ finalClose(GAMES.phish); }, 0);
+      finalClose(GAMES.phish);
       return;
+    }
+  }
+
+  var tkFlowInitialized = false;
+  var tkFlowClickBound = false;
+
+  function detectVisibleStep(game){
+    if(!game || !game.backdrop) return '';
+    var step = (game.backdrop.dataset && game.backdrop.dataset.tkStep) || (game.root && game.root.dataset && game.root.dataset.tkStep) || '';
+    if(step) return step;
+    var found = '';
+    qa('.panel[data-step]', game.backdrop).some(function(panel){
+      var cs = null;
+      try{ cs = window.getComputedStyle(panel); }catch(_){ }
+      var visible = !panel.hidden && (!cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'));
+      if(visible){ found = panel.getAttribute('data-step') || ''; return true; }
+      return false;
+    });
+    return found;
+  }
+
+  function preserveOrPrepare(game, firstRun){
+    initGameRefs(game);
+    if(!game.modal || !game.root || !game.backdrop) return;
+
+    bindSyncButtons(game);
+
+    var modalOpen = game.modal.classList.contains('is-open') || game.modal.getAttribute('aria-hidden') === 'false';
+    var innerOpen = game.backdrop.classList.contains('is-open') || game.backdrop.getAttribute('aria-hidden') === 'false';
+
+    if(modalOpen || innerOpen){
+      var step = innerOpen ? (detectVisibleStep(game) || 'avatar') : '';
+      if(innerOpen){
+        game.root.classList.remove('tk-flow-menu','tk-flow-closed');
+        game.root.classList.add('tk-flow-inner');
+        setStep(game, step);
+      }else{
+        game.root.classList.remove('tk-flow-inner','tk-flow-closed');
+        game.root.classList.add('tk-flow-menu');
+        hidePanels(game);
+      }
+      lockPage();
+      return;
+    }
+
+    if(firstRun){
+      game.root.classList.remove('tk-flow-menu','tk-flow-inner');
+      game.root.classList.add('tk-flow-closed');
+      hidePanels(game);
     }
   }
 
   function init(){
-    eachGame(function(game){
-      initGameRefs(game);
-      if(!game.modal || !game.root || !game.backdrop) return;
-      game.root.classList.remove('tk-flow-menu','tk-flow-inner');
-      game.root.classList.add('tk-flow-closed');
-      hidePanels(game);
-      bindSyncButtons(game);
-    });
+    var firstRun = !tkFlowInitialized;
+    tkFlowInitialized = true;
+
+    eachGame(function(game){ preserveOrPrepare(game, firstRun); });
     normalizeMaps();
-    document.addEventListener('click', handleClickCapture, true);
+
+    if(!tkFlowClickBound){
+      tkFlowClickBound = true;
+      document.addEventListener('click', handleClickCapture, true);
+    }
+
     window.tkOpenPhishGame = function(){ openMenu(GAMES.phish); return false; };
-    closeGame(GAMES.it);
-    closeGame(GAMES.phish);
+
+    if(firstRun){
+      if(GAMES.it.modal && !GAMES.it.modal.classList.contains('is-open')) closeGame(GAMES.it);
+      if(GAMES.phish.modal && !GAMES.phish.modal.classList.contains('is-open')) closeGame(GAMES.phish);
+    }
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
-  window.addEventListener('load', init, {once:true});
 })();
 </script>
 
@@ -70918,262 +71023,6 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
 
 
-<!-- TK PATCH: IT + Phish avatar/profile step guard / start -->
-<script id="tk-it-phish-step-guard-v2">
-(function(){
-  'use strict';
-
-  var GAMES = {
-    it: {
-      modalId: 'itGame',
-      backdropId: 'itBackdrop',
-      avatarStepBtnId: 'itToProfileBtn',
-      profileBackBtnId: 'itBackToAvatarBtn',
-      playBtnId: 'itGoPlayBtn',
-      changeAvatarBtnId: 'itChangeAvatarBtn',
-      inputId: 'itFioInput',
-      firstAvatarSelector: '#itPickBoy, #itPickGirl, [data-step="avatar"] .avatar-tile[data-avatar]',
-      openBtnId: 'openItGame',
-      startBtnId: 'itStartBtn'
-    },
-    phish: {
-      modalId: 'phishGame',
-      backdropId: 'backdrop',
-      avatarStepBtnId: 'toProfileBtn',
-      profileBackBtnId: 'backToAvatarBtn',
-      playBtnId: 'toPlayBtn',
-      changeAvatarBtnId: 'changeAvatarBtn',
-      inputId: 'fioInput',
-      firstAvatarSelector: '#backdrop [data-step="avatar"] .avatar-tile[data-avatar]',
-      openBtnId: 'openPhishGame',
-      startBtnId: 'startBtn'
-    }
-  };
-
-  function byId(id){ return id ? document.getElementById(id) : null; }
-  function all(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function rootOf(game){
-    var modal = byId(game.modalId);
-    return modal ? modal.querySelector('.cool-phish-root') : null;
-  }
-  function backdropOf(game){ return byId(game.backdropId); }
-  function normalizeNick(value){ return String(value || '').replace(/\u00A0/g, ' ').trim(); }
-  function validNick(value){ return /^[^\s]+(?: [^\s]+)?$/.test(normalizeNick(value)) && normalizeNick(value).length >= 2; }
-
-  function setDots(backdrop, step){
-    var active = step === 'avatar' ? '1' : (step === 'profile' ? '2' : (step === 'play' ? '3' : ''));
-    all('[data-stepdot]', backdrop).forEach(function(dot){
-      var on = !!active && dot.getAttribute('data-stepdot') === active;
-      dot.classList.toggle('is-active', on);
-      dot.classList.toggle('is-on', on);
-    });
-  }
-
-  function forceStep(game, step, focusSelector){
-    var modal = byId(game.modalId);
-    var root = rootOf(game);
-    var backdrop = backdropOf(game);
-    if(!modal || !root || !backdrop) return;
-
-    modal.hidden = false;
-    modal.removeAttribute('hidden');
-    modal.classList.add('is-open');
-    modal.setAttribute('aria-hidden', 'false');
-
-    root.classList.remove('tk-flow-menu', 'tk-flow-closed');
-    root.classList.add('tk-flow-inner');
-    root.dataset.tkStep = step || '';
-
-    backdrop.hidden = false;
-    backdrop.removeAttribute('hidden');
-    backdrop.classList.add('is-open');
-    backdrop.setAttribute('aria-hidden', 'false');
-    backdrop.dataset.tkStep = step || '';
-
-    all('.panel[data-step]', backdrop).forEach(function(panel){
-      var active = panel.getAttribute('data-step') === step;
-      panel.hidden = !active;
-      if(active){
-        panel.removeAttribute('hidden');
-        panel.style.setProperty('display', 'block', 'important');
-        panel.style.setProperty('visibility', 'visible', 'important');
-        panel.style.setProperty('opacity', '1', 'important');
-        panel.style.setProperty('pointer-events', 'auto', 'important');
-      }else{
-        panel.setAttribute('hidden', '');
-        panel.style.setProperty('display', 'none', 'important');
-        panel.style.setProperty('pointer-events', 'none', 'important');
-      }
-    });
-
-    setDots(backdrop, step || '');
-    document.documentElement.classList.add('tk-any-game-open');
-    document.documentElement.style.overflow = 'hidden';
-    if(document.body) document.body.style.overflow = 'hidden';
-
-    if(focusSelector){
-      setTimeout(function(){
-        var el = backdrop.querySelector(focusSelector) || byId(focusSelector.replace(/^#/, ''));
-        try{ if(el && el.focus) el.focus({preventScroll:true}); }catch(_){ try{ if(el && el.focus) el.focus(); }catch(__){} }
-      }, 0);
-    }
-  }
-
-  function forceMenu(game){
-    var modal = byId(game.modalId);
-    var root = rootOf(game);
-    var backdrop = backdropOf(game);
-    if(!modal || !root || !backdrop) return;
-    modal.hidden = false;
-    modal.removeAttribute('hidden');
-    modal.classList.add('is-open');
-    modal.setAttribute('aria-hidden', 'false');
-    root.classList.remove('tk-flow-inner', 'tk-flow-closed');
-    root.classList.add('tk-flow-menu');
-    backdrop.classList.remove('is-open');
-    backdrop.setAttribute('aria-hidden', 'true');
-    backdrop.dataset.tkStep = '';
-    all('.panel[data-step]', backdrop).forEach(function(panel){
-      panel.hidden = true;
-      panel.setAttribute('hidden', '');
-      panel.style.setProperty('display', 'none', 'important');
-    });
-    setDots(backdrop, '');
-    document.documentElement.classList.add('tk-any-game-open');
-  }
-
-  function scheduleStep(game, step, focusSelector){
-    [0, 60, 180, 420].forEach(function(delay){
-      setTimeout(function(){ forceStep(game, step, focusSelector); }, delay);
-    });
-  }
-
-  function selectAvatar(game, tile){
-    var backdrop = backdropOf(game);
-    if(!backdrop || !tile) return;
-    var val = tile.getAttribute('data-avatar');
-    all('.panel[data-step="avatar"] .avatar-tile[data-avatar]', backdrop).forEach(function(other){
-      var on = other === tile || other.getAttribute('data-avatar') === val;
-      other.classList.toggle('is-selected', on);
-      other.setAttribute('aria-checked', on ? 'true' : 'false');
-    });
-    var btn = byId(game.avatarStepBtnId);
-    if(btn){
-      btn.disabled = false;
-      btn.removeAttribute('disabled');
-      btn.style.setProperty('pointer-events', 'auto', 'important');
-    }
-  }
-
-  function ensureAvatarSelected(game){
-    var backdrop = backdropOf(game);
-    if(!backdrop) return;
-    var selected = backdrop.querySelector('.panel[data-step="avatar"] .avatar-tile.is-selected[data-avatar], .panel[data-step="avatar"] .avatar-tile[aria-checked="true"][data-avatar]');
-    if(!selected){
-      selected = backdrop.querySelector(game.firstAvatarSelector);
-      if(selected) selectAvatar(game, selected);
-    }
-  }
-
-  function syncNickButton(game){
-    var input = byId(game.inputId);
-    var btn = byId(game.playBtnId);
-    if(!input || !btn) return;
-    var ok = validNick(input.value);
-    btn.disabled = !ok;
-    if(ok) btn.removeAttribute('disabled');
-    try{ input.setCustomValidity((!normalizeNick(input.value) || ok) ? '' : 'Ник: 1–2 слова, между словами только один пробел.'); }catch(_){ }
-  }
-
-  function onAvatarClick(game, target){
-    var backdrop = backdropOf(game);
-    if(!backdrop || !target || !target.closest) return false;
-    var tile = target.closest('.panel[data-step="avatar"] .avatar-tile[data-avatar]');
-    if(!tile || !backdrop.contains(tile)) return false;
-    setTimeout(function(){ selectAvatar(game, tile); }, 0);
-    setTimeout(function(){ selectAvatar(game, tile); }, 80);
-    return true;
-  }
-
-  function install(){
-    Object.keys(GAMES).forEach(function(key){
-      var game = GAMES[key];
-      var input = byId(game.inputId);
-      if(input && !input.__tkStepGuardNick){
-        input.__tkStepGuardNick = true;
-        input.addEventListener('input', function(){ syncNickButton(game); }, true);
-        input.addEventListener('change', function(){ syncNickButton(game); }, true);
-        input.addEventListener('keydown', function(ev){
-          if(ev.key === 'Enter'){
-            syncNickButton(game);
-            var btn = byId(game.playBtnId);
-            if(btn && !btn.disabled) setTimeout(function(){ scheduleStep(game, 'play'); }, 0);
-          }
-        }, true);
-      }
-    });
-  }
-
-  function handlePointer(ev){
-    var target = ev && ev.target;
-    if(!target || !target.closest) return;
-    Object.keys(GAMES).forEach(function(key){ onAvatarClick(GAMES[key], target); });
-  }
-
-  function handleClick(ev){
-    var target = ev && ev.target;
-    if(!target || !target.closest) return;
-
-    Object.keys(GAMES).forEach(function(key){
-      var game = GAMES[key];
-
-      if(target.closest('#' + game.openBtnId)){
-        setTimeout(function(){ forceMenu(game); }, 120);
-        setTimeout(function(){ forceMenu(game); }, 360);
-        return;
-      }
-
-      if(target.closest('#' + game.startBtnId)){
-        setTimeout(function(){ scheduleStep(game, 'avatar', game.firstAvatarSelector); }, 0);
-        return;
-      }
-
-      if(target.closest('#' + game.avatarStepBtnId)){
-        ensureAvatarSelected(game);
-        scheduleStep(game, 'profile', '#' + game.inputId);
-        setTimeout(function(){ syncNickButton(game); }, 120);
-        return;
-      }
-
-      if(target.closest('#' + game.profileBackBtnId) || target.closest('#' + game.changeAvatarBtnId)){
-        scheduleStep(game, 'avatar', game.firstAvatarSelector);
-        return;
-      }
-
-      if(target.closest('#' + game.playBtnId)){
-        syncNickButton(game);
-        var btn = byId(game.playBtnId);
-        if(btn && btn.disabled) return;
-        scheduleStep(game, 'play');
-        return;
-      }
-    });
-  }
-
-  document.addEventListener('pointerdown', handlePointer, true);
-  document.addEventListener('click', handlePointer, true);
-  document.addEventListener('click', handleClick, true);
-  document.addEventListener('touchend', handleClick, {capture:true, passive:true});
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', install, {once:true});
-  }else{
-    install();
-  }
-  window.addEventListener('load', install, {once:true});
-})();
-</script>
-<!-- TK PATCH: IT + Phish avatar/profile step guard / end -->
 
 </body>
 </html>
