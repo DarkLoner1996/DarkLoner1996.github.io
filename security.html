@@ -69899,158 +69899,8 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   }
 }
 </style>
-<script id="oai-roulette-mobile-landscape-v8-9-script">
-(function(){
-  'use strict';
+<!-- removed noisy runtime from patch; visual CSS kept -->
 
-  var pointerStore = null;
-  var pointerPlaceholder = null;
-
-  function byId(id){ return document.getElementById(id); }
-  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
-  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
-
-  function phoneLandscape(){
-    var w = window.innerWidth || document.documentElement.clientWidth || 0;
-    var h = window.innerHeight || document.documentElement.clientHeight || 0;
-    if(window.visualViewport){
-      w = Math.max(w, Math.round(window.visualViewport.width || 0));
-      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
-    }
-    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
-  }
-
-  function detachPointer(dock){
-    qa('.wheel-pointer', dock).forEach(function(ptr){
-      if(!ptr || ptr.__oaiRl89Detached) return;
-      var parent = ptr.parentNode;
-      if(!parent) return;
-      var marker = document.createComment('oai-rl89-pointer-removed');
-      parent.insertBefore(marker, ptr);
-      ptr.__oaiRl89Detached = true;
-      pointerStore = ptr;
-      pointerPlaceholder = marker;
-      parent.removeChild(ptr);
-    });
-  }
-
-  function restorePointer(){
-    if(pointerStore && pointerPlaceholder && pointerPlaceholder.parentNode){
-      try{
-        pointerPlaceholder.parentNode.insertBefore(pointerStore, pointerPlaceholder.nextSibling);
-        pointerStore.__oaiRl89Detached = false;
-        pointerPlaceholder.parentNode.removeChild(pointerPlaceholder);
-      }catch(_){ }
-    }
-    pointerStore = null;
-    pointerPlaceholder = null;
-  }
-
-  function enforce(){
-    var dock = byId('rouletteDock');
-    if(!dock) return;
-    if(!phoneLandscape()){
-      restorePointer();
-      return;
-    }
-    if(!dock.classList.contains('tk-rl-v84')) return;
-
-    detachPointer(dock);
-
-    var low = Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 430;
-    var box = low ? 86 : 92;
-    var wheel = low ? 78 : 84;
-    var spinW = low ? 78 : 82;
-    var spinH = low ? 24 : 25;
-
-    var hidden = q('.tk-rl-v84-hiddenWheel', dock);
-    if(hidden){
-      ['width','height','min-width','min-height','max-width','max-height'].forEach(function(p){ setImp(hidden, p, box + 'px'); });
-      setImp(hidden, 'background', 'transparent');
-      setImp(hidden, 'background-image', 'none');
-      setImp(hidden, 'box-shadow', 'none');
-      setImp(hidden, 'border', '0');
-      setImp(hidden, 'overflow', 'visible');
-      setImp(hidden, 'filter', 'none');
-    }
-
-    qa('.tk-rl-v84-hiddenWheel .wheel-wrap, .tk-rl-v84-hiddenWheel .wheel-rot, .tk-rl-v84-hiddenWheel .wheel-rot > canvas#wheel', dock).forEach(function(el){
-      ['width','height','min-width','min-height','max-width','max-height'].forEach(function(p){ setImp(el, p, wheel + 'px'); });
-    });
-
-    var wrap = q('.tk-rl-v84-hiddenWheel .wheel-wrap', dock);
-    if(wrap){
-      setImp(wrap, 'padding-top', '0px');
-      setImp(wrap, 'background', 'transparent');
-      setImp(wrap, 'background-image', 'none');
-      setImp(wrap, 'box-shadow', 'none');
-      setImp(wrap, 'border', '0');
-      setImp(wrap, 'overflow', 'visible');
-    }
-
-    qa('.tk-rl-v84-hiddenWheel .wheel-glow, .wheel-glow', dock).forEach(function(el){
-      setImp(el, 'display', 'none');
-      setImp(el, 'visibility', 'hidden');
-      setImp(el, 'opacity', '0');
-    });
-
-    qa('.tk-rl-v84-left-title, .tk-rl-v84-title-main, .tk-rl-v84-title-sub', dock).forEach(function(el){
-      setImp(el, 'background', 'transparent');
-      setImp(el, 'background-image', 'none');
-      setImp(el, 'box-shadow', 'none');
-      setImp(el, 'filter', 'none');
-    });
-
-    var left = q('.tk-rl-v84-left', dock);
-    if(left){
-      setImp(left, 'background', 'linear-gradient(180deg, rgba(18,65,102,.70), rgba(5,21,42,.86))');
-      setImp(left, 'overflow', 'hidden');
-      setImp(left, 'grid-template-rows', low ? '20px minmax(0, 1fr) 24px' : '20px minmax(0, 1fr) 26px');
-      setImp(left, 'gap', '4px');
-    }
-
-    var spin = byId('spinBtn');
-    if(spin){
-      setImp(spin, 'width', spinW + 'px');
-      setImp(spin, 'min-width', spinW + 'px');
-      setImp(spin, 'max-width', spinW + 'px');
-      setImp(spin, 'flex', '0 0 ' + spinW + 'px');
-      setImp(spin, 'height', spinH + 'px');
-      setImp(spin, 'min-height', spinH + 'px');
-      setImp(spin, 'max-height', spinH + 'px');
-      setImp(spin, 'padding', '0 7px');
-      setImp(spin, 'border-radius', '11px');
-      setImp(spin, 'font-size', low ? '7px' : '7.2px');
-      setImp(spin, 'gap', '4px');
-    }
-    var spinSvg = q('#spinBtn svg', dock);
-    if(spinSvg){
-      ['width','height'].forEach(function(p){ setImp(spinSvg, p, '9px'); });
-      setImp(spinSvg, 'flex', '0 0 9px');
-    }
-  }
-
-  function schedule(){
-    requestAnimationFrame(enforce);
-    setTimeout(enforce, 30);
-    setTimeout(enforce, 100);
-    setTimeout(enforce, 260);
-    setTimeout(enforce, 700);
-  }
-
-  document.addEventListener('click', schedule, true);
-  window.addEventListener('resize', schedule, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(schedule, 120); }, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
-  if(window.MutationObserver){
-    new MutationObserver(schedule).observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style','hidden','aria-hidden']});
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-  window.addEventListener('load', schedule, {once:true});
-})();
-</script>
 <!-- /OAI PATCH v20.9 -->
 
 
@@ -70143,16 +69993,138 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   }
 }
 </style>
-<script id="oai-roulette-mobile-landscape-v21-clean-crown-script">
+<!-- removed noisy runtime from patch; visual CSS kept -->
+
+<!-- /OAI PATCH v21.0 -->
+
+
+<!-- OAI PATCH v21.1: functional mobile-landscape roulette cleanup. Keeps v8.10 visual, restores live spin/close and readable mission text. -->
+<style id="oai-roulette-mobile-landscape-v21-1-functional-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84{
+    pointer-events:auto !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-skin,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-left,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-right,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-close,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #rLink{
+    pointer-events:auto !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-right{
+    padding:8px 31px 8px 11px !important;
+    gap:4px !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoTitle{
+    flex:0 0 auto !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:block !important;
+    overflow:visible !important;
+    white-space:normal !important;
+    line-height:1.12 !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoText{
+    flex:1 1 auto !important;
+    min-height:34px !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 2px 0 0 !important;
+    display:block !important;
+    overflow:visible !important;
+    white-space:normal !important;
+    -webkit-line-clamp:unset !important;
+    -webkit-box-orient:initial !important;
+    border-radius:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    filter:none !important;
+    color:rgba(238,248,255,.95) !important;
+    font-size:7.8px !important;
+    line-height:1.20 !important;
+    letter-spacing:0 !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoActions{
+    flex:0 0 28px !important;
+    height:28px !important;
+    min-height:28px !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:flex-end !important;
+    justify-content:flex-start !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn{
+    pointer-events:auto !important;
+    cursor:pointer !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn[disabled]{
+    opacity:.82 !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown *,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown::before,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown::after,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__gem,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__wing,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-accent-line,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .wheel-pointer,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .wheel-pointer::before,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .wheel-pointer::after{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height:430px) and (max-width:980px){
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-right{
+    padding:7px 31px 7px 9px !important;
+    gap:3px !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoText{
+    min-height:32px !important;
+    font-size:7.3px !important;
+    line-height:1.17 !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .roulette-infoActions{
+    flex-basis:26px !important;
+    height:26px !important;
+    min-height:26px !important;
+  }
+}
+</style>
+<script id="oai-roulette-mobile-landscape-v21-1-functional-script">
 (function(){
   'use strict';
 
+  var root = document.documentElement;
+  var body = document.body;
+  var spinSynthetic = false;
+  var closeInProgress = false;
+
   function byId(id){ return document.getElementById(id); }
+  function q(sel, ctx){ return (ctx || document).querySelector(sel); }
   function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
   function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
 
   function phoneLandscape(){
-    var root = document.documentElement;
     var w = window.innerWidth || root.clientWidth || 0;
     var h = window.innerHeight || root.clientHeight || 0;
     if(window.visualViewport){
@@ -70162,73 +70134,182 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
   }
 
-  function removeMarkedDecor(){
+  function restoreModules(){
+    root.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open','tk-roulette-user-opened');
+    if(document.body) document.body.classList.remove('oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open');
+
+    qa('.rules.tkqa-wrap, .rules').forEach(function(el){
+      if(!el || el.id === 'rouletteDock') return;
+      el.classList.remove('is-collapsed','is-hidden','tk-hidden');
+      el.classList.add('is-open');
+      el.removeAttribute('aria-hidden');
+      ['display','visibility','opacity','pointer-events','transform'].forEach(function(prop){ clearImp(el, prop); });
+      setImp(el, 'display', 'flex');
+      setImp(el, 'visibility', 'visible');
+      setImp(el, 'opacity', '1');
+      setImp(el, 'pointer-events', 'auto');
+    });
+
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(el) el.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function forceHideDock(){
+    var dock = byId('rouletteDock');
+    if(!dock) return;
+    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open');
+    dock.setAttribute('aria-hidden','true');
+    dock.hidden = true;
+    setImp(dock, 'display', 'none');
+    setImp(dock, 'opacity', '0');
+    setImp(dock, 'visibility', 'hidden');
+    setImp(dock, 'pointer-events', 'none');
+  }
+
+  function closeRoulette(ev){
+    if(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_){}
+    }
+    if(closeInProgress) return false;
+    closeInProgress = true;
+
+    var hiddenClose = byId('closeRouletteDock');
+    try{
+      if(hiddenClose && ev && ev.target !== hiddenClose){
+        hiddenClose.click();
+      }
+    }catch(_){}
+
+    setTimeout(function(){
+      forceHideDock();
+      restoreModules();
+      closeInProgress = false;
+    }, 40);
+    setTimeout(restoreModules, 140);
+    setTimeout(restoreModules, 420);
+    return false;
+  }
+
+  function prepareSpin(){
+    var dock = byId('rouletteDock');
+    var spin = byId('spinBtn');
+    var link = byId('rLink');
+    if(!dock || !spin) return;
+    setImp(spin, 'pointer-events', 'auto');
+    setImp(spin, 'cursor', 'pointer');
+
+    var state = '';
+    try{ state = dock.dataset.spinState || ''; }catch(_){}
+    if(!dock.classList.contains('is-spinning') && state !== 'spinning'){
+      spin.disabled = false;
+      spin.removeAttribute('disabled');
+      if(link){
+        link.removeAttribute('aria-disabled');
+        link.style.pointerEvents = '';
+      }
+    }
+
+    try{
+      if(typeof window.__tkRouletteRedraw === 'function') window.__tkRouletteRedraw();
+    }catch(_){}
+  }
+
+  function nudgeSpin(target){
+    var spin = byId('spinBtn');
+    if(!spin || !target || !(target === spin || (target.closest && target.closest('#spinBtn')))) return;
+    prepareSpin();
+
+    setTimeout(function(){
+      var dock = byId('rouletteDock');
+      if(!dock || dock.classList.contains('is-spinning')) return;
+      if(spinSynthetic) return;
+      spinSynthetic = true;
+      try{ spin.click(); }catch(_){}
+      setTimeout(function(){ spinSynthetic = false; }, 180);
+    }, 35);
+  }
+
+  function cleanDecor(){
     var dock = byId('rouletteDock');
     if(!dock || !phoneLandscape() || !dock.classList.contains('tk-rl-v84')) return;
 
     qa('.tk-roulette-crown, .tk-roulette-crown__gem, .tk-roulette-crown__wing, .tk-roulette-accent-line', dock).forEach(function(el){
-      try{ el.remove(); }catch(_){
-        if(el.parentNode) el.parentNode.removeChild(el);
-      }
+      setImp(el, 'display', 'none');
+      setImp(el, 'visibility', 'hidden');
+      setImp(el, 'opacity', '0');
+      setImp(el, 'pointer-events', 'none');
     });
 
-    var spin = byId('spinBtn');
-    if(spin){
-      var low = Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 430;
-      var w = low ? 72 : 74;
-      var h = low ? 22 : 23;
-      setImp(spin, 'width', w + 'px');
-      setImp(spin, 'min-width', w + 'px');
-      setImp(spin, 'max-width', w + 'px');
-      setImp(spin, 'flex', '0 0 ' + w + 'px');
-      setImp(spin, 'height', h + 'px');
-      setImp(spin, 'min-height', h + 'px');
-      setImp(spin, 'max-height', h + 'px');
-      setImp(spin, 'padding', '0 6px');
-      setImp(spin, 'border-radius', '10px');
-      setImp(spin, 'font-size', low ? '6.6px' : '6.8px');
-      setImp(spin, 'gap', '3px');
-    }
-    qa('#spinBtn svg', dock).forEach(function(svg){
-      setImp(svg, 'width', '8px');
-      setImp(svg, 'height', '8px');
-      setImp(svg, 'min-width', '8px');
-      setImp(svg, 'max-width', '8px');
-      setImp(svg, 'flex', '0 0 8px');
+    qa('.wheel-pointer', dock).forEach(function(el){
+      setImp(el, 'display', 'none');
+      setImp(el, 'visibility', 'hidden');
+      setImp(el, 'opacity', '0');
+      setImp(el, 'pointer-events', 'none');
     });
   }
 
   function schedule(){
-    removeMarkedDecor();
-    requestAnimationFrame(removeMarkedDecor);
-    setTimeout(removeMarkedDecor, 20);
-    setTimeout(removeMarkedDecor, 80);
-    setTimeout(removeMarkedDecor, 180);
-    setTimeout(removeMarkedDecor, 420);
-    setTimeout(removeMarkedDecor, 900);
+    cleanDecor();
+    prepareSpin();
+    setTimeout(cleanDecor, 80);
+    setTimeout(prepareSpin, 80);
+    setTimeout(function(){
+      try{ if(typeof window.__tkRouletteRedraw === 'function') window.__tkRouletteRedraw(); }catch(_){}
+    }, 140);
   }
 
-  document.addEventListener('click', schedule, true);
-  document.addEventListener('touchstart', schedule, {passive:true, capture:true});
+  document.addEventListener('pointerdown', function(ev){
+    var t = ev.target;
+    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+      closeRoulette(ev);
+      return;
+    }
+    if(t && t.closest && t.closest('#spinBtn')){
+      prepareSpin();
+    }
+  }, true);
+
+  document.addEventListener('touchstart', function(ev){
+    var t = ev.target;
+    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+      closeRoulette(ev);
+      return;
+    }
+    if(t && t.closest && t.closest('#spinBtn')){
+      prepareSpin();
+    }
+  }, {capture:true, passive:false});
+
+  document.addEventListener('click', function(ev){
+    var t = ev.target;
+    if(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock')){
+      closeRoulette(ev);
+      return;
+    }
+    if(t && t.closest && t.closest('#spinBtn')){
+      nudgeSpin(t);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape'){
+      var dock = byId('rouletteDock');
+      if(dock && !dock.hidden && dock.getAttribute('aria-hidden') !== 'true') closeRoulette(ev);
+    }
+  }, true);
+
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('orientationchange', function(){ setTimeout(schedule, 120); }, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
 
-  if(window.MutationObserver){
-    new MutationObserver(schedule).observe(document.documentElement, {
-      subtree:true,
-      childList:true,
-      attributes:true,
-      attributeFilter:['class','style','hidden','aria-hidden']
-    });
-  }
-
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
   else schedule();
-  window.addEventListener('load', schedule, {once:true});
+  window.addEventListener('load', function(){ setTimeout(schedule, 250); }, {once:true});
 })();
 </script>
-<!-- /OAI PATCH v21.0 -->
+<!-- /OAI PATCH v21.1 -->
 
 </body>
 </html>
