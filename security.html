@@ -38485,6 +38485,55 @@ html.tk-v206-laptop15 .side-chip.is-active .chip-card{
 }
 </style>
 
+<style id="tk-loader-smooth-compositor-v1">
+/* Loader smoothing: keep animation on GPU and isolate it from the heavy page boot/layout. */
+#tkLoader{
+  contain:layout style paint !important;
+  isolation:isolate !important;
+  transform:translate3d(0,0,0) !important;
+  backface-visibility:hidden !important;
+  will-change:opacity !important;
+}
+#tkLoader .tk-loader__panel{
+  transform:translate3d(0,0,0) !important;
+  backface-visibility:hidden !important;
+  will-change:transform, opacity !important;
+  contain:layout style paint !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#tkLoader .tk-loader__bg,
+#tkLoader .tk-loader__noise,
+#tkLoader .tk-loader__particles,
+#tkLoader .tk-loader__particles span,
+#tkLoader .tk-loader__core,
+#tkLoader .tk-loader__ring,
+#tkLoader .tk-loader__core-glow,
+#tkLoader .tk-loader__badge,
+#tkLoader .tk-loader__bar-sheen{
+  backface-visibility:hidden !important;
+  transform:translate3d(0,0,0);
+  will-change:transform, opacity !important;
+}
+#tkLoader .tk-loader__bar-fill{
+  width:100% !important;
+  transform-origin:left center !important;
+  transform:scaleX(var(--tk-loader-progress, 0)) translate3d(0,0,0) !important;
+  transition:transform .20s linear !important;
+  will-change:transform !important;
+}
+#tkLoader .tk-loader__steps li{
+  transition:border-color .20s ease, color .20s ease, box-shadow .20s ease, background .20s ease !important;
+  transform:none !important;
+}
+#tkLoader .tk-loader__steps li.is-active{
+  transform:none !important;
+}
+@media (min-width: 781px){
+  #tkLoaderParticles span:nth-child(n+13){ display:none !important; }
+}
+</style>
+
 <style id="tk-2k-startup-safety-style-v36">
 html.tk-2k-safe-runtime #tkLoaderParticles,
 html.tk-2k-safe-runtime .tk-loader__noise{
@@ -38587,6 +38636,17 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   var phaseEl = document.getElementById('tkLoaderPhase');
   var steps = Array.prototype.slice.call(document.querySelectorAll('#tkLoaderSteps li'));
   var particlesHost = document.getElementById('tkLoaderParticles');
+  function paintProgress(value){
+    var pct = Math.max(0, Math.min(100, Number(value) || 0));
+    var shown = Math.round(pct);
+    if(overlay) overlay.style.setProperty('--tk-loader-progress', (pct / 100).toFixed(4));
+    if(fill){
+      fill.style.width = shown + '%';
+      fill.style.transform = 'scaleX(' + (pct / 100).toFixed(4) + ')';
+    }
+    if(percentEl) percentEl.textContent = shown + '%';
+  }
+  paintProgress(0);
   var statusPool = [
     'Инициализация интерфейса…',
     'Подключение игровых модулей…',
@@ -38603,7 +38663,7 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   ];
 
   if(particlesHost){
-    var totalParticles = mac2600 ? 0 : (targetRetina ? 8 : 24);
+    var totalParticles = mac2600 ? 0 : (targetRetina ? 6 : 10);
     for(var i=0;i<totalParticles;i++){
       var p=document.createElement('span');
       var x1=(Math.random()*100).toFixed(2)+'vw';
@@ -38638,8 +38698,15 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
     catch(_){ try{ var evt = document.createEvent('Event'); evt.initEvent('tk:loaderhidden', true, true); window.dispatchEvent(evt); }catch(__){} }
   }
 
+  var loaderWaitDeadline = performance.now() + 6200;
   function finish(){
     if(overlay.dataset.done === '1') return;
+    try{
+      if(window.__TK_MANAGED_EXPECTED__ && window.__TK_MANAGED_READY__ !== true && performance.now() < loaderWaitDeadline){
+        setTimeout(finish, 80);
+        return;
+      }
+    }catch(_e){}
     overlay.dataset.done = '1';
     try{ sessionStorage.setItem('tk_loader_seen', '1'); }catch(_e){}
     overlay.classList.add('is-hidden');
@@ -38685,14 +38752,12 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
       var ratio = Math.max(0, Math.min(1, elapsed / minDuration));
       var shown = sampleProgress(ratio);
       var meta = sampleMeta(shown);
-      if(fill) fill.style.width = shown + '%';
-      if(percentEl) percentEl.textContent = shown + '%';
+      paintProgress(shown);
       if(statusEl) statusEl.textContent = meta.status;
       if(phaseEl) phaseEl.textContent = meta.phase;
       updateStage(shown);
       if(ratio >= 1){
-        if(fill) fill.style.width = '100%';
-        if(percentEl) percentEl.textContent = '100%';
+        paintProgress(100);
         if(statusEl) statusEl.textContent = 'Запуск игрового мира…';
         if(phaseEl) phaseEl.textContent = 'Миссия готова';
         updateStage(100);
@@ -38718,8 +38783,7 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
     progress += (target - progress) * (target >= 100 ? 0.18 : 0.072);
     if (target - progress < 0.25) progress = target;
     var shown = Math.max(0, Math.min(100, Math.round(progress)));
-    if(fill) fill.style.width = shown + '%';
-    if(percentEl) percentEl.textContent = shown + '%';
+    paintProgress(shown);
     updateStage(shown);
     if (isLoaded && shown >= 100 && (performance.now() - started) > minDuration){
       finish();
@@ -57005,9 +57069,11 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
   var targetRetina = isRetina2600Target();
   var mac2600 = targetRetina;
   var phoneManagedChunk = !!window.__TK_FORCE_CHUNKED_MANAGED__;
-  var managedSliceMs = Number(window.__TK_MANAGED_SLICE_MS__ || 0) || (mac2600 ? 6 : (phoneManagedChunk ? 7 : 22));
+  var managedSliceMs = Number(window.__TK_MANAGED_SLICE_MS__ || 0) || (mac2600 ? 6 : (phoneManagedChunk ? 7 : 8));
   targetRetina = false;
   var queue = Array.prototype.slice.call(document.querySelectorAll('script[type="application/x-tk-managed"][data-managed-script="1"]'));
+  window.__TK_MANAGED_EXPECTED__ = queue.length > 0;
+  window.__TK_MANAGED_READY__ = queue.length === 0;
   var started = false;
   var loaded = document.readyState === 'complete';
   window.addEventListener('load', function(){ loaded = true; }, { once:true });
@@ -57059,7 +57125,6 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
   function runQueue(chunked){
     if(started) return;
     started = true;
-    emit('tk:loaderhidden');
     var idx = 0;
     function step(){
       var begin = performance.now();
@@ -57071,16 +57136,21 @@ html.tk-mobile-phone-fhdlite-v2 #comicMenu{
         if(window.requestIdleCallback) requestIdleCallback(step, { timeout: 120 });
         else setTimeout(step, 16);
       } else {
+        window.__TK_MANAGED_READY__ = true;
         emit('tk:managedready');
+        try{
+          var loader = document.getElementById('tkLoader');
+          if(loader && loader.dataset.done === '1') emit('tk:loaderhidden');
+        }catch(_e){}
       }
     }
     step();
   }
 
-  window.__TK_RUN_MANAGED__ = function(){ runQueue(mac2600 || targetRetina); };
+  window.__TK_RUN_MANAGED__ = function(){ runQueue(true); };
 
   if(!targetRetina){
-    setTimeout(function(){ runQueue(mac2600 || phoneManagedChunk); }, (mac2600 || phoneManagedChunk) ? 16 : 0);
+    setTimeout(function(){ runQueue(true); }, 16);
     return;
   }
 
@@ -71020,6 +71090,8 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 })();
 </script>
 <!-- TK PATCH: Full HD cat quick-launch click fix / end -->
+
+<!-- TK PATCH: Loader smooth boot v1 / managed scripts chunked, GPU loader progress, no fake early loaderhidden -->
 
 
 
