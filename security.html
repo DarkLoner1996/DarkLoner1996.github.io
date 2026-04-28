@@ -71056,25 +71056,19 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 <!-- /OAI PATCH v12 -->
 
 
-<!-- OAI PATCH v13: mobile-landscape extra menu direct collapse after roulette return -->
-<style id="oai-tkqa-mobile-landscape-v13-collapse-style">
+<!-- OAI PATCH v14: mobile-landscape extra menu header toggles open/collapse reliably -->
+<style id="oai-tkqa-mobile-landscape-v14-toggle-style">
 @media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible{
-    visibility:visible !important;
-    opacity:1 !important;
-    pointer-events:auto !important;
-  }
-
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible .tkqa-head,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible .tkqa-head{
+  html.oai-rl84-phone .rules.tkqa-wrap .tkqa-head,
+  html.tk-phone-landscape-v39 .rules.tkqa-wrap .tkqa-head,
+  body.oai-rl84-phone .rules.tkqa-wrap .tkqa-head{
     pointer-events:auto !important;
     touch-action:manipulation !important;
     cursor:pointer !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
+  html.tk-oai-tkqa-collapsed-v14 .rules.tkqa-wrap .tkqa-fold,
+  body.tk-oai-tkqa-collapsed-v14 .rules.tkqa-wrap .tkqa-fold{
     max-height:0 !important;
     height:0 !important;
     opacity:0 !important;
@@ -71085,26 +71079,45 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     transform:translate3d(0,18px,0) scaleY(.84) !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-grid,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-grid,
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-bottom-line,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-bottom-line{
-    opacity:0 !important;
+  html.tk-oai-tkqa-collapsed-v14 .rules.tkqa-wrap .tkqa-grid,
+  html.tk-oai-tkqa-collapsed-v14 .rules.tkqa-wrap .tkqa-bottom-line,
+  body.tk-oai-tkqa-collapsed-v14 .rules.tkqa-wrap .tkqa-grid,
+  body.tk-oai-tkqa-collapsed-v14 .rules.tkqa-wrap .tkqa-bottom-line{
+    display:none !important;
     visibility:hidden !important;
+    opacity:0 !important;
     pointer-events:none !important;
   }
 
-  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-open .tkqa-fold,
-  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-open .tkqa-fold{
+  html.tk-oai-tkqa-open-v14 .rules.tkqa-wrap .tkqa-fold,
+  body.tk-oai-tkqa-open-v14 .rules.tkqa-wrap .tkqa-fold{
     height:auto !important;
+    max-height:var(--tkqa-fold-h, 280px) !important;
     opacity:1 !important;
     visibility:visible !important;
     pointer-events:auto !important;
+    margin-top:10px !important;
     overflow:hidden !important;
+    transform:translate3d(0,0,0) scaleY(1) !important;
+  }
+
+  html.tk-oai-tkqa-open-v14 .rules.tkqa-wrap .tkqa-grid,
+  body.tk-oai-tkqa-open-v14 .rules.tkqa-wrap .tkqa-grid{
+    display:grid !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+
+  html.tk-oai-tkqa-open-v14 .rules.tkqa-wrap .tkqa-bottom-line,
+  body.tk-oai-tkqa-open-v14 .rules.tkqa-wrap .tkqa-bottom-line{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
   }
 }
 </style>
-<script id="oai-tkqa-mobile-landscape-v13-collapse-script">
+<script id="oai-tkqa-mobile-landscape-v14-toggle-script">
 (function(){
   'use strict';
 
@@ -71112,8 +71125,8 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   var lastToggleAt = 0;
 
   function wrap(){ return document.querySelector('.rules.tkqa-wrap'); }
-  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
   function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
 
   function phoneLandscape(){
     var w = window.innerWidth || root.clientWidth || 0;
@@ -71143,7 +71156,15 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     return fold;
   }
 
-  function setOpen(open, save){
+  function measureFold(w, fold){
+    if(!w || !fold) return;
+    try{
+      var h = Math.ceil(fold.scrollHeight || 0);
+      if(h > 0) w.style.setProperty('--tkqa-fold-h', h + 'px');
+    }catch(_e){}
+  }
+
+  function setOpen(open){
     var w = wrap();
     if(!w) return;
     var fold = ensureFold(w);
@@ -71156,6 +71177,15 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     w.removeAttribute('aria-hidden');
     w.setAttribute('data-tkqa-open', open ? '1' : '0');
 
+    root.classList.toggle('tk-oai-tkqa-open-v14', !!open);
+    root.classList.toggle('tk-oai-tkqa-collapsed-v14', !open);
+    root.classList.toggle('tk-v39-modules-open', !!open);
+    if(document.body){
+      document.body.classList.toggle('tk-oai-tkqa-open-v14', !!open);
+      document.body.classList.toggle('tk-oai-tkqa-collapsed-v14', !open);
+      document.body.classList.toggle('tk-v39-modules-open', !!open);
+    }
+
     setImp(w, 'display', 'block');
     setImp(w, 'visibility', 'visible');
     setImp(w, 'opacity', '1');
@@ -71166,49 +71196,68 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
       head.setAttribute('role', 'button');
       head.setAttribute('tabindex', '0');
       head.setAttribute('aria-expanded', open ? 'true' : 'false');
-      head.style.setProperty('pointer-events', 'auto', 'important');
-      head.style.setProperty('touch-action', 'manipulation', 'important');
-      head.style.setProperty('cursor', 'pointer', 'important');
+      setImp(head, 'pointer-events', 'auto');
+      setImp(head, 'touch-action', 'manipulation');
+      setImp(head, 'cursor', 'pointer');
     }
 
     if(fold){
+      measureFold(w, fold);
       if(open){
-        fold.style.removeProperty('max-height');
-        fold.style.removeProperty('height');
-        fold.style.removeProperty('opacity');
-        fold.style.removeProperty('visibility');
-        fold.style.removeProperty('pointer-events');
-        fold.style.removeProperty('margin-top');
-        fold.style.removeProperty('transform');
-        try{
-          var h = Math.ceil(fold.scrollHeight || 0);
-          if(h > 0) w.style.setProperty('--tkqa-fold-h', h + 'px');
-        }catch(_e){}
+        ['height','max-height','opacity','visibility','pointer-events','margin-top','transform'].forEach(function(prop){ clearImp(fold, prop); });
+        setImp(fold, 'height', 'auto');
+        setImp(fold, 'max-height', 'var(--tkqa-fold-h, 280px)');
+        setImp(fold, 'opacity', '1');
+        setImp(fold, 'visibility', 'visible');
+        setImp(fold, 'pointer-events', 'auto');
+        var grid = w.querySelector('.tkqa-grid');
+        var line = w.querySelector('.tkqa-bottom-line');
+        if(grid){
+          setImp(grid, 'display', 'grid');
+          setImp(grid, 'visibility', 'visible');
+          setImp(grid, 'opacity', '1');
+          setImp(grid, 'pointer-events', 'auto');
+        }
+        if(line){
+          setImp(line, 'display', 'block');
+          setImp(line, 'visibility', 'visible');
+          setImp(line, 'opacity', '1');
+        }
       }else{
-        fold.style.setProperty('max-height', '0', 'important');
-        fold.style.setProperty('height', '0', 'important');
-        fold.style.setProperty('opacity', '0', 'important');
-        fold.style.setProperty('visibility', 'hidden', 'important');
-        fold.style.setProperty('pointer-events', 'none', 'important');
-        fold.style.setProperty('margin-top', '0', 'important');
+        setImp(fold, 'max-height', '0');
+        setImp(fold, 'height', '0');
+        setImp(fold, 'opacity', '0');
+        setImp(fold, 'visibility', 'hidden');
+        setImp(fold, 'pointer-events', 'none');
+        setImp(fold, 'margin-top', '0');
+        var grid2 = w.querySelector('.tkqa-grid');
+        var line2 = w.querySelector('.tkqa-bottom-line');
+        if(grid2){
+          setImp(grid2, 'display', 'none');
+          setImp(grid2, 'visibility', 'hidden');
+          setImp(grid2, 'opacity', '0');
+          setImp(grid2, 'pointer-events', 'none');
+        }
+        if(line2){
+          setImp(line2, 'display', 'none');
+          setImp(line2, 'visibility', 'hidden');
+          setImp(line2, 'opacity', '0');
+        }
       }
     }
 
-    if(save !== false){
-      try{ sessionStorage.setItem('tkqa-dock-open', open ? '1' : '0'); }catch(_e){}
-    }
+    try{ sessionStorage.setItem('tkqa-dock-open', open ? '1' : '0'); }catch(_e){}
   }
 
-  function shouldHandle(target){
+  function isHeadTarget(target){
     return !!(target && target.closest && target.closest('.rules.tkqa-wrap .tkqa-head'));
   }
 
-  function handleToggle(ev){
-    if(!phoneLandscape()) return;
-    if(!shouldHandle(ev.target)) return;
+  function toggleFromEvent(ev){
+    if(!phoneLandscape() || !isHeadTarget(ev.target)) return;
 
     var now = Date.now();
-    if(now - lastToggleAt < 320){
+    if(now - lastToggleAt < 260){
       try{ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_e){}
       return false;
     }
@@ -71221,19 +71270,35 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     return false;
   }
 
+  function init(){
+    var w = wrap();
+    if(!w) return;
+    ensureFold(w);
+    var head = w.querySelector('.tkqa-head');
+    if(head){
+      head.setAttribute('role', 'button');
+      head.setAttribute('tabindex', '0');
+      head.setAttribute('aria-controls', 'tkqaFold');
+    }
+    measureFold(w, w.querySelector('.tkqa-fold'));
+  }
+
   ['pointerup','touchend','click'].forEach(function(type){
-    document.addEventListener(type, handleToggle, {capture:true, passive:false});
+    window.addEventListener(type, toggleFromEvent, {capture:true, passive:false});
   });
 
-  document.addEventListener('keydown', function(ev){
-    if(!phoneLandscape()) return;
+  window.addEventListener('keydown', function(ev){
     var key = ev.key || ev.code;
-    if((key === 'Enter' || key === ' ' || key === 'Spacebar') && shouldHandle(ev.target)){
-      handleToggle(ev);
+    if((key === 'Enter' || key === ' ' || key === 'Spacebar') && isHeadTarget(ev.target)){
+      toggleFromEvent(ev);
     }
   }, true);
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+  window.addEventListener('load', init, {once:true});
 })();
 </script>
-<!-- /OAI PATCH v13 -->
+<!-- /OAI PATCH v14 -->
 </body>
 </html>
