@@ -69487,7 +69487,7 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     }
     if(!cache()) return false;
     isOpen = false;
-    closingUntil = Date.now() + 1400;
+    closingUntil = Date.now() + 260;
     root.classList.add('tk-roulette-force-closed');
     if(body) body.classList.add('tk-roulette-force-closed');
 
@@ -69502,10 +69502,8 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 
     if(trigger) trigger.setAttribute('aria-expanded','false');
     if(legacyTrigger) legacyTrigger.setAttribute('aria-expanded','false');
-    restoreModules();
-    setTimeout(restoreModulesOnce, 40);
-    setTimeout(restoreModulesOnce, 140);
-    setTimeout(restoreModulesOnce, 360);
+    restoreModulesOnce();
+    try{ sessionStorage.setItem('tkqa-dock-open', '1'); }catch(_){}
     return false;
   }
 
@@ -69519,7 +69517,6 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
     if(!cache()) return;
     syncPhoneClass();
     if(Date.now() < closingUntil){
-      restoreModules();
       return;
     }
     if(phoneLandscape() && (isOpen || visibleOpen())){
@@ -70959,6 +70956,104 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 }
 </style>
 <!-- /OAI PATCH v11 -->
+
+
+<!-- OAI PATCH v12: allow extra game menu to collapse after roulette close -->
+<style id="oai-roulette-mobile-landscape-v12-menu-release-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold,
+  body.oai-rl84-phone .rules.tkqa-wrap.tkqa-collapsible.is-collapsed .tkqa-fold{
+    max-height:0 !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    margin-top:0 !important;
+    transform:translate3d(0,18px,0) scaleY(.84) !important;
+  }
+}
+</style>
+<script id="oai-roulette-mobile-landscape-v12-menu-release-script">
+(function(){
+  'use strict';
+
+  var root = document.documentElement;
+
+  function byId(id){ return document.getElementById(id); }
+  function wrap(){ return document.querySelector('.rules.tkqa-wrap'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+
+  function phoneLandscape(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      w = Math.max(w, Math.round(window.visualViewport.width || 0));
+      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
+    }
+    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
+  }
+
+  function showMenuOnceAfterRoulette(){
+    if(!phoneLandscape()) return;
+    var w = wrap();
+    if(!w) return;
+
+    w.classList.add('tkqa-collapsible','is-open');
+    w.classList.remove('is-collapsed','is-hidden','tk-hidden');
+    w.removeAttribute('aria-hidden');
+    setImp(w, 'display', 'block');
+    setImp(w, 'visibility', 'visible');
+    setImp(w, 'opacity', '1');
+    setImp(w, 'pointer-events', 'auto');
+    clearImp(w, 'transform');
+
+    var head = w.querySelector('.tkqa-head');
+    if(head) head.setAttribute('aria-expanded', 'true');
+    w.setAttribute('data-tkqa-open', '1');
+    try{ sessionStorage.setItem('tkqa-dock-open', '1'); }catch(_e){}
+
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(el) el.setAttribute('aria-expanded','false');
+    });
+  }
+
+  function releaseMenuForNativeToggle(){
+    var w = wrap();
+    if(!w) return;
+    ['display','visibility','opacity','pointer-events','transform'].forEach(function(prop){ clearImp(w, prop); });
+    w.removeAttribute('aria-hidden');
+  }
+
+  function isRouletteCloseTarget(t){
+    return !!(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock'));
+  }
+
+  document.addEventListener('click', function(ev){
+    if(!phoneLandscape()) return;
+    if(isRouletteCloseTarget(ev.target)){
+      setTimeout(showMenuOnceAfterRoulette, 80);
+      setTimeout(showMenuOnceAfterRoulette, 260);
+    }
+  }, true);
+
+  ['pointerup','touchend'].forEach(function(type){
+    document.addEventListener(type, function(ev){
+      if(!phoneLandscape()) return;
+      if(isRouletteCloseTarget(ev.target)) setTimeout(showMenuOnceAfterRoulette, 120);
+    }, true);
+  });
+
+  document.addEventListener('click', function(ev){
+    if(!phoneLandscape()) return;
+    var t = ev.target;
+    if(t && t.closest && t.closest('.rules.tkqa-wrap .tkqa-head')){
+      releaseMenuForNativeToggle();
+    }
+  }, true);
+})();
+</script>
+<!-- /OAI PATCH v12 -->
 
 </body>
 </html>
