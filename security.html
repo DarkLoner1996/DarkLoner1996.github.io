@@ -70465,5 +70465,199 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </script>
 <!-- /OAI PATCH v21.4 -->
 
+
+
+<!-- OAI PATCH v21.5: hard close button fix for mobile-landscape roulette. -->
+<style id="oai-roulette-mobile-landscape-v21-5-hard-close-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-close,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #closeRouletteDock,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 button[aria-label*="Закрыть"]{
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    cursor:pointer !important;
+    z-index:2147483647 !important;
+  }
+
+  html.tk-roulette-hard-closed #rouletteDock,
+  html.tk-roulette-hard-closed #rouletteDock.tk-rl-v84,
+  body.tk-roulette-hard-closed #rouletteDock,
+  body.tk-roulette-hard-closed #rouletteDock.tk-rl-v84{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    z-index:1 !important;
+  }
+
+  html.tk-roulette-hard-closed .rules.tkqa-wrap,
+  html.tk-roulette-hard-closed .rules:not(#rouletteDock),
+  body.tk-roulette-hard-closed .rules.tkqa-wrap,
+  body.tk-roulette-hard-closed .rules:not(#rouletteDock){
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+}
+</style>
+<script id="oai-roulette-mobile-landscape-v21-5-hard-close-script">
+(function(){
+  'use strict';
+
+  var root = document.documentElement;
+  var dockObserver = null;
+  var hardClosed = false;
+  var applying = false;
+
+  function byId(id){ return document.getElementById(id); }
+  function all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+  function clearImp(el, prop){ if(el) el.style.removeProperty(prop); }
+
+  function removeOpenFlags(){
+    var names = [
+      'oai-rl84-open','oai-rl83-open','oai-rl82-open','oai-rl81-open','oai-rl8-open','oai-rl7-open','oai-rl17-open','oai-rl18-open',
+      'tk-roulette-user-opened','tk-rm-mission-open','tk-roulette-force-closed'
+    ];
+    names.forEach(function(c){ root.classList.remove(c); if(document.body) document.body.classList.remove(c); });
+  }
+
+  function showExtraModules(){
+    all('.rules.tkqa-wrap, .rules').forEach(function(el){
+      if(!el || el.id === 'rouletteDock') return;
+      el.classList.remove('is-collapsed','is-hidden','tk-hidden');
+      el.classList.add('is-open');
+      el.removeAttribute('aria-hidden');
+      ['display','visibility','opacity','pointer-events','transform','z-index'].forEach(function(prop){ clearImp(el, prop); });
+      setImp(el, 'display', 'flex');
+      setImp(el, 'visibility', 'visible');
+      setImp(el, 'opacity', '1');
+      setImp(el, 'pointer-events', 'auto');
+    });
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(el) el.setAttribute('aria-expanded','false');
+    });
+  }
+
+  function hardHideDock(){
+    var dock = byId('rouletteDock');
+    if(!dock) return;
+    dock.classList.remove('tk-roulette-popover-open','oai-rl17-open','oai-rl18-open','is-open','oai-rl84-open');
+    dock.setAttribute('aria-hidden','true');
+    dock.setAttribute('data-oai-hard-closed','1');
+    dock.hidden = true;
+    setImp(dock, 'display', 'none');
+    setImp(dock, 'visibility', 'hidden');
+    setImp(dock, 'opacity', '0');
+    setImp(dock, 'pointer-events', 'none');
+    setImp(dock, 'z-index', '1');
+  }
+
+  function closeRouletteToExtraMenu(){
+    if(applying) return false;
+    applying = true;
+    hardClosed = true;
+    root.classList.add('tk-roulette-hard-closed');
+    if(document.body) document.body.classList.add('tk-roulette-hard-closed');
+
+    removeOpenFlags();
+    // Add this after removing legacy flags, because older helpers may remove their own force class.
+    root.classList.add('tk-roulette-hard-closed');
+    if(document.body) document.body.classList.add('tk-roulette-hard-closed');
+
+    hardHideDock();
+    showExtraModules();
+
+    [0, 16, 50, 120, 260, 520, 1000, 1800].forEach(function(ms){
+      setTimeout(function(){
+        if(!hardClosed) return;
+        removeOpenFlags();
+        root.classList.add('tk-roulette-hard-closed');
+        if(document.body) document.body.classList.add('tk-roulette-hard-closed');
+        hardHideDock();
+        showExtraModules();
+      }, ms);
+    });
+
+    setTimeout(function(){ applying = false; }, 70);
+    return false;
+  }
+
+  function openWasRequested(){
+    hardClosed = false;
+    root.classList.remove('tk-roulette-hard-closed');
+    if(document.body) document.body.classList.remove('tk-roulette-hard-closed');
+    var dock = byId('rouletteDock');
+    if(dock){
+      dock.removeAttribute('data-oai-hard-closed');
+      ['display','visibility','opacity','pointer-events','z-index'].forEach(function(prop){ clearImp(dock, prop); });
+    }
+  }
+
+  function isCloseTarget(t){
+    return !!(t && t.closest && t.closest('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock, #rouletteDock button[aria-label*="Закрыть"], #rouletteDock [aria-label*="Закрыть рулетку"]'));
+  }
+
+  function closeCapture(ev){
+    if(!isCloseTarget(ev.target)) return;
+    try{ ev.preventDefault(); }catch(_){ }
+    try{ ev.stopPropagation(); }catch(_){ }
+    try{ ev.stopImmediatePropagation(); }catch(_){ }
+    closeRouletteToExtraMenu();
+    return false;
+  }
+
+  function bindCloseButtonsDirectly(){
+    all('#rouletteDock .tk-rl-v84-close, #rouletteDock #closeRouletteDock, #rouletteDock button[aria-label*="Закрыть"]').forEach(function(btn){
+      if(!btn || btn.__oai215HardCloseBound) return;
+      btn.__oai215HardCloseBound = true;
+      btn.onclick = closeRouletteToExtraMenu;
+      ['pointerdown','touchstart','click'].forEach(function(type){
+        btn.addEventListener(type, closeCapture, {capture:true, passive:false});
+      });
+    });
+  }
+
+  function bind(){
+    ['pointerdown','touchstart','click'].forEach(function(type){
+      window.addEventListener(type, closeCapture, {capture:true, passive:false});
+      document.addEventListener(type, closeCapture, {capture:true, passive:false});
+    });
+
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(id){
+      var el = byId(id);
+      if(!el || el.__oai215OpenBound) return;
+      el.__oai215OpenBound = true;
+      ['pointerdown','touchstart','click'].forEach(function(type){
+        el.addEventListener(type, openWasRequested, {capture:true, passive:true});
+      });
+    });
+
+    var dock = byId('rouletteDock');
+    if(dock && !dockObserver && window.MutationObserver){
+      dockObserver = new MutationObserver(function(){
+        bindCloseButtonsDirectly();
+        if(hardClosed){
+          hardHideDock();
+          showExtraModules();
+        }
+      });
+      dockObserver.observe(dock, {attributes:true, childList:true, subtree:true, attributeFilter:['class','style','hidden','aria-hidden']});
+    }
+    bindCloseButtonsDirectly();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bind, {once:true});
+  }else{
+    bind();
+  }
+  window.addEventListener('load', function(){ bind(); bindCloseButtonsDirectly(); }, {once:true});
+})();
+</script>
+<!-- /OAI PATCH v21.5 -->
+
 </body>
 </html>
