@@ -70053,5 +70053,182 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </script>
 <!-- /OAI PATCH v20.9 -->
 
+
+<!-- OAI PATCH v21.0: clean mobile-landscape roulette crown. Removes actual crown gem/wing elements and shrinks only Spin button. -->
+<style id="oai-roulette-mobile-landscape-v21-clean-crown-style">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown *,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown::before,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown::after,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__gem,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__wing,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__gem::before,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__gem::after,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__wing::before,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-crown__wing::after{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    content:none !important;
+    width:0 !important;
+    height:0 !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    max-width:0 !important;
+    max-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    background:none !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    filter:none !important;
+    transform:none !important;
+    pointer-events:none !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-roulette-accent-line{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    background:none !important;
+    box-shadow:none !important;
+    filter:none !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-left-title,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-title-main,
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 .tk-rl-v84-title-sub{
+    background:none !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    filter:none !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn{
+    width:74px !important;
+    min-width:74px !important;
+    max-width:74px !important;
+    flex:0 0 74px !important;
+    height:23px !important;
+    min-height:23px !important;
+    max-height:23px !important;
+    padding:0 6px !important;
+    border-radius:10px !important;
+    font-size:6.8px !important;
+    letter-spacing:.035em !important;
+    gap:3px !important;
+  }
+
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn svg{
+    width:8px !important;
+    height:8px !important;
+    min-width:8px !important;
+    max-width:8px !important;
+    flex:0 0 8px !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height:430px) and (max-width:980px){
+  html.oai-rl84-phone #rouletteDock.tk-rl-v84 #spinBtn.roulette-btn{
+    width:72px !important;
+    min-width:72px !important;
+    max-width:72px !important;
+    flex-basis:72px !important;
+    height:22px !important;
+    min-height:22px !important;
+    max-height:22px !important;
+    font-size:6.6px !important;
+  }
+}
+</style>
+<script id="oai-roulette-mobile-landscape-v21-clean-crown-script">
+(function(){
+  'use strict';
+
+  function byId(id){ return document.getElementById(id); }
+  function qa(sel, ctx){ return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function setImp(el, prop, val){ if(el) el.style.setProperty(prop, val, 'important'); }
+
+  function phoneLandscape(){
+    var root = document.documentElement;
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      w = Math.max(w, Math.round(window.visualViewport.width || 0));
+      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
+    }
+    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
+  }
+
+  function removeMarkedDecor(){
+    var dock = byId('rouletteDock');
+    if(!dock || !phoneLandscape() || !dock.classList.contains('tk-rl-v84')) return;
+
+    qa('.tk-roulette-crown, .tk-roulette-crown__gem, .tk-roulette-crown__wing, .tk-roulette-accent-line', dock).forEach(function(el){
+      try{ el.remove(); }catch(_){
+        if(el.parentNode) el.parentNode.removeChild(el);
+      }
+    });
+
+    var spin = byId('spinBtn');
+    if(spin){
+      var low = Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 430;
+      var w = low ? 72 : 74;
+      var h = low ? 22 : 23;
+      setImp(spin, 'width', w + 'px');
+      setImp(spin, 'min-width', w + 'px');
+      setImp(spin, 'max-width', w + 'px');
+      setImp(spin, 'flex', '0 0 ' + w + 'px');
+      setImp(spin, 'height', h + 'px');
+      setImp(spin, 'min-height', h + 'px');
+      setImp(spin, 'max-height', h + 'px');
+      setImp(spin, 'padding', '0 6px');
+      setImp(spin, 'border-radius', '10px');
+      setImp(spin, 'font-size', low ? '6.6px' : '6.8px');
+      setImp(spin, 'gap', '3px');
+    }
+    qa('#spinBtn svg', dock).forEach(function(svg){
+      setImp(svg, 'width', '8px');
+      setImp(svg, 'height', '8px');
+      setImp(svg, 'min-width', '8px');
+      setImp(svg, 'max-width', '8px');
+      setImp(svg, 'flex', '0 0 8px');
+    });
+  }
+
+  function schedule(){
+    removeMarkedDecor();
+    requestAnimationFrame(removeMarkedDecor);
+    setTimeout(removeMarkedDecor, 20);
+    setTimeout(removeMarkedDecor, 80);
+    setTimeout(removeMarkedDecor, 180);
+    setTimeout(removeMarkedDecor, 420);
+    setTimeout(removeMarkedDecor, 900);
+  }
+
+  document.addEventListener('click', schedule, true);
+  document.addEventListener('touchstart', schedule, {passive:true, capture:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(schedule, 120); }, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+
+  if(window.MutationObserver){
+    new MutationObserver(schedule).observe(document.documentElement, {
+      subtree:true,
+      childList:true,
+      attributes:true,
+      attributeFilter:['class','style','hidden','aria-hidden']
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+  window.addEventListener('load', schedule, {once:true});
+})();
+</script>
+<!-- /OAI PATCH v21.0 -->
+
 </body>
 </html>
