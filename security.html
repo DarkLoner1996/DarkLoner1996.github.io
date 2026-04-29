@@ -64751,10 +64751,13 @@ html.tk-phone-premium-v3.tk-phone-landscape-fhdclone.tk-phone-games-open.tk-phon
       comic: ['tkqaOpenComic','openComicMenu','comicMenu']
     }[kind];
     if(!map) return;
-    if(!clickIf(map[0])) clickIf(map[1]);
+    /* FIX v17.1: в phone-landscape обработчик уже срабатывает от видимой tkqa-карточки.
+       Повторный .click() по map[0] вызывал рекурсивный клик по той же карточке и блокировал запуск
+       дополнительных модулей. Сначала запускаем скрытую/legacy кнопку, где висят настоящие open-хендлеры. */
+    if(!clickIf(map[1])) openBackdrop(map[2]);
     setTimeout(function(){
       var id = map[2], el = document.getElementById(id);
-      if(el && !el.classList.contains('is-open')) openBackdrop(id);
+      if(el && !el.classList.contains('is-open') && el.getAttribute('aria-hidden') !== 'false') openBackdrop(id);
     }, 0);
   }
   function syncClasses(){
@@ -71296,5 +71299,123 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 })();
 </script>
 <!-- /OAI PATCH v17 -->
+
+
+<!-- TK FIX v17.1: reliable additional modules launch on mobile landscape / start -->
+<script type="application/x-tk-managed" data-managed-script="1" id="tk-mobile-landscape-modules-open-fix-v17-1">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+
+  function isPhoneLandscape(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      w = Math.max(w, Math.round(window.visualViewport.width || 0));
+      h = Math.min(h || 9999, Math.round(window.visualViewport.height || h));
+    }
+    var coarse = false;
+    try{ coarse = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }
+    catch(_){ coarse = (navigator.maxTouchPoints || 0) > 0; }
+    return w > h && Math.min(w, h) <= 680 && Math.max(w, h) <= 1600 && (coarse || root.classList.contains('tk-phone-landscape-v39') || root.classList.contains('tk-mobile-landscape-v341'));
+  }
+
+  function clickLegacy(id){
+    var el = document.getElementById(id);
+    if(!el) return false;
+    try{ el.click(); return true; }catch(_){ }
+    try{ el.dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true, view:window})); return true; }catch(__){ }
+    return false;
+  }
+
+  function forceOpenBackdrop(id){
+    var el = document.getElementById(id);
+    if(!el) return false;
+    el.hidden = false;
+    el.removeAttribute('hidden');
+    el.classList.add('is-open');
+    el.setAttribute('aria-hidden','false');
+    root.style.overflow = 'hidden';
+    if(document.body) document.body.style.overflow = 'hidden';
+    return true;
+  }
+
+  function openKind(kind, ev){
+    if(ev){
+      try{ ev.preventDefault(); }catch(_){ }
+      try{ ev.stopPropagation(); }catch(_){ }
+      try{ ev.stopImmediatePropagation && ev.stopImmediatePropagation(); }catch(_){ }
+    }
+
+    if(kind === 'pc'){
+      if(typeof window.tkOpenPcPartsGame === 'function'){
+        try{ window.tkOpenPcPartsGame(ev); }catch(_){ }
+      }else if(typeof window.__tkOpenPcPartsOuter === 'function'){
+        try{ window.__tkOpenPcPartsOuter(); }catch(_){ }
+      }else if(!clickLegacy('openPcPartsGameLaunch')){
+        forceOpenBackdrop('pcPartsGame');
+      }
+      setTimeout(function(){ var el = document.getElementById('pcPartsGame'); if(el && el.getAttribute('aria-hidden') !== 'false') forceOpenBackdrop('pcPartsGame'); }, 40);
+      return false;
+    }
+
+    if(kind === 'rule'){
+      if(typeof window.tkOpenRuleGame === 'function'){
+        try{ window.tkOpenRuleGame(ev); }catch(_){ }
+      }else if(!clickLegacy('openRuleGame')){
+        forceOpenBackdrop('ruleGame');
+      }
+      setTimeout(function(){ var el = document.getElementById('ruleGame'); if(el && el.getAttribute('aria-hidden') !== 'false') forceOpenBackdrop('ruleGame'); }, 40);
+      return false;
+    }
+
+    if(kind === 'comic'){
+      if(typeof window.tkOpenComicMenu === 'function'){
+        try{ window.tkOpenComicMenu(ev); }catch(_){ }
+      }else if(!clickLegacy('openComicMenu')){
+        forceOpenBackdrop('comicMenu');
+      }
+      setTimeout(function(){ var el = document.getElementById('comicMenu'); if(el && el.getAttribute('aria-hidden') !== 'false') forceOpenBackdrop('comicMenu'); }, 40);
+      return false;
+    }
+
+    if(kind === 'roulette'){
+      root.classList.add('tk-roulette-user-opened');
+      if(!clickLegacy('openRouletteDockPopover')){
+        var dock = document.getElementById('rouletteDock');
+        if(dock){
+          dock.hidden = false;
+          dock.removeAttribute('hidden');
+          dock.classList.add('tk-roulette-popover-mode','tk-roulette-popover-open');
+          dock.setAttribute('aria-hidden','false');
+          dock.style.removeProperty('display');
+          dock.style.removeProperty('opacity');
+          dock.style.removeProperty('visibility');
+          dock.style.removeProperty('pointer-events');
+        }
+      }
+      return false;
+    }
+
+    return false;
+  }
+
+  function handle(ev){
+    if(!isPhoneLandscape()) return;
+    var t = ev.target;
+    if(!t || !t.closest) return;
+    if(t.closest('#tkqaOpenPc')) return openKind('pc', ev);
+    if(t.closest('#tkqaOpenRule')) return openKind('rule', ev);
+    if(t.closest('#tkqaOpenComic')) return openKind('comic', ev);
+    if(t.closest('#tkqaOpenRoulette')) return openKind('roulette', ev);
+  }
+
+  /* Window-capture срабатывает раньше старого document-capture слоя v39,
+     который иначе перехватывает и повторно кликает по той же карточке. */
+  window.addEventListener('click', handle, true);
+})();
+</script>
+<!-- TK FIX v17.1: reliable additional modules launch on mobile landscape / end -->
+
 </body>
 </html>
