@@ -72497,125 +72497,121 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
   }
 }
 </style>
-<script id="tk-mobile-landscape-modules-v13-visual-header-hitbox">
+<script id="tk-mobile-landscape-modules-v14-stable-header-hitbox">
 (function(){
   'use strict';
 
-  var root = document.documentElement;
-  var lastForwardAt = 0;
-  var suppressNativeUntil = 0;
-
-  function phoneLandscape(){
-    var w = window.innerWidth || root.clientWidth || 0;
-    var h = window.innerHeight || root.clientHeight || 0;
-    if(window.visualViewport){
-      var vw = Math.round(window.visualViewport.width || 0);
-      var vh = Math.round(window.visualViewport.height || 0);
-      if(vw) w = Math.max(w, vw);
-      if(vh) h = Math.min(h || 9999, vh);
-    }
-    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+    else fn();
   }
 
-  function wrap(){ return document.querySelector('.rules.tkqa-wrap'); }
+  function install(){
+    var wrap = document.querySelector('.rules.tkqa-wrap');
+    var head = wrap && wrap.querySelector('.tkqa-head');
+    if(!head) return;
 
-  function isVisible(el){
-    if(!el) return false;
-    var cs = window.getComputedStyle ? getComputedStyle(el) : null;
-    return !cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0');
+    var hit = head.querySelector('.tkqa-head-hitbox');
+    if(!hit){
+      hit = document.createElement('span');
+      hit.className = 'tkqa-head-hitbox';
+      hit.setAttribute('aria-hidden', 'true');
+      head.appendChild(hit);
+    }
   }
 
-  function pointInVisualHeader(ev, w){
-    if(!ev || !w) return false;
-    var dock = w.querySelector('.tkqa-dock');
-    var head = w.querySelector('.tkqa-head');
-    if(!dock || !head) return false;
-
-    var x = typeof ev.clientX === 'number' ? ev.clientX : null;
-    var y = typeof ev.clientY === 'number' ? ev.clientY : null;
-    if((x === null || y === null) && ev.changedTouches && ev.changedTouches.length){
-      x = ev.changedTouches[0].clientX;
-      y = ev.changedTouches[0].clientY;
-    }
-    if(x === null || y === null) return false;
-
-    var dockRect = dock.getBoundingClientRect();
-    var headRect = head.getBoundingClientRect();
-    if(!dockRect.width || !dockRect.height || !headRect.height) return false;
-
-    var fold = w.querySelector('.tkqa-fold');
-    var grid = w.querySelector('.tkqa-grid');
-    var firstBody = null;
-    if(fold && isVisible(fold)) firstBody = fold.getBoundingClientRect();
-    else if(grid && isVisible(grid)) firstBody = grid.getBoundingClientRect();
-
-    var left = dockRect.left;
-    var right = dockRect.right;
-    var top = Math.min(dockRect.top, headRect.top);
-    var bottom = Math.max(headRect.bottom, top + 28);
-
-    if(firstBody && firstBody.top > top + 10){
-      bottom = Math.min(firstBody.top - 1, bottom + 8);
-    }else{
-      bottom = Math.min(dockRect.bottom, bottom + 8);
-    }
-
-    return x >= left && x <= right && y >= top && y <= bottom;
-  }
-
-  function stop(ev){
-    try{ ev.preventDefault(); }catch(_e){}
-    try{ ev.stopPropagation(); }catch(_e){}
-    try{ if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_e){}
-  }
-
-  function forwardToNativeHead(ev){
-    if(!phoneLandscape()) return;
-    if(ev && ev.__tkqaV13Forwarded) return;
-
-    var now = Date.now();
-    if(ev.type === 'click' && now < suppressNativeUntil){
-      stop(ev);
-      return;
-    }
-
-    var target = ev.target;
-    if(target && target.closest && target.closest('#tkqaOpenRoulette,#tkqaOpenPc,#tkqaOpenRule,#tkqaOpenComic')) return;
-
-    var w = wrap();
-    if(!pointInVisualHeader(ev, w)) return;
-
-    stop(ev);
-
-    if(now - lastForwardAt < 220) return;
-    lastForwardAt = now;
-    if(ev.type === 'pointerup' || ev.type === 'touchend') suppressNativeUntil = now + 560;
-
-    var head = w && w.querySelector('.tkqa-head');
-    var orb = w && w.querySelector('.tkqa-orb');
-    var receiver = orb || head;
-    if(!receiver) return;
-
+  ready(function(){
+    install();
+    [80, 260, 700, 1400].forEach(function(ms){ setTimeout(install, ms); });
     try{
-      var forwarded = new MouseEvent('click', {
-        bubbles:true,
-        cancelable:true,
-        view:window,
-        clientX:ev.clientX || 0,
-        clientY:ev.clientY || 0
-      });
-      forwarded.__tkqaV13Forwarded = true;
-      receiver.dispatchEvent(forwarded);
-    }catch(_e){
-      try{ receiver.click(); }catch(__e){}
-    }
-  }
-
-  window.addEventListener(window.PointerEvent ? 'pointerup' : 'touchend', forwardToNativeHead, true);
-  window.addEventListener('click', forwardToNativeHead, true);
+      new MutationObserver(function(){ install(); }).observe(document.documentElement, {childList:true, subtree:true});
+    }catch(_e){}
+  });
 })();
 </script>
 <!-- TK FIX v17.13: full visual header hitbox + blank second line for Rule/Comic / end -->
+
+
+
+<!-- TK FIX v17.14: stable header hitbox + anti-spam size guard / start -->
+<style id="tk-mobile-landscape-modules-v14-no-darkscreen-guard">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  /* Прозрачная зона тапа внутри .tkqa-head: событие попадает в штатный v17.2 toggle,
+     без синтетических кликов и без гонок, которые давали большой тёмный прямоугольник. */
+  .rules.tkqa-wrap .tkqa-head{
+    position:relative !important;
+    cursor:pointer !important;
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    -webkit-tap-highlight-color:transparent !important;
+  }
+  .rules.tkqa-wrap .tkqa-head .tkqa-head-hitbox{
+    position:absolute !important;
+    left:-2px !important;
+    right:-2px !important;
+    top:-3px !important;
+    bottom:-3px !important;
+    z-index:120 !important;
+    display:block !important;
+    background:rgba(0,0,0,0) !important;
+    opacity:0 !important;
+    pointer-events:auto !important;
+    cursor:pointer !important;
+    border:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    touch-action:manipulation !important;
+  }
+  .rules.tkqa-wrap .tkqa-head .tkqa-orb,
+  .rules.tkqa-wrap .tkqa-head .tkqa-copy,
+  .rules.tkqa-wrap .tkqa-head .tkqa-top,
+  .rules.tkqa-wrap .tkqa-head .tkqa-title,
+  .rules.tkqa-wrap .tkqa-head .tkqa-sub,
+  .rules.tkqa-wrap .tkqa-head .tkqa-mode{
+    pointer-events:none !important;
+  }
+
+  /* Жёсткий страховочный ограничитель размера: даже при очень быстром тапе блок
+     не может превратиться в полноэкранную тёмную плашку. */
+  .rules.tkqa-wrap{
+    position:fixed !important;
+    right:6px !important;
+    bottom:6px !important;
+    left:auto !important;
+    top:auto !important;
+    margin:0 !important;
+    min-width:0 !important;
+    max-height:calc(100svh - 18px) !important;
+    overflow:visible !important;
+    transform:none !important;
+    filter:none !important;
+  }
+  .rules.tkqa-wrap:not(.tkqa-v17-open):not(.is-open),
+  .rules.tkqa-wrap.tkqa-v17-collapsed,
+  .rules.tkqa-wrap.is-collapsed{
+    width:min(190px, calc(100vw - 12px)) !important;
+    max-width:min(190px, calc(100vw - 12px)) !important;
+  }
+  .rules.tkqa-wrap.tkqa-v17-open,
+  .rules.tkqa-wrap.is-open,
+  html.tk-v39-modules-open .rules.tkqa-wrap,
+  body.tk-v39-modules-open .rules.tkqa-wrap{
+    width:min(244px, calc(100vw - 12px)) !important;
+    max-width:min(244px, calc(100vw - 12px)) !important;
+  }
+  .rules.tkqa-wrap .tkqa-dock{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+  .rules.tkqa-wrap .tkqa-fold{
+    max-width:100% !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>
+<!-- TK FIX v17.14: stable header hitbox + anti-spam size guard / end -->
 
 </body>
 </html>
