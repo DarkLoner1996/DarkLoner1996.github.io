@@ -72465,5 +72465,157 @@ html.tk-v44-phone #ruleGame .rdn-explainText{
 </style>
 <!-- TK FIX v17.12: v10 stable + full header tap zone + PC title line break / end -->
 
+
+
+<!-- TK FIX v17.13: full visual header hitbox + blank second line for Rule/Comic / start -->
+<style id="tk-mobile-landscape-modules-v13-rule-comic-blank-line">
+@media (orientation: landscape) and (max-height:680px) and (max-width:1600px){
+  html.tk-phone-landscape-v39.tk-phone-landscape-v39 #tkqaOpenRule .tkqa-card-title::after,
+  html.tk-phone-landscape-v39.tk-phone-landscape-v39 #tkqaOpenComic .tkqa-card-title::after,
+  body.tk-phone-landscape-v39.tk-phone-landscape-v39 #tkqaOpenRule .tkqa-card-title::after,
+  body.tk-phone-landscape-v39.tk-phone-landscape-v39 #tkqaOpenComic .tkqa-card-title::after,
+  html.oai-rl84-phone.oai-rl84-phone #tkqaOpenRule .tkqa-card-title::after,
+  html.oai-rl84-phone.oai-rl84-phone #tkqaOpenComic .tkqa-card-title::after,
+  body.oai-rl84-phone.oai-rl84-phone #tkqaOpenRule .tkqa-card-title::after,
+  body.oai-rl84-phone.oai-rl84-phone #tkqaOpenComic .tkqa-card-title::after{
+    content:"" !important;
+    display:block !important;
+    height:1.02em !important;
+    line-height:1.02 !important;
+  }
+
+  html.tk-phone-landscape-v39.tk-phone-landscape-v39 .rules.tkqa-wrap .tkqa-head,
+  body.tk-phone-landscape-v39.tk-phone-landscape-v39 .rules.tkqa-wrap .tkqa-head,
+  html.oai-rl84-phone.oai-rl84-phone .rules.tkqa-wrap .tkqa-head,
+  body.oai-rl84-phone.oai-rl84-phone .rules.tkqa-wrap .tkqa-head{
+    min-width:100% !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    cursor:pointer !important;
+    touch-action:manipulation !important;
+  }
+}
+</style>
+<script id="tk-mobile-landscape-modules-v13-visual-header-hitbox">
+(function(){
+  'use strict';
+
+  var root = document.documentElement;
+  var lastForwardAt = 0;
+  var suppressNativeUntil = 0;
+
+  function phoneLandscape(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    if(window.visualViewport){
+      var vw = Math.round(window.visualViewport.width || 0);
+      var vh = Math.round(window.visualViewport.height || 0);
+      if(vw) w = Math.max(w, vw);
+      if(vh) h = Math.min(h || 9999, vh);
+    }
+    return w > h && Math.min(w,h) <= 680 && Math.max(w,h) <= 1600;
+  }
+
+  function wrap(){ return document.querySelector('.rules.tkqa-wrap'); }
+
+  function isVisible(el){
+    if(!el) return false;
+    var cs = window.getComputedStyle ? getComputedStyle(el) : null;
+    return !cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0');
+  }
+
+  function pointInVisualHeader(ev, w){
+    if(!ev || !w) return false;
+    var dock = w.querySelector('.tkqa-dock');
+    var head = w.querySelector('.tkqa-head');
+    if(!dock || !head) return false;
+
+    var x = typeof ev.clientX === 'number' ? ev.clientX : null;
+    var y = typeof ev.clientY === 'number' ? ev.clientY : null;
+    if((x === null || y === null) && ev.changedTouches && ev.changedTouches.length){
+      x = ev.changedTouches[0].clientX;
+      y = ev.changedTouches[0].clientY;
+    }
+    if(x === null || y === null) return false;
+
+    var dockRect = dock.getBoundingClientRect();
+    var headRect = head.getBoundingClientRect();
+    if(!dockRect.width || !dockRect.height || !headRect.height) return false;
+
+    var fold = w.querySelector('.tkqa-fold');
+    var grid = w.querySelector('.tkqa-grid');
+    var firstBody = null;
+    if(fold && isVisible(fold)) firstBody = fold.getBoundingClientRect();
+    else if(grid && isVisible(grid)) firstBody = grid.getBoundingClientRect();
+
+    var left = dockRect.left;
+    var right = dockRect.right;
+    var top = Math.min(dockRect.top, headRect.top);
+    var bottom = Math.max(headRect.bottom, top + 28);
+
+    if(firstBody && firstBody.top > top + 10){
+      bottom = Math.min(firstBody.top - 1, bottom + 8);
+    }else{
+      bottom = Math.min(dockRect.bottom, bottom + 8);
+    }
+
+    return x >= left && x <= right && y >= top && y <= bottom;
+  }
+
+  function stop(ev){
+    try{ ev.preventDefault(); }catch(_e){}
+    try{ ev.stopPropagation(); }catch(_e){}
+    try{ if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }catch(_e){}
+  }
+
+  function forwardToNativeHead(ev){
+    if(!phoneLandscape()) return;
+    if(ev && ev.__tkqaV13Forwarded) return;
+
+    var now = Date.now();
+    if(ev.type === 'click' && now < suppressNativeUntil){
+      stop(ev);
+      return;
+    }
+
+    var target = ev.target;
+    if(target && target.closest && target.closest('#tkqaOpenRoulette,#tkqaOpenPc,#tkqaOpenRule,#tkqaOpenComic')) return;
+
+    var w = wrap();
+    if(!pointInVisualHeader(ev, w)) return;
+
+    stop(ev);
+
+    if(now - lastForwardAt < 220) return;
+    lastForwardAt = now;
+    if(ev.type === 'pointerup' || ev.type === 'touchend') suppressNativeUntil = now + 560;
+
+    var head = w && w.querySelector('.tkqa-head');
+    var orb = w && w.querySelector('.tkqa-orb');
+    var receiver = orb || head;
+    if(!receiver) return;
+
+    try{
+      var forwarded = new MouseEvent('click', {
+        bubbles:true,
+        cancelable:true,
+        view:window,
+        clientX:ev.clientX || 0,
+        clientY:ev.clientY || 0
+      });
+      forwarded.__tkqaV13Forwarded = true;
+      receiver.dispatchEvent(forwarded);
+    }catch(_e){
+      try{ receiver.click(); }catch(__e){}
+    }
+  }
+
+  window.addEventListener(window.PointerEvent ? 'pointerup' : 'touchend', forwardToNativeHead, true);
+  window.addEventListener('click', forwardToNativeHead, true);
+})();
+</script>
+<!-- TK FIX v17.13: full visual header hitbox + blank second line for Rule/Comic / end -->
+
 </body>
 </html>
