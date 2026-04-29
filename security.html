@@ -15096,6 +15096,28 @@ html.tk-mobile-phone-perf-v1 #cinema{
 </script>
 <!-- TK PATCH: phone portrait lock / end -->
 
+
+<!-- TK PATCH V56: startup dim-overlay guard for desktop/tablet only -->
+<script id="tk-v56-startup-dim-preboot">
+(function(){
+  try{ document.documentElement.classList.add('tk-v56-boot-clean'); }catch(_e){}
+})();
+</script>
+<style id="tk-v56-startup-dim-style">
+html.tk-v56-boot-clean:not(.tk-v56-explicit-game-open) :is(#itGame,#phishGame,#infoSecGame,#pcPartsGame,#ruleGame,#comicMenu).mg-backdrop.is-open,
+html.tk-v56-boot-clean:not(.tk-v56-explicit-game-open) :is(#itGame,#phishGame,#infoSecGame,#pcPartsGame,#ruleGame,#comicMenu).mg-backdrop[aria-hidden="false"],
+html.tk-v56-boot-clean:not(.tk-v56-explicit-game-open) :is(#itBackdrop,#phishBackdrop,#infoBackdrop,.rm-backdrop).is-open{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+html.tk-v56-boot-clean:not(.tk-v56-explicit-game-open) :is(#itGame,#phishGame,#infoSecGame,#pcPartsGame,#ruleGame,#comicMenu).mg-backdrop.is-open > *,
+html.tk-v56-boot-clean:not(.tk-v56-explicit-game-open) :is(#itGame,#phishGame,#infoSecGame,#pcPartsGame,#ruleGame,#comicMenu).mg-backdrop[aria-hidden="false"] > *{
+  pointer-events:none !important;
+}
+</style>
+<!-- /TK PATCH V56 preboot -->
+
 </head>
 <body class="menu-collapsed">
 <div id="tkPortraitLock" class="tk-portrait-lock" aria-hidden="true" aria-live="polite" role="status">
@@ -72326,6 +72348,245 @@ html.tk-modules-v55-desktop .rules.tkqa-wrap.is-open .tkqa-dock{
 })();
 </script>
 <!-- /TK PATCH V55 -->
+
+
+<!-- TK PATCH V56: FHD/2K/tablet module repair without touching phone landscape -->
+<script id="tk-v56-fhd-module-dim-repair">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var cleanupUntil = 0;
+  var cleanupTimer = 0;
+
+  function q(sel, base){ return (base || document).querySelector(sel); }
+  function qa(sel, base){ return Array.prototype.slice.call((base || document).querySelectorAll(sel)); }
+  function id(x){ return document.getElementById(x); }
+
+  function isPhoneLandscape(){
+    var w = window.innerWidth || root.clientWidth || 0;
+    var h = window.innerHeight || root.clientHeight || 0;
+    var coarse = false;
+    try{ coarse = matchMedia('(pointer:coarse)').matches || (navigator.maxTouchPoints || 0) > 0; }
+    catch(_e){ coarse = (navigator.maxTouchPoints || 0) > 0; }
+    return w > h && coarse && h <= 620 && w <= 1400;
+  }
+
+  function userIsOpening(){ return root.classList.contains('tk-v56-explicit-game-open'); }
+
+  function markExplicitOpen(){
+    root.classList.add('tk-v56-explicit-game-open');
+    root.classList.remove('tk-v56-boot-clean');
+    if(cleanupTimer){ clearTimeout(cleanupTimer); cleanupTimer = 0; }
+  }
+
+  function maybeMarkIntent(ev){
+    var t = ev && ev.target;
+    if(!t || !t.closest) return;
+    if(t.closest('#tkqaOpenRoulette,#openRouletteDockPopover,#tkqaOpenPc,#openPcPartsGameLaunch,#openPcPartsGame,#tkqaOpenRule,#openRuleGame,#tkqaOpenComic,#openComicMenu,#openItGame,#openPhishGame,#openInfoSecGame,#tkCatStart .tk-cat-launch__btn')){
+      markExplicitOpen();
+    }
+  }
+
+  ['pointerdown','touchstart','mousedown','click'].forEach(function(type){
+    document.addEventListener(type, maybeMarkIntent, true);
+  });
+
+  function removeInlineOpenVisual(el){
+    if(!el) return;
+    try{ el.classList.remove('is-open','is-entering','is-leaving','tk-modal-open','info-map-lock'); }catch(_e){}
+    try{ el.setAttribute('aria-hidden','true'); }catch(_e){}
+    try{ el.hidden = true; }catch(_e){}
+    try{ el.style.setProperty('opacity','0','important'); }catch(_e){}
+    try{ el.style.setProperty('visibility','hidden','important'); }catch(_e){}
+    try{ el.style.setProperty('pointer-events','none','important'); }catch(_e){}
+  }
+
+  function forceClosedAtStartup(){
+    if(isPhoneLandscape()){
+      root.classList.remove('tk-v56-boot-clean');
+      return;
+    }
+    if(userIsOpening()) return;
+
+    ['itGame','phishGame','infoSecGame','pcPartsGame','ruleGame','comicMenu'].forEach(function(name){
+      var el = id(name);
+      if(!el) return;
+      try{ el.classList.remove('is-open','tk-open','tk-modal-open'); }catch(_e){}
+      try{ el.setAttribute('aria-hidden','true'); }catch(_e){}
+      /* Не ставим hidden=true на основные модалки: их штатные open() функции открывают через classList.add('is-open'). */
+      try{ el.style.removeProperty('display'); }catch(_e){}
+      try{ el.style.removeProperty('opacity'); }catch(_e){}
+      try{ el.style.removeProperty('visibility'); }catch(_e){}
+      try{ el.style.removeProperty('pointer-events'); }catch(_e){}
+    });
+
+    ['itBackdrop','phishBackdrop','infoBackdrop','infoMapLightbox'].forEach(function(name){ removeInlineOpenVisual(id(name)); });
+    qa('.game-map-lightbox:not([hidden]), .rm-backdrop.is-open, .cool-phish-root .backdrop.is-open').forEach(removeInlineOpenVisual);
+
+    var rd = id('rouletteDock');
+    if(rd){
+      try{ rd.hidden = true; }catch(_e){}
+      try{ rd.classList.remove('tk-roulette-popover-open'); }catch(_e){}
+      try{ rd.setAttribute('aria-hidden','true'); }catch(_e){}
+      try{ rd.style.setProperty('display','none','important'); }catch(_e){}
+      try{ rd.style.setProperty('opacity','0','important'); }catch(_e){}
+      try{ rd.style.setProperty('visibility','hidden','important'); }catch(_e){}
+      try{ rd.style.setProperty('pointer-events','none','important'); }catch(_e){}
+      try{ rd.style.setProperty('left','-9999px','important'); rd.style.setProperty('top','12px','important'); }catch(_e){}
+    }
+    ['tkqaOpenRoulette','openRouletteDockPopover'].forEach(function(name){ var b=id(name); if(b) try{ b.setAttribute('aria-expanded','false'); }catch(_e){} });
+
+    var wrap = q('.rules.tkqa-wrap');
+    if(wrap){
+      var head = q('.tkqa-head', wrap);
+      var dock = q('.tkqa-dock', wrap);
+      var grid = q('.tkqa-grid', wrap);
+      var line = q('.tkqa-bottom-line', wrap);
+      var fold = q('.tkqa-fold', wrap);
+      if(dock && grid && !fold){
+        fold = document.createElement('div');
+        fold.className = 'tkqa-fold';
+        fold.id = 'tkqaFold';
+        dock.insertBefore(fold, line || null);
+        fold.appendChild(grid);
+        if(line) fold.appendChild(line);
+      }
+      try{ wrap.classList.add('tkqa-collapsible','tkqa-v56-ready','is-collapsed'); wrap.classList.remove('is-open'); }catch(_e){}
+      try{ wrap.setAttribute('data-tkqa-open','0'); }catch(_e){}
+      if(head){
+        try{ head.setAttribute('aria-expanded','false'); head.setAttribute('role','button'); head.setAttribute('tabindex','0'); }catch(_e){}
+      }
+      if(fold){
+        try{ wrap.style.setProperty('--tkqa-fold-h', Math.ceil(fold.scrollHeight || 210)+'px'); }catch(_e){}
+      }
+      try{ sessionStorage.setItem('tkqa-dock-open','0'); }catch(_e){}
+    }
+
+    try{ root.classList.remove('tk-any-game-open','tk-v44-games-open'); }catch(_e){}
+    try{ if(document.body) document.body.classList.remove('tk-any-game-open','tk-v44-games-open'); }catch(_e){}
+    try{ root.style.removeProperty('overflow'); if(document.body) document.body.style.removeProperty('overflow'); }catch(_e){}
+  }
+
+  function startupCleanLoop(){
+    if(isPhoneLandscape()){
+      root.classList.remove('tk-v56-boot-clean');
+      return;
+    }
+    if(userIsOpening()) return;
+    forceClosedAtStartup();
+    if(Date.now() < cleanupUntil){
+      cleanupTimer = setTimeout(startupCleanLoop, 140);
+    }else{
+      root.classList.remove('tk-v56-boot-clean');
+    }
+  }
+
+  function armStartupClean(){
+    if(isPhoneLandscape()){
+      root.classList.remove('tk-v56-boot-clean');
+      return;
+    }
+    cleanupUntil = Date.now() + 1800;
+    startupCleanLoop();
+    [60,180,420,900,1500].forEach(function(ms){ setTimeout(startupCleanLoop, ms); });
+  }
+
+  function safeOpenViaLegacy(legacyId, ev){
+    var legacy = id(legacyId);
+    if(!legacy) return false;
+    markExplicitOpen();
+    try{ legacy.click(); return true; }catch(_e){}
+    try{ legacy.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window})); return true; }catch(_e){}
+    return false;
+  }
+
+  function bindDirectCards(){
+    var pairs = [
+      ['tkqaOpenComic','openComicMenu'],
+      ['tkqaOpenRule','openRuleGame'],
+      ['tkqaOpenPc','openPcPartsGameLaunch']
+    ];
+    pairs.forEach(function(pair){
+      var visible = id(pair[0]);
+      if(!visible || visible.__tkV56CardBound) return;
+      visible.__tkV56CardBound = true;
+      visible.addEventListener('click', function(ev){
+        try{ ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); }catch(_e){}
+        safeOpenViaLegacy(pair[1], ev);
+        return false;
+      }, true);
+    });
+
+    var r = id('tkqaOpenRoulette');
+    if(r && !r.__tkV56RouletteIntent){
+      r.__tkV56RouletteIntent = true;
+      r.addEventListener('click', markExplicitOpen, true);
+    }
+  }
+
+  function bindCloseReset(){
+    if(window.__tkV56CloseResetBound) return;
+    window.__tkV56CloseResetBound = true;
+    var closeSel = '#itCloseBtn,#phishCloseBtn,#infoCloseBtn,#closePcPartsGame,#closeRuleGame,#closeComicMenu,#closeRouletteDock,.cool-phish-close,.mg-close,.rm-close';
+    document.addEventListener('click', function(ev){
+      var t = ev.target;
+      if(t && t.closest && t.closest(closeSel)){
+        setTimeout(function(){
+          var any = q('#itGame.is-open,#phishGame.is-open,#infoSecGame.is-open,#pcPartsGame.is-open,#ruleGame.is-open,#comicMenu.is-open,#rouletteDock.tk-roulette-popover-open');
+          if(!any){
+            root.classList.remove('tk-v56-explicit-game-open','tk-any-game-open','tk-v44-games-open');
+          }
+        }, 80);
+      }
+    }, true);
+  }
+
+  function init(){
+    bindDirectCards();
+    bindCloseReset();
+    armStartupClean();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+  window.addEventListener('load', function(){ bindDirectCards(); startupCleanLoop(); }, {once:true});
+  window.addEventListener('pageshow', function(){ if(!userIsOpening()) armStartupClean(); });
+  window.addEventListener('resize', function(){ if(isPhoneLandscape()) root.classList.remove('tk-v56-boot-clean'); }, {passive:true});
+})();
+</script>
+<style id="tk-v56-module-closed-state-css">
+.rules.tkqa-wrap.tkqa-v56-ready.is-collapsed .tkqa-fold,
+.rules.tkqa-wrap.tkqa-v56-ready:not(.is-open) .tkqa-fold{
+  max-height:0 !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  margin-top:0 !important;
+  overflow:hidden !important;
+  transform:translate3d(0,14px,0) scaleY(.86) !important;
+}
+.rules.tkqa-wrap.tkqa-v56-ready.is-collapsed .tkqa-grid,
+.rules.tkqa-wrap.tkqa-v56-ready:not(.is-open) .tkqa-grid,
+.rules.tkqa-wrap.tkqa-v56-ready.is-collapsed .tkqa-bottom-line,
+.rules.tkqa-wrap.tkqa-v56-ready:not(.is-open) .tkqa-bottom-line{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+.rules.tkqa-wrap.tkqa-v56-ready .tkqa-head{
+  pointer-events:auto !important;
+  cursor:pointer !important;
+}
+.rules.tkqa-wrap.tkqa-v56-ready .tkqa-card{
+  pointer-events:auto !important;
+}
+@media (pointer:coarse) and (orientation:landscape) and (max-height:620px) and (max-width:1400px){
+  html:not(.tk-v56-force-phone-debug) .rules.tkqa-wrap.tkqa-v56-ready .tkqa-dock{
+    /* без переопределений: оставляем мобильную логику текущей версии */
+  }
+}
+</style>
+<!-- /TK PATCH V56 -->
 
 </body>
 </html>
