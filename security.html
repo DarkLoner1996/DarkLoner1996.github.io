@@ -41216,148 +41216,86 @@ PCEtLSB2NTE6IFBDIFBhcnRzIG1vYmlsZSBsYW5kc2NhcGUgc2Nyb2xsICsgb3BhcXVlIGdhbWUgc3Vy
 </style>
 
 
-
-<!-- TK V116 PATCH: align all quicklaunch buttons to Informatika only -->
-<style id="tk-v116-align-buttons-only-style">
-@media (orientation: landscape) and (max-height: 760px){
-  html.tk-v99-refine #tkV98QuickLaunch .tkv98-row.tk-v116-align-fixed{
-    justify-content:start !important;
-  }
-}
-</style>
-<script id="tk-v116-align-buttons-only-script">
+<!-- TK V116 PATCH: align all quick launch buttons to Informatika position only -->
+<script id="tk-v116-align-to-informatika-only">
 (function(){
-  if(window.__tkV116AlignButtonsOnly) return;
-  window.__tkV116AlignButtonsOnly = true;
+  if(window.__tkV116AlignToInformatikaOnly) return;
+  window.__tkV116AlignToInformatikaOnly = true;
 
   function isMobileLandscape(){
     try{
-      return window.matchMedia('(orientation: landscape)').matches && Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 820;
+      return window.matchMedia('(orientation: landscape)').matches && Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 900;
     }catch(_){ return true; }
   }
-
-  function imp(el, prop, value){
-    try{ if(el) el.style.setProperty(prop, value, 'important'); }catch(_){ }
+  function imp(el, prop, value){ try{ if(el) el.style.setProperty(prop, value, 'important'); }catch(_){ } }
+  function clearBtn(btn){
+    try{
+      if(!btn) return;
+      btn.style.removeProperty('margin-left');
+      btn.style.removeProperty('justify-self');
+    }catch(_){ }
   }
 
-  function num(v){
-    var n = parseFloat(v || '0');
-    return isFinite(n) ? n : 0;
-  }
-
-  function naturalWidth(el){
-    if(!el) return 0;
-    var clone = el.cloneNode(true);
-    imp(clone, 'position', 'absolute');
-    imp(clone, 'left', '-99999px');
-    imp(clone, 'top', '0');
-    imp(clone, 'visibility', 'hidden');
-    imp(clone, 'width', 'max-content');
-    imp(clone, 'min-width', '0');
-    imp(clone, 'max-width', 'none');
-    imp(clone, 'display', 'inline-flex');
-    imp(clone, 'flex', '0 0 auto');
-    imp(clone, 'white-space', 'nowrap');
-    document.body.appendChild(clone);
-    var w = Math.ceil(Math.max(clone.scrollWidth || 0, clone.getBoundingClientRect().width || 0));
-    clone.remove();
-    return w;
-  }
-
-  function alignQuickLaunchButtons(){
-    if(!isMobileLandscape()) return;
+  function alignButtons(){
     var rail = document.getElementById('tkV98QuickLaunch');
-    if(!rail) return;
+    if(!rail || !isMobileLandscape()) return;
     var rows = Array.prototype.slice.call(rail.querySelectorAll('.tkv98-row'));
     if(!rows.length) return;
 
-    var avatarW = 34;
-    var copyW = 0;
-    var btnW = 0;
-    var padLeft = 5;
-    var padRight = 5;
-    var gap = 5;
+    rows.forEach(function(row){ clearBtn(row.querySelector('.tkv98-go')); });
+
+    var firstRow = rows[0];
+    var firstBtn = firstRow && firstRow.querySelector('.tkv98-go');
+    if(!firstBtn) return;
+
+    var firstRowBox = firstRow.getBoundingClientRect();
+    var firstBtnBox = firstBtn.getBoundingClientRect();
+    var baseLeft = firstBtnBox.left - firstRowBox.left;
 
     rows.forEach(function(row){
-      var cs = getComputedStyle(row);
-      padLeft = Math.max(padLeft, Math.round(num(cs.paddingLeft)) || 0);
-      padRight = Math.max(padRight, Math.round(num(cs.paddingRight)) || 0);
-      var colGap = num(cs.columnGap || cs.gap);
-      if(colGap) gap = Math.round(colGap);
-
-      var avatar = row.querySelector('.tkv98-avatar');
-      if(avatar){
-        avatarW = Math.max(avatarW, Math.ceil(avatar.getBoundingClientRect().width || avatar.offsetWidth || 0));
-      }
-
-      var copy = row.querySelector('.tkv98-copy');
-      if(copy){
-        copyW = Math.max(copyW, naturalWidth(copy));
-      }
-
-      var go = row.querySelector('.tkv98-go');
-      if(go){
-        btnW = Math.max(btnW, Math.ceil(go.getBoundingClientRect().width || go.offsetWidth || 0));
-      }
-    });
-
-    if(!copyW) return;
-    if(!btnW) btnW = 55;
-
-    var rowW = padLeft + avatarW + gap + copyW + gap + btnW + padRight;
-
-    imp(rail, 'width', rowW + 'px');
-    imp(rail, 'min-width', rowW + 'px');
-    imp(rail, 'max-width', rowW + 'px');
-
-    rows.forEach(function(row){
-      row.classList.add('tk-v116-align-fixed');
-      imp(row, 'grid-template-columns', avatarW + 'px ' + copyW + 'px ' + btnW + 'px');
-      imp(row, 'column-gap', gap + 'px');
-      imp(row, 'width', rowW + 'px');
-      imp(row, 'min-width', rowW + 'px');
-      imp(row, 'max-width', rowW + 'px');
-
-      var copy = row.querySelector('.tkv98-copy');
-      if(copy){
-        imp(copy, 'width', copyW + 'px');
-        imp(copy, 'min-width', copyW + 'px');
-        imp(copy, 'max-width', copyW + 'px');
-        imp(copy, 'flex', '0 0 ' + copyW + 'px');
-      }
-
-      var go = row.querySelector('.tkv98-go');
-      if(go){
-        imp(go, 'width', btnW + 'px');
-        imp(go, 'min-width', btnW + 'px');
-        imp(go, 'max-width', btnW + 'px');
-        imp(go, 'justify-self', 'start');
-      }
+      var btn = row.querySelector('.tkv98-go');
+      if(!btn) return;
+      var rowBox = row.getBoundingClientRect();
+      var btnBox = btn.getBoundingClientRect();
+      var currentLeft = btnBox.left - rowBox.left;
+      var delta = baseLeft - currentLeft;
+      imp(btn, 'justify-self', 'start');
+      imp(btn, 'margin-left', delta + 'px');
     });
   }
 
-  var scheduled = false;
+  var ticking = false;
   function queueAlign(){
-    if(scheduled) return;
-    scheduled = true;
+    if(ticking) return;
+    ticking = true;
     requestAnimationFrame(function(){
-      scheduled = false;
-      alignQuickLaunchButtons();
+      ticking = false;
+      alignButtons();
     });
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queueAlign, {once:true});
-  else queueAlign();
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', queueAlign, {once:true});
+  } else {
+    queueAlign();
+  }
   window.addEventListener('load', queueAlign, {once:true});
   window.addEventListener('pageshow', queueAlign, {passive:true});
   window.addEventListener('resize', queueAlign, {passive:true});
   window.addEventListener('orientationchange', function(){ setTimeout(queueAlign, 120); }, {passive:true});
   document.addEventListener('transitionend', queueAlign, true);
   document.addEventListener('animationend', queueAlign, true);
-  try{ new MutationObserver(queueAlign).observe(document.documentElement, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style','hidden','aria-hidden']}); }catch(_){ }
+  try{
+    new MutationObserver(queueAlign).observe(document.documentElement, {
+      subtree:true,
+      childList:true,
+      attributes:true,
+      attributeFilter:['class','style','hidden','aria-hidden']
+    });
+  }catch(_){ }
   setTimeout(queueAlign, 80);
   setTimeout(queueAlign, 220);
-  setTimeout(queueAlign, 480);
+  setTimeout(queueAlign, 500);
 })();
 </script>
 
