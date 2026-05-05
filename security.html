@@ -14497,7 +14497,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 }
 </style>
 </head>
-<body>
+<body class="menu-collapsed">
 <div aria-label="Загрузка сайта" aria-live="polite" class="tk-loader" id="tkLoader">
 <div class="tk-loader__bg"></div>
 <div class="tk-loader__noise"></div>
@@ -14535,7 +14535,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 <div aria-hidden="true" class="page-transition" id="pt">
 <div class="wipe"></div>
 </div>
-<nav aria-label="Игровое меню" class="side-nav">
+<nav aria-label="Игровое меню" class="side-nav is-collapsed">
 <div class="side-nav__tab">
 <div class="tab-row">
 <span aria-hidden="true" class="menu-pill">
@@ -14544,7 +14544,7 @@ html.chatgpt-4k-v40 #cinema .tk-cinema-callout__img{
 </svg>
 <span class="menu-pill__label">ИГРОВОЕ МЕНЮ</span>
 </span>
-<button aria-controls="hudPanel" aria-expanded="true" class="back-btn" id="menuToggle" title="Свернуть/развернуть" type="button">
+<button aria-controls="hudPanel" aria-expanded="false" class="back-btn" id="menuToggle" title="Развернуть/свернуть" type="button">
 <svg aria-hidden="true" viewbox="0 0 24 24">
 <path d="M14.5 6.5 8.5 12l6 5.5"></path>
 </svg>
@@ -18048,9 +18048,12 @@ function renderCard() {
 
       function sync(){
         const collapsed = nav.classList.contains('is-collapsed');
+        const panelId = btn.getAttribute('aria-controls');
+        const panel = panelId ? document.getElementById(panelId) : null;
         document.body.classList.toggle('menu-collapsed', collapsed);
         btn.setAttribute('aria-expanded', String(!collapsed));
         btn.title = collapsed ? 'Развернуть меню' : 'Свернуть меню';
+        if(panel) panel.setAttribute('aria-hidden', String(collapsed));
       }
 
       sync();
@@ -38838,11 +38841,15 @@ html.tk-license-open body{
   function syncState(){
     if(!acceptBtn || !checkbox) return;
     var checked = !!checkbox.checked;
-    acceptBtn.disabled = false;
+    acceptBtn.disabled = !checked;
+    acceptBtn.toggleAttribute('disabled', !checked);
     acceptBtn.setAttribute('aria-disabled', checked ? 'false' : 'true');
     acceptBtn.classList.toggle('is-disabled', !checked);
-    acceptBtn.style.opacity = checked ? '1' : '.56';
-    acceptBtn.style.filter = checked ? '' : 'grayscale(.12)';
+    acceptBtn.dataset.state = checked ? 'enabled' : 'disabled';
+    acceptBtn.style.pointerEvents = 'auto';
+    acceptBtn.style.cursor = checked ? 'pointer' : 'not-allowed';
+    acceptBtn.style.opacity = checked ? '1' : '.45';
+    acceptBtn.style.filter = checked ? 'none' : 'grayscale(.12)';
     if(errorEl) errorEl.textContent = checked ? '' : (isOpen ? 'Чтобы войти на сайт, подтвердите принятие условий.' : '');
   }
 
@@ -47616,9 +47623,18 @@ html.tk-tablet-landscape .side-chip--phish-min{ left:720px !important; }
     var lastToggleTs = 0;
 
     function sync(){
-      accept.disabled = !checkbox.checked;
-      accept.toggleAttribute('data-enabled', checkbox.checked);
-      if(errorEl && checkbox.checked) errorEl.textContent = '';
+      var checked = !!checkbox.checked;
+      accept.disabled = !checked;
+      accept.toggleAttribute('disabled', !checked);
+      accept.toggleAttribute('data-enabled', checked);
+      accept.setAttribute('aria-disabled', checked ? 'false' : 'true');
+      accept.classList.toggle('is-disabled', !checked);
+      accept.dataset.state = checked ? 'enabled' : 'disabled';
+      accept.style.pointerEvents = 'auto';
+      accept.style.cursor = checked ? 'pointer' : 'not-allowed';
+      accept.style.opacity = checked ? '1' : '.45';
+      accept.style.filter = checked ? 'none' : 'grayscale(.12)';
+      if(errorEl && checked) errorEl.textContent = '';
     }
     function toggleCheckbox(evt){
       var now = Date.now();
@@ -56302,10 +56318,15 @@ html.tk-mac2600 .hud-arrow svg{
 
     function sync(){
       var checked = !!checkbox.checked;
-      acceptBtn.disabled = false;
+      acceptBtn.disabled = !checked;
+      acceptBtn.toggleAttribute('disabled', !checked);
+      acceptBtn.setAttribute('aria-disabled', checked ? 'false' : 'true');
       acceptBtn.classList.toggle('is-disabled', !checked);
-      acceptBtn.style.opacity = checked ? '1' : '.56';
-      acceptBtn.style.filter = checked ? '' : 'grayscale(.12)';
+      acceptBtn.dataset.state = checked ? 'enabled' : 'disabled';
+      acceptBtn.style.pointerEvents = 'auto';
+      acceptBtn.style.cursor = checked ? 'pointer' : 'not-allowed';
+      acceptBtn.style.opacity = checked ? '1' : '.45';
+      acceptBtn.style.filter = checked ? 'none' : 'grayscale(.12)';
       if(errorEl) errorEl.textContent = checked ? '' : 'Чтобы войти на сайт, подтвердите принятие условий.';
     }
 
@@ -59130,64 +59151,44 @@ html.tk-tablet-landscape.tk-tablet-fhd-match.tk-cat-launch-opening .side-chip--p
 </style>
 
 
-<style id="tk-tablet-cinema-mac2-style-v16">
+<style id="tk-tablet-cinema-mac2-style-v14">
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider{
-  width: clamp(520px, calc(100vw - 590px), 610px) !important;
-  max-width: clamp(520px, calc(100vw - 590px), 610px) !important;
+  width: clamp(660px, calc(100vw - 520px), 760px) !important;
+  max-width: clamp(660px, calc(100vw - 520px), 760px) !important;
   margin: 0 auto !important;
-  padding: 0 0 8px !important;
+  padding: 0 0 12px !important;
   z-index: 6 !important;
-  contain: layout paint style !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .cinema-title-art{
-  width: clamp(248px, 24vw, 300px) !important;
-  max-width: clamp(248px, 24vw, 300px) !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .cinema-banner-sub{
-  margin: 0 auto !important;
-  padding: 3px 9px 4px !important;
-  font-size: 8.5px !important;
-  letter-spacing: .08em !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-container{
   width: 100% !important;
   max-width: none !important;
-  min-height: 256px !important;
+  min-height: 316px !important;
   margin: 0 auto !important;
   display: grid !important;
-  grid-template-columns: 42px minmax(0,1fr) 42px !important;
-  column-gap: 6px !important;
+  grid-template-columns: 52px minmax(0,1fr) 52px !important;
+  column-gap: 10px !important;
   align-items: center !important;
   overflow: visible !important;
   padding: 0 !important;
-  contain: layout paint !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next{
-  width: 34px !important;
-  height: 34px !important;
+  width: 46px !important;
+  height: 46px !important;
   position: relative !important;
   top: auto !important;
   left: auto !important;
   right: auto !important;
-  transform: translateZ(0) !important;
+  transform: none !important;
   place-self: center !important;
   z-index: 60 !important;
   opacity: 1 !important;
   margin: 0 !important;
-  transition: transform .14s ease, opacity .14s ease, box-shadow .14s ease !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev{ grid-column: 1 !important; }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next{ grid-column: 3 !important; }
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev svg,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next svg{
-  width: 16px !important;
-  height: 16px !important;
-}
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-wrapper{
   grid-column: 2 !important;
@@ -59195,11 +59196,11 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slid
   min-width: 0 !important;
   max-width: none !important;
   margin: 0 auto !important;
-  padding: 5px 1px 8px !important;
+  padding: 10px 4px 14px !important;
   box-sizing: border-box !important;
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+  gap: 16px !important;
   align-items: stretch !important;
   justify-content: stretch !important;
   overflow: hidden !important;
@@ -59208,14 +59209,12 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slid
   -ms-overflow-style: none !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
-  contain: layout paint !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-wrapper::-webkit-scrollbar{
   display:none !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.tk-tablet-mac2-hidden,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.tk-fhd-hidden{
+html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.tk-tablet-mac2-hidden{
   display:none !important;
 }
 
@@ -59223,49 +59222,44 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
   width: auto !important;
   min-width: 0 !important;
   max-width: none !important;
-  min-height: 236px !important;
+  min-height: 296px !important;
   padding: 0 !important;
-  border-radius: 18px !important;
+  border-radius: 22px !important;
   position: relative !important;
   overflow: hidden !important;
   cursor: pointer !important;
   background:
-    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.13), transparent 60%),
-    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.08), transparent 60%),
-    linear-gradient(180deg, rgba(10,55,90,.50), rgba(8,35,60,.45)) !important;
-  border: 1px solid rgba(255,221,136,.28) !important;
+    radial-gradient(120% 160% at 18% 18%, rgba(255,255,255,.14), transparent 60%),
+    radial-gradient(120% 120% at 86% 22%, rgba(255,242,205,.10), transparent 60%),
+    linear-gradient(180deg, rgba(10,55,90,.52), rgba(8,35,60,.46)) !important;
+  border: 1px solid rgba(255,221,136,.34) !important;
   box-shadow:
-    0 12px 20px rgba(0,0,0,.17),
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-  transform: translateZ(0) !important;
+    0 18px 30px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
+  transform: translateY(0) scale(.972) !important;
   transform-origin: center center !important;
   transition:
-    transform .16s ease,
-    filter .16s ease,
-    box-shadow .16s ease,
-    border-color .16s ease,
-    opacity .16s ease !important;
-  filter: saturate(.97) brightness(.985) !important;
+    transform .24s ease,
+    filter .24s ease,
+    box-shadow .24s ease,
+    border-color .24s ease !important;
+  filter: saturate(.96) brightness(.98) !important;
   z-index: 1 !important;
   opacity: 1 !important;
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
-  will-change: transform !important;
-  contain: layout paint !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide::before{
   content:"" !important;
   position:absolute !important;
   inset:0 !important;
-  border-radius:18px !important;
-  padding:1px !important;
-  background:linear-gradient(90deg, rgba(255,244,201,.84), rgba(255,210,122,.64), rgba(255,255,255,.12), rgba(255,210,122,.62), rgba(255,244,201,.80)) !important;
+  border-radius:22px !important;
+  padding:2px !important;
+  background:linear-gradient(90deg, rgba(255,244,201,.90), rgba(255,210,122,.76), rgba(255,255,255,.18), rgba(255,210,122,.74), rgba(255,244,201,.88)) !important;
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
   -webkit-mask-composite:xor !important;
   mask-composite:exclude !important;
   pointer-events:none !important;
-  opacity:.56 !important;
+  opacity:.62 !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide::after{
   display:none !important;
@@ -59274,35 +59268,32 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.tk-tablet-mac2-active,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active{
-  transform: translateY(-2px) translateZ(0) !important;
-  filter: saturate(1.01) brightness(1.01) !important;
+  transform: translateY(-6px) scale(1.012) !important;
+  filter: saturate(1.04) brightness(1.02) !important;
   z-index: 5 !important;
-  border-color: rgba(255,233,156,.72) !important;
+  border-color: rgba(255,233,156,.88) !important;
   box-shadow:
-    0 16px 24px rgba(0,0,0,.21),
-    0 0 0 1px rgba(255,228,146,.16),
-    inset 0 1px 0 rgba(255,255,255,.16) !important;
+    0 24px 36px rgba(0,0,0,.24),
+    0 0 0 1px rgba(255,228,146,.24),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.tk-tablet-mac2-active::before,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active::before{
-  opacity:.84 !important;
+  opacity:.92 !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-img,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-img,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide:not(.is-active) .movie-img{
   width:100% !important;
-  height:136px !important;
+  height:174px !important;
   display:block !important;
   object-fit:cover !important;
   margin:0 !important;
-  border-radius:14px 14px 0 0 !important;
+  border-radius:18px 18px 0 0 !important;
   vertical-align:top !important;
   opacity: 1 !important;
   filter: none !important;
-  transform: translateZ(0) !important;
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-seam-gold{
@@ -59311,13 +59302,14 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
   min-width:100% !important;
   max-width:100% !important;
   margin:0 !important;
-  height:6px !important;
+  height:8px !important;
   border-radius:0 !important;
-  background:linear-gradient(180deg, rgba(255,251,226,.98) 0%, rgba(255,239,181,.98) 16%, rgba(255,219,109,1) 42%, rgba(227,161,42,.96) 72%, rgba(255,237,176,.94) 100%) !important;
+  background:linear-gradient(180deg, rgba(255,251,226,.98) 0%, rgba(255,239,181,.98) 14%, rgba(255,219,109,1) 40%, rgba(227,161,42,.98) 72%, rgba(255,237,176,.96) 100%) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.72),
-    inset 0 -1px 2px rgba(122,74,8,.26),
-    0 0 0 1px rgba(255,219,109,.18) !important;
+    inset 0 1px 0 rgba(255,255,255,.86),
+    inset 0 -2px 4px rgba(122,74,8,.36),
+    0 0 0 1px rgba(255,219,109,.22),
+    0 0 10px rgba(255,205,90,.16) !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-seam-gold::before,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-seam-gold::after{
@@ -59328,19 +59320,19 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info{
   position:relative !important;
   margin:0 !important;
-  min-height:82px !important;
-  padding:7px 8px 8px !important;
+  min-height:112px !important;
+  padding:10px 12px 12px !important;
   display:grid !important;
   grid-template-columns:minmax(0,1fr) auto !important;
   grid-template-areas:"badges badges" "title btn" !important;
   align-items:end !important;
   align-content:start !important;
-  column-gap:8px !important;
-  row-gap:5px !important;
+  column-gap:12px !important;
+  row-gap:8px !important;
   overflow:hidden !important;
   background:linear-gradient(180deg, rgba(8,36,64,.96), rgba(7,23,41,.99)) !important;
-  border-radius:0 0 18px 18px !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08) !important;
+  border-radius:0 0 22px 22px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09) !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-text{
@@ -59350,16 +59342,16 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
   grid-area:badges !important;
   display:flex !important;
   flex-wrap:wrap !important;
-  gap:5px !important;
+  gap:8px !important;
   align-items:center !important;
   margin:0 !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-ep,
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-duration{
-  font-size:9px !important;
+  font-size:11.5px !important;
   line-height:1 !important;
-  letter-spacing:.08em !important;
-  padding:4px 7px !important;
+  letter-spacing:.10em !important;
+  padding:5px 9px !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info h3,
@@ -59367,270 +59359,58 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-info h3{
   grid-area:title !important;
   margin:0 !important;
-  font-size:11.5px !important;
-  line-height:1.03 !important;
-  min-height:2.0em !important;
+  font-size:14px !important;
+  line-height:1.05 !important;
+  min-height:2.1em !important;
   color:rgba(255,205,110,.96) !important;
   text-transform:uppercase !important;
-  letter-spacing:.025em !important;
-  text-shadow:0 3px 12px rgba(0,0,0,.34) !important;
+  letter-spacing:.04em !important;
+  text-shadow:0 4px 16px rgba(0,0,0,.36) !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-btn{
   grid-area:btn !important;
-  min-width:90px !important;
+  min-width:116px !important;
   align-self:start !important;
-  padding:7px 9px !important;
-  font-size:8.5px !important;
-  letter-spacing:.10em !important;
+  padding:10px 14px !important;
+  font-size:10.5px !important;
+  letter-spacing:.12em !important;
   margin-top: 0 !important;
-  border-radius: 14px !important;
-  transform: translateZ(0) !important;
 }
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-btn:hover{
-  transform: translateY(-1px) translateZ(0) !important;
+  transform:translateY(-1px) !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev[disabled],
 html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next[disabled]{
-  opacity:.52 !important;
+  opacity:.58 !important;
 }
 
 @media (max-width: 1280px){
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema,
   html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider{
-    width: clamp(500px, calc(100vw - 530px), 580px) !important;
-    max-width: clamp(500px, calc(100vw - 530px), 580px) !important;
+    width: clamp(620px, calc(100vw - 500px), 720px) !important;
+    max-width: clamp(620px, calc(100vw - 500px), 720px) !important;
   }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .cinema-title-art{
-    width: clamp(232px, 23vw, 286px) !important;
-    max-width: clamp(232px, 23vw, 286px) !important;
-  }
-
   html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-container{
-    grid-template-columns: 38px minmax(0,1fr) 38px !important;
-    column-gap: 5px !important;
-    min-height: 244px !important;
+    grid-template-columns: 48px minmax(0,1fr) 48px !important;
+    column-gap: 8px !important;
   }
-
   html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev,
   html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next{
-    width: 32px !important;
-    height: 32px !important;
+    width: 42px !important;
+    height: 42px !important;
   }
-
   html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-wrapper{
-    gap: 8px !important;
-    padding: 4px 1px 7px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide{
-    min-height: 224px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-img,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-img,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide:not(.is-active) .movie-img{
-    height: 126px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info{
-    min-height: 78px !important;
-    padding: 6px 7px 7px !important;
-    column-gap: 7px !important;
-    row-gap: 4px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-ep,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-duration{
-    font-size: 8px !important;
-    padding: 4px 6px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info h3,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide .movie-text h3,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-info h3{
-    font-size: 10.5px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-btn{
-    min-width: 84px !important;
-    padding: 6px 8px !important;
-    font-size: 8px !important;
+    gap: 14px !important;
+    padding: 8px 2px 12px !important;
   }
 }
 </style>
 
-<style id="tk-tablet-cinema-mac2-compact-v15">
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema{
-  width: clamp(600px, calc(100vw - 520px), 700px) !important;
-  max-width: clamp(600px, calc(100vw - 520px), 700px) !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider{
-  width: clamp(600px, calc(100vw - 520px), 700px) !important;
-  max-width: clamp(600px, calc(100vw - 520px), 700px) !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .cinema-title-art{
-  width: clamp(276px, 25vw, 324px) !important;
-  max-width: clamp(276px, 25vw, 324px) !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .cinema-banner-sub{
-  padding: 4px 10px 5px !important;
-  font-size: 9px !important;
-  letter-spacing: .09em !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-container{
-  min-height: 282px !important;
-  grid-template-columns: 46px minmax(0,1fr) 46px !important;
-  column-gap: 8px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next{
-  width: 40px !important;
-  height: 40px !important;
-}
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev svg,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next svg{
-  width: 18px !important;
-  height: 18px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-wrapper{
-  padding: 8px 2px 10px !important;
-  gap: 12px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide{
-  min-height: 262px !important;
-  border-radius: 20px !important;
-  transform: translateY(0) scale(.968) !important;
-  box-shadow:
-    0 14px 24px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.12) !important;
-}
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide::before{
-  border-radius: 20px !important;
-}
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.tk-tablet-mac2-active,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active{
-  transform: translateY(-4px) scale(1.008) !important;
-  box-shadow:
-    0 18px 28px rgba(0,0,0,.22),
-    0 0 0 1px rgba(255,228,146,.20),
-    inset 0 1px 0 rgba(255,255,255,.16) !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-img,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-img,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide:not(.is-active) .movie-img{
-  height: 154px !important;
-  border-radius: 16px 16px 0 0 !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-seam-gold{
-  height: 7px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info{
-  min-height: 96px !important;
-  padding: 8px 10px 10px !important;
-  column-gap: 10px !important;
-  row-gap: 6px !important;
-  border-radius: 0 0 20px 20px !important;
-}
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-badges{
-  gap: 6px !important;
-}
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-ep,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-duration{
-  font-size: 10px !important;
-  padding: 4px 8px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info h3,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide .movie-text h3,
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-info h3{
-  font-size: 13px !important;
-  line-height: 1.04 !important;
-  min-height: 2.05em !important;
-  letter-spacing: .03em !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-btn{
-  min-width: 102px !important;
-  padding: 8px 12px !important;
-  font-size: 9.5px !important;
-  letter-spacing: .11em !important;
-  border-radius: 16px !important;
-}
-
-@media (max-width: 1280px){
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider{
-    width: clamp(560px, calc(100vw - 500px), 660px) !important;
-    max-width: clamp(560px, calc(100vw - 500px), 660px) !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-container{
-    grid-template-columns: 42px minmax(0,1fr) 42px !important;
-    column-gap: 6px !important;
-    min-height: 270px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-prev,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-next{
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .slider-wrapper{
-    gap: 10px !important;
-    padding: 7px 1px 10px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide{
-    min-height: 252px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-img,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-img,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide:not(.is-active) .movie-img{
-    height: 146px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info{
-    min-height: 92px !important;
-    padding: 8px 9px 9px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-info h3,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide .movie-text h3,
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-slide.is-active .movie-info h3{
-    font-size: 12px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movie-btn{
-    min-width: 96px !important;
-    padding: 7px 10px !important;
-    font-size: 9px !important;
-  }
-}
-</style>
-
-<script id="tk-tablet-cinema-mac2-script-v16">
+<script id="tk-tablet-cinema-mac2-script-v14">
 (function(){
   var state = { start: 0, active: 0 };
-  var rafId = 0;
-  var queueTimer = 0;
   var parts = null;
-  var observer = null;
-  var observedTrack = null;
 
   function q(sel, root){ return (root || document).querySelector(sel); }
   function qa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -59642,26 +59422,11 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
     return root.classList.contains('tk-tablet-fhd-match') && root.classList.contains('tk-tablet-landscape');
   }
 
-  function cleanup(){
-    var cinema = document.getElementById('cinema');
-    if(!cinema) return;
-    cinema.classList.remove('tk-tablet-mac2-slider');
-    qa('.movie-slide', cinema).forEach(function(slide){
-      slide.classList.remove('tk-fhd-hidden', 'tk-tablet-mac2-hidden', 'tk-tablet-mac2-active', 'is-active');
-      slide.style.removeProperty('display');
-      slide.style.removeProperty('cursor');
-      slide.removeAttribute('aria-hidden');
-    });
-    qa('.slider-prev, .slider-next', cinema).forEach(function(btn){
-      btn.disabled = false;
-      btn.style.removeProperty('opacity');
-    });
-  }
-
-  function getParts(){
+  function setup(){
     if(!shouldRun()) return null;
     var cinema = document.getElementById('cinema');
     if(!cinema) return null;
+
     cinema.classList.add('tk-tablet-mac2-slider');
 
     var prev = q('.slider-prev', cinema);
@@ -59669,23 +59434,40 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
     var track = q('.slider-wrapper', cinema);
     if(!prev || !next || !track) return null;
 
-    var slides = qa('.movie-slide', track);
-    if(slides.length < 2) return null;
+    var freshPrev = prev.cloneNode(true);
+    prev.replaceWith(freshPrev);
+    prev = freshPrev;
 
+    var freshNext = next.cloneNode(true);
+    next.replaceWith(freshNext);
+    next = freshNext;
+
+    var freshTrack = track.cloneNode(true);
+    track.replaceWith(freshTrack);
+    track = freshTrack;
+
+    var slides = qa('.movie-slide', track);
     slides.forEach(function(slide, idx){
+      slide.classList.remove(
+        'tk-fhd-hidden',
+        'tk-tablet-mac2-hidden',
+        'tk-tablet-mac2-active',
+        'is-active'
+      );
       slide.dataset.tkTabletCinemaIndex = String(idx);
+      imp(slide, 'display', 'block');
       imp(slide, 'cursor', 'pointer');
+      slide.setAttribute('aria-hidden', 'false');
     });
+
+    state.start = clamp(state.start, 0, Math.max(0, slides.length - 2));
+    state.active = clamp(state.active, state.start, Math.min(state.start + 1, slides.length - 1));
 
     return { cinema: cinema, prev: prev, next: next, track: track, slides: slides };
   }
 
   function render(){
-    if(!parts || !shouldRun()){
-      cleanup();
-      return;
-    }
-
+    if(!parts || !shouldRun()) return;
     var slides = parts.slides;
     var maxStart = Math.max(0, slides.length - 2);
     state.start = clamp(state.start, 0, maxStart);
@@ -59704,16 +59486,13 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
 
     parts.prev.disabled = state.start <= 0;
     parts.next.disabled = state.start >= maxStart;
-    imp(parts.prev, 'opacity', state.start <= 0 ? '.52' : '1');
-    imp(parts.next, 'opacity', state.start >= maxStart ? '.52' : '1');
-  }
+    imp(parts.prev, 'opacity', state.start <= 0 ? '.58' : '1');
+    imp(parts.next, 'opacity', state.start >= maxStart ? '.58' : '1');
 
-  function scheduleRender(){
-    if(rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(function(){
-      rafId = 0;
-      render();
-    });
+    try{
+      parts.track.scrollLeft = 0;
+      if(parts.track.scrollTo) parts.track.scrollTo({ left: 0, behavior: 'auto' });
+    }catch(_e){}
   }
 
   function choose(idx){
@@ -59722,7 +59501,7 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
     if(idx < state.start) state.start = idx;
     if(idx > state.start + 1) state.start = idx - 1;
     state.active = idx;
-    scheduleRender();
+    render();
     return false;
   }
 
@@ -59733,89 +59512,66 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
     if(state.active < state.start || state.active > state.start + 1){
       state.active = dir > 0 ? Math.min(state.start + 1, parts.slides.length - 1) : state.start;
     }
-    scheduleRender();
+    render();
     return false;
   }
 
-  function bindButton(btn, dir){
-    if(!btn || btn.__tkTabletCinemaBound) return;
-    btn.__tkTabletCinemaBound = true;
-    btn.addEventListener('click', function(e){
-      if(!shouldRun()) return;
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-      move(dir);
-    }, true);
-    btn.addEventListener('keydown', function(e){
-      if(!shouldRun()) return;
-      if(e.key === 'Enter' || e.key === ' ' || e.code === 'Space'){
+  function swallow(handler){
+    return function(e){
+      if(e){
         e.preventDefault();
         e.stopPropagation();
         if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-        move(dir);
       }
-    }, true);
-  }
-
-  function bindSlide(slide, idx){
-    if(!slide || slide.__tkTabletCinemaBound) return;
-    slide.__tkTabletCinemaBound = true;
-    slide.addEventListener('click', function(e){
-      if(!shouldRun()) return;
-      if(e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return;
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-      choose(idx);
-    }, true);
+      return handler(e);
+    };
   }
 
   function bind(){
     if(!parts) return;
-    bindButton(parts.prev, -1);
-    bindButton(parts.next, 1);
-    parts.slides.forEach(function(slide, idx){ bindSlide(slide, idx); });
-  }
 
-  function observeTrack(track){
-    if(observer && observedTrack === track) return;
-    if(observer) observer.disconnect();
-    observedTrack = track;
-    if(!window.MutationObserver || !track) return;
-    observer = new MutationObserver(function(mutations){
-      if(!shouldRun()) return;
-      var needsBoot = mutations.some(function(m){ return m.type === 'childList'; });
-      if(!needsBoot) return;
-      clearTimeout(queueTimer);
-      queueTimer = setTimeout(boot, 60);
+    parts.prev.addEventListener('pointerdown', swallow(function(){ return move(-1); }), true);
+    parts.prev.addEventListener('click', swallow(function(){ return move(-1); }), true);
+    parts.next.addEventListener('pointerdown', swallow(function(){ return move(1); }), true);
+    parts.next.addEventListener('click', swallow(function(){ return move(1); }), true);
+
+    parts.prev.addEventListener('keydown', swallow(function(e){
+      if(e && (e.key === 'Enter' || e.key === ' ' || e.code === 'Space')) return move(-1);
+    }), true);
+    parts.next.addEventListener('keydown', swallow(function(e){
+      if(e && (e.key === 'Enter' || e.key === ' ' || e.code === 'Space')) return move(1);
+    }), true);
+
+    parts.slides.forEach(function(slide, idx){
+      var pick = swallow(function(e){
+        if(e && e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return false;
+        return choose(idx);
+      });
+      slide.addEventListener('click', pick, true);
+      slide.addEventListener('pointerup', pick, true);
+
+      var btn = q('.movie-btn', slide);
+      if(btn){
+        btn.addEventListener('click', swallow(function(){ return choose(idx); }), true);
+      }
     });
-    observer.observe(track, { childList: true, subtree: false });
   }
 
   function boot(){
-    if(!shouldRun()){
-      cleanup();
-      return;
-    }
-
-    parts = getParts();
+    if(!shouldRun()) return;
+    parts = setup();
     if(!parts) return;
-
-    var maxStart = Math.max(0, parts.slides.length - 2);
-    state.start = clamp(state.start, 0, maxStart);
-    if(state.active < state.start || state.active > state.start + 1){
-      state.active = Math.min(state.start + 1, parts.slides.length - 1);
-    }
-
     bind();
-    observeTrack(parts.track);
-    scheduleRender();
+    render();
   }
 
   function queue(){
-    clearTimeout(queueTimer);
-    queueTimer = setTimeout(boot, 24);
+    if(!shouldRun()) return;
+    boot();
+    setTimeout(boot, 0);
+    setTimeout(boot, 120);
+    setTimeout(boot, 420);
+    setTimeout(boot, 900);
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', queue, { once:true });
@@ -59823,439 +59579,837 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #cinema.tk-tablet-mac2-slider .movi
 
   window.addEventListener('load', queue, { once:true });
   window.addEventListener('resize', queue, { passive:true });
-  window.addEventListener('orientationchange', function(){ setTimeout(queue, 120); setTimeout(queue, 320); }, { passive:true });
+  window.addEventListener('orientationchange', function(){ setTimeout(queue, 120); setTimeout(queue, 420); }, { passive:true });
   if(window.visualViewport) window.visualViewport.addEventListener('resize', queue, { passive:true });
+
+  if(window.MutationObserver){
+    var moTimer = 0;
+    var mo = new MutationObserver(function(){
+      if(!shouldRun()) return;
+      clearTimeout(moTimer);
+      moTimer = setTimeout(function(){ boot(); }, 40);
+    });
+    window.addEventListener('load', function(){
+      var cinema = document.getElementById('cinema');
+      if(cinema) mo.observe(cinema, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style'] });
+    }, { once:true });
+  }
 })();
 </script>
 
 
-<style id="tk-tablet-games-fhd-v18-style">
-/* Dedicated tablet game runtime:
-   - home screen stays in tablet FHD match mode
-   - the three educational mini-games switch to a clean fullscreen stage
-   - inner gameplay modals get their own stable scroll container
-   - outer widgets are fully hidden while a game is open
-*/
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd body{
-  overflow:hidden !important;
+<style id="tk-license-accept-visual-state-fix-v1">
+#tkLicenseOverlay .tk-license__btn--primary:not([disabled]):not(.is-disabled){
+  opacity: 1 !important;
+  filter: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 18px 34px rgba(23,111,219,.34), inset 0 1px 0 rgba(255,255,255,.24) !important;
+}
+#tkLicenseOverlay .tk-license__btn--primary[disabled],
+#tkLicenseOverlay .tk-license__btn--primary.is-disabled{
+  opacity: .45 !important;
+  filter: grayscale(.12) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+</style>
+<script id="tk-license-accept-visual-state-fix-script-v1">
+(function(){
+  var queued = false;
+  var raf = window.requestAnimationFrame || function(cb){ return setTimeout(cb, 16); };
+
+  function getRefs(){
+    var overlay = document.getElementById('tkLicenseOverlay');
+    var checkbox = document.getElementById('tkLicenseAgree');
+    var acceptBtn = document.getElementById('tkLicenseAccept');
+    var errorEl = document.getElementById('tkLicenseError');
+    var label = overlay && overlay.querySelector('.tk-license__checkbox');
+    return { overlay: overlay, checkbox: checkbox, acceptBtn: acceptBtn, errorEl: errorEl, label: label };
+  }
+
+  function applyState(){
+    var refs = getRefs();
+    if(!refs.overlay || !refs.checkbox || !refs.acceptBtn) return;
+    var checked = !!refs.checkbox.checked;
+    refs.acceptBtn.disabled = !checked;
+    refs.acceptBtn.toggleAttribute('disabled', !checked);
+    refs.acceptBtn.setAttribute('aria-disabled', checked ? 'false' : 'true');
+    refs.acceptBtn.classList.toggle('is-disabled', !checked);
+    refs.acceptBtn.dataset.state = checked ? 'enabled' : 'disabled';
+    refs.acceptBtn.style.pointerEvents = 'auto';
+    refs.acceptBtn.style.cursor = checked ? 'pointer' : 'not-allowed';
+    refs.acceptBtn.style.opacity = checked ? '1' : '.45';
+    refs.acceptBtn.style.filter = checked ? 'none' : 'grayscale(.12)';
+    if(refs.errorEl && checked && /подтвердите принятие условий/i.test(refs.errorEl.textContent || '')){
+      refs.errorEl.textContent = '';
+    }
+  }
+
+  function queueSync(){
+    if(queued) return;
+    queued = true;
+    raf(function(){ queued = false; applyState(); });
+  }
+
+  function bind(){
+    var refs = getRefs();
+    if(!refs.overlay || !refs.checkbox || !refs.acceptBtn) return;
+    if(refs.overlay.dataset.tkLicenseVisualFixBound === '1'){
+      queueSync();
+      return;
+    }
+    refs.overlay.dataset.tkLicenseVisualFixBound = '1';
+
+    ['change','input','click','pointerup','touchend','keyup'].forEach(function(evt){
+      refs.checkbox.addEventListener(evt, function(){ setTimeout(queueSync, 0); }, true);
+      refs.checkbox.addEventListener(evt, queueSync, false);
+    });
+
+    if(refs.label){
+      ['click','pointerup','touchend','keyup'].forEach(function(evt){
+        refs.label.addEventListener(evt, function(){ setTimeout(queueSync, 0); }, true);
+        refs.label.addEventListener(evt, queueSync, false);
+      });
+    }
+
+    ['pointerdown','pointerup','touchstart','touchend','click'].forEach(function(evt){
+      refs.acceptBtn.addEventListener(evt, function(e){
+        if(refs.checkbox.checked){
+          refs.acceptBtn.disabled = false;
+          refs.acceptBtn.removeAttribute('disabled');
+          refs.acceptBtn.classList.remove('is-disabled');
+          refs.acceptBtn.dataset.state = 'enabled';
+          refs.acceptBtn.style.opacity = '1';
+          refs.acceptBtn.style.filter = 'none';
+          refs.acceptBtn.style.cursor = 'pointer';
+          return;
+        }
+        if(evt === 'click' || evt === 'pointerdown' || evt === 'touchstart'){
+          try{ e.preventDefault(); }catch(_e){}
+          if(refs.errorEl) refs.errorEl.textContent = 'Чтобы войти на сайт, подтвердите принятие условий.';
+          queueSync();
+        }
+      }, true);
+    });
+
+    try{
+      var mo = new MutationObserver(function(){ queueSync(); });
+      mo.observe(refs.acceptBtn, { attributes:true, attributeFilter:['disabled','class','style','aria-disabled','data-state'] });
+    }catch(_e){}
+
+    [0, 40, 120, 260, 520].forEach(function(delay){ setTimeout(queueSync, delay); });
+  }
+
+  function boot(){ bind(); queueSync(); }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, { once:true });
+  } else {
+    boot();
+  }
+  window.addEventListener('load', function(){ [0, 80, 220, 520].forEach(function(delay){ setTimeout(boot, delay); }); }, { once:true });
+  window.addEventListener('tk:loaderhidden', function(){ [0, 50, 160, 360].forEach(function(delay){ setTimeout(boot, delay); }); });
+  window.addEventListener('orientationchange', function(){ [80, 220, 420].forEach(function(delay){ setTimeout(boot, delay); }); }, { passive:true });
+  window.addEventListener('resize', function(){ setTimeout(queueSync, 0); }, { passive:true });
+})();
+</script>
+
+
+
+
+<style id="tk-tablet-minigame-surface-rework-v4">
+html.tk-tablet-landscape.tk-tablet-fhd-match{
+  --tk-tablet-game-vh: 100dvh;
+  --tk-tablet-game-vw: 100vw;
+  --tk-tablet-keyboard-gap: 0px;
+  --tk-tablet-game-pad: clamp(10px, 1.2vw, 16px);
+  --tk-tablet-menu-shell-w: min(1240px, calc(var(--tk-tablet-game-vw) - 26px));
+  --tk-tablet-modal-w: min(1220px, calc(var(--tk-tablet-game-vw) - 24px));
+  --tk-tablet-modal-min-h: min(760px, calc(var(--tk-tablet-game-vh) - 22px));
+  --tk-tablet-modal-max-h: calc(var(--tk-tablet-game-vh) - 20px);
+  --tk-tablet-profile-panel-w: min(920px, 100%);
+  --tk-tablet-avatar-track: clamp(170px, 19vw, 235px);
+  --tk-tablet-avatar-bubble-w: clamp(150px, 18vw, 220px);
+  --tk-tablet-avatar-bubble-h: clamp(194px, 30vh, 298px);
+  --tk-tablet-avatar-gap: clamp(16px, 1.7vw, 22px);
+  --tk-tablet-play-left: clamp(304px, 32vw, 402px);
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd .side-nav,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd #tkLiveStats,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd #rouletteDock,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd .rules,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd #tkCatStart,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd .side-chip,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd .side-chip--it-min,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd .side-chip--infosec-min,
-html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-games-fhd .side-chip--phish-min{
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).mg-backdrop{
+  padding:0 !important;
+  overflow:hidden !important;
+  background:rgba(3,10,22,.92) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).is-open{
+  display:flex !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-shell,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root{
+  width:100% !important;
+  min-height:var(--tk-tablet-game-vh) !important;
+  height:var(--tk-tablet-game-vh) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) canvas[id^="fx"]{
+  display:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .tk-game-stage-bg{
+  opacity:1 !important;
+  transform:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .tk-game-stage-balls{
+  opacity:.92 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .tk-game-stage-balls span{
+  animation-duration:24s !important;
+  filter:none !important;
+  will-change:auto !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-keyboard-open :is(#itGame,#infoSecGame,#phishGame) .tk-game-stage-balls span{
+  animation-play-state:paused !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .tk-game-stage-balls span:nth-child(n+11){
+  display:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .hero{
+  min-height:var(--tk-tablet-game-vh) !important;
+  height:var(--tk-tablet-game-vh) !important;
+  padding:var(--tk-tablet-game-pad) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-y !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .wrap{
+  width:var(--tk-tablet-menu-shell-w) !important;
+  max-width:var(--tk-tablet-menu-shell-w) !important;
+  min-height:calc(var(--tk-tablet-game-vh) - (var(--tk-tablet-game-pad) * 2)) !important;
+  margin:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  gap:16px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).tk-tablet-game-inner-open .cool-phish-root .wrap{
   opacity:0 !important;
   visibility:hidden !important;
   pointer-events:none !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match #itGame.mg-backdrop.is-open,
-html.tk-tablet-landscape.tk-tablet-fhd-match #infoSecGame.mg-backdrop.is-open,
-html.tk-tablet-landscape.tk-tablet-fhd-match #phishGame.mg-backdrop.is-open{
-  z-index:25000 !important;
-  inset:0 !important;
-  padding:0 !important;
-  align-items:stretch !important;
-  justify-content:stretch !important;
-  overflow:hidden !important;
-  background:
-    radial-gradient(1200px 720px at 50% 16%, rgba(92,180,255,.16), transparent 56%),
-    linear-gradient(180deg, rgba(3,10,20,.78), rgba(3,10,20,.88)) !important;
-  backdrop-filter: blur(8px) saturate(1.02) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(1.02) !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).tk-tablet-game-menu-open .cool-phish-root .wrap{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-shell{
-  position:relative !important;
-  width:100vw !important;
-  max-width:none !important;
-  height:100dvh !important;
-  max-height:none !important;
-  overflow:hidden !important;
-  display:block !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root{
-  position:relative !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .menu-card{
   width:100% !important;
-  height:100% !important;
-  min-height:0 !important;
-  overflow:hidden !important;
-  background:transparent !important;
-  isolation:isolate !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) :is(#fxIt,#fxInfo,#fx){
-  display:none !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .hero{
-  position:relative !important;
-  min-height:100% !important;
-  height:100% !important;
-  overflow:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-  overscroll-behavior:contain !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding:18px 20px !important;
-  background:transparent !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .hero::before,
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .hero::after{
-  display:none !important;
-  content:none !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .wrap{
-  width:min(1220px, calc(100vw - 40px)) !important;
-  max-width:min(1220px, calc(100vw - 40px)) !important;
+  max-width:100% !important;
   margin:0 auto !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-card{
-  width:100% !important;
-  max-width:none !important;
-  margin:0 auto !important;
-  max-height:none !important;
-  padding:16px 18px 14px !important;
-  overflow:hidden !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-top{
-  margin-bottom:10px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-body{
-  grid-template-columns:96px minmax(0,1fr) auto !important;
-  gap:14px !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .menu-body{
+  grid-template-columns:92px minmax(0,1fr) auto !important;
+  gap:16px !important;
   align-items:center !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .mascot{
-  width:96px !important;
-  height:96px !important;
-  border-radius:22px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-copy{
-  min-width:0 !important;
-  gap:6px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-copy :is(h1,h2){
-  font-size:clamp(18px, 2vw, 22px) !important;
-  line-height:1.18 !important;
-  margin:0 !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-copy p{
-  max-width:60ch !important;
-  font-size:13px !important;
-  line-height:1.42 !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-actions{
-  justify-content:flex-end !important;
-  align-self:center !important;
-  gap:10px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-actions .btn,
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .btn{
-  font-size:12.5px !important;
-  padding:10px 14px !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-foot,
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .hint,
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .tip{
-  font-size:12px !important;
-  line-height:1.42 !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-close{
-  position:absolute !important;
-  top:14px !important;
-  right:14px !important;
-  z-index:40 !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .menu-actions{
+  gap:12px !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .backdrop{
   position:absolute !important;
   inset:0 !important;
-  z-index:30 !important;
-  padding:18px 20px !important;
-  overflow:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-  overscroll-behavior:contain !important;
+  display:none;
   align-items:center !important;
   justify-content:center !important;
-  background:
-    radial-gradient(1200px 720px at 50% 16%, rgba(92,180,255,.14), transparent 56%),
-    linear-gradient(180deg, rgba(3,10,20,.80), rgba(3,10,20,.92)) !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal{
-  width:min(1220px, calc(100vw - 40px)) !important;
-  max-width:min(1220px, calc(100vw - 40px)) !important;
-  max-height:calc(100dvh - 36px) !important;
-  margin:auto !important;
+  padding:max(10px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)) !important;
+  background:linear-gradient(180deg, rgba(2,9,20,.38), rgba(2,9,20,.54)) !important;
   overflow:hidden !important;
 }
 
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .backdrop.is-open{
+  display:flex !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal{
+  width:var(--tk-tablet-modal-w) !important;
+  max-width:var(--tk-tablet-modal-w) !important;
+  min-height:min(760px, calc(var(--tk-tablet-game-vh) - 18px)) !important;
+  max-height:var(--tk-tablet-modal-max-h) !important;
+  margin:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg, rgba(9,22,40,.84), rgba(8,18,34,.72)) !important;
+  box-shadow:0 18px 56px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal::before{
+  opacity:.72 !important;
+}
+
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-inner{
+  height:100% !important;
   min-height:0 !important;
-  height:auto !important;
-  max-height:calc(100dvh - 36px) !important;
+  display:grid !important;
   grid-template-rows:auto minmax(0,1fr) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-head{
+  padding:14px 18px !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body{
   min-height:0 !important;
-  overflow:auto !important;
+  display:block !important;
+  gap:0 !important;
+  padding:16px 18px 20px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
   -webkit-overflow-scrolling:touch !important;
-  align-content:start !important;
-  padding:16px !important;
+  touch-action:pan-y !important;
+  scrollbar-gutter:stable both-edges !important;
+  scroll-padding-top:18px !important;
+  scroll-padding-bottom:calc(var(--tk-tablet-keyboard-gap) + 28px) !important;
+  scrollbar-width:none !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"]{
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body::-webkit-scrollbar{
+  width:0 !important;
+  height:0 !important;
+  display:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body > .panel:not([hidden]){
   display:block !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid{
-  display:grid !important;
-  grid-template-columns:minmax(350px, 390px) minmax(0,1fr) !important;
-  gap:14px !important;
-  align-items:start !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="avatar"],
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="profile"]{
+  width:min(1080px, 100%) !important;
+  margin:0 auto !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] aside.profile{
-  display:grid !important;
-  gap:12px !important;
-  min-width:0 !important;
-  align-self:start !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid > .panel:last-child{
-  grid-column:2 !important;
-  grid-row:1 !important;
-  min-width:0 !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="avatar"]{
+  padding:20px !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-grid{
   grid-template-columns:repeat(2, minmax(0,1fr)) !important;
-  gap:14px !important;
+  gap:var(--tk-tablet-avatar-gap) !important;
+  margin-top:14px !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile{
-  grid-template-columns:84px minmax(0,1fr) !important;
-  gap:12px !important;
-  min-height:112px !important;
-  padding:14px !important;
+  grid-template-columns:minmax(0, var(--tk-tablet-avatar-track)) minmax(0,1fr) !important;
+  gap:18px !important;
   align-items:center !important;
+  min-height:calc(var(--tk-tablet-avatar-bubble-h) + 56px) !important;
+  padding:18px !important;
+  border-radius:28px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile .avatar-carousel{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:12px !important;
+  min-width:0 !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile .bubble{
-  width:84px !important;
-  height:84px !important;
-  border-radius:24px !important;
+  width:var(--tk-tablet-avatar-bubble-w) !important;
+  height:var(--tk-tablet-avatar-bubble-h) !important;
+  max-width:100% !important;
+  margin-inline:auto !important;
+  padding:10px !important;
+  border-radius:30px !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+  overflow:hidden !important;
 }
 
 html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile .bubble img.avatar-img{
   width:100% !important;
   height:100% !important;
   object-fit:contain !important;
-  object-position:center center !important;
-  padding:8px !important;
+  object-position:50% 100% !important;
+  padding:0 !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-big{
-  width:88px !important;
-  height:88px !important;
-  border-radius:24px !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-copy{
+  min-width:0 !important;
+  display:grid !important;
+  align-content:center !important;
+  gap:8px !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-big img.avatar-img-big{
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile strong{
+  font-size:clamp(19px, 2vw, 28px) !important;
+  line-height:1.08 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile span{
+  font-size:clamp(14px, 1.3vw, 18px) !important;
+  line-height:1.3 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-hint{
+  font-size:13px !important;
+  opacity:.72 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-slider-row{
+  gap:12px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-slide-btn{
+  width:42px !important;
+  height:42px !important;
+  font-size:26px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-slider-counter{
+  min-width:74px !important;
+  font-size:16px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="avatar"] > .row,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="profile"] > .row{
+  margin-top:18px !important;
+  gap:14px !important;
+  align-items:center !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .modal-body{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:20px 18px 22px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-keyboard-open :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .modal-body{
+  align-items:flex-start !important;
+  padding-bottom:calc(var(--tk-tablet-keyboard-gap) + 26px) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="profile"]{
+  width:var(--tk-tablet-profile-panel-w) !important;
+  max-width:var(--tk-tablet-profile-panel-w) !important;
+  min-height:min(430px, calc(var(--tk-tablet-modal-max-h) - 96px)) !important;
+  margin:0 auto !important;
+  padding:26px 34px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  background:linear-gradient(180deg, rgba(10,24,44,.84), rgba(7,18,34,.92)) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-keyboard-open :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="profile"]{
+  min-height:auto !important;
+  justify-content:flex-start !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="profile"] p{
+  max-width:760px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .field{
+  gap:10px !important;
+  margin-top:16px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root label{
+  font-size:15px !important;
+  font-weight:800 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .input{
+  min-height:68px !important;
+  padding:16px 20px !important;
+  border-radius:20px !important;
+  font-size:24px !important;
+  line-height:1.2 !important;
+  background:linear-gradient(180deg, rgba(10,31,56,.72), rgba(7,20,38,.92)) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .input::placeholder{
+  color:rgba(245,250,255,.48) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .row .btn,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .btn{
+  min-height:52px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .modal-body{
+  padding-bottom:26px !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"]{
   width:100% !important;
-  height:100% !important;
+  margin:0 auto !important;
+  padding:16px !important;
+  background:linear-gradient(180deg, rgba(10,24,44,.78), rgba(7,18,34,.86)) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] > .play-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .play-grid{
+  grid-template-columns:minmax(300px, var(--tk-tablet-play-left)) minmax(0,1fr) !important;
+  gap:16px !important;
+  align-items:start !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid > *,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] aside.profile,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] aside.profile > .panel,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] > .panel:last-child{
+  min-width:0 !important;
+  min-height:0 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match #infoSecGame .cool-phish-root .info-inv-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match #itGame .cool-phish-root .game-inv-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match #phishGame .cool-phish-root .game-inv-grid{
+  grid-template-columns:1fr !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match{
+  --tk-tablet-media-max-h: clamp(260px, 40vh, 430px);
+  --tk-tablet-media-min-h: clamp(220px, 30vh, 320px);
+  --tk-tablet-media-pad: clamp(10px, 1.2vw, 14px);
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .tk-qimg-wrap,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .msg-card .tk-qimg-wrap{
+  margin-top:12px !important;
+  width:100% !important;
+  min-height:var(--tk-tablet-media-min-h) !important;
+  max-height:var(--tk-tablet-media-max-h) !important;
+  padding:var(--tk-tablet-media-pad) !important;
+  border-radius:24px !important;
+  display:grid !important;
+  place-items:center !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(8,18,34,.14)) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.16) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .tk-qimg-wrap[hidden],
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .msg-card .tk-qimg-wrap[hidden]{
+  display:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .tk-qimg,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .msg-card .tk-qimg{
+  display:block !important;
+  width:auto !important;
+  height:auto !important;
+  max-width:100% !important;
+  max-height:calc(var(--tk-tablet-media-max-h) - (var(--tk-tablet-media-pad) * 2)) !important;
+  margin:0 auto !important;
   object-fit:contain !important;
   object-position:center center !important;
-  padding:8px !important;
+  border-radius:20px !important;
+  background:transparent !important;
+  box-shadow:none !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .game-inv-panel,
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .info-inv-panel{
-  max-height:none !important;
-  overflow:visible !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-keyboard-open :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal{
+  min-height:min(760px, calc(var(--tk-tablet-game-vh) - 18px)) !important;
+  max-height:var(--tk-tablet-modal-max-h) !important;
+  margin:auto !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .game-inv-body,
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .info-inv-body{
-  max-height:none !important;
-  overflow:visible !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .header__bg,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .header__bg-blur,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .hero-soft,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .sparkles,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .bg-main-pic,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .bg-blur-pic{
+  opacity:0 !important;
+  visibility:hidden !important;
 }
 
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) :is(.game-map-lightbox,#infoMapLightbox){
-  z-index:26000 !important;
-}
-
-html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#phishGame) .game-map-modal,
-html.tk-tablet-landscape.tk-tablet-fhd-match #infoSecGame .info-map-modal{
-  width:min(1220px, calc(100vw - 40px)) !important;
-  max-width:min(1220px, calc(100vw - 40px)) !important;
-  max-height:calc(100dvh - 36px) !important;
-  overflow:auto !important;
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .ui,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .side-nav,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open #tkLiveStats,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open #tkCatStart,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .rules,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .side-chip,
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-game-open .roulette-dock{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
 }
 
 @media (max-width: 1180px){
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .hero{
-    padding:16px !important;
+  html.tk-tablet-landscape.tk-tablet-fhd-match{
+    --tk-tablet-menu-shell-w: min(1120px, calc(var(--tk-tablet-game-vw) - 18px));
+    --tk-tablet-modal-w: min(1100px, calc(var(--tk-tablet-game-vw) - 18px));
+    --tk-tablet-avatar-track: clamp(158px, 19vw, 206px);
+    --tk-tablet-avatar-bubble-w: clamp(144px, 17vw, 190px);
+    --tk-tablet-avatar-bubble-h: clamp(188px, 27vh, 266px);
+    --tk-tablet-play-left: clamp(292px, 31vw, 360px);
   }
 
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .wrap,
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal,
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) :is(.game-map-modal,#infoMapLightbox .info-map-modal){
-    width:min(1160px, calc(100vw - 32px)) !important;
-    max-width:min(1160px, calc(100vw - 32px)) !important;
+  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .menu-body{
+    grid-template-columns:84px minmax(0,1fr) !important;
   }
 
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-card{
-    padding:14px 16px 13px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-body{
-    grid-template-columns:86px minmax(0,1fr) !important;
-    gap:10px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .mascot{
-    width:86px !important;
-    height:86px !important;
-    border-radius:20px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .menu-actions{
+  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .menu-actions{
     grid-column:1 / -1 !important;
     justify-content:flex-start !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid{
-    grid-template-columns:minmax(320px, 360px) minmax(0,1fr) !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile{
-    grid-template-columns:76px minmax(0,1fr) !important;
-    min-height:102px !important;
-  }
-
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-tile .bubble{
-    width:76px !important;
-    height:76px !important;
-    border-radius:22px !important;
+    flex-wrap:wrap !important;
   }
 }
 
-@media (max-width: 1060px){
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid{
+@media (max-width: 1040px){
+  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .avatar-grid{
     grid-template-columns:1fr !important;
   }
+}
 
-  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] .play-grid > .panel:last-child{
-    grid-column:1 !important;
-    grid-row:auto !important;
+@media (max-height: 820px){
+  html.tk-tablet-landscape.tk-tablet-fhd-match{
+    --tk-tablet-avatar-bubble-h: clamp(178px, 26vh, 250px);
+  }
+
+  html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .input{
+    min-height:62px !important;
+    font-size:22px !important;
   }
 }
 </style>
 
-<script id="tk-tablet-games-fhd-v18-script">
+<script id="tk-tablet-minigame-surface-rework-v4-script">
 (function(){
   var root = document.documentElement;
-  var GAME_IDS = ['itGame','infoSecGame','phishGame'];
-  var INNER_IDS = ['itBackdrop','infoBackdrop','backdrop'];
-  var HOOK_IDS = [
-    'openItGame','closeItGame','itStartBtn','itGoPlayBtn','itCloseBtn','itBackToMenuBtn','itBackToAvatarBtn','itChangeAvatarBtn',
-    'openInfoSecGame','closeInfoSecGame','startInfoSecBtn','toProfileBtn','toPlayBtn','infoCloseBtn','backToMenuBtn','backToAvatarBtn','infoChangeAvatarBtn',
-    'openPhishGame','closePhishGame','startPhishBtn','toProfileBtn','toPlayBtn','closeBtn','phishCloseBtn','backToMenuBtn','backToAvatarBtn'
-  ];
+  var body = document.body;
+  var GAME_IDS = ['infoSecGame','itGame','phishGame'];
+  var raf = 0;
+  var syncTimer = 0;
+  var bound = false;
 
-  function isTabletGameRuntime(){
-    return root.classList.contains('tk-tablet-landscape') && root.classList.contains('tk-tablet-fhd-match');
-  }
-
-  function isShown(el){
-    if(!el) return false;
-    if(el.hidden) return false;
-    if(el.classList && el.classList.contains('is-open')) return true;
-    var aria = el.getAttribute('aria-hidden');
-    if(aria === 'false') return true;
+  function tabletTarget(){
     try{
-      var cs = window.getComputedStyle(el);
-      return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0';
+      var w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+      var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+      var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+      var touch = ((navigator.maxTouchPoints || 0) > 0) || coarse;
+      return touch && w >= 1024 && w <= 1400 && w > h;
     }catch(_){
-      return false;
+      return root.classList.contains('tk-tablet-landscape') && root.classList.contains('tk-tablet-fhd-match');
     }
   }
 
-  function anyGameOpen(){
-    for(var i=0;i<GAME_IDS.length;i++){
-      var outer = document.getElementById(GAME_IDS[i]);
-      if(outer && outer.classList.contains('is-open')) return true;
-    }
-    for(var j=0;j<INNER_IDS.length;j++){
-      var inner = document.getElementById(INNER_IDS[j]);
-      if(inner && inner.classList.contains('is-open')) return true;
-    }
-    var maps = document.querySelector('.game-map-lightbox:not([hidden]), #infoMapLightbox:not([hidden])');
-    return !!maps;
+  function vv(){ return window.visualViewport || null; }
+
+  function outerOpen(outer){
+    return !!(outer && outer.classList.contains('is-open') && outer.getAttribute('aria-hidden') !== 'true');
   }
 
-  function sync(){
-    var on = isTabletGameRuntime();
-    var open = on && anyGameOpen();
-    root.classList.toggle('tk-tablet-games-fhd', open);
-    if(open){
-      document.body.classList.add('tk-lock');
-      document.body.style.overflow = 'hidden';
-    }else{
-      if(!document.querySelector('.mg-backdrop.is-open, .rm-backdrop.is-open, .game-map-lightbox:not([hidden]), #infoMapLightbox:not([hidden]), #tkLicenseOverlay.is-open')){
-        document.body.classList.remove('tk-lock');
-        document.body.style.overflow = '';
+  function innerBackdrop(outer){
+    return outer ? (outer.querySelector('.cool-phish-root > .backdrop') || outer.querySelector('.backdrop')) : null;
+  }
+
+  function innerOpen(outer){
+    var inner = innerBackdrop(outer);
+    return !!(inner && inner.classList.contains('is-open') && inner.getAttribute('aria-hidden') !== 'true');
+  }
+
+  function activeTextControl(){
+    var el = document.activeElement;
+    if(!el) return null;
+    if(el.matches && el.matches('input, textarea, [contenteditable="true"]')) return el;
+    return null;
+  }
+
+  function outerForNode(node){
+    return node && node.closest ? node.closest('#infoSecGame, #itGame, #phishGame') : null;
+  }
+
+  function visiblePanel(outer){
+    if(!outer) return null;
+    var panels = outer.querySelectorAll('.modal-body .panel[data-step]');
+    for(var i = 0; i < panels.length; i++){
+      var panel = panels[i];
+      if(panel.hidden) continue;
+      if(panel.getAttribute('aria-hidden') === 'true') continue;
+      return panel;
+    }
+    return null;
+  }
+
+  function disableHeavyCanvas(outer, on){
+    if(!outer) return;
+    var canvases = outer.querySelectorAll('canvas[id^="fx"]');
+    canvases.forEach(function(canvas){
+      if(on){
+        canvas.style.setProperty('display', 'none', 'important');
+      }else{
+        canvas.style.removeProperty('display');
       }
-    }
-  }
-
-  function hook(id){
-    var el = document.getElementById(id);
-    if(!el || el.__tkTabletGamesHook) return;
-    el.__tkTabletGamesHook = true;
-    el.addEventListener('click', function(){
-      [0, 40, 120, 260, 520, 900].forEach(function(ms){
-        setTimeout(sync, ms);
-      });
     });
   }
 
-  function observe(id){
-    var el = document.getElementById(id);
-    if(!el || el.__tkTabletGamesObserver) return;
-    var mo = new MutationObserver(sync);
-    mo.observe(el, { attributes:true, childList:false, subtree:false, attributeFilter:['class','hidden','aria-hidden','style'] });
-    el.__tkTabletGamesObserver = mo;
+  function computeKeyboardGap(fullH){
+    var viewport = vv();
+    if(!viewport || !viewport.height) return 0;
+    return Math.max(0, Math.round(fullH - viewport.height - (viewport.offsetTop || 0)));
+  }
+
+  function updateViewportVars(){
+    var width = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    var fullH = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    var gap = computeKeyboardGap(fullH);
+    root.style.setProperty('--tk-tablet-game-vw', Math.max(1, Math.round(width)) + 'px');
+    root.style.setProperty('--tk-tablet-game-vh', Math.max(1, Math.round(fullH)) + 'px');
+    root.style.setProperty('--tk-tablet-keyboard-gap', gap + 'px');
+
+    var focused = activeTextControl();
+    var keyboardOpen = tabletTarget() && !!focused && !!outerForNode(focused) && gap > 90;
+    root.classList.toggle('tk-tablet-keyboard-open', keyboardOpen);
+    if(body) body.classList.toggle('tk-tablet-keyboard-open', keyboardOpen);
+  }
+
+  function syncOuter(outer, tablet){
+    if(!outer) return false;
+    var open = tablet && outerOpen(outer);
+    var inner = open && innerOpen(outer);
+    var step = inner ? ((visiblePanel(outer) || {}).dataset || {}).step || 'play' : 'menu';
+    outer.classList.toggle('tk-tablet-game-active', open);
+    outer.classList.toggle('tk-tablet-game-menu-open', open && !inner);
+    outer.classList.toggle('tk-tablet-game-inner-open', inner);
+    outer.setAttribute('data-tk-tablet-step', step);
+    disableHeavyCanvas(outer, tablet && open);
+    return open;
+  }
+
+  function keepFocusedControlVisible(){
+    if(!tabletTarget()) return;
+    var focused = activeTextControl();
+    var outer = outerForNode(focused);
+    if(!focused || !outer || !outerOpen(outer) || !innerOpen(outer)) return;
+    var bodyEl = outer.querySelector('.cool-phish-root .modal-body');
+    if(!bodyEl) return;
+    var target = focused.closest('.field') || focused;
+    var bodyRect = bodyEl.getBoundingClientRect();
+    var rect = target.getBoundingClientRect();
+    var gap = parseInt(getComputedStyle(root).getPropertyValue('--tk-tablet-keyboard-gap'), 10) || 0;
+    var topGap = 18;
+    var bottomGap = Math.max(32, gap + 18);
+    if(rect.top < bodyRect.top + topGap){
+      bodyEl.scrollTop += rect.top - bodyRect.top - topGap;
+    }else if(rect.bottom > bodyRect.bottom - bottomGap){
+      bodyEl.scrollTop += rect.bottom - bodyRect.bottom + bottomGap;
+    }
+  }
+
+  function sync(){
+    raf = 0;
+    updateViewportVars();
+    var tablet = tabletTarget() || (root.classList.contains('tk-tablet-landscape') && root.classList.contains('tk-tablet-fhd-match'));
+    var active = false;
+    GAME_IDS.forEach(function(id){
+      active = syncOuter(document.getElementById(id), tablet) || active;
+    });
+    root.classList.toggle('tk-tablet-game-open', active);
+    if(body) body.classList.toggle('tk-tablet-game-open', active);
+    keepFocusedControlVisible();
+  }
+
+  function queue(delay){
+    if(syncTimer){ clearTimeout(syncTimer); syncTimer = 0; }
+    if(typeof delay === 'number' && delay > 0){
+      syncTimer = setTimeout(function(){ syncTimer = 0; queue(0); }, delay);
+      return;
+    }
+    if(raf) return;
+    raf = (window.requestAnimationFrame || function(cb){ return setTimeout(cb, 16); })(sync);
+  }
+
+  function observeGame(outer){
+    if(!outer || outer.dataset.tkTabletObserved === '1') return;
+    outer.dataset.tkTabletObserved = '1';
+
+    outer.addEventListener('focusin', function(){
+      queue(0);
+      setTimeout(keepFocusedControlVisible, 80);
+      setTimeout(keepFocusedControlVisible, 220);
+    }, true);
+
+    outer.addEventListener('focusout', function(){
+      setTimeout(function(){ queue(40); }, 40);
+    }, true);
+
+    outer.addEventListener('click', function(){
+      queue(0);
+      setTimeout(function(){ queue(80); }, 80);
+      setTimeout(function(){ queue(220); }, 220);
+    }, true);
+
+    if(!window.MutationObserver) return;
+
+    var moOuter = new MutationObserver(function(){ queue(0); });
+    moOuter.observe(outer, { attributes:true, attributeFilter:['class','style','hidden','aria-hidden'] });
+
+    var inner = innerBackdrop(outer);
+    if(inner){
+      var moInner = new MutationObserver(function(){ queue(0); });
+      moInner.observe(inner, { attributes:true, attributeFilter:['class','style','hidden','aria-hidden'] });
+    }
+
+    outer.querySelectorAll('.modal-body .panel[data-step]').forEach(function(panel){
+      var moPanel = new MutationObserver(function(){ queue(0); });
+      moPanel.observe(panel, { attributes:true, attributeFilter:['hidden','class','style','aria-hidden'] });
+    });
   }
 
   function boot(){
-    GAME_IDS.concat(INNER_IDS).forEach(observe);
-    HOOK_IDS.forEach(hook);
-    sync();
+    if(!bound){
+      bound = true;
+      GAME_IDS.forEach(function(id){ observeGame(document.getElementById(id)); });
+      window.addEventListener('resize', function(){ queue(0); }, { passive:true });
+      window.addEventListener('orientationchange', function(){
+        queue(120);
+        setTimeout(function(){ queue(320); }, 320);
+        setTimeout(function(){ queue(560); }, 560);
+      }, { passive:true });
+      window.addEventListener('tk:loaderhidden', function(){
+        queue(80);
+        setTimeout(function(){ queue(260); }, 260);
+      });
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize', function(){ queue(20); }, { passive:true });
+      }
+    }else{
+      GAME_IDS.forEach(function(id){ observeGame(document.getElementById(id)); });
+    }
+    queue(0);
+    setTimeout(function(){ queue(80); }, 80);
+    setTimeout(function(){ queue(220); }, 220);
+    setTimeout(function(){ queue(420); }, 420);
   }
 
   if(document.readyState === 'loading'){
@@ -60263,22 +60417,267 @@ html.tk-tablet-landscape.tk-tablet-fhd-match #infoSecGame .info-map-modal{
   }else{
     boot();
   }
+  window.addEventListener('load', boot, { once:true });
+})();
+</script>
 
-  window.addEventListener('load', sync, { passive:true });
-  window.addEventListener('resize', sync, { passive:true });
-  window.addEventListener('orientationchange', sync, { passive:true });
+<style id="tk-tablet-minigame-layout-rearchitecture-v5">
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).tk-tablet-game-menu-open .cool-phish-root .hero{
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).tk-tablet-game-inner-open .cool-phish-root .backdrop{
+  align-items:center !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match.tk-tablet-keyboard-open :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .backdrop{
+  align-items:flex-start !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="avatar"] .cool-phish-root .modal-body,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="avatar"] .cool-phish-root .panel[data-step="avatar"]{
+  align-content:start !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .panel[data-step="profile"] .row{
+  justify-content:flex-start !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .modal-body{
+  display:block !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"]{
+  background:linear-gradient(180deg, rgba(9,22,40,.74), rgba(7,18,34,.84)) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match #infoSecGame .cool-phish-root .panel[data-step="play"] .play-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match #itGame .cool-phish-root .panel[data-step="play"] .play-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match #phishGame .cool-phish-root .panel[data-step="play"] .play-grid{
+  grid-template-columns:minmax(300px, var(--tk-tablet-play-left)) minmax(0,1fr) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] > .panel:last-child,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .panel[data-step="play"] aside.profile > .panel{
+  background:linear-gradient(180deg, rgba(10,25,48,.88), rgba(6,16,32,.95)) !important;
+  border:1px solid rgba(120,205,255,.14) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+</style>
+<script id="tk-tablet-minigame-layout-rearchitecture-v5-script">
+(function(){
+  var queued = false;
+  function queue(){
+    if(queued) return;
+    queued = true;
+    (window.requestAnimationFrame || function(cb){ return setTimeout(cb, 16); })(function(){
+      queued = false;
+      var ev;
+      try{ ev = new CustomEvent('tk:tablet-minigame-layout-sync'); }catch(_){ return; }
+      window.dispatchEvent(ev);
+    });
+  }
+  window.addEventListener('resize', queue, { passive:true });
+  window.addEventListener('orientationchange', queue, { passive:true });
   if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', sync, { passive:true });
+    window.visualViewport.addEventListener('resize', queue, { passive:true });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', queue, { once:true });
+  }else{
+    queue();
+  }
+})();
+</script>
+
+
+<style id="tk-tablet-step-isolation-v7-style">
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body > .panel[data-step][hidden]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame) .cool-phish-root .modal-body > .panel[data-step]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  opacity:0 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame).tk-tablet-game-inner-open .cool-phish-root .modal-body > .panel[data-step].tk-tablet-step-visible:not([hidden]){
+  visibility:visible !important;
+  pointer-events:auto !important;
+  opacity:1 !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="avatar"] .cool-phish-root .modal-body > .panel[data-step="avatar"].tk-tablet-step-visible:not([hidden]){
+  display:block !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .modal-body > .panel[data-step="profile"].tk-tablet-step-visible:not([hidden]){
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .modal-body > .panel[data-step="play"].tk-tablet-step-visible:not([hidden]),
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="trailer"] .cool-phish-root .modal-body > .panel[data-step="trailer"].tk-tablet-step-visible:not([hidden]){
+  display:block !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .panel[data-step="profile"].tk-tablet-step-visible:not([hidden]){
+  background:linear-gradient(180deg, rgba(10,24,44,.94), rgba(7,18,34,.96)) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="profile"] .cool-phish-root .modal-body{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .modal-body{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  touch-action:pan-y !important;
+  overscroll-behavior:contain !important;
+  padding-bottom:max(34px, env(safe-area-inset-bottom, 0px) + 28px) !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .panel[data-step="play"].tk-tablet-step-visible:not([hidden]){
+  min-height:max-content !important;
+  touch-action:pan-y !important;
+}
+
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .play-grid,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .msg-card,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .actions,
+html.tk-tablet-landscape.tk-tablet-fhd-match :is(#itGame,#infoSecGame,#phishGame)[data-tk-tablet-step="play"] .cool-phish-root .footer-controls{
+  touch-action:pan-y !important;
+}
+</style>
+<script id="tk-tablet-step-isolation-v7-script">
+(function(){
+  var GAME_IDS = ['infoSecGame','itGame','phishGame'];
+  var raf = 0;
+
+  function isTabletMode(){
+    var root = document.documentElement;
+    return root.classList.contains('tk-tablet-landscape') && root.classList.contains('tk-tablet-fhd-match');
   }
 
-  new MutationObserver(function(){
-    requestAnimationFrame(sync);
-  }).observe(document.documentElement, {
-    subtree:true,
-    childList:true,
-    attributes:true,
-    attributeFilter:['class','hidden','style','aria-hidden']
-  });
+  function qs(root, sel){ return root ? root.querySelector(sel) : null; }
+  function qsa(root, sel){ return root ? Array.prototype.slice.call(root.querySelectorAll(sel)) : []; }
+
+  function panelState(panel){
+    if(!panel) return false;
+    if(panel.hidden) return false;
+    if(panel.getAttribute('hidden') !== null) return false;
+    if(panel.getAttribute('aria-hidden') === 'true') return false;
+    return true;
+  }
+
+  function activeFromDots(outer){
+    var activeDot = qs(outer, '.steps .step-dot.is-active, .steps .step-dot.is-on');
+    if(!activeDot) return null;
+    var dot = activeDot.getAttribute('data-stepdot');
+    return ({'1':'avatar','2':'profile','3':'play'})[dot] || null;
+  }
+
+  function activeFromFocus(outer){
+    var el = document.activeElement;
+    if(!el || !outer.contains(el)) return null;
+    if(el.matches && el.matches('input, textarea, [contenteditable="true"]')) return 'profile';
+    return null;
+  }
+
+  function activeFromPanels(outer){
+    var panels = qsa(outer, '.modal-body > .panel[data-step]');
+    for(var i=0;i<panels.length;i++){
+      if(panelState(panels[i])) return panels[i].getAttribute('data-step') || null;
+    }
+    return null;
+  }
+
+  function resolveStep(outer){
+    var inner = qs(outer, '.cool-phish-root > .backdrop, .backdrop');
+    var innerOpen = !!(inner && inner.classList.contains('is-open') && inner.getAttribute('aria-hidden') !== 'true');
+    if(!innerOpen) return 'menu';
+    return activeFromFocus(outer) || activeFromDots(outer) || activeFromPanels(outer) || outer.getAttribute('data-tk-tablet-step') || 'avatar';
+  }
+
+  function isolate(outer){
+    if(!outer) return;
+    var panels = qsa(outer, '.modal-body > .panel[data-step]');
+    if(!isTabletMode()){
+      panels.forEach(function(panel){
+        panel.classList.remove('tk-tablet-step-visible', 'tk-tablet-step-hidden');
+        panel.style.removeProperty('display');
+        panel.style.removeProperty('visibility');
+        panel.style.removeProperty('pointer-events');
+      });
+      return;
+    }
+    var step = resolveStep(outer);
+    outer.setAttribute('data-tk-tablet-step', step);
+    panels.forEach(function(panel){
+      var name = panel.getAttribute('data-step') || '';
+      var visible = step !== 'menu' && name === step && panelState(panel);
+      panel.classList.toggle('tk-tablet-step-visible', visible);
+      panel.classList.toggle('tk-tablet-step-hidden', !visible);
+      if(!visible){
+        panel.style.setProperty('display', 'none', 'important');
+        panel.style.setProperty('visibility', 'hidden', 'important');
+        panel.style.setProperty('pointer-events', 'none', 'important');
+      }else{
+        panel.style.removeProperty('display');
+        panel.style.removeProperty('visibility');
+        panel.style.removeProperty('pointer-events');
+      }
+    });
+  }
+
+  function run(){
+    raf = 0;
+    GAME_IDS.forEach(function(id){ isolate(document.getElementById(id)); });
+  }
+
+  function queue(){
+    if(raf) return;
+    raf = (window.requestAnimationFrame || function(cb){ return setTimeout(cb, 16); })(run);
+  }
+
+  function bindOuter(outer){
+    if(!outer || outer.dataset.tkTabletStepIsolationBound === '1') return;
+    outer.dataset.tkTabletStepIsolationBound = '1';
+    outer.addEventListener('click', function(){ queue(); setTimeout(queue, 60); setTimeout(queue, 180); }, true);
+    outer.addEventListener('focusin', function(){ queue(); setTimeout(queue, 80); setTimeout(queue, 220); }, true);
+    outer.addEventListener('focusout', function(){ setTimeout(queue, 80); setTimeout(queue, 220); }, true);
+    if(window.MutationObserver){
+      var mo = new MutationObserver(function(){ queue(); });
+      mo.observe(outer, {subtree:true, attributes:true, attributeFilter:['hidden','aria-hidden','class','style']});
+    }
+  }
+
+  function boot(){
+    GAME_IDS.forEach(function(id){ bindOuter(document.getElementById(id)); });
+    queue();
+    setTimeout(queue, 120);
+    setTimeout(queue, 320);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, {once:true});
+  }else{
+    boot();
+  }
+  window.addEventListener('resize', queue, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(queue, 100); setTimeout(queue, 320); }, {passive:true});
+  window.addEventListener('tk:tablet-minigame-layout-sync', queue);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ setTimeout(queue, 40); }, {passive:true});
+  }
 })();
 </script>
 
