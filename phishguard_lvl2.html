@@ -1,0 +1,3899 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d1628" />
+  <title>PhishGuard Social Lab — Ultimate Story Mode</title>
+  <style>
+    :root{
+      --bg:#09111f;
+      --bg2:#0d1730;
+      --bg3:#122247;
+      --panel:rgba(13,20,39,.84);
+      --panel-strong:rgba(15,23,43,.96);
+      --panel-soft:rgba(255,255,255,.05);
+      --line:rgba(255,255,255,.08);
+      --line-soft:rgba(255,255,255,.05);
+      --text:#eef5ff;
+      --muted:#a8bad9;
+      --soft:#82a2d1;
+      --blue:#46a8ff;
+      --blue2:#32d0ff;
+      --violet:#7a7dff;
+      --green:#35de97;
+      --yellow:#ffcf5c;
+      --red:#ff6f89;
+      --shadow:0 30px 90px rgba(0,0,0,.35);
+      --shadow-soft:0 18px 40px rgba(0,0,0,.18);
+      --radius-xl:32px;
+      --radius-lg:24px;
+      --radius-md:18px;
+      --radius-sm:14px;
+      --font:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      min-height:100%;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(50,208,255,.15), transparent 22%),
+        radial-gradient(circle at 84% 10%, rgba(122,125,255,.17), transparent 24%),
+        radial-gradient(circle at 50% 92%, rgba(70,168,255,.12), transparent 24%),
+        linear-gradient(145deg, var(--bg), var(--bg2) 52%, var(--bg3));
+      overflow:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size:42px 42px;
+      mask-image:radial-gradient(circle at center, #000 12%, transparent 80%);
+      z-index:-2;
+    }
+    body::after{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 20% 22%, rgba(255,255,255,.06), transparent 2%),
+        radial-gradient(circle at 70% 32%, rgba(255,255,255,.05), transparent 2%),
+        radial-gradient(circle at 42% 74%, rgba(255,255,255,.04), transparent 2%),
+        radial-gradient(circle at 88% 74%, rgba(255,255,255,.04), transparent 2%);
+      filter:blur(2px);
+      opacity:.6;
+      z-index:-1;
+    }
+
+    button,input{font:inherit}
+    button{cursor:pointer}
+    img{display:block}
+
+    .app{
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding:14px;
+    }
+    .glass{
+      background:linear-gradient(180deg, rgba(14,21,39,.92), rgba(12,18,34,.82));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.05);
+      backdrop-filter:blur(18px);
+    }
+    .topbar{
+      padding:14px 18px;
+      border-radius:var(--radius-xl);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .brand-wrap{display:flex; align-items:center; gap:14px; min-width:0}
+    .brand-logo{
+      width:58px; height:58px; border-radius:20px;
+      display:grid; place-items:center;
+      overflow:hidden;
+      background:linear-gradient(135deg, var(--violet), var(--blue), var(--blue2));
+      box-shadow:0 16px 34px rgba(70,168,255,.28), inset 0 1px 0 rgba(255,255,255,.12);
+      flex:none;
+    }
+    .brand-logo img{width:100%; height:100%; object-fit:cover}
+    .brand-logo span{font-size:28px; font-weight:900}
+    .brand-copy h1{margin:0; font-size:clamp(18px, 2.1vw, 30px); line-height:1; letter-spacing:-.03em}
+    .brand-copy p{margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.45; max-width:78ch}
+    .hud{display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; align-items:center}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(31,45,73,.72), rgba(18,27,45,.94));
+      border:1px solid rgba(70,168,255,.15);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+      font-size:13px; font-weight:900;
+    }
+    .pill small{color:#c8dbff; font-weight:800}
+    .btn{
+      border:0; border-radius:16px; padding:11px 15px; font-weight:900;
+      transition:.18s transform,.18s opacity,.18s box-shadow,.18s filter;
+    }
+    .btn:hover{transform:translateY(-1px); filter:brightness(1.03)}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(135deg, var(--violet), var(--blue), var(--blue2)); color:#fff; box-shadow:0 12px 28px rgba(70,168,255,.24)}
+    .btn-secondary{background:linear-gradient(180deg, rgba(34,46,77,.84), rgba(17,26,43,.96)); color:var(--text); border:1px solid var(--line)}
+
+    .meta-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:14px;
+    }
+    .mission-card,.mentor-card{padding:18px; border-radius:var(--radius-xl)}
+    .section-title{margin:0 0 12px; text-transform:uppercase; letter-spacing:.14em; font-size:12px; color:#9ac9ff}
+    .mission-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .mission-head h2{margin:0; font-size:clamp(22px, 2.5vw, 30px); line-height:1.04; letter-spacing:-.03em}
+    .mission-head p{margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.6; max-width:72ch}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(31,45,73,.72), rgba(18,27,45,.94));
+      border:1px solid var(--line);
+      font-size:12px; font-weight:900;
+    }
+    .route{display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:10px; margin-top:14px}
+    .route-step{
+      position:relative; overflow:hidden;
+      padding:12px; border-radius:20px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(27,39,64,.82), rgba(16,24,40,.95));
+    }
+    .route-step strong{display:block; font-size:13px}
+    .route-step span{display:block; margin-top:5px; color:var(--muted); font-size:12px; line-height:1.45}
+    .route-step::after{content:""; position:absolute; right:-20px; bottom:-20px; width:84px; height:84px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.09), transparent 68%)}
+    .route-step.active{outline:2px solid rgba(70,168,255,.25); box-shadow:0 0 0 1px rgba(70,168,255,.08), 0 0 28px rgba(70,168,255,.14)}
+    .route-step.done{background:linear-gradient(135deg, rgba(41,97,152,.56), rgba(89,92,205,.24))}
+
+    .stats-bar{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+    .stat-card{padding:12px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(23,35,58,.84), rgba(15,22,38,.96))}
+    .stat-card label{display:block; color:var(--soft); text-transform:uppercase; letter-spacing:.08em; font-size:12px; margin-bottom:8px}
+    .bar{height:10px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.06)}
+    .bar>i{display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--violet), var(--blue), var(--blue2)); box-shadow:0 0 16px rgba(70,168,255,.22); transition:width .35s ease}
+    .stat-card b{display:block; margin-top:8px}
+
+    .mentor-box{display:flex; gap:12px; align-items:flex-start}
+    .mentor-avatar{
+      width:62px; height:62px; border-radius:22px; flex:none;
+      display:grid; place-items:center; font-size:29px;
+      background:linear-gradient(135deg, rgba(70,168,255,.22), rgba(122,125,255,.16));
+      border:1px solid var(--line); box-shadow:0 12px 28px rgba(70,168,255,.12);
+    }
+    .mentor-box h3{margin:0 0 6px; font-size:18px}
+    .mentor-box p{margin:0; color:#dce9fb; font-size:14px; line-height:1.65}
+    .mentor-tips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .tip{padding:8px 11px; border-radius:999px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(29,43,70,.7), rgba(16,24,40,.96)); font-size:12px; font-weight:800; color:#ddecff}
+
+    .layout{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns:340px minmax(0,1fr) 400px;
+      gap:14px;
+    }
+    .panel{border-radius:var(--radius-xl); min-height:0; display:flex; flex-direction:column; overflow:hidden}
+    .panel-head{padding:15px 16px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid var(--line-soft); background:linear-gradient(180deg, rgba(255,255,255,.03), transparent)}
+    .panel-head h3{margin:0; font-size:18px; letter-spacing:-.02em}
+    .panel-head span{display:block; margin-top:4px; color:var(--muted); font-size:13px; line-height:1.4}
+    .panel-body{padding:14px; min-height:0; overflow:auto}
+
+    .dialogs{display:flex; flex-direction:column; gap:10px}
+    .dialog-card{
+      position:relative;
+      display:grid; grid-template-columns:58px 1fr auto; gap:10px; align-items:flex-start;
+      padding:12px; border-radius:22px; border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(19,28,46,.9), rgba(12,19,32,.98));
+      text-align:left; color:var(--text);
+      transition:.18s transform,.18s border-color,.18s box-shadow,.18s background;
+    }
+    .dialog-card:hover{transform:translateY(-1px); border-color:rgba(70,168,255,.26); box-shadow:0 12px 28px rgba(2,6,20,.22)}
+    .dialog-card.active{border-color:rgba(70,168,255,.42); background:linear-gradient(135deg, rgba(28,58,93,.96), rgba(15,24,40,.98)); box-shadow:0 0 0 1px rgba(70,168,255,.09), 0 0 28px rgba(70,168,255,.12)}
+    .dialog-card.solved{opacity:.84}
+    .dialog-card:disabled{opacity:.38; cursor:not-allowed; transform:none}
+    .avatar{
+      width:58px; height:58px; border-radius:50%; overflow:hidden; position:relative; flex:none;
+      border:2px solid rgba(255,255,255,.08); box-shadow:0 10px 24px rgba(0,0,0,.24); background:#25456e;
+    }
+    .avatar img{width:100%; height:100%; object-fit:cover}
+    .online-dot{position:absolute; right:4px; bottom:3px; width:13px; height:13px; border-radius:50%; background:var(--green); border:2px solid #11223b; box-shadow:0 0 14px rgba(53,222,151,.34)}
+    .dialog-card h4{margin:0; font-size:15px; line-height:1.35; letter-spacing:-.01em}
+    .dialog-card p{margin:6px 0 0; color:#d1def7; font-size:13px; line-height:1.5}
+    .tag-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:7px}
+    .tiny-tag,.chip{display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:999px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(32,45,73,.72), rgba(18,27,45,.94)); font-size:11px; font-weight:850}
+    .chip.safe{color:#d9ffeb}.chip.warn{color:#fff0c2}.chip.bad{color:#ffd8df}
+    .dialog-meta{display:flex; flex-direction:column; gap:7px; align-items:flex-end}
+
+    .device-wrap{
+      min-height:100%;
+      border-radius:36px;
+      padding:12px;
+      background:linear-gradient(180deg, rgba(8,12,22,.9), rgba(12,16,28,.95));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 34px 100px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    #messenger{
+      min-height:100%;
+      display:flex; flex-direction:column;
+      border-radius:30px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.06);
+      background:
+        radial-gradient(circle at 20% 22%, rgba(255,255,255,.05), transparent 18%),
+        radial-gradient(circle at 82% 78%, rgba(255,255,255,.04), transparent 20%),
+        linear-gradient(180deg, rgba(13,21,38,.98), rgba(11,18,30,1));
+      position:relative;
+    }
+    #messenger::before{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.85;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='2'%3E%3Cpath d='M18 32c12 0 12 8 24 8s12-8 24-8 12 8 24 8 12-8 24-8'/%3E%3Cpath d='M14 108c14 0 14 10 28 10s14-10 28-10 14 10 28 10'/%3E%3Ccircle cx='122' cy='28' r='4'/%3E%3Ccircle cx='42' cy='78' r='5'/%3E%3Crect x='70' y='58' width='14' height='14' rx='4'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .statusbar{
+      height:28px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 14px; font-size:12px; color:#d7e6ff; background:rgba(0,0,0,.1); position:relative; z-index:2;
+    }
+    .notch{position:absolute; left:50%; top:6px; transform:translateX(-50%); width:126px; height:20px; border-radius:0 0 16px 16px; background:#0a0f1b; box-shadow:inset 0 -1px 0 rgba(255,255,255,.05)}
+    .messenger-head{
+      position:relative; z-index:2;
+      display:flex; align-items:center; gap:12px;
+      padding:12px 16px;
+      border-bottom:1px solid var(--line-soft);
+      background:linear-gradient(180deg, rgba(23,35,58,.95), rgba(18,28,46,.90));
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+    .head-meta{min-width:0; flex:1}
+    .head-meta h2{margin:0; font-size:18px; letter-spacing:-.02em}
+    .head-meta p{margin:4px 0 0; color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .head-actions{display:flex; gap:8px; align-items:center}
+    .icon-btn{
+      width:40px; height:40px; border-radius:13px; border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(30,42,69,.84), rgba(17,25,43,.96));
+      color:var(--text); display:grid; place-items:center; font-size:18px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    .stories{position:relative; z-index:1; display:flex; gap:10px; overflow:auto; padding:12px 16px 6px}
+    .story{min-width:74px; text-align:center}
+    .story-ring{width:60px; height:60px; padding:2px; border-radius:50%; background:linear-gradient(135deg, var(--violet), var(--blue), var(--blue2)); margin:0 auto 6px; box-shadow:0 10px 24px rgba(70,168,255,.16)}
+    .story-ring span{display:grid; place-items:center; width:100%; height:100%; background:#10203a; border-radius:50%; font-size:24px}
+    .story small{display:block; color:#bfd4f7; font-size:11px}
+
+    .thread{position:relative; z-index:1; flex:1; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:10px; padding:10px 16px 12px}
+    .day-sep{align-self:center; padding:7px 12px; border-radius:999px; background:rgba(69,92,131,.48); border:1px solid rgba(255,255,255,.08); color:#dce8ff; font-size:12px; font-weight:800}
+    .bubble-row{display:flex; gap:8px; align-items:flex-end; max-width:86%}
+    .bubble-row.me{align-self:flex-end; flex-direction:row-reverse}
+    .bubble-avatar{width:34px; height:34px; border-radius:50%; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:#284a73; flex:none}
+    .bubble-avatar img{width:100%; height:100%; object-fit:cover}
+    .bubble{
+      padding:12px 14px 10px; border-radius:22px; position:relative;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+      backdrop-filter:blur(6px);
+    }
+    .bubble.them{background:linear-gradient(180deg, rgba(30,44,72,.98), rgba(21,32,52,.98)); border:1px solid rgba(255,255,255,.05)}
+    .bubble.me{background:linear-gradient(180deg, rgba(40,112,168,.98), rgba(34,92,138,.98)); border:1px solid rgba(255,255,255,.06)}
+    .bubble p{margin:0; font-size:15px; line-height:1.6; color:#f5f9ff; white-space:pre-line}
+    .bubble small{display:block; text-align:right; margin-top:6px; font-size:11px; color:#bfd3f3}
+    .bubble-card{margin-top:8px; padding:12px; border-radius:16px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025))}
+    .bubble-card b{display:block; font-size:14px}
+    .bubble-card span{display:block; margin-top:5px; color:#d7e6fa; font-size:13px; line-height:1.45}
+    .hotspot{
+      display:inline-block; padding:1px 8px 2px; border-radius:10px; cursor:pointer; font-weight:800; color:#eef8ff;
+      background:rgba(70,168,255,.22); box-shadow:inset 0 0 0 1px rgba(70,168,255,.38);
+      transition:.18s transform,.18s box-shadow,.18s background;
+    }
+    .hotspot:hover{transform:translateY(-1px); box-shadow:0 8px 18px rgba(70,168,255,.16), inset 0 0 0 1px rgba(70,168,255,.45)}
+    .hotspot.found{background:rgba(53,222,151,.22); box-shadow:inset 0 0 0 1px rgba(53,222,151,.4)}
+
+    .composer{
+      position:relative; z-index:2;
+      display:flex; align-items:center; gap:10px;
+      padding:12px 14px;
+      border-top:1px solid var(--line-soft);
+      background:linear-gradient(180deg, rgba(18,28,46,.94), rgba(14,22,36,.98));
+    }
+    .input-shell{
+      flex:1; min-height:50px; display:flex; align-items:center; gap:10px;
+      padding:0 14px; border-radius:999px; border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(20,30,49,.92), rgba(14,20,34,.98));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+      color:#95a9c8;
+    }
+    .send-btn{width:48px; height:48px; border-radius:50%; border:0; display:grid; place-items:center; font-size:18px; color:#fff; background:linear-gradient(135deg, var(--violet), var(--blue), var(--blue2)); box-shadow:0 14px 28px rgba(70,168,255,.24)}
+
+    .call-wrap{flex:1; min-height:0; overflow:auto; padding:16px; display:flex; flex-direction:column; gap:14px}
+    .call-screen{
+      min-height:470px; border-radius:30px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(circle at 50% 16%, rgba(255,255,255,.12), transparent 20%),
+        linear-gradient(160deg, #162743, #0c1526 62%, #1d3266 100%);
+      box-shadow:0 24px 60px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .call-screen::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(circle at 24% 78%, rgba(50,208,255,.18), transparent 16%),
+        radial-gradient(circle at 80% 84%, rgba(122,125,255,.22), transparent 18%),
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,.08), transparent 26%);
+    }
+    .call-top{position:absolute; top:16px; left:16px; right:16px; display:flex; justify-content:space-between; gap:10px; z-index:2}
+    .call-chip{display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(10,16,30,.45); backdrop-filter:blur(10px); font-size:13px; font-weight:850}
+    .call-status{width:10px; height:10px; border-radius:50%; background:#39df97; box-shadow:0 0 12px rgba(57,223,151,.35)}
+    .remote-stage{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; padding:24px; z-index:1}
+    .call-avatar-lg{width:148px; height:148px; border-radius:50%; overflow:hidden; border:4px solid rgba(255,255,255,.12); box-shadow:0 0 0 18px rgba(255,255,255,.03), 0 0 0 36px rgba(255,255,255,.02), 0 20px 44px rgba(0,0,0,.24); animation:pulseRing 2.6s ease-in-out infinite; background:#315276}
+    .call-avatar-lg img{width:100%; height:100%; object-fit:cover}
+    .remote-stage h3{margin:0; font-size:30px; letter-spacing:-.03em}
+    .remote-stage p{margin:0; max-width:56ch; color:#d7e6ff; line-height:1.65}
+    .call-banner{display:inline-flex; align-items:center; gap:8px; margin-top:4px; padding:10px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(10,16,30,.52); color:#f7fbff; backdrop-filter:blur(12px); font-size:13px; font-weight:800}
+    .self-view{
+      position:absolute; right:18px; bottom:88px; width:156px; height:216px;
+      border-radius:24px; overflow:hidden; border:1px solid rgba(255,255,255,.10);
+      background:radial-gradient(circle at 50% 22%, rgba(255,255,255,.14), transparent 28%), linear-gradient(165deg, #244567, #172841 60%, #101826);
+      box-shadow:0 14px 36px rgba(0,0,0,.28); z-index:2;
+    }
+    .self-view::before{content:"Вы"; position:absolute; left:10px; bottom:10px; padding:5px 8px; border-radius:999px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.08); font-size:11px; font-weight:850}
+    .self-view .hair{position:absolute; left:26px; right:26px; top:34px; height:70px; border-radius:44px 44px 30px 30px; background:linear-gradient(180deg, #2a344d, #1b2436)}
+    .self-view .face{position:absolute; left:30px; right:30px; top:66px; height:124px; border-radius:80px 80px 58px 58px / 88px 88px 52px 52px; background:radial-gradient(circle at 50% 34%, rgba(255,236,211,.94), rgba(230,188,150,.92)); box-shadow:inset 0 -16px 28px rgba(170,116,82,.25)}
+    .self-view .shirt{position:absolute; left:18px; right:18px; bottom:-10px; height:90px; border-radius:48px 48px 0 0; background:linear-gradient(180deg, #79a8ff, #3f6ea7)}
+    .call-controls{position:absolute; left:0; right:0; bottom:18px; display:flex; justify-content:center; gap:12px; z-index:3}
+    .call-btn{width:56px; height:56px; border-radius:50%; border:1px solid rgba(255,255,255,.10); display:grid; place-items:center; color:#fff; font-size:22px; background:rgba(14,22,40,.65); backdrop-filter:blur(10px); box-shadow:0 12px 28px rgba(0,0,0,.18)}
+    .call-btn.danger{background:linear-gradient(135deg, #ff6f89, #ff4766)}
+
+    .lab-stack{display:flex; flex-direction:column; gap:12px}
+    .contact-card,.risk-card,.tool-card,.decision-box,.console-card{padding:14px; border-radius:22px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(23,35,58,.84), rgba(15,22,38,.97))}
+    .contact-card{display:flex; gap:12px; align-items:center}
+    .contact-card h4{margin:0; font-size:16px}
+    .contact-card p{margin:5px 0 0; color:var(--muted); font-size:13px; line-height:1.45}
+    .contact-note{margin-top:8px; font-size:12px; color:#c9dcff; padding:8px 10px; border-radius:14px; background:rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.08)}
+    .risk-top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
+    .risk-top strong{display:block; font-size:16px}
+    .risk-top span{display:block; margin-top:4px; color:var(--muted); font-size:13px; line-height:1.4}
+    .risk-pill{padding:7px 10px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.04); font-size:12px; font-weight:900}
+    .safe{color:#d9ffeb}.warn{color:#fff0c2}.bad{color:#ffd8df}
+    .tools{display:grid; gap:10px}
+    .tool{
+      padding:14px; border-radius:20px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(23,35,58,.84), rgba(15,22,38,.97));
+      display:grid; grid-template-columns:46px 1fr; gap:12px; text-align:left; color:var(--text); min-height:92px;
+      transition:.18s transform,.18s border-color,.18s box-shadow;
+    }
+    .tool:hover{transform:translateY(-1px); border-color:rgba(70,168,255,.24); box-shadow:0 12px 28px rgba(2,6,20,.2)}
+    .tool.used{outline:2px solid rgba(70,168,255,.18); box-shadow:0 0 0 1px rgba(70,168,255,.10)}
+    .tool-ic{width:46px; height:46px; border-radius:14px; display:grid; place-items:center; font-size:22px; background:linear-gradient(135deg, rgba(70,168,255,.18), rgba(122,125,255,.14)); border:1px solid rgba(255,255,255,.07)}
+    .tool strong{display:block; font-size:15px}
+    .tool span{display:block; margin-top:5px; font-size:13px; line-height:1.55; color:#d9e7fc}
+    .console{display:flex; flex-direction:column; gap:10px; margin-top:10px}
+    .log{padding:12px 14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(23,35,58,.84), rgba(15,22,38,.97)); animation:slideIn .24s ease}
+    .log b{display:block; font-size:13px}
+    .log p{margin:6px 0 0; color:#d7e6fb; font-size:13px; line-height:1.55}
+    .log.safe{box-shadow:inset 0 0 0 1px rgba(53,222,151,.16)}
+    .log.warn{box-shadow:inset 0 0 0 1px rgba(255,207,92,.16)}
+    .log.bad{box-shadow:inset 0 0 0 1px rgba(255,111,137,.16)}
+
+    .decision-box h4{margin:0 0 8px; font-size:18px; letter-spacing:-.02em}
+    .decision-box p{margin:0 0 12px; font-size:13px; line-height:1.6; color:#d6e5fb}
+    .decision-buttons{display:grid; gap:10px}
+    .choice{display:flex; gap:12px; align-items:flex-start; padding:14px 15px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(29,42,69,.86), rgba(17,25,43,.98)); color:var(--text); text-align:left; box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+    .choice:hover{border-color:rgba(70,168,255,.24); transform:translateY(-1px)}
+    .choice strong{display:block; font-size:15px; line-height:1.35}
+    .choice em{display:block; font-style:normal; margin-top:6px; color:#d9e7fc; font-size:13px; line-height:1.55}
+    .resolved-note{margin-top:10px; padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.04); border:1px dashed var(--line); color:var(--muted); font-size:13px; line-height:1.55}
+    .hidden{display:none !important}
+    .footer-note{padding:2px 8px 0; text-align:center; color:#8ea5c7; font-size:12px}
+
+    .overlay,.toast-layer,.burst-layer{position:fixed; inset:0; pointer-events:none}
+    .overlay{display:flex; align-items:center; justify-content:center; padding:18px; z-index:120}
+    .toast-layer{z-index:160; display:flex; flex-direction:column; align-items:flex-end; gap:10px; padding:18px}
+    .burst-layer{z-index:170; overflow:hidden}
+    .modal{width:min(1180px,100%); border-radius:36px; overflow:hidden; border:1px solid var(--line); pointer-events:auto; box-shadow:var(--shadow); background:
+      radial-gradient(circle at 12% 12%, rgba(50,208,255,.16), transparent 24%),
+      radial-gradient(circle at 88% 18%, rgba(122,125,255,.16), transparent 22%),
+      linear-gradient(145deg, rgba(10,17,31,.98), rgba(16,24,44,.98));}
+    .modal-body{padding:30px}
+    .hero-grid{display:grid; grid-template-columns:1.02fr .98fr; gap:26px; align-items:center}
+    .hero-copy h2{margin:0; font-size:clamp(34px, 4.5vw, 66px); line-height:.94; letter-spacing:-.055em}
+    .hero-copy p{margin:16px 0 0; color:var(--muted); line-height:1.75; font-size:15px}
+    .feature-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px}
+    .feature{padding:12px 14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(22,33,54,.82), rgba(15,22,38,.96)); font-size:13px; line-height:1.55; color:#eef6ff}
+    .hero-actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px}
+    .hero-side{display:flex; flex-direction:column; gap:14px}
+    .hero-phone{
+      width:min(410px,100%); margin:0 auto; padding:10px; border-radius:38px; background:linear-gradient(180deg, #111725, #090d17); box-shadow:0 24px 70px rgba(0,0,0,.40), 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .hero-phone-inner{border-radius:30px; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, #13203a, #0d1628)}
+    .hero-preview-head{display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid rgba(255,255,255,.06)}
+    .hero-preview-thread{padding:14px; display:flex; flex-direction:column; gap:10px; min-height:430px; background:radial-gradient(circle at 20% 20%, rgba(255,255,255,.04), transparent 18%), linear-gradient(180deg, rgba(15,23,38,.98), rgba(12,18,31,1))}
+    .preview-bubble{max-width:84%; padding:12px 14px; border-radius:18px; font-size:14px; line-height:1.55; box-shadow:0 10px 24px rgba(0,0,0,.16)}
+    .preview-bubble.left{align-self:flex-start; background:linear-gradient(180deg, rgba(31,45,73,.98), rgba(22,33,54,.98))}
+    .preview-bubble.right{align-self:flex-end; background:linear-gradient(180deg, rgba(40,109,163,.98), rgba(34,92,138,.98))}
+    .preview-call{padding:14px; border-radius:22px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(160deg, #152540, #0c1526); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center}
+    .preview-call .call-avatar-lg{width:96px; height:96px; animation:none; box-shadow:0 0 0 10px rgba(255,255,255,.03), 0 14px 32px rgba(0,0,0,.18)}
+    .score-card{padding:22px; border-radius:28px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(22,33,54,.82), rgba(15,22,38,.96)); box-shadow:var(--shadow-soft)}
+    .score-card h3{margin:0 0 12px}
+    .score-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .score-box{padding:14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(25,37,61,.84), rgba(16,24,40,.96))}
+    .score-box b{display:block; font-size:24px}
+    .score-box span{display:block; margin-top:4px; font-size:13px; color:var(--muted); line-height:1.4}
+    .token-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px}
+    .token{display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.05); font-size:12px; font-weight:850}
+
+    .results{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px}
+    .result-box{padding:14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(23,35,58,.84), rgba(15,22,38,.97))}
+    .result-box b{display:block; font-size:24px}
+    .result-box span{display:block; margin-top:4px; color:var(--muted); font-size:13px; line-height:1.45}
+    .lessons{display:grid; gap:10px; margin-top:18px}
+    .lesson{padding:12px 14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(23,35,58,.84), rgba(15,22,38,.97))}
+    .lesson strong{display:block; margin-bottom:6px}
+    .lesson p{margin:0; color:var(--muted); font-size:13px; line-height:1.55}
+    .toast{pointer-events:auto; width:min(360px,90vw); padding:14px 16px; border-radius:20px; border:1px solid var(--line); background:linear-gradient(180deg, rgba(24,35,58,.96), rgba(14,20,34,.98)); box-shadow:var(--shadow); animation:toastIn .35s ease}
+    .toast b{display:block}
+    .toast p{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.45}
+    .burst{position:absolute; font-size:18px; animation:floatOut 1s ease-out forwards; filter:drop-shadow(0 4px 10px rgba(0,0,0,.22))}
+
+    @keyframes slideIn{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+    @keyframes toastIn{from{opacity:0; transform:translateX(20px)}to{opacity:1; transform:none}}
+    @keyframes pulseRing{0%,100%{box-shadow:0 0 0 18px rgba(255,255,255,.03),0 0 0 36px rgba(255,255,255,.02),0 20px 44px rgba(0,0,0,.24)}50%{box-shadow:0 0 0 24px rgba(255,255,255,.05),0 0 0 48px rgba(255,255,255,.025),0 20px 44px rgba(0,0,0,.24)}}
+    @keyframes floatOut{0%{opacity:0; transform:translateY(12px) scale(.6)}15%{opacity:1}100%{opacity:0; transform:translate(var(--tx), var(--ty)) scale(1.15) rotate(var(--rot))}}
+
+
+    body.danger-mode .device-wrap{box-shadow:0 34px 100px rgba(0,0,0,.42),0 0 0 1px rgba(255,111,137,.18),0 0 46px rgba(255,111,137,.12),inset 0 1px 0 rgba(255,255,255,.05)}
+    body.danger-mode .risk-card{animation:warningPulse 1.9s ease-in-out infinite}
+    body.calm-mode .device-wrap{box-shadow:0 34px 100px rgba(0,0,0,.32),0 0 42px rgba(53,222,151,.10),inset 0 1px 0 rgba(255,255,255,.05)}
+    .case-brief{
+      position:relative; z-index:2; margin:8px 16px 6px; padding:14px;
+      border-radius:24px; border:1px solid rgba(255,255,255,.09);
+      background:
+        radial-gradient(circle at 16% 20%, rgba(70,168,255,.13), transparent 30%),
+        linear-gradient(180deg, rgba(23,35,58,.88), rgba(14,22,37,.96));
+      box-shadow:0 16px 34px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.05);
+      overflow:hidden;
+    }
+    .case-brief::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.55; background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.05) 44%, transparent 58%); transform:translateX(-70%); animation:scanSweep 4.8s ease-in-out infinite}
+    .case-brief-top{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; position:relative; z-index:1}
+    .case-brief h3{margin:0; font-size:17px; letter-spacing:-.02em}
+    .case-brief p{margin:7px 0 0; color:#d8e7fb; font-size:13px; line-height:1.55}
+    .source-chip{flex:none; max-width:46%; padding:8px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); color:#cfe2ff; font-size:11px; font-weight:850; line-height:1.35; text-align:right}
+    .brief-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
+    .brief-card{padding:10px 11px; border-radius:16px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.045)}
+    .brief-card b{display:block; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:#9ac9ff}
+    .brief-card span{display:block; margin-top:6px; color:#f0f7ff; font-size:13px; line-height:1.45}
+    .dialog-card.phish-card{box-shadow:inset 3px 0 0 rgba(255,111,137,.58)}
+    .dialog-card.suspicious-card{box-shadow:inset 3px 0 0 rgba(255,207,92,.58)}
+    .dialog-card.safe-card{box-shadow:inset 3px 0 0 rgba(53,222,151,.45)}
+    .impact-box{margin-top:10px; padding:12px 14px; border-radius:18px; border:1px solid rgba(255,111,137,.18); background:linear-gradient(180deg, rgba(255,111,137,.10), rgba(255,255,255,.035))}
+    .impact-box strong{display:block; margin-bottom:6px}
+    .impact-box p{margin:0; color:#f4dce4; font-size:13px; line-height:1.55}
+    .intel-note{margin-top:8px; padding:8px 10px; border-radius:14px; background:rgba(70,168,255,.075); border:1px solid rgba(70,168,255,.12); color:#dbeaff; font-size:12px; line-height:1.45}
+    @keyframes scanSweep{0%,48%{transform:translateX(-75%)}68%,100%{transform:translateX(75%)}}
+    @keyframes warningPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,111,137,.12)}50%{box-shadow:inset 0 0 0 1px rgba(255,111,137,.30),0 0 28px rgba(255,111,137,.10)}}
+
+    @media (max-width:1280px){
+      .layout{grid-template-columns:320px 1fr}
+      .right-panel{grid-column:1 / -1}
+      .meta-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:980px){
+      .layout,.hero-grid,.results{grid-template-columns:1fr}
+      .route{grid-template-columns:1fr 1fr}
+      .stats-bar,.score-grid,.feature-grid{grid-template-columns:1fr}
+      body{overflow:auto}
+    }
+    @media (max-width:720px){
+      .app{padding:10px}
+      .topbar{flex-direction:column; align-items:flex-start}
+      .hud{justify-content:flex-start}
+      .route{grid-template-columns:1fr}
+      .brand-copy p{display:none}
+      .self-view{display:none}
+    }
+
+    /* ===== Immersive redesign v2 ===== */
+    body.clean-ui{
+      overflow:auto;
+      background:
+        radial-gradient(circle at 8% 14%, rgba(46,142,255,.18), transparent 20%),
+        radial-gradient(circle at 88% 10%, rgba(120,92,255,.18), transparent 22%),
+        radial-gradient(circle at 50% 92%, rgba(27,208,255,.10), transparent 24%),
+        linear-gradient(180deg, #07101d 0%, #0b1530 46%, #0e1f46 100%);
+      color:#eef5ff;
+    }
+    body.clean-ui::before{
+      opacity:.5;
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size:48px 48px;
+      mask-image:radial-gradient(circle at center, #000 12%, transparent 78%);
+    }
+    body.clean-ui::after{
+      opacity:.32;
+      filter:blur(8px);
+    }
+    body.clean-ui::-webkit-scrollbar,
+    body.clean-ui *::-webkit-scrollbar{width:10px; height:10px}
+    body.clean-ui *::-webkit-scrollbar-track{background:rgba(255,255,255,.03); border-radius:999px}
+    body.clean-ui *::-webkit-scrollbar-thumb{background:linear-gradient(180deg, rgba(95,149,255,.55), rgba(59,204,255,.45)); border-radius:999px}
+    body.clean-ui .app{
+      width:min(97vw, 2380px);
+      min-height:100%;
+      margin:0 auto;
+      padding:18px 18px 132px;
+      gap:16px;
+      position:relative;
+    }
+    body.clean-ui .app::before,
+    body.clean-ui .app::after{
+      content:"";
+      position:fixed;
+      inset:auto;
+      width:420px;
+      height:420px;
+      border-radius:50%;
+      filter:blur(80px);
+      pointer-events:none;
+      opacity:.35;
+      z-index:-1;
+    }
+    body.clean-ui .app::before{left:-80px; bottom:6vh; background:rgba(50,180,255,.18)}
+    body.clean-ui .app::after{right:-40px; top:10vh; background:rgba(122,125,255,.14)}
+    body.clean-ui .glass,
+    body.clean-ui .panel,
+    body.clean-ui .action-dock,
+    body.clean-ui .modal,
+    body.clean-ui .toast{
+      background:linear-gradient(180deg, rgba(8,17,33,.90), rgba(12,20,39,.92));
+      border:1px solid rgba(133,179,255,.10);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 0 0 1px rgba(255,255,255,.015);
+      backdrop-filter:blur(18px);
+    }
+    body.clean-ui .topbar{
+      position:sticky;
+      top:14px;
+      z-index:70;
+      padding:16px 18px;
+      border-radius:28px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:18px;
+      overflow:hidden;
+    }
+    body.clean-ui .topbar::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(105deg, rgba(70,168,255,.12), transparent 34%, transparent 72%, rgba(122,125,255,.12));
+      pointer-events:none;
+    }
+    body.clean-ui .brand-wrap{position:relative; z-index:1; gap:16px}
+    body.clean-ui .brand-logo{
+      width:54px; height:54px; border-radius:18px;
+      box-shadow:0 16px 28px rgba(70,168,255,.18), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    body.clean-ui .brand-copy h1{
+      font-size:clamp(22px, 2vw, 34px);
+      line-height:1;
+      margin-bottom:4px;
+    }
+    body.clean-ui .brand-copy p{
+      margin:0;
+      font-size:12px;
+      color:#bbcff0;
+      max-width:70ch;
+      line-height:1.45;
+    }
+    body.clean-ui .hud{position:relative; z-index:1; gap:10px}
+    body.clean-ui .pill,
+    body.clean-ui .btn-secondary{
+      min-height:42px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(23,37,66,.78), rgba(14,23,40,.95));
+      border:1px solid rgba(133,179,255,.12);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+      font-size:12px;
+    }
+    body.clean-ui .pill{gap:8px}
+    body.clean-ui .pill small{font-size:11px; color:#a9c2ea}
+    body.clean-ui .btn{font-weight:800}
+    body.clean-ui .btn-primary{
+      border-radius:16px;
+      box-shadow:0 18px 32px rgba(70,168,255,.20);
+    }
+    body.clean-ui .meta-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:16px;
+      align-items:stretch;
+    }
+    body.clean-ui .mission-card,
+    body.clean-ui .mentor-card{
+      padding:18px 20px;
+      border-radius:30px;
+      position:relative;
+      overflow:hidden;
+    }
+    body.clean-ui .mission-card::before,
+    body.clean-ui .mentor-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(125deg, rgba(70,168,255,.08), transparent 30%, transparent 70%, rgba(122,125,255,.08));
+      pointer-events:none;
+    }
+    body.clean-ui .section-title{margin-bottom:10px; font-size:11px; color:#87bdff}
+    body.clean-ui .mission-head{position:relative; z-index:1}
+    body.clean-ui .mission-head h2{font-size:clamp(26px, 2.2vw, 40px)}
+    body.clean-ui .mission-head p{font-size:13px; line-height:1.55; max-width:60ch}
+    body.clean-ui .badge{
+      border-radius:999px;
+      padding:10px 14px;
+      background:linear-gradient(180deg, rgba(22,35,62,.82), rgba(13,22,40,.94));
+      border:1px solid rgba(133,179,255,.12);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    body.clean-ui .route{
+      position:relative; z-index:1;
+      grid-template-columns:repeat(6, minmax(0,1fr));
+      gap:10px;
+      margin-top:16px;
+    }
+    body.clean-ui .route-step{
+      min-height:84px;
+      border-radius:20px;
+      padding:12px;
+      background:linear-gradient(180deg, rgba(20,33,58,.86), rgba(11,19,34,.96));
+      border:1px solid rgba(133,179,255,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    body.clean-ui .route-step strong{font-size:13px; line-height:1.35}
+    body.clean-ui .route-step span{margin-top:6px; font-size:11px; line-height:1.45; color:#9db6da}
+    body.clean-ui .route-step.active{
+      outline:none;
+      border-color:rgba(70,168,255,.42);
+      box-shadow:0 0 0 1px rgba(70,168,255,.18), 0 18px 30px rgba(50,168,255,.10), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    body.clean-ui .route-step.done{background:linear-gradient(135deg, rgba(21,102,118,.36), rgba(63,74,173,.24))}
+    body.clean-ui .stats-bar{position:relative; z-index:1; margin-top:16px; gap:12px}
+    body.clean-ui .stat-card{
+      padding:14px 16px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(17,29,52,.86), rgba(11,18,32,.95));
+      border:1px solid rgba(133,179,255,.08);
+    }
+    body.clean-ui .stat-card label{font-size:11px; color:#8eb8ef; margin-bottom:10px}
+    body.clean-ui .bar{height:9px; background:rgba(255,255,255,.055)}
+    body.clean-ui .mentor-box{position:relative; z-index:1; gap:14px}
+    body.clean-ui .mentor-avatar{
+      width:64px; height:64px; border-radius:20px;
+      background:linear-gradient(135deg, rgba(70,168,255,.20), rgba(122,125,255,.18));
+      box-shadow:0 14px 32px rgba(70,168,255,.12);
+    }
+    body.clean-ui .mentor-box h3{font-size:20px; margin-bottom:6px}
+    body.clean-ui .mentor-box p{font-size:14px; line-height:1.6; color:#dbe7fb}
+    body.clean-ui .mentor-tips{position:relative; z-index:1; gap:8px; margin-top:14px}
+    body.clean-ui .tip{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(133,179,255,.10);
+      color:#d7e8ff;
+      font-size:12px;
+    }
+    body.clean-ui .layout{
+      flex:1;
+      min-height:0;
+      align-items:start;
+      grid-template-columns:340px minmax(0, 1fr) 360px;
+      gap:16px;
+    }
+    body.clean-ui .layout > aside.panel.glass:first-child,
+    body.clean-ui .right-panel{
+      position:sticky;
+      top:142px;
+      max-height:calc(100vh - 160px);
+    }
+    body.clean-ui .panel{border-radius:30px; overflow:hidden}
+    body.clean-ui .panel-head{
+      padding:16px 18px 15px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+    }
+    body.clean-ui .panel-head h3{font-size:20px}
+    body.clean-ui .panel-head span{font-size:13px}
+    body.clean-ui .panel-body{padding:14px; min-height:0}
+    body.clean-ui .layout > aside.panel.glass:first-child .panel-body,
+    body.clean-ui .right-panel .panel-body{overflow:auto}
+    body.clean-ui .dialogs{gap:12px}
+    body.clean-ui .dialog-card{
+      grid-template-columns:62px 1fr auto;
+      gap:12px;
+      padding:14px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(18,30,52,.95), rgba(10,18,32,.98));
+      border:1px solid rgba(133,179,255,.09);
+      box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    body.clean-ui .dialog-card::before{
+      content:"";
+      position:absolute;
+      left:0; top:14px; bottom:14px;
+      width:3px;
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(70,168,255,.6), rgba(50,208,255,.25));
+      opacity:.8;
+    }
+    body.clean-ui .dialog-card.phish-card::before{background:linear-gradient(180deg, rgba(255,111,137,.8), rgba(255,111,137,.24))}
+    body.clean-ui .dialog-card.suspicious-card::before{background:linear-gradient(180deg, rgba(255,207,92,.86), rgba(255,207,92,.24))}
+    body.clean-ui .dialog-card.safe-card::before{background:linear-gradient(180deg, rgba(53,222,151,.78), rgba(53,222,151,.22))}
+    body.clean-ui .dialog-card:hover{transform:translateY(-2px); border-color:rgba(70,168,255,.22); box-shadow:0 18px 36px rgba(0,0,0,.24)}
+    body.clean-ui .dialog-card.active{background:linear-gradient(135deg, rgba(23,52,90,.98), rgba(12,20,36,.98)); border-color:rgba(70,168,255,.36); box-shadow:0 0 0 1px rgba(70,168,255,.18), 0 24px 40px rgba(50,168,255,.12)}
+    body.clean-ui .avatar{width:62px; height:62px}
+    body.clean-ui .dialog-card h4{font-size:16px}
+    body.clean-ui .dialog-card p{font-size:13px; color:#cfe0fa}
+    body.clean-ui .tiny-tag,
+    body.clean-ui .chip{
+      padding:5px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(133,179,255,.10);
+      font-size:10px;
+      letter-spacing:.01em;
+    }
+    body.clean-ui .dialog-meta{gap:8px}
+    body.clean-ui .device-wrap{
+      padding:10px;
+      border-radius:34px;
+      background:linear-gradient(180deg, rgba(4,10,20,.96), rgba(10,15,27,.98));
+      border:1px solid rgba(133,179,255,.08);
+      box-shadow:0 30px 80px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    body.clean-ui #messenger{
+      min-height:820px;
+      border-radius:26px;
+      border:1px solid rgba(255,255,255,.05);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.05), transparent 15%),
+        radial-gradient(circle at 84% 80%, rgba(255,255,255,.03), transparent 18%),
+        linear-gradient(180deg, rgba(10,18,33,1), rgba(7,13,24,1));
+    }
+    body.clean-ui .statusbar{height:28px; padding:0 16px; font-size:11px; color:#d9e8ff; background:rgba(255,255,255,.02)}
+    body.clean-ui .notch{top:4px; height:18px}
+    body.clean-ui .messenger-head{
+      padding:16px 18px;
+      background:linear-gradient(180deg, rgba(18,31,54,.96), rgba(11,20,35,.96));
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    body.clean-ui .head-meta h2{font-size:20px}
+    body.clean-ui .head-meta p{font-size:13px; color:#a7c0e0}
+    body.clean-ui .head-actions{gap:8px}
+    body.clean-ui .icon-btn{
+      width:38px; height:38px; border-radius:13px;
+      background:linear-gradient(180deg, rgba(26,39,67,.86), rgba(13,22,39,.96));
+      border:1px solid rgba(133,179,255,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    body.clean-ui .stories{display:none}
+    body.clean-ui .case-brief{
+      margin:12px 18px 6px;
+      padding:16px 18px;
+      border-radius:24px;
+      border:1px solid rgba(133,179,255,.10);
+      background:
+        radial-gradient(circle at 14% 16%, rgba(70,168,255,.12), transparent 28%),
+        linear-gradient(180deg, rgba(17,30,53,.92), rgba(11,19,34,.96));
+      box-shadow:0 16px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    body.clean-ui .case-brief::before{display:none}
+    body.clean-ui .case-brief-top{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start}
+    body.clean-ui .case-brief h3{font-size:18px}
+    body.clean-ui .case-brief p{font-size:13px; color:#d6e8ff; margin-top:5px}
+    body.clean-ui .source-chip{
+      max-width:unset;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(133,179,255,.10);
+      color:#cbe2ff;
+      font-size:11px;
+      text-align:center;
+    }
+    body.clean-ui .brief-grid{grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
+    body.clean-ui .brief-card{
+      padding:12px 13px;
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(133,179,255,.08);
+    }
+    body.clean-ui .brief-card b{font-size:11px; color:#8dbdff}
+    body.clean-ui .brief-card span{font-size:13px; line-height:1.5}
+    body.clean-ui .thread{padding:10px 18px 16px; gap:12px}
+    body.clean-ui .day-sep{padding:7px 14px; font-size:11px; background:rgba(74,96,139,.34)}
+    body.clean-ui .bubble-row{max-width:74%}
+    body.clean-ui .bubble-row.me{max-width:72%}
+    body.clean-ui .bubble-avatar{width:36px; height:36px}
+    body.clean-ui .bubble{
+      padding:13px 15px 11px;
+      border-radius:22px;
+      box-shadow:0 16px 30px rgba(0,0,0,.16);
+    }
+    body.clean-ui .bubble.them{background:linear-gradient(180deg, rgba(24,38,66,.98), rgba(15,25,42,.98)); border:1px solid rgba(255,255,255,.05)}
+    body.clean-ui .bubble.me{background:linear-gradient(180deg, rgba(49,127,196,.98), rgba(37,96,154,.98)); border:1px solid rgba(255,255,255,.07)}
+    body.clean-ui .bubble p{font-size:15px; line-height:1.6}
+    body.clean-ui .bubble small{font-size:11px}
+    body.clean-ui .bubble-card{margin-top:9px; padding:11px 12px; border-radius:16px}
+    body.clean-ui .composer{
+      padding:12px 14px;
+      border-top:1px solid rgba(255,255,255,.05);
+      background:linear-gradient(180deg, rgba(13,22,38,.94), rgba(8,15,27,.98));
+    }
+    body.clean-ui .input-shell{
+      min-height:48px;
+      border-radius:16px;
+      padding:0 14px;
+      background:linear-gradient(180deg, rgba(16,27,47,.92), rgba(10,17,30,.98));
+      border:1px solid rgba(133,179,255,.10);
+      color:#8ea7cb;
+    }
+    body.clean-ui .send-btn{width:46px; height:46px; box-shadow:0 16px 28px rgba(70,168,255,.22)}
+    body.clean-ui .contact-card,
+    body.clean-ui .risk-card,
+    body.clean-ui .tool-card,
+    body.clean-ui .console-card,
+    body.clean-ui .decision-box{
+      padding:14px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(16,28,50,.90), rgba(10,18,33,.96));
+      border:1px solid rgba(133,179,255,.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    body.clean-ui .contact-card{gap:14px}
+    body.clean-ui .contact-card h4{font-size:17px}
+    body.clean-ui .contact-card p{font-size:13px; line-height:1.55}
+    body.clean-ui .contact-note,
+    body.clean-ui .intel-note,
+    body.clean-ui .impact-box{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(133,179,255,.10);
+    }
+    body.clean-ui .compact-hint{
+      padding:11px 13px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(10,22,42,.8), rgba(8,16,29,.9));
+      border:1px solid rgba(133,179,255,.10);
+      color:#d6e7fd;
+      font-size:12px;
+      line-height:1.5;
+    }
+    body.clean-ui .risk-top strong{font-size:18px}
+    body.clean-ui .risk-top span{font-size:12px}
+    body.clean-ui .risk-pill{padding:7px 11px; border-radius:999px; background:rgba(255,255,255,.04); border:1px solid rgba(133,179,255,.10)}
+    body.clean-ui .tools{gap:10px}
+    body.clean-ui .tool{
+      min-height:88px;
+      padding:14px;
+      border-radius:18px;
+      grid-template-columns:44px 1fr;
+      gap:12px;
+      background:linear-gradient(180deg, rgba(17,29,52,.90), rgba(10,18,33,.98));
+      border:1px solid rgba(133,179,255,.08);
+      box-shadow:0 12px 24px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    body.clean-ui .tool:hover{transform:translateY(-2px); border-color:rgba(70,168,255,.20); box-shadow:0 16px 28px rgba(0,0,0,.18)}
+    body.clean-ui .tool.used{outline:none; border-color:rgba(70,168,255,.32); box-shadow:0 0 0 1px rgba(70,168,255,.12), 0 16px 30px rgba(50,168,255,.08)}
+    body.clean-ui .tool-ic{
+      width:44px; height:44px; border-radius:14px;
+      background:linear-gradient(135deg, rgba(70,168,255,.18), rgba(122,125,255,.18));
+      border:1px solid rgba(255,255,255,.06);
+      font-size:20px;
+    }
+    body.clean-ui .tool strong{font-size:15px}
+    body.clean-ui .tool span{display:block; margin-top:4px; font-size:12px; line-height:1.45; color:#c6daf7}
+    body.clean-ui .console-card{max-height:240px; overflow:auto}
+    body.clean-ui .log{border-radius:16px; background:rgba(255,255,255,.04)}
+    body.clean-ui .decision-box{display:none}
+    body.clean-ui .footer-note{display:none}
+    body.clean-ui .modal{
+      border-radius:36px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(70,168,255,.16), transparent 24%),
+        radial-gradient(circle at 90% 18%, rgba(122,125,255,.16), transparent 22%),
+        linear-gradient(145deg, rgba(8,17,33,.98), rgba(12,22,40,.98));
+    }
+    body.clean-ui .modal-body{padding:32px}
+    body.clean-ui .feature,
+    body.clean-ui .score-card,
+    body.clean-ui .result-box,
+    body.clean-ui .lesson,
+    body.clean-ui .score-box{
+      border-color:rgba(133,179,255,.10);
+      background:linear-gradient(180deg, rgba(17,29,52,.86), rgba(10,18,33,.96));
+    }
+    body.clean-ui .toast{border-radius:20px}
+    body.clean-ui .action-dock{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:18px;
+      width:min(97vw, 1880px);
+      z-index:80;
+      padding:12px 14px;
+      border-radius:28px;
+      display:grid;
+      grid-template-columns:260px minmax(0,1fr);
+      gap:14px;
+      align-items:center;
+      background:linear-gradient(180deg, rgba(8,17,33,.94), rgba(12,20,39,.98));
+      border:1px solid rgba(133,179,255,.10);
+      box-shadow:0 26px 60px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter:blur(18px);
+    }
+    body.clean-ui .dock-copy{
+      padding:10px 12px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(16,29,52,.82), rgba(9,18,33,.94));
+      border:1px solid rgba(133,179,255,.08);
+      min-height:74px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    body.clean-ui .dock-copy strong{font-size:15px}
+    body.clean-ui .dock-copy span{font-size:12px; color:#a8c2e6; margin-top:4px; line-height:1.45}
+    body.clean-ui .dock-buttons{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px}
+    body.clean-ui .dock-buttons .choice{
+      position:relative;
+      min-height:74px;
+      align-items:center;
+      padding:14px 16px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(17,29,52,.94), rgba(10,18,33,.98));
+      border:1px solid rgba(133,179,255,.08);
+      box-shadow:0 12px 24px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    body.clean-ui .dock-buttons .choice::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width:4px;
+      border-radius:18px 0 0 18px;
+      background:linear-gradient(180deg, rgba(70,168,255,.8), rgba(50,208,255,.3));
+    }
+    body.clean-ui .dock-buttons .choice[data-choice="trust"]::before{background:linear-gradient(180deg, rgba(53,222,151,.85), rgba(53,222,151,.25))}
+    body.clean-ui .dock-buttons .choice[data-choice="check"]::before{background:linear-gradient(180deg, rgba(255,207,92,.88), rgba(255,207,92,.25))}
+    body.clean-ui .dock-buttons .choice[data-choice="block"]::before{background:linear-gradient(180deg, rgba(255,111,137,.88), rgba(255,111,137,.28))}
+    body.clean-ui .dock-buttons .choice:hover{transform:translateY(-2px); border-color:rgba(70,168,255,.22); box-shadow:0 18px 30px rgba(0,0,0,.20)}
+    body.clean-ui .dock-buttons .choice strong{font-size:14px}
+    body.clean-ui .dock-buttons .choice em{font-size:12px; line-height:1.45; margin-top:4px; color:#cadcf7}
+    @media (max-width:1760px){
+      body.clean-ui .layout{grid-template-columns:320px minmax(0,1fr) 330px}
+      body.clean-ui .action-dock{grid-template-columns:220px minmax(0,1fr)}
+    }
+    @media (max-width:1480px){
+      body.clean-ui .meta-grid{grid-template-columns:1fr}
+      body.clean-ui .route{grid-template-columns:repeat(3, minmax(0,1fr))}
+      body.clean-ui .layout{grid-template-columns:300px minmax(0,1fr) 320px}
+      body.clean-ui .layout > aside.panel.glass:first-child,
+      body.clean-ui .right-panel{top:126px}
+      body.clean-ui .action-dock{width:min(98vw, 1440px); grid-template-columns:1fr}
+      body.clean-ui .dock-copy{min-height:auto}
+    }
+    @media (max-width:1220px){
+      body.clean-ui .app{width:min(98vw, 1800px); padding:14px 14px 124px}
+      body.clean-ui .topbar{grid-template-columns:1fr; align-items:flex-start}
+      body.clean-ui .layout{grid-template-columns:1fr; gap:14px}
+      body.clean-ui .layout > aside.panel.glass:first-child,
+      body.clean-ui .right-panel{position:relative; top:auto; max-height:none}
+      body.clean-ui .layout > aside.panel.glass:first-child .panel-body,
+      body.clean-ui .right-panel .panel-body{overflow:visible}
+      body.clean-ui #messenger{min-height:720px}
+    }
+    @media (max-width:900px){
+      body.clean-ui .app{padding-bottom:18px}
+      body.clean-ui .route{grid-template-columns:1fr 1fr}
+      body.clean-ui .stats-bar,
+      body.clean-ui .brief-grid,
+      body.clean-ui .results,
+      body.clean-ui .score-grid,
+      body.clean-ui .feature-grid{grid-template-columns:1fr}
+      body.clean-ui .bubble-row,
+      body.clean-ui .bubble-row.me{max-width:92%}
+      body.clean-ui .action-dock{position:sticky; left:auto; transform:none; width:auto; bottom:0; margin-top:12px}
+      body.clean-ui .dock-buttons{grid-template-columns:1fr}
+    }
+    @media (max-width:640px){
+      body.clean-ui .app{width:100%; padding:10px 10px 14px}
+      body.clean-ui .topbar,
+      body.clean-ui .mission-card,
+      body.clean-ui .mentor-card,
+      body.clean-ui .panel,
+      body.clean-ui .action-dock{border-radius:22px}
+      body.clean-ui .route{grid-template-columns:1fr}
+      body.clean-ui .brand-copy p{display:none}
+      body.clean-ui .case-brief-top{grid-template-columns:1fr}
+      body.clean-ui .source-chip{justify-self:start}
+    }
+
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar glass">
+      <div class="brand-wrap">
+        <div class="brand-logo" id="brandLogo"></div>
+        <div class="brand-copy">
+          <h1 id="projectTitle">CyberSafe Messenger Lab</h1>
+          <p id="projectSubtitle">Иммерсивная кампания по распознаванию фишинга: реальные мотивы атак, переписки, QR-ловушки, поддельные звонки, крипто-схемы и безопасные решения.</p>
+        </div>
+      </div>
+      <div class="hud">
+        <div class="pill"><small>Счёт</small><span id="scoreValue">0</span></div>
+        <div class="pill"><small>Серия</small><span id="comboValue">x0</span></div>
+        <div class="pill"><small>Защита</small><span id="repValue">100</span></div>
+        <div class="pill"><small>Таймер</small><span id="timerValue">--</span></div>
+        <button class="btn btn-secondary" id="soundBtn">🔊 Звук</button>
+        <button class="btn btn-secondary" id="restartBtn">↻ Сначала</button>
+      </div>
+    </header>
+
+    <section class="meta-grid">
+      <div class="mission-card glass">
+        <div class="section-title">Кампания</div>
+        <div class="mission-head">
+          <div>
+            <h2 id="actName">Акт I. Первые сигналы</h2>
+            <p id="actDesc">Начни с типичных ловушек: странные ссылки, ложная срочность и просьбы от “друзей”.</p>
+          </div>
+          <div class="badge">🎯 <b id="caseCounter">1 / 8</b></div>
+        </div>
+        <div class="route" id="route"></div>
+        <div class="stats-bar">
+          <div class="stat-card">
+            <label>Щит аккаунта</label>
+            <div class="bar"><i id="repBar" style="width:100%"></i></div>
+            <b id="repLabel">100 / 100</b>
+          </div>
+          <div class="stat-card">
+            <label>Найдено улик</label>
+            <div class="bar"><i id="evidenceBar" style="width:0%"></i></div>
+            <b id="evidenceLabel">0</b>
+          </div>
+          <div class="stat-card">
+            <label>Прогресс кампании</label>
+            <div class="bar"><i id="progressBar" style="width:0%"></i></div>
+            <b id="progressLabel">0%</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="mentor-card glass">
+        <div class="section-title">Наставник</div>
+        <div class="mentor-box">
+          <div class="mentor-avatar" id="mentorEmoji">🦊</div>
+          <div>
+            <h3 id="mentorName">Спарк-Бот на связи</h3>
+            <p id="mentorText">Смотри не только на лицо, аватарку и знакомое имя. Главное — что именно у тебя просят: код, пароль, деньги, карту или срочный переход по ссылке.</p>
+          </div>
+        </div>
+        <div class="mentor-tips" id="mentorTips"></div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="panel glass">
+        <div class="panel-head">
+          <div>
+            <h3>Диалоги</h3>
+            <span>Сценарии как в соцсетях и мессенджерах</span>
+          </div>
+          <div class="badge">💬 <span id="chatCount">8 кейсов</span></div>
+        </div>
+        <div class="panel-body">
+          <div class="dialogs" id="chatList"></div>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <div class="device-wrap">
+          <div id="messenger"></div>
+        </div>
+      </main>
+
+      <aside class="panel glass right-panel">
+        <div class="panel-head">
+          <div>
+            <h3>Лаборатория анализа</h3>
+            <span>Проверяй профиль, контекст, ссылки и подозрительные просьбы</span>
+          </div>
+          <div class="badge">🔎 Анализ</div>
+        </div>
+        <div class="panel-body">
+          <div class="lab-stack">
+            <div class="contact-card" id="contactCard"></div>
+
+            <div class="risk-card">
+              <div class="risk-top">
+                <div>
+                  <strong id="riskTitle">Уровень риска</strong>
+                  <span id="riskDesc">Оцени угрозу перед решением</span>
+                </div>
+                <div class="risk-pill" id="riskPill">Средний</div>
+              </div>
+              <div class="bar"><i id="riskBar" style="width:48%"></i></div>
+            </div>
+
+            <div class="compact-hint">Ответы теперь всегда доступны внизу экрана: не нужно прокручивать правую колонку до конца.</div>
+
+            <div class="tools" id="toolsGrid"></div>
+
+            <div class="console-card">
+              <div class="section-title" style="margin-bottom:10px">Журнал улик</div>
+              <div class="console" id="console"></div>
+            </div>
+
+            <div class="decision-box">
+              <h4>Выбери действие</h4>
+              <p>Важно не просто угадать, а понять логику угрозы: безопасно ли это, нужна ли отдельная проверка или ситуацию надо сразу останавливать.</p>
+              <div class="decision-buttons">
+                <button class="choice" data-choice="trust">
+                  <div>🟢</div>
+                  <div>
+                    <strong>Можно доверять</strong>
+                    <em>Сообщение похоже на обычную и безопасную ситуацию.</em>
+                  </div>
+                </button>
+                <button class="choice" data-choice="check">
+                  <div>🟡</div>
+                  <div>
+                    <strong>Проверить отдельно</strong>
+                    <em>Есть сомнения — лучше связаться другим способом и перепроверить.</em>
+                  </div>
+                </button>
+                <button class="choice" data-choice="block">
+                  <div>🔴</div>
+                  <div>
+                    <strong>Остановить и сообщить</strong>
+                    <em>Есть явные признаки фишинга, взлома или мошенничества.</em>
+                  </div>
+                </button>
+              </div>
+              <div id="resolvedNote" class="resolved-note hidden">Этот кейс уже решён. Можно просмотреть его ещё раз, но очки повторно не начисляются.</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="action-dock" aria-label="Панель быстрого выбора ответа">
+      <div class="dock-copy">
+        <strong>Быстрый выбор ответа</strong>
+        <span>Главные решения всегда перед глазами — быстро, удобно и без лишней прокрутки.</span>
+      </div>
+      <div class="decision-buttons dock-buttons">
+        <button class="choice" data-choice="trust">
+          <div>🟢</div>
+          <div>
+            <strong>Можно доверять</strong>
+            <em>Обычная и безопасная ситуация.</em>
+          </div>
+        </button>
+        <button class="choice" data-choice="check">
+          <div>🟡</div>
+          <div>
+            <strong>Проверить отдельно</strong>
+            <em>Есть сомнения — лучше перепроверить.</em>
+          </div>
+        </button>
+        <button class="choice" data-choice="block">
+          <div>🔴</div>
+          <div>
+            <strong>Остановить и сообщить</strong>
+            <em>Явные признаки фишинга или мошенничества.</em>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="footer-note">Story Mode: проходи кейсы как цифровой детектив — собирай улики, сверяй контекст и не дай мошенникам сломать твой цифровой щит.</div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="toast-layer" id="toastLayer"></div>
+  <div class="burst-layer" id="burstLayer"></div>
+
+  <script>
+  (() => {
+    /*
+      ================================================================
+      КАСТОМИЗАЦИЯ ПРОЕКТА
+      ---------------------------------------------------------------
+      1) projectName / projectSubtitle / mentorName / mentorEmoji
+      2) logoImage: вставь URL/путь к своему логотипу, если захочешь.
+      3) avatarOverrides: сюда можно подставить свои картинки/аватарки.
+      ================================================================
+    */
+    const CONFIG = {
+      projectName: 'PhishGuard Social Lab: Story Mode',
+      projectSubtitle: 'Иммерсивная кампания по реальным мотивам фишинга: переписки, QR-коды, фальшивая поддержка, крипто-ловушки, BEC, вакансии и дипфейки.',
+      mentorName: 'Спарк-Бот на связи',
+      mentorEmoji: '🦊',
+      logoImage: '',
+      logoEmoji: '🛡️',
+      avatarOverrides: {
+        // пример:
+        // masha: 'images/masha.png',
+        // projectLogo: 'images/logo.png'
+      }
+    };
+
+    const svgAvatar = (emoji, c1, c2, label='') => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${c1}"/>
+              <stop offset="100%" stop-color="${c2}"/>
+            </linearGradient>
+          </defs>
+          <rect width="280" height="280" rx="140" fill="url(#g)"/>
+          <circle cx="140" cy="104" r="62" fill="rgba(255,255,255,.16)"/>
+          <circle cx="140" cy="96" r="46" fill="#f5d6bc"/>
+          <path d="M82 210c14-30 37-48 58-48s44 18 58 48" fill="#d9efff" opacity=".78"/>
+          <text x="140" y="110" text-anchor="middle" dominant-baseline="middle" font-size="50">${emoji}</text>
+          <text x="140" y="244" text-anchor="middle" font-size="23" font-family="Arial" fill="rgba(255,255,255,.95)">${label}</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+    };
+
+    const AVATAR_LIBRARY = {
+      masha: svgAvatar('🎨','#ff8bc2','#8a7dff','Masha'),
+      classchat: svgAvatar('📚','#56b6ff','#4ad2c9','7-B'),
+      ilya: svgAvatar('🎮','#5ba4ff','#3a68b6','Ilya'),
+      sonya: svgAvatar('🎁','#ff9f7b','#ff6ea7','Sonya'),
+      dima: svgAvatar('🎧','#58cbff','#6366f1','Dima'),
+      support: svgAvatar('🛠️','#ff7d8a','#ffb35c','Support'),
+      lera: svgAvatar('📸','#61d7c9','#4b8bff','Lera'),
+      kirill: svgAvatar('📘','#7b90ff','#3cc7ff','Kirill'),
+      courier: svgAvatar('📦','#ffb86b','#ff6f89','Post'),
+      verified: svgAvatar('✅','#3cc7ff','#7b90ff','VIP'),
+      recruiter: svgAvatar('💼','#35de97','#46a8ff','HR'),
+      vendor: svgAvatar('🏢','#ffcf5c','#7a7dff','Vendor'),
+      market: svgAvatar('🛒','#61d7c9','#ff9f7b','Market'),
+      parent: svgAvatar('👩','#ff8bc2','#ffcf5c','Mom'),
+      roma: svgAvatar('🌹','#ff6f89','#7a7dff','Alex'),
+      university: svgAvatar('🎓','#46a8ff','#35de97','Uni'),
+      bank: svgAvatar('🏦','#32d0ff','#5b7cff','Bank'),
+      teacher: svgAvatar('🧑‍🏫','#35de97','#4b8bff','Teach'),
+      charity: svgAvatar('🤝','#ffcf5c','#35de97','Help'),
+      me: svgAvatar('🙂','#8fb5ff','#5a7bdb','You')
+    };
+
+    const avatar = key => CONFIG.avatarOverrides[key] || AVATAR_LIBRARY[key] || AVATAR_LIBRARY.me;
+
+    const ACTS = [
+      {
+            "name": "Акт I. Ссылки, QR и вложения",
+            "desc": "Безопасные сообщения рядом с фишингом: QR-коды, фото-ловушки и PDF-подмены."
+      },
+      {
+            "name": "Акт II. Маски знакомых",
+            "desc": "Взломанные аккаунты друзей, просьбы о кодах, деньгах и срочной помощи."
+      },
+      {
+            "name": "Акт III. Известные схемы",
+            "desc": "Крипто-раздачи, фальшивые призы, сборы и уведомления по мотивам реальных предупреждений."
+      },
+      {
+            "name": "Акт IV. Работа и деньги",
+            "desc": "Task scam, BEC, маркетплейсы, фальшивые счета и опасные вложения."
+      },
+      {
+            "name": "Акт V. Голос, видео и AI",
+            "desc": "Дипфейк-звонки, голосовое давление и фальшивая поддержка."
+      },
+      {
+            "name": "Финал. Высокие ставки",
+            "desc": "Романтические инвестиции, документы, банк и проверка без паники."
+      }
+];
+
+    const TOOL_META = {
+      profile:{ icon:'👤', title:'Проверить профиль', desc:'Сравнить ник, фото, описание и логику аккаунта.' },
+      link:{ icon:'🔗', title:'Проверить ссылку', desc:'Посмотреть, куда ведёт адрес и похож ли он на официальный.' },
+      domain:{ icon:'🌐', title:'Проверить домен', desc:'Искать подмены букв, странные зоны и маскировку под бренд.' },
+      qr:{ icon:'▣', title:'Проверить QR', desc:'QR-код тоже может вести на фальшивый сайт или оплату.' },
+      context:{ icon:'🧠', title:'Проверить контекст', desc:'Понять, логична ли ситуация в реальной жизни.' },
+      request:{ icon:'🧾', title:'Проверить просьбу', desc:'Опасные сигналы: деньги, коды, пароли, карта, личные данные.' },
+      finance:{ icon:'💸', title:'Проверить деньги', desc:'Разобрать перевод, предоплату, депозит, крипту или реквизиты.' },
+      identity:{ icon:'🪪', title:'Проверить личность', desc:'Подтвердить человека через независимый канал связи.' },
+      call:{ icon:'📹', title:'Проверить звонок', desc:'Распознать давление, подделку и ложную срочность.' },
+      docs:{ icon:'📄', title:'Проверить документы', desc:'Понять, зачем просят паспорт, скан, селфи или номер документа.' },
+      safety:{ icon:'🛑', title:'Выбрать безопасный шаг', desc:'Решить, что делать дальше без риска для аккаунта.' }
+    };
+
+    const CASE_DATA = [
+      {
+            "id": "k1",
+            "act": 1,
+            "mode": "chat",
+            "person": "Классный чат 7-Б",
+            "handle": "7-Б Новости",
+            "subtitle": "группа · обычная ситуация",
+            "avatarKey": "classchat",
+            "preview": "Завтра музей, сбор у школы",
+            "time": "17:04",
+            "tags": [
+                  "Школа",
+                  "Безопасно"
+            ],
+            "severity": "safe",
+            "recommended": "trust",
+            "profileHint": "Привычный школьный чат: те же участники, та же тема, без новых ссылок и оплат.",
+            "story": {
+                  "headline": "Операция «Нормальный фон»",
+                  "basedOn": "Контрольный безопасный кейс: игрок должен отличать обычное сообщение от угрозы.",
+                  "target": "Проверить, не срабатывает ли тревога там, где нет опасной просьбы.",
+                  "consequence": "Если всё считать фишингом, настоящие красные флаги становятся менее заметны."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Ребята, напоминаю: завтра едем в музей в 10:00.",
+                        "time": "17:02"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Возьмите воду, тетрадь и ручку. Сбор у школы в 9:30.",
+                        "time": "17:03"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Если кто-то опаздывает — напишите сюда. <span class=\"hotspot\" data-clue=\"no-danger\">Никаких оплат, ссылок и личных данных</span> сегодня нет.",
+                        "time": "17:04"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "no-danger",
+                        "label": "Нет опасной просьбы",
+                        "text": "Сообщение не просит перейти по ссылке, оплатить, назвать код, пароль или отправить документы.",
+                        "severity": "safe"
+                  },
+                  {
+                        "id": "context",
+                        "label": "Обычный школьный контекст",
+                        "text": "Содержание совпадает с реальным школьным событием и не создаёт давления.",
+                        "severity": "safe"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "safe",
+                        "title": "Проверка источника",
+                        "text": "Это обычный школьный чат с давней историей сообщений."
+                  },
+                  "context": {
+                        "severity": "safe",
+                        "title": "Проверка контекста",
+                        "text": "Сообщение про поездку логично и не требует рискованных действий."
+                  },
+                  "request": {
+                        "severity": "safe",
+                        "title": "Проверка просьбы",
+                        "text": "Нет просьб о деньгах, кодах, паролях, картах или документах."
+                  }
+            },
+            "explanation": "Можно доверять: это обычное информационное сообщение без ссылок, оплат и секретных данных. Безопасные кейсы нужны, чтобы игра не превращалась в угадайку."
+      },
+      {
+            "id": "k2",
+            "act": 1,
+            "mode": "chat",
+            "person": "Учитель информатики",
+            "handle": "@school_teacher_it",
+            "subtitle": "официальный школьный чат",
+            "avatarKey": "teacher",
+            "preview": "Файл с домашним заданием",
+            "time": "15:30",
+            "tags": [
+                  "PDF",
+                  "Безопасно",
+                  "Школа"
+            ],
+            "severity": "safe",
+            "recommended": "trust",
+            "profileHint": "Учитель заранее говорил на уроке, что отправит файл в этот же чат. Файл не просит логиниться и ничего устанавливать.",
+            "story": {
+                  "headline": "Операция «Честный PDF»",
+                  "basedOn": "Безопасный контрольный кейс про вложение: не каждый PDF опасен, важны источник и действие после открытия.",
+                  "target": "Научить отличать нормальный учебный файл от файла-ловушки.",
+                  "consequence": "Слишком сильная подозрительность мешает пользоваться нормальными учебными материалами."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Как и обещал на уроке, прикрепляю домашнее задание.",
+                        "time": "15:28",
+                        "card": {
+                              "title": "📄 domashnee_zadanie_7b.pdf",
+                              "text": "Обычный PDF на 2 страницы. Без пароля, без макросов, без ссылки на вход."
+                        }
+                  },
+                  {
+                        "who": "them",
+                        "text": "Открывать можно прямо из школьного чата. <span class=\"hotspot\" data-clue=\"announced\">Никаких логинов и оплат не требуется</span>.",
+                        "time": "15:30"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "announced",
+                        "label": "Файл был ожидаемым",
+                        "text": "Учитель заранее предупредил о файле, а вложение не требует установки программ или ввода пароля.",
+                        "severity": "safe"
+                  },
+                  {
+                        "id": "source",
+                        "label": "Надёжный канал",
+                        "text": "Файл пришёл в привычном школьном чате от известного учителя.",
+                        "severity": "safe"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "safe",
+                        "title": "Проверка профиля",
+                        "text": "Это знакомый преподаватель в обычном школьном канале."
+                  },
+                  "docs": {
+                        "severity": "safe",
+                        "title": "Проверка файла",
+                        "text": "PDF не просит запускать программу, вводить пароль или переходить на подозрительный сайт."
+                  },
+                  "context": {
+                        "severity": "safe",
+                        "title": "Проверка контекста",
+                        "text": "Файл ожидаемый: о нём говорили на уроке."
+                  }
+            },
+            "explanation": "Можно доверять. Вложение безопасно в рамках сценария: оно ожидаемое, источник понятный, а файл не заставляет вводить данные или запускать неизвестную программу."
+      },
+      {
+            "id": "k3",
+            "act": 1,
+            "mode": "chat",
+            "person": "Почта Express",
+            "handle": "@post_express_help",
+            "subtitle": "новый аккаунт · неофициальный",
+            "avatarKey": "courier",
+            "preview": "Посылка задержана, оплатите 49 ₽",
+            "time": "13:38",
+            "tags": [
+                  "Доставка",
+                  "QR",
+                  "Оплата"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Аккаунт создан недавно, в названии нет официальной отметки. Сообщение пришло в личку, хотя доставка обычно уведомляет в приложении или SMS без запроса CVV.",
+            "story": {
+                  "headline": "Операция «QR за доставку»",
+                  "basedOn": "По мотивам предупреждений FTC и FBI о quishing: QR-коды могут вести на фальшивые страницы оплаты или сбора данных.",
+                  "target": "Заставить отсканировать QR и ввести данные карты на поддельной странице.",
+                  "consequence": "Можно потерять деньги и платёжные данные, а затем получить новые списания."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Ваша посылка задержана на складе. Для повторной доставки оплатите 49 ₽.",
+                        "time": "13:36"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Сканируйте <span class=\"hotspot\" data-clue=\"qr\">QR-код</span> и введите номер карты, срок и CVV. Иначе посылка будет возвращена сегодня.",
+                        "time": "13:37",
+                        "card": {
+                              "title": "▣ QR-PAY-EXPRESS",
+                              "text": "Код ведёт на post-express-pay.site, а не в официальное приложение доставки."
+                        }
+                  },
+                  {
+                        "who": "me",
+                        "text": "А номер отправления можно?",
+                        "time": "13:38"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Номер покажется после оплаты. Не тяните, окно доставки закрывается.",
+                        "time": "13:38"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "qr",
+                        "label": "QR скрывает адрес",
+                        "text": "QR-код — это замаскированная ссылка. Здесь он ведёт на неофициальный домен оплаты.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "card",
+                        "label": "Просят CVV",
+                        "text": "CVV/CVC нельзя вводить на странице из личного сообщения.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "urgency",
+                        "label": "Давят сроком",
+                        "text": "Срочность нужна, чтобы ты не проверил заказ в официальном приложении.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "bad",
+                        "title": "Проверка профиля",
+                        "text": "Аккаунт похож на имитацию службы доставки: нет официальной верификации, мало истории."
+                  },
+                  "qr": {
+                        "severity": "bad",
+                        "title": "Проверка QR",
+                        "text": "QR ведёт не в приложение доставки, а на отдельный домен для оплаты."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка оплаты",
+                        "text": "Запрос CVV ради небольшой доплаты — типичный признак фишинга доставки."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не сканируй QR, открой приложение доставки вручную и проверь заказ там."
+                  }
+            },
+            "explanation": "Это фишинг. QR-код ведёт на неофициальный сайт, а запрос CVV и давление сроком делают ситуацию однозначно опасной."
+      },
+      {
+            "id": "k4",
+            "act": 1,
+            "mode": "chat",
+            "person": "Лера",
+            "handle": "@lera_photo",
+            "subtitle": "была в сети недавно",
+            "avatarKey": "lera",
+            "preview": "Посмотри фото, это ты?",
+            "time": "21:22",
+            "tags": [
+                  "Фото",
+                  "Ссылка",
+                  "Логин"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Похоже на знакомую, но сообщение не показывает фото в чате, а уводит на неизвестную страницу входа.",
+            "story": {
+                  "headline": "Операция «Это ты на фото?»",
+                  "basedOn": "Типовая социальная ловушка: любопытство заставляет открыть ссылку или файл, который оказывается не фотографией.",
+                  "target": "Выманить логин через поддельную страницу просмотра фото.",
+                  "consequence": "Аккаунт могут угнать и использовать для рассылки той же ловушки друзьям."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Слушай, тебе лучше это увидеть…",
+                        "time": "21:20"
+                  },
+                  {
+                        "who": "them",
+                        "text": "<span class=\"hotspot\" data-clue=\"photo-link\">Это ты на фото?</span> Открой: photos-cloud-viewer.ru/album?id=8841",
+                        "time": "21:21",
+                        "card": {
+                              "title": "🖼️ IMG_8841.jpg",
+                              "text": "В чате отображается как фото, но открывает страницу входа в соцсеть."
+                        }
+                  },
+                  {
+                        "who": "them",
+                        "text": "Там про тебя пишут. Только никому не скидывай, пожалуйста.",
+                        "time": "21:22"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "photo-link",
+                        "label": "Картинка ведёт на логин",
+                        "text": "Вместо изображения открывается страница входа на неизвестном домене.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "curiosity",
+                        "label": "Давление любопытством",
+                        "text": "Фразы «это ты?» и «тебе лучше увидеть» заставляют открыть без проверки.",
+                        "severity": "warn"
+                  },
+                  {
+                        "id": "secret",
+                        "label": "Просят никому не говорить",
+                        "text": "Изоляция от проверки — красный флаг социальной инженерии.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "link": {
+                        "severity": "bad",
+                        "title": "Проверка ссылки",
+                        "text": "Адрес не похож на официальный фотосервис или соцсеть."
+                  },
+                  "domain": {
+                        "severity": "bad",
+                        "title": "Проверка домена",
+                        "text": "photos-cloud-viewer.ru маскируется под просмотр фото, но просит авторизацию."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка действия",
+                        "text": "Для просмотра фото не нужно вводить пароль от соцсети на чужом домене."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не открывай ссылку. Спроси Леру в другом канале, отправляла ли она это."
+                  }
+            },
+            "explanation": "Это фишинг через изображение. Файл выглядит как фото, но ведёт на поддельный вход — задача мошенника украсть логин."
+      },
+      {
+            "id": "k5",
+            "act": 2,
+            "mode": "chat",
+            "person": "Илья",
+            "handle": "@ilya_real",
+            "subtitle": "аккаунт друга",
+            "avatarKey": "ilya",
+            "preview": "Скинь код, мне очень срочно",
+            "time": "18:20",
+            "tags": [
+                  "Друг",
+                  "Код",
+                  "Взлом"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Имя и аватар знакомые, но это не доказательство: аккаунт друга уже могли взломать.",
+            "story": {
+                  "headline": "Операция «Один код»",
+                  "basedOn": "Классическая схема захвата аккаунта: мошенник просит одноразовый код от имени знакомого.",
+                  "target": "Получить код подтверждения и войти в твой аккаунт.",
+                  "consequence": "Потеря аккаунта, рассылка друзьям, возможный доступ к перепискам и привязанным сервисам."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Привет, у меня сломался телефон 😭",
+                        "time": "18:18"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Мне сейчас придёт код для входа, <span class=\"hotspot\" data-clue=\"code\">скинь его сюда</span>, пожалуйста. Очень срочно!",
+                        "time": "18:18"
+                  },
+                  {
+                        "who": "me",
+                        "text": "Какой ещё код?",
+                        "time": "18:19"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Ну тот, что в SMS. Это не пароль, просто цифры. Быстрее, а то всё слетит.",
+                        "time": "18:20"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "code",
+                        "label": "Просят одноразовый код",
+                        "text": "Коды из SMS, почты и приложения нельзя сообщать никому, даже друзьям.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "just-code",
+                        "label": "Обесценивают риск",
+                        "text": "Фраза «это не пароль» — манипуляция: код часто и есть ключ к входу.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "urgency",
+                        "label": "Срочность",
+                        "text": "Тебя торопят, чтобы ты не успел проверить личность друга.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "warn",
+                        "title": "Проверка профиля",
+                        "text": "Профиль похож на Илью, но это не доказывает, что пишет он."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка просьбы",
+                        "text": "Просьба переслать код подтверждения — однозначный красный флаг."
+                  },
+                  "identity": {
+                        "severity": "bad",
+                        "title": "Проверка личности",
+                        "text": "Даже если это друг, код сообщать нельзя. С другом нужно связаться отдельно."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не отправляй код, заверши разговор и предупреди друга через другой канал."
+                  }
+            },
+            "explanation": "Это однозначный фишинг. Любая просьба переслать одноразовый код означает попытку получить доступ к аккаунту."
+      },
+      {
+            "id": "k6",
+            "act": 2,
+            "mode": "chat",
+            "person": "Маша",
+            "handle": "@masha_art",
+            "subtitle": "ник изменился сегодня",
+            "avatarKey": "masha",
+            "preview": "Проголосуй за меня, пожалуйста",
+            "time": "16:12",
+            "tags": [
+                  "Друг",
+                  "Конкурс",
+                  "Ссылка"
+            ],
+            "severity": "suspicious",
+            "recommended": "check",
+            "profileHint": "Маша реально рисует, но ссылка новая, домен странный, а просьба слишком срочная. Это может быть взломанный аккаунт.",
+            "story": {
+                  "headline": "Операция «Голос за друга»",
+                  "basedOn": "Типовая атака через взломанные аккаунты: ссылка на «голосование» ведёт на кражу логина.",
+                  "target": "Заставить войти на фальшивую страницу конкурса.",
+                  "consequence": "Если ввести данные, аккаунт могут украсть и использовать для рассылки друзьям."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Привет! Мне очень нужна помощь 😥",
+                        "time": "16:10"
+                  },
+                  {
+                        "who": "me",
+                        "text": "Что случилось?",
+                        "time": "16:11"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Я участвую в конкурсе рисунков. Можешь быстро <span class=\"hotspot\" data-clue=\"vote-link\">проголосовать</span> за меня? art-award-vote-now.site/masha",
+                        "time": "16:11"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Голосование закроется через 10 минут. Только войди через соцсеть и нажми кнопку.",
+                        "time": "16:12"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "vote-link",
+                        "label": "Странный домен голосования",
+                        "text": "Домен не похож на официальный сайт конкурса или соцсети.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "social-login",
+                        "label": "Просят вход через соцсеть",
+                        "text": "Фальшивые голосования часто крадут логин через поддельную форму входа.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "real-context",
+                        "label": "Контекст частично похож на правду",
+                        "text": "Маша действительно рисует, поэтому лучший шаг — проверить у неё отдельно, а не нажимать ссылку.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "warn",
+                        "title": "Проверка профиля",
+                        "text": "Профиль похож на Машу, но ник изменился сегодня — возможен взлом."
+                  },
+                  "domain": {
+                        "severity": "bad",
+                        "title": "Проверка домена",
+                        "text": "art-award-vote-now.site выглядит как одноразовый домен для ловушки."
+                  },
+                  "context": {
+                        "severity": "warn",
+                        "title": "Проверка контекста",
+                        "text": "Ситуация не невозможная, но ссылка и срочность требуют отдельной проверки."
+                  },
+                  "safety": {
+                        "severity": "warn",
+                        "title": "Безопасное действие",
+                        "text": "Не переходи по ссылке. Напиши Маше в другом мессенджере или спроси лично."
+                  }
+            },
+            "explanation": "Здесь правильнее «проверить отдельно»: друг может быть настоящим, но ссылка и вход через соцсеть опасны. Не нажимай, пока не подтвердил просьбу другим способомом."
+      },
+      {
+            "id": "k7",
+            "act": 2,
+            "mode": "chat",
+            "person": "Мама · новый номер",
+            "handle": "+7 900 *** 41-22",
+            "subtitle": "первое сообщение",
+            "avatarKey": "parent",
+            "preview": "Я в больнице, срочно переведи",
+            "time": "22:10",
+            "tags": [
+                  "Семья",
+                  "Деньги",
+                  "Проверка"
+            ],
+            "severity": "suspicious",
+            "recommended": "check",
+            "profileHint": "Сообщение может быть про реальную тревожную ситуацию, но новый номер, запрет звонить и срочный перевод требуют проверки через известный номер.",
+            "story": {
+                  "headline": "Операция «Новый номер»",
+                  "basedOn": "Реальная массовая схема: мошенники пишут от имени родственника с нового номера и просят деньги.",
+                  "target": "Получить быстрый перевод до проверки личности.",
+                  "consequence": "Деньги уйдут на чужую карту, а настоящие родственники могут даже не знать о переписке."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Сынок, это мама. Телефон разбила, пишу с номера медсестры.",
+                        "time": "22:06"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Я в больнице, надо срочно оплатить анализ. <span class=\"hotspot\" data-clue=\"money\">Переведи 18 600 ₽</span> на карту 2200 77** **** 9841.",
+                        "time": "22:07"
+                  },
+                  {
+                        "who": "me",
+                        "text": "Я позвоню тебе сейчас.",
+                        "time": "22:08"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Не звони, врач ругается. Просто переведи, потом объясню.",
+                        "time": "22:10"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "money",
+                        "label": "Срочный перевод на карту",
+                        "text": "Деньги просят отправить на неизвестную карту с нового номера.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "no-call",
+                        "label": "Запрещают звонить",
+                        "text": "Запрет на звонок мешает проверить, правда ли это родственник.",
+                        "severity": "warn"
+                  },
+                  {
+                        "id": "emotion",
+                        "label": "Давят страхом",
+                        "text": "Больница и срочность вызывают панику, а в панике люди хуже проверяют факты.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "identity": {
+                        "severity": "warn",
+                        "title": "Проверка личности",
+                        "text": "Нужно позвонить маме на сохранённый номер или другому родственнику, а не отвечать этому номеру."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка денег",
+                        "text": "Перевод на неизвестную карту без проверки личности — высокий риск."
+                  },
+                  "context": {
+                        "severity": "warn",
+                        "title": "Проверка контекста",
+                        "text": "Ситуация эмоциональная, поэтому её нельзя решать по одному сообщению."
+                  },
+                  "safety": {
+                        "severity": "warn",
+                        "title": "Безопасное действие",
+                        "text": "Не переводить сразу. Проверить через известный номер или близких."
+                  }
+            },
+            "explanation": "Это не «доверять» и не игнорировать. Правильный шаг — проверить отдельно через известный номер: срочные семейные просьбы нельзя решать по новому контакту."
+      },
+      {
+            "id": "k8",
+            "act": 2,
+            "mode": "chat",
+            "person": "Служба поддержки соцсети",
+            "handle": "@support_help_live",
+            "subtitle": "сам написал в личку",
+            "avatarKey": "support",
+            "preview": "Подтвердите аккаунт паролем",
+            "time": "20:44",
+            "tags": [
+                  "Поддержка",
+                  "Пароль",
+                  "Код"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Настоящая поддержка не просит пароль и одноразовый код в личном чате.",
+            "story": {
+                  "headline": "Операция «Поддержка наоборот»",
+                  "basedOn": "Распространённая схема фальшивой поддержки: угрозой блокировки выманивают пароль и код 2FA.",
+                  "target": "Получить пароль и код для полного захвата аккаунта.",
+                  "consequence": "Аккаунт потерян, а мошенники могут менять почту, телефон и рассылать сообщения друзьям."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Ваш аккаунт участвует в подозрительной активности. Нужно срочно подтвердить владельца.",
+                        "time": "20:41"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Напишите <span class=\"hotspot\" data-clue=\"password\">текущий пароль</span> и код из SMS. Иначе аккаунт будет удалён через 15 минут.",
+                        "time": "20:42"
+                  },
+                  {
+                        "who": "me",
+                        "text": "Разве поддержка просит пароль?",
+                        "time": "20:43"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Это исключительная проверка безопасности. Не выходите из чата.",
+                        "time": "20:44"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "password",
+                        "label": "Просят пароль",
+                        "text": "Пароль нельзя сообщать никому, включая «поддержку». Настоящие сервисы не проверяют личность так.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "sms",
+                        "label": "Просят код 2FA",
+                        "text": "Код подтверждения — секретный ключ, его нельзя диктовать в чат.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "threat",
+                        "label": "Угрожают удалением",
+                        "text": "Страх и таймер используют, чтобы ты не проверил информацию официально.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "bad",
+                        "title": "Проверка профиля",
+                        "text": "Аккаунт поддержки неофициальный и пишет сам в личку."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка просьбы",
+                        "text": "Пароль и SMS-код — самые опасные данные. Их нельзя отправлять."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Заверши диалог, открой приложение вручную и проверь безопасность аккаунта в настройках."
+                  }
+            },
+            "explanation": "Это однозначный фишинг. Любая «поддержка», которая просит пароль или код, — мошенник."
+      },
+      {
+            "id": "k9",
+            "act": 3,
+            "mode": "chat",
+            "person": "Verified Crypto News",
+            "handle": "@verified_bonus",
+            "subtitle": "похож на аккаунт с галочкой",
+            "avatarKey": "verified",
+            "preview": "Удвоим любой перевод в BTC",
+            "time": "12:06",
+            "tags": [
+                  "Крипто",
+                  "Известный кейс",
+                  "Раздача"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Название и аватар имитируют известный аккаунт, но схема «отправь деньги — получишь больше» сама по себе мошенническая.",
+            "story": {
+                  "headline": "Операция «Удвоим BTC»",
+                  "basedOn": "По мотивам взлома Twitter/X в 2020 году, когда известные аккаунты использовали для крипто-раздач. В реальности это была социальная инженерия против сотрудников.",
+                  "target": "Заставить отправить криптовалюту на кошелёк мошенника.",
+                  "consequence": "Криптоперевод почти невозможно отменить, деньги уходят сразу."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Мы запускаем благотворительную крипто-акцию для подписчиков.",
+                        "time": "12:03"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Отправь любую сумму BTC на адрес ниже — <span class=\"hotspot\" data-clue=\"double\">мы вернём в 2 раза больше</span> в течение 10 минут.",
+                        "time": "12:04",
+                        "card": {
+                              "title": "₿ 1A9zP...bonus-wallet",
+                              "text": "Кошелёк указан прямо в личном сообщении, без официальной страницы акции."
+                        }
+                  },
+                  {
+                        "who": "them",
+                        "text": "Акция только сегодня. Галочка профиля подтверждает, что всё официально.",
+                        "time": "12:06"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "double",
+                        "label": "Обещают удвоить перевод",
+                        "text": "Схема «отправь деньги — получишь больше» является красным флагом независимо от галочки и имени аккаунта.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "wallet",
+                        "label": "Деньги на криптокошелёк",
+                        "text": "Криптопереводы необратимы: вернуть их почти невозможно.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "verified",
+                        "label": "Галочка не гарантия",
+                        "text": "Даже известные аккаунты могут быть взломаны или имитированы.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "warn",
+                        "title": "Проверка профиля",
+                        "text": "Профиль выглядит убедительно, но внешний вид не отменяет опасную просьбу."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка денег",
+                        "text": "Удвоение криптоперевода — типичная мошенническая схема."
+                  },
+                  "context": {
+                        "severity": "bad",
+                        "title": "Проверка контекста",
+                        "text": "Легитимные компании не просят отправить крипту на кошелёк в личке ради бонуса."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не отправляй деньги и пожалуйся на аккаунт."
+                  }
+            },
+            "explanation": "Это фишинг/мошенничество. Известность аккаунта или галочка не делают безопасной просьбу перевести криптовалюту."
+      },
+      {
+            "id": "k10",
+            "act": 3,
+            "mode": "chat",
+            "person": "Соня 🎁",
+            "handle": "@sonya_gifts",
+            "subtitle": "розыгрыш в личке",
+            "avatarKey": "sonya",
+            "preview": "Ты выиграл приз! Нужны данные карты",
+            "time": "19:05",
+            "tags": [
+                  "Приз",
+                  "Карта",
+                  "Розыгрыш"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Аккаунт не официальный магазин, а «приз» требуют оформить через данные карты и CVV.",
+            "story": {
+                  "headline": "Операция «Приз за CVV»",
+                  "basedOn": "Типовая схема фальшивых розыгрышей: обещают подарок, но просят платёжные данные.",
+                  "target": "Получить данные карты под видом доставки приза.",
+                  "consequence": "Деньги могут списать, карту придётся блокировать."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Поздравляем 🥳 Ты выиграл наушники в нашем розыгрыше!",
+                        "time": "19:02"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Чтобы получить подарок, пришли <span class=\"hotspot\" data-clue=\"card\">номер карты, срок действия и код с обратной стороны</span> для оплаты доставки 1 ₽.",
+                        "time": "19:03"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Если не ответишь в течение 15 минут, приз уйдёт другому участнику.",
+                        "time": "19:04"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "card",
+                        "label": "Просят банковские данные",
+                        "text": "CVV/CVC и срок действия карты нельзя отправлять в чат.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "prize",
+                        "label": "Приз без участия",
+                        "text": "Если ты не участвовал или не можешь проверить розыгрыш — это подозрительно.",
+                        "severity": "warn"
+                  },
+                  {
+                        "id": "urgency",
+                        "label": "Торопят",
+                        "text": "Ограничение времени повышает шанс ошибки.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "warn",
+                        "title": "Проверка профиля",
+                        "text": "Аккаунт не выглядит как официальный бренд или магазин."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка платежа",
+                        "text": "Даже 1 ₽ может быть ловушкой для проверки карты или подключения подписки."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка просьбы",
+                        "text": "Запрос CVV в чате — однозначный красный флаг."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не отправляй данные карты, пожалуйся на аккаунт."
+                  }
+            },
+            "explanation": "Это фальшивый приз. Настоящие сервисы не просят CVV и полный набор данных карты в личной переписке."
+      },
+      {
+            "id": "k11",
+            "act": 3,
+            "mode": "chat",
+            "person": "Сбор помощи после пожара",
+            "handle": "@help_family_urgent",
+            "subtitle": "репостят в чатах",
+            "avatarKey": "charity",
+            "preview": "Переведите срочно на личную карту",
+            "time": "11:14",
+            "tags": [
+                  "Благотворительность",
+                  "Личная карта",
+                  "Проверка"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "В сообщении нет фонда, документов, контактов организатора и публичного отчёта — только личная карта и давление на эмоции.",
+            "story": {
+                  "headline": "Операция «Эмоциональный сбор»",
+                  "basedOn": "После катастроф и резонансных событий часто появляются фальшивые сборы, которые используют чужую беду.",
+                  "target": "Получить переводы на личную карту без прозрачной проверки.",
+                  "consequence": "Деньги уйдут мошенникам, а настоящая помощь может не дойти до пострадавших."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Срочный сбор семье после пожара. Каждая минута важна!",
+                        "time": "11:10"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Переводите на <span class=\"hotspot\" data-clue=\"personal-card\">личную карту 2200 **** 4431</span>. Документы потом, сейчас некогда.",
+                        "time": "11:12"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Кто не переводит — тому всё равно на людей.",
+                        "time": "11:14"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "personal-card",
+                        "label": "Личная карта без отчётности",
+                        "text": "У честного сбора должны быть проверяемые организаторы, отчёты и понятные реквизиты.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "no-docs",
+                        "label": "Документы «потом»",
+                        "text": "Отказ предоставить подтверждения до перевода — серьёзный красный флаг.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "guilt",
+                        "label": "Давят чувством вины",
+                        "text": "Манипуляция эмоциями не заменяет проверку сбора.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "bad",
+                        "title": "Проверка организатора",
+                        "text": "Аккаунт не связан с известным фондом или официальным сбором."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка перевода",
+                        "text": "Личная карта без отчётности и подтверждений — риск мошенничества."
+                  },
+                  "context": {
+                        "severity": "warn",
+                        "title": "Проверка контекста",
+                        "text": "Даже в реальной беде помогать лучше через проверенные фонды или официальные каналы."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не переводить по этому сообщению. Найти официальный проверенный сбор самостоятельно."
+                  }
+            },
+            "explanation": "Это опасный сбор. Помогать можно, но только через проверяемые каналы. Личная карта, отсутствие документов и давление на вину — явный фишинговый/мошеннический паттерн."
+      },
+      {
+            "id": "k12",
+            "act": 3,
+            "mode": "chat",
+            "person": "Банк Север",
+            "handle": "официальный чат приложения",
+            "subtitle": "уведомление безопасности",
+            "avatarKey": "bank",
+            "preview": "Попытка входа отклонена",
+            "time": "09:18",
+            "tags": [
+                  "Банк",
+                  "Безопасно",
+                  "Без ссылок"
+            ],
+            "severity": "safe",
+            "recommended": "trust",
+            "profileHint": "Сообщение пришло внутри банковского приложения, не содержит ссылок и просит открыть настройки вручную.",
+            "story": {
+                  "headline": "Операция «Правильное уведомление»",
+                  "basedOn": "Безопасный контрольный кейс: настоящее уведомление не просит пароль, код или переход на внешний сайт.",
+                  "target": "Показать, как выглядит безопасное предупреждение: информирует, но не выманивает секреты.",
+                  "consequence": "Игрок учится не путать любое банковское сообщение с мошенничеством."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Мы отклонили попытку входа из нового устройства.",
+                        "time": "09:16"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Если это были не вы, откройте приложение банка вручную → Профиль → Безопасность. <span class=\"hotspot\" data-clue=\"no-link\">Ссылок и кодов в сообщении нет</span>.",
+                        "time": "09:17"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Сотрудники банка никогда не попросят пароль, CVC/CVV или код из SMS.",
+                        "time": "09:18"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "no-link",
+                        "label": "Нет внешней ссылки",
+                        "text": "Безопасное уведомление предлагает открыть приложение вручную, а не перейти по ссылке из чата.",
+                        "severity": "safe"
+                  },
+                  {
+                        "id": "no-secret",
+                        "label": "Не просят секреты",
+                        "text": "Сообщение прямо предупреждает не сообщать коды и данные карты.",
+                        "severity": "safe"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "safe",
+                        "title": "Проверка канала",
+                        "text": "Сообщение находится внутри официального приложения, а не в личном мессенджере."
+                  },
+                  "request": {
+                        "severity": "safe",
+                        "title": "Проверка просьбы",
+                        "text": "Нет просьбы назвать код, пароль, CVC/CVV или номер карты."
+                  },
+                  "context": {
+                        "severity": "safe",
+                        "title": "Проверка контекста",
+                        "text": "Рекомендация открыть приложение вручную — безопасный подход."
+                  }
+            },
+            "explanation": "Можно доверять: сообщение не содержит ссылок и не просит секретные данные. Оно советует открыть приложение вручную."
+      },
+      {
+            "id": "k13",
+            "act": 4,
+            "mode": "chat",
+            "person": "HR QuickTasks",
+            "handle": "@remote_job_today",
+            "subtitle": "предложение работы",
+            "avatarKey": "recruiter",
+            "preview": "Работа за лайки, депозит для вывода",
+            "time": "10:42",
+            "tags": [
+                  "Работа",
+                  "Task scam",
+                  "Депозит"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Работодатель пишет без собеседования, обещает быстрые деньги и просит внести депозит для вывода заработка.",
+            "story": {
+                  "headline": "Операция «Лайки за депозит»",
+                  "basedOn": "По мотивам task scam: жертвам дают простые задания, показывают фальшивый баланс и затем требуют депозит/комиссию.",
+                  "target": "Заставить внести деньги ради вывода несуществующего заработка.",
+                  "consequence": "После депозита появляются новые комиссии, а вывести деньги невозможно."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Удалённая работа: ставите лайки товарам, получаете 3000–7000 ₽ в день.",
+                        "time": "10:37"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Ваш баланс уже 1 850 ₽. Чтобы вывести, внесите <span class=\"hotspot\" data-clue=\"deposit\">страховой депозит 900 ₽</span>.",
+                        "time": "10:40"
+                  },
+                  {
+                        "who": "me",
+                        "text": "Почему я должен платить, если это работа?",
+                        "time": "10:41"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Так работает платформа. После депозита деньги вернутся вместе с зарплатой.",
+                        "time": "10:42"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "deposit",
+                        "label": "Работа требует оплату",
+                        "text": "Настоящая работа платит сотруднику, а не просит депозит для вывода денег.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "fake-balance",
+                        "label": "Фальшивый баланс",
+                        "text": "Показанный баланс может быть просто цифрой на мошеннической платформе.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "too-easy",
+                        "label": "Слишком лёгкий доход",
+                        "text": "Высокий заработок за простые действия без договора — частый признак task scam.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "bad",
+                        "title": "Проверка работодателя",
+                        "text": "Нет компании, договора, вакансии на официальном сайте и понятных контактов."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка денег",
+                        "text": "Депозит для вывода зарплаты — мошеннический паттерн."
+                  },
+                  "context": {
+                        "severity": "bad",
+                        "title": "Проверка контекста",
+                        "text": "Заработок обещают до оформления и проверки навыков, это нелогично."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не платить депозит и прекратить переписку."
+                  }
+            },
+            "explanation": "Это task scam. Ключевой признак — чтобы получить «заработанные» деньги, тебя заставляют сначала заплатить."
+      },
+      {
+            "id": "k14",
+            "act": 4,
+            "mode": "chat",
+            "person": "Поставщик MegaParts",
+            "handle": "billing@megaparts-pay.co",
+            "subtitle": "новые реквизиты",
+            "avatarKey": "vendor",
+            "preview": "Оплатите счёт на новые реквизиты",
+            "time": "14:25",
+            "tags": [
+                  "BEC",
+                  "Счёт",
+                  "Проверка"
+            ],
+            "severity": "suspicious",
+            "recommended": "check",
+            "profileHint": "Поставщик реальный, но адрес домена отличается, счёт пришёл вне обычной цепочки, а реквизиты изменились без договора.",
+            "story": {
+                  "headline": "Операция «Новые реквизиты»",
+                  "basedOn": "По мотивам BEC-атак и дела Rimasauskas: поддельные письма и счета заставляли компании переводить деньги мошенникам.",
+                  "target": "Подменить банковские реквизиты поставщика и получить крупный перевод.",
+                  "consequence": "Компания может потерять деньги, а платёж уйдёт на счёт злоумышленников."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Добрый день. По счёту №MP-771 нужно оплатить сегодня, иначе отгрузка задержится.",
+                        "time": "14:21",
+                        "card": {
+                              "title": "📄 invoice_MP-771.pdf",
+                              "text": "В счёте указан новый банк и новый получатель, которого раньше не было в договоре."
+                        }
+                  },
+                  {
+                        "who": "them",
+                        "text": "У нас обновились реквизиты. <span class=\"hotspot\" data-clue=\"new-bank\">Оплатите только на новый счёт</span>, старые реквизиты больше не работают.",
+                        "time": "14:23"
+                  },
+                  {
+                        "who": "me",
+                        "text": "А можете подтвердить через нашего менеджера?",
+                        "time": "14:24"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Менеджер недоступен, платёж нужен до 15:00.",
+                        "time": "14:25"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "new-bank",
+                        "label": "Внезапная смена реквизитов",
+                        "text": "Смена банковских реквизитов должна подтверждаться по известному каналу и документами.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "domain",
+                        "label": "Похожий домен",
+                        "text": "Адрес megaparts-pay.co отличается от привычного домена поставщика.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "deadline",
+                        "label": "Срочный дедлайн",
+                        "text": "Срочность мешает провести нормальную финансовую проверку.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "domain": {
+                        "severity": "bad",
+                        "title": "Проверка домена",
+                        "text": "Домен отправителя не совпадает с обычным доменом поставщика."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка счёта",
+                        "text": "Новые реквизиты без подтверждённого договора — высокий риск BEC."
+                  },
+                  "identity": {
+                        "severity": "warn",
+                        "title": "Проверка личности",
+                        "text": "Нужно позвонить известному менеджеру по старому номеру, а не отвечать на письмо."
+                  },
+                  "safety": {
+                        "severity": "warn",
+                        "title": "Безопасное действие",
+                        "text": "Не оплачивать сразу. Подтвердить реквизиты через известный канал."
+                  }
+            },
+            "explanation": "Это не тот кейс, где нужно доверять. Лучший шаг — проверить отдельно через известный контакт поставщика. В BEC именно так подменяют счета и реквизиты."
+      },
+      {
+            "id": "k15",
+            "act": 4,
+            "mode": "chat",
+            "person": "Market Покупатель",
+            "handle": "@buyer_safe_pay",
+            "subtitle": "маркетплейс",
+            "avatarKey": "market",
+            "preview": "Получите оплату по ссылке",
+            "time": "18:02",
+            "tags": [
+                  "Маркетплейс",
+                  "Карта",
+                  "Ссылка"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Покупатель уводит из маркетплейса в личный чат и просит ввести карту, чтобы «получить оплату». Это нелогично.",
+            "story": {
+                  "headline": "Операция «Безопасная сделка»",
+                  "basedOn": "Типовая схема на маркетплейсах: продавцу присылают ссылку на фальшивую оплату/доставку.",
+                  "target": "Украсть данные карты продавца под видом получения денег.",
+                  "consequence": "Вместо получения оплаты продавец может потерять деньги с карты."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Я куплю ваш планшет. Уже оформил доставку, осталось получить оплату.",
+                        "time": "17:58"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Перейдите по ссылке <span class=\"hotspot\" data-clue=\"receive-pay\">market-safe-pay.link/order774</span> и введите данные карты, на которую придёт перевод.",
+                        "time": "18:00"
+                  },
+                  {
+                        "who": "me",
+                        "text": "В приложении маркетплейса заказа нет.",
+                        "time": "18:01"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Он появится после ввода карты. Иначе доставка отменится.",
+                        "time": "18:02"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "receive-pay",
+                        "label": "Получение денег через ввод карты",
+                        "text": "Чтобы получить оплату на маркетплейсе, не нужно вводить CVV или данные карты на чужом сайте.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "outside",
+                        "label": "Уводят из платформы",
+                        "text": "Переход из официального приложения в личную ссылку лишает защиты сделки.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "no-order",
+                        "label": "Заказа нет в приложении",
+                        "text": "Если сделки нет внутри платформы, ссылка от покупателя не является безопасной оплатой.",
+                        "severity": "bad"
+                  }
+            ],
+            "tools": {
+                  "link": {
+                        "severity": "bad",
+                        "title": "Проверка ссылки",
+                        "text": "market-safe-pay.link не является официальным доменом маркетплейса."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка платежа",
+                        "text": "Данные карты просят не для оплаты покупки, а для списания средств."
+                  },
+                  "context": {
+                        "severity": "bad",
+                        "title": "Проверка контекста",
+                        "text": "Покупатель не должен создавать отдельную ссылку для выплаты продавцу."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Оставаться только внутри официального приложения маркетплейса."
+                  }
+            },
+            "explanation": "Это фишинг на маркетплейсе. Фраза «получить оплату по ссылке и ввести карту» — явный красный флаг."
+      },
+      {
+            "id": "k16",
+            "act": 4,
+            "mode": "chat",
+            "person": "Бухгалтерия Олимпиада+",
+            "handle": "olymp@docs-fast.ru",
+            "subtitle": "неизвестный отправитель",
+            "avatarKey": "university",
+            "preview": "Откройте PDF с результатами",
+            "time": "08:55",
+            "tags": [
+                  "PDF",
+                  "Архив",
+                  "Вложение"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Сообщение пришло от неизвестного домена, файл замаскирован под PDF, но требует скачать архив и включить «просмотрщик». ",
+            "story": {
+                  "headline": "Операция «PDF, который не PDF»",
+                  "basedOn": "Мотив вредоносных вложений: файл выглядит как PDF или фото, но ведёт к архиву, исполняемому файлу или поддельному входу.",
+                  "target": "Заставить открыть вложение/архив и запустить вредоносный файл или украсть учётные данные.",
+                  "consequence": "Можно заразить устройство, потерять файлы или отдать доступ к аккаунту."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Вы прошли в финал олимпиады. Откройте результаты до 12:00.",
+                        "time": "08:51",
+                        "card": {
+                              "title": "📄 results_final.pdf.zip",
+                              "text": "Файл выглядит как PDF, но на самом деле это ZIP-архив с файлом viewer.exe внутри."
+                        }
+                  },
+                  {
+                        "who": "them",
+                        "text": "Если PDF не откроется, запустите <span class=\"hotspot\" data-clue=\"exe\">viewer.exe</span> из архива. Это официальный просмотрщик.",
+                        "time": "08:53"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Файл удалится автоматически через 4 часа, не пересылайте никому.",
+                        "time": "08:55"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "exe",
+                        "label": "Просят запустить EXE",
+                        "text": "PDF не требует запуска неизвестного .exe. Исполняемый файл во вложении — опасный признак.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "double-ext",
+                        "label": "Двойное расширение",
+                        "text": "results_final.pdf.zip маскирует архив под документ.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "unknown-domain",
+                        "label": "Неизвестный домен",
+                        "text": "docs-fast.ru не похож на официальный сайт олимпиады или школы.",
+                        "severity": "bad"
+                  }
+            ],
+            "tools": {
+                  "docs": {
+                        "severity": "bad",
+                        "title": "Проверка вложения",
+                        "text": "Это не обычный PDF: архив содержит исполняемый файл."
+                  },
+                  "domain": {
+                        "severity": "bad",
+                        "title": "Проверка отправителя",
+                        "text": "Домен отправителя не связан с официальной олимпиадой."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка действия",
+                        "text": "Запуск неизвестного viewer.exe — риск заражения устройства."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не открывать архив. Проверить результаты на официальном сайте олимпиады."
+                  }
+            },
+            "explanation": "Это фишинг/малварь через вложение. Кейс однозначно опасен: файл маскируется под PDF, но просит запустить EXE."
+      },
+      {
+            "id": "k17",
+            "act": 5,
+            "mode": "video",
+            "person": "Дима",
+            "handle": "@dima_play",
+            "subtitle": "видеозвонок",
+            "avatarKey": "dima",
+            "preview": "Срочно скажи код по видео",
+            "time": "20:11",
+            "tags": [
+                  "Видео",
+                  "Код",
+                  "Дипфейк"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Даже если лицо и голос похожи, просьба назвать код делает ситуацию опасной.",
+            "story": {
+                  "headline": "Операция «Лицо не доказательство»",
+                  "basedOn": "По мотивам современных deepfake/social engineering атак: видео и голос могут быть подделаны или аккаунт может быть захвачен.",
+                  "target": "Получить код подтверждения, используя доверие к знакомому лицу.",
+                  "consequence": "Потеря аккаунта или подтверждение операции от твоего имени."
+            },
+            "callTitle": "Видеозвонок",
+            "callText": "На экране вроде бы твой друг Дима. Он нервничает и говорит, что потерял доступ к аккаунту. Просит продиктовать код, который сейчас придёт тебе в SMS.",
+            "afterMessages": [
+                  {
+                        "who": "them",
+                        "text": "Брат, это правда я. <span class=\"hotspot\" data-clue=\"video-code\">Скажи только код</span> и всё, я потом объясню!",
+                        "time": "20:12"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "video-code",
+                        "label": "Код нельзя диктовать",
+                        "text": "Код подтверждения нельзя сообщать даже по видео и даже знакомым.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "deepfake",
+                        "label": "Видео не гарантия",
+                        "text": "Лицо, голос и эмоции могут быть подделаны или использованы из взломанного аккаунта.",
+                        "severity": "warn"
+                  },
+                  {
+                        "id": "panic",
+                        "label": "Паника и срочность",
+                        "text": "Нервное давление мешает спокойно проверить личность.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "call": {
+                        "severity": "warn",
+                        "title": "Проверка звонка",
+                        "text": "Видео выглядит убедительно, но это не доказывает личность звонящего."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка просьбы",
+                        "text": "Просьба назвать код делает кейс опасным независимо от лица на экране."
+                  },
+                  "identity": {
+                        "severity": "warn",
+                        "title": "Проверка личности",
+                        "text": "Заверши звонок и позвони Диме по сохранённому номеру."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Код не говорить. Разговор остановить и проверить отдельно."
+                  }
+            },
+            "explanation": "Это фишинг. Видеозвонок не делает безопасной просьбу назвать код. Код — стоп-сигнал."
+      },
+      {
+            "id": "k18",
+            "act": 5,
+            "mode": "voice",
+            "person": "Голос сестры",
+            "handle": "новый номер",
+            "subtitle": "голосовой вызов",
+            "avatarKey": "parent",
+            "preview": "Авария, переведи деньги",
+            "time": "23:18",
+            "tags": [
+                  "Голос",
+                  "AI",
+                  "Деньги"
+            ],
+            "severity": "suspicious",
+            "recommended": "check",
+            "profileHint": "Голос похож на близкого человека, но номер новый, есть запрет перезванивать и просьба о переводе. Проверка обязательна.",
+            "story": {
+                  "headline": "Операция «Знакомый голос»",
+                  "basedOn": "По мотивам предупреждений о голосовом клонировании и мошенничестве с родственниками в беде.",
+                  "target": "Использовать узнаваемый голос, чтобы получить срочный перевод.",
+                  "consequence": "Можно отправить деньги мошенникам, пока настоящий родственник не знает о ситуации."
+            },
+            "callTitle": "Голосовой вызов",
+            "callText": "Голос очень похож на голос сестры. Она плачет и говорит, что попала в ДТП. Просит перевести деньги «юристу» и не звонить родителям, чтобы не пугать их.",
+            "afterMessages": [
+                  {
+                        "who": "them",
+                        "text": "Пожалуйста, переведи 35 000 ₽ на эту карту. <span class=\"hotspot\" data-clue=\"voice-money\">Не звони никому</span>, мне нельзя говорить долго.",
+                        "time": "23:19"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "voice-money",
+                        "label": "Запрещают проверку",
+                        "text": "Просьба не звонить никому мешает подтвердить реальность ситуации.",
+                        "severity": "warn"
+                  },
+                  {
+                        "id": "new-number",
+                        "label": "Новый номер",
+                        "text": "Новый номер и срочный перевод требуют независимой проверки.",
+                        "severity": "warn"
+                  },
+                  {
+                        "id": "third-card",
+                        "label": "Деньги третьему лицу",
+                        "text": "Перевод «юристу» на неизвестную карту — финансовый риск.",
+                        "severity": "bad"
+                  }
+            ],
+            "tools": {
+                  "call": {
+                        "severity": "warn",
+                        "title": "Проверка звонка",
+                        "text": "Голос похож, но современные инструменты могут имитировать голос, а аккаунты могут быть украдены."
+                  },
+                  "identity": {
+                        "severity": "warn",
+                        "title": "Проверка личности",
+                        "text": "Нужно перезвонить сестре на сохранённый номер или связаться с родителями."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка денег",
+                        "text": "Срочный перевод на карту неизвестного человека нельзя делать без подтверждения."
+                  },
+                  "safety": {
+                        "severity": "warn",
+                        "title": "Безопасное действие",
+                        "text": "Проверить отдельно через известные контакты. Не переводить до подтверждения."
+                  }
+            },
+            "explanation": "Правильный ответ — проверить отдельно. Возможную беду нельзя игнорировать, но переводить деньги по новому номеру и запрету звонить нельзя."
+      },
+      {
+            "id": "k19",
+            "act": 5,
+            "mode": "voice",
+            "person": "“Служба безопасности банка”",
+            "handle": "скрытый номер",
+            "subtitle": "голосовой вызов",
+            "avatarKey": "bank",
+            "preview": "Назовите код для отмены перевода",
+            "time": "13:09",
+            "tags": [
+                  "Банк",
+                  "Звонок",
+                  "Код"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Банк не просит назвать код из SMS для отмены операции. Код обычно подтверждает действие, а не отменяет его.",
+            "story": {
+                  "headline": "Операция «Отмените перевод кодом»",
+                  "basedOn": "Массовая телефонная схема: мошенники представляются банком и просят код, пароль или установить приложение удалённого доступа.",
+                  "target": "Получить код подтверждения или заставить провести операцию самому.",
+                  "consequence": "Можно подтвердить перевод мошенникам или отдать доступ к банковскому приложению."
+            },
+            "callTitle": "Голосовой вызов",
+            "callText": "Звонящий говорит, что с вашей карты пытаются украсть деньги. Для отмены операции нужно срочно назвать код из SMS и установить «защитное приложение». ",
+            "afterMessages": [
+                  {
+                        "who": "them",
+                        "text": "Сейчас придёт SMS. <span class=\"hotspot\" data-clue=\"bank-code\">Продиктуйте код</span>, чтобы отменить перевод. Не кладите трубку.",
+                        "time": "13:10"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "bank-code",
+                        "label": "Код подтверждает операцию",
+                        "text": "Код из SMS нельзя диктовать: он может подтверждать перевод или вход.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "remote-app",
+                        "label": "Просят приложение",
+                        "text": "Установка «защитного приложения» во время звонка может дать злоумышленнику доступ к устройству.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "dont-hang",
+                        "label": "Не дают положить трубку",
+                        "text": "Мошенники удерживают на линии, чтобы жертва не проверила банк самостоятельно.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "call": {
+                        "severity": "bad",
+                        "title": "Проверка звонка",
+                        "text": "Звонок со скрытого номера и просьба назвать код — опасная комбинация."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка просьбы",
+                        "text": "Банк не просит коды и не просит ставить приложения по телефону."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка операции",
+                        "text": "Код может подтвердить перевод, а не отменить его."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Положи трубку и сам набери номер банка с карты или из приложения."
+                  }
+            },
+            "explanation": "Это телефонный фишинг. Ключевой стоп-сигнал — просьба назвать код и не класть трубку."
+      },
+      {
+            "id": "k20",
+            "act": 6,
+            "mode": "chat",
+            "person": "Alex Investor",
+            "handle": "@alex_private_growth",
+            "subtitle": "знакомство в соцсети",
+            "avatarKey": "roma",
+            "preview": "Я научу тебя крипте без риска",
+            "time": "22:44",
+            "tags": [
+                  "Романтика",
+                  "Крипто",
+                  "Инвестиции"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Человек строит доверие, затем переводит разговор к инвестициям и даёт ссылку на платформу, где нельзя проверить лицензию.",
+            "story": {
+                  "headline": "Операция «Доверие как наживка»",
+                  "basedOn": "По мотивам romance baiting / pig butchering: мошенник долго строит отношения, а затем ведёт в фальшивые инвестиции.",
+                  "target": "Заставить внести деньги на поддельную криптоплатформу.",
+                  "consequence": "Сначала показывают «прибыль», потом требуют новые взносы и блокируют вывод."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Мне с тобой очень спокойно. Я редко кому доверяю такие вещи.",
+                        "time": "22:38"
+                  },
+                  {
+                        "who": "them",
+                        "text": "У меня есть закрытая криптоплатформа. Я помогу начать с 100 $. <span class=\"hotspot\" data-clue=\"romance-invest\">Риск ноль, прибыль каждый день</span>.",
+                        "time": "22:41"
+                  },
+                  {
+                        "who": "me",
+                        "text": "Почему ты предлагаешь это мне?",
+                        "time": "22:42"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Потому что ты мне небезразличен. Только не обсуждай это с друзьями, они не поймут.",
+                        "time": "22:44"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "romance-invest",
+                        "label": "Романтика + инвестиции",
+                        "text": "Когда онлайн-знакомый предлагает криптоинвестиции, это сильный признак romance investment scam.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "guarantee",
+                        "label": "Гарантированная прибыль",
+                        "text": "Инвестиции без риска и с ежедневной прибылью — нереалистичное обещание.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "isolation",
+                        "label": "Изоляция от близких",
+                        "text": "Просьба не обсуждать с друзьями мешает получить здравую проверку.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "warn",
+                        "title": "Проверка профиля",
+                        "text": "Профиль строит эмоциональное доверие, но почти сразу ведёт к деньгам."
+                  },
+                  "finance": {
+                        "severity": "bad",
+                        "title": "Проверка инвестиций",
+                        "text": "Гарантированная криптоприбыль без риска — мошеннический признак."
+                  },
+                  "context": {
+                        "severity": "bad",
+                        "title": "Проверка контекста",
+                        "text": "Онлайн-знакомый не должен быть источником инвестиционных решений."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не переводить деньги и не регистрироваться по ссылке."
+                  }
+            },
+            "explanation": "Это romance/crypto scam. Наличие эмоций и доверительных разговоров не делает инвестиционную ссылку безопасной."
+      },
+      {
+            "id": "k21",
+            "act": 6,
+            "mode": "chat",
+            "person": "Грант Университета",
+            "handle": "@student_grant_2026",
+            "subtitle": "неофициальный бот",
+            "avatarKey": "university",
+            "preview": "Стипендия: паспорт и селфи",
+            "time": "12:32",
+            "tags": [
+                  "Документы",
+                  "Стипендия",
+                  "Бот"
+            ],
+            "severity": "phish",
+            "recommended": "block",
+            "profileHint": "Бот не является официальным университетским сервисом, но просит паспорт, селфи и банковские данные до проверки.",
+            "story": {
+                  "headline": "Операция «Стипендия за селфи»",
+                  "basedOn": "Типовая схема кражи персональных данных: фальшивые гранты, вакансии и анкеты собирают документы.",
+                  "target": "Получить паспортные данные, селфи и банковские реквизиты для мошенничества или оформления аккаунтов.",
+                  "consequence": "Данные могут использовать для кредитов, регистрации кошельков или других действий от твоего имени."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Поздравляем! Вы предварительно одобрены на студенческий грант 48 000 ₽.",
+                        "time": "12:28"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Для подтверждения отправьте <span class=\"hotspot\" data-clue=\"passport\">фото паспорта, селфи с паспортом и номер карты</span> в этот чат.",
+                        "time": "12:29"
+                  },
+                  {
+                        "who": "me",
+                        "text": "А где официальный сайт программы?",
+                        "time": "12:31"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Сайт перегружен, заявки принимаем только через бот до 13:00.",
+                        "time": "12:32"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "passport",
+                        "label": "Просят документы в чат",
+                        "text": "Паспорт и селфи с паспортом нельзя отправлять неизвестному боту.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "no-site",
+                        "label": "Нет официального сайта",
+                        "text": "Настоящие гранты и стипендии оформляются через официальный домен и понятные правила.",
+                        "severity": "bad"
+                  },
+                  {
+                        "id": "deadline",
+                        "label": "Дедлайн один час",
+                        "text": "Срочность заставляет отправить документы без проверки.",
+                        "severity": "warn"
+                  }
+            ],
+            "tools": {
+                  "docs": {
+                        "severity": "bad",
+                        "title": "Проверка документов",
+                        "text": "Паспорт, селфи и карта в одном чате — критический риск для личности."
+                  },
+                  "domain": {
+                        "severity": "bad",
+                        "title": "Проверка канала",
+                        "text": "Нет официального домена университета или госпрограммы."
+                  },
+                  "request": {
+                        "severity": "bad",
+                        "title": "Проверка просьбы",
+                        "text": "Слишком много чувствительных данных для неизвестного бота."
+                  },
+                  "safety": {
+                        "severity": "bad",
+                        "title": "Безопасное действие",
+                        "text": "Не отправлять документы. Проверить программу на сайте университета или у деканата."
+                  }
+            },
+            "explanation": "Это кража персональных данных. Паспорт и селфи нельзя отправлять неофициальному боту, особенно под давлением дедлайна."
+      },
+      {
+            "id": "k22",
+            "act": 6,
+            "mode": "chat",
+            "person": "Деканат колледжа",
+            "handle": "edu.college.ru/portal",
+            "subtitle": "официальный портал",
+            "avatarKey": "university",
+            "preview": "Расписание сессии опубликовано",
+            "time": "08:16",
+            "tags": [
+                  "Учёба",
+                  "Безопасно",
+                  "Портал"
+            ],
+            "severity": "safe",
+            "recommended": "trust",
+            "profileHint": "Сообщение пришло в официальном учебном портале, содержит только информацию и предлагает войти вручную через сохранённую закладку.",
+            "story": {
+                  "headline": "Операция «Официальный портал»",
+                  "basedOn": "Финальный безопасный кейс: не вся цифровая коммуникация опасна, если канал и просьба нормальные.",
+                  "target": "Проверить спокойное решение без гиперподозрительности.",
+                  "consequence": "Умение распознавать безопасные сообщения так же важно, как и ловить фишинг."
+            },
+            "messages": [
+                  {
+                        "who": "them",
+                        "text": "Расписание сессии опубликовано в личном кабинете студента.",
+                        "time": "08:14"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Откройте портал через сохранённую закладку или вручную введите адрес. <span class=\"hotspot\" data-clue=\"manual\">В этом сообщении нет ссылок для входа</span>.",
+                        "time": "08:15"
+                  },
+                  {
+                        "who": "them",
+                        "text": "Никакие документы и данные карты в чат отправлять не нужно.",
+                        "time": "08:16"
+                  }
+            ],
+            "clues": [
+                  {
+                        "id": "manual",
+                        "label": "Безопасный способ входа",
+                        "text": "Сообщение предлагает открыть портал вручную, а не нажимать ссылку из чата.",
+                        "severity": "safe"
+                  },
+                  {
+                        "id": "no-docs",
+                        "label": "Нет запроса документов",
+                        "text": "Никто не просит паспорт, карту, пароль или код.",
+                        "severity": "safe"
+                  }
+            ],
+            "tools": {
+                  "profile": {
+                        "severity": "safe",
+                        "title": "Проверка источника",
+                        "text": "Это официальный учебный портал, а не неизвестный бот."
+                  },
+                  "request": {
+                        "severity": "safe",
+                        "title": "Проверка просьбы",
+                        "text": "Нет опасных просьб: только информационное уведомление."
+                  },
+                  "context": {
+                        "severity": "safe",
+                        "title": "Проверка контекста",
+                        "text": "Публикация расписания через портал — обычная учебная ситуация."
+                  }
+            },
+            "explanation": "Можно доверять. Это безопасное уведомление: официальный канал, нет ссылок для входа, нет документов и платёжных данных."
+      }
+];
+
+    const CASES = CASE_DATA.map(c => ({ ...c, avatar: avatar(c.avatarKey) }));
+
+    const state = {
+      current:0,
+      score:0,
+      rep:100,
+      combo:0,
+      evidence:0,
+      solved:[],
+      discovered:{},
+      usedTools:{},
+      timer:55,
+      interval:null,
+      sound:true,
+      correct:0,
+      badges:new Set(),
+      best:Number(localStorage.getItem('phish_lab_best_score') || 0),
+      bestRank:localStorage.getItem('phish_lab_best_rank') || '—'
+    };
+
+    const $ = sel => document.querySelector(sel);
+    const el = {
+      brandLogo:$('#brandLogo'), projectTitle:$('#projectTitle'), projectSubtitle:$('#projectSubtitle'),
+      mentorEmoji:$('#mentorEmoji'), mentorName:$('#mentorName'), mentorText:$('#mentorText'), mentorTips:$('#mentorTips'),
+      score:$('#scoreValue'), combo:$('#comboValue'), rep:$('#repValue'), timer:$('#timerValue'),
+      repBar:$('#repBar'), repLabel:$('#repLabel'), evidenceBar:$('#evidenceBar'), evidenceLabel:$('#evidenceLabel'),
+      progressBar:$('#progressBar'), progressLabel:$('#progressLabel'), actName:$('#actName'), actDesc:$('#actDesc'), caseCounter:$('#caseCounter'),
+      route:$('#route'), chatCount:$('#chatCount'), chatList:$('#chatList'), messenger:$('#messenger'),
+      contactCard:$('#contactCard'), riskTitle:$('#riskTitle'), riskDesc:$('#riskDesc'), riskPill:$('#riskPill'), riskBar:$('#riskBar'),
+      toolsGrid:$('#toolsGrid'), console:$('#console'), resolvedNote:$('#resolvedNote'),
+      overlay:$('#overlay'), toastLayer:$('#toastLayer'), burstLayer:$('#burstLayer'),
+      soundBtn:$('#soundBtn'), restartBtn:$('#restartBtn')
+    };
+
+    function applyBranding(){
+      el.projectTitle.textContent = CONFIG.projectName;
+      el.projectSubtitle.textContent = CONFIG.projectSubtitle;
+      el.mentorName.textContent = CONFIG.mentorName;
+      el.mentorEmoji.textContent = CONFIG.mentorEmoji;
+      const logo = CONFIG.avatarOverrides.projectLogo || CONFIG.logoImage;
+      el.brandLogo.innerHTML = logo
+        ? `<img src="${logo}" alt="logo">`
+        : `<span>${CONFIG.logoEmoji}</span>`;
+      document.title = CONFIG.projectName;
+    }
+
+    function playTone(type='ok'){
+      if(!state.sound) return;
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = type === 'bad' ? 'sawtooth' : 'sine';
+        osc.frequency.value = type === 'ok' ? 660 : type === 'warn' ? 430 : 260;
+        gain.gain.setValueAtTime(.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.08, ctx.currentTime + .02);
+        gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .22);
+        osc.start(); osc.stop(ctx.currentTime + .24);
+      }catch(err){}
+    }
+
+    function toast(title, text){
+      const div = document.createElement('div');
+      div.className = 'toast';
+      div.innerHTML = `<b>${title}</b><p>${text}</p>`;
+      el.toastLayer.appendChild(div);
+      setTimeout(() => {
+        div.style.opacity = '0';
+        div.style.transform = 'translateX(20px)';
+        setTimeout(() => div.remove(), 250);
+      }, 2800);
+    }
+
+    function celebrationBurst(type='good'){
+      const icons = type === 'good' ? ['✨','🎉','⭐','🛡️','💙'] : ['⚠️','🚫','🧠'];
+      for(let i=0;i<18;i++){
+        const span = document.createElement('span');
+        span.className = 'burst';
+        span.textContent = icons[Math.floor(Math.random()*icons.length)];
+        span.style.left = (Math.random()*100) + '%';
+        span.style.top = (58 + Math.random()*16) + '%';
+        span.style.setProperty('--tx', `${(Math.random()*240)-120}px`);
+        span.style.setProperty('--ty', `${-140 - Math.random()*120}px`);
+        span.style.setProperty('--rot', `${(Math.random()*120)-60}deg`);
+        el.burstLayer.appendChild(span);
+        setTimeout(() => span.remove(), 1100);
+      }
+    }
+
+    function updateHUD(){
+      el.score.textContent = state.score;
+      el.combo.textContent = 'x' + state.combo;
+      el.rep.textContent = state.rep;
+      el.repBar.style.width = `${Math.max(0, state.rep)}%`;
+      el.repLabel.textContent = `${Math.max(0, state.rep)} / 100`;
+      const totalClues = CASES.reduce((sum, c) => sum + c.clues.length + Object.keys(c.tools || {}).length, 0);
+      const evPerc = totalClues ? Math.min(100, state.evidence / totalClues * 100) : 0;
+      el.evidenceBar.style.width = `${evPerc}%`;
+      el.evidenceLabel.textContent = state.evidence;
+      const progress = state.solved.length / CASES.length * 100;
+      el.progressBar.style.width = `${progress}%`;
+      el.progressLabel.textContent = `${Math.round(progress)}%`;
+      el.caseCounter.textContent = `${Math.min(state.current + 1, CASES.length)} / ${CASES.length}`;
+    }
+
+    function renderRoute(){
+      const currentAct = CASES[state.current]?.act || 1;
+      el.route.innerHTML = ACTS.map((act, idx) => {
+        const step = idx + 1;
+        const cls = step < currentAct ? 'route-step done' : step === currentAct ? 'route-step active' : 'route-step';
+        return `<div class="${cls}"><strong>${act.name}</strong><span>${act.desc}</span></div>`;
+      }).join('');
+    }
+
+    function renderMentor(){
+      const c = CASES[state.current];
+      const tips = [];
+      if(c.tools.profile) tips.push('Не верь только имени и фото.');
+      if(c.tools.link) tips.push('Ссылки нужно проверять отдельно.');
+      if(c.tools.call) tips.push('Голос и видео тоже можно подделать.');
+      if(c.tools.request) tips.push('Коды, деньги и карта — красные флаги.');
+      tips.push('Если сомневаешься — проверь по другому каналу.');
+      el.mentorText.textContent = c.act >= 3
+        ? 'Сложные сценарии бьют по страху, жалости и спешке. Не спеши: сначала пойми, что именно у тебя хотят выманить.'
+        : 'В начале ищи три вещи: кто пишет, что просит и зачем тебя торопят. Логика сообщения важнее красивого интерфейса.';
+      el.mentorTips.innerHTML = tips.map(t => `<div class="tip">${t}</div>`).join('');
+    }
+
+    function renderActInfo(){
+      const c = CASES[state.current];
+      const act = ACTS[c.act - 1];
+      el.actName.textContent = act.name;
+      el.actDesc.textContent = act.desc;
+    }
+
+    function renderRisk(){
+      const c = CASES[state.current];
+      const map = {
+        safe:{label:'Низкий', width:24, desc:'Похоже на обычное и безопасное сообщение.'},
+        suspicious:{label:'Средний', width:56, desc:'Есть сомнения, поэтому нужен аккуратный анализ.'},
+        phish:{label:'Высокий', width:90, desc:'Признаки фишинга выражены сильно. Реагируй жёстко.'}
+      };
+      const risk = map[c.severity];
+      el.riskTitle.textContent = `Уровень риска: ${risk.label}`;
+      el.riskDesc.textContent = risk.desc;
+      el.riskPill.textContent = risk.label;
+      el.riskPill.className = `risk-pill ${c.severity === 'safe' ? 'safe' : c.severity === 'suspicious' ? 'warn' : 'bad'}`;
+      el.riskBar.style.width = risk.width + '%';
+    }
+
+    function renderContactCard(){
+      const c = CASES[state.current];
+      el.contactCard.innerHTML = `
+        <div class="avatar"><img src="${c.avatar}" alt="${c.person}"><i class="online-dot"></i></div>
+        <div style="min-width:0; flex:1">
+          <h4>${c.person}</h4>
+          <p>${c.handle} · ${c.subtitle}</p>
+          <div class="contact-note">${c.profileHint}</div>
+          ${c.story?.target ? `<div class="intel-note">🎯 Цель атаки: ${c.story.target}</div>` : ''}
+        </div>`;
+    }
+
+    function renderChatList(){
+      const unlocked = state.solved.length;
+      el.chatCount.textContent = `${CASES.length} кейсов`;
+      el.chatList.innerHTML = CASES.map((c, i) => {
+        const active = i === state.current ? 'active' : '';
+        const solved = state.solved.includes(c.id) ? 'solved' : '';
+        const disabled = i > unlocked ? 'disabled' : '';
+        const sevClass = c.severity === 'safe' ? 'safe' : c.severity === 'suspicious' ? 'warn' : 'bad';
+        const severityCard = c.severity === 'safe' ? 'safe-card' : c.severity === 'suspicious' ? 'suspicious-card' : 'phish-card';
+        return `
+          <button class="dialog-card ${active} ${solved} ${severityCard}" data-open="${i}" ${disabled}>
+            <div class="avatar"><img src="${c.avatar}" alt="${c.person}"><i class="online-dot"></i></div>
+            <div>
+              <h4>${c.person}</h4>
+              <p>${c.preview}</p>
+              <div class="tag-row">${c.tags.map(t => `<span class="tiny-tag">${t}</span>`).join('')}</div>
+            </div>
+            <div class="dialog-meta">
+              <div class="chip ${sevClass}">${c.mode === 'chat' ? '💬 чат' : c.mode === 'video' ? '📹 видео' : '📞 звонок'}</div>
+              <div class="chip">${c.time}</div>
+            </div>
+          </button>`;
+      }).join('');
+
+      el.chatList.querySelectorAll('[data-open]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.open);
+          if(idx > state.solved.length) return;
+          state.current = idx;
+          prepareCase();
+        });
+      });
+    }
+
+    function renderStories(){
+      return ``;
+    }
+
+    function renderThread(caseItem){
+      let html = `<div class="day-sep">Сегодня</div>`;
+      caseItem.messages.forEach(msg => {
+        const isMe = msg.who === 'me';
+        const bubbleAvatar = isMe ? avatar('me') : caseItem.avatar;
+        html += `
+          <div class="bubble-row ${isMe ? 'me' : ''}">
+            <div class="bubble-avatar"><img src="${bubbleAvatar}" alt="${isMe ? 'Вы' : caseItem.person}"></div>
+            <div class="bubble ${isMe ? 'me' : 'them'}">
+              <p>${msg.text}</p>
+              ${msg.card ? `<div class="bubble-card"><b>${msg.card.title}</b><span>${msg.card.text}</span></div>` : ''}
+              <small>${msg.time}</small>
+            </div>
+          </div>`;
+      });
+      return html;
+    }
+
+    function renderVideoCall(c){
+      return `
+        <div class="call-wrap">
+          <div class="call-screen">
+            <div class="call-top">
+              <div class="call-chip"><i class="call-status"></i> ${c.callTitle} · 00:42</div>
+              <div class="call-chip">🔒 Защищённое соединение</div>
+            </div>
+            <div class="remote-stage">
+              <div class="call-avatar-lg"><img src="${c.avatar}" alt="${c.person}"></div>
+              <h3>${c.person}</h3>
+              <p>${c.callText}</p>
+              <div class="call-banner">⚠️ Смотри на просьбу, а не только на лицо, голос и аватар</div>
+            </div>
+            <div class="self-view">
+              <div class="hair"></div>
+              <div class="face"></div>
+              <div class="shirt"></div>
+            </div>
+            <div class="call-controls">
+              <button class="call-btn">🎤</button>
+              <button class="call-btn">📷</button>
+              <button class="call-btn danger">📵</button>
+            </div>
+          </div>
+          <div class="thread" style="padding:0; gap:10px; flex:none; min-height:auto; overflow:visible">
+            <div class="day-sep">После звонка</div>
+            ${(c.afterMessages || []).map(msg => `
+              <div class="bubble-row">
+                <div class="bubble-avatar"><img src="${c.avatar}" alt="${c.person}"></div>
+                <div class="bubble them"><p>${msg.text}</p><small>${msg.time}</small></div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    function renderVoiceCall(c){
+      return `
+        <div class="call-wrap">
+          <div class="call-screen">
+            <div class="call-top">
+              <div class="call-chip"><i class="call-status"></i> ${c.callTitle} · 00:27</div>
+              <div class="call-chip">📞 Голосовой вызов</div>
+            </div>
+            <div class="remote-stage">
+              <div class="call-avatar-lg"><img src="${c.avatar}" alt="${c.person}"></div>
+              <h3>${c.person}</h3>
+              <p>${c.callText}</p>
+              <div class="call-banner">🚨 Если “поддержка” просит пароль или код — это не помощь, а ловушка</div>
+            </div>
+            <div class="call-controls">
+              <button class="call-btn">🔈</button>
+              <button class="call-btn">🎙️</button>
+              <button class="call-btn danger">📵</button>
+            </div>
+          </div>
+          <div class="thread" style="padding:0; gap:10px; flex:none; min-height:auto; overflow:visible">
+            <div class="day-sep">После звонка</div>
+            ${(c.afterMessages || []).map(msg => `
+              <div class="bubble-row">
+                <div class="bubble-avatar"><img src="${c.avatar}" alt="${c.person}"></div>
+                <div class="bubble them"><p>${msg.text}</p><small>${msg.time}</small></div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+
+    function renderCaseBrief(c){
+      const story = c.story || {};
+      return `
+        <div class="case-brief">
+          <div class="case-brief-top">
+            <div>
+              <h3>${story.headline || 'Операция анализа'}</h3>
+              <p>${story.basedOn || 'Учебная ситуация для проверки цифровой внимательности.'}</p>
+            </div>
+            <div class="source-chip">${c.tags.slice(0,3).join(' · ')}</div>
+          </div>
+          <div class="brief-grid">
+            <div class="brief-card"><b>Цель злоумышленника</b><span>${story.target || 'Получить данные, деньги или доступ.'}</span></div>
+            <div class="brief-card"><b>Цена ошибки</b><span>${story.consequence || 'Потеря доступа, денег или личных данных.'}</span></div>
+          </div>
+        </div>`;
+    }
+
+    function renderMessenger(){
+      const c = CASES[state.current];
+      const riskText = c.severity === 'safe' ? 'Обычная ситуация' : c.severity === 'suspicious' ? 'Нужна осторожность' : 'Высокий риск';
+      let content = '';
+      if(c.mode === 'chat') content = `<div class="thread">${renderThread(c)}</div>`;
+      if(c.mode === 'video') content = renderVideoCall(c);
+      if(c.mode === 'voice') content = renderVoiceCall(c);
+
+      el.messenger.innerHTML = `
+        <div class="statusbar">
+          <span>9:41</span>
+          <span>LTE · 100%</span>
+          <div class="notch"></div>
+        </div>
+        <div class="messenger-head">
+          <div class="avatar"><img src="${c.avatar}" alt="${c.person}"><i class="online-dot"></i></div>
+          <div class="head-meta">
+            <h2>${c.person}</h2>
+            <p>${c.handle} · ${c.subtitle} · ${riskText}</p>
+          </div>
+          <div class="head-actions">
+            <button class="icon-btn" type="button">🔍</button>
+            <button class="icon-btn" type="button">📞</button>
+            <button class="icon-btn" type="button">⋯</button>
+          </div>
+        </div>
+        ${renderStories()}
+        ${renderCaseBrief(c)}
+        ${content}
+        <div class="composer">
+          <button class="icon-btn" type="button">😊</button>
+          <div class="input-shell">Написать сообщение... <span style="margin-left:auto">📎 🎤</span></div>
+          <button class="send-btn" type="button">➤</button>
+        </div>`;
+
+      el.messenger.querySelectorAll('.hotspot').forEach(node => {
+        const restoredKey = `${c.id}:${node.dataset.clue}`;
+        if(state.discovered[restoredKey]) node.classList.add('found');
+        node.addEventListener('click', () => {
+          const clueId = node.dataset.clue;
+          const clue = c.clues.find(item => item.id === clueId);
+          if(!clue) return;
+          const key = `${c.id}:${clue.id}`;
+          if(state.discovered[key]) return;
+          state.discovered[key] = true;
+          state.evidence += 1;
+          node.classList.add('found');
+          logEvidence(clue.label, clue.text, clue.severity || 'warn');
+          updateHUD();
+          playTone(clue.severity === 'safe' ? 'ok' : clue.severity === 'warn' ? 'warn' : 'bad');
+        });
+      });
+    }
+
+    function renderTools(){
+      const c = CASES[state.current];
+      el.toolsGrid.innerHTML = Object.keys(c.tools).map(key => {
+        const meta = TOOL_META[key];
+        const used = state.usedTools[c.id]?.includes(key) ? 'used' : '';
+        return `
+          <button class="tool ${used}" data-tool="${key}">
+            <div class="tool-ic">${meta.icon}</div>
+            <div>
+              <strong>${meta.title}</strong>
+              <span>${meta.desc}</span>
+            </div>
+          </button>`;
+      }).join('');
+
+      el.toolsGrid.querySelectorAll('[data-tool]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.tool;
+          const data = c.tools[key];
+          state.usedTools[c.id] = state.usedTools[c.id] || [];
+          if(state.usedTools[c.id].includes(key)) return;
+          state.usedTools[c.id].push(key);
+          btn.classList.add('used');
+          logEvidence(data.title, data.text, data.severity);
+          state.evidence += 1;
+          updateHUD();
+          playTone(data.severity === 'safe' ? 'ok' : data.severity === 'warn' ? 'warn' : 'bad');
+        });
+      });
+    }
+
+    function logEvidence(title, text, severity){
+      const icon = severity === 'safe' ? '✅' : severity === 'warn' ? '⚠️' : '🚨';
+      const div = document.createElement('div');
+      div.className = `log ${severity}`;
+      div.innerHTML = `<b>${icon} ${title}</b><p>${text}</p>`;
+      el.console.prepend(div);
+    }
+
+    function updateDecisionState(){
+      const solved = state.solved.includes(CASES[state.current].id);
+      document.querySelectorAll('.choice').forEach(btn => btn.disabled = solved);
+      el.resolvedNote.classList.toggle('hidden', !solved);
+    }
+
+    function startTimer(){
+      clearInterval(state.interval);
+      const c = CASES[state.current];
+      if(state.solved.includes(c.id)){
+        el.timer.textContent = 'решено';
+        return;
+      }
+      state.timer = 65;
+      el.timer.textContent = `${state.timer}с`;
+      state.interval = setInterval(() => {
+        state.timer -= 1;
+        el.timer.textContent = `${state.timer}с`;
+        if(state.timer <= 0){
+          clearInterval(state.interval);
+          toast('Время вышло', 'Если тянуть слишком долго, можно пропустить угрозу или сделать ошибку.');
+          resolveCase('check', true);
+        }
+      }, 1000);
+    }
+
+    function prepareCase(){
+      const prepared = CASES[state.current];
+      document.body.classList.toggle('danger-mode', prepared?.severity === 'phish');
+      document.body.classList.toggle('calm-mode', prepared?.severity === 'safe');
+      el.console.innerHTML = '';
+      renderActInfo();
+      renderRoute();
+      renderMentor();
+      renderRisk();
+      renderContactCard();
+      renderChatList();
+      renderMessenger();
+      renderTools();
+      updateHUD();
+      updateDecisionState();
+      startTimer();
+    }
+
+    function getRank(){
+      if(state.score >= 2250) return 'Легенда антифишинга';
+      if(state.score >= 1900) return 'Кибер-Наставник';
+      if(state.score >= 1500) return 'Охотник на фишинг';
+      if(state.score >= 1050) return 'Цифровой Детектив';
+      if(state.score >= 620) return 'Внимательный Пользователь';
+      return 'Новичок';
+    }
+
+    function maybeAwardBadges(){
+      if(state.correct === CASES.length) state.badges.add('🏆 Без единой ошибки');
+      if(state.rep >= 90) state.badges.add('🛡️ Железный щит');
+      if(state.evidence >= 48) state.badges.add('🔎 Мастер улик');
+      if(state.combo >= 6) state.badges.add('⚡ Серия решений');
+      if(state.correct >= 12) state.badges.add('🧬 Аналитик схем');
+      if(state.solved.length === CASES.length) state.badges.add('🎓 Выпускник симулятора');
+    }
+
+    function resolveCase(choice, timeout=false){
+      const c = CASES[state.current];
+      if(state.solved.includes(c.id)) return;
+      clearInterval(state.interval);
+      const correct = choice === c.recommended;
+      state.solved.push(c.id);
+      let gained = 0;
+
+      if(correct){
+        state.correct += 1;
+        state.combo += 1;
+        gained = 90 + Math.min(35, (state.usedTools[c.id]?.length || 0) * 10) + Math.min(25, state.timer);
+        state.score += gained;
+        state.rep = Math.min(100, state.rep + 2);
+        toast('Верное решение', 'Ты правильно оценил ситуацию.');
+        playTone('ok');
+        celebrationBurst('good');
+      } else {
+        state.combo = 0;
+        state.rep = Math.max(0, state.rep - (c.severity === 'safe' ? 10 : 16));
+        state.score = Math.max(0, state.score - 20);
+        toast('Есть ошибка', 'Сейчас разберём кейс и посмотрим, какие сигналы были важны.');
+        playTone('bad');
+      }
+
+      maybeAwardBadges();
+
+      const choiceText = {trust:'Можно доверять', check:'Проверить отдельно', block:'Остановить и сообщить'}[choice];
+      const correctText = {trust:'Можно доверять', check:'Проверить отдельно', block:'Остановить и сообщить'}[c.recommended];
+      const found = c.clues.filter(cl => state.discovered[`${c.id}:${cl.id}`]);
+
+      showCaseResult({
+        title: correct ? 'Отлично!' : 'Разбор кейса',
+        subtitle: c.person,
+        html:`
+          <div class="results">
+            <div class="result-box"><b>${correct ? '+' + gained : '0'}</b><span>Очки за кейс</span></div>
+            <div class="result-box"><b>${state.combo}</b><span>Текущая серия</span></div>
+            <div class="result-box"><b>${choiceText}</b><span>Твой выбор</span></div>
+            <div class="result-box"><b>${correctText}</b><span>Оптимальное действие</span></div>
+          </div>
+          <div class="lessons">
+            <div class="lesson"><strong>Почему?</strong><p>${c.explanation}</p></div>
+            ${c.story?.basedOn ? `<div class="lesson"><strong>Реальный мотив схемы</strong><p>${c.story.basedOn}</p></div>` : ''}
+            ${c.story?.consequence ? `<div class="impact-box"><strong>Симуляция последствий</strong><p>${c.story.consequence}</p></div>` : ''}
+            ${found.length
+              ? found.map(cl => `<div class="lesson"><strong>${cl.label}</strong><p>${cl.text}</p></div>`).join('')
+              : `<div class="lesson"><strong>Подсказка</strong><p>Активнее нажимай на выделенные фразы и используй инструменты анализа справа — там прячутся важные улики.</p></div>`}
+          </div>`,
+        nextLabel: state.solved.length < CASES.length ? 'Следующий кейс' : 'Финальный отчёт',
+        onNext: () => {
+          if(state.solved.length < CASES.length){
+            state.current = state.solved.length;
+            prepareCase();
+          }else{
+            showFinal();
+          }
+        }
+      });
+    }
+
+    function showCaseResult({title, subtitle, html, nextLabel, onNext}){
+      el.overlay.innerHTML = `
+        <div class="modal">
+          <div class="modal-body">
+            <div class="section-title">Разбор</div>
+            <h2 style="margin:0; font-size:38px; letter-spacing:-.04em">${title}</h2>
+            <p style="margin:10px 0 0; color:var(--muted)">${subtitle}</p>
+            ${html}
+            <div class="hero-actions"><button class="btn btn-primary" id="nextCaseBtn">${nextLabel}</button></div>
+          </div>
+        </div>`;
+      document.getElementById('nextCaseBtn').addEventListener('click', () => {
+        el.overlay.innerHTML = '';
+        onNext();
+      });
+    }
+
+    function showStart(){
+      clearInterval(state.interval);
+      el.overlay.innerHTML = `
+        <div class="modal">
+          <div class="modal-body">
+            <div class="hero-grid">
+              <div class="hero-copy">
+                <div class="section-title">Учебный симулятор</div>
+                <h2>Войди в сюжет<br>и раскрой<br>цепочку обмана</h2>
+                <p>
+                  Внутри — расширенная кампания с кейсами по мотивам реальных схем: взломанные аккаунты, QR-фишинг, крипто-раздачи, task scam, BEC, фальшивые гранты, романтические инвестиции и AI-голос. Твоя задача — собрать улики и выбрать безопасное действие.
+                </p>
+                <div class="feature-grid">
+                  <div class="feature">🎬 Story Mode: у каждого кейса есть мотив, цель атаки и цена ошибки</div>
+                  <div class="feature">🌍 Кейсы по мотивам известных схем: BEC, crypto giveaway, task scam, QR phishing</div>
+                  <div class="feature">📹 Видео, голос, чаты, маркетплейсы, банк, учёба и работа</div>
+                  <div class="feature">🧠 Больше улик, инструментов анализа и финальный ранг</div>
+                </div>
+                <div class="hero-actions">
+                  <button class="btn btn-primary" id="startBtn">▶ Начать тренировку</button>
+                  <button class="btn btn-secondary" id="howBtn">ℹ Как играть</button>
+                </div>
+              </div>
+              <div class="hero-side">
+                <div class="hero-phone">
+                  <div class="hero-phone-inner">
+                    <div class="hero-preview-head">
+                      <div class="avatar" style="width:42px;height:42px"><img src="${avatar('dima')}" alt="Дима"><i class="online-dot"></i></div>
+                      <div>
+                        <strong style="display:block;font-size:15px">Дима</strong>
+                        <span style="display:block;color:var(--muted);font-size:12px;margin-top:3px">видеозвонок</span>
+                      </div>
+                    </div>
+                    <div class="hero-preview-thread">
+                      <div class="preview-bubble left">Привет! Очень нужна помощь 😥</div>
+                      <div class="preview-bubble left">Скажи код, который сейчас придёт тебе в SMS</div>
+                      <div class="preview-bubble right">Стоп. Это уже похоже на ловушку.</div>
+                      <div class="preview-call">
+                        <div class="call-avatar-lg"><img src="${avatar('dima')}" alt="Дима"></div>
+                        <strong style="font-size:20px">Видеозвонок</strong>
+                        <span style="color:var(--muted); font-size:13px; line-height:1.5">Даже если на видео знакомый человек, просьба назвать код остаётся опасной.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="score-card">
+                  <h3>Твои лучшие результаты</h3>
+                  <div class="score-grid">
+                    <div class="score-box"><b>${state.best}</b><span>Лучший счёт</span></div>
+                    <div class="score-box"><b>${state.bestRank}</b><span>Ранг</span></div>
+                    <div class="score-box"><b>${CASES.length}</b><span>Кейсов</span></div>
+                    <div class="score-box"><b>${ACTS.length}</b><span>Актов обучения</span></div>
+                  </div>
+                  <div class="token-row">
+                    <div class="token">🧠 Думай, потом кликай</div>
+                    <div class="token">🛑 Не сообщай коды</div>
+                    <div class="token">📞 Проверяй другим способом</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('startBtn').addEventListener('click', resetGame);
+      document.getElementById('howBtn').addEventListener('click', () => {
+        toast('Как играть', 'Открывай кейс, ищи улики в сообщениях, используй инструменты справа и выбирай одно из трёх действий: доверять, перепроверить или остановить.');
+      });
+    }
+
+    function showFinal(){
+      clearInterval(state.interval);
+      const rank = getRank();
+      if(state.score > state.best){
+        state.best = state.score;
+        state.bestRank = rank;
+        localStorage.setItem('phish_lab_best_score', String(state.best));
+        localStorage.setItem('phish_lab_best_rank', state.bestRank);
+      }
+      celebrationBurst('good');
+      const lessons = [
+        'Никому не сообщай коды подтверждения, пароли, CVV/CVC и данные карты.',
+        'Даже галочка, знакомый аватар, голос или видео не доказывают подлинность.',
+        'Ссылки, QR-коды и вложения проверяй через официальный сайт или приложение.',
+        'Если просят деньги, депозит, крипту, фото документов или новый счёт — остановись и перепроверь.',
+        'Настоящая работа не требует платить, чтобы получить зарплату.',
+        'Гарантированная прибыль, секретная платформа и «никому не говори» — красные флаги.',
+        'Самая сильная защита — отдельный канал проверки: сохранённый номер, официальный сайт, личный разговор.'
+      ];
+
+      el.overlay.innerHTML = `
+        <div class="modal">
+          <div class="modal-body">
+            <div class="section-title">Финальный отчёт</div>
+            <h2 style="margin:0; font-size:42px; letter-spacing:-.04em">Ты прошёл кампанию</h2>
+            <p style="margin:12px 0 0; color:var(--muted); line-height:1.75">
+              Отличная работа. Теперь ты лучше распознаёшь угрозы в переписках, соцсетях, QR-кодах, вакансиях, маркетплейсах, видеозвонках и голосовых атаках.
+            </p>
+            <div class="results">
+              <div class="result-box"><b>${state.score}</b><span>Итоговый счёт</span></div>
+              <div class="result-box"><b>${state.correct} / ${CASES.length}</b><span>Верных решений</span></div>
+              <div class="result-box"><b>${rank}</b><span>Твой ранг</span></div>
+              <div class="result-box"><b>${state.evidence}</b><span>Улик найдено</span></div>
+            </div>
+            <div class="lessons">
+              ${lessons.map(item => `<div class="lesson"><strong>Правило безопасности</strong><p>${item}</p></div>`).join('')}
+            </div>
+            <div class="token-row">
+              ${[...state.badges].map(b => `<div class="token">${b}</div>`).join('') || '<div class="token">🎯 Первый финиш</div>'}
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="restartAllBtn">↻ Пройти ещё раз</button>
+              <button class="btn btn-secondary" id="closeFinalBtn">Закрыть</button>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('restartAllBtn').addEventListener('click', resetGame);
+      document.getElementById('closeFinalBtn').addEventListener('click', () => el.overlay.innerHTML = '');
+    }
+
+    function resetGame(){
+      clearInterval(state.interval);
+      state.current = 0;
+      state.score = 0;
+      state.rep = 100;
+      state.combo = 0;
+      state.evidence = 0;
+      state.solved = [];
+      state.discovered = {};
+      state.usedTools = {};
+      state.timer = 65;
+      state.correct = 0;
+      state.badges = new Set();
+      el.overlay.innerHTML = '';
+      updateHUD();
+      prepareCase();
+    }
+
+    document.querySelectorAll('.choice').forEach(btn => {
+      btn.addEventListener('click', () => resolveCase(btn.dataset.choice));
+    });
+
+    el.soundBtn.addEventListener('click', () => {
+      state.sound = !state.sound;
+      el.soundBtn.textContent = state.sound ? '🔊 Звук' : '🔇 Звук';
+      toast('Настройки', state.sound ? 'Звук включён.' : 'Звук выключен.');
+    });
+
+    el.restartBtn.addEventListener('click', showStart);
+
+    document.body.classList.add('clean-ui');
+    applyBranding();
+    updateHUD();
+    renderRoute();
+    showStart();
+  })();
+  </script>
+</body>
+</html>
