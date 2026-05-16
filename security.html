@@ -2,17 +2,17 @@
 
 <html lang="ru">
 <head>
-<meta name="x-v233-step2-noblink" content="tablet-only infobez step2 persistent compositor no black flicker">
-<meta name="x-v233-step2-noblink" content="tablet-only infobez step2 double-buffer image-only finalization">
-<meta name="x-v233-step2-noblink" content="tablet-only infobez customizer solid panel">
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1.0,viewport-fit=cover" name="viewport"/>
+<meta content="tablet-only infobez step2 persistent compositor no black flicker" name="x-v233-step2-noblink"/>
+<meta content="tablet-only infobez step2 double-buffer image-only finalization" name="x-v233-step2-noblink"/>
+<meta content="tablet-only infobez customizer solid panel" name="x-v233-step2-noblink"/>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,viewport-fit=cover" name="viewport">
 <title>ТехноКрыльяРоссии</title>
-<meta content="v233-cats-fixed-image-stable-step2-dobit-tablet-only" name="x-v136-stability-outer"/>
-<meta name="x-v227-tablet-rebuild" content="scroll-customizer-question-art"/>
+<meta content="v233-cats-fixed-image-stable-step2-dobit-tablet-only" name="x-v136-stability-outer">
+<meta content="scroll-customizer-question-art" name="x-v227-tablet-rebuild"/>
 <meta content="v227-tablet-rebuild-scroll-custom-qimg" name="x-v214-tablet-rework"/>
-<meta content="v199-infobez-images-restore-bg-scroll-profile" name="x-tablet-infosec-rebuild">
-<meta content="async-fonts-terminal-inventory-loss-reset" name="x-v132-stable-rework"/>
+<meta content="v199-infobez-images-restore-bg-scroll-profile" name="x-tablet-infosec-rebuild"/>
+<meta content="async-fonts-terminal-inventory-loss-reset" name="x-v132-stable-rework">
 <meta content="security-html-tablet-v93-prepared__mobile-v93-prepared__router-v56-tablet-guard__v97-infobez-teleport-wow-fast-reset-flow-pioner-reset-avatar-gender-teleport" name="x-v127-merge"/>
 <style>
 html,body{margin:0;width:100%;height:100%;background:#020814;color:#ffd86d;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
@@ -20,8 +20,8 @@ html,body{margin:0;width:100%;height:100%;background:#020814;color:#ffd86d;font-
 </style>
 <!-- tk-v138-deep-stable shell -->
 <!-- tk-v139-deep-repair shell: v138 base, deterministic Infobez launch -->
-</meta><meta content="background-scroll-profile-question-fix;mobile-b64-unchanged" name="x-v199-infobez-images-restore"/><meta name="x-v201-reload-teleport-film-guard" content="v201 reload-safe teleport film guard"/><meta name="x-v211-tablet-stable-rebuild-code12-exact" content="tablet v211 stable rebuild; code12 customizer preserved"/>
-</head>
+</meta><meta content="background-scroll-profile-question-fix;mobile-b64-unchanged" name="x-v199-infobez-images-restore"/><meta content="v201 reload-safe teleport film guard" name="x-v201-reload-teleport-film-guard"/><meta content="tablet v211 stable rebuild; code12 customizer preserved" name="x-v211-tablet-stable-rebuild-code12-exact"/>
+</meta></meta></meta></head>
 <body>
 <div id="tkBoot">Подготовка к игре…</div>
 <script id="tk-build-tablet-b64" type="application/octet-stream">
@@ -159068,5 +159068,96 @@ ayBjdXN0b21pemVyLiAtLT4KPC9ib2R5Pgo8L2h0bWw+Cgo=
   }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверка на планшет по ширине окна (например до 1024px)
+    function isTablet() {
+        return window.innerWidth <= 1024;
+    }
+
+    // Кэшируем контейнер кастомайзера
+    const customizerContainer = document.querySelector('#customizer-container'); // пример id
+    if (!customizerContainer) return;
+
+    // Функция обновления только измененного блока
+    function updateCustomizerBlock(blockId, updateCallback) {
+        const block = customizerContainer.querySelector('#' + blockId);
+        if (!block) return;
+        // Сохраняем видимость, чтобы не мерцало
+        block.style.visibility = 'hidden';
+        updateCallback(block);
+        // Возвращаем видимость
+        block.style.visibility = 'visible';
+    }
+
+    // Пример применения для всех шагов кастомизации
+    const steps = ['hair', 'eyes', 'clothes', 'accessories']; // пример id блоков
+    steps.forEach(step => {
+        const inputs = customizerContainer.querySelectorAll('#' + step + ' input, #' + step + ' select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if (!isTablet()) return; // не трогаем десктоп
+                updateCustomizerBlock(step, function(block){
+                    // Вставляем существующую логику кастомизации
+                    // Вместо полного перерендеринга можно менять только нужный элемент
+                    const target = block.querySelector('.current'); // пример текущего выбора
+                    if(target) target.classList.remove('current');
+                    const newTarget = block.querySelector('[data-value="' + input.value + '"]');
+                    if(newTarget) newTarget.classList.add('current');
+                });
+            });
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверка на планшет
+    const isTablet = () => window.innerWidth <= 1024;
+    
+    const container = document.querySelector('#customizer-container'); // основной контейнер
+    if (!container) return;
+
+    // Кэш всех блоков кастомайзера
+    const blocks = {
+        hair: container.querySelector('#hair'),
+        eyes: container.querySelector('#eyes'),
+        clothes: container.querySelector('#clothes'),
+        accessories: container.querySelector('#accessories')
+    };
+
+    // Универсальная функция обновления блока без мерцаний
+    function updateBlock(block, value) {
+        if(!block) return;
+        block.style.visibility = 'hidden';
+        const current = block.querySelector('.current');
+        if(current) current.classList.remove('current');
+        const newTarget = block.querySelector('[data-value="'+value+'"]');
+        if(newTarget) newTarget.classList.add('current');
+        block.style.visibility = 'visible';
+    }
+
+    // Навешиваем обработчики только для планшета
+    Object.keys(blocks).forEach(blockName => {
+        const block = blocks[blockName];
+        if(!block) return;
+        const inputs = block.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if(!isTablet()) return; // не трогаем десктоп
+                updateBlock(block, input.value);
+            });
+        });
+    });
+
+    // При ресайзе проверяем и перенастраиваем, если нужно
+    window.addEventListener('resize', () => {
+        if(!isTablet()) return;
+        // можно добавить динамическое обновление, если нужно
+    });
+});
+</script>
 </body>
 </html>
