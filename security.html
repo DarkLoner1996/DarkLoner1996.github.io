@@ -159239,5 +159239,63 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabletContainer = document.querySelector('#tk-build-tablet-b64');
+    if(!tabletContainer) return;
+
+    const secondStep = tabletContainer.querySelector('[data-step="2"]');
+    if(!secondStep) return;
+
+    // Кэшируем все элементы второго шага
+    const blocks = Array.from(secondStep.querySelectorAll('[data-block]'))
+                        .reduce((acc, block) => {
+                            const name = block.getAttribute('data-block');
+                            if(name) acc[name] = block;
+                            return acc;
+                        }, {});
+
+    // Функция проверки планшета
+    const isTablet = () => window.innerWidth <= 1024;
+
+    // Функция обновления блока с полной логикой десктопа
+    function updateBlock(block, value) {
+        if(!block) return;
+        // Сохраняем текущее состояние, чтобы не было мерцаний
+        block.style.opacity = '0';
+        const current = block.querySelector('.current');
+        if(current) current.classList.remove('current');
+
+        // Находим элемент с выбранным value
+        const newTarget = block.querySelector('[data-value="'+value+'"]');
+        if(newTarget) newTarget.classList.add('current');
+
+        // Применяем все свойства как на десктопе
+        // Здесь можно вставить существующую десктопную логику (цвет, img src, overlays и т.д.)
+        const img = block.querySelector('img');
+        if(img && newTarget) {
+            const newSrc = newTarget.getAttribute('data-src');
+            if(newSrc) img.src = newSrc;
+        }
+
+        // Возвращаем плавность
+        setTimeout(()=>{ block.style.opacity = '1'; }, 10);
+    }
+
+    // Добавляем обработчики для всех input/select внутри второго шага
+    Object.keys(blocks).forEach(name => {
+        const block = blocks[name];
+        if(!block) return;
+        const inputs = block.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if(!isTablet()) return;
+                updateBlock(block, input.value);
+            });
+        });
+    });
+});
+</script>
 </body>
 </html>
