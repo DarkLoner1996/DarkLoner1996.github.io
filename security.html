@@ -159159,5 +159159,85 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabletContainer = document.querySelector('#tk-build-tablet-b64');
+    if(!tabletContainer) return;
+
+    // Кэшируем все под-блоки кастомайзера
+    const blocks = {
+        hair: tabletContainer.querySelector('[data-block="hair"]'),
+        eyes: tabletContainer.querySelector('[data-block="eyes"]'),
+        clothes: tabletContainer.querySelector('[data-block="clothes"]'),
+        accessories: tabletContainer.querySelector('[data-block="accessories"]')
+    };
+
+    function isTablet() { return window.innerWidth <= 1024; }
+
+    function updateBlock(block, value) {
+        if(!block) return;
+        block.style.visibility = 'hidden'; // скрываем блок перед обновлением
+        const current = block.querySelector('.current');
+        if(current) current.classList.remove('current');
+        const newTarget = block.querySelector('[data-value="'+value+'"]');
+        if(newTarget) newTarget.classList.add('current');
+        block.style.visibility = 'visible'; // показываем блок после обновления
+    }
+
+    // Добавляем обработчики для всех input/select внутри каждого блока
+    Object.keys(blocks).forEach(blockName => {
+        const block = blocks[blockName];
+        if(!block) return;
+        const inputs = block.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if(!isTablet()) return; // не трогаем десктоп
+                updateBlock(block, input.value);
+            });
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabletContainer = document.querySelector('#tk-build-tablet-b64');
+    if(!tabletContainer) return;
+
+    // Кэшируем под-блоки кастомайзера
+    const blocks = Array.from(tabletContainer.querySelectorAll('[data-block]'))
+                        .reduce((acc, block) => {
+                            const name = block.getAttribute('data-block');
+                            if(name) acc[name] = block;
+                            return acc;
+                        }, {});
+
+    const isTablet = () => window.innerWidth <= 1024;
+
+    function updateBlock(block, value) {
+        if(!block) return;
+        // сохраняем текущее состояние
+        block.style.visibility = 'hidden';
+        const current = block.querySelector('.current');
+        if(current) current.classList.remove('current');
+        const newTarget = block.querySelector('[data-value="'+value+'"]');
+        if(newTarget) newTarget.classList.add('current');
+        block.style.visibility = 'visible';
+    }
+
+    // Привязываем обработчики ко всем input/select
+    Object.keys(blocks).forEach(name => {
+        const block = blocks[name];
+        const inputs = block.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if(!isTablet()) return;
+                updateBlock(block, input.value);
+            });
+        });
+    });
+});
+</script>
 </body>
 </html>
