@@ -3,7 +3,7 @@
 
 <html class="tk-v1356-cinema-locked tk-v1922-home-scroll-real" lang="ru">
 <head>
-<meta name="tk-build" content="v2328-original-mobile-layout">
+<meta name="tk-build" content="v2329-mobile-scale-boot">
 <meta id="tk-v2301-viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 
@@ -209,10 +209,16 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
     if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
     return true;
   }
-  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2327'};
+  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2329'};
   if(!phone)return;
   window.__tkV2301DesktopTablet=false;window.__tkV2300VirtualDesktop=false;
   html.classList.add('tk-v2324-phone','tk-v2326-phone');
+  html.dataset.tkMobileBoot='loading';
+  window.addEventListener('tk:licenseaccepted',function(){
+    if(!api.bootReady||!api.landscape())return;
+    html.dataset.tkMobileBoot='home';
+    html.classList.add('tk-mobile-home-ready');
+  },{once:true});
   var viewport=document.getElementById('tk-v2301-viewport')||document.querySelector('meta[name="viewport"]');
   if(viewport)viewport.setAttribute('content','width=device-width, initial-scale=1, viewport-fit=cover');
   api.viewport=function(){
@@ -271,6 +277,46 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
 })();
 </script>
 <style id="tk-v2326-mobile-startup">
+/* Keep the page covered from first paint through the consent handoff. */
+#tkMobileBootCurtain2329 { display: none !important; }
+html.tk-v2324-phone:not(.tk-mobile-home-ready),
+html.tk-v2324-phone:not(.tk-mobile-home-ready) body {
+  background: #020814 !important;
+  overflow: hidden !important;
+}
+html.tk-v2324-phone:not(.tk-mobile-home-ready) body > #tkMobileBootCurtain2329 {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #020814 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 2147482999 !important;
+}
+html.tk-v2324-phone:not(.tk-mobile-home-ready) body > #hero#hero#hero,
+html.tk-v2324-phone:not(.tk-mobile-home-ready) body > :is(.side-nav,#tkLiveStats,#tkCatStart,.rules) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+html.tk-v2324-phone.tk-mobile-home-ready body > #tkMobileBootCurtain2329 {
+  display: none !important;
+}
+html.tk-v2324-phone body > #tkLoader {
+  background: #020814 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+html.tk-v2324-phone body > #tkLicenseOverlay.is-open {
+  background: #020814 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 /* Phone-only first paint. The preflight sets the class before this sheet runs.
    Keep one bounded reading area and a separate consent/action row. */
 html.tk-v2324-phone body > #tkLicenseOverlay,
@@ -479,22 +525,22 @@ html.tk-v2324-phone #hero#hero#hero{position:relative!important;inset:auto!impor
 html.tk-v2324-phone #hero .bg-main-pic{position:fixed!important;inset:0!important;display:block!important;width:100%!important;height:var(--tk-m2324-height)!important;pointer-events:none!important;}
 html.tk-v2324-phone #hero .header__bg{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center bottom!important;transform:none!important;}
 html.tk-v2324-phone #hero>.ui,html.tk-v2324-phone body>#intro,html.tk-v2324-phone body>#pt{display:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327{box-sizing:border-box!important;position:relative!important;display:grid!important;grid-template-columns:clamp(218px,32vw,310px) minmax(0,1fr)!important;grid-template-rows:44px minmax(214px,1fr)!important;gap:12px 16px!important;align-items:start!important;width:100%!important;min-width:0!important;min-height:max(290px,var(--tk-m2324-height))!important;height:auto!important;margin:0!important;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;overflow:visible!important;z-index:100!important;transform:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327{box-sizing:border-box!important;position:relative!important;display:grid!important;grid-template-columns:clamp(218px,32vw,310px) minmax(0,1fr)!important;grid-template-rows:44px minmax(0,1fr)!important;gap:8px 16px!important;align-items:start!important;width:100%!important;min-width:0!important;min-height:200px!important;height:var(--tk-m2324-height)!important;margin:0!important;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;overflow:visible!important;z-index:100!important;transform:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 *{box-sizing:border-box!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 [hidden]{display:none!important;}
 html.tk-v2324-phone:is(.tk-mobile-game-open,.tk-license-open,.tk-loader-preboot) #tkPhoneScene2327{opacity:0!important;pointer-events:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 :is(#tkPhoneGames2327,#tkPhoneMedia2327){position:relative!important;inset:auto!important;min-width:0!important;width:100%!important;height:auto!important;min-height:214px!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkPhoneGames2327{grid-column:1!important;grid-row:2!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:10px!important;align-self:start!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 :is(#tkPhoneGames2327,#tkPhoneMedia2327){position:relative!important;inset:auto!important;min-width:0!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkPhoneGames2327{grid-column:1!important;grid-row:2!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:6px!important;align-self:center!important;max-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 :is(#tkPhoneGames2327,#tkPhoneMedia2327){isolation:isolate!important;z-index:0!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkPhoneMedia2327{grid-column:2!important;grid-row:2!important;display:flex!important;flex-direction:column!important;gap:14px!important;align-self:stretch!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkPhoneMedia2327{grid-column:2!important;grid-row:2!important;display:flex!important;flex-direction:column!important;gap:10px!important;align-self:center!important;justify-content:center!important;}
 
 /* Original game menu stays in the upper left corner. */
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-nav{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;display:block!important;width:min(280px,calc(100vw - 212px))!important;min-width:0!important;max-width:none!important;height:44px!important;margin:0!important;padding:0!important;transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;z-index:30!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-nav__tab{position:relative!important;inset:auto!important;width:100%!important;height:44px!important;margin:0!important;padding:0!important;transform:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .tab-row{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important;height:44px!important;margin:0!important;transform:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .menu-pill{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;height:44px!important;min-height:44px!important;margin:0!important;padding:6px 9px!important;transform:none!important;cursor:pointer!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-nav__tab{position:relative!important;inset:auto!important;width:100%!important;height:44px!important;margin:0!important;padding:0!important;transform:none!important;min-width:0!important;max-width:100%!important;min-height:0!important;max-height:none!important;overflow:visible!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .tab-row{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important;height:44px!important;margin:0!important;transform:none!important;min-width:0!important;max-width:100%!important;min-height:0!important;padding:0!important;flex-wrap:nowrap!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .menu-pill{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;height:44px!important;min-height:44px!important;margin:0!important;padding:6px 9px!important;transform:none!important;cursor:pointer!important;max-width:none!important;max-height:none!important;font-size:16px!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .menu-pill svg{width:18px!important;height:18px!important;flex:0 0 18px!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .menu-pill__label{font-size:16px!important;line-height:1.2!important;letter-spacing:.02em!important;white-space:nowrap!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .menu-pill__label{font-size:16px!important;line-height:1.2!important;letter-spacing:.02em!important;white-space:nowrap!important;width:auto!important;flex:1 1 auto!important;min-width:0!important;transform:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #menuToggle{display:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkTop10OpenBtn{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;flex:0 0 auto!important;width:auto!important;min-width:72px!important;max-width:none!important;height:44px!important;min-height:44px!important;margin:0!important;padding:6px 9px!important;font-size:12px!important;line-height:1.2!important;transform:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkTop10OpenBtn span{position:static!important;font-size:12px!important;line-height:1.2!important;transform:none!important;}
@@ -511,11 +557,11 @@ html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .hu
 /* Original status widget stays in the upper right corner. */
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats{grid-column:2!important;grid-row:1!important;justify-self:end!important;position:relative!important;inset:auto!important;display:block!important;width:176px!important;min-width:0!important;max-width:100%!important;height:auto!important;margin:0!important;padding:0!important;transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;z-index:25!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__panel{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;margin:0!important;padding:4px 6px!important;transform:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__head{display:flex!important;align-items:center!important;gap:6px!important;min-height:36px!important;margin:0!important;padding:0!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__title{display:flex!important;align-items:center!important;gap:5px!important;min-height:36px!important;min-width:0!important;margin:0!important;padding:3px 6px!important;cursor:pointer!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__label{display:flex!important;flex-direction:column!important;font-size:12px!important;line-height:1.1!important;letter-spacing:0!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__head{display:flex!important;align-items:center!important;gap:6px!important;min-height:36px!important;margin:0!important;padding:0!important;height:36px!important;min-width:0!important;width:100%!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__title{display:flex!important;align-items:center!important;gap:5px!important;min-height:36px!important;min-width:0!important;margin:0!important;padding:3px 6px!important;cursor:pointer!important;flex:1 1 0!important;width:auto!important;max-width:none!important;overflow:visible!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__label{display:flex!important;flex-direction:column!important;font-size:12px!important;line-height:1.1!important;letter-spacing:0!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;white-space:nowrap!important;overflow:visible!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__orb{width:9px!important;height:9px!important;min-width:9px!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__badge{min-width:43px!important;height:32px!important;margin:0!important;padding:3px 6px!important;font-size:10px!important;line-height:1!important;cursor:pointer!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__badge{min-width:43px!important;height:32px!important;margin:0!important;padding:3px 6px!important;font-size:10px!important;line-height:1!important;cursor:pointer!important;flex:0 0 43px!important;width:43px!important;max-width:43px!important;min-height:0!important;max-height:32px!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;margin:5px 0 0!important;padding:0!important;opacity:1!important;visibility:visible!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats.is-collapsed .tk-live-stats__grid{display:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__card{min-height:64px!important;margin:0!important;padding:6px!important;}
@@ -523,15 +569,15 @@ html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tk
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkLiveStats .tk-live-stats__value{font-size:20px!important;line-height:1.2!important;}
 
 /* Original kitten and speech bubble; the button reveals the original three cats. */
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:180px!important;margin:0!important;padding:0!important;transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;max-height:100%!important;}
 html.tk-v2324-phone.tk-cat-launch-opened body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart,html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart[hidden]{display:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__pet{position:relative!important;inset:auto!important;flex:0 0 64px!important;width:64px!important;height:116px!important;margin:0!important;padding:0!important;transform:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__pet img{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;object-fit:contain!important;transform:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__dialog{position:relative!important;inset:auto!important;flex:1 1 0!important;min-width:0!important;width:auto!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:12px 10px!important;transform:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__dialog{position:relative!important;inset:auto!important;flex:1 1 0!important;min-width:0!important;width:auto!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:10px!important;transform:none!important;gap:0!important;overflow:visible!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__presence{position:relative!important;margin:0 0 5px!important;padding:0!important;font-size:9px!important;line-height:1.2!important;gap:4px!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart :is(.tk-cat-launch__title,.tk-cat-launch__line,.tk-cat-launch__typing){position:relative!important;inset:auto!important;display:block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;font-size:clamp(21px,3vw,29px)!important;line-height:1.08!important;letter-spacing:0!important;white-space:normal!important;overflow:visible!important;opacity:1!important;visibility:visible!important;transform:none!important;clip-path:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart :is(.tk-cat-launch__title,.tk-cat-launch__line,.tk-cat-launch__typing){position:relative!important;inset:auto!important;display:block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;font-size:clamp(21px,2.8vw,27px)!important;line-height:1.05!important;letter-spacing:0!important;white-space:normal!important;overflow:visible!important;opacity:1!important;visibility:visible!important;transform:none!important;clip-path:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__typing::after{display:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__actions{position:relative!important;display:flex!important;flex-direction:column!important;gap:5px!important;margin:10px 0 0!important;padding:0!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__actions{position:relative!important;display:flex!important;flex-direction:column!important;gap:4px!important;margin:8px 0 0!important;padding:0!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStartBtn{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;width:100%!important;min-width:0!important;min-height:44px!important;height:auto!important;margin:0!important;padding:6px!important;font-size:12px!important;line-height:1.2!important;transform:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStartBtn span{font-size:12px!important;line-height:1.2!important;letter-spacing:0!important;white-space:normal!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStartBtn svg{width:14px!important;height:14px!important;flex:0 0 14px!important;}
@@ -549,8 +595,8 @@ html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .si
 
 /* Transparent original cinema artwork. Its existing arrows page the existing films. */
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema{position:relative!important;inset:auto!important;display:block!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important;overflow:visible!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;background:none!important;border:0!important;box-shadow:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema .cinema-head{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:clamp(138px,calc(var(--tk-m2324-height) - 154px),250px)!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;}
-html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema :is(.cinema-banner,.cinema-banner-title){position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;background:none!important;border:0!important;box-shadow:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema .cinema-head{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:clamp(84px,calc(var(--tk-m2324-height) * .48),190px)!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;min-width:0!important;max-width:100%!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema :is(.cinema-banner,.cinema-banner-title){position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;background:none!important;border:0!important;box-shadow:none!important;min-width:0!important;max-width:100%!important;max-height:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important;border-radius:0!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema .cinema-title-art{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;object-fit:contain!important;transform:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema :is(.tk-cinema-callout,.tk-cinema-fhd-btn,.cinema-subtitle){display:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema #cinemaStage{position:relative!important;inset:auto!important;display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px!important;gap:6px!important;align-items:center!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;margin:6px 0 0!important;padding:0!important;transform:none!important;overflow:visible!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
@@ -601,6 +647,22 @@ html.tk-v2324-phone #rouletteDock #closeRouletteDock{position:sticky!important;t
   html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip .avatar{width:46px!important;height:68px!important;}
   html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip .chip-card{padding:5px!important;}
   html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip .chip-name{font-size:12px!important;}
+}
+
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema :is(.cinema-head,.cinema-banner,.cinema-banner-title)::before,
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #cinema :is(.cinema-head,.cinema-banner,.cinema-banner-title)::after{content:none!important;display:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327[data-expanded="true"]{height:auto!important;min-height:var(--tk-m2324-height)!important;grid-template-rows:44px auto!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327[data-expanded="true"] :is(#tkPhoneGames2327,#tkPhoneMedia2327){align-self:start!important;max-height:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__presence{min-height:0!important;max-height:none!important;gap:4px!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .tkqa-head{min-height:44px!important;height:44px!important;max-height:44px!important;padding:6px 10px!important;}
+@media(max-height:320px){
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart :is(.tk-cat-launch__presence,.tk-cat-launch__hint){display:none!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__dialog{padding:8px 10px!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart :is(.tk-cat-launch__title,.tk-cat-launch__line,.tk-cat-launch__typing){font-size:21px!important;line-height:1.05!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip{grid-template-columns:46px minmax(0,1fr)!important;min-height:56px!important;gap:6px!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip .avatar{width:46px!important;height:56px!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip .chip-card{min-height:54px!important;padding:4px 6px!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 .side-chip .chip-badge{display:none!important;}
 }
 
 /* Gate exists in the original body, before any loader or game startup. */
@@ -17141,6 +17203,8 @@ html.tk-v2315-fhd-cinema #cinema#cinema#cinema :is(.movie-btn,.slider-prev,.slid
 </style>
 </head>
 <body class="menu-collapsed">
+<div id="tkMobileBootCurtain2329" hidden aria-hidden="true"></div>
+
 <dialog id="tkMobileRotate2324" hidden aria-modal="true" aria-labelledby="tkMobileRotateTitle2324" tabindex="-1"><div class="tk-m2324-rotate-card"><span class="tk-m2324-rotate-phone" aria-hidden="true">↻</span><h1 id="tkMobileRotateTitle2324">Поверните телефон горизонтально</h1><p>Сайт работает только в альбомном режиме.<br>После поворота вы продолжите с того же места.</p></div></dialog>
 <script id="tk-v2326-rotation-first-paint">if(window.TKMobile2324&&window.TKMobile2324.phone)window.TKMobile2324.orientation();</script>
 
@@ -48328,6 +48392,44 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   var statusText=['Инициализация интерфейса…','Подключение игровых модулей…','Загрузка героев и ролей…','Синхронизация миссий…','Открытие штаба…'];
   var phaseText=['Подготовка ядра','Загрузка ресурсов','Сборка сцены','Проверка систем','Финальный запуск'];
   var elapsed=0,last=0,raf=0,done=false,parsed=document.readyState!=='loading';
+  var assetsStarted=false,assetsReady=false;
+  function bounded(promise,ms){
+    return new Promise(function(resolve){
+      var ended=false,timer=setTimeout(function(){finish(false);},ms);
+      function finish(ok){if(ended)return;ended=true;clearTimeout(timer);resolve(ok);}
+      Promise.resolve(promise).then(function(){finish(true);},function(){finish(false);});
+    });
+  }
+  function imageReady(img){
+    return new Promise(function(resolve){
+      var ended=false,timer=setTimeout(function(){finish(false);},8000);
+      function finish(ok){
+        if(ended)return;ended=true;clearTimeout(timer);
+        img.removeEventListener('load',loaded);img.removeEventListener('error',failed);
+        resolve(ok);
+      }
+      function failed(){finish(false);}
+      function loaded(){
+        if(!img.naturalWidth){finish(false);return;}
+        if(typeof img.decode==='function'){
+          Promise.resolve().then(function(){return img.decode();}).then(function(){finish(true);},function(){finish(img.naturalWidth>0);});
+        }else finish(true);
+      }
+      if(img.complete)loaded();
+      else{img.addEventListener('load',loaded,{once:true});img.addEventListener('error',failed,{once:true});}
+    });
+  }
+  function prepareAssets(){
+    if(assetsStarted||!parsed)return;
+    assetsStarted=true;
+    var images=Array.from(document.querySelectorAll('#hero .header__bg,#tkCatStart .tk-cat-launch__pet img,#cinema .cinema-title-art'));
+    var pending=images.map(imageReady);
+    if(document.fonts&&document.fonts.ready)pending.push(bounded(document.fonts.ready,4000));
+    Promise.all(pending).then(function(results){
+      assetsReady=true;api.bootAssetFailures=results.filter(function(ok){return !ok;}).length;
+      api.bootAssetsSettled=true;resume();
+    });
+  }
   var host=document.getElementById('tkLoaderParticles');
   if(host)for(var i=0;i<12;i++){
     var particle=document.createElement('span');
@@ -48345,7 +48447,7 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
   }
   function finish(){
     if(done||!api.landscape())return;
-    done=true;paint(100);overlay.dataset.done='1';overlay.classList.add('is-hidden');overlay.hidden=true;
+    done=true;api.bootReady=true;root.dataset.tkMobileBoot='license';paint(100);overlay.dataset.done='1';overlay.classList.add('is-hidden');overlay.hidden=true;
     overlay.setAttribute('aria-hidden','true');overlay.style.display='none';
     try{sessionStorage.setItem('tk_loader_seen','1');}catch(_e){}
     window.dispatchEvent(new CustomEvent('tk:loaderhidden'));
@@ -48355,12 +48457,13 @@ html.tk-2k-safe-runtime #tkLicenseOverlay .tk-license__close{
     if(done||!api.landscape()||!parsed){last=0;return;}
     if(last)elapsed+=Math.min(80,Math.max(0,now-last));last=now;
     var ratio=Math.min(1,elapsed/1300);
-    paint(Math.min(api.managedReady?100:94,Math.round(100*(1-Math.pow(1-ratio,2)))));
-    if(ratio===1&&api.managedReady){finish();return;}
+    paint(Math.min(api.managedReady&&assetsReady?100:94,Math.round(100*(1-Math.pow(1-ratio,2)))));
+    if(ratio===1&&api.managedReady&&assetsReady){finish();return;}
     raf=requestAnimationFrame(frame);
   }
   function resume(){
     if(done)return;
+    prepareAssets();
     if(!api.landscape()){if(raf)cancelAnimationFrame(raf);raf=0;last=0;return;}
     if(!parsed||raf)return;
     root.classList.remove('tk-loader-preboot');root.classList.add('tk-loader-ready');
@@ -66489,7 +66592,7 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
     cinema.classList.toggle('is-open',open);stage.hidden=!open;
     stage.setAttribute('aria-hidden',String(!open));banner.setAttribute('aria-expanded',String(open));
     banner.setAttribute('aria-label',open?'Свернуть мультфильмы о цифровой безопасности':'Открыть мультфильмы о цифровой безопасности');
-    renderMovies();
+    renderMovies();syncExpanded();
   }
   if(banner){
     banner.setAttribute('role','button');banner.tabIndex=0;banner.setAttribute('aria-controls','cinemaStage');
@@ -66500,6 +66603,16 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
     var button=cinema.querySelector(selector);if(!button)return;
     button.addEventListener('click',function(event){event.preventDefault();event.stopImmediatePropagation();page+=index?1:-1;renderMovies();},true);
   });
+
+  function syncExpanded(){
+    var expanded=cinema.classList.contains('is-open')||!!(modules&&modules.classList.contains('is-open'));
+    scene.dataset.expanded=String(expanded);
+  }
+  if(modules)new MutationObserver(syncExpanded).observe(modules,{attributes:true,attributeFilter:['class']});
+  if(menuPill){
+    menuPill.setAttribute('role','button');menuPill.tabIndex=0;
+    menuPill.addEventListener('keydown',function(event){if(event.key==='Enter'||event.key===' '){event.preventDefault();menuPill.click();}});
+  }
   setCinema(false);
   var frame=0;
   function resize(){if(frame)return;frame=requestAnimationFrame(function(){frame=0;if(api.landscape())renderMovies();});}
