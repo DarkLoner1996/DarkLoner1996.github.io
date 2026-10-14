@@ -3,7 +3,7 @@
 
 <html class="tk-v1356-cinema-locked tk-v1922-home-scroll-real" lang="ru">
 <head>
-<meta name="tk-build" content="v2333-mobile-balanced-game-home">
+<meta name="tk-build" content="v2334-mobile-training-character-typewriter">
 <meta id="tk-v2301-viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 
@@ -209,7 +209,7 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
     if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
     return true;
   }
-  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2333'};
+  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2334'};
   if(!phone)return;
   window.__tkV2301DesktopTablet=false;window.__tkV2300VirtualDesktop=false;
   html.classList.add('tk-v2324-phone','tk-v2326-phone');
@@ -1699,6 +1699,32 @@ html.tk-v2324-phone body #hero#hero#hero .bg-main-pic,
 html.tk-v2324-phone body #hero#hero#hero .header__bg{pointer-events:none!important;}
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327::before,
 html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327::after{pointer-events:none!important;}
+/* Original game lettering, with a phone-sized, layout-stable typewriter. */
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart{--tk-m2334-cat-font:clamp(16px,calc((var(--tk-home-rail) - 85px) * .2),19px);}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart :is(.tk-cat-launch__title,.tk-cat-launch__line,.tk-cat-launch__typing){
+  font:650 var(--tk-m2334-cat-font)/1.08 "Handjet","Russo One",system-ui,sans-serif!important;
+  font-size:var(--tk-m2334-cat-font)!important;line-height:1.08!important;font-variation-settings:normal!important;
+  letter-spacing:.01em!important;color:#eef9ff!important;text-shadow:0 1px 5px rgba(0,6,22,.3)!important;
+}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__line--meow .tk-cat-launch__typing{
+  font:750 22px/1.05 "Handjet","Russo One",system-ui,sans-serif!important;
+  font-size:22px!important;line-height:1.05!important;letter-spacing:.01em!important;color:#ffe39b!important;margin:0 0 2px!important;
+}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-cat-launch__line--play .tk-cat-launch__typing{font-weight:600!important;color:#cdeeff!important;margin-top:2px!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-word{display:inline-block!important;white-space:nowrap!important;font:inherit!important;color:inherit!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter{
+  position:relative!important;display:inline-block!important;vertical-align:baseline!important;font:inherit!important;color:inherit!important;
+  opacity:0!important;transform:translateY(2px)!important;transition:opacity 90ms linear,transform 120ms ease-out!important;
+}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter[data-shown="true"]{opacity:1!important;transform:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter[data-caret="true"]::after{
+  content:""!important;position:absolute!important;left:100%!important;bottom:.08em!important;width:1px!important;height:.75em!important;
+  background:#a2efff!important;box-shadow:0 0 5px rgba(119,232,255,.5)!important;pointer-events:none!important;
+}
+@media (prefers-reduced-motion:reduce){
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter{opacity:1!important;transform:none!important;transition:none!important;}
+  html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter::after{display:none!important;}
+}
 </style>
 <script id="tk-v2301-safe-desktop-preflight">
 (function(){
@@ -67575,8 +67601,67 @@ html.tk-fhd-clean-fixedrails[data-fhd-size="compact"] #rouletteDock.tk-roulette-
   ['.side-chip--it-min','.side-chip--infosec-min','.side-chip--phish-min'].forEach(function(selector){var chip=document.querySelector(selector);if(chip)games.appendChild(chip);});
   media.appendChild(cinema);if(modules)right.appendChild(modules);
   root.classList.add('tk-cat-launch-ready');
-  cat.classList.remove('is-typing');
-  cat.querySelectorAll('[data-full-text]').forEach(function(node){node.textContent=node.dataset.fullText;var line=node.closest('.tk-cat-launch__line');if(line){line.classList.remove('is-active');line.classList.add('is-done');}});
+  // Keep every glyph in the layout from the beginning; reveal opacity only.
+  // This preserves wrapping and the cat card's height throughout the animation.
+  (function typeMobileGreeting(){
+    var nodes=Array.from(cat.querySelectorAll('[data-full-text]'));
+    var motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+    var frames=0,last=0,elapsed=0,shown=0,finished=false,caret=null,letters=[],observer;
+    var cursor=160;
+    nodes.forEach(function(node){
+      var line=node.closest('.tk-cat-launch__line');
+      if(line)line.classList.remove('is-active','is-done','is-final');
+      node.textContent='';
+      (node.dataset.fullText||'').split(/(\s+)/).forEach(function(part){
+        if(!part)return;
+        if(/^\s+$/.test(part)){node.appendChild(document.createTextNode(part));cursor+=30;return;}
+        var word=document.createElement('span');word.className='tk-m2334-word';
+        Array.from(part).forEach(function(ch){
+          var letter=document.createElement('span');letter.className='tk-m2334-letter';letter.textContent=ch;word.appendChild(letter);
+          letters.push({node:letter,at:cursor});cursor+=44;
+        });node.appendChild(word);
+      });cursor+=120;
+    });
+    cat.dataset.phoneTyping='waiting';
+    function opened(){return cat.hidden||root.classList.contains('tk-cat-launch-opened')||root.classList.contains('tk-cat-launch-opening');}
+    function ready(){return root.classList.contains('tk-mobile-home-ready')&&api.landscape()&&!document.hidden&&!root.classList.contains('tk-license-open')&&!root.classList.contains('tk-mobile-game-open');}
+    function stopFrame(){if(frames)cancelAnimationFrame(frames);frames=0;last=0;}
+    function cleanup(){
+      stopFrame();if(observer)observer.disconnect();
+      document.removeEventListener('visibilitychange',wake);window.removeEventListener('tk:mobileorientation',wake);window.removeEventListener('pageshow',wake);
+      if(motion.removeEventListener)motion.removeEventListener('change',wake);else if(motion.removeListener)motion.removeListener(wake);
+    }
+    function finish(){
+      finished=true;letters.forEach(function(item){item.node.dataset.shown='true';item.node.removeAttribute('data-caret');});
+      cat.dataset.phoneTyping='complete';cleanup();
+    }
+    function tick(now){
+      frames=0;
+      if(finished)return;
+      if(opened()||motion.matches){finish();return;}
+      if(!ready()){last=0;cat.dataset.phoneTyping='paused';return;}
+      if(last)elapsed+=Math.min(100,now-last);last=now;
+      cat.dataset.phoneTyping='typing';
+      while(shown<letters.length&&elapsed>=letters[shown].at){
+        if(caret)caret.removeAttribute('data-caret');
+        caret=letters[shown++].node;caret.dataset.shown='true';caret.dataset.caret='true';
+      }
+      if(shown===letters.length&&elapsed>=cursor){finish();return;}
+      frames=requestAnimationFrame(tick);
+    }
+    function wake(){
+      if(finished)return;
+      if(opened()||motion.matches){finish();return;}
+      if(!ready()){stopFrame();return;}
+      if(!frames)frames=requestAnimationFrame(tick);
+    }
+    var Observe=window.TKV1356NativeMutationObserver||window.MutationObserver;
+    observer=new Observe(wake);observer.observe(root,{attributes:true,attributeFilter:['class']});
+    document.addEventListener('visibilitychange',wake);window.addEventListener('tk:mobileorientation',wake);window.addEventListener('pageshow',wake);
+    if(motion.addEventListener)motion.addEventListener('change',wake);else if(motion.addListener)motion.addListener(wake);
+    wake();
+  })();
+
 
   var banner=cinema.querySelector('.cinema-banner'),stage=document.getElementById('cinemaStage');
   var slides=Array.from(cinema.querySelectorAll('.movie-slide')),page=0,lastSize=0;
@@ -143020,6 +143105,253 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
 html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoCustomizer .tk-info-custom-caption{position:static!important;margin:8px 0 0!important;font-size:13px!important;line-height:1.3!important;}
 html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop .panel:not([data-step="play"])>.row{position:static!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%!important;height:auto!important;margin:10px 0 0!important;padding:0!important;transform:none!important;}
 html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoFioInput{width:100%!important;max-width:540px!important;min-width:0!important;height:46px!important;padding:10px 12px!important;font-size:16px!important;line-height:1.3!important;}
+/* v2334: phone training and character selection share one in-flow layout.
+   Full-height wrappers are explicit: a flex child must never shrink the art.
+   The extra scope beats historic desktop button rules without touching them. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card,.tk-v337-menu){
+  position:relative!important;inset:auto!important;display:grid!important;
+  grid-template-columns:minmax(0,1fr) clamp(130px,25vw,240px)!important;
+  grid-template-rows:36px minmax(82px,1fr) 44px auto!important;
+  align-items:stretch!important;gap:6px 12px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;
+  height:auto!important;
+  min-height:max(246px,calc(var(--tk-m2324-height) - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom)))!important;max-height:none!important;
+  margin:0!important;padding:10px 12px!important;overflow:visible!important;
+  border:1px solid rgba(125,209,244,.28)!important;border-radius:18px!important;
+  background:radial-gradient(ellipse at 100% 5%,rgba(56,147,192,.22),transparent 65%),linear-gradient(135deg,#102b45,#08192f)!important;
+  box-shadow:0 8px 22px rgba(0,9,25,.25),inset 0 1px rgba(255,255,255,.05)!important;
+  transform:none!important;isolation:isolate!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card,.tk-v337-menu)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card,.tk-v337-menu)::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-body,.menu-top,.tk-v337-menu>div:first-child){display:contents!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .cool-phish-root>main.hero,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-tk-v398-step="menu"] .tk-v337-view{
+  display:block!important;position:relative!important;inset:auto!important;
+  width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;
+  padding:calc(8px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important;
+  overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;touch-action:pan-y!important;
+  transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) main.hero>.wrap{position:static!important;display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card .title-row,.tk-v337-pills){
+  grid-column:1!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  position:static!important;width:auto!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;gap:6px!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card .title-row,.tk-v337-pills)>:is(.pill,.tag,.tk-v337-pill,.tk-v337-tag){
+  position:static!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;min-width:0!important;height:25px!important;min-height:0!important;margin:0!important;padding:3px 9px!important;
+  border:1px solid rgba(140,218,247,.24)!important;border-radius:8px!important;background:rgba(91,174,218,.10)!important;
+  font:700 12px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;
+  color:#d9f3ff!important;box-shadow:none!important;text-shadow:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.title-row .tag,.tk-v337-tag){color:#f2d89f!important;background:none!important;border-color:transparent!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2334-training-copy{
+  grid-column:1!important;grid-row:2!important;position:static!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:7px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;transform:none!important;overflow:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2334-training-copy h1{
+  position:static!important;display:block!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;font:750 clamp(22px,3.3vw,28px)/1.12 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  letter-spacing:-.025em!important;text-align:left!important;white-space:normal!important;text-transform:none!important;
+  color:#f5fbff!important;-webkit-text-fill-color:currentColor!important;background:none!important;text-shadow:0 2px 12px rgba(0,7,20,.25)!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2334-training-copy p{
+  position:static!important;display:block!important;width:auto!important;max-width:50ch!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;font:500 13px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  color:#bed7e8!important;text-align:left!important;white-space:normal!important;opacity:1!important;visibility:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-actions,.tk-v337-menu-actions){
+  grid-column:1!important;grid-row:3!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-start!important;
+  position:static!important;width:100%!important;min-width:0!important;max-width:none!important;height:44px!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;gap:8px!important;transform:none!important;overflow:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn,#trailerInfoBtn,.tk-v337-menu-actions>button){
+  position:relative!important;inset:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+  flex:0 1 auto!important;width:auto!important;min-width:0!important;max-width:100%!important;height:44px!important;min-height:44px!important;max-height:44px!important;
+  margin:0!important;padding:0 14px!important;border:1px solid rgba(146,213,247,.35)!important;border-radius:12px!important;
+  background:rgba(83,155,200,.12)!important;box-shadow:inset 0 1px rgba(255,255,255,.05)!important;
+  font:750 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#e5f5ff!important;-webkit-text-fill-color:currentColor!important;
+  letter-spacing:0!important;text-transform:none!important;text-shadow:none!important;white-space:nowrap!important;
+  opacity:1!important;visibility:visible!important;transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn,.tk-v337-menu-actions>[data-action="start"]){
+  border-color:#ffe7a1!important;background:linear-gradient(145deg,#ffe498,#e7b456)!important;
+  color:#34230e!important;box-shadow:0 4px 12px rgba(235,175,61,.16),inset 0 1px rgba(255,255,255,.6)!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn,#trailerInfoBtn,.tk-v337-menu-actions>button)>span{
+  position:relative!important;inset:auto!important;flex:0 1 auto!important;width:auto!important;height:auto!important;margin:0!important;padding:0!important;
+  font:inherit!important;line-height:1.2!important;color:inherit!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important;
+  transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn#startInfoBtn,#trailerInfoBtn,.tk-v337-menu-actions>button)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn#startInfoBtn,#trailerInfoBtn,.tk-v337-menu-actions>button)::after{content:none!important;display:none!important;animation:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-v337-menu-actions .tk-v365-info-copy-play{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#trailerInfoBtn .dot,.tk-v337-btn-dot){display:block!important;flex:0 0 6px!important;width:6px!important;height:6px!important;border-radius:50%!important;background:#6edcea!important;box-shadow:0 0 8px rgba(91,216,236,.3)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card .mascot,.tk-v337-mascot){
+  position:relative!important;inset:auto!important;top:auto!important;grid-column:2!important;grid-row:2/4!important;align-self:center!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;flex:none!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;height:clamp(126px,calc(var(--tk-m2324-height) - 134px),240px)!important;min-height:0!important;max-height:none!important;
+  aspect-ratio:auto!important;margin:0!important;padding:0!important;overflow:hidden!important;
+  border:0!important;border-radius:12px!important;background:radial-gradient(ellipse at 50% 80%,rgba(49,158,208,.15),transparent 70%)!important;
+  box-shadow:none!important;transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card .mascot,.tk-v337-mascot)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card .mascot,.tk-v337-mascot)::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card .mascot,.tk-v337-mascot)>img{
+  position:static!important;inset:auto!important;display:block!important;flex:0 0 auto!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  margin:0!important;padding:0!important;object-fit:contain!important;object-position:center!important;aspect-ratio:auto!important;
+  border:0!important;border-radius:0!important;transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card>.hint,.tk-v337-tip){
+  position:static!important;inset:auto!important;grid-column:1/-1!important;grid-row:4!important;
+  display:grid!important;grid-template-columns:20px minmax(0,1fr)!important;align-items:center!important;gap:6px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:6px 8px!important;overflow:visible!important;
+  border:0!important;border-top:1px solid rgba(136,204,238,.18)!important;border-radius:0!important;background:none!important;
+  box-shadow:none!important;font:500 12px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#b9d2e3!important;
+  transform:none!important;filter:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.menu-card>.hint,.tk-v337-tip)>span{display:grid!important;place-items:center!important;width:20px!important;min-width:0!important;height:22px!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:none!important;font-size:14px!important;box-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .menu-top>.tk-close-x{
+  position:absolute!important;inset:2px 4px auto auto!important;display:grid!important;place-items:center!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+  margin:0!important;padding:0!important;border:1px solid rgba(137,206,240,.3)!important;border-radius:12px!important;background:#102b45!important;color:#dcf1ff!important;
+  font:400 22px/1 system-ui,sans-serif!important;box-shadow:none!important;transform:none!important;z-index:3!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #closeInfoSecGame{display:none!important;}
+
+/* Character selection: one header, one native scroll body, no covering footer. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .tk-v337-view{
+  position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] :is(.tk-v337-dialog,.tk-v1393-modal-body),
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] :is(.modal,.modal-inner,.modal-body){
+  position:relative!important;inset:auto!important;width:100%!important;min-width:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .tk-v337-dialog,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] :is(.modal,.modal-inner){
+  display:flex!important;flex-direction:column!important;flex:1 1 auto!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;
+  background:radial-gradient(ellipse at 25% 0,rgba(38,116,163,.22),transparent 70%),#07192e!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .tk-v337-head,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .modal-head{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  flex:0 0 auto!important;width:100%!important;height:calc(48px + env(safe-area-inset-top))!important;min-height:48px!important;max-height:none!important;
+  margin:0!important;padding:env(safe-area-inset-top) max(10px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))!important;
+  border:0!important;border-bottom:1px solid rgba(124,191,230,.16)!important;border-radius:0!important;background:rgba(4,15,30,.65)!important;box-shadow:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .tk-v337-head{padding-right:108px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is([data-phone-step="avatar"] .head-left,.panel[data-step="avatar"]){min-width:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .head-left,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .head-left{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important;margin:0!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .tk-v337-head h2,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .modal-head h2{font:750 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;margin:0!important;padding:0!important;color:#e9f5ff!important;white-space:nowrap!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .steps,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .steps{display:flex!important;gap:5px!important;padding:4px 6px!important;width:auto!important;height:auto!important;min-height:0!important;border:0!important;background:none!important;box-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .step-dot,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .step-dot{width:6px!important;height:6px!important;min-width:6px!important;min-height:6px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .modal-head>.row{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:6px!important;height:44px!important;margin:0!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .modal-head .icon-btn{display:grid!important;place-items:center!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;padding:9px!important;margin:0!important;border:1px solid rgba(137,206,240,.3)!important;border-radius:12px!important;background:#102b45!important;transform:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] .tk-v1393-modal-body,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] .modal-body{
+  display:block!important;flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;
+  padding:6px max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important;
+  overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]:not([hidden]){
+  --tk-m2334-avatar-height:clamp(112px,calc(var(--tk-m2324-height) - 142px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),218px);
+  position:static!important;inset:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:auto auto auto!important;align-items:center!important;gap:6px 12px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;overflow:visible!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>h3{
+  grid-column:1!important;grid-row:1!important;display:block!important;position:static!important;width:auto!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;font:750 16px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;color:#edf8ff!important;text-align:left!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>h3 span{display:inline!important;margin:0!important;padding:0!important;font:inherit!important;letter-spacing:0!important;color:inherit!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>p{
+  grid-column:2!important;grid-row:1!important;position:static!important;display:block!important;width:auto!important;max-width:220px!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;font:500 12px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#a6c3d9!important;text-align:right!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-grid{
+  grid-column:1/-1!important;grid-row:2!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto!important;gap:10px!important;
+  width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-tile{
+  position:relative!important;inset:auto!important;display:grid!important;grid-template-columns:minmax(56px,.85fr) minmax(148px,1.15fr)!important;
+  grid-template-rows:minmax(0,1fr) 44px!important;align-items:center!important;gap:0 8px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:var(--tk-m2334-avatar-height)!important;min-height:112px!important;max-height:none!important;
+  margin:0!important;padding:7px!important;border:1px solid rgba(119,186,225,.25)!important;border-radius:15px!important;
+  background:linear-gradient(145deg,rgba(26,65,96,.85),rgba(9,30,53,.95))!important;box-shadow:0 4px 12px rgba(0,7,22,.15)!important;
+  transform:none!important;filter:none!important;animation:none!important;overflow:visible!important;cursor:pointer!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-tile.is-selected{
+  border-color:#edc778!important;background:linear-gradient(145deg,#20466a,#132c47)!important;
+  box-shadow:inset 0 0 0 1px rgba(244,205,123,.25),0 3px 16px rgba(207,165,75,.09)!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-tile::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-tile::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-carousel{display:contents!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .bubble{
+  position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1/3!important;align-self:stretch!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;flex:none!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:100%!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:10px!important;
+  background:radial-gradient(ellipse at 50% 85%,rgba(76,191,220,.15),transparent 68%)!important;box-shadow:none!important;
+  overflow:visible!important;transform:none!important;filter:none!important;aspect-ratio:auto!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .bubble::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .bubble::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-img{
+  position:static!important;inset:auto!important;display:block!important;flex:0 0 auto!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  height:100%!important;min-height:0!important;max-height:100%!important;margin:0!important;padding:0!important;
+  object-fit:contain!important;object-position:center!important;aspect-ratio:auto!important;transform:none!important;filter:none!important;clip-path:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-copy{
+  grid-column:2!important;grid-row:1!important;position:static!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;transform:none!important;text-align:left!important;overflow:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-copy strong{display:block!important;margin:0!important;padding:0!important;font:750 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;white-space:normal!important;color:#eff8ff!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .is-selected .avatar-copy strong{color:#ffe4a9!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-copy>span{display:block!important;margin:0!important;padding:0!important;font:500 12px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#b7d1e5!important;white-space:normal!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-slider-row{
+  grid-column:2!important;grid-row:2!important;position:static!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;
+  width:100%!important;min-width:0!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-slide-btn{
+  position:relative!important;inset:auto!important;display:grid!important;place-items:center!important;flex:0 0 44px!important;
+  width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important;min-height:44px!important;max-height:44px!important;
+  margin:0!important;padding:0!important;border:1px solid rgba(125,203,240,.26)!important;border-radius:12px!important;
+  background:rgba(43,124,178,.25)!important;box-shadow:inset 0 1px rgba(255,255,255,.06)!important;color:#ebf8ff!important;
+  font:400 26px/1 system-ui,sans-serif!important;transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-slider-counter{display:block!important;flex:0 0 32px!important;width:32px!important;min-width:0!important;margin:0!important;padding:0!important;font:650 11px/1.2 system-ui,sans-serif!important;text-align:center!important;white-space:nowrap!important;color:#b9d4e8!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>.row{
+  grid-column:1/-1!important;grid-row:3!important;position:static!important;display:flex!important;flex-flow:row-reverse nowrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+  width:100%!important;min-width:0!important;height:44px!important;min-height:44px!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important;overflow:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>.row>.btn{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 112px!important;
+  width:112px!important;min-width:112px!important;max-width:112px!important;height:44px!important;min-height:44px!important;max-height:44px!important;
+  margin:0!important;padding:0 16px!important;border:1px solid #fbe2a0!important;border-radius:12px!important;background:linear-gradient(145deg,#ffe49b,#e8b55c)!important;
+  font:750 14px/1.2 system-ui,sans-serif!important;color:#34230e!important;box-shadow:inset 0 1px rgba(255,255,255,.5)!important;text-shadow:none!important;transform:none!important;filter:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>.row>.note{display:block!important;min-width:0!important;margin:0!important;padding:0!important;font:500 12px/1.3 system-ui,sans-serif!important;color:#a9c8de!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] :is(.tk-v337-dialog,.modal-body,.panel)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop)[data-phone-step="avatar"] :is(.tk-v337-dialog,.modal-body,.panel)::after,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] :is(.modal,.modal-inner,.modal-body,.panel)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop[data-phone-step="avatar"] :is(.modal,.modal-inner,.modal-body,.panel)::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.panel[data-step="avatar"] button,.menu-actions button,.tk-v337-menu-actions button):active{filter:brightness(1.14)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.panel[data-step="avatar"] [role="radio"],.panel[data-step="avatar"] button,.menu-actions button,.tk-v337-menu-actions button):focus-visible{outline:2px solid #8fe8ff!important;outline-offset:2px!important;}
+@media (max-width:639px){
+  html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn,#trailerInfoBtn,.tk-v337-menu-actions>button){padding:0 12px!important;font-size:13px!important;}
+}
 </style>
 <script id="tk-v2324-mobile-runtime">
 (function(){
@@ -143067,9 +143399,34 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
       }
     }
   }
+  var preparedViews=new WeakSet();
+  function preparePhoneViews(){
+    document.querySelectorAll('#infoSecGame .menu-card,.tk-v337-backdrop .tk-v337-menu').forEach(function(menu){
+      if(preparedViews.has(menu))return;preparedViews.add(menu);
+      var modern=menu.closest('.tk-v337-backdrop'),key=modern&&modern.dataset.game||'info';
+      var heading=menu.querySelector('h1'),description=menu.querySelector('.tk-v337-desc,.menu-copy p');
+      var copy=menu.querySelector('.menu-copy');
+      if(!copy&&heading){copy=document.createElement('div');heading.parentNode.insertBefore(copy,heading);copy.appendChild(heading);if(description)copy.appendChild(description);}
+      if(copy)copy.classList.add('tk-m2334-training-copy');
+      var titles={info:'Информационная безопасность',it:'Основы информатики',phish:'Распознаём фишинг'};
+      var descriptions={info:'Выберите героя и защитите свой цифровой мир.',it:'Выберите героя и прокачайте знания о цифровом мире.',phish:'Выберите героя и научитесь узнавать опасные сообщения.'};
+      if(heading)heading.textContent=titles[key]||titles.info;
+      if(description)description.textContent=descriptions[key]||descriptions.info;
+      var tag=menu.querySelector('.title-row .tag,.tk-v337-tag');if(tag)tag.textContent='Тренировка';
+    });
+    document.querySelectorAll('#infoBackdrop .panel[data-step="avatar"],.tk-v337-backdrop .panel[data-step="avatar"]').forEach(function(panel){
+      if(preparedViews.has(panel))return;preparedViews.add(panel);
+      var sub=panel.querySelector(':scope>p'),note=panel.querySelector(':scope>.row>.note'),grid=panel.querySelector('.avatar-grid');
+      if(sub)sub.textContent='По 6 образов для каждого героя';
+      if(note)note.textContent='Далее — настройка внешности';
+      if(grid){grid.setAttribute('role','radiogroup');grid.setAttribute('aria-label','Персонаж');}
+    });
+  }
+
   function sync(){
     queued=false;if(!document.body)return;
     api.viewport();
+    preparePhoneViews();
     var landscape=api.landscape();toggle(html,'tk-v2324-landscape',landscape);
     toggle(html,'tk-mobile-landscape-v341',landscape);toggle(document.body,'tk-mobile-landscape-v341',landscape);
     if(!gate){
@@ -143104,6 +143461,7 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
     document.querySelectorAll('.tk-v337-backdrop.is-open,#infoBackdrop.is-open').forEach(function(root){
       var step=root.getAttribute('data-tk-v398-step')||root.getAttribute('data-tk-step');
       if(!step){var panel=root.querySelector('.panel[data-step]:not([hidden])');step=panel&&panel.dataset.step;}
+      setAttr(root,'data-phone-step',step||'menu');
       if(root.__tkM2324Step!==step){
         root.__tkM2324Step=step;
         var scroll=root.querySelector('.tk-v337-view')||root.querySelector('.modal-body');if(scroll)scroll.scrollTop=0;
