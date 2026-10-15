@@ -3,7 +3,7 @@
 
 <html class="tk-v1356-cinema-locked tk-v1922-home-scroll-real" lang="ru">
 <head>
-<meta name="tk-build" content="v2334-mobile-training-character-typewriter">
+<meta name="tk-build" content="v2335-mobile-customizer-keyboard-scroll">
 <meta id="tk-v2301-viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 
@@ -209,7 +209,7 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
     if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
     return true;
   }
-  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2334'};
+  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2335'};
   if(!phone)return;
   window.__tkV2301DesktopTablet=false;window.__tkV2300VirtualDesktop=false;
   html.classList.add('tk-v2324-phone','tk-v2326-phone');
@@ -1725,6 +1725,26 @@ html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tk
   html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter{opacity:1!important;transform:none!important;transition:none!important;}
   html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #tkCatStart .tk-m2334-letter::after{display:none!important;}
 }
+/* A compact five-item menu. Cinema and kitten layout are untouched. */
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel{
+  width:min(236px,calc(100vw - 24px))!important;max-width:236px!important;
+  inset:48px auto auto 0!important;max-height:calc(var(--tk-m2324-height) - 64px - env(safe-area-inset-bottom))!important;
+  padding:5px!important;border:1px solid #a9cfdf55!important;border-radius:13px!important;
+  background:linear-gradient(145deg,#102b43fa,#06182bfa)!important;box-shadow:0 8px 28px #020a1d99!important;
+  overflow-x:hidden!important;overflow-y:auto!important;touch-action:pan-y!important;overscroll-behavior:contain!important;
+  scrollbar-width:thin!important;scrollbar-color:#78afc4 transparent!important;
+}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel .side-nav__list{display:flex!important;flex-direction:column!important;gap:2px!important;padding:0!important;margin:0!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel .hud-item{
+  display:flex!important;align-items:center!important;gap:9px!important;flex:0 0 44px!important;
+  width:100%!important;height:44px!important;min-height:44px!important;max-height:44px!important;margin:0!important;padding:5px 9px!important;
+  border:0!important;border-radius:8px!important;background:rgba(91,158,193,.08)!important;box-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel .hud-ico{display:grid!important;place-items:center!important;flex:0 0 22px!important;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel .hud-ico svg{width:20px!important;height:20px!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel .hud-title{font:650 13px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;white-space:nowrap!important;color:#e5f3fc!important;text-shadow:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel :is(.hud-sub,.hud-arrow){display:none!important;}
+html.tk-v2324-phone body #tkPhoneScene2327#tkPhoneScene2327#tkPhoneScene2327 #hudPanel .hud-item:active{background:#29516b!important;}
 </style>
 <script id="tk-v2301-safe-desktop-preflight">
 (function(){
@@ -25249,6 +25269,7 @@ ${currentItem.text}`;
   const backToAvatarBtn = qs('#infoBackToAvatarBtn', backdrop);
   const toPlayBtn = qs('#infoToPlayBtn', backdrop);
   const fioInput = qs('#infoFioInput', backdrop);
+  if(fioInput&&window.TKMobile2324&&window.TKMobile2324.phone){fioInput.readOnly=true;fioInput.inputMode='none';}
 
   const playerName = qs('#infoPlayerName', backdrop);
   const playerRole = qs('#infoPlayerRole', backdrop);
@@ -30056,8 +30077,83 @@ function infoTabletV470FastChoiceRender(stage, changedPart, changedChoice){
     window.TKV2310AppearanceAssets={chain:infoGetCompositeChain,urls:infoAssetCandidateUrls};
   }
 
+  // Phone-only loader: stable image node, cancellable bounded probes and URL resolution.
+  const infoMobile2335Cache=new Map(),infoMobile2335Folders=new Map();
+  let infoMobile2335LastPart='';
+  function infoMobile2335Composite(container,mode){
+    const kind=state.avatar==='girl'?'girl':'boy',variant=getCurrentInfoAvatarVariant(),key=infoGetCustomKey();
+    const appearance=Object.assign({},infoEnsureAppearance());
+    const combo=key+':'+INFO_CUSTOM_PARTS.map(p=>appearance[p]).join(':')+':'+infoMobile2335LastPart;
+    if(container.__tkM2335Combo===combo&&container.querySelector('img[data-layer="composite"]'))return;
+    if(container.__tkM2335Cancel)container.__tkM2335Cancel();
+    container.__tkM2335Combo=combo;
+    container.classList.add('tk-info-custom-stage');container.classList.toggle('tk-info-hud-avatar',mode==='hud');
+    const oldKey=container.getAttribute('data-info-avatar-key');
+    container.setAttribute('data-info-avatar-key',key);container.setAttribute('data-info-avatar-kind',kind);
+    let img=container.querySelector('img[data-layer="composite"]');
+    if(!img){img=document.createElement('img');img.setAttribute('data-layer','composite');img.alt='';img.decoding='async';img.loading='eager';container.replaceChildren(img);}
+    if(oldKey&&oldKey!==key){img.removeAttribute('src');img.hidden=true;container.classList.remove('has-base');}
+    const probes=new Set();let cancelled=false;
+    container.__tkM2335Cancel=()=>{cancelled=true;probes.forEach(p=>p.finish(false));probes.clear();};
+    const valid=()=>!cancelled&&container.__tkM2335Combo===combo&&container.isConnected;
+    function apply(src){
+      if(!valid()||!src)return;
+      img.src=src;img.hidden=false;img.dataset.loadedSrc=src;img.style.opacity='1';img.style.visibility='visible';
+      container.classList.add('has-base');
+    }
+    function finish(){
+      probes.forEach(p=>p.finish(false));probes.clear();
+      if(valid()){container.classList.remove('is-loading');container.setAttribute('aria-busy','false');}
+    }
+    const cached=infoMobile2335Cache.get(combo);
+    if(cached){apply(cached);finish();return;}
+    container.classList.add('is-loading');container.setAttribute('aria-busy','true');
+    const base=(variant&&Array.isArray(variant.images)?variant.images:[variant&&variant.images]).filter(Boolean);
+    // A known base remains visible while the exact appearance is requested.
+    const baseCache=infoMobile2335Cache.get('base:'+key);
+    const selected=backdrop.querySelector('.avatar-tile[data-avatar="'+kind+'"] img[data-avatar-image]');
+    const selectedKey=selected&&selected.getAttribute('data-avatar-variant-key');
+    if(!img.getAttribute('src')){
+      if(baseCache)apply(baseCache);
+      else if(selected&&selectedKey===kind+':'+key&&selected.naturalWidth)apply(selected.currentSrc||selected.src);
+    }
+    function urls(name){
+      const list=infoAssetCandidateUrls(name),known=infoMobile2335Folders.get(key),seen=new Set(),out=[];
+      if(known)list.unshift(known+String(name).split('/').pop());
+      list.forEach(src=>{try{src=new URL(src,document.baseURI).href;}catch(_e){}if(!seen.has(src)){seen.add(src);out.push(src);}});return out;
+    }
+    function probe(src){return new Promise(resolve=>{
+      if(!valid()){resolve(false);return;}
+      const image=new Image();let done=false,timer;
+      const job={finish:ok=>{if(done)return;done=true;clearTimeout(timer);image.onload=image.onerror=null;probes.delete(job);if(!ok&&image.removeAttribute)image.removeAttribute('src');resolve(ok?src:false);}};
+      probes.add(job);image.onload=()=>job.finish(!!image.naturalWidth);image.onerror=()=>job.finish(false);
+      timer=setTimeout(()=>job.finish(false),5000);image.decoding='async';image.src=src;
+    });}
+    async function findFile(name){
+      const candidates=urls(name);
+      for(let i=0;i<candidates.length&&valid();i+=2){
+        const batch=candidates.slice(i,i+2);
+        const src=await new Promise(resolve=>{let left=batch.length;batch.forEach(url=>probe(url).then(found=>{if(found)resolve(found);else if(!--left)resolve('');}));});
+        if(src){try{infoMobile2335Folders.set(key,new URL('.',src).href);}catch(_e){}return src;}
+      }return '';
+    }
+    async function run(){
+      const chain=infoGetCompositeChain(key,appearance).slice();
+      const partFile=infoMobile2335LastPart?infoGetCustomOptionFile(key,infoMobile2335LastPart,appearance[infoMobile2335LastPart]):'';
+      const names=Array.from(new Set([chain[0],partFile].concat(chain.slice(1),base).filter(Boolean)));
+      for(const name of names){
+        if(!valid())return;
+        const src=await findFile(name);if(src&&valid()){
+          apply(src);infoMobile2335Cache.set(combo,src);if(base.includes(name))infoMobile2335Cache.set('base:'+key,src);finish();return;
+        }
+      }finish();
+    }
+    run().catch(finish);
+  }
+
   function infoRenderComposite(container, mode){
     if(!container) return;
+    if(window.TKMobile2324&&window.TKMobile2324.phone){infoMobile2335Composite(container,mode);return;}
     const kind = state.avatar === 'girl' ? 'girl' : 'boy';
     const variant = getCurrentInfoAvatarVariant();
     const customKey = infoGetCustomKey();
@@ -30159,6 +30255,7 @@ function infoTabletV470FastChoiceRender(stage, changedPart, changedChoice){
     const tablet = infoIsTabletCustomizerV230();
     const curStep = (typeof infoCurrentStep === 'function') ? infoCurrentStep() : '';
     state.appearance[key][part] = choice;
+    if(window.TKMobile2324&&window.TKMobile2324.phone)infoMobile2335LastPart=part;
 
     if(tablet && curStep === 'customize'){
       try{ infoTabletV253LockSurface('choice-v476'); }catch(_e){}
@@ -90656,6 +90753,7 @@ function hydrateImages(){
         '</div>'+
       '</section></div></div>';
     const input=view.querySelector('#tkV1396NameInput');
+    if(input&&window.TKMobile2324&&window.TKMobile2324.phone){input.readOnly=true;input.inputMode='none';}
     const back=view.querySelector('[data-back]');
     const go=view.querySelector('[data-go]');
     const sync=()=>{
@@ -143352,6 +143450,277 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
 @media (max-width:639px){
   html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(#startInfoBtn,#trailerInfoBtn,.tk-v337-menu-actions>button){padding:0 12px!important;font-size:13px!important;}
 }
+
+/* v2335 extends the verified setup scroll shell to steps 2 and 3. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v337-view{
+  position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) :is(.tk-v337-dialog,.tk-v1393-modal-body),
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) :is(.modal,.modal-inner,.modal-body){
+  position:relative!important;inset:auto!important;width:100%!important;min-width:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v337-dialog,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) :is(.modal,.modal-inner){
+  display:flex!important;flex-direction:column!important;flex:1 1 auto!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;
+  background:radial-gradient(ellipse at 25% 0,rgba(38,116,163,.22),transparent 70%),#07192e!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v337-head,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .modal-head{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  flex:0 0 auto!important;width:100%!important;height:calc(48px + env(safe-area-inset-top))!important;min-height:48px!important;max-height:none!important;
+  margin:0!important;padding:env(safe-area-inset-top) max(10px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))!important;
+  border:0!important;border-bottom:1px solid rgba(124,191,230,.16)!important;border-radius:0!important;background:rgba(4,15,30,.65)!important;box-shadow:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v337-head{padding-right:108px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .head-left,.panel[data-step="avatar"]){min-width:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .head-left,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .head-left{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important;margin:0!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v337-head h2,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .modal-head h2{font:750 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;margin:0!important;padding:0!important;color:#e9f5ff!important;white-space:nowrap!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .steps,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .steps{display:flex!important;gap:5px!important;padding:4px 6px!important;width:auto!important;height:auto!important;min-height:0!important;border:0!important;background:none!important;box-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .step-dot,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .step-dot{width:6px!important;height:6px!important;min-width:6px!important;min-height:6px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .modal-head>.row{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:6px!important;height:44px!important;margin:0!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .modal-head .icon-btn{display:grid!important;place-items:center!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;padding:9px!important;margin:0!important;border:1px solid rgba(137,206,240,.3)!important;border-radius:12px!important;background:#102b45!important;transform:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v1393-modal-body,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) #infoBackdrop:is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="custom"],[data-phone-step="profile"]) .modal-body{
+  display:block!important;flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;
+  padding:6px max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important;
+  overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;
+}
+/* v2335: phone-only setup, with one actual scrolling body per dialog. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.modal,.modal-inner,.modal-body,.tk-v337-view,.tk-v337-dialog){touch-action:pan-y!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.modal,.modal-inner,.tk-v337-dialog,.modal-body,.panel[data-step="customize"],.panel[data-step="profile"],.tk-info-customizer,.tk-info-custom-options,.tk-v479-lore-card)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.modal,.modal-inner,.tk-v337-dialog,.modal-body,.panel[data-step="customize"],.panel[data-step="profile"],.tk-info-customizer,.tk-info-custom-options,.tk-v479-lore-card)::after{display:none!important;content:none!important;pointer-events:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="profile"]) .modal-head,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v337-head{
+  height:calc(44px + env(safe-area-inset-top))!important;min-height:44px!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is([data-phone-step="avatar"],[data-phone-step="customize"],[data-phone-step="profile"]) .modal-body,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is([data-phone-step="avatar"],[data-phone-step="custom"],[data-phone-step="profile"]) .tk-v1393-modal-body{
+  padding:4px max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important;
+  touch-action:pan-y!important;overflow-y:auto!important;scrollbar-width:thin!important;scrollbar-color:#72b9d1 #112c42!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]:not([hidden]){
+  --tk-m2334-avatar-height:clamp(128px,calc(var(--tk-m2324-height) - 128px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),236px);gap:4px 10px!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>h3{font-size:14px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"]>p{font-size:11px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-tile{grid-template-columns:minmax(66px,1fr) minmax(138px,1fr)!important;padding:6px!important;gap:0 6px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-copy strong{font-size:13px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-copy>span{font-size:11px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="avatar"] .avatar-slide-btn{font-size:23px!important;border:5px solid transparent!important;border-radius:14px!important;background-clip:padding-box!important;box-shadow:none!important;}
+
+/* The full-body hero stays beside a small category switcher. No nested clipping. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]):not([hidden]){
+  position:relative!important;inset:auto!important;display:grid!important;grid-template-columns:minmax(140px,.28fr) minmax(0,.72fr)!important;
+  grid-template-rows:18px minmax(136px,1fr) 44px!important;gap:6px 12px!important;align-items:stretch!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;
+  min-height:calc(var(--tk-m2324-height) - 56px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  overflow:visible!important;transform:none!important;contain:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"])>h3{
+  position:static!important;grid-column:1/-1!important;grid-row:1!important;display:block!important;
+  width:auto!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;
+  font:750 14px/18px system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#edf8ff!important;text-align:left!important;letter-spacing:0!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"])>h3 span{font:inherit!important;color:inherit!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-customizer{display:contents!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"]:not([hidden]){grid-template-rows:18px 44px minmax(44px,1fr) 40px auto 44px!important;row-gap:4px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-preview{
+  position:relative!important;inset:auto!important;grid-column:1!important;grid-row:2/7!important;display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;align-items:stretch!important;gap:2px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;height:100%!important;min-height:0!important;
+  max-height:max(172px,calc(var(--tk-m2324-height) - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom)))!important;align-self:start!important;
+  margin:0!important;padding:4px 4px 6px!important;border:1px solid rgba(112,197,231,.25)!important;border-radius:14px!important;
+  background:radial-gradient(ellipse at 50% 65%,rgba(54,162,207,.25),transparent 72%),linear-gradient(145deg,#163a57,#0a2038)!important;
+  box-shadow:inset 0 1px rgba(222,246,255,.06)!important;overflow:hidden!important;transform:none!important;aspect-ratio:auto!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-stage{
+  position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;
+  min-width:0!important;max-width:none!important;min-height:128px!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;aspect-ratio:auto!important;
+  background:none!important;box-shadow:none!important;overflow:hidden!important;transform:none!important;filter:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-stage img{
+  position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;
+  max-width:100%!important;min-height:0!important;max-height:100%!important;margin:0!important;padding:0!important;
+  object-fit:contain!important;object-position:center!important;transform:none!important;filter:drop-shadow(0 3px 6px #00102055)!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-stage img[hidden]{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-stage::before{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-stage::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-stage[aria-busy="true"]::after{
+  content:""!important;position:absolute!important;inset:auto 25% 2px!important;display:block!important;height:2px!important;
+  width:auto!important;border:0!important;background:linear-gradient(90deg,transparent,#83e3ed,transparent)!important;pointer-events:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-caption{
+  position:static!important;display:block!important;width:100%!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:3px!important;background:none!important;border:0!important;box-shadow:none!important;text-align:center!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-caption strong{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;max-height:28px!important;overflow:hidden!important;font:700 11px/1.25 system-ui,sans-serif!important;color:#f5dfab!important;white-space:normal!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] :is(.tk-info-custom-caption>span,.tk-info-custom-tags,.tk-v462-options-head,.tk-v481-hero-boost,.tk-v481-actions-source,.tk-info-file-note){display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-info-custom-options{
+  position:static!important;grid-column:2!important;grid-row:2!important;display:contents!important;
+  grid-template-columns:minmax(0,1fr)!important;grid-template-rows:44px auto auto!important;align-content:start!important;gap:4px!important;
+  width:100%!important;height:auto!important;min-width:0!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  overflow:visible!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-parts{grid-column:2!important;grid-row:2!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;padding:0!important;border-bottom:1px solid #7dbbd333!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-parts button{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:44px!important;min-height:44px!important;min-width:0!important;margin:0!important;padding:4px!important;
+  border:0!important;border-bottom:2px solid transparent!important;border-radius:7px 7px 0 0!important;background:transparent!important;box-shadow:none!important;
+  font:650 12px/1.2 system-ui,sans-serif!important;color:#b6cddd!important;text-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-parts button[aria-selected="true"]{color:#ffe1a3!important;border-bottom-color:#e8bf73!important;background:linear-gradient(0deg,#efc77517,transparent)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active="false"]{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active="true"]{
+  position:static!important;grid-column:2!important;grid-row:3!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:auto!important;align-content:start!important;gap:6px!important;
+  width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;min-width:0!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active] .tk-info-option-title{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active] .tk-info-option-btn{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;height:clamp(44px,16vh,64px)!important;min-height:44px!important;
+  margin:0!important;padding:6px 10px!important;border:1px solid rgba(127,192,224,.27)!important;border-radius:10px!important;
+  background:linear-gradient(145deg,#12334e,#0b233c)!important;box-shadow:none!important;
+  font:650 12px/1.2 system-ui,sans-serif!important;color:#d9eaf6!important;-webkit-text-fill-color:currentColor!important;
+  text-shadow:none!important;letter-spacing:0!important;white-space:normal!important;word-break:normal!important;
+  transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active] .tk-info-option-btn.is-selected{
+  color:#fff0c5!important;border-color:#e2bb72!important;background:linear-gradient(145deg,#284554,#19384b)!important;box-shadow:inset 0 0 0 1px #ffe5a315!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active] .tk-info-option-btn::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active] .tk-info-option-btn::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-info-option-group[data-phone-active] .tk-info-option-btn.is-selected::after{
+  content:""!important;display:block!important;position:absolute!important;inset:auto auto 3px 50%!important;
+  width:16px!important;height:2px!important;background:#ffe3a0!important;border:0!important;box-shadow:none!important;transform:translateX(-50%)!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-lore-toggle{
+  position:static!important;inset:auto!important;grid-column:2!important;grid-row:4!important;display:block!important;width:100%!important;min-width:0!important;
+  height:40px!important;min-height:40px!important;margin:0!important;padding:11px 4px!important;border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;color:#b7d2e3!important;text-align:left!important;text-shadow:none!important;
+  font:600 12px/18px system-ui,sans-serif!important;cursor:pointer!important;touch-action:pan-y!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-phone-lore-open] .tk-v479-lore-card{
+  position:static!important;grid-column:2!important;grid-row:5!important;display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:8px 10px!important;border:1px solid #7ca8be33!important;border-radius:10px!important;
+  background:#081b2dcc!important;box-shadow:none!important;overflow:visible!important;transform:none!important;contain:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-phone-lore-open="false"] .tk-v479-lore-card{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-phone-lore-open] .tk-v479-lore-card *{font:500 12px/1.45 system-ui,sans-serif!important;color:#c7dbe7!important;white-space:normal!important;letter-spacing:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-phone-lore-open] :is(.tk-v479-lore-top,.tk-v479-lore-origin){display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-phone-lore-open] .tk-v479-lore-card h4{margin:0 0 6px!important;color:#f6dfa8!important;font-weight:700!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-phone-lore-open] .tk-v479-lore-card p{margin:4px 0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="customize"] .tk-v481-actions-card{
+  position:static!important;inset:auto!important;grid-column:2!important;grid-row:6!important;display:flex!important;
+  align-items:center!important;justify-content:space-between!important;gap:10px!important;
+  width:100%!important;min-width:0!important;height:44px!important;min-height:44px!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  overflow:visible!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]) :is(.tk-v481-actions-card,.tk-v1396-profile-actions,.row)>button{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 1 auto!important;width:auto!important;min-width:0!important;height:44px!important;min-height:44px!important;max-height:44px!important;
+  margin:0!important;padding:0 13px!important;border:1px solid #9dc6dc44!important;border-radius:11px!important;
+  background:#15344f!important;color:#dbeefa!important;-webkit-text-fill-color:currentColor!important;box-shadow:none!important;
+  font:700 12px/1.2 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;text-shadow:none!important;white-space:normal!important;
+  transform:none!important;filter:none!important;animation:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]) :is(.tk-v481-actions-card,.tk-v1396-profile-actions,.row)>button.primary{
+  border-color:#ffe2a0!important;background:linear-gradient(145deg,#ffe4a2,#dca64c)!important;color:#30230e!important;box-shadow:inset 0 1px #fff9d888!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]) button::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]) button::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]) button:focus-visible{outline:2px solid #9cefff!important;outline-offset:2px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel:is([data-step="customize"],[data-step="profile"]) button:active{filter:brightness(1.14)!important;}
+
+/* Nickname and keyboard form a single landscape screen, never an OS overlay. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"]:not([hidden]){
+  grid-template-columns:minmax(172px,.31fr) minmax(0,.69fr)!important;grid-template-rows:20px minmax(108px,1fr) 44px!important;gap:6px 12px!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"]>h3{grid-column:1!important;grid-row:1!important;font-size:13px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"]>p{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"] :is(.field,.tk-v1396-profile-field){
+  grid-column:1!important;grid-row:2!important;position:relative!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:5px!important;
+  width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"] label{display:block!important;margin:0!important;padding:0!important;font:650 12px/16px system-ui,sans-serif!important;color:#ebd5a6!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"] input{
+  position:static!important;width:100%!important;min-width:0!important;max-width:none!important;height:42px!important;min-height:42px!important;max-height:42px!important;
+  margin:0!important;padding:8px 10px!important;border:1px solid #cbb27b99!important;border-radius:10px!important;background:#061729!important;color:#fff2c9!important;
+  font:650 16px/22px system-ui,sans-serif!important;text-align:left!important;box-shadow:inset 0 2px 6px #00102055!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"] :is(.note,.tk-v1396-profile-note){margin:0!important;padding:0!important;font:400 10px/1.3 system-ui,sans-serif!important;color:#a1b9cd!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-name-count{display:block!important;font:500 10px/1.2 system-ui,sans-serif!important;color:#95b8cd!important;text-align:right!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"]>.row{
+  position:static!important;inset:auto!important;grid-column:1!important;grid-row:3!important;display:flex!important;flex-flow:row nowrap!important;justify-content:space-between!important;gap:6px!important;
+  width:100%!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;transform:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .panel[data-step="profile"]>.row>button{padding:0 10px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-keyboard{
+  grid-column:2!important;grid-row:1/4!important;position:static!important;display:grid!important;grid-template-rows:repeat(4,minmax(38px,1fr))!important;align-content:stretch!important;gap:4px!important;
+  width:100%!important;min-width:0!important;height:100%!important;min-height:172px!important;max-height:none!important;padding:6px!important;margin:0!important;
+  border:1px solid rgba(121,191,225,.23)!important;border-radius:13px!important;background:linear-gradient(145deg,rgba(17,47,72,.8),rgba(5,23,42,.86))!important;box-shadow:inset 0 1px #d3f5ff0c!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-keyboard[data-phone-language="numbers"]{grid-template-rows:repeat(3,minmax(38px,1fr))!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-key-row{display:flex!important;justify-content:center!important;align-items:stretch!important;gap:3px!important;min-width:0!important;min-height:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-key-row>button{
+  position:relative!important;inset:auto!important;flex:var(--key-span,1) 1 0%!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;max-width:none!important;width:0!important;height:100%!important;min-height:38px!important;max-height:none!important;
+  margin:0!important;padding:2px!important;border:1px solid rgba(142,200,229,.2)!important;border-radius:7px!important;background:linear-gradient(#244762,#17354e)!important;
+  box-shadow:0 2px 0 #010e1b88,inset 0 1px #f3fbff0a!important;font:600 15px/1 system-ui,sans-serif!important;color:#eaf7ff!important;-webkit-text-fill-color:currentColor!important;
+  text-shadow:none!important;transform:none!important;filter:none!important;animation:none!important;letter-spacing:0!important;touch-action:manipulation!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-key-tools>button{font-size:12px!important;background:#102b43!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2335-key-tools>button[aria-pressed="true"]{border-color:#e4c787!important;color:#ffe7b0!important;}
+
+/* Familiar background and a legible player identity, without scaling the scene. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk-v1397-stage-host,#infoBackdrop).tk1357-active{
+  background-color:#061529!important;background-image:linear-gradient(115deg,rgba(2,12,25,.40),rgba(3,15,34,.70)),var(--tk-v195-bg-url,url("bg_fhd_m.jpg"))!important;
+  background-size:cover!important;background-position:center bottom!important;background-repeat:no-repeat!important;
+  grid-template-rows:44px minmax(0,1fr)!important;gap:5px!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1357-headbar{height:44px!important;border-color:#d4b77c55!important;background:linear-gradient(100deg,#0b223de6,#07182ed9)!important;box-shadow:inset 0 1px #fff0cb19!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1357-brand-copy{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:1px!important;min-width:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1357-brand-copy strong{font:700 16px/18px "Handjet",system-ui,sans-serif!important;color:#ffe5ab!important;letter-spacing:.025em!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1357-brand-copy small{display:block!important;font:500 10px/12px system-ui,sans-serif!important;color:#b0cbdc!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-scene{padding-top:46px!important;background:rgba(3,13,28,.70)!important;border-color:#c7ae794d!important;box-shadow:inset 0 0 16px #58bdde0c!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-profile{top:3px!important;left:4px!important;width:calc(43% - 12px)!important;height:40px!important;max-height:40px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1360-profile-panel{height:40px!important;padding:0 0 0 5px!important;background:linear-gradient(100deg,#102b41e6,#071b2fb3)!important;border-bottom:1px solid #d8be8455!important;border-radius:7px 7px 0 0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1360-idplate{position:relative!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;min-width:0!important;max-width:calc(100% - 46px)!important;width:auto!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1360-idplate::before{
+  content:"НИК ИГРОКА"!important;display:block!important;position:static!important;inset:auto!important;z-index:auto!important;
+  width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;
+  font:650 8px/10px system-ui,sans-serif!important;letter-spacing:.10em!important;color:#92b6ca!important;-webkit-text-fill-color:currentColor!important;
+  white-space:nowrap!important;text-shadow:none!important;opacity:1!important;visibility:visible!important;transform:none!important;filter:none!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1360-idplate::after{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-name{display:block!important;max-width:100%!important;margin:0!important;padding:0!important;font:750 14px/17px system-ui,sans-serif!important;color:#ffe8ae!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1361-stats-toggle{width:44px!important;min-width:44px!important;height:40px!important;min-height:40px!important;padding:0!important;border:0!important;border-left:1px solid #83bbd42b!important;border-radius:0 7px 0 0!important;background:#17394e88!important;color:#d9eef9!important;box-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1361-stats-toggle>span{position:absolute!important;clip-path:inset(50%)!important;width:1px!important;height:1px!important;overflow:hidden!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1361-stats-toggle::before{content:none!important;display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1361-stats-toggle::after{content:"◈"!important;position:static!important;inset:auto!important;display:block!important;width:auto!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;transform:none!important;font:400 22px/1 system-ui,sans-serif!important;color:#e8d5aa!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1361-stats-toggle-icon{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1361-stats-drawer{top:43px!important;border:1px solid #b6a47166!important;border-radius:10px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-message{background:linear-gradient(140deg,rgba(6,25,46,.93),rgba(4,19,37,.86))!important;border:1px solid #c9af7855!important;box-shadow:inset 0 1px #fff3cd14!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-body{touch-action:pan-y!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;scrollbar-color:#bcac7c66 transparent!important;scrollbar-width:thin!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-body *{touch-action:pan-y!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1360-frame-overlay{pointer-events:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk1310-route,.tk-m2324-inventory-toggle){background:linear-gradient(150deg,#153c55e8,#0b243be8)!important;border-color:#b8b68f66!important;box-shadow:inset 0 1px #dcf3ff12!important;font-size:11px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-action{border-color:#d4c5a766!important;box-shadow:inset 0 1px #fff5cf26,0 2px 6px #01091844!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-action:active{filter:brightness(1.18)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage[data-tk-v1414-final] .tk1310-scene{padding:0!important;}
 </style>
 <script id="tk-v2324-mobile-runtime">
 (function(){
@@ -143423,10 +143792,123 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
     });
   }
 
+  // v2335. All callers live behind the phone preflight guard.
+  var phoneParts=['eyes','hair','clothes','shoes'];
+  var phonePartNames={eyes:'Глаза',hair:'Волосы',clothes:'Одежда',shoes:'Обувь'};
+  var phonePanelSerial=0;
+  function preparePhoneCustomizer(panel){
+    var options=panel.querySelector('.tk-info-custom-options');if(!options)return;
+    if(!options.querySelector('.tk-m2335-parts')){
+      var tabs=document.createElement('div');tabs.className='tk-m2335-parts';
+      tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Внешность героя');
+      var serial=++phonePanelSerial;
+      phoneParts.forEach(function(part){
+        var group=options.querySelector('.tk-info-option-group[data-info-part="'+part+'"]');if(!group)return;
+        var tab=document.createElement('button');tab.type='button';tab.dataset.phonePart=part;
+        tab.id='tkPhonePart'+serial+'-'+part;tab.textContent=phonePartNames[part];tab.setAttribute('role','tab');
+        group.id='tkPhoneOptions'+serial+'-'+part;group.setAttribute('role','tabpanel');
+        group.setAttribute('aria-labelledby',tab.id);tab.setAttribute('aria-controls',group.id);
+        tab.addEventListener('click',function(){select(part);});
+        tab.addEventListener('keydown',function(e){
+          var n=phoneParts.indexOf(part);if(e.key==='ArrowRight')n=(n+1)%4;else if(e.key==='ArrowLeft')n=(n+3)%4;
+          else if(e.key==='Home')n=0;else if(e.key==='End')n=3;else return;
+          e.preventDefault();select(phoneParts[n]);tabs.querySelector('[data-phone-part="'+phoneParts[n]+'"]').focus({preventScroll:true});
+        });tabs.appendChild(tab);
+      });
+      function select(part){
+        setAttr(panel,'data-phone-active-part',part);
+        tabs.querySelectorAll('button').forEach(function(b){var on=b.dataset.phonePart===part;setAttr(b,'aria-selected',String(on));b.tabIndex=on?0:-1;});
+        options.querySelectorAll('.tk-info-option-group').forEach(function(g){var on=g.dataset.infoPart===part;setAttr(g,'data-phone-active',String(on));setAttr(g,'aria-hidden',String(!on));});
+      }
+      options.insertBefore(tabs,options.firstChild);select(panel.dataset.phoneActivePart||'eyes');
+    }
+    // CSS display:contents lays out the original action group without moving it.
+    // The legacy controller owns its parent; moving it would cause an observer loop.
+    var lore=options.querySelector('.tk-v479-lore-card');
+    if(lore&&!options.querySelector('.tk-m2335-lore-toggle')){
+      var summary=document.createElement('button');summary.type='button';summary.className='tk-m2335-lore-toggle';
+      summary.textContent='Легенда и способности героя';lore.id='tkPhoneLore'+(++phonePanelSerial);
+      summary.setAttribute('aria-controls',lore.id);summary.setAttribute('aria-expanded','false');
+      setAttr(panel,'data-phone-lore-open','false');lore.setAttribute('aria-hidden','true');
+      summary.addEventListener('click',function(){var open=panel.dataset.phoneLoreOpen!=='true';setAttr(panel,'data-phone-lore-open',String(open));setAttr(summary,'aria-expanded',String(open));setAttr(lore,'aria-hidden',String(!open));});
+      lore.parentNode.insertBefore(summary,lore);
+    }
+  }
+  function preparePhoneNickname(input){
+    if(!input||input.__tkM2335Prepared)return;
+    input.__tkM2335Prepared=true;
+    input.readOnly=true;input.inputMode='none';input.setAttribute('inputmode','none');
+    input.setAttribute('autocomplete','off');input.setAttribute('autocorrect','off');input.setAttribute('autocapitalize','off');input.spellcheck=false;
+    var panel=input.closest('.panel[data-step="profile"]');if(!panel||panel.__tkM2335Keyboard)return;
+    panel.__tkM2335Keyboard=true;
+    var label=panel.querySelector('label');if(label)label.textContent='Ник игрока';
+    var back=panel.querySelector('#infoBackToAvatarBtn,[data-back]'),go=panel.querySelector('#infoToPlayBtn,[data-go]');
+    if(back)back.textContent='Назад';if(go)go.textContent='В игру →';
+    input.placeholder='Придумайте имя героя';
+    var keyboard=document.createElement('div');keyboard.className='tk-m2335-keyboard';
+    keyboard.setAttribute('role','group');keyboard.setAttribute('aria-label','Клавиатура для ника');
+    var count=document.createElement('span');count.className='tk-m2335-name-count';count.setAttribute('aria-live','off');input.parentNode.appendChild(count);
+    var lang='ru',caps=false,numbers=false;
+    var rows={ru:['йцукенгшщзхъ','фывапролджэ','ячсмитьбюё'],en:['qwertyuiop','asdfghjkl','zxcvbnm'],num:['1234567890','-_.','']};
+    function updateCount(){count.textContent=input.value.length+' / 32';}
+    function edit(text,backspace){
+      var value=input.value,start=input.selectionStart==null?value.length:input.selectionStart,end=input.selectionEnd==null?start:input.selectionEnd;
+      if(backspace&&start===end&&start>0){var chars=Array.from(value.slice(0,start));start-=chars[chars.length-1].length;}
+      var room=32-(value.length-(end-start)),insert=String(text||'').slice(0,Math.max(0,room));
+      input.value=value.slice(0,start)+insert+value.slice(end);var cursor=start+insert.length;
+      input.setSelectionRange(cursor,cursor);input.dispatchEvent(new Event('input',{bubbles:true}));updateCount();
+    }
+    function key(text,action,span,label){
+      var b=document.createElement('button');b.type='button';b.textContent=text;
+      b.dataset.phoneKey=action||text;b.setAttribute('aria-label',label||text);
+      if(span)b.style.setProperty('--key-span',span);
+      if(action==='shift')b.setAttribute('aria-pressed',String(caps));
+      b.addEventListener('pointerdown',function(e){e.preventDefault();});
+      b.addEventListener('click',function(){
+        if(action==='lang'){lang=lang==='ru'?'en':'ru';numbers=false;render();}
+        else if(action==='numbers'){numbers=!numbers;render();}
+        else if(action==='shift'){caps=!caps;render();}
+        else if(action==='backspace')edit('',true);
+        else edit(action==='space'?' ':text,false);
+      });return b;
+    }
+    function render(){
+      keyboard.replaceChildren();var layout=rows[numbers?'num':lang];
+      layout.forEach(function(letters,index){
+        if(!letters)return;
+        var row=document.createElement('div');row.className='tk-m2335-key-row';
+        Array.from(letters).forEach(function(letter){row.appendChild(key(caps?letter.toUpperCase():letter));});
+        keyboard.appendChild(row);
+      });
+      var controls=document.createElement('div');controls.className='tk-m2335-key-row tk-m2335-key-tools';
+      controls.appendChild(key(lang==='ru'?'EN':'РУ','lang',1,'Сменить язык'));
+      controls.appendChild(key(numbers?'АБВ':'123','numbers',1,numbers?'Буквы':'Цифры'));
+      controls.appendChild(key('⇧','shift',1,'Заглавные буквы'));
+      controls.appendChild(key('Пробел','space',3,'Пробел'));
+      controls.appendChild(key('⌫','backspace',1.4,'Удалить символ'));keyboard.appendChild(controls);
+      setAttr(keyboard,'data-phone-language',numbers?'numbers':lang);
+    }
+    input.addEventListener('input',updateCount);
+    // Physical keyboards remain usable, without requesting the OS touch keyboard.
+    input.addEventListener('keydown',function(e){
+      if(e.ctrlKey||e.metaKey||e.altKey||e.isComposing)return;
+      if(e.key==='Backspace'){e.preventDefault();edit('',true);}
+      else if(e.key==='Delete'){e.preventDefault();var at=input.selectionStart;if(at===input.selectionEnd)input.setSelectionRange(at,at+1);edit('',false);}
+      else if(e.key.length===1){e.preventDefault();edit(e.key,false);}
+    });
+    input.addEventListener('paste',function(e){var text=e.clipboardData&&e.clipboardData.getData('text');if(text){e.preventDefault();edit(text.replace(/[\r\n\t]/g,' '),false);}});
+    panel.appendChild(keyboard);updateCount();render();
+  }
+  function preparePhone2335(){
+    document.querySelectorAll('#infoBackdrop .panel[data-step="customize"],.tk-v337-backdrop .panel[data-step="customize"]').forEach(preparePhoneCustomizer);
+    document.querySelectorAll('#infoFioInput,.tk-v337-backdrop #tkV1396NameInput').forEach(preparePhoneNickname);
+  }
+
   function sync(){
     queued=false;if(!document.body)return;
     api.viewport();
     preparePhoneViews();
+    preparePhone2335();
     var landscape=api.landscape();toggle(html,'tk-v2324-landscape',landscape);
     toggle(html,'tk-mobile-landscape-v341',landscape);toggle(document.body,'tk-mobile-landscape-v341',landscape);
     if(!gate){
