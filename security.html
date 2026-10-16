@@ -3,7 +3,7 @@
 
 <html class="tk-v1356-cinema-locked tk-v1922-home-scroll-real" lang="ru">
 <head>
-<meta name="tk-build" content="v2335-mobile-customizer-keyboard-scroll">
+<meta name="tk-build" content="v2336-mobile-scroll-single-hero-inventory-viewer">
 <meta id="tk-v2301-viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 
@@ -209,7 +209,7 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
     if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
     return true;
   }
-  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2335'};
+  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2336'};
   if(!phone)return;
   window.__tkV2301DesktopTablet=false;window.__tkV2300VirtualDesktop=false;
   html.classList.add('tk-v2324-phone','tk-v2326-phone');
@@ -30084,14 +30084,19 @@ function infoTabletV470FastChoiceRender(stage, changedPart, changedChoice){
     const kind=state.avatar==='girl'?'girl':'boy',variant=getCurrentInfoAvatarVariant(),key=infoGetCustomKey();
     const appearance=Object.assign({},infoEnsureAppearance());
     const combo=key+':'+INFO_CUSTOM_PARTS.map(p=>appearance[p]).join(':')+':'+infoMobile2335LastPart;
-    if(container.__tkM2335Combo===combo&&container.querySelector('img[data-layer="composite"]'))return;
-    if(container.__tkM2335Cancel)container.__tkM2335Cancel();
-    container.__tkM2335Combo=combo;
+
+
     container.classList.add('tk-info-custom-stage');container.classList.toggle('tk-info-hud-avatar',mode==='hud');
     const oldKey=container.getAttribute('data-info-avatar-key');
     container.setAttribute('data-info-avatar-key',key);container.setAttribute('data-info-avatar-kind',kind);
     let img=container.querySelector('img[data-layer="composite"]');
     if(!img){img=document.createElement('img');img.setAttribute('data-layer','composite');img.alt='';img.decoding='async';img.loading='eager';container.replaceChildren(img);}
+    // One complete render, never several complete PNGs stacked together.
+    img.dataset.tkPhoneComposite='1';
+    Array.from(container.children).forEach(node=>{if(node!==img)node.remove();});
+    if(container.__tkM2335Combo===combo&&img.getAttribute('src'))return;
+    if(container.__tkM2335Cancel)container.__tkM2335Cancel();
+    container.__tkM2335Combo=combo;
     if(oldKey&&oldKey!==key){img.removeAttribute('src');img.hidden=true;container.classList.remove('has-base');}
     const probes=new Set();let cancelled=false;
     container.__tkM2335Cancel=()=>{cancelled=true;probes.forEach(p=>p.finish(false));probes.clear();};
@@ -90546,10 +90551,10 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
   function v514Combo(v,a){ return [String(v&&v.id||'boy1'), a.eyes||1, a.hair||1, a.clothes||1, a.shoes||1].join('|'); }
   function v514Ctx(part,choice){ const v=variant(); const a=v435Appearance(); if(part && V435_CUSTOM_PARTS.indexOf(part)>=0) a[part]=Math.max(1,Math.min(3,parseInt(choice,10)||a[part]||1)); return {v:v,key:String(v&&v.id||'boy1'),appearance:a,combo:v514Combo(v,a),part:String(part||''),choice:Math.max(1,Math.min(3,parseInt(choice,10)||1))}; }
   function v514StyleImg(img,z,opacity){ if(!img) return; try{ img.loading='eager'; img.decoding='async'; }catch(_e){} try{ if(img.dataset.tkV1392Styled==='1') return; img.dataset.tkV1392Styled='1'; img.style.setProperty('display','block','important'); img.style.setProperty('visibility','visible','important'); img.style.setProperty('position','absolute','important'); img.style.setProperty('inset','0','important'); img.style.setProperty('width','100%','important'); img.style.setProperty('height','100%','important'); img.style.setProperty('max-width','100%','important'); img.style.setProperty('max-height','100%','important'); img.style.setProperty('object-fit','contain','important'); img.style.setProperty('object-position','center center','important'); img.style.setProperty('transform','none','important'); img.style.setProperty('filter','none','important'); img.style.setProperty('-webkit-filter','none','important'); img.style.setProperty('pointer-events','none','important'); img.style.setProperty('transition','none','important'); img.style.setProperty('animation','none','important'); img.style.setProperty('opacity',String(opacity==null?1:opacity),'important'); img.style.setProperty('z-index',String(z||30),'important'); img.style.setProperty('border','0','important'); img.style.setProperty('outline','0','important'); img.style.setProperty('box-shadow','none','important'); }catch(_e){} }
-  function v514VisibleImg(stage){ let img=null; try{ img=stage.querySelector(':scope > img[data-preview-img][data-layer="composite"]'); }catch(_e){ img=stage.querySelector('img[data-preview-img][data-layer="composite"]'); } if(!img){ try{ img=Array.from(stage.querySelectorAll(':scope > img')).find(n=>n.getAttribute('src')||n.currentSrc)||null; }catch(_e){} } if(img) v514StyleImg(img,30,1); return img; }
+  function v514VisibleImg(stage){ let img=null; try{ img=stage.querySelector(':scope > img[data-preview-img][data-layer="composite"]'); }catch(_e){ img=stage.querySelector('img[data-preview-img][data-layer="composite"]'); } if(!img){ try{ img=Array.from(stage.querySelectorAll(':scope > img')).find(n=>n.getAttribute('src')||n.currentSrc)||null; }catch(_e){} } if(img){ v514StyleImg(img,30,1); if(window.TKMobile2324&&window.TKMobile2324.phone){img.dataset.tkPhoneComposite='1';Array.from(stage.children).forEach(n=>{if(n!==img)n.remove();});} } return img; }
   function v514ClearQueue(stage){ try{ const d=v514Diag(); (d.activeImages||[]).forEach(im=>{ try{ im.onload=null; im.onerror=null; im.src=''; }catch(_e){} }); d.activeImages=[]; (d.timers||[]).forEach(t=>{ try{ clearTimeout(t); }catch(_e){} }); d.timers=[]; if(stage){ Array.from(stage.querySelectorAll(':scope > img.tk-v514-probe, :scope > img.tk-v512-probe, :scope > img.tk-v509-candidate')).forEach(n=>{ try{ n.onload=null; n.onerror=null; n.remove(); }catch(_e){} }); } }catch(_e){} }
   function v514CurrentMatches(ctx){ try{ return state && current && root && root.classList.contains('is-open') && state.step==='custom' && v514Ctx().combo===ctx.combo; }catch(_e){ return false; } }
-  function v514Commit(stage,src,ctx,rank,exact){ try{ if(!stage || !src || !v514CurrentMatches(ctx)) return false; const req=stage.dataset.tkV514Req; const cur=parseInt(stage.dataset.tkV514Rank||'9999',10); const cand=(exact?0:100)+rank; if(cand>=cur) return false; let node=v514VisibleImg(stage); if(!node){ node=document.createElement('img'); node.alt=''; node.setAttribute('data-preview-img','1'); node.setAttribute('data-layer','composite'); node.className='tk-v514-front'; v514StyleImg(node,30,1); stage.appendChild(node); } node.dataset.tkV514Src=src; node.dataset.tkV514Exact=exact?'1':'0'; if(exact){ node.dataset.tkV514Combo=ctx.combo; try{delete node.dataset.tkV514FallbackCombo;}catch(_e){} }else{ node.dataset.tkV514FallbackCombo=ctx.combo; try{delete node.dataset.tkV514Combo;}catch(_e){} } if(node.getAttribute('src')!==src){ node.src=src; try{ if(node.animate) node.animate([{opacity:.72,transform:'translate3d(0,3px,0) scale(.992)',filter:'brightness(.92)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)',filter:'brightness(1)'}],{duration:180,easing:'cubic-bezier(.2,.75,.25,1)'}); }catch(_a){} } stage.dataset.tkV514Req=req; stage.dataset.tkV514Rank=String(cand); if(exact){ stage.dataset.tkV514VisibleCombo=ctx.combo; }else{ stage.dataset.tkV514FallbackCombo=ctx.combo; try{ delete stage.dataset.tkV514VisibleCombo; }catch(_d){ stage.removeAttribute('data-tk-v514-visible-combo'); } } stage.classList.remove('tk-v514-loading','tk-v514-switching'); const d=v514Diag(); d.lastCommit={src:src,combo:ctx.combo,rank:cand,exact:!!exact,ms:Math.round((performance.now?performance.now():Date.now())-(d.t0||0))}; try{ if(state && src) v1406StoreHero(src,ctx.combo,exact); }catch(_e){} return true; }catch(_e){ return false; } }
+  function v514Commit(stage,src,ctx,rank,exact){ try{ if(!stage || !src || !v514CurrentMatches(ctx)) return false; const req=stage.dataset.tkV514Req; const cur=parseInt(stage.dataset.tkV514Rank||'9999',10); const cand=(exact?0:100)+rank; if(cand>=cur) return false; let node=v514VisibleImg(stage); if(!node){ node=document.createElement('img'); node.alt=''; node.setAttribute('data-preview-img','1'); node.setAttribute('data-layer','composite'); node.className='tk-v514-front'; v514StyleImg(node,30,1); stage.appendChild(node); if(window.TKMobile2324&&window.TKMobile2324.phone)node.dataset.tkPhoneComposite='1'; } node.dataset.tkV514Src=src; node.dataset.tkV514Exact=exact?'1':'0'; if(exact){ node.dataset.tkV514Combo=ctx.combo; try{delete node.dataset.tkV514FallbackCombo;}catch(_e){} }else{ node.dataset.tkV514FallbackCombo=ctx.combo; try{delete node.dataset.tkV514Combo;}catch(_e){} } if(node.getAttribute('src')!==src){ node.src=src; try{ if(node.animate) node.animate([{opacity:.72,transform:'translate3d(0,3px,0) scale(.992)',filter:'brightness(.92)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)',filter:'brightness(1)'}],{duration:180,easing:'cubic-bezier(.2,.75,.25,1)'}); }catch(_a){} } stage.dataset.tkV514Req=req; stage.dataset.tkV514Rank=String(cand); if(exact){ stage.dataset.tkV514VisibleCombo=ctx.combo; }else{ stage.dataset.tkV514FallbackCombo=ctx.combo; try{ delete stage.dataset.tkV514VisibleCombo; }catch(_d){ stage.removeAttribute('data-tk-v514-visible-combo'); } } stage.classList.remove('tk-v514-loading','tk-v514-switching'); const d=v514Diag(); d.lastCommit={src:src,combo:ctx.combo,rank:cand,exact:!!exact,ms:Math.round((performance.now?performance.now():Date.now())-(d.t0||0))}; try{ if(state && src) v1406StoreHero(src,ctx.combo,exact); }catch(_e){} return true; }catch(_e){ return false; } }
   const v1392CustomAssetCache=new Map();
   function v514RenderPreview(reason,part,choice){return v2308RenderPreview(reason,part,choice);}
   function v514UpdateButtons(){ const a=v435Appearance(); try{ root.querySelectorAll('[data-part][data-choice]').forEach(btn=>{ const p=btn.dataset.part; const c=parseInt(btn.dataset.choice,10)||1; const sel=(a[p]||1)===c; btn.classList.toggle('is-selected',sel); btn.classList.toggle('is-on',sel); btn.setAttribute('aria-pressed',sel?'true':'false'); }); }catch(_e){} }
@@ -90654,7 +90659,8 @@ function hydrateImages(){
     const id=V527_INV_META[state.v527Selected]?state.v527Selected:'hint'; const m=V527_INV_META[id]; const count=Math.max(0, Number(state.v527Inventory[id]||0));
     return `<div class="info-feature-main"><div class="info-feature-thumb"><img src="${v527InvImage(id)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="info-inv-fallback" hidden>${m.emoji}</span></div><div class="info-feature-copy"><div class="info-feature-top"><h4>${escapeHtml(m.title)}</h4><span class="badge">x${count}</span></div><p class="info-feature-desc">${escapeHtml(m.desc)}</p><div class="info-feature-actions"><button class="btn primary" data-inv-use="${id}" type="button">Использовать</button><button class="btn" data-inv-quick="${id}" type="button">В быстрый слот</button></div><div class="info-feature-status" data-inv-status>Выбери предмет и нажми «Использовать».</div></div></div><div class="info-quickbar">${state.v527Quick.map(q=>`<button type="button" data-inv-select="${q}"><span>${V527_INV_META[q].emoji}</span><b>${escapeHtml(V527_INV_META[q].title)}</b><small>x${Math.max(0,Number(state.v527Inventory[q]||0))}</small></button>`).join('')}</div>`;
   }
-  function v527SetInventoryStatus(view, text, kind){ const box=view && view.querySelector('[data-inv-status]'); if(box){ box.textContent=text; box.className='info-feature-status tk-v527-feature-status '+(kind||''); } }
+  let v2336PhoneInventoryNotice=null;
+  function v527SetInventoryStatus(view, text, kind){ if(window.TKMobile2324&&window.TKMobile2324.phone)v2336PhoneInventoryNotice={run:state,index:state.idx,item:state.v527Selected,text:String(text||'')}; const box=view && view.querySelector('[data-inv-status]'); if(box){ box.textContent=text; box.className='info-feature-status tk-v527-feature-status '+(kind||''); } }
   function v527ShowInventoryNotice(view, title, text, kind){
     try{
       const card=view && view.querySelector('[data-question-card]'); if(!card) return;
@@ -91635,6 +91641,17 @@ function v534BuildAnswerBox(view, choice, ok, skip){
     v1397SetText(deck.querySelector('.tk1936-detail-title'),m.title);
     v1397SetText(deck.querySelector('.tk1936-detail-count'),'×'+Math.max(0,Number(state.v527Inventory[id]||0)));
     v1397SetText(deck.querySelector('.tk1936-detail-desc'),m.desc||'Полезный предмет героя.');
+    if(window.TKMobile2324&&window.TKMobile2324.phone){
+      const notice=v2336PhoneInventoryNotice;
+      const copy=notice&&notice.run===state&&notice.index===state.idx&&notice.item===id?notice.text:m.desc;
+      v1397SetText(deck.querySelector('.tk1936-detail-desc'),copy);
+      v1397SetText(v1397Stage.querySelector('.tk1310-hint-text'),copy);
+      const use=deck.querySelector('[data-v1397-control="use"]'),quick=deck.querySelector('[data-v1397-control="quick"]');
+      if(use)use.disabled=Number(state.v527Inventory[id]||0)<=0;
+      if(quick){quick.disabled=state.v527Quick[0]===id;v1397SetText(quick,quick.disabled?'В первом слоте':'В первый слот');}
+      deck.querySelectorAll('.tk1936-card').forEach(button=>button.setAttribute('aria-pressed',String(button.classList.contains('is-selected'))));
+    }
+
   }
   function v1397AnswerInfo(view,c){
     const result=view&&view.querySelector('.tk-answer-result:not([hidden])'), copy=result&&result.querySelector('.tk-answer-copy'), badge=result&&result.querySelector('.tk-answer-badge');
@@ -91710,7 +91727,16 @@ function v534BuildAnswerBox(view, choice, ok, skip){
     if(cmd==='stats'){ const open=v1397Stage.getAttribute('data-tk1361-stats-open')!=='true'; v1397Stage.setAttribute('data-tk1361-stats-open',open?'true':'false'); control.setAttribute('aria-expanded',open?'true':'false'); v1397Stage.querySelector('.tk1361-stats-drawer').setAttribute('aria-hidden',open?'false':'true'); return; }
     if(item){ state.v527Selected=item; save(); return v1397Sync(); }
     if(cmd==='use'){ v527UseItem(state.v527Selected,view); return v1397Schedule(); }
-    if(cmd==='quick'){ return; }
+    if(cmd==='quick'){
+      if(window.TKMobile2324&&window.TKMobile2324.phone){
+        const id=state.v527Selected;
+        state.v527Quick=[id].concat(state.v527Quick.filter(key=>key!==id)).slice(0,4);
+        save();v527RefreshInventory(view);v527SetInventoryStatus(view,'Предмет перемещён в первый быстрый слот.','good');
+        const deck=v1397Stage.querySelector('.tk1948-direct-deck');if(deck){deck.dataset.page='0';deck.dataset.userPage='1';}
+        v1397SyncInventory();
+      }
+      return;
+    }
     const turn=v1397PrepareTurn();
     if(phase==='final'){ if(action==='skip') returnToTrainingMenu(e); else if(turn)turn.remove(); return; }
     if(phase==='answer'){
@@ -111249,6 +111275,7 @@ window.__tkV668InfobezControls = function(mode){
 <script id="tk-v1117-desktop-fast-customizer-images-script">
 (function(){
   'use strict';
+  if(window.TKMobile2324&&window.TKMobile2324.phone)return;
    
   try{
     var __tk1503w=Math.max(window.innerWidth||0,document.documentElement.clientWidth||0),__tk1503h=Math.max(window.innerHeight||0,document.documentElement.clientHeight||0);
@@ -138035,8 +138062,8 @@ function buildShell(bay){
   if(e.target.closest('.tk1936-next')){setPage(bay,(+shell.dataset.page||0)+1);return}
   var act=e.target.closest('[data-tk1936-act]');if(act){var n2=getNative(bay),sel=act.getAttribute('data-tk1936-act');var controlAttr=bay.closest('#infoBackdrop')?'data-tk1357-control':'data-v1397-control';var proxy=n2.hint&&qs('['+controlAttr+'="'+sel+'"]',n2.hint);if(proxy)proxy.click();setTimeout(function(){refresh(bay,true)},40);setTimeout(function(){refresh(bay,true)},160)}
  });
- shell.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)<16&&Math.abs(e.deltaX)<16)return;e.preventDefault();setPage(bay,(+shell.dataset.page||0)+((e.deltaX||e.deltaY)>0?1:-1))},{passive:false});
- var sx=null;shell.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse')sx=e.clientX},{passive:true});shell.addEventListener('pointerup',function(e){if(sx==null)return;var dx=e.clientX-sx;sx=null;if(Math.abs(dx)>42)setPage(bay,(+shell.dataset.page||0)+(dx<0?1:-1))},{passive:true});
+ shell.addEventListener('wheel',function(e){if(window.TKMobile2324&&window.TKMobile2324.phone)return;if(Math.abs(e.deltaY)<16&&Math.abs(e.deltaX)<16)return;e.preventDefault();setPage(bay,(+shell.dataset.page||0)+((e.deltaX||e.deltaY)>0?1:-1))},{passive:false});
+ var sx=null;shell.addEventListener('pointerdown',function(e){if(window.TKMobile2324&&window.TKMobile2324.phone)return;if(e.pointerType!=='mouse')sx=e.clientX},{passive:true});shell.addEventListener('pointerup',function(e){if(sx==null)return;var dx=e.clientX-sx;sx=null;if(Math.abs(dx)>42)setPage(bay,(+shell.dataset.page||0)+(dx<0?1:-1))},{passive:true});
  return shell;
 }
 function pageSize(bay){var stage=bay.closest('.tk1310-stage');return stage&&stage.dataset.tkV2321Inventory==='single'?1:2}
@@ -138051,9 +138078,21 @@ function render(bay,data){
  var sel=items.find(function(x){return x.selected})||items[0]||{title:'Инвентарь',count:'×0',src:'',emoji:'◆',desc:'Выберите предмет.'};
  var a=qs('.tk1936-detail-art',shell);a.innerHTML=sel.src?'<img src="'+esc(sel.src)+'" alt="">':'<span class="tk1936-fallback">'+esc(sel.emoji||'◆')+'</span>';
  qs('.tk1936-detail-title',shell).textContent=sel.title;qs('.tk1936-detail-count',shell).textContent=sel.count;qs('.tk1936-detail-desc',shell).textContent=sel.desc;
+ if(window.TKMobile2324&&window.TKMobile2324.phone){
+  var live=data.native.hint&&qs('.tk1310-hint-text',data.native.hint);
+  if(live&&live.textContent.trim())qs('.tk1936-detail-desc',shell).textContent=live.textContent.trim();
+  var attr=bay.closest('#infoBackdrop')?'data-tk1357-control':'data-v1397-control';
+  qsa('[data-tk1936-act]',shell).forEach(function(button){
+   var native=data.native.hint&&qs('['+attr+'="'+button.dataset.tk1936Act+'"]',data.native.hint);
+   button.disabled=!native||native.disabled;
+   if(native)button.textContent=native.textContent;
+  });
+  qsa('.tk1936-card',shell).forEach(function(button){button.setAttribute('aria-pressed',String(button.classList.contains('is-selected')));});
+ }
+
 }
-function signature(data){return data.items.map(function(x){return [x.key,x.title,x.count,x.src,x.selected?1:0].join('|')}).join('||')}
-function refresh(bay,force){if(!bay||!bay.isConnected)return;var host=bay.closest('#infoBackdrop,.tk-v1397-stage-host');if(!host||!host.classList.contains('tk1357-active'))return;var data=collect(bay);if(!data.native.inv||!data.native.hint||!data.items.length)return;var shell=qs(':scope > .tk1936-deck',bay)||buildShell(bay);var sig=signature(data);if(force||shell.dataset.sig!==sig){shell.dataset.sig=sig;render(bay,data)}}
+function signature(data){return data.items.map(function(x){return [x.key,x.title,x.count,x.src,x.selected?1:0].join('|')}).join('||')+((window.TKMobile2324&&window.TKMobile2324.phone&&data.native.hint)?'|'+data.native.hint.textContent+'|'+qsa('button',data.native.hint).map(function(b){return b.disabled}).join(): '')}
+function refresh(bay,force){if(window.TKMobile2324&&window.TKMobile2324.phone&&bay&&bay.closest('.tk-v1397-stage-host'))return;if(!bay||!bay.isConnected)return;var host=bay.closest('#infoBackdrop,.tk-v1397-stage-host');if(!host||!host.classList.contains('tk1357-active'))return;var data=collect(bay);if(!data.native.inv||!data.native.hint||!data.items.length)return;var shell=qs(':scope > .tk1936-deck',bay)||buildShell(bay);var sig=signature(data);if(force||shell.dataset.sig!==sig){shell.dataset.sig=sig;render(bay,data)}}
 function scan(){qsa('#infoBackdrop.tk1357-active .tk1360-utility-bay,.tk-v1397-stage-host.tk1357-active .tk1360-utility-bay').forEach(function(bay){refresh(bay,false)})}
 window.addEventListener('tk:v2321-inventory-layout',function(){qsa('#infoBackdrop.tk1357-active .tk1360-utility-bay').forEach(function(bay){refresh(bay,true)})});
 if(window.__tkV2301DesktopTablet){
@@ -143721,6 +143760,114 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
 html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-action{border-color:#d4c5a766!important;box-shadow:inset 0 1px #fff5cf26,0 2px 6px #01091844!important;}
 html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-action:active{filter:brightness(1.18)!important;}
 html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage[data-tk-v1414-final] .tk1310-scene{padding:0!important;}
+
+/* v2336. Bounded phone scroll surfaces, a single character and two-column
+   landscape inventory. All selectors require the existing phone detector. */
+html.tk-v2324-phone,html.tk-v2324-phone body{min-height:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk1310-stage,.tk1310-message,.tk1310-body,.tk1360-utility-bay,.tk1936-deck,.tk1936-deck *){box-sizing:border-box!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.modal-body,.tk1310-body,.tk1936-detail-copy,.tk1361-stats-drawer){pointer-events:auto!important;touch-action:pan-y pinch-zoom!important;overflow-anchor:none!important;scroll-behavior:auto!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.modal-body,.tk1310-body,.tk1936-detail-copy) *{touch-action:pan-y pinch-zoom!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk-info-custom-stage,.tk-v337-preview-stage)>[data-tk-phone-composite="1"]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;transform:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk-info-custom-stage,.tk-v337-preview-stage)>[data-tk-phone-composite="1"]~img{display:none!important;}
+
+/* Keep the original two-column composition and teleport/typewriter animations. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage:not([data-tk-v1414-final]){grid-template-columns:minmax(0,.40fr) minmax(0,.60fr)!important;grid-template-rows:minmax(0,1fr) 44px!important;gap:6px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-profile{width:calc(40% - 12px)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage:not([data-tk-v1414-final]) .tk1310-message{
+  display:flex!important;flex-direction:column!important;gap:4px!important;
+  height:100%!important;min-height:0!important;padding:6px 8px!important;overflow:hidden!important;
+  background:linear-gradient(135deg,#102d47f5,#07182df5)!important;border:1px solid #95c2ce66!important;
+  box-shadow:inset 0 1px #e6f7ff14,0 4px 14px #0003!important;isolation:isolate!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-message .tk1911-vitals{position:relative!important;inset:auto!important;flex:0 0 30px!important;height:30px!important;min-height:30px!important;margin:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-message :is(.tk1365-vital-health,.tk1365-vital-level){height:30px!important;padding:2px 5px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-message .tk1310-title{position:relative!important;inset:auto!important;flex:0 0 20px!important;height:20px!important;min-height:0!important;margin:0!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1378-title-copy{font-size:14px!important;line-height:20px!important;font-weight:650!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage:not([data-tk-v1414-final]) .tk1310-body{
+  position:relative!important;inset:auto!important;display:block!important;flex:1 1 0px!important;
+  width:100%!important;min-width:0!important;height:0!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:2px 8px 6px!important;overflow-x:hidden!important;overflow-y:auto!important;
+  -webkit-line-clamp:unset!important;-webkit-box-orient:initial!important;
+  border:0!important;border-left:2px solid #9fdfe299!important;border-radius:0 5px 5px 0!important;
+  background:linear-gradient(90deg,#24516b33,transparent)!important;box-shadow:none!important;
+  scrollbar-width:thin!important;scrollbar-color:#8bc9d0 #0b2138!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;user-select:text!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk1310-body,.tk1378-dialogue-copy,.tk1378-dialogue-copy *){
+  font-family:Georgia,"Times New Roman",serif!important;font-size:15px!important;line-height:1.38!important;
+  font-weight:600!important;color:#f6e8c6!important;-webkit-text-fill-color:#f6e8c6!important;
+  -webkit-text-stroke:0!important;text-shadow:none!important;white-space:pre-line!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-body::-webkit-scrollbar{width:5px!important;height:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-body::-webkit-scrollbar-thumb{background:#8bc9d0!important;border-radius:5px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-meta{flex:0 0 14px!important;height:14px!important;min-height:14px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk1310-action,.tk1310-route,.tk-m2324-inventory-toggle){height:44px!important;min-height:44px!important;box-shadow:inset 0 1px #fff2,0 3px 7px #0003!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-action:active{filter:brightness(1.15)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-scene{position:relative!important;background:radial-gradient(ellipse at center,#1b405e80,#051528d9)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-qimg{cursor:zoom-in!important;pointer-events:auto!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2336-image-open{
+  position:absolute!important;inset:auto 4px 4px auto!important;z-index:20!important;
+  display:grid!important;place-items:center!important;width:44px!important;height:44px!important;min-height:44px!important;
+  margin:0!important;padding:0!important;border:5px solid transparent!important;border-radius:12px!important;
+  background:#112e48e8!important;background-clip:padding-box!important;color:#e8e1c5!important;
+  font:500 24px/1 system-ui,sans-serif!important;box-shadow:none!important;cursor:zoom-in!important;touch-action:manipulation!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage[data-tk-v1414-final] .tk-m2336-image-open{display:none!important;}
+
+/* Two columns use the phone's width; the close button is outside all scroll areas. */
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1310-stage.tk-m2324-inventory-open{z-index:2000!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2324-inventory-open .tk1360-utility-bay{
+  position:fixed!important;inset:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important;
+  width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+  padding:6px!important;z-index:1000!important;isolation:isolate!important;pointer-events:auto!important;
+  background:linear-gradient(125deg,#102c43,#061526 75%)!important;border:1px solid #9ed3df99!important;border-radius:14px!important;
+  box-shadow:0 0 0 100vmax #020813d9,0 10px 40px #0008!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-deck{
+  position:relative!important;inset:auto!important;display:grid!important;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)!important;grid-template-rows:44px minmax(0,1fr)!important;
+  gap:6px 10px!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;z-index:1!important;
+  background:none!important;border:0!important;box-shadow:none!important;transform:none!important;pointer-events:auto!important;
+}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk1360-utility-bay,.tk1936-deck,.tk1936-head,.tk1936-detail)::before,
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) :is(.tk1360-utility-bay,.tk1936-deck,.tk1936-head,.tk1936-detail)::after{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-head{position:relative!important;inset:auto!important;grid-column:1/-1!important;grid-row:1!important;display:flex!important;align-items:center!important;min-height:0!important;height:44px!important;margin:0!important;padding:0 110px 0 10px!important;background:none!important;border:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-head-copy b{font:750 16px/22px system-ui,sans-serif!important;letter-spacing:.04em!important;color:#f8e1ac!important;text-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-page{position:absolute!important;inset:13px 58px auto auto!important;display:block!important;transform:none!important;font:600 11px/18px system-ui,sans-serif!important;color:#b1ccd8!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-page .tk1936-dot{display:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-stage{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:2!important;display:grid!important;grid-template-columns:36px minmax(0,1fr) 36px!important;grid-template-rows:minmax(0,1fr)!important;gap:4px!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-nav{position:relative!important;inset:auto!important;align-self:stretch!important;width:36px!important;height:100%!important;min-height:44px!important;border:0!important;border-radius:9px!important;background:#183a52aa!important;box-shadow:none!important;color:#a7d5df!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-nav:disabled{opacity:.3!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-cards{position:relative!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:6px!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-card{position:relative!important;inset:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(32px,1fr) auto 18px!important;gap:4px!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;padding:8px 5px!important;margin:0!important;overflow:hidden!important;border:1px solid #6594b277!important;border-radius:10px!important;background:linear-gradient(160deg,#163c59,#0a2038)!important;box-shadow:inset 0 1px #c7efff14!important;transform:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-card.is-selected{border-color:#e2c586!important;background:linear-gradient(160deg,#31525c,#152c40)!important;box-shadow:inset 0 0 0 1px #e2c58644!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-art{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;align-self:stretch!important;justify-self:stretch!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-art img{width:100%!important;height:100%!important;object-fit:contain!important;filter:drop-shadow(0 4px 8px #071324)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-card-title{position:static!important;grid-column:1!important;grid-row:2!important;width:100%!important;margin:0!important;padding:0!important;text-align:center!important;font:650 12px/15px system-ui,sans-serif!important;color:#eaf5fc!important;white-space:normal!important;text-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-count{position:static!important;grid-column:1!important;grid-row:3!important;justify-self:center!important;align-self:center!important;width:auto!important;height:18px!important;min-width:26px!important;padding:0 5px!important;border:1px solid #c4b67e77!important;border-radius:8px!important;font:600 11px/16px system-ui,sans-serif!important;color:#f8e1ac!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-detail{position:relative!important;inset:auto!important;grid-column:2!important;grid-row:2!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 44px!important;gap:8px!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;margin:0!important;padding:8px!important;overflow:hidden!important;background:#04132366!important;border:1px solid #7093aa44!important;border-radius:10px!important;box-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-detail-copy{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0 4px 4px 0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:thin!important;scrollbar-color:#8bc9d0 #0b2138!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-detail-top{display:flex!important;align-items:baseline!important;gap:6px!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-detail-title{font:700 14px/19px system-ui,sans-serif!important;color:#f3dfae!important;text-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-detail-desc{margin:6px 0 0!important;font:500 13px/1.4 system-ui,sans-serif!important;color:#cddfe9!important;white-space:pre-line!important;text-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-actions{grid-column:1!important;grid-row:2!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-action{width:100%!important;height:44px!important;min-height:44px!important;padding:4px!important;font:650 12px/15px system-ui,sans-serif!important;border:1px solid #7da9be88!important;border-radius:8px!important;background:linear-gradient(#214861,#143349)!important;color:#edf8fc!important;white-space:normal!important;box-shadow:inset 0 1px #fff2!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-action.primary{background:linear-gradient(#efd18b,#b88b43)!important;border-color:#f7dca1!important;color:#2d251a!important;text-shadow:none!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk1936-action:disabled{opacity:.45!important;filter:saturate(.35)!important;}
+html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk-v337-backdrop) .tk-m2324-inventory-close{position:absolute!important;inset:6px 6px auto auto!important;z-index:100!important;display:grid!important;place-items:center!important;width:44px!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;pointer-events:auto!important;touch-action:manipulation!important;border:1px solid #8bb7c888!important;border-radius:10px!important;background:#18374c!important;font:400 27px/1 system-ui,sans-serif!important;color:#f0f8fa!important;}
+
+html.tk-v2324-phone .tk-m2336-lightbox{box-sizing:border-box!important;position:fixed!important;inset:0!important;width:var(--tk-m2324-width)!important;height:var(--tk-m2324-height)!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:max(4px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important;border:0!important;border-radius:0!important;background:#040c19f7!important;color:#eaf4fb!important;z-index:2147483000!important;overflow:hidden!important;grid-template-rows:44px minmax(0,1fr)!important;gap:3px!important;}
+html.tk-v2324-phone .tk-m2336-lightbox[open]:not([hidden]){display:grid!important;}
+html.tk-v2324-phone .tk-m2336-lightbox:not([open]),html.tk-v2324-phone .tk-m2336-lightbox[hidden]{display:none!important;}
+html.tk-v2324-phone .tk-m2336-lightbox::backdrop{background:#020710f5;}
+html.tk-v2324-phone .tk-m2336-lightbox>header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;min-width:0!important;padding:0 0 0 6px!important;}
+html.tk-v2324-phone .tk-m2336-lightbox>header>div{min-width:0!important;}
+html.tk-v2324-phone .tk-m2336-lightbox small{display:block!important;font:500 10px/13px system-ui,sans-serif!important;color:#9eb9cc!important;}
+html.tk-v2324-phone .tk-m2336-lightbox h2{margin:0!important;font:600 14px/19px system-ui,sans-serif!important;color:#f4dfb0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+html.tk-v2324-phone .tk-m2336-lightbox button{flex:0 0 44px!important;width:44px!important;height:44px!important;padding:0!important;border:1px solid #8db7c766!important;border-radius:10px!important;background:#15354b!important;color:#edf7ff!important;font:400 28px/1 system-ui,sans-serif!important;touch-action:manipulation!important;}
+html.tk-v2324-phone .tk-m2336-lightbox>img{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;margin:0!important;border:0!important;transform:none!important;}
+html.tk-v2324-phone :is(.tk-m2336-lightbox button,.tk-m2336-image-open,.tk-m2324-inventory-close):focus-visible{outline:2px solid #f9df9a!important;outline-offset:-3px!important;}
 </style>
 <script id="tk-v2324-mobile-runtime">
 (function(){
@@ -143737,7 +143884,8 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
     toggle(stage,'tk-m2324-inventory-open',false);
     var button=stage.querySelector('[data-tk-mobile="inventory"]');
     if(button)setAttr(button,'aria-expanded','false');
-    var bay=stage.querySelector('.tk1360-utility-bay');if(bay)setAttr(bay,'aria-hidden','true');
+    var bay=stage.querySelector('.tk1360-utility-bay');if(bay){setAttr(bay,'aria-hidden','true');bay.inert=true;}
+    inventoryIsolation(stage,false);
   }
   function installStage(stage){
     stages.add(stage);
@@ -143904,11 +144052,182 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
     document.querySelectorAll('#infoFioInput,.tk-v337-backdrop #tkV1396NameInput').forEach(preparePhoneNickname);
   }
 
+  // Phone interaction owns only scrolling and auxiliary windows; answers,
+  // inventory effects, appearance selection and animations stay in the engines.
+  var phoneScrollSelector='#hero,#hudPanel,.tkqa-fold,.tkqa-grid,.modal-body,.tk-v337-view,.tk1310-body,.tk1936-detail-copy,.tk1361-stats-drawer,.tk-v1416-review-body,.tk-v568-map-side,.tk-v568-map-canvas-wrap';
+  var phoneDrag=null,phoneMomentum=0,phoneSuppress=null;
+  function stopPhoneMomentum(){cancelAnimationFrame(phoneMomentum);phoneMomentum=0;}
+  function scrollOwners(target){
+    var result=[];
+    for(var n=target;n&&n!==document.body;n=n.parentElement){
+      if(n.matches&&n.matches(phoneScrollSelector)&&n.clientHeight>0&&n.scrollHeight>n.clientHeight+1){
+        var style=getComputedStyle(n);
+        if(style.display!=='none'&&style.visibility!=='hidden'&&/auto|scroll/.test(style.overflowY))result.push(n);
+      }
+    }
+    return result;
+  }
+  function scrollPhone(node,delta){
+    var before=node.scrollTop,max=Math.max(0,node.scrollHeight-node.clientHeight);
+    node.scrollTop=Math.max(0,Math.min(max,before+delta));return node.scrollTop-before;
+  }
+  window.addEventListener('touchstart',function(e){
+    stopPhoneMomentum();phoneDrag=null;phoneSuppress=null;
+    if(!api.landscape()||e.touches.length!==1||!e.target.closest||e.target.closest('input,textarea,select,.tk-m2335-keyboard,video,canvas'))return;
+    var owners=scrollOwners(e.target);if(!owners.length)return;
+    var t=e.touches[0];phoneDrag={id:t.identifier,owners:owners,x:t.clientX,y:t.clientY,lastY:t.clientY,lastAt:performance.now(),velocity:0,moved:false};
+  },{capture:true,passive:true});
+  window.addEventListener('touchmove',function(e){
+    var drag=phoneDrag;if(!drag)return;
+    if(e.touches.length!==1){phoneDrag=null;return;}
+    var t=e.touches[0];if(t.identifier!==drag.id)return;
+    var dx=t.clientX-drag.x,dy=t.clientY-drag.y;
+    if(!drag.moved){
+      if(Math.max(Math.abs(dx),Math.abs(dy))<6)return;
+      if(Math.abs(dx)>Math.abs(dy)){phoneDrag=null;return;}
+      var delta=drag.y-t.clientY;
+      drag.node=drag.owners.find(function(n){return delta<0?n.scrollTop>0:n.scrollTop<n.scrollHeight-n.clientHeight-1;})||drag.owners[0];
+      drag.moved=true;
+    }
+    if(!drag.node.isConnected){phoneDrag=null;return;}
+    // Write to the real overflow container. Do not depend on browser gesture
+    // routing through the legacy fixed game and overlay layers.
+    var now=performance.now(),dt=Math.max(8,now-drag.lastAt),amount=drag.lastY-t.clientY;
+    var actual=scrollPhone(drag.node,amount);
+    drag.velocity=Math.max(-2.4,Math.min(2.4,.25*drag.velocity+.75*actual/dt));
+    drag.lastY=t.clientY;drag.lastAt=now;
+    if(e.cancelable)e.preventDefault();
+  },{capture:true,passive:false});
+  function endPhoneDrag(e){
+    var drag=phoneDrag;phoneDrag=null;if(!drag||!drag.moved)return;
+    phoneSuppress={node:drag.node,until:performance.now()+450};
+    if(e.type==='touchcancel'||performance.now()-drag.lastAt>100)return;
+    var speed=drag.velocity,last=performance.now(),start=last;
+    function coast(now){
+      if(!drag.node.isConnected||!api.landscape()||now-start>650){phoneMomentum=0;return;}
+      var dt=Math.min(32,now-last);last=now;speed*=Math.pow(.90,dt/16);
+      if(Math.abs(speed)<.025||Math.abs(scrollPhone(drag.node,speed*dt))<.1){phoneMomentum=0;return;}
+      phoneMomentum=requestAnimationFrame(coast);
+    }
+    phoneMomentum=requestAnimationFrame(coast);
+  }
+  window.addEventListener('touchend',endPhoneDrag,{capture:true,passive:true});
+  window.addEventListener('touchcancel',endPhoneDrag,{capture:true,passive:true});
+  document.body.addEventListener('click',function(e){
+    if(phoneSuppress&&performance.now()<phoneSuppress.until&&e.detail!==0&&phoneSuppress.node.contains(e.target)){
+      e.preventDefault();e.stopImmediatePropagation();phoneSuppress=null;
+    }
+  },true);
+  window.addEventListener('wheel',function(e){
+    if(!api.landscape()||e.ctrlKey||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
+    var owners=scrollOwners(e.target);if(!owners.length)return;
+    stopPhoneMomentum();var delta=e.deltaY*(e.deltaMode===1?18:e.deltaMode===2?owners[0].clientHeight:1);
+    scrollPhone(owners[0],delta);if(e.cancelable)e.preventDefault();e.stopPropagation();
+  },{capture:true,passive:false});
+
+  function inventoryIsolation(stage,on){
+    if(on){
+      if(!stage.__tkM2336Inert)stage.__tkM2336Inert=new Map();
+      Array.from(stage.children).forEach(function(node){
+        if(node.matches('.tk1360-utility-bay'))return;
+        if(!stage.__tkM2336Inert.has(node))stage.__tkM2336Inert.set(node,node.inert);
+        node.inert=true;
+      });
+    }else if(stage.__tkM2336Inert){
+      stage.__tkM2336Inert.forEach(function(previous,node){node.inert=previous;});stage.__tkM2336Inert=null;
+    }
+    stopPhoneMomentum();
+  }
+  var imageViewer=null,imageOrigin=null,imageReturn=null,imagePhase=null;
+  // Legacy game Escape handlers listen on document capture. Auxiliary dialog
+  // keys must finish at window capture before those handlers can close the game.
+  function phoneDialogKey(e){
+    if(!imageViewer||!imageViewer.open||imageViewer.hidden){
+      var stage=document.querySelector('.tk-m2324-inventory-open');
+      if(stage&&e.key==='Escape'){
+        e.preventDefault();e.stopImmediatePropagation();closeInventory(stage);
+        var opener=stage.querySelector('[data-tk-mobile="inventory"]');if(opener)opener.focus({preventScroll:true});
+      }
+      return;
+    }
+    if(e.key==='Escape'){
+      e.preventDefault();e.stopImmediatePropagation();closePhoneImage();
+    }else if(e.key==='Tab'){
+      e.preventDefault();e.stopImmediatePropagation();imageViewer.querySelector('button').focus();
+    }
+  }
+  window.addEventListener('keydown',phoneDialogKey,true);
+  // IT/Phish intentionally filter global window/document input listeners.
+  // Their owned controls therefore also delegate from body, before the root.
+  document.body.addEventListener('keydown',phoneDialogKey,true);
+  function closePhoneImage(){
+    if(!imageViewer)return;
+    if(imageViewer.open&&typeof imageViewer.close==='function')imageViewer.close();
+    else imageViewer.removeAttribute('open');
+    imageViewer.hidden=true;imageOrigin=null;
+    var target=imageReturn;imageReturn=null;
+    if(target&&target.isConnected&&api.landscape())target.focus({preventScroll:true});
+  }
+  function openPhoneImage(stage){
+    if(!api.landscape()||stage.hasAttribute('data-tk-v1414-final'))return;
+    var source=stage.querySelector('.tk1310-qimg'),src=source&&source.getAttribute('src')&&(source.currentSrc||source.src);
+    if(!src||source.hidden)return;
+    if(!imageViewer){
+      imageViewer=document.createElement('dialog');imageViewer.className='tk-m2336-lightbox';imageViewer.id='tkPhoneImage2336';
+      imageViewer.setAttribute('aria-labelledby','tkPhoneImageTitle2336');imageViewer.setAttribute('aria-modal','true');
+      imageViewer.innerHTML='<header><div><small>Иллюстрация задания</small><h2 id="tkPhoneImageTitle2336"></h2></div><button type="button" aria-label="Закрыть изображение">×</button></header><img alt="">';
+      imageViewer.querySelector('button').addEventListener('click',closePhoneImage);
+      imageViewer.addEventListener('cancel',function(e){e.preventDefault();closePhoneImage();});
+      imageViewer.addEventListener('click',function(e){if(e.target===imageViewer)closePhoneImage();});
+      imageViewer.addEventListener('keydown',function(e){
+        if(e.key==='Escape'){e.preventDefault();closePhoneImage();}
+        else if(e.key==='Tab'){e.preventDefault();imageViewer.querySelector('button').focus();}
+      });
+      document.body.appendChild(imageViewer);
+    }
+    stopPhoneMomentum();imageOrigin=source;imageReturn=stage.querySelector('.tk-m2336-image-open');imagePhase=stage.getAttribute('data-tk1357-phase');
+    if(!source.__tkM2336ViewerBound){source.__tkM2336ViewerBound=true;source.addEventListener('load',function(){if(imageOrigin===source)schedule();});}
+    var title=stage.querySelector('.tk1310-title');
+    imageViewer.querySelector('h2').textContent=title&&title.textContent.trim()||'Иллюстрация задания';
+    var big=imageViewer.querySelector('img');big.src=src;big.alt=source.alt||imageViewer.querySelector('h2').textContent;
+    imageViewer.hidden=false;
+    try{if(imageViewer.showModal)imageViewer.showModal();else imageViewer.setAttribute('open','');}catch(_e){imageViewer.setAttribute('open','');}
+    imageViewer.querySelector('button').focus({preventScroll:true});
+  }
+  document.body.addEventListener('click',function(e){
+    if(!api.landscape()||!e.target.closest)return;
+    var button=e.target.closest('.tk-m2336-image-open,.tk1310-qimg');
+    if(!button)return;var stage=button.closest('.tk1310-stage');if(!stage)return;
+    e.preventDefault();e.stopImmediatePropagation();openPhoneImage(stage);
+  },true);
+  window.addEventListener('tk:mobileorientation',function(e){
+    stopPhoneMomentum();phoneDrag=null;
+    if(!e.detail.landscape)closePhoneImage();
+  });
+  document.addEventListener('visibilitychange',function(){if(document.hidden){stopPhoneMomentum();phoneDrag=null;}});
+  function preparePhone2336(){
+    document.querySelectorAll('#infoBackdrop.tk1357-active .tk1310-stage,.tk-v1397-stage-host.tk1357-active .tk1310-stage').forEach(function(stage){
+      var scene=stage.querySelector('.tk1310-scene'),source=scene&&scene.querySelector('.tk1310-qimg');
+      if(scene&&source&&!scene.querySelector('.tk-m2336-image-open')){
+        var b=document.createElement('button');b.type='button';b.className='tk-m2336-image-open';b.textContent='⛶';
+        b.setAttribute('aria-label','Увеличить иллюстрацию на весь экран');b.setAttribute('aria-haspopup','dialog');scene.appendChild(b);
+      }
+      var bay=stage.querySelector('.tk1360-utility-bay');
+      if(bay&&bay.inert===stage.classList.contains('tk-m2324-inventory-open'))bay.inert=!stage.classList.contains('tk-m2324-inventory-open');
+    });
+    if(imageOrigin){
+      var owner=imageOrigin.closest('.tk-v337-backdrop,#infoSecGame'),stage=imageOrigin.closest('.tk1310-stage');
+      if(!imageOrigin.isConnected||!api.landscape()||!imageOrigin.closest('.tk1357-active')||!owner||!owner.classList.contains('is-open')||!stage||stage.getAttribute('data-tk1357-phase')!==imagePhase)closePhoneImage();
+      else {var next=imageOrigin.currentSrc||imageOrigin.src,big=imageViewer.querySelector('img');if(next&&big.src!==next)big.src=next;}
+    }
+  }
+
   function sync(){
     queued=false;if(!document.body)return;
     api.viewport();
     preparePhoneViews();
     preparePhone2335();
+    preparePhone2336();
     var landscape=api.landscape();toggle(html,'tk-v2324-landscape',landscape);
     toggle(html,'tk-mobile-landscape-v341',landscape);toggle(document.body,'tk-mobile-landscape-v341',landscape);
     if(!gate){
@@ -143969,7 +144288,8 @@ html.tk-v2324-phone body :is(#infoSecGame,.tk-v337-backdrop):is(#infoSecGame,.tk
       if(!stage)return;
       if(action==='inventory'){
         var open=!stage.classList.contains('tk-m2324-inventory-open');toggle(stage,'tk-m2324-inventory-open',open);
-        setAttr(button,'aria-expanded',String(open));var bay=stage.querySelector('.tk1360-utility-bay');if(bay)setAttr(bay,'aria-hidden',String(!open));
+        setAttr(button,'aria-expanded',String(open));var bay=stage.querySelector('.tk1360-utility-bay');if(bay){setAttr(bay,'aria-hidden',String(!open));bay.inert=!open;}
+        inventoryIsolation(stage,open);
         if(open){var close=stage.querySelector('[data-tk-mobile="inventory-close"]');if(close)close.focus({preventScroll:true});}
       }else if(action==='inventory-close'){
         closeInventory(stage);var opener=stage.querySelector('[data-tk-mobile="inventory"]');if(opener)opener.focus({preventScroll:true});
