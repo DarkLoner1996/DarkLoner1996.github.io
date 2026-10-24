@@ -3,7 +3,7 @@
 
 <html class="tk-v1356-cinema-locked tk-v1922-home-scroll-real" lang="ru">
 <head>
-<meta name="tk-build" content="v2337-mobile-home-native-scroll">
+<meta name="tk-build" content="v2338-mobile-it-phish-direct-launch">
 <meta id="tk-v2301-viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 
@@ -209,7 +209,7 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
     if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
     return true;
   }
-  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2337'};
+  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2338'};
   if(!phone)return;
   window.__tkV2301DesktopTablet=false;window.__tkV2300VirtualDesktop=false;
   html.classList.add('tk-v2324-phone','tk-v2326-phone');
@@ -274,6 +274,83 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
       event.preventDefault();event.stopImmediatePropagation();
     },true);
   });
+  // A phone tap has one owner. Register before the legacy document routers;
+  // invoke the engine directly instead of translating a tap into another click.
+  var phoneLaunchGesture=null,phoneLaunchClickUntil=0;
+  function phoneLaunchHit(target){
+    if(target&&target.nodeType!==1)target=target.parentElement;
+    if(!target||!target.closest)return null;
+    var card=target.closest('.side-chip--it-min,.side-chip--phish-min');
+    var button=target.closest('#openItGame,#openPhishGame')||(card&&card.querySelector('#openItGame,#openPhishGame'));
+    return button?{button:button,key:button.id==='openPhishGame'?'phish':'it'}:null;
+  }
+  function phoneLaunchReady(){
+    return landscape()&&html.classList.contains('tk-mobile-home-ready')&&
+      !html.classList.contains('tk-license-open')&&!html.classList.contains('tk-mobile-game-open')&&
+      typeof api.openTraining==='function';
+  }
+  function stopPhoneLaunchEvent(event){
+    if(event.cancelable)event.preventDefault();event.stopImmediatePropagation();
+  }
+  function launchPhoneTraining(hit,event){
+    if(!hit||!phoneLaunchReady()||!api.openTraining(hit.key))return false;
+    stopPhoneLaunchEvent(event);return true;
+  }
+  function beginPhoneLaunch(event,point,id){
+    phoneLaunchClickUntil=0;phoneLaunchGesture=null;
+    if(!point||!phoneLaunchReady())return;
+    var hit=phoneLaunchHit(event.target);if(!hit)return;
+    phoneLaunchGesture={hit:hit,id:id,x:point.clientX,y:point.clientY,moved:false};
+  }
+  function movePhoneLaunch(point,id){
+    var gesture=phoneLaunchGesture;if(!gesture||gesture.id!==id||!point)return;
+    if(Math.hypot(point.clientX-gesture.x,point.clientY-gesture.y)>10)gesture.moved=true;
+  }
+  function endPhoneLaunch(event,point,id){
+    var gesture=phoneLaunchGesture;if(!gesture||gesture.id!==id)return;
+    movePhoneLaunch(point,id);phoneLaunchGesture=null;
+    var hit=phoneLaunchHit(event.target);
+    if(gesture.moved||!hit||hit.button!==gesture.hit.button){
+      phoneLaunchClickUntil=performance.now()+500;return;
+    }
+    if(launchPhoneTraining(hit,event))phoneLaunchClickUntil=performance.now()+500;
+  }
+  window.addEventListener('pointerdown',function(event){
+    if(event.isPrimary===false||event.button!==0){phoneLaunchGesture=null;return;}
+    beginPhoneLaunch(event,event,event.pointerId);
+  },{capture:true,passive:true});
+  window.addEventListener('pointermove',function(event){movePhoneLaunch(event,event.pointerId);},{capture:true,passive:true});
+  window.addEventListener('pointerup',function(event){endPhoneLaunch(event,event,event.pointerId);},{capture:true,passive:false});
+  window.addEventListener('pointercancel',function(){
+    if(phoneLaunchGesture)phoneLaunchClickUntil=performance.now()+500;phoneLaunchGesture=null;
+  },{capture:true,passive:true});
+  // Touch-only browsers do not emit Pointer Events. Keep the same drag guard.
+  if(!window.PointerEvent){
+    window.addEventListener('touchstart',function(event){
+      if(event.touches.length!==1){phoneLaunchGesture=null;return;}
+      var point=event.touches[0];beginPhoneLaunch(event,point,point.identifier);
+    },{capture:true,passive:true});
+    window.addEventListener('touchmove',function(event){
+      if(event.touches.length!==1){phoneLaunchGesture=null;return;}
+      var point=event.touches[0];movePhoneLaunch(point,point.identifier);
+    },{capture:true,passive:true});
+    window.addEventListener('touchend',function(event){
+      var point=event.changedTouches[0];if(point)endPhoneLaunch(event,point,point.identifier);
+    },{capture:true,passive:false});
+    window.addEventListener('touchcancel',function(){
+      if(phoneLaunchGesture)phoneLaunchClickUntil=performance.now()+500;phoneLaunchGesture=null;
+    },{capture:true,passive:true});
+  }
+  window.addEventListener('click',function(event){
+    if(event.detail>0&&performance.now()<phoneLaunchClickUntil){
+      phoneLaunchClickUntil=0;stopPhoneLaunchEvent(event);return;
+    }
+    // Keyboard activation and browsers which deliver click without pointerup.
+    launchPhoneTraining(phoneLaunchHit(event.target),event);
+  },true);
+  window.addEventListener('tk:mobileorientation',function(){phoneLaunchGesture=null;phoneLaunchClickUntil=0;});
+  document.addEventListener('visibilitychange',function(){if(document.hidden){phoneLaunchGesture=null;phoneLaunchClickUntil=0;}});
+
 })();
 </script>
 <style id="tk-v2326-mobile-startup">
@@ -89474,6 +89551,17 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
   }
   function v540NamesToUrls(names, dirs){
     const out=[]; const seen=Object.create(null);
+    if(window.TKMobile2324&&window.TKMobile2324.phone){
+      // Every consumer of this list is the 180-entry smart-image loader.
+      // Keep the exact same candidates in order without generating unused URLs.
+      for(const name of (names||[])){
+        for(const src of v540AssetCandidateUrls(name, dirs)){
+          v540PushUnique(out,seen,src);
+          if(out.length>=180)return out;
+        }
+      }
+      return out;
+    }
     (names||[]).forEach(function(name){ v540AssetCandidateUrls(name, dirs).forEach(function(src){ v540PushUnique(out,seen,src); }); });
     return out;
   }
@@ -91820,6 +91908,11 @@ function v534BuildAnswerBox(view, choice, ok, skip){
     const tele=['tk-teleport-running','tk-v541-teleport-running','tk-v540-teleport-running','tk-v539-teleport-running','tk-v538-teleport-running','tk-v537-teleport-running','tk-v535-teleport-running','tk-v530-teleport-running']; tele.forEach(cls=>{ document.documentElement.classList.remove(cls); document.body.classList.remove(cls); });
   }
   function v1397Deactivate(closing){
+    if(window.TKMobile2324&&window.TKMobile2324.phone&&v1397Stage&&v1397Stage.hasAttribute('data-tk-v1414-final')){
+      // The shared stage survives between games. Let its existing final-screen
+      // controller clean up once the training menu replaces the completed run.
+      try{window.TK_GAMES_V1415_FINALS&&window.TK_GAMES_V1415_FINALS.apply();}catch(_e){}
+    }
     if(v1397Observer){ try{v1397Observer.disconnect();}catch(_e){} v1397Observer=null; }
     if(v1397Raf){ cancelAnimationFrame(v1397Raf); v1397Raf=0; }
     if(v1397Turn){ try{v1397Turn.remove();}catch(_e){} v1397Turn=null; } clearTimeout(v1397TurnTimer);
@@ -91914,6 +92007,21 @@ function v534BuildAnswerBox(view, choice, ok, skip){
       cleanup:function(){ try{ document.querySelectorAll('.tk-v539-itphish-portal,.tk-v538-itphish-portal,.tk-v537-itphish-portal,.tk-v535-itphish-portal,.tk-v530-itphish-portal').forEach(function(n){n.remove();}); document.body.classList.remove('tk-teleport-running','tk-v539-teleport-running'); document.documentElement.classList.remove('tk-teleport-running','tk-v539-teleport-running'); }catch(e){ console.error(e); } }
     };
   }catch(_e){}
+  // Phone launchers call the initialized engine directly. Desktop/tablet keep
+  // their existing routers and input contracts.
+  if(window.TKMobile2324&&window.TKMobile2324.phone){
+    window.TKMobile2324.openTraining=function(key){
+      if((key!=='it'&&key!=='phish')||!window.TKMobile2324.landscape())return false;
+      if(current&&current.key===key&&root&&!root.hidden&&root.classList.contains('is-open'))return true;
+      var opened=openEngine(key);
+      if(opened)requestAnimationFrame(function(){
+        if(root&&current&&current.key===key&&root.classList.contains('is-open')&&state&&state.step==='menu'){
+          var start=root.querySelector('[data-action="start"]');if(start)start.focus({preventScroll:true});
+        }
+      });
+      return opened;
+    };
+  }
   function init(){ try{ v514Diag(); }catch(_e){} bindOpen(); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init, {once:true}); else init();
 })();
@@ -127450,6 +127558,7 @@ html.tk-v1386-fhd body #infoSecGame#infoSecGame.mg-backdrop .cool-phish-root #in
 <script id="tk-v1389-it-phish-menu-play-isolated-runtime">
 (function(){
   'use strict';
+  if(window.TKMobile2324&&window.TKMobile2324.phone)return;
   var activeRoot=null, rootObserver=null, frameObserver=null, observedPanel=null, scheduled=false;
   var assets={read:false,frameUrl:'',nextUrl:''};
   function isRoot(node){
