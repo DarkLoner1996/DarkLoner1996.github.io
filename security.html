@@ -3,7 +3,7 @@
 
 <html class="tk-v1356-cinema-locked tk-v1922-home-scroll-real" lang="ru">
 <head>
-<meta name="tk-build" content="v2338-mobile-it-phish-direct-launch">
+<meta name="tk-build" content="v2339-mobile-game-modal-layer">
 <meta id="tk-v2301-viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 
@@ -209,7 +209,7 @@ html.tk-v2300-virtual-desktop.tk-v2308-boot-handoff body > #tkLoader#tkLoader.tk
     if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
     return true;
   }
-  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2338'};
+  var api=window.TKMobile2324={phone:phone,landscape:landscape,version:'v2339'};
   if(!phone)return;
   window.__tkV2301DesktopTablet=false;window.__tkV2300VirtualDesktop=false;
   html.classList.add('tk-v2324-phone','tk-v2326-phone');
@@ -90198,7 +90198,9 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
 
   function ensureRoot(){
     if(root) return root;
-    root=document.createElement('div');
+    const phone=!!(window.TKMobile2324&&window.TKMobile2324.phone);
+    root=document.createElement(phone?'dialog':'div');
+    if(phone){root.id='tkPhoneTraining2339';root.setAttribute('aria-label','Игровая тренировка');}
     root.className='tk-v337-backdrop tk-v1389-premium tk-v1392-isolated tk-v1393-infobez-clone tk-v1394-infobez-contract tk-v1395-full-flow-parity';
      
     if(window.__tkV2301DesktopTablet)root.id='tkV2309ModernSetup';
@@ -90208,7 +90210,17 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     root.querySelector('.tk-v337-reset').addEventListener('click', restartToAvatar);
     root.querySelector('[data-map-close]').addEventListener('click', () => root.querySelector('.tk-v337-map-modal').classList.remove('is-open'));
     root.addEventListener('click', (e)=>{ if(e.target===root){ try{e.preventDefault(); e.stopPropagation();}catch(_e){} } });
-    root.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeEngine(); });
+    root.addEventListener('keydown', (e)=>{
+      if(e.key!=='Escape')return;
+      if(phone)e.preventDefault();
+      closeEngine();
+    });
+    if(phone){
+      root.addEventListener('cancel',function(e){e.preventDefault();closeEngine(e);});
+      root.addEventListener('close',function(e){
+        if(!root.open&&root.classList.contains('is-open'))closeEngine(e);
+      });
+    }
     return root;
   }
   function openEngine(key){
@@ -90252,6 +90264,13 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     render();
     lockPage(true);
     root.classList.add('is-open');
+    if(window.TKMobile2324&&window.TKMobile2324.phone){
+      root.setAttribute('aria-label',current.title+' — тренировка');
+      if(!root.open){
+        if(typeof root.showModal==='function')root.showModal();
+        else root.setAttribute('open','');
+      }
+    }
     return true;
   }
   function closeEngine(ev){
@@ -90259,7 +90278,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     try{ if(ev){ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); } }catch(_e){}
     
 
-    if(current && state && state.step!=='menu' && root && root.classList.contains('is-open')){
+    if(current && state && state.step!=='menu' && root && root.classList.contains('is-open') && (!(window.TKMobile2324&&window.TKMobile2324.phone)||root.open)){
       return returnToTrainingMenu();
     }
     try{ v1397Deactivate(true); }catch(_e){}
@@ -90274,6 +90293,9 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
         root.removeAttribute('data-tk-v345-menu');
         root.removeAttribute('data-tk-v372-first-frame');
         root.removeAttribute('data-tk-v373-stable-menu');
+        if(window.TKMobile2324&&window.TKMobile2324.phone&&root.open){
+          if(typeof root.close==='function')root.close();else root.removeAttribute('open');
+        }
         root.hidden=true;
         root.setAttribute('hidden','hidden');
         try{ root.inert=true; }catch(_er){}
@@ -128161,12 +128183,12 @@ html.tk-v1386-fhd body #infoSecGame#infoSecGame.mg-backdrop .cool-phish-root #in
 
 <style id="tk-v1392-it-phish-infobez-motion-performance-style">
 
-html.tk-v1392-game-open body > :not(.tk-v337-backdrop){
+html:where(:not(.tk-v2324-phone)).tk-v1392-game-open body > :not(.tk-v337-backdrop){
   content-visibility:hidden!important;
   contain:strict!important;
 }
-html.tk-v1392-game-open body > :not(.tk-v337-backdrop),
-html.tk-v1392-game-open body > :not(.tk-v337-backdrop) *{
+html:where(:not(.tk-v2324-phone)).tk-v1392-game-open body > :not(.tk-v337-backdrop),
+html:where(:not(.tk-v2324-phone)).tk-v1392-game-open body > :not(.tk-v337-backdrop) *{
   animation-play-state:paused!important;
   transition:none!important;
 }
@@ -143992,6 +144014,32 @@ html.tk-v2324-phone .tk-m2336-lightbox h2{margin:0!important;font:600 14px/19px 
 html.tk-v2324-phone .tk-m2336-lightbox button{flex:0 0 44px!important;width:44px!important;height:44px!important;padding:0!important;border:1px solid #8db7c766!important;border-radius:10px!important;background:#15354b!important;color:#edf7ff!important;font:400 28px/1 system-ui,sans-serif!important;touch-action:manipulation!important;}
 html.tk-v2324-phone .tk-m2336-lightbox>img{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;margin:0!important;border:0!important;transform:none!important;}
 html.tk-v2324-phone :is(.tk-m2336-lightbox button,.tk-m2336-image-open,.tk-m2324-inventory-close):focus-visible{outline:2px solid #f9df9a!important;outline-offset:-3px!important;}
+
+/* Phone training windows live in the browser modal layer, above home and its
+   fixed widgets. Keep the existing menu, character steps and game layout. */
+html.tk-v2324-phone body #tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339 {
+  box-sizing:border-box!important;
+  position:fixed!important;
+  inset:auto!important;
+  top:var(--tk-m2325-top,0px)!important;
+  left:var(--tk-m2325-left,0px)!important;
+  right:auto!important;bottom:auto!important;
+  width:var(--tk-m2324-width,100vw)!important;
+  height:var(--tk-m2324-height,100dvh)!important;
+  min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  transform:none!important;translate:none!important;scale:none!important;
+  overflow:hidden!important;contain:none!important;content-visibility:visible!important;
+  background:#041127!important;color:#eef6ff!important;
+  z-index:2147482500!important;
+}
+html.tk-v2324-phone body #tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339:not([open]),
+html.tk-v2324-phone body #tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339#tkPhoneTraining2339[hidden] {display:none!important;}
+html.tk-v2324-phone body #tkPhoneTraining2339[open].is-open {
+  display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+html.tk-v2324-phone body #tkPhoneTraining2339::backdrop {background:#041127;}
 </style>
 <script id="tk-v2324-mobile-runtime">
 (function(){
